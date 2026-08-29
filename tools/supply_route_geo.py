@@ -912,8 +912,160 @@ BATCH2_RED_REAR: dict[str, tuple[type, list[Route]]] = {
 }
 
 
+# --- Afghanistan - Islam Qala (1998): the three axes between the eastern airhead
+# --- and the Iranian-held west. Endpoints are the exact control-point XY from the
+# --- pydcs airport export (and, for FOB Yakawlang, the marker the build tool
+# --- places from the town's real lat/lon). Corridors follow the real network:
+# --- the A01 Ring Road, the Ghorband/Shibar route into Bamyan, the central
+# --- highlands track through Yakawlang, and the Hari Rud down to Herat.
+IQ_BAGRAM = (125344.0, 272394.0)
+IQ_KABUL = (82815.1, 270144.2)
+IQ_BAMYAN = (102788.3, 140589.5)
+IQ_GHAZNI = (-39285.5, 203021.7)
+IQ_YAKAWLANG = (91773.4, 64280.1)
+IQ_CHAGHCHARAN = (63224.1, -91680.8)
+IQ_QALA_I_NAW = (111818.2, -289403.4)
+IQ_HERAT = (25820.9, -371274.6)
+IQ_SHINDAND = (-64594.5, -368871.5)
+IQ_FARAH = (-178644.1, -378451.5)
+IQ_TARINKOT = (-148524.9, -31352.2)
+
+ISLAM_QALA_ROUTES = [
+    # -- the rear link, so the airhead is one connected piece
+    Route(
+        "Bagram -> Kabul  (the Kabul-Charikar highway, 26 nm)",
+        IQ_BAGRAM,
+        [(34.82, 69.25)],
+        IQ_KABUL,
+    ),
+    # -- CENTRAL AXIS: Kabul to Herat through the highlands. The main effort.
+    Route(
+        "Kabul -> Bamyan  (Charikar, up the Ghorband valley, over the Shibar Pass)",
+        IQ_KABUL,
+        [
+            (34.75, 69.20),
+            (35.01, 69.17),
+            (35.05, 68.85),
+            (34.98, 68.40),
+            (34.92, 67.98),
+        ],
+        IQ_BAMYAN,
+        labels=[
+            "Kabul CP",
+            "N of Kabul",
+            "Charikar",
+            "Ghorband valley",
+            "Ghorband, upper",
+            "Shibar Pass",
+            "Bamyan CP",
+        ],
+    ),
+    Route(
+        "Bamyan -> FOB Yakawlang  (the central highlands track, unpaved)",
+        IQ_BAMYAN,
+        [(34.80, 67.55), (34.78, 67.25)],
+        IQ_YAKAWLANG,
+    ),
+    Route(
+        "FOB Yakawlang -> Chaghcharan  (west through Lal wa Sarjangal)",
+        IQ_YAKAWLANG,
+        [(34.60, 66.55), (34.52, 66.30), (34.53, 65.80)],
+        IQ_CHAGHCHARAN,
+    ),
+    Route(
+        "Chaghcharan -> Herat  (down the Hari Rud through Obeh -- the road the "
+        "Iranian column came up)",
+        IQ_CHAGHCHARAN,
+        [(34.50, 64.50), (34.35, 63.80), (34.37, 63.16), (34.30, 62.70)],
+        IQ_HERAT,
+        labels=[
+            "Chaghcharan CP",
+            "Hari Rud valley",
+            "Hari Rud valley",
+            "Obeh",
+            "Hari Rud, lower",
+            "Herat CP",
+        ],
+    ),
+    # -- NORTHERN AXIS: the flank. Qala i Naw is 55 nm from Herat.
+    Route(
+        "Chaghcharan -> Qala i Naw  (north-west across the Band-e Turkestan foothills)",
+        IQ_CHAGHCHARAN,
+        [(34.75, 64.80), (34.90, 64.10), (35.00, 63.60)],
+        IQ_QALA_I_NAW,
+    ),
+    Route(
+        "Qala i Naw -> Herat  (the Karukh road)",
+        IQ_QALA_I_NAW,
+        [(34.75, 62.90), (34.48, 62.58)],
+        IQ_HERAT,
+        labels=["Qala i Naw CP", "Karukh road", "Karukh", "Herat CP"],
+    ),
+    # -- SOUTHERN AXIS: the Ring Road, the long way round. Its intermediates run
+    # -- through Kandahar city, which is deliberately NOT a control point here --
+    # -- a base that close to Herat would win every auto-planner comparison and
+    # -- bench Kabul. Waypoints between the endpoints never change the binding.
+    Route(
+        "Kabul -> Ghazni Heliport  (Highway 1 south through Maidan Shar)",
+        IQ_KABUL,
+        [(34.40, 68.87), (34.02, 68.72), (33.70, 68.50)],
+        IQ_GHAZNI,
+        labels=[
+            "Kabul CP",
+            "Maidan Shar",
+            "Sayedabad",
+            "N of Ghazni",
+            "Ghazni CP",
+        ],
+    ),
+    Route(
+        "Ghazni Heliport -> Tarinkot  (Highway 1 to Qalat, then the Uruzgan road)",
+        IQ_GHAZNI,
+        [(33.10, 68.00), (32.40, 67.20), (32.11, 66.90), (32.45, 66.20)],
+        IQ_TARINKOT,
+        labels=[
+            "Ghazni CP",
+            "Highway 1",
+            "Highway 1",
+            "Qalat",
+            "Uruzgan road",
+            "Tarinkot CP",
+        ],
+    ),
+    Route(
+        "Tarinkot -> Farah  (down to Kandahar, then Highway 1 west via Delaram)",
+        IQ_TARINKOT,
+        [(32.30, 65.50), (31.61, 65.71), (31.60, 64.36), (32.13, 63.42)],
+        IQ_FARAH,
+        labels=[
+            "Tarinkot CP",
+            "Deh Rawud road",
+            "Kandahar city",
+            "Gereshk",
+            "Delaram",
+            "Farah CP",
+        ],
+    ),
+    # -- the Iranian rear, along the Ring Road
+    Route(
+        "Farah -> Shindand  (Highway 1 north)",
+        IQ_FARAH,
+        [(32.80, 62.20), (33.10, 62.25)],
+        IQ_SHINDAND,
+    ),
+    Route(
+        "Shindand -> Herat  (Highway 1 north through Adraskan)",
+        IQ_SHINDAND,
+        [(33.64, 62.27), (33.90, 62.20)],
+        IQ_HERAT,
+        labels=["Shindand CP", "Adraskan", "Highway 1", "Herat CP"],
+    ),
+]
+
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
+    "islam_qala": (Afghanistan, ISLAM_QALA_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
     "caucasus_trail_fixes": (Caucasus, CAUCASUS_TRAIL_FIXES),
     "iraq_inherent_resolve": (Iraq, IRAQ_IR_ROUTES),

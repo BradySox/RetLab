@@ -1,8 +1,8 @@
 # Afghanistan — Islam Qala (campaign notes)
 
-**Status: the faction is built. The campaign is not.** `iran_1998.json` and its
-guard test are in; there is no yaml and no `.miz` yet. This note is the agreed
-shape; build against it, and correct it when the build contradicts it.
+**Status: BUILT and generating. Never flown.** The faction, the `.miz`, the
+campaign yaml and both guard tests are in, and a headless turn 1 plans on both
+sides. No in-game pass has been done and `performance:` is a provisional guess.
 
 - Theater: `Afghanistan` (both halves — the campaign spans 62°E to 69°E)
 - Setting: October 1998, one point of divergence from real events
@@ -340,14 +340,89 @@ US-only variant, and it is the only Western SPG in DCS. `iran_1988` and
 Shah-era US arms package but was not confirmed, so it was left out rather than
 guessed. ZSU-23-4, ZU-23 and ZSU-57-2 already cover the AAA layer.
 
+## The miz and the campaign — BUILT 2026-08-28
+
+| File | What it is |
+|---|---|
+| `tools/build_islam_qala_miz.py` | Builds the `.miz` from an empty Afghanistan mission. Table-driven, deterministic, `--check` dry-runs it. |
+| `resources/campaigns/islam_qala.miz` | 11 airfields + carrier + 1 FOB, 34 air-defence markers, 17 IADS C2 nodes, 23 economy statics, 8 armour groups, 2 Scud sites. |
+| `resources/campaigns/islam_qala.yaml` | Squadrons, settings, and the twelve supply routes. |
+| `tests/fourteenth/test_islam_qala.py` | 19 guards, incl. `test_carrier_flies_no_combat_aircraft`. |
+| `tools/supply_route_geo.py` | Gained `ISLAM_QALA_ROUTES`; regenerate with `python tools/supply_route_geo.py islam_qala`. |
+
+**Built from scratch, not forked from a shipped miz.** The laydown adds Bamyan,
+Chaghcharan and Qala i Naw — which no campaign on this map uses — and drops
+Kandahar and Camp Bastion, which all four use. Deleting more than you keep is not
+a fork.
+
+### The connection graph it produces
+
+```
+Bagram -- Kabul -- Bamyan ==== FOB Yakawlang -- Chaghcharan -- Qala i Naw -- Herat
+             |                                       |                        |
+       Ghazni Heliport ==== Tarinkot -- Farah -- Shindand ---------------------+
+```
+
+`====` are the two blue/red fronts at turn 1. Everything else is one side's rear.
+Shindand Heliport is co-located with Shindand and connects to nothing, which is
+normal — Clash of the Titans ships four such control points.
+
+### Verified headless, turn 1
+
+Blue plans **8 packages / 16 flights** (DEAD, SEAD, SEAD Escort, SEAD Sweep,
+Strike, Armed Recon, CAS, TARCAP, Escort, AEW&C, Air Assault). Red plans
+**5–7 packages / 7–11 flights**. Blue fields 125 airframes against red's 96.
+
+**The period gate holds in what actually spawns, not just in the faction file.**
+Generated red air defence is S-200, S-75, Kub, I-Hawk, Rapier, KS-19/SON-9,
+ZSU-23-4, ZSU-57-2, ZU-23, with P-14 and 1L13 EWRs. Blue gets Patriot, Hawk,
+Avenger, M48 Chaparral and the FPS-117. **Post-1998 systems generated: zero.**
+
+### Three things the build found
+
+- **`usa_1990` has no gun AAA.** Its air defence is the FPS-117, the Avenger and
+  the M48 Chaparral. An AAA marker on a blue field raises `USA 1990 has no access
+  to SAM AAA` and produces nothing. Blue bases use `shorad`, which is also right
+  historically — US base defence in 1998 was Avenger and Stinger, not guns.
+  Locked by `test_no_blue_base_carries_an_aaa_marker`.
+- **Shindand and Shindand Heliport are 1 nm apart**, and markers bind to the
+  nearest control point. Shindand's SAMs, EWR, command centre and Scud site all
+  bound to the heliport. `BASE_BIAS` pushes Shindand's markers south-west; the
+  Scud needed its own offset flipped as well. Harmless in a fight, but it split
+  one base's air defence across two control points that can change hands
+  separately.
+- **`iran_1988` has a pre-existing defect**, unrelated to this campaign: it lists
+  `"Rapier"` — a preset-group name — in `air_defense_units`, where unit names
+  belong, so it logs `skipping unknown air-defense unit 'Rapier'` on every load.
+  `iran_1998` does not have this.
+
 ## Open / deferred
 
-- **The `.miz` is not built.** Objective groups, the IADS laydown, comms/power
-  nodes for `advanced_iads`, and the FOB placement all still to author.
-- **Supply-route waypoints are described, not authored.** Convert from real
-  road lat/lon with `tools/supply_route_geo.py`, not by hand.
-- **Performance is unrated.** A 13-CP campaign spanning both halves of this map
-  with an `advanced_iads` network is a frame-rate risk. Clash of the Titans rates
-  `performance: 1`; Anatolian Reach rates 3. Rate it after the first generated
-  turn, not before.
-- **No in-game pass rows written yet.** Add them when the campaign generates.
+- **Never flown.** Everything above is headless. No in-game pass row exists yet.
+- **`performance: 2` is a guess.** Rate it after a generated turn is actually
+  loaded in DCS, not before. Clash of the Titans rates 1 and Anatolian Reach 3.
+- **No `ground_forces` block**, so the campaign uses engine defaults and logs
+  `does not define any ground_forces` at generation. Only 11 of 75 shipped
+  campaigns define one, so this is a normal default rather than a gap — but it is
+  the obvious lever if the front line turns out too thin or too dense.
+- **The A-6E Tanker is a year late.** The real A-6E left fleet service in
+  February 1997; the 1998 carrier tanker was the S-3B. The tree dates the A-6E
+  1963 with no retirement model, `usa_1990` rosters it, and `coin_enduring_resolve`
+  already flies it off the boat on this same map. `S-3B Tanker` exists and is
+  carrier-capable but is not in `usa_1990`. Taking it would mean either editing a
+  faction 20 campaigns share, or authoring a `usa_1998` — neither justified for a
+  one-year gap in an alternate history.
+- **Kandahar, Camp Bastion, Dwyer, Bost, Zaranj, Nimroz, Maymana, Jalalabad,
+  Khost, Salerno, Gardez and Urgoon are unused.** Kandahar and Bastion are
+  deliberate and test-locked; the rest are simply out of scope and are the first
+  place to look if the campaign wants more depth.
+
+## Next
+
+1. **Fly a generated turn.** Everything above is headless; nothing here has been
+   seen in DCS. Rate `performance:` from that turn and write the in-game-pass rows.
+2. **Watch the two fronts.** Bamyan↔FOB Yakawlang and Ghazni Heliport↔Tarinkot
+   are the only blue/red adjacencies. If ground combat does not start at both,
+   the supply routes bound wrong.
+3. **Watch the small ramps.** Chaghcharan (3 stands), Bamyan (5) and Farah (3)
+   are the first things a DCS parking change would break — checklist B100.
