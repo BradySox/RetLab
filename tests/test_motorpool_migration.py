@@ -94,6 +94,23 @@ def test_no_double_injection_when_tgo_exists() -> None:
     assert len(pools) == 1
 
 
+def test_duplicate_reference_to_same_tgo_is_canonicalized_globally() -> None:
+    cp = _MigrationControlPoint("CP", Point(0.0, 0.0, Caucasus()), {})
+    other_cp = _MigrationControlPoint("Other", Point(1000.0, 0.0, Caucasus()), {})
+    location = _loc()
+    cp.preset_locations.motorpools = [location]
+    existing = MotorpoolGroundObject("Persisted depot", location, cast(Any, cp), None)
+    cp.connected_objectives = [existing]
+    other_cp.connected_objectives = [existing]
+    migrator = _migrator_with(cp)
+    migrator.game.theater.controlpoints.append(other_cp)
+
+    migrator._ensure_motorpool_tgos()
+
+    assert cp.connected_objectives == [existing]
+    assert other_cp.connected_objectives == []
+
+
 def test_removed_authored_marker_discards_persisted_tgo() -> None:
     cp = _MigrationControlPoint("CP", Point(0.0, 0.0, Caucasus()), {})
     stale = MotorpoolGroundObject("Persisted depot", _loc(), cast(Any, cp), None)

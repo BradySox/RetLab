@@ -103,6 +103,26 @@ def test_rehome_preserves_motorpool_when_no_eligible_control_point_exists() -> N
     assert tgo.control_point is carrier
 
 
+def test_rehome_without_destination_removes_stale_and_duplicate_references() -> None:
+    carrier = _land_cp("CVN", 0.0, 0.0, ControlPointType.AIRCRAFT_CARRIER_GROUP)
+    off_map = _land_cp("Off-map", 5000.0, 0.0, ControlPointType.OFF_MAP)
+    valid = _motorpool_owned_by(carrier, 0.0, 0.0)
+    carrier.connected_objectives.append(valid)
+    stale_location = PresetLocation(
+        "Removed", Point(1000.0, 0.0, Caucasus()), Heading.from_degrees(0.0)
+    )
+    stale = MotorpoolGroundObject(
+        "Stale depot", stale_location, cast(Any, off_map), GroupTask.MOTORPOOL
+    )
+    off_map.connected_objectives.append(stale)
+
+    _rehome([carrier, off_map])
+
+    assert carrier.connected_objectives == [valid]
+    assert off_map.connected_objectives == []
+    assert valid.control_point is carrier
+
+
 def test_populate_does_not_rehome_existing_motorpools() -> None:
     owner = _land_cp("Owner", 5000.0, 0.0, ControlPointType.AIRBASE)
     nearest = _land_cp("Nearest", 0.0, 0.0, ControlPointType.FARP)

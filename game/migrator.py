@@ -16,7 +16,7 @@ from game.ato.starttype import StartType
 from game.data.doctrine import MODERN_DOCTRINE, COLDWAR_DOCTRINE, WWII_DOCTRINE
 from game.theater import ParkingType, SeasonalConditions, Airfield
 from game.theater.player import Player
-from game.theater.theatergroundobject import ShipGroundObject
+from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
 
 if TYPE_CHECKING:
     from game import Game
@@ -343,16 +343,18 @@ class Migrator:
 
         # Remove stale and duplicate persisted references before ensuring every
         # current authored marker has exactly one surviving TGO.
+        seen: set[MotorpoolGroundObject] = set()
         for cp in control_points:
-            cp.connected_objectives[:] = [
-                tgo
-                for tgo in cp.connected_objectives
-                if not isinstance(tgo, MotorpoolGroundObject)
-                or existing.get(
-                    motorpool_identity(tgo.original_name, tgo.position)
-                )
-                is tgo
-            ]
+            retained: list[TheaterGroundObject] = []
+            for tgo in cp.connected_objectives:
+                if not isinstance(tgo, MotorpoolGroundObject):
+                    retained.append(tgo)
+                    continue
+                identity = motorpool_identity(tgo.original_name, tgo.position)
+                if existing.get(identity) is tgo and tgo not in seen:
+                    retained.append(tgo)
+                    seen.add(tgo)
+            cp.connected_objectives[:] = retained
 
         for cp in control_points:
             for location in getattr(cp.preset_locations, "motorpools", []):
