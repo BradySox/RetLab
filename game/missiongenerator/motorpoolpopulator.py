@@ -87,6 +87,9 @@ class MotorpoolPopulator:
             if getattr(cp, "position", None) is None:
                 continue
             eligible.append(cp)
+        if not eligible:
+            return
+
         # Gather the complete current authored marker set first.  Persisted TGOs
         # are projections of these markers; an identity absent from the set was
         # removed from the campaign and must not survive migration.
@@ -119,9 +122,6 @@ class MotorpoolPopulator:
                 for tgo in owner.connected_objectives
                 if not isinstance(tgo, MotorpoolGroundObject)
             ]
-
-        if not eligible:
-            return
 
         for tgo in motorpools.values():
             previous_owner = tgo.control_point

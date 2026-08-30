@@ -346,15 +346,18 @@ def test_capture_publishes_rehomed_motorpool_tgo_update() -> None:
     captured_cp._create_missing_front_lines = MagicMock()
     captured_cp.cptype = ControlPointType.AIRBASE
     captured_cp.position = Point(5000.0, 0.0, terrain)
+    motorpool_location = _preset("Garage A", Point(0.0, 0.0, terrain))
+    captured_cp.preset_locations = SimpleNamespace(motorpools=[motorpool_location])
 
     destination_cp = SimpleNamespace(
         cptype=ControlPointType.FARP,
         position=Point(0.0, 0.0, terrain),
         connected_objectives=[],
+        preset_locations=SimpleNamespace(motorpools=[]),
     )
     tgo = MotorpoolGroundObject(
         "JAGUAR",
-        _preset("Garage A", Point(0.0, 0.0, terrain)),
+        motorpool_location,
         captured_cp,
         GroupTask.MOTORPOOL,
     )

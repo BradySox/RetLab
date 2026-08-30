@@ -91,6 +91,18 @@ def test_rehome_excludes_naval_control_points() -> None:
     assert tgo.control_point is base
 
 
+def test_rehome_preserves_motorpool_when_no_eligible_control_point_exists() -> None:
+    carrier = _land_cp("CVN", 0.0, 0.0, ControlPointType.AIRCRAFT_CARRIER_GROUP)
+    off_map = _land_cp("Off-map", 5000.0, 0.0, ControlPointType.OFF_MAP)
+    tgo = _motorpool_owned_by(carrier, 0.0, 0.0)
+
+    _rehome([carrier, off_map])
+
+    assert carrier.connected_objectives == [tgo]
+    assert off_map.connected_objectives == []
+    assert tgo.control_point is carrier
+
+
 def test_populate_does_not_rehome_existing_motorpools() -> None:
     owner = _land_cp("Owner", 5000.0, 0.0, ControlPointType.AIRBASE)
     nearest = _land_cp("Nearest", 0.0, 0.0, ControlPointType.FARP)
@@ -110,7 +122,9 @@ def test_rehome_discards_persisted_motorpool_without_current_marker() -> None:
     loc = PresetLocation(
         "Removed", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0.0)
     )
-    tgo = MotorpoolGroundObject("Persisted depot", loc, stale, GroupTask.MOTORPOOL)
+    tgo = MotorpoolGroundObject(
+        "Persisted depot", loc, cast(Any, stale), GroupTask.MOTORPOOL
+    )
     stale.connected_objectives.append(tgo)
 
     _rehome([owner, stale])
@@ -126,8 +140,12 @@ def test_rehome_deduplicates_current_marker_and_preserves_metadata_and_event() -
         "Authored", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0.0)
     )
     owner.preset_locations.motorpools = [loc]
-    first = MotorpoolGroundObject("First codename", loc, owner, GroupTask.MOTORPOOL)
-    duplicate = MotorpoolGroundObject("Duplicate codename", loc, owner, GroupTask.MOTORPOOL)
+    first = MotorpoolGroundObject(
+        "First codename", loc, cast(Any, owner), GroupTask.MOTORPOOL
+    )
+    duplicate = MotorpoolGroundObject(
+        "Duplicate codename", loc, cast(Any, owner), GroupTask.MOTORPOOL
+    )
     owner.connected_objectives = [first, duplicate]
     events = GameUpdateEvents()
 
