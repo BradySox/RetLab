@@ -71,6 +71,12 @@ class Migrator:
         self._update_theater()
         self._update_campaign_name()
 
+        from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
+
+        populator = MotorpoolPopulator(self.game)
+        populator._rehome_motorpools()
+        populator.populate()
+
     def _update_doctrine(self) -> None:
         doctrines = [
             MODERN_DOCTRINE,
