@@ -1,15 +1,47 @@
 from __future__ import annotations
 
+import pickle
+from pathlib import Path
 from types import SimpleNamespace
+from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 from dcs.mapping import Point
-from dcs.terrain import Terrain
+from dcs.terrain import Caucasus, Terrain
+from dcs.vehicles import Armor
 
+from game import persistency
+from game.dcs.groundunittype import GroundUnitType
 from game.migrator import Migrator
+from game.theater.controlpoint import ControlPointType
 from game.theater.presetlocation import PresetLocation
 from game.theater.theatergroundobject import MotorpoolGroundObject
 from game.utils import Heading
+
+
+class _IdAllocator:
+    def __init__(self) -> None:
+        self.calls = 0
+
+    def __call__(self) -> int:
+        self.calls += 1
+        return self.calls
+
+
+class _MigrationControlPoint:
+    def __init__(self, name: str, position: Point, armor: dict[object, int]) -> None:
+        self.name = name
+        self.cptype = ControlPointType.AIRBASE
+        self.position = position
+        self.connected_objectives: list[object] = []
+        self.preset_locations = SimpleNamespace(motorpools=[])
+        self.captured = object()
+        self.connected_points: list[object] = []
+        self.base = SimpleNamespace(armor=armor, total_armor=sum(armor.values()))
+
+    @property
+    def ground_objects(self) -> list[object]:
+        return list(self.connected_objectives)
 
 
 def _loc() -> PresetLocation:
@@ -97,12 +129,86 @@ def test_migrate_game_rehomes_motorpools_after_all_migrations() -> None:
         populator.return_value._rehome_motorpools.side_effect = lambda: events.append(
             "rehome"
         )
-        populator.return_value.populate.side_effect = lambda: events.append("populate")
         migrator._migrate_game()
 
     populator.assert_called_once_with(game)
     populator.return_value._rehome_motorpools.assert_called_once_with()
-    populator.return_value.populate.assert_called_once_with()
-    assert events[-2:] == ["rehome", "populate"]
+    populator.return_value.populate.assert_not_called()
+    assert events[-1] == "rehome"
     assert events.index("rehome") > events.index("_ensure_motorpool_tgos")
     assert events.index("rehome") > events.index("_update_theater")
+
+
+def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
+    tmp_path: Path,
+) -> None:
+    unit_type = next(GroundUnitType.for_dcs_type(Armor.M_1_Abrams))
+    owner = _MigrationControlPoint(
+        "Rear Base", Point(5000.0, 0.0, Caucasus()), {unit_type: 3}
+    )
+    farp = _MigrationControlPoint(
+        "Frontline FARP", Point(0.0, 0.0, Caucasus()), {unit_type: 3}
+    )
+    farp.cptype = ControlPointType.FARP
+    tgo = MotorpoolGroundObject(
+        "Motorpool", _loc(), cast("Any", owner), None
+    )
+    tgo.position = Point(0.0, 0.0, Caucasus())
+    owner.connected_objectives.append(tgo)
+    next_group_id = _IdAllocator()
+    next_unit_id = _IdAllocator()
+    game = SimpleNamespace(
+        theater=SimpleNamespace(controlpoints=[owner, farp]),
+        settings=SimpleNamespace(motorpool_enabled=True, motorpool_spawn_cap=10),
+        current_group_id=20,
+        current_unit_id=10,
+        next_group_id=next_group_id,
+        next_unit_id=next_unit_id,
+    )
+    save_path = tmp_path / "campaign.retribution"
+    with save_path.open("wb") as save_file:
+        pickle.dump(game, save_file)
+
+    persistency.setup(str(tmp_path), False, 0)
+    loaded = persistency.load_game(str(save_path))
+    assert loaded is not None
+
+    migrator = Migrator.__new__(Migrator)
+    migrator.game = loaded  # type: ignore[assignment]
+    for method_name in (
+        "_update_doctrine",
+        "_update_control_points",
+        "_update_packagewaypoints",
+        "_update_package_attributes",
+        "_update_factions",
+        "_update_flights",
+        "_update_squadrons",
+        "_update_transfers",
+        "_release_untasked_flights",
+        "_update_weather",
+        "_update_tgos",
+        "_reload_terrain",
+        "_update_theater",
+        "_update_campaign_name",
+    ):
+        setattr(migrator, method_name, MagicMock())
+    migrator._migrate_game()
+
+    loaded_tgo = loaded.theater.controlpoints[1].connected_objectives[0]
+    assert isinstance(loaded_tgo, MotorpoolGroundObject)
+    assert loaded_tgo.control_point is loaded.theater.controlpoints[1]
+    assert loaded.theater.controlpoints[0].connected_objectives == []
+    assert loaded_tgo.groups == []
+    assert loaded.current_group_id == 20
+    assert loaded.current_unit_id == 10
+    loaded_next_group_id = loaded.next_group_id
+    loaded_next_unit_id = loaded.next_unit_id
+    assert loaded_next_group_id.calls == 0
+    assert loaded_next_unit_id.calls == 0
+
+    migrated_save = tmp_path / "migrated.retribution"
+    with migrated_save.open("wb") as save_file:
+        pickle.dump(loaded, save_file)
+    reloaded = persistency.load_game(str(migrated_save))
+    assert reloaded is not None
+    assert reloaded.theater.controlpoints[1].connected_objectives[0].groups == []
