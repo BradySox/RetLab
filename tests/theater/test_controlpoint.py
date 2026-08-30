@@ -1,8 +1,8 @@
 import logging
 
 import pytest
-from typing import Any
-from unittest.mock import MagicMock
+from typing import Any, cast
+from unittest.mock import MagicMock, patch
 
 from dcs import Point
 from dcs.planes import AJS37
@@ -11,6 +11,7 @@ from dcs.terrain.terrain import Airport
 from game.ato.flighttype import FlightType
 from game.dcs.aircrafttype import AircraftType
 from game.dcs.countries import country_with_name
+from game.data.groups import GroupTask
 from game.point_with_heading import PointWithHeading
 from game.squadrons import Squadron
 from game.squadrons.operatingbases import OperatingBases
@@ -288,6 +289,42 @@ def _cp_with_motorpool_tgos(
         for tgo_name, pos in tgo_positions
     ]
     return cp
+
+
+def test_capture_rehomes_motorpools_immediately() -> None:
+    from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
+
+    cp = cast(Any, ControlPoint.__new__(Airfield))
+    old_coalition = MagicMock()
+    new_coalition = MagicMock()
+    cp._coalition = old_coalition
+    cp.connected_objectives = []
+    cp.front_lines = {}
+    cp.ground_unit_orders = MagicMock()
+    cp.base = MagicMock()
+    cp.retreat_ground_units = MagicMock()
+    cp.retreat_air_units = MagicMock()
+    cp.release_parking_slots = MagicMock()
+    cp.depopulate_uncapturable_tgos = MagicMock()
+    cp._clear_front_lines = MagicMock()
+    cp._create_missing_front_lines = MagicMock()
+    tgo = MotorpoolGroundObject(
+        "JAGUAR",
+        _preset("Garage A", Point(4000.0, 0.0, MagicMock(spec=Terrain))),
+        cp,
+        GroupTask.MOTORPOOL,
+    )
+    cp.connected_objectives.append(tgo)
+    game = MagicMock()
+    game.coalition_for.return_value = new_coalition
+    game.theater.controlpoints = [cp]
+    events = MagicMock()
+
+    with patch.object(MotorpoolPopulator, "_rehome_motorpools") as rehome:
+        cp.capture(game, events, Player.BLUE)
+
+    assert cp._coalition is new_coalition
+    rehome.assert_called_once_with()
 
 
 def test_motorpools_inside_capture_zone_reports_only_inside() -> None:

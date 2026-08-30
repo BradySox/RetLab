@@ -94,6 +94,34 @@ def test_no_double_injection_when_tgo_exists() -> None:
     assert len(pools) == 1
 
 
+def test_global_marker_reconciliation_finds_tgo_under_another_cp() -> None:
+    marker_cp = _MigrationControlPoint("Marker", Point(0.0, 0.0, Caucasus()), {})
+    stale_cp = _MigrationControlPoint("Stale", Point(10000.0, 0.0, Caucasus()), {})
+    marker = PresetLocation(
+        "Garage A", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0)
+    )
+    marker_cp.preset_locations.motorpools = [marker]
+    stale_tgo = MotorpoolGroundObject("JAGUAR", marker, cast(Any, stale_cp), None)
+    stale_cp.connected_objectives.append(cast(Any, stale_tgo))
+    migrator = _migrator_with(marker_cp)
+    migrator.game.theater.controlpoints.append(cast(Any, stale_cp))
+
+    migrator._ensure_motorpool_tgos()
+    from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
+
+    MotorpoolPopulator(migrator.game)._rehome_motorpools()
+
+    motorpools = [
+        tgo
+        for cp in (marker_cp, stale_cp)
+        for tgo in cp.connected_objectives
+        if isinstance(tgo, MotorpoolGroundObject)
+    ]
+    assert motorpools == [stale_tgo]
+    assert stale_tgo.control_point is marker_cp
+    assert marker_cp.preset_locations.motorpools == [marker]
+
+
 def test_migrate_game_rehomes_motorpools_after_all_migrations() -> None:
     events: list[str] = []
     game = SimpleNamespace(settings=SimpleNamespace())
@@ -162,6 +190,8 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         "Motorpool A", owner.preset_locations.motorpools[0], cast("Any", owner), None
     )
     owner.connected_objectives.append(tgo)
+    tgo.groups = [cast(Any, object())]
+    tgo.motorpool_unit_types = {1: unit_type}
     next_group_id = _IdAllocator()
     next_unit_id = _IdAllocator()
     game = SimpleNamespace(
@@ -214,8 +244,16 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         for tgo in loaded_motorpools
     )
     assert loaded.theater.controlpoints[0].connected_objectives == []
-    assert loaded.theater.controlpoints[0].preset_locations.motorpools == []
+    assert loaded.theater.controlpoints[0].preset_locations.motorpools == [
+        PresetLocation(
+            "Garage A", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0)
+        ),
+        PresetLocation(
+            "Garage B", Point(1000.0, 0.0, Caucasus()), Heading.from_degrees(0)
+        ),
+    ]
     assert all(tgo.groups == [] for tgo in loaded_motorpools)
+    assert all(tgo.motorpool_unit_types == {} for tgo in loaded_motorpools)
     assert loaded.current_group_id == 20
     assert loaded.current_unit_id == 10
     loaded_next_group_id = cast(_IdAllocator, loaded.next_group_id)

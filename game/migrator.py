@@ -324,37 +324,41 @@ class Migrator:
 
         if not self.game.settings.motorpool_enabled:
             return
-        for cp in self.game.theater.controlpoints:
-            locations = getattr(cp.preset_locations, "motorpools", [])
-            if not locations:
-                continue
-            existing_locations = {
-                (go.original_name, go.position.x, go.position.y, go.heading.degrees)
-                for go in cp.ground_objects
-                if isinstance(go, MotorpoolGroundObject)
-            }
-            for location in locations:
-                location_identity = (
+        control_points = self.game.theater.controlpoints
+        existing: dict[tuple[str, float, float, float], MotorpoolGroundObject] = {}
+        for cp in control_points:
+            for tgo in cp.ground_objects:
+                if not isinstance(tgo, MotorpoolGroundObject):
+                    continue
+                identity = (
+                    tgo.original_name,
+                    tgo.position.x,
+                    tgo.position.y,
+                    tgo.heading.degrees,
+                )
+                existing.setdefault(identity, tgo)
+        for cp in control_points:
+            for location in getattr(cp.preset_locations, "motorpools", []):
+                identity = (
                     location.original_name,
                     location.x,
                     location.y,
                     location.heading.degrees,
                 )
-                if location_identity in existing_locations:
+                if identity in existing:
                     continue
                 name = namegen.random_objective_name()
                 warn_if_motorpool_inside_capture_zone(name, location, cp)
-                cp.connected_objectives.append(
-                    MotorpoolGroundObject(
-                        # Codename like every other TGO; the "motorpool" category
-                        # label already says what it is.
-                        name,
-                        location,
-                        cp,
-                        GroupTask.MOTORPOOL,
-                    )
+                tgo = MotorpoolGroundObject(
+                    # Codename like every other TGO; the "motorpool" category
+                    # label already says what it is.
+                    name,
+                    location,
+                    cp,
+                    GroupTask.MOTORPOOL,
                 )
-                existing_locations.add(location_identity)
+                cp.connected_objectives.append(tgo)
+                existing[identity] = tgo
 
     def _wire_iads_sites_that_arrived_late(self) -> None:
         # The network is built once, at New Game; a site its config never named

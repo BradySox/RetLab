@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING
 
 from game.dcs.groundunittype import GroundUnitType
@@ -80,34 +79,37 @@ class MotorpoolPopulator:
             eligible.append(cp)
         if not eligible:
             return
+
+        # Gather each TGO once, even if a malformed save references it from more
+        # than one control point.  The first instance for a marker identity wins;
+        # all duplicate references/objects are discarded below.
+        motorpools: dict[tuple[str, float, float, float], MotorpoolGroundObject] = {}
         for owner in control_points:
-            objectives = getattr(owner, "connected_objectives", None)
-            if objectives is None:
-                continue
-            for tgo in list(objectives):
+            for tgo in getattr(owner, "connected_objectives", []):
                 if not isinstance(tgo, MotorpoolGroundObject):
                     continue
-                closest = min(
-                    eligible,
-                    key=lambda cp: cp.position.distance_to_point(tgo.position),
+                identity = (
+                    tgo.original_name,
+                    tgo.position.x,
+                    tgo.position.y,
+                    tgo.heading.degrees,
                 )
-                if closest is owner:
-                    continue
-                source_locations = getattr(
-                    getattr(owner, "preset_locations", None), "motorpools", []
-                )
-                for index, location in enumerate(source_locations):
-                    if (
-                        location.original_name == tgo.original_name
-                        and math.isclose(location.x, tgo.position.x)
-                        and math.isclose(location.y, tgo.position.y)
-                        and location.heading.degrees == tgo.heading.degrees
-                    ):
-                        del source_locations[index]
-                        break
-                owner.connected_objectives.remove(tgo)
-                closest.connected_objectives.append(tgo)
-                tgo.control_point = closest
+                motorpools.setdefault(identity, tgo)
+
+        for owner in control_points:
+            owner.connected_objectives[:] = [
+                tgo
+                for tgo in owner.connected_objectives
+                if not isinstance(tgo, MotorpoolGroundObject)
+            ]
+
+        for tgo in motorpools.values():
+            closest = min(
+                eligible,
+                key=lambda cp: cp.position.distance_to_point(tgo.position),
+            )
+            closest.connected_objectives.append(tgo)
+            tgo.control_point = closest
 
     def populate(self) -> None:
         cap: int = self.game.settings.motorpool_spawn_cap
