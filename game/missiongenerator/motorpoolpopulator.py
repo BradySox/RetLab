@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import TYPE_CHECKING
 
 from game.dcs.groundunittype import GroundUnitType
@@ -92,6 +93,18 @@ class MotorpoolPopulator:
                 )
                 if closest is owner:
                     continue
+                source_locations = getattr(
+                    getattr(owner, "preset_locations", None), "motorpools", []
+                )
+                for index, location in enumerate(source_locations):
+                    if (
+                        location.original_name == tgo.original_name
+                        and math.isclose(location.x, tgo.position.x)
+                        and math.isclose(location.y, tgo.position.y)
+                        and location.heading.degrees == tgo.heading.degrees
+                    ):
+                        del source_locations[index]
+                        break
                 owner.connected_objectives.remove(tgo)
                 closest.connected_objectives.append(tgo)
                 tgo.control_point = closest

@@ -150,9 +150,10 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         "Frontline FARP", Point(0.0, 0.0, Caucasus()), {unit_type: 3}
     )
     farp.cptype = ControlPointType.FARP
-    tgo = MotorpoolGroundObject(
-        "Motorpool", _loc(), cast("Any", owner), None
-    )
+    owner.preset_locations.motorpools = [
+        PresetLocation("G", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0))
+    ]
+    tgo = MotorpoolGroundObject("Motorpool", _loc(), cast("Any", owner), None)
     tgo.position = Point(0.0, 0.0, Caucasus())
     owner.connected_objectives.append(tgo)
     next_group_id = _IdAllocator()
@@ -174,7 +175,7 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
     assert loaded is not None
 
     migrator = Migrator.__new__(Migrator)
-    migrator.game = loaded  # type: ignore[assignment]
+    migrator.game = loaded
     for method_name in (
         "_update_doctrine",
         "_update_control_points",
@@ -198,13 +199,26 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
     assert isinstance(loaded_tgo, MotorpoolGroundObject)
     assert loaded_tgo.control_point is loaded.theater.controlpoints[1]
     assert loaded.theater.controlpoints[0].connected_objectives == []
+    assert loaded.theater.controlpoints[0].preset_locations.motorpools == []
     assert loaded_tgo.groups == []
     assert loaded.current_group_id == 20
     assert loaded.current_unit_id == 10
-    loaded_next_group_id = loaded.next_group_id
-    loaded_next_unit_id = loaded.next_unit_id
+    loaded_next_group_id = cast(_IdAllocator, loaded.next_group_id)
+    loaded_next_unit_id = cast(_IdAllocator, loaded.next_unit_id)
     assert loaded_next_group_id.calls == 0
     assert loaded_next_unit_id.calls == 0
+
+    migrator._migrate_game()
+
+    loaded_motorpools = [
+        tgo
+        for control_point in loaded.theater.controlpoints
+        for tgo in control_point.connected_objectives
+        if isinstance(tgo, MotorpoolGroundObject)
+    ]
+    assert len(loaded_motorpools) == 1
+    assert loaded_motorpools[0].control_point is loaded.theater.controlpoints[1]
+    assert loaded.theater.controlpoints[0].connected_objectives == []
 
     migrated_save = tmp_path / "migrated.retribution"
     with migrated_save.open("wb") as save_file:
