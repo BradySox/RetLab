@@ -11,6 +11,7 @@ from game.point_with_heading import PointWithHeading
 
 if TYPE_CHECKING:
     from game.game import Game
+    from game.sim.gameupdateevents import GameUpdateEvents
 
 # Parked vehicles laid in a grid so DCS does not reject overlapping spawns.
 _SPACING_M = 12.0
@@ -51,7 +52,7 @@ class MotorpoolPopulator:
     def __init__(self, game: Game) -> None:
         self.game = game
 
-    def _rehome_motorpools(self) -> None:
+    def _rehome_motorpools(self, events: GameUpdateEvents | None = None) -> None:
         """Attach each motorpool to its nearest eligible land control point.
 
         Motorpool ownership is persisted as which control point's
@@ -104,12 +105,15 @@ class MotorpoolPopulator:
             ]
 
         for tgo in motorpools.values():
+            previous_owner = tgo.control_point
             closest = min(
                 eligible,
                 key=lambda cp: cp.position.distance_to_point(tgo.position),
             )
             closest.connected_objectives.append(tgo)
             tgo.control_point = closest
+            if events is not None and closest is not previous_owner:
+                events.update_tgo(tgo)
 
     def populate(self) -> None:
         cap: int = self.game.settings.motorpool_spawn_cap

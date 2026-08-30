@@ -2,6 +2,7 @@ import logging
 
 import pytest
 from typing import Any, cast
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 from dcs import Point
@@ -15,10 +16,12 @@ from game.data.groups import GroupTask
 from game.point_with_heading import PointWithHeading
 from game.squadrons import Squadron
 from game.squadrons.operatingbases import OperatingBases
+from game.sim.gameupdateevents import GameUpdateEvents
 from game.theater.controlpoint import (
     Airfield,
     Carrier,
     ControlPoint,
+    ControlPointType,
     Lha,
     OffMapSpawn,
     Fob,
@@ -324,7 +327,47 @@ def test_capture_rehomes_motorpools_immediately() -> None:
         cp.capture(game, events, Player.BLUE)
 
     assert cp._coalition is new_coalition
-    rehome.assert_called_once_with()
+    rehome.assert_called_once_with(events)
+
+
+def test_capture_publishes_rehomed_motorpool_tgo_update() -> None:
+    terrain = MagicMock(spec=Terrain)
+    captured_cp = cast(Any, ControlPoint.__new__(Airfield))
+    captured_cp._coalition = MagicMock()
+    captured_cp.connected_objectives = []
+    captured_cp.front_lines = {}
+    captured_cp.ground_unit_orders = MagicMock()
+    captured_cp.base = MagicMock()
+    captured_cp.retreat_ground_units = MagicMock()
+    captured_cp.retreat_air_units = MagicMock()
+    captured_cp.release_parking_slots = MagicMock()
+    captured_cp.depopulate_uncapturable_tgos = MagicMock()
+    captured_cp._clear_front_lines = MagicMock()
+    captured_cp._create_missing_front_lines = MagicMock()
+    captured_cp.cptype = ControlPointType.AIRBASE
+    captured_cp.position = Point(5000.0, 0.0, terrain)
+
+    destination_cp = SimpleNamespace(
+        cptype=ControlPointType.FARP,
+        position=Point(0.0, 0.0, terrain),
+        connected_objectives=[],
+    )
+    tgo = MotorpoolGroundObject(
+        "JAGUAR",
+        _preset("Garage A", Point(0.0, 0.0, terrain)),
+        captured_cp,
+        GroupTask.MOTORPOOL,
+    )
+    captured_cp.connected_objectives.append(tgo)
+    game = MagicMock()
+    game.coalition_for.return_value = MagicMock()
+    game.theater.controlpoints = [captured_cp, destination_cp]
+    events = GameUpdateEvents()
+
+    captured_cp.capture(game, events, Player.BLUE)
+
+    assert tgo.control_point is destination_cp
+    assert events.updated_tgos == {tgo}
 
 
 def test_motorpools_inside_capture_zone_reports_only_inside() -> None:
