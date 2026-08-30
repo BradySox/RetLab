@@ -328,9 +328,20 @@ class Migrator:
             locations = getattr(cp.preset_locations, "motorpools", [])
             if not locations:
                 continue
-            if any(isinstance(go, MotorpoolGroundObject) for go in cp.ground_objects):
-                continue
+            existing_locations = {
+                (go.original_name, go.position.x, go.position.y, go.heading.degrees)
+                for go in cp.ground_objects
+                if isinstance(go, MotorpoolGroundObject)
+            }
             for location in locations:
+                location_identity = (
+                    location.original_name,
+                    location.x,
+                    location.y,
+                    location.heading.degrees,
+                )
+                if location_identity in existing_locations:
+                    continue
                 name = namegen.random_objective_name()
                 warn_if_motorpool_inside_capture_zone(name, location, cp)
                 cp.connected_objectives.append(
@@ -343,6 +354,7 @@ class Migrator:
                         GroupTask.MOTORPOOL,
                     )
                 )
+                existing_locations.add(location_identity)
 
     def _wire_iads_sites_that_arrived_late(self) -> None:
         # The network is built once, at New Game; a site its config never named

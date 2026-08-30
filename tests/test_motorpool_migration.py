@@ -151,10 +151,16 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
     )
     farp.cptype = ControlPointType.FARP
     owner.preset_locations.motorpools = [
-        PresetLocation("G", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0))
+        PresetLocation(
+            "Garage A", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0)
+        ),
+        PresetLocation(
+            "Garage B", Point(1000.0, 0.0, Caucasus()), Heading.from_degrees(0)
+        ),
     ]
-    tgo = MotorpoolGroundObject("Motorpool", _loc(), cast("Any", owner), None)
-    tgo.position = Point(0.0, 0.0, Caucasus())
+    tgo = MotorpoolGroundObject(
+        "Motorpool A", owner.preset_locations.motorpools[0], cast("Any", owner), None
+    )
     owner.connected_objectives.append(tgo)
     next_group_id = _IdAllocator()
     next_unit_id = _IdAllocator()
@@ -195,12 +201,21 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         setattr(migrator, method_name, MagicMock())
     migrator._migrate_game()
 
-    loaded_tgo = loaded.theater.controlpoints[1].connected_objectives[0]
-    assert isinstance(loaded_tgo, MotorpoolGroundObject)
-    assert loaded_tgo.control_point is loaded.theater.controlpoints[1]
+    loaded_motorpools = [
+        tgo
+        for control_point in loaded.theater.controlpoints
+        for tgo in control_point.connected_objectives
+        if isinstance(tgo, MotorpoolGroundObject)
+    ]
+    assert len(loaded_motorpools) == 2
+    assert {tgo.original_name for tgo in loaded_motorpools} == {"Garage A", "Garage B"}
+    assert all(
+        tgo.control_point is loaded.theater.controlpoints[1]
+        for tgo in loaded_motorpools
+    )
     assert loaded.theater.controlpoints[0].connected_objectives == []
     assert loaded.theater.controlpoints[0].preset_locations.motorpools == []
-    assert loaded_tgo.groups == []
+    assert all(tgo.groups == [] for tgo in loaded_motorpools)
     assert loaded.current_group_id == 20
     assert loaded.current_unit_id == 10
     loaded_next_group_id = cast(_IdAllocator, loaded.next_group_id)
@@ -216,8 +231,12 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         for tgo in control_point.connected_objectives
         if isinstance(tgo, MotorpoolGroundObject)
     ]
-    assert len(loaded_motorpools) == 1
-    assert loaded_motorpools[0].control_point is loaded.theater.controlpoints[1]
+    assert len(loaded_motorpools) == 2
+    assert {tgo.original_name for tgo in loaded_motorpools} == {"Garage A", "Garage B"}
+    assert all(
+        tgo.control_point is loaded.theater.controlpoints[1]
+        for tgo in loaded_motorpools
+    )
     assert loaded.theater.controlpoints[0].connected_objectives == []
 
     migrated_save = tmp_path / "migrated.retribution"
@@ -225,4 +244,10 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         pickle.dump(loaded, save_file)
     reloaded = persistency.load_game(str(migrated_save))
     assert reloaded is not None
-    assert reloaded.theater.controlpoints[1].connected_objectives[0].groups == []
+    reloaded_motorpools = [
+        tgo
+        for tgo in reloaded.theater.controlpoints[1].connected_objectives
+        if isinstance(tgo, MotorpoolGroundObject)
+    ]
+    assert len(reloaded_motorpools) == 2
+    assert all(tgo.groups == [] for tgo in reloaded_motorpools)
