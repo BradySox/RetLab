@@ -325,26 +325,38 @@ class Migrator:
         if not self.game.settings.motorpool_enabled:
             return
         control_points = self.game.theater.controlpoints
+        from game.missiongenerator.motorpoolpopulator import motorpool_identity
+
+        authored = {
+            motorpool_identity(location.original_name, location)
+            for cp in control_points
+            for location in getattr(cp.preset_locations, "motorpools", [])
+        }
         existing: dict[tuple[str, float, float, float], MotorpoolGroundObject] = {}
         for cp in control_points:
             for tgo in cp.ground_objects:
                 if not isinstance(tgo, MotorpoolGroundObject):
                     continue
-                identity = (
-                    tgo.original_name,
-                    tgo.position.x,
-                    tgo.position.y,
-                    tgo.heading.degrees,
+                identity = motorpool_identity(tgo.original_name, tgo.position)
+                if identity in authored:
+                    existing.setdefault(identity, tgo)
+
+        # Remove stale and duplicate persisted references before ensuring every
+        # current authored marker has exactly one surviving TGO.
+        for cp in control_points:
+            cp.connected_objectives[:] = [
+                tgo
+                for tgo in cp.connected_objectives
+                if not isinstance(tgo, MotorpoolGroundObject)
+                or existing.get(
+                    motorpool_identity(tgo.original_name, tgo.position)
                 )
-                existing.setdefault(identity, tgo)
+                is tgo
+            ]
+
         for cp in control_points:
             for location in getattr(cp.preset_locations, "motorpools", []):
-                identity = (
-                    location.original_name,
-                    location.x,
-                    location.y,
-                    location.heading.degrees,
-                )
+                identity = motorpool_identity(location.original_name, location)
                 if identity in existing:
                     continue
                 name = namegen.random_objective_name()

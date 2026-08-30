@@ -94,6 +94,39 @@ def test_no_double_injection_when_tgo_exists() -> None:
     assert len(pools) == 1
 
 
+def test_removed_authored_marker_discards_persisted_tgo() -> None:
+    cp = _MigrationControlPoint("CP", Point(0.0, 0.0, Caucasus()), {})
+    stale = MotorpoolGroundObject("Persisted depot", _loc(), cast(Any, cp), None)
+    cp.connected_objectives = [stale]
+
+    _migrator_with(cp)._ensure_motorpool_tgos()
+
+    assert cp.connected_objectives == []
+
+
+def test_moved_authored_marker_replaces_persisted_identity() -> None:
+    cp = _MigrationControlPoint("CP", Point(0.0, 0.0, Caucasus()), {})
+    current = PresetLocation(
+        "Garage A", Point(1000.0, 0.0, Caucasus()), Heading.from_degrees(90)
+    )
+    cp.preset_locations.motorpools = [current]
+    old = PresetLocation(
+        "Garage A", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0)
+    )
+    stale = MotorpoolGroundObject("Old codename", old, cast(Any, cp), None)
+    cp.connected_objectives = [stale]
+
+    _migrator_with(cp)._ensure_motorpool_tgos()
+
+    pools = [o for o in cp.connected_objectives if isinstance(o, MotorpoolGroundObject)]
+    assert len(pools) == 1
+    assert pools[0] is not stale
+    assert pools[0].original_name == "Garage A"
+    assert pools[0].position.x == 1000.0
+    assert pools[0].position.y == 0.0
+    assert pools[0].heading.degrees == 90
+
+
 def test_global_marker_reconciliation_finds_tgo_under_another_cp() -> None:
     marker_cp = _MigrationControlPoint("Marker", Point(0.0, 0.0, Caucasus()), {})
     stale_cp = _MigrationControlPoint("Stale", Point(10000.0, 0.0, Caucasus()), {})

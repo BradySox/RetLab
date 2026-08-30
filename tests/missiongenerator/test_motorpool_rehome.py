@@ -6,6 +6,7 @@ from dcs.terrain import Caucasus
 
 from game.data.groups import GroupTask
 from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
+from game.sim.gameupdateevents import GameUpdateEvents
 from game.theater.controlpoint import ControlPointType
 from game.theater.presetlocation import PresetLocation
 from game.theater.theatergroundobject import MotorpoolGroundObject
@@ -21,6 +22,7 @@ def _land_cp(
         position=Point(x, y, Caucasus()),
         connected_objectives=[],
         ground_objects=[],
+        preset_locations=SimpleNamespace(motorpools=[]),
     )
 
 
@@ -33,6 +35,7 @@ def _game(cps: list[Any]) -> Any:
 
 def _motorpool_owned_by(owner: Any, x: float, y: float) -> MotorpoolGroundObject:
     loc = PresetLocation("G", Point(x, y, Caucasus()), Heading.from_degrees(0.0))
+    owner.preset_locations.motorpools.append(loc)
     tgo = MotorpoolGroundObject("Motorpool 0", loc, owner, GroupTask.MOTORPOOL)
     owner.connected_objectives.append(tgo)
     return tgo
@@ -99,3 +102,40 @@ def test_populate_does_not_rehome_existing_motorpools() -> None:
     assert tgo.control_point is owner
     assert owner.connected_objectives == [tgo]
     assert nearest.connected_objectives == []
+
+
+def test_rehome_discards_persisted_motorpool_without_current_marker() -> None:
+    owner = _land_cp("Owner", 0.0, 0.0, ControlPointType.AIRBASE)
+    stale = _land_cp("Stale", 5000.0, 0.0, ControlPointType.AIRBASE)
+    loc = PresetLocation(
+        "Removed", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0.0)
+    )
+    tgo = MotorpoolGroundObject("Persisted depot", loc, stale, GroupTask.MOTORPOOL)
+    stale.connected_objectives.append(tgo)
+
+    _rehome([owner, stale])
+
+    assert owner.connected_objectives == []
+    assert stale.connected_objectives == []
+
+
+def test_rehome_deduplicates_current_marker_and_preserves_metadata_and_event() -> None:
+    owner = _land_cp("Owner", 5000.0, 0.0, ControlPointType.AIRBASE)
+    nearest = _land_cp("Nearest", 0.0, 0.0, ControlPointType.FARP)
+    loc = PresetLocation(
+        "Authored", Point(0.0, 0.0, Caucasus()), Heading.from_degrees(0.0)
+    )
+    owner.preset_locations.motorpools = [loc]
+    first = MotorpoolGroundObject("First codename", loc, owner, GroupTask.MOTORPOOL)
+    duplicate = MotorpoolGroundObject("Duplicate codename", loc, owner, GroupTask.MOTORPOOL)
+    owner.connected_objectives = [first, duplicate]
+    events = GameUpdateEvents()
+
+    MotorpoolPopulator(cast(Any, _game([owner, nearest])))._rehome_motorpools(events)
+
+    assert owner.connected_objectives == []
+    assert nearest.connected_objectives == [first]
+    assert first.control_point is nearest
+    assert first.name == "First codename"
+    assert duplicate not in nearest.connected_objectives
+    assert events.updated_tgos == {first}

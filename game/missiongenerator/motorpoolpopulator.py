@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from game.point_with_heading import PointWithHeading
+
 from game.dcs.groundunittype import GroundUnitType
 from game.ground_forces.ai_ground_planner import reserve_armor_for
 from game.theater.controlpoint import ControlPoint, ControlPointType
 from game.theater.theatergroup import TheaterGroup, TheaterUnit
 from game.theater.theatergroundobject import MotorpoolGroundObject
-from game.point_with_heading import PointWithHeading
 
 if TYPE_CHECKING:
     from game.game import Game
@@ -19,6 +20,14 @@ _COLUMNS = 5
 # Keep the Garage_A building at the authored marker; start vehicles clear of it
 # behind the building. 150 ft is the authoring-friendly value.
 _GRID_OFFSET_M = 45.72
+
+MotorpoolIdentity = tuple[str, float, float, float]
+
+
+def motorpool_identity(
+    original_name: str, location: PointWithHeading
+) -> MotorpoolIdentity:
+    return (original_name, location.x, location.y, location.heading.degrees)
 
 
 def _select_capped(
@@ -78,13 +87,19 @@ class MotorpoolPopulator:
             if getattr(cp, "position", None) is None:
                 continue
             eligible.append(cp)
-        if not eligible:
-            return
+        # Gather the complete current authored marker set first.  Persisted TGOs
+        # are projections of these markers; an identity absent from the set was
+        # removed from the campaign and must not survive migration.
+        authored: set[MotorpoolIdentity] = {
+            motorpool_identity(location.original_name, location)
+            for owner in control_points
+            for location in getattr(owner.preset_locations, "motorpools", [])
+        }
 
-        # Gather each TGO once, even if a malformed save references it from more
-        # than one control point.  The first instance for a marker identity wins;
-        # all duplicate references/objects are discarded below.
-        motorpools: dict[tuple[str, float, float, float], MotorpoolGroundObject] = {}
+        # Gather each authored TGO once, even if a malformed save references it
+        # from more than one control point.  The first instance for a marker
+        # identity wins; all duplicate references/objects are discarded below.
+        motorpools: dict[MotorpoolIdentity, MotorpoolGroundObject] = {}
         for owner in control_points:
             for tgo in getattr(owner, "connected_objectives", []):
                 if not isinstance(tgo, MotorpoolGroundObject):
@@ -95,7 +110,8 @@ class MotorpoolPopulator:
                     tgo.position.y,
                     tgo.heading.degrees,
                 )
-                motorpools.setdefault(identity, tgo)
+                if identity in authored:
+                    motorpools.setdefault(identity, tgo)
 
         for owner in control_points:
             owner.connected_objectives[:] = [
@@ -103,6 +119,9 @@ class MotorpoolPopulator:
                 for tgo in owner.connected_objectives
                 if not isinstance(tgo, MotorpoolGroundObject)
             ]
+
+        if not eligible:
+            return
 
         for tgo in motorpools.values():
             previous_owner = tgo.control_point
