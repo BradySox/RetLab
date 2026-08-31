@@ -103,7 +103,7 @@ def test_duplicate_reference_to_same_tgo_is_canonicalized_globally() -> None:
     cp.connected_objectives = [existing]
     other_cp.connected_objectives = [existing]
     migrator = _migrator_with(cp)
-    migrator.game.theater.controlpoints.append(other_cp)
+    migrator.game.theater.controlpoints.append(cast(Any, other_cp))
 
     migrator._ensure_motorpool_tgos()
 

@@ -333,11 +333,17 @@ class Migrator:
             for location in getattr(cp.preset_locations, "motorpools", [])
         }
         existing: dict[tuple[str, float, float, float], MotorpoolGroundObject] = {}
+        identity: tuple[str, float, float, float]
         for cp in control_points:
             for tgo in cp.ground_objects:
                 if not isinstance(tgo, MotorpoolGroundObject):
                     continue
-                identity = motorpool_identity(tgo.original_name, tgo.position)
+                identity = (
+                    tgo.original_name,
+                    tgo.position.x,
+                    tgo.position.y,
+                    tgo.heading.degrees,
+                )
                 if identity in authored:
                     existing.setdefault(identity, tgo)
 
@@ -350,7 +356,12 @@ class Migrator:
                 if not isinstance(tgo, MotorpoolGroundObject):
                     retained.append(tgo)
                     continue
-                identity = motorpool_identity(tgo.original_name, tgo.position)
+                identity = (
+                    tgo.original_name,
+                    tgo.position.x,
+                    tgo.position.y,
+                    tgo.heading.degrees,
+                )
                 if existing.get(identity) is tgo and tgo not in seen:
                     retained.append(tgo)
                     seen.add(tgo)
