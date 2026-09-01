@@ -15,7 +15,10 @@ class QArmorRecruitmentMenu(UnitTransactionFrame[GroundUnitType]):
         super().__init__(
             game_model,
             GroundUnitPurchaseAdapter(
-                cp, game_model.game.coalition_for(owner), game_model.game
+                cp,
+                game_model.game.coalition_for(owner),
+                game_model.game,
+                game_model.transfer_model.inventory_changed.emit,
             ),
         )
         self.cp = cp

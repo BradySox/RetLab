@@ -78,7 +78,7 @@ if TYPE_CHECKING:
     from game import Game
     from game.sim import GameUpdateEvents
     from game.squadrons import Squadron
-    from game.theater import Coalition
+    from game.theater import Coalition, TheaterGroundObject
 
 
 def create_transfer(
@@ -363,7 +363,9 @@ class AirliftPlanner:
 
         return True
 
-    def create_package_for_airlift(self, now: datetime) -> None:
+    def create_package_for_airlift(
+        self, now: datetime, events: GameUpdateEvents
+    ) -> None:
         distance_cache = ObjectiveDistanceCache.get_closest_airfields(
             self.transfer.position
         )
@@ -389,13 +391,8 @@ class AirliftPlanner:
         if self.package.flights:
             self.package.set_tot_asap(now)
             self.game.ato_for(self.for_player).add_package(self.package)
-            from game.server import EventStream
-            from game.sim import GameUpdateEvents
-
-            events = GameUpdateEvents()
             for f in self.package.flights:
-                events = events.new_flight(f)
-            EventStream.put_nowait(events)
+                events.new_flight(f)
 
     def create_airlift_flight(self, squadron: Squadron) -> int:
         """Add one transport flight for this transfer, or return 0 if it cannot.
@@ -678,12 +675,6 @@ class PendingTransfers:
     def __iter__(self) -> Iterator[TransferOrder]:
         yield from self.pending_transfers
 
-    def _send_supply_route_event_stream_update(self) -> None:
-        from game.server import EventStream
-
-        with EventStream.event_context() as events:
-            events.update_supply_routes()
-
     @property
     def pending_transfer_count(self) -> int:
         return len(self.pending_transfers)
@@ -698,10 +689,7 @@ class PendingTransfers:
         return self.game.transit_network_for(control_point.captured)
 
     def arrange_transport(
-        self,
-        transfer: TransferOrder,
-        now: datetime,
-        events: GameUpdateEvents | None = None,
+        self, transfer: TransferOrder, now: datetime, events: GameUpdateEvents
     ) -> None:
         network = self.network_for(transfer.position)
         path = network.shortest_path_between(transfer.position, transfer.destination)
@@ -719,7 +707,9 @@ class PendingTransfers:
                 return self.cargo_ships.add(transfer, next_stop)
         else:
             next_stop = transfer.destination
-        AirliftPlanner(self.game, transfer, next_stop).create_package_for_airlift(now)
+        AirliftPlanner(self.game, transfer, next_stop).create_package_for_airlift(
+            now, events
+        )
 
     def new_transfer(
         self,
@@ -730,10 +720,22 @@ class PendingTransfers:
         assert (
             transfer.player == self.player
         ), "Transfer ownership does not match the collection's player"
+        if events is None:
+            from game.sim import GameUpdateEvents
+
+            events = GameUpdateEvents()
+            publish_events = True
+        else:
+            publish_events = False
         transfer.origin.base.commit_losses(transfer.units)
         self.pending_transfers.append(transfer)
         self.arrange_transport(transfer, now, events)
-        self._send_supply_route_event_stream_update()
+        events.update_motorpools_at(transfer.origin)
+        events.update_supply_routes()
+        if publish_events:
+            from game.server import EventStream
+
+            EventStream.put_nowait(events)
 
     def split_transfer(self, transfer: TransferOrder, size: int) -> TransferOrder:
         """Creates a smaller transfer that is a subset of the original."""
@@ -766,80 +768,98 @@ class PendingTransfers:
 
     # Type checking ignored because singledispatchmethod doesn't work with required type
     # definitions. The implementation methods are all typed, so should be fine.
+    # The dispatch classes are passed explicitly to .register() to avoid
+    # get_type_hints() evaluation (which would require importing GameUpdateEvents
+    # at module load time, creating a circular import through game.sim).
     @singledispatchmethod
-    def cancel_transport(  # type: ignore
+    def cancel_transport(
         self,
-        transport,
+        transport: object,
         transfer: TransferOrder,
+        events: GameUpdateEvents,
     ) -> None:
         pass
 
-    @cancel_transport.register
+    @cancel_transport.register(Airlift)
     def _cancel_transport_air(
-        self, transport: Airlift, _transfer: TransferOrder
+        self, transport: Airlift, _transfer: TransferOrder, events: GameUpdateEvents
     ) -> None:
-        from game.sim import GameUpdateEvents
-        from game.server import EventStream
-
         flight = transport.flight
         flight.package.remove_flight(flight)
-        events = GameUpdateEvents().delete_flight(flight)
+        events.delete_flight(flight)
         if not flight.package.flights:
             self.game.ato_for(self.player).remove_package(flight.package)
-            events = events.delete_flights_in_package(flight.package)
-        EventStream().put_nowait(events)
+            events.delete_flights_in_package(flight.package)
 
-    @cancel_transport.register
+    @cancel_transport.register(Convoy)
     def _cancel_transport_convoy(
-        self, transport: Convoy, transfer: TransferOrder
+        self, transport: Convoy, transfer: TransferOrder, events: GameUpdateEvents
     ) -> None:
         self.convoys.remove(transport, transfer)
 
-    @cancel_transport.register
+    @cancel_transport.register(CargoShip)
     def _cancel_transport_cargo_ship(
-        self, transport: CargoShip, transfer: TransferOrder
+        self, transport: CargoShip, transfer: TransferOrder, events: GameUpdateEvents
     ) -> None:
         self.cargo_ships.remove(transport, transfer)
 
     def cancel_transfer(
         self, transfer: TransferOrder, events: GameUpdateEvents | None = None
     ) -> None:
+        if events is None:
+            from game.sim import GameUpdateEvents
+
+            events = GameUpdateEvents()
+            publish_events = True
+        else:
+            publish_events = False
         if transfer.transport is not None:
-            self.cancel_transport(transfer.transport, transfer)
+            self.cancel_transport(transfer.transport, transfer, events)
         self.pending_transfers.remove(transfer)
         transfer.origin.base.commission_units(transfer.units)
-        self._send_supply_route_event_stream_update()
+        events.update_motorpools_at(transfer.origin)
+        events.update_supply_routes()
+        if publish_events:
+            from game.server import EventStream
 
-    def perform_transfers(self) -> None:
+            EventStream.put_nowait(events)
+
+    def perform_transfers(self, events: GameUpdateEvents) -> None:
         """
         Performs completable transfers from the list of pending transfers and adds
         uncompleted transfers which are en route back to the list of pending transfers.
         Disbands all convoys and cargo ships
         """
-        self.disband_uncompletable_transfers()
+        self.disband_uncompletable_transfers(events)
+        had_transfers = bool(self.pending_transfers)
         incomplete = []
         for transfer in self.pending_transfers:
+            origin = transfer.position
             transfer.proceed()
+            # Refresh both the pre-move (origin/current) and post-move
+            # (destination/commission) locations.
+            events.update_motorpools_at(origin, transfer.position)
             if not transfer.completed:
                 incomplete.append(transfer)
         self.pending_transfers = incomplete
         self.convoys.disband_all()
         self.cargo_ships.disband_all()
-        self._send_supply_route_event_stream_update()
+        if had_transfers:
+            events.update_supply_routes()
 
-    def plan_transports(self, now: datetime) -> None:
+    def plan_transports(self, now: datetime, events: GameUpdateEvents) -> None:
         """
         Plan transports for all pending and completable transfers which don't have a
         transport assigned already. This calculates the shortest path between current
         position and destination on every execution to ensure the route is adopted to
         recent changes in the theater state / transit network.
         """
-        self.disband_uncompletable_transfers()
+        self.disband_uncompletable_transfers(events)
         for transfer in self.pending_transfers:
             if transfer.transport is None:
-                self.arrange_transport(transfer, now)
+                self.arrange_transport(transfer, now, events)
 
-    def disband_uncompletable_transfers(self) -> None:
+    def disband_uncompletable_transfers(self, events: GameUpdateEvents) -> None:
         """
         Disbands all transfers from the list of pending_transfers which can not be
         completed anymore because the theater state changed or the transit network does
@@ -848,9 +868,17 @@ class PendingTransfers:
         completable_transfers = []
         for transfer in self.pending_transfers:
             if not transfer.is_completable(self.network_for(transfer.position)):
+                origin = transfer.position
+                escape = transfer.find_escape_route()
                 if transfer.transport:
-                    self.cancel_transport(transfer.transport, transfer)
+                    self.cancel_transport(transfer.transport, transfer, events)
                 transfer.disband()
+                # Disband may commission units at the position or the escape
+                # route snapshotted before transport cancellation.
+                events.update_motorpools_at(origin)
+                if escape is not None:
+                    events.update_motorpools_at(escape)
+                events.update_supply_routes()
             else:
                 completable_transfers.append(transfer)
         self.pending_transfers = completable_transfers

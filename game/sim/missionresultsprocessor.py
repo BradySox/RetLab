@@ -428,6 +428,9 @@ class MissionResultsProcessor:
                 continue
             logging.info(f"Motorpool {unit_type} destroyed from {control_point}")
             control_point.base.armor[unit_type] -= 1
+            # Refresh the motorpool projection so the depleted TGO is republished
+            # in the operation's single accumulator.
+            events.update_motorpools_at(control_point)
 
     @staticmethod
     def commit_convoy_losses(debriefing: Debriefing) -> None:
