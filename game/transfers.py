@@ -76,8 +76,51 @@ from game.utils import meters, nautical_miles
 
 if TYPE_CHECKING:
     from game import Game
+    from game.sim import GameUpdateEvents
     from game.squadrons import Squadron
     from game.theater import Coalition
+
+
+def create_transfer(
+    game_model: Any,
+    origin: ControlPoint,
+    destination: ControlPoint,
+    units: dict[GroundUnitType, int],
+    now: datetime,
+    request_airflift: bool = False,
+) -> TransferOrder:
+    """Create and register a transfer through the normal model pathway."""
+    transfer = TransferOrder(
+        origin=origin,
+        destination=destination,
+        units=units,
+        player=origin.captured,
+        request_airflift=request_airflift,
+    )
+    game_model.transfer_model.new_transfer(transfer, now)
+    return transfer
+
+
+def submit_transfer(
+    game_model: Any,
+    origin: ControlPoint,
+    destination: ControlPoint,
+    selected_units: dict[GroundUnitType, int],
+    now: datetime,
+    request_airlift: bool = False,
+) -> TransferOrder:
+    """Submit dialog selections through the normal transfer creation pathway."""
+    units = {unit_type: count for unit_type, count in selected_units.items() if count}
+    for unit_type, count in units.items():
+        logging.info(f"Transferring {count} {unit_type} from {origin} to {destination}")
+    return create_transfer(
+        game_model,
+        origin,
+        destination,
+        units,
+        now,
+        request_airflift=request_airlift,
+    )
 
 
 class Transport:
@@ -108,11 +151,13 @@ class TransferOrder:
     #: stops and can switch transport modes before reaching their destination.
     position: ControlPoint = field(init=False)
 
-    #: True if the transfer order belongs to the player.
-    player: Player = field(init=False)
-
     #: The units being transferred.
     units: dict[GroundUnitType, int]
+
+    #: The coalition that owns this transfer. This is the sole ownership authority;
+    #: it is set at construction time and never derived from mutable control-point
+    #: state.
+    player: Player
 
     transport: Optional[Transport] = field(default=None)
 
@@ -129,7 +174,6 @@ class TransferOrder:
 
     def __post_init__(self) -> None:
         self.position = self.origin
-        self.player = self.origin.captured
 
     @property
     def description(self) -> str:
@@ -283,7 +327,7 @@ class AirliftPlanner:
         self.game = game
         self.transfer = transfer
         self.next_stop = next_stop
-        self.for_player = transfer.destination.captured
+        self.for_player = transfer.player
         self.package = Package(next_stop, game.db.flights, auto_asap=True)
 
     def compatible_with_mission(
@@ -653,7 +697,12 @@ class PendingTransfers:
     def network_for(self, control_point: ControlPoint) -> TransitNetwork:
         return self.game.transit_network_for(control_point.captured)
 
-    def arrange_transport(self, transfer: TransferOrder, now: datetime) -> None:
+    def arrange_transport(
+        self,
+        transfer: TransferOrder,
+        now: datetime,
+        events: GameUpdateEvents | None = None,
+    ) -> None:
         network = self.network_for(transfer.position)
         path = network.shortest_path_between(transfer.position, transfer.destination)
         next_stop = path[0]
@@ -672,10 +721,18 @@ class PendingTransfers:
             next_stop = transfer.destination
         AirliftPlanner(self.game, transfer, next_stop).create_package_for_airlift(now)
 
-    def new_transfer(self, transfer: TransferOrder, now: datetime) -> None:
+    def new_transfer(
+        self,
+        transfer: TransferOrder,
+        now: datetime,
+        events: GameUpdateEvents | None = None,
+    ) -> None:
+        assert (
+            transfer.player == self.player
+        ), "Transfer ownership does not match the collection's player"
         transfer.origin.base.commit_losses(transfer.units)
         self.pending_transfers.append(transfer)
-        self.arrange_transport(transfer, now)
+        self.arrange_transport(transfer, now, events)
         self._send_supply_route_event_stream_update()
 
     def split_transfer(self, transfer: TransferOrder, size: int) -> TransferOrder:
@@ -698,7 +755,12 @@ class PendingTransfers:
             units[unit_type] = take
         for td in to_delete:
             del transfer.units[td]
-        new_transfer = TransferOrder(transfer.origin, transfer.destination, units)
+        new_transfer = TransferOrder(
+            transfer.origin,
+            transfer.destination,
+            units,
+            player=transfer.player,
+        )
         self.pending_transfers.append(new_transfer)
         return new_transfer
 
@@ -739,7 +801,9 @@ class PendingTransfers:
     ) -> None:
         self.cargo_ships.remove(transport, transfer)
 
-    def cancel_transfer(self, transfer: TransferOrder) -> None:
+    def cancel_transfer(
+        self, transfer: TransferOrder, events: GameUpdateEvents | None = None
+    ) -> None:
         if transfer.transport is not None:
             self.cancel_transport(transfer.transport, transfer)
         self.pending_transfers.remove(transfer)

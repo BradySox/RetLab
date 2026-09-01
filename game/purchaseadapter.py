@@ -146,6 +146,12 @@ class GroundUnitPurchaseAdapter(PurchaseAdapter[GroundUnitType]):
         self.control_point = control_point
         self.game = game
 
+    def _authorized(self) -> bool:
+        owner = self.control_point.captured
+        return owner.is_blue or (
+            owner.is_red and self.game.settings.enable_enemy_buy_sell
+        )
+
     def pending_delivery_quantity(self, item: GroundUnitType) -> int:
         return self.control_point.ground_unit_orders.pending_orders(item)
 
@@ -153,17 +159,26 @@ class GroundUnitPurchaseAdapter(PurchaseAdapter[GroundUnitType]):
         return self.control_point.base.total_units_of_type(item)
 
     def can_buy(self, item: GroundUnitType) -> bool:
-        return super().can_buy(item) and self.control_point.has_ground_unit_source(
-            self.game
+        return (
+            self._authorized()
+            and super().can_buy(item)
+            and self.control_point.has_ground_unit_source(self.game)
         )
 
     def can_sell(self, item: GroundUnitType) -> bool:
         return False
 
+    def can_sell_or_cancel(self, item: GroundUnitType) -> bool:
+        return self._authorized() and super().can_sell_or_cancel(item)
+
     def do_purchase(self, item: GroundUnitType) -> None:
+        if not self._authorized():
+            raise TransactionError("Ground unit purchases are not authorized")
         self.control_point.ground_unit_orders.order({item: 1})
 
     def do_cancel_purchase(self, item: GroundUnitType) -> None:
+        if not self._authorized():
+            raise TransactionError("Ground unit sales are not authorized")
         self.control_point.ground_unit_orders.sell({item: 1})
 
     def do_sale(self, item: GroundUnitType) -> None:

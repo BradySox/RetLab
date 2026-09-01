@@ -16,6 +16,7 @@ from .transfers import TransferOrder
 
 if TYPE_CHECKING:
     from .game import Game
+    from .sim import GameUpdateEvents
 
 
 class GroundUnitOrders:
@@ -106,10 +107,13 @@ class GroundUnitOrders:
         source: ControlPoint,
         units: dict[GroundUnitType, int],
         now: datetime,
+        events: GameUpdateEvents | None = None,
     ) -> None:
-        coalition.transfers.new_transfer(
-            TransferOrder(source, self.destination, units), now
+        transfer = TransferOrder(
+            source, self.destination, units, player=coalition.player
         )
+        coalition.transfers.new_transfer(transfer, now, events)
+        return None
 
     def find_ground_unit_source(self, game: Game) -> Optional[ControlPoint]:
         # This is running *after* the turn counter has been incremented, so this is the

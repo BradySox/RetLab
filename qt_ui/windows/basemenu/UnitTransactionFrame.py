@@ -71,6 +71,7 @@ class PurchaseGroup(QGroupBox, Generic[TransactionItemType]):
         self.sell_button = QPushButton("-")
         self.sell_button.setProperty("style", "btn-sell")
         self.sell_button.setDisabled(not recruiter.enable_sale(item))
+        self.sell_button.setVisible(recruiter.enable_sale(item))
         self.sell_button.setMinimumSize(16, 16)
         self.sell_button.setMaximumSize(16, 16)
         self.sell_button.setSizePolicy(
@@ -115,6 +116,7 @@ class PurchaseGroup(QGroupBox, Generic[TransactionItemType]):
             self.recruiter.purchase_tooltip(self.buy_button.isEnabled())
         )
         self.sell_button.setEnabled(self.recruiter.enable_sale(self.item))
+        self.sell_button.setVisible(self.recruiter.enable_sale(self.item))
         self.sell_button.setToolTip(
             self.recruiter.sell_tooltip(self.sell_button.isEnabled())
         )
