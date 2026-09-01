@@ -286,6 +286,7 @@
 * **[Modding]** Update Community A4EC Mod to 2.3.0 (May 2025)
 * **[Mission Generator]** Squadrons now spawn using the proper country instead of CTJF, enabling various DCS AI voiceovers
 * **[Campaigns]** Ability to define motor pool objects which spawn reserve armor
+* **[UX]** Show motorpool reserve, in-transit, and expected inventory in Qt and React views with live updates
 * **[Campaigns]** Motorpool placement is Garage_A-anchored and empty reserve pools are excluded from attack planning; updated placement measurements are documented.
 * **[UX]** Add the ability to filter campaigns by version, map, and performance — and, in Vietnam mode, by era.
 * **[Engine]** Bump campaign version to 10.9 for motorpool support
