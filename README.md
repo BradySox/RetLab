@@ -258,6 +258,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   facing a missile the engine will not resolve a target for flies straight instead of
   breaking, so AI losses in heavy SAM country can go up. Turn the plugin off for stock DCS
   behaviour.
+- **Lua profiler (diagnostic).** A plugin for the flight where the sim keeps hitching. Off
+  by default; tick it, regenerate, fly five minutes, untick it. It writes
+  `Saved Games\DCS\Logs\MooseProfiler.txt` — which script is eating the sim thread, or
+  proof that none is — and logs every stall over 250 ms to `dcs.log` with the mission
+  time. The mission runs slower while it profiles.
 - **The bullseye stays put, and the kneeboard says where it is.** The Bullseye line now
   names the place — `Bullseye: King Abdullah II — 32°00'20"N 36°13'25"E` — instead of
   only its coordinates. It is set once for the campaign and stays there, so the number
