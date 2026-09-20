@@ -135,14 +135,14 @@ of runtime game)`, then three tables sorted by total time, time per call, and ca
 A profiled flight is slower than an unprofiled one; compare *shares* between functions,
 never absolute seconds against a normal flight.
 
-## Found on the way, not fixed here
+## Found on the way
 
-- `ai_reaction.lua` is a `scriptsWorkOrders` file that reads
-  `dcsRetribution.plugins.ai_reaction.DEBUG` at file scope. Script work orders load
-  before the plugin's own configuration trigger, so that table does not exist yet and
-  DEBUG is always false — the option in the UI is inert. Moving the script to
-  `configurationWorkOrders` (the pattern every `-config.lua` uses) fixes it.
-- `escort_leash_update` (`dcs_retribution.lua`) re-issues `setOption(ROE)` on every
+- `ai_reaction.lua` was a `scriptsWorkOrders` file reading
+  `dcsRetribution.plugins.ai_reaction.DEBUG` at file scope, before its configuration
+  trigger existed, so DEBUG was always false. Moved to `configurationWorkOrders` in the
+  same change; `tests/test_plugin_script_pass.py` fails any early-pass script that reads
+  its own config table at file scope.
+- Not fixed: `escort_leash_update` (`dcs_retribution.lua`) re-issues `setOption(ROE)` on every
   escort every 10 s whether or not the state changed; ~40 of the `group change option`
   events per 10 s in run 3's debrief are that. Cheap, but it is churn the §94 header
   explicitly says to avoid.

@@ -38,6 +38,7 @@ instead of 45 is not available.
 | `DEBUG` default `true` → `false` | His ships with on-screen text for every tagged shot. Unusable in a mission with a salvo in it, and this plugin is default-on. |
 | Added `dcsRetribution.aiReactionExempt` | §61's host red-scramble sets its bandits Evade Fire deliberately. The baseline sweep stomped them back within 10 s. |
 | Header trimmed to the house 15-line shape | `CLAUDE.md` comment standard. Every constraint survived the trim. |
+| Moved to `configurationWorkOrders` (2026-09-20) | As a `scriptsWorkOrders` file it read `dcsRetribution.plugins.ai_reaction.DEBUG` at file scope, before the config trigger created the table, so DEBUG was always false. `tests/test_plugin_script_pass.py` now guards the pattern tree-wide. |
 
 ## The exemption protocol
 
