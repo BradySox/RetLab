@@ -82,6 +82,26 @@ that field instead of the fragged slot. **~10 min.**
   slot is still in the list. Route and radios are the two answers; write them into §4 of
   the note. A missing type in the dynamic list is the `wsType` fail signature.
 
+### 4 · The profiler names what freezes the sim thread — `B132`
+
+**Why this is a card.** The 2026-09-20 turn froze ~1 s every 15–30 s and three flights
+of log reading could not say why: TIC's retry, the `state.json` write and §94's sweep
+were each cleared by a checkable test, and the rest leaves no log line. Only a
+measurement separates "our Lua" from "DCS on 870 units", and it has to be arranged.
+Evidence and how to read the output:
+[`retlab-sim-thread-freeze-notes.md`](../design/retlab-sim-thread-freeze-notes.md).
+
+**Try:** the turn that freezes (Anatolian Reach, or any turn that hitches). Plugin
+Options → tick **Lua profiler**, regenerate, fly **≥ 6 min past spawn-in, no pausing**,
+untick. Bring `Saved Games\DCS\Logs\MooseProfiler.txt` and `dcs.log`. **~10 min.**
+
+- **Record:** the `Function time … (N %)` line, the top five rows of the first table
+  with their source files, and the `PROFILER| alive` heartbeat's `stalls=` count at the
+  end.
+- **Pass criterion:** none — this card produces a verdict, not a number. One script on
+  top of the table is a code change; a small function-time share with stalls still
+  logging is the turn's size. Either way the answer goes into the note's ledger.
+
 ## Done
 
 ### 2 · A target you destroyed stays destroyed next turn — `B63` — **CLOSED 2026-09-16**

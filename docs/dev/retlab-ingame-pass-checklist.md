@@ -256,7 +256,7 @@ no evidence either way after 33 missions.
 
 ## Outstanding rows at a glance
 
-81 rows need a live pass. Full detail is under each `###` heading below —
+82 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -301,6 +301,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ☐ |
 | B130 | The Viper's STPT 25 is the bullseye the kneeboard names | §74 | ☐ |
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☐ |
+| B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8030,4 +8031,32 @@ tanker) → Incirlik (hosts the KC-135s).
   is still a ship); an AWACS orbit centred on the LHA; a land orbit anchored on a field
   that hosts no AWACS or tanker while one that does sits threatened and unused; a
   hand-fragged second AWACS stacked on the first, or stepped toward the threat.
+
+### B132 — The profiler names the sim-thread sink, or clears Lua of it · sim-thread freeze note · ☐ UNTESTED
+
+The measurement flight behind the 2026-09-20 freeze investigation
+([retlab-sim-thread-freeze-notes.md](design/retlab-sim-thread-freeze-notes.md)). Three
+flights on an 870-unit Anatolian Reach turn froze ~1 s every 15–30 s; TIC's stuck-unit
+retry, the 15 s `state.json` write and §94's sweep were each accused and each cleared
+(the freezes are not phase-locked to any timer, and TIC-off still froze). What is left is
+either a Lua script or DCS itself choking on the size, and the log cannot tell them apart.
+The `profiler` plugin (`resources/plugins/profiler/`, default off) can: MOOSE's PROFILER
+for a window, and a stall log for the whole flight.
+
+- **Setup:** Settings → Plugin Options → tick *Lua profiler*. Regenerate the turn that
+  freezes. Fly ≥ 6 min past spawn-in without pausing. Untick afterwards. ~10 min.
+- **Pass (the instrument):** `dcs.log` carries `PROFILER| stall log armed`, a
+  `PROFILER| alive` heartbeat every 30 s, and `Profiler Started` / `Profiler Stopped`
+  around the window; `Saved Games\DCS\Logs\MooseProfiler.txt` exists with a
+  `Function time … (N % of runtime game)` line and three tables.
+- **The verdict it produces:** either one script dominates the total-time table (a code
+  change, filed against that script), or function time is a small share while
+  `PROFILER| stall` lines keep coming (native DCS; the lever is the turn's size). Write
+  the number and the top five functions into the note's ledger either way.
+- **Fail signatures:** no `PROFILER|` lines at all (the config work order did not load —
+  check the bundled DoScriptFile trigger); `Profiler needs os/io/lfs` in `dcs.log`
+  (`MissionScripting.lua` was overwritten by a DCS update — re-run the Retribution
+  install fix); stalls only outside the profiling window (the hook's own overhead is
+  masking them — rerun with a longer delay); the `.txt` missing after a normal mission
+  end.
 

@@ -9784,6 +9784,10 @@ engine; nothing is inferred from geometry.
   and should clear it when the group dies.
 - **DEBUG is off by default here** (it ships on in juanjux's copy). On, every tagged shot
   prints on screen for all players and every untagged shot writes to `dcs.log`.
+  **The toggle was inert until 2026-09-20**: the script was a `scriptsWorkOrders` file
+  reading its options at file scope, before the config trigger created them. It is a
+  `configurationWorkOrders` file now, and `tests/test_plugin_script_pass.py` fails any
+  early-pass script that reads its own config table at file scope.
 
 ### The trade, stated plainly
 

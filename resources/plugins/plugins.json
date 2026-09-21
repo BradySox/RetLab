@@ -23,5 +23,6 @@
     "MooseMarkerOps",
     "MooseAtis",
     "opscsar",
-    "ai_reaction"
+    "ai_reaction",
+    "profiler"
 ]

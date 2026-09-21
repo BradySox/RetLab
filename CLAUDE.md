@@ -218,6 +218,11 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   sections still needing sub-headings, and **how to replace a section without destroying its
   neighbours** — the first attempt silently deleted four live sections.
 - **Process** — `retlab-verification-cadence-notes.md` (the fly-card throttle, proposed),
+  `retlab-sim-thread-freeze-notes.md` (**read before chasing a stutter** — the 2026-09-20
+  evidence ledger: TIC's retry, the 15 s `state.json` write and §94's sweep were each
+  accused and each cleared by a checkable test (the freezes are not phase-locked to any
+  timer); pathfinding and the radio-storage trim are confirmed stock stalls; the
+  `profiler` plugin measures the rest — runbook and how to read `MooseProfiler.txt`),
   `retlab-dcs-update-2026-08-26-notes.md` (**the 2026-08-26 DCS patch triaged against this
   tree** — the stale pydcs pin that blocks everything, three silent-breakage candidates
   (the replaced BMP-3, the §71 AGM-45B clsid collision, the F-4E SUU-23 migration), the

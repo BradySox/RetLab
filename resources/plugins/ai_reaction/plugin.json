@@ -10,11 +10,11 @@
             "defaultValue": false
         }
     ],
-    "scriptsWorkOrders": [
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
         {
             "file": "ai_reaction.lua",
             "mnemonic": "ai_reaction"
         }
-    ],
-    "configurationWorkOrders": []
+    ]
 }

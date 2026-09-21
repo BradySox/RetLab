@@ -13,6 +13,21 @@
 # changes sharing a date keep the order written here.
 
 entries:
+  - date: 2026-09-20
+    title: A Lua profiler plugin for the flight where the sim keeps hitching
+    change: >-
+      A new plugin, off by default, for diagnosing a stuttering mission. It
+      writes MooseProfiler.txt to Saved Games\DCS\Logs with each script's
+      share of the sim thread, and logs every stall over 250 ms to dcs.log
+      with the mission time and Lua heap size. The mission runs slower while
+      the profiler window is open, so tick it for one flight and untick it.
+    watch: >-
+      Tick Lua profiler, regenerate, fly at least six minutes without pausing.
+      dcs.log should carry a PROFILER| alive line every 30 s and Profiler
+      Started / Profiler Stopped around the window; the .txt should open
+      with a Function time percentage and three tables. Bring both files to
+      the freeze investigation.
+    row: B132
   - date: 2026-09-15
     title: One fuel story on the kneeboard, the Bingo number and the Payload tab
     change: >-

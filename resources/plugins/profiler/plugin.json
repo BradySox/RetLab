@@ -1,0 +1,38 @@
+{
+    "nameInUI": "Lua profiler (diagnostic -- slows the mission while it runs)",
+    "descriptionInUI": "Measures where the mission's Lua time goes and logs every sim-thread stall. Off by default; tick it for ONE flight when the sim is hitching, then untick it. Two outputs in Saved Games\\DCS\\Logs: MooseProfiler.txt (per-function CPU time, calls per second, sorted three ways -- names the script eating the sim thread, or shows Lua is small and the stall is DCS itself) and PROFILER| lines in dcs.log (one per stall longer than the threshold, with the mission time and Lua heap size, plus a 30 s heartbeat). The profiler hooks every Lua call, so the mission runs noticeably slower for the profiling window; the stall log runs the whole mission at no measurable cost.",
+    "defaultValue": false,
+    "specificOptions": [
+        {
+            "nameInUI": "Start profiling after (s)",
+            "descriptionInUI": "Seconds after mission start before the function profiler hooks in. Leave spawn-in out of the window: every run hitches while models load.",
+            "mnemonic": "delaySeconds",
+            "minimumValue": 0,
+            "maximumValue": 3600,
+            "defaultValue": 60
+        },
+        {
+            "nameInUI": "Profile for (s)",
+            "descriptionInUI": "Length of the profiling window. Five minutes covers the settled phase; the report is written when the window ends, or at mission end if that comes first.",
+            "mnemonic": "durationSeconds",
+            "minimumValue": 30,
+            "maximumValue": 3600,
+            "defaultValue": 300
+        },
+        {
+            "nameInUI": "Stall threshold (ms)",
+            "descriptionInUI": "A gap between two consecutive sim ticks longer than this is logged as a stall. 250 ms is a visible hitch; a one-second freeze reads ~1000.",
+            "mnemonic": "hitchThresholdMs",
+            "minimumValue": 50,
+            "maximumValue": 5000,
+            "defaultValue": 250
+        }
+    ],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "profiler-config.lua",
+            "mnemonic": "profiler"
+        }
+    ]
+}
