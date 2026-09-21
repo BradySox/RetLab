@@ -1,5 +1,6 @@
 name: AGM-65K
 year: 2018
+range: 13
 fallback: AGM-65G
 clsids:
   - "{JAS39_AGM_65K}"   # AGM-65K TV Guided Missile

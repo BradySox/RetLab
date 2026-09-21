@@ -1,5 +1,6 @@
 name: AGM-65A
 year: 1972
+range: 13
 fallback: AGM-62 Walleye II
 clsids:
   - "{RB75}"   # Rb-75A (AGM-65A Maverick) (TV ASM)

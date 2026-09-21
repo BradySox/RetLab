@@ -1,5 +1,6 @@
 name: AGM-65B
 year: 1975
+range: 13
 fallback: AGM-65A
 clsids:
   - "{RB75B}"   # Rb-75B (AGM-65B Maverick) (TV ASM)

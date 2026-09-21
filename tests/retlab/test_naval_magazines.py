@@ -158,6 +158,23 @@ def test_coalition_key_follows_the_owning_control_point() -> None:
     assert sides == {"0001 | Blue": "blue", "0002 | Red": "red"}
 
 
+def test_the_manifest_alternates_sides_so_the_stagger_favours_neither() -> None:
+    # The plugin releases groups in manifest order, spread across the window.
+    # Control-point order lists one side's fleets first, so blue's last group
+    # released 13 minutes after red's first (or the reverse).
+    game = _Game(
+        [
+            _Tgo("ship", [_burke_group("0001 | B1")], blue=True),
+            _Tgo("ship", [_burke_group("0002 | B2")], blue=True),
+            _Tgo("ship", [_burke_group("0003 | B3")], blue=True),
+            _Tgo("ship", [_burke_group("0004 | R1")], blue=False),
+            _Tgo("ship", [_burke_group("0005 | R2")], blue=False),
+        ]
+    )
+    order = [m.group_name for m in naval_group_magazines(game)]  # type: ignore[arg-type]
+    assert order == ["0001 | B1", "0004 | R1", "0002 | B2", "0005 | R2", "0003 | B3"]
+
+
 def test_the_debrief_report_is_the_only_debit_site() -> None:
     game = _Game([_Tgo("ship", [_burke_group()])])
     ensure_magazines(game)  # type: ignore[arg-type]

@@ -1,5 +1,6 @@
 name: AGM-65D
 year: 1986
+range: 13
 fallback: AGM-65B
 clsids:
   - "{444BA8AE-82A7-4345-842E-76154EFCCA47}"   # AGM-65D - Maverick D (IIR ASM)

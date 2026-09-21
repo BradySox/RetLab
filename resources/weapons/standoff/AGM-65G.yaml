@@ -1,5 +1,6 @@
 name: AGM-65G
 year: 1989
+range: 13
 fallback: AGM-65F
 clsids:
   - "{HB_F4E_AGM-65G_LAU117}"   # AGM-65G - Maverick G (IIR ASM - Lg Whd) (LAU-117)
