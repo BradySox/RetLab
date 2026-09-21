@@ -166,3 +166,19 @@ Also seen: `0002 | OKAPI (SAM)`, an SA-11 site regenerated as four launchers aft
 search radar and command post on turn 1, is rejected by `setupElements` (no search radar) and
 fights as plain DCS AI, radiating from T0. Its eight launches killed three BARCAP Tomcats. Any
 radar SAM that loses its search radar comes back this way; it is outside the net and HARM-able.
+
+## Sites the config never named (2026-09-21)
+
+A campaign with an `iads_config:` block got its nodes from the block's keys and nothing
+else. A site the author did not name -- an anonymous Ground-N slot the faction filled
+later, a SAM the author did not foresee -- was never exported to Skynet at all: not
+cued, not directed, and the power station beside it meant nothing to it. Range-built
+networks never had the hole. Found in juanjux/dcs-escalation#336, verified in
+`initialize_network_from_config`.
+
+- `IadsNetwork._enrol_sites_the_config_does_not_name` runs after the config and wires
+  by range only the sites the block does not name. Named sites keep exactly their
+  authored connections.
+- `enrol_sites_that_arrived_late` repairs a save on load (`Migrator`): any site with no
+  comms or power link is wired by range, once. Basic-mode networks are untouched.
+- `tests/theater/test_iads_unnamed_sites.py`. Checklist row B133 is the in-game half.
