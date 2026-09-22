@@ -77,22 +77,12 @@ const ROWS: Row[] = [
   {
     color: mapColors.suspected,
     signature: mapStrokes.suspectedArea,
-    label: "Suspected area — localize it",
-  },
-  {
-    color: mapColors.pilotMia,
-    signature: mapStrokes.pilotMia,
-    label: "Pilot down — evading, fly the rescue",
-  },
-  {
-    color: mapColors.pilotPow,
-    signature: mapStrokes.pilotPow,
-    label: "POW — held at an enemy field",
+    label: "Suspected area — engage it to pin it down",
   },
   {
     color: mapColors.airspaceHostileNeutral,
     signature: mapStrokes.airspaceEnforced,
-    label: "Neutral airspace — closed to you, it will intercept",
+    label: "Neutral airspace — closed to you, its SAMs engage",
   },
   {
     color: mapColors.airspaceOpenNeutral,

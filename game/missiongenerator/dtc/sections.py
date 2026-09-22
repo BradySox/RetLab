@@ -16,7 +16,7 @@ from game.missiongenerator.dtc.viper import VIPER_UNIT_TYPE
 
 NAVIGATION = "Navigation"
 PICTURE = "Situation picture"
-WEAPONS = "Weapons and defence"
+WEAPONS = "Weapons and defense"
 COMMS = "Comms"
 GROUPS = (NAVIGATION, PICTURE, WEAPONS, COMMS)
 

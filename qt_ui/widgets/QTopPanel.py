@@ -361,7 +361,7 @@ class QTopPanel(QFrame):
             return False
 
         formatted = "<br />".join(
-            [f"{p.primary_task} {p.target}: {f}" for p, f in missing_pilots]
+            [f"{p.primary_task} {p.target.name}: {f}" for p, f in missing_pilots]
         )
         mbox = QMessageBox(
             QMessageBox.Icon.Critical,

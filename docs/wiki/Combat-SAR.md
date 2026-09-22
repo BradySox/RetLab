@@ -112,11 +112,14 @@ or already collected is not credited twice.
 
 ## Settings reference
 
+In the app: **Difficulty & Realism → Combat search & rescue** and **CSAR flights**; the start
+type is under **Mission Generation → Aircraft start types**.
+
 | Setting | Default | Effect |
 |---|---|---|
 | `csar_enabled` / `csar_enabled_red` | ON / ON | CSAR for the blue and red coalitions. Unlike the old fork feature, **red gets rescues too** |
 | `csar_ejection_chance` | 40% | Survival chance for losses where DCS reported no ejection |
-| `csar_control_point_radius` | 15 nm | Inside this, no rescue flight: friendly = walks back, enemy = captured. 0 always requires a rescue |
+| `csar_control_point_radius` | 15 NM | Inside this, no rescue flight: friendly = walks back, enemy = captured. 0 always requires a rescue |
 | `csar_cluster_radius` | 1000 m | Survivors this close come out on one lift. 0 = one flight each |
 | `csar_survival_turns` | 3 | Turns a survivor lasts in friendly rear territory |
 | `csar_survival_turns_hostile` | 2 | Turns a survivor lasts in hostile territory or near the front |
@@ -129,6 +132,7 @@ or already collected is not credited twice.
 | `csar_rescue_ai_pilots` | ON | Register AI ejections as survivors, not only player-flown ones |
 | `csar_player_hover_height` | 20 m | How low a **player** hovers to winch a survivor up |
 | `csar_player_hover_distance` | 10 m | How close to the survivor that hover has to be |
+| `csar_require_open_doors` | OFF | A survivor boards a player helicopter only with its cabin door open |
 
 ## Tips
 

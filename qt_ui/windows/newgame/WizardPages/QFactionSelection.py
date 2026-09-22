@@ -169,7 +169,7 @@ class QFactionUnits(QScrollArea):
             self.faction.frontline_units,
             ["Frontline vehicles"],
         )
-        grid.addWidget(QLabel("<strong>Frontlines vehicles:</strong>"), counter, 0)
+        grid.addWidget(QLabel("<strong>Front-line vehicles:</strong>"), counter, 0)
         counter = self._add_checkboxes(
             self.faction.frontline_units, counter, grid, hbox
         )

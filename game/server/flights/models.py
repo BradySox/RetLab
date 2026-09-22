@@ -150,7 +150,8 @@ class FlightJs(BaseModel):
             flight_type=flight.task_display_name,
             callsign=flight.custom_name,
             package_target=package.target.name,
-            package_tot=tot.strftime("%H:%M:%SZ") if tot != datetime.min else "",
+            # Mission-local, like every other TOT in the UI: no Zulu suffix.
+            package_tot=tot.strftime("%H:%M:%S") if tot != datetime.min else "",
         )
 
     @staticmethod

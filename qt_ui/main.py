@@ -157,7 +157,7 @@ def run_ui(game: Optional[Game], ui_flags: UiFlags) -> None:
                 "<br/><br/>The easiest way to do it is to replace the original file with the file in dcs-retribution "
                 "distribution (&lt;dcs_retribution_installation&gt;/resources/scripts/MissionScripting.lua)."
                 "<br/><br/>You can find more information on how to manually change this file in the Retribution Wiki "
-                "(Page: Dedicated Server Guide) on GitHub.</p>"
+                "(Page: Dedicated Server Guide) on GitHub."
             )
             message_box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.Ok)
             message_box.setCheckBox(ignore_checkbox)

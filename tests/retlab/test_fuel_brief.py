@@ -278,7 +278,7 @@ def test_text_rendering() -> None:
     text = fuel_brief_text(healthy)
     assert "2 tanks" in text
     assert "1 tanker pass planned" in text
-    assert "+2,458 lb unrefuelled" in text, "the headline must not credit the top-off"
+    assert "+2,458 lb unrefueled" in text, "the headline must not credit the top-off"
     assert "4,458" not in text, "the with-tanker figure is noise when it is not needed"
     assert "short" not in text
 
@@ -313,7 +313,7 @@ def test_text_rendering() -> None:
         estimated=False,
     )
     text = fuel_brief_text(dependent)
-    assert "-1,800 lb unrefuelled" in text
+    assert "-1,800 lb unrefueled" in text
     assert "does NOT get home without the tanker" in text
     assert "+3,200" in text
     assert (

@@ -130,10 +130,10 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     label: "Other ground objects",
     node: <TgosLayer categories={["aa", "factory", "ship"]} exclude />,
   },
-  // "Air defences" is the master air-defense icon layer; the four class rows
+  // "Air defenses" is the master air-defense icon layer; the four class rows
   // below are FILTERS of it, not layers of their own (see AIR_DEFENSE_TASK_ROWS),
   // so its node is built in the render off the live filter state.
-  airDefenses: { label: "Air defences", node: null },
+  airDefenses: { label: "Air defenses", node: null },
   lorad: { label: "LORAD", node: null },
   merad: { label: "MERAD", node: null },
   shorad: { label: "SHORAD", node: null },
@@ -175,7 +175,7 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     node: <ThreatZonesLayer blue={true} filter={ThreatZoneFilter.AIRCRAFT} />,
   },
   blueThreatAirDef: {
-    label: "Blue: air defences",
+    label: "Blue: air defenses",
     node: <ThreatZonesLayer blue={true} filter={ThreatZoneFilter.AIR_DEFENSES} />,
   },
   blueThreatRadar: {
@@ -191,7 +191,7 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     node: <ThreatZonesLayer blue={false} filter={ThreatZoneFilter.AIRCRAFT} />,
   },
   redThreatAirDef: {
-    label: "Red: air defences",
+    label: "Red: air defenses",
     node: <ThreatZonesLayer blue={false} filter={ThreatZoneFilter.AIR_DEFENSES} />,
   },
   redThreatRadar: {
@@ -208,7 +208,7 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
 
 const ALL_IDS = Object.keys(OVERLAYS) as LayerId[];
 
-// The air-defense class rows are FILTERS of the "Air defences" master, not
+// The air-defense class rows are FILTERS of the "Air defenses" master, not
 // independent layers. Master off => no air-defense icons (and the rows grey out).
 // Master on with nothing ticked => every class. Master on with some ticked =>
 // only those. They used to be five independent TgosLayers, which made two states
@@ -277,7 +277,7 @@ const GROUPS: GroupDef[] = [
   },
   {
     key: "airdef",
-    title: "Air defences",
+    title: "Air defenses",
     defaultOpen: true,
     rows: [
       { id: "airDefenses" },

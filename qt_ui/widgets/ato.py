@@ -419,9 +419,10 @@ class QPackagePanel(QGroupBox):
 
         self.tip = QLabel(
             "To create a new package, right click the mission target on the "
-            "map. To target airbase objectives, use\n"
-            "the attack button in the airbase view."
+            'map. To target airbase objectives, use "Attack airfield" in the '
+            "airbase view."
         )
+        self.tip.setWordWrap(True)
         self.vbox.addWidget(self.tip)
 
         self.package_list = QPackageList(game_model, self.ato_model)

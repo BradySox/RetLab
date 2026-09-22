@@ -505,7 +505,7 @@ FEATURES: tuple[Feature, ...] = (
         # price, degraded sites and radars first; C2/comms stay permanently dead),
         # so a rolled-back IADS stops being a one-way ratchet.
         "adaptive_procurement",
-        "Adaptive procurement (posture-coupled spending + SAM repair)",
+        "Adaptive procurement (price-weighted buys + SAM repair)",
         68,
         settings_fields=("adaptive_procurement", "auto_repair_air_defenses"),
     ),

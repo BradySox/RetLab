@@ -122,9 +122,13 @@ class LuaPluginOption(PluginSettings):
         value: Any,
         enabled_when: Optional[PluginOptionEnabledWhen] = None,
         choices: Optional[List[str]] = None,
+        description: str = "",
     ) -> None:
         super().__init__(identifier, value)
         self.name = name
+        #: The manifest's per-option ``descriptionInUI``, rendered under the label.
+        #: Ten were written before anything read them.
+        self.description = description
         #: Allowed values for a string option, rendered as a dropdown. Without it a
         #: string option gets a free-text field, which is the right answer for the
         #: comma-separated pattern lists but not for a closed set.
@@ -171,6 +175,7 @@ class LuaPluginDefinition:
                         name, option.get("enabledWhen")
                     ),
                     choices=option.get("choices"),
+                    description=option.get("descriptionInUI", ""),
                 )
             )
 

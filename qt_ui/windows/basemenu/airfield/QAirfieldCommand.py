@@ -28,13 +28,13 @@ class QAirfieldCommand(QFrame):
         planned.setLayout(planned_layout)
         layout.addWidget(planned, stretch=3)
 
-        wrapper_layout.addWidget(
-            QLabel(
-                "Purchasing aircraft at this airbase requires squadrons to be present. "
-                "To transfer additional squadrons to this airbase, open<br />"
-                "the air wing menu, double click the squadron to transfer, then select "
-                "the transfer destination."
-            )
+        transfer_tip = QLabel(
+            "Purchasing aircraft at this airbase requires squadrons to be present. "
+            "To transfer additional squadrons to this airbase, open the Air Wing "
+            "window, double click the squadron to transfer, then select the "
+            "transfer destination."
         )
+        transfer_tip.setWordWrap(True)
+        wrapper_layout.addWidget(transfer_tip)
 
         self.setLayout(wrapper_layout)

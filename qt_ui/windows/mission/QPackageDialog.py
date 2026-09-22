@@ -115,7 +115,7 @@ class QPackageDialog(QDialog):
         self.tot_spinner.setMinimumTime(QTime(0, 0))
         self.tot_spinner.setDisplayFormat("hh:mm:ss")
         self.tot_spinner.timeChanged.connect(self.save_tot)
-        self.tot_spinner.setToolTip("Package TOT relative to mission TOT")
+        self.tot_spinner.setToolTip("Time over target (mission clock)")
         self.tot_spinner.setEnabled(
             not self.package_model.package.auto_asap
             and self.package_model.package.all_flights_waiting_for_start()

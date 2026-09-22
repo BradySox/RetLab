@@ -14,7 +14,7 @@
             "defaultValue": true
         },
         {
-            "nameInUI": "Minutes between advance bounds (each bound jittered ±25%)",
+            "nameInUI": "Minutes between advance bounds (randomized per group)",
             "mnemonic": "boundPause",
             "defaultValue": 12,
             "minimumValue": 2,

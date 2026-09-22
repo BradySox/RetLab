@@ -187,7 +187,7 @@ class NewPoint(QDialog):
         self.altitude = styled_input(QLineEdit(), width=110)
         self.altitude.setPlaceholderText("0")
         self.units = QComboBox()
-        self.units.addItems(["feet", "metres"])
+        self.units.addItems(["feet", "meters"])
         styled_input(self.units, width=100)
         self.read = _label("", f"font-size: 11px; color: {QUIET_INK};")
         from game.ato.savedpoints import kinds_for
@@ -324,7 +324,7 @@ class NewPoint(QDialog):
             value = float(text) if text else 0.0
         except ValueError:
             return 0
-        if self.units.currentText() == "metres":
+        if self.units.currentText() == "meters":
             value /= 0.3048
         return max(0, round(value))
 

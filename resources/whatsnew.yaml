@@ -14,6 +14,23 @@
 
 entries:
   - date: 2026-09-22
+    title: UH-60L, OH-6, JAS 39, Frenchpack and Spanish navy toggles are back
+    change: >-
+      The New Game Mods page lists them again. Without a toggle their units
+      were stripped from every new game, even where the campaign turns them on.
+    watch: >-
+      Start a new game of a campaign that flies the UH-60L: the Mods page should
+      tick it for you, and its Black Hawk squadrons should be in the air wing.
+  - date: 2026-09-22
+    title: Settings and plugin options say what the game does
+    change: >-
+      Descriptions that still described removed features are corrected, plugin
+      options show their explanations, the plugin pages are Lua Plugins and Lua
+      Plugin Options, and the CSAR settings sit together in one section.
+    watch: >-
+      On Lua Plugin Options, GPS jamming's options each carry a line of
+      explanation. With a pilot down, the SITREP reads "Awaiting rescue:".
+  - date: 2026-09-22
     title: The DTC tab shows your jet's own options, and you can draw on the map
     change: >-
       The DTC tab lists only what your aircraft's cartridge carries, with what

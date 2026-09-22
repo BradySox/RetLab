@@ -104,6 +104,13 @@ class Removed:
     pattern: str
     #: Substrings that make a match a correct "it was removed" statement.
     allow: tuple[str, ...] = ()
+    #: Only ``allow`` excuses a match, never REMOVAL_WORDS. For a reversal, where
+    #: "retired" is itself the stale claim: MIST came back on 2026-09-12.
+    strict: bool = False
+
+    @property
+    def allowed(self) -> tuple[str, ...]:
+        return self.allow if self.strict else REMOVAL_WORDS + self.allow
 
 
 REMOVED: tuple[Removed, ...] = (
@@ -195,20 +202,22 @@ REMOVED: tuple[Removed, ...] = (
     Removed(
         "campaign phases, ROE zones and target release (S40)",
         "2026-07-21",
-        r"restricted_zones:|free_fire_zones:|campaign_phase|free-fire zone|ROE zone",
+        r"restricted_zones:|free_fire_zones:|campaign_phase|free-fire zone|ROE zone"
+        r"|campaign phases",
         allow=("removed", "Removed:", "no longer"),
     ),
     Removed(
         "the political-will economy and the war economy (S48, S53, S54)",
         "2026-07-21",
         r"[Pp]olitical [Ww]ill|Regime Resolve|war economy|munitions availability"
+        r"|\bmandate\b|will profile"
         r"|commitment ceiling",
         allow=("removed", "Removed:", "no longer"),
     ),
     Removed(
         "Red Intent adaptive posture (S55)",
         "2026-07-21",
-        r"[Rr]ed [Ii]ntent|red_intent",
+        r"[Rr]ed [Ii]ntent|red_intent|plays with intent",
         allow=("removed", "no longer"),
     ),
     Removed(
@@ -253,7 +262,8 @@ REMOVED: tuple[Removed, ...] = (
         "the recon-to-BDA bridge and scout-to-reveal (S3)",
         "2026-08-18",
         r"alive_at_last_recon|sync_confirmed_status|until scouted|BDA lag"
-        r"|confirmed BDA|banks what",
+        r"|confirmed BDA|banks what|post-strike BDA|TARPS overflight (identifies|reveals)"
+        r"|recon has (actually )?found",
         allow=("removed", "no longer", "does not"),
     ),
     Removed(
@@ -263,10 +273,15 @@ REMOVED: tuple[Removed, ...] = (
         allow=("retired", "removed", "is gone", "no longer", "upersede"),
     ),
     Removed(
-        "MIST",
-        "2026-07-10",
-        r"mist_4_5_126|\bMIST\b",
-        allow=("retired", "removed", "shim", "MIST→MOOSE", "MIST-to-MOOSE"),
+        # Reversed: MIST was retired 2026-07-10 and is upstream's own build again
+        # since 2026-09-12. The row used to flag every mention of MIST and excuse
+        # "retired", so it passed the stale claim and would fail a correct page.
+        "the MIST retirement and its shim (reversed 2026-09-12)",
+        "2026-09-12",
+        r"MIST is retired|MIST was retired|retired MIST|MIST[- ]?(→|to|-to-)[- ]?MOOSE"
+        r"|compatibility shim|mist_moose_shim",
+        allow=("2026-07-10", "until 2026-09-12", "historical"),
+        strict=True,
     ),
     Removed(
         "Pretense",
@@ -320,7 +335,7 @@ REMOVED: tuple[Removed, ...] = (
         "COMINT collection and the red comms net (S70)",
         "2026-09-07",
         r"comint_collection|red_comms_net|red_net_max_stations|\brednet\b"
-        r"|COMINT block|tasking leak|DF-able|enemy radio net",
+        r"|COMINT block|tasking leak|DF-able|enemy radio net|red comms net",
         allow=("removed", "no longer", "historical", "abandoned"),
     ),
     Removed(
@@ -400,8 +415,15 @@ def is_historical(path: Path) -> bool:
     return any(banner in head for banner in BANNERS)
 
 
+#: A list item opens its own block, so one bullet's "removed" cannot excuse a
+#: neighbour: README's GPS-jamming bullet said "an unscouted one is not" inside a
+#: list whose other bullets carried the allow words.
+LIST_ITEM = re.compile(r"^\s*(?:[-*+]|\d+\.)\s")
+
+
 def paragraphs(text: str) -> list[tuple[int, str, str]]:
-    """Blank-line-separated blocks: (first line number, block, enclosing heading).
+    """Blank-line-separated blocks, each list item its own: (first line number,
+    block, enclosing heading).
 
     The heading travels with the block because a section that announces the removal
     in its own title -- "## Skynet was removed" -- covers every paragraph under it,
@@ -413,19 +435,25 @@ def paragraphs(text: str) -> list[tuple[int, str, str]]:
     heading = ""
     buffer: list[str] = []
 
-    for number, line in enumerate(text.splitlines(), 1):
-        if line.strip():
-            if not buffer:
-                start = number
-            buffer.append(line)
-            continue
-        if buffer:
-            blocks.append((start, "\n".join(buffer), heading))
-            if len(buffer) == 1 and buffer[0].lstrip().startswith("#"):
-                heading = buffer[0]
-            buffer = []
-    if buffer:
+    def flush() -> None:
+        nonlocal heading, buffer
+        if not buffer:
+            return
         blocks.append((start, "\n".join(buffer), heading))
+        if len(buffer) == 1 and buffer[0].lstrip().startswith("#"):
+            heading = buffer[0]
+        buffer = []
+
+    for number, line in enumerate(text.splitlines(), 1):
+        if not line.strip():
+            flush()
+            continue
+        if LIST_ITEM.match(line):
+            flush()
+        if not buffer:
+            start = number
+        buffer.append(line)
+    flush()
     return blocks
 
 
@@ -433,11 +461,14 @@ def scan(paths: Iterable[Path]) -> list[tuple[Removed, Path, int, str]]:
     findings: list[tuple[Removed, Path, int, str]] = []
     for entry in REMOVED:
         matcher = re.compile(entry.pattern)
-        allowed = REMOVAL_WORDS + entry.allow
+        allowed = entry.allowed
         for path in paths:
             text = path.read_text(encoding="utf-8", errors="replace")
             for start, block, heading in paragraphs(text):
-                match = matcher.search(block)
+                # A wrapped line splits a phrase too: "comms\njamming" sat on a
+                # published page past the "comms[ -]jam" row. Same length, so
+                # offsets into the flattened block still index the original.
+                match = matcher.search(block.replace("\n", " "))
                 if not match:
                     continue
                 # Emphasis splits a phrase mid-way ("is **not** shipped"), and a

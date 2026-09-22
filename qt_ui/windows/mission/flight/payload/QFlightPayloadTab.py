@@ -325,7 +325,7 @@ class QFlightPayloadTab(QFrame):
         # though the stock fit were loaded while the pylons beside it say otherwise.
         # The selection is load-bearing (unticking "Use custom loadout" adopts it),
         # so flag the state rather than change what is selected.
-        self.custom_loadout_note = QLabel("(customised)")
+        self.custom_loadout_note = QLabel("(customized)")
         self.custom_loadout_note.setToolTip(
             "The stations below are a custom loadout. The preset named here is what "
             'unticking "Use custom loadout" would load.'

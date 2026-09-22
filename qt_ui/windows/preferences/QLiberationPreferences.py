@@ -99,7 +99,7 @@ class QLiberationPreferences(QFrame):
         layout.addWidget(self.payloads_cb, 5, 1, alignment=Qt.AlignmentFlag.AlignRight)
 
         layout.addWidget(
-            QLabel("<strong>Setup preferences on every start:</strong>"),
+            QLabel("<strong>Show preferences on every start:</strong>"),
             6,
             0,
             alignment=Qt.AlignmentFlag.AlignLeft,
@@ -163,9 +163,9 @@ class QLiberationPreferences(QFrame):
                 self,
                 "The DCS Installation directory was not set",
                 "You set an empty DCS Installation directory! "
-                "<br/><br/>Without this directory, DCS Retribution can not replace the MissionScripting.lua for you and will not work properly. "
-                "In this case, you need to edit the MissionScripting.lua yourself. The easiest way to do it is to replace the original file (&lt;dcs_installation_directory&gt;/Scripts/MissionScripting.lua) with the file in dcs-liberation distribution (&lt;dcs_liberation_installation&gt;/resources/scripts/MissionScripting.lua)."
-                "<br/><br/>You can find more information on how to manually change this file in the Retribution Wiki (Page: Dedicated Server Guide) on GitHub.</p>"
+                "<br/><br/>Without this directory, DCS Retribution cannot replace the MissionScripting.lua for you and will not work properly. "
+                "In this case, you need to edit the MissionScripting.lua yourself. The easiest way to do it is to replace the original file (&lt;dcs_installation_directory&gt;/Scripts/MissionScripting.lua) with the file in dcs-retribution distribution (&lt;dcs_retribution_installation&gt;/resources/scripts/MissionScripting.lua)."
+                "<br/><br/>You can find more information on how to manually change this file in the Retribution Wiki (Page: Dedicated Server Guide) on GitHub."
                 "<br/><br/>Are you sure that you want to leave the installation directory empty?"
                 "<br/><br/><strong>This is only recommended for expert users!</strong>",
                 QMessageBox.StandardButton.Yes,
@@ -179,9 +179,9 @@ class QLiberationPreferences(QFrame):
                 "Wrong DCS installation directory.",
                 self.dcs_install_dir
                 + " is not a valid directory. DCS Retribution requires the installation directory to replace the MissionScripting.lua"
-                "<br/><br/>If you ignore this Error, DCS Retribution can not work properly and needs your attention. "
-                "In this case, you need to edit the MissionScripting.lua yourself. The easiest way to do it is to replace the original file (&lt;dcs_installation_directory&gt;/Scripts/MissionScripting.lua) with the file in dcs-liberation distribution (&lt;dcs_liberation_installation&gt;/resources/scripts/MissionScripting.lua)."
-                "<br/><br/>You can find more information on how to manually change this file in the Retribution Wiki (Page: Dedicated Server Guide) on GitHub.</p>"
+                "<br/><br/>If you ignore this Error, DCS Retribution cannot work properly and needs your attention. "
+                "In this case, you need to edit the MissionScripting.lua yourself. The easiest way to do it is to replace the original file (&lt;dcs_installation_directory&gt;/Scripts/MissionScripting.lua) with the file in dcs-retribution distribution (&lt;dcs_retribution_installation&gt;/resources/scripts/MissionScripting.lua)."
+                "<br/><br/>You can find more information on how to manually change this file in the Retribution Wiki (Page: Dedicated Server Guide) on GitHub."
                 "<br/><br/><strong>This is only recommended for expert users!</strong>",
                 QMessageBox.StandardButton.Ignore,
                 QMessageBox.StandardButton.Ok,

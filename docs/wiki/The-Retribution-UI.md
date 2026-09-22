@@ -39,8 +39,8 @@ into the live win/lose checklist.
 
 - **Save / load / New Game.**
 - **Settings** — organised into focused pages (Difficulty & Realism · Air Doctrine · Campaign
-  Management · Mission Generation · Kneeboards · Performance · Vietnam Ops) with one-click
-  difficulty presets (Casual / Normal / Veteran / Ace).
+  Management · Mission Generation · Kneeboards · Vietnam Ops · Performance · RetLab Features)
+  with one-click difficulty presets (Casual / Normal / Veteran / Ace) and a search box.
 - **Generate the mission / take off.**
 - **Advance the turn / fast-forward.**
 - **Air Wing** and the finance/intel summaries.
@@ -67,10 +67,11 @@ Full workflow: [Mission Planning](Mission-planning).
 Upstream splits map display across two stock Leaflet controls. The fork replaces both with one
 dark-themed grouped panel.
 
-![The unified map layers panel: Default/SEAD/Recon/Clean preset buttons and a Clarity/Firefly/Topographic basemap row across the top, then collapsible groups — Friendly & shared, Air defences, Enemy intel (with the Reveal fog of war overview toggle), Allied & flight plans, Threat zones, Navmesh & terrain — and a Hide all overlays button](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/map-layers-panel.png)
+![The unified map layers panel: Default/SEAD/Recon/Clean preset buttons and a Clarity/Firefly/Topographic basemap row across the top, then collapsible groups — Friendly & shared, Air defenses, Enemy intel (with the Reveal fog of war overview toggle), Allied & flight plans, Threat zones, Navmesh & terrain — and a Hide all overlays button](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/map-layers-panel.png)
 
-- **Grouped, collapsible sections** — Friendly & shared, Air defences, Enemy intel, Allied & flight
-  plans, Threat zones, Navmesh & terrain. Advanced groups start collapsed.
+- **Grouped, collapsible sections** — Friendly & shared, Logistics, Air defenses, Enemy intel,
+  Allied & flight plans, Threat zones, Navmesh & terrain, Display options. Advanced groups start
+  collapsed.
 - **Preset views** — **Default**, **SEAD**, **Recon**, **Clean**, plus "Hide all overlays".
 - **Choices persist** with the campaign and are restored between sessions.
 - **Local chart base maps** — tile sets in `Saved Games/Retribution/MapTiles/` appear as extra

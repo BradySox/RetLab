@@ -111,7 +111,7 @@ class QGroundObjectMenu(QDialog):
 
         self.actionLayout = QHBoxLayout()
 
-        self.sell_all_button = QPushButton("Disband (+" + str(self.total_value) + "M)")
+        self.sell_all_button = QPushButton("Disband (+$" + str(self.total_value) + "M)")
         self.sell_all_button.clicked.connect(self.sell_all)
         self.sell_all_button.setProperty("style", "btn-danger")
 

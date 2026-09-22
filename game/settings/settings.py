@@ -286,6 +286,18 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 ],
             ),
             (
+                "CSAR flights",
+                [
+                    "max_csar_flights",
+                    "csar_single_flight",
+                    "csar_hover_extraction",
+                    "csar_player_hover_height",
+                    "csar_player_hover_distance",
+                    "csar_rescue_ai_pilots",
+                    "csar_require_open_doors",
+                ],
+            ),
+            (
                 "Attrition & replacements",
                 [
                     "ai_pilot_levelling",
@@ -349,7 +361,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 ],
             ),
             (
-                "Recon & SCAR planning",
+                "Recon planning",
                 [
                     "auto_add_tarps_recon",
                 ],
@@ -368,8 +380,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "heli_combat_alt_agl",
                     "heli_cruise_alt_agl",
                     "min_plane_altitude_offset",
-                    "max_csar_flights",
-                    "csar_single_flight",
                     "max_plane_altitude_offset",
                     "min_patrol_altitude",
                 ],
@@ -418,7 +428,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "continuous_campaign_clock",
                     "long_range_carrier_ops",
                     "motorpool_enabled",
-                    "motorpool_spawn_cap",
                     "sp_pilot_mode",
                     "pilot_career_logbook",
                     "lifetime_pilot_profiles",
@@ -515,11 +524,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "opfor_air_start",
                     "support_air_start",
                     "csar_start_type",
-                    "csar_hover_extraction",
-                    "csar_player_hover_height",
-                    "csar_player_hover_distance",
-                    "csar_rescue_ai_pilots",
-                    "csar_require_open_doors",
                 ],
             ),
             (
@@ -623,10 +627,15 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "cruise_missile_strikes",
                     "cruise_missile_auto_raids",
                     "cargo_ship_convoys",
-                    "cargo_ship_convoy_max",
                     "coastal_batteries_engage_ships",
                     "naval_weapon_release_stagger",
                     "naval_magazines",
+                ],
+            ),
+            (
+                "Sea supply convoys",
+                [
+                    "cargo_ship_convoy_max",
                 ],
             ),
             (
@@ -694,6 +703,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "perf_disable_cargo_ships",
                     "perf_frontline_units_prefer_roads",
                     "perf_frontline_units_max_supply",
+                    "motorpool_spawn_cap",
                     "perf_infantry",
                     "perf_destroyed_units",
                 ],
@@ -740,7 +750,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "Electronic & command warfare": [
         "c2_decapitation_effects",  # §52
-        "gps_jamming",  # §85
+        "gps_jamming",  # §86
     ],
     "Naval & missile strike": [
         "long_range_carrier_ops",  # §44
@@ -751,7 +761,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "naval_weapon_release_stagger",  # §81
         "naval_magazines",  # §81
     ],
-    "Auto-planner behaviour": [
+    "Auto-planner behavior": [
         "region_priorities",  # §93
         "weather_aware_planning",  # §67
         "sead_strike_coordination",  # §69
@@ -937,7 +947,7 @@ class Settings:
         section=AI_DIFFICULTY_SECTION,
         detail=(
             "Aircraft are vulnerable, but the player's pilot will be returned to the "
-            "squadron at the end of the mission"
+            "squadron at the end of the mission."
         ),
         default=True,
     )
@@ -1030,7 +1040,7 @@ class Settings:
         detail="How long consecutive BARCAP waves overlap on-station. Higher values"
         " plan more, more-frequent waves so coverage has no handoff gap and the"
         " first wave's timing is less predictable. 0 restores back-to-back,"
-        " non-overlapping waves (the legacy behaviour).",
+        " non-overlapping waves (the legacy behavior).",
     )
     ownfor_default_qra_reserve: int = bounded_int_option(
         "Default QRA reserve per OWNFOR interceptor squadron",
@@ -1082,7 +1092,7 @@ class Settings:
             "confined to the airspace over its own bases and its own side of the "
             "front, so defenders never chase deep into enemy territory. The closest "
             "base still answers first; a rear base only launches once the closer "
-            "one's alert aircraft are spent. Turn this off for the legacy behaviour, "
+            "one's alert aircraft are spent. Turn this off for the legacy behavior, "
             "where a base only ever defends itself."
         ),
     )
@@ -1221,12 +1231,12 @@ class Settings:
             "If checked, the auto-planner appends a single photo-recon flight "
             "(e.g. F-14 TARPS, or a Predator/Reaper drone on a UAV-fielding "
             "faction) to Strike and DEAD packages against high-value targets "
-            "(air defenses, factories, command posts, bridges) for a post-strike "
-            "BDA pass, and to Armed Recon packages as a scouting overwatch over "
-            "the swept corridor. The recon bird overflies the target under the "
-            "package's escort window. Requires a TARPS-capable squadron in range; "
-            "if none is available the flight is simply skipped (the package is "
-            "never scrubbed)."
+            "(air defenses, factories, command posts, bridges) and to Armed Recon "
+            "packages. What it brings back is a hidden enemy command post within "
+            "3 NM of the package's target, revealed on your map; engaging a site "
+            "is what reveals everything else. Requires a TARPS-capable squadron "
+            "in range; if none is available the flight is simply skipped (the "
+            "package is never scrubbed)."
         ),
     )
     recon_intel_fog: bool = boolean_option(
@@ -1274,7 +1284,7 @@ class Settings:
         min=2,
         max=12,
         detail=(
-            "A higher number will force the autoplanner to generate less recovery tankers."
+            "A higher number makes the auto-planner generate fewer recovery tankers."
         ),
     )
     oca_target_autoplanner_min_aircraft_count: int = bounded_int_option(
@@ -1285,7 +1295,7 @@ class Settings:
         min=0,
         max=100,
         detail=(
-            "How many aircraft there has to be at an airfield for "
+            "How many aircraft there have to be at an airfield for "
             "the auto-planner to plan an OCA strike against it."
         ),
     )
@@ -1298,8 +1308,8 @@ class Settings:
         max=100,
         detail=(
             "Ratio of the threat-radius that will be ignored by the OWNFOR "
-            "AI-autoplanner. 0% means the entire threat-radius is considered, "
-            "while 100% would have the autoplanner completely ignore OPFOR air defences."
+            "auto-planner. 0% means the entire threat-radius is considered, "
+            "while 100% would have the auto-planner completely ignore OPFOR air defenses."
         ),
     )
     opfor_autoplanner_aggressiveness: int = bounded_int_option(
@@ -1311,8 +1321,8 @@ class Settings:
         max=100,
         detail=(
             "Ratio of the threat-radius that will be ignored by the OPFOR "
-            "AI-autoplanner. 0% means the entire threat-radius is considered, "
-            "while 100% would have the autoplanner completely ignore OWNFOR air defences."
+            "auto-planner. 0% means the entire threat-radius is considered, "
+            "while 100% would have the auto-planner completely ignore OWNFOR air defenses."
         ),
     )
     ownfor_planner_unpredictability: int = bounded_int_option(
@@ -1371,8 +1381,9 @@ class Settings:
             "Destroying a side's IADS command centers makes its auto-planner "
             "sloppier: as the command network is decapitated, its offensive target "
             "selection gets progressively more unpredictable (the same lever as the "
-            "unpredictability sliders above, scaled by how many command posts are "
-            "down), and its offensive tempo thins -- a decapitated HQ frags fewer "
+            "auto-planner unpredictability settings on the Air Doctrine page, scaled "
+            "by how many command posts are down), and its offensive tempo thins -- "
+            "a decapitated HQ frags fewer "
             "offensive packages per turn (never zero; the floor keeps some pressure "
             "on). So bombing the enemy HQ is a strategic move, not just a strike "
             "checkbox. Reactive defensive tasking is never affected -- a headless "
@@ -1399,7 +1410,7 @@ class Settings:
         ),
     )
     single_sead_escort_flavour: bool = boolean_option(
-        "One SEAD flavour per package",
+        "One SEAD flavor per package",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
         # Stock default (2026-08-09 re-convergence): upstream sets the SEAD and
@@ -1413,9 +1424,9 @@ class Settings:
             "suppression flights while the package that actually needed them flew "
             "with none -- a flown Sinai plan put three Growler flights around two "
             "Harriers attacking a vehicle group and left the EWR strike unescorted. "
-            "With this on a package takes the first suppression flavour proposed "
+            "With this on a package takes the first suppression flavor proposed "
             "and no more. Fighter escorts are unaffected: an anti-ship package "
-            "still doubles them deliberately to saturate a ship's air defences."
+            "still doubles them deliberately to saturate a ship's air defenses."
         ),
     )
 
@@ -1509,7 +1520,7 @@ class Settings:
         default=True,
         detail=(
             "Automatically swaps ATFLIR to LITENING pod for newly generated land-based F/A-18 flights "
-            "without having to change the payload. <u>Takes effect after current turn!</u>"
+            "without having to change the payload. Takes effect from the next turn."
         ),
     )
     ai_jettison_empty_tanks: bool = boolean_option(
@@ -1534,8 +1545,9 @@ class Settings:
         max=5,
         default=-2,
         detail=(
-            "AI flights are nudged off their planned altitude by a random amount so "
-            "they don't all stack at the same height. This is the lowest nudge (use a "
+            "Airplane flights, player flights included, are nudged off their planned "
+            "altitude by a random amount so they don't all stack at the same height. "
+            "This is the lowest nudge (use a "
             "negative value for below). Set lowest and highest to the same value to "
             "turn scatter off - both 0 for none."
         ),
@@ -1603,7 +1615,7 @@ class Settings:
         max=300,
         detail=(
             "Will impact both defensive (BARCAP) and offensive flights. Also has a performance impact, "
-            "lower threat range generally means less BARCAPs are planned."
+            "lower threat range generally means fewer BARCAPs are planned."
         ),
     )
     max_threat_range: int = bounded_int_option(
@@ -1622,7 +1634,9 @@ class Settings:
         "CAS engagement range (NM)",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=DOCTRINE_DISTANCES_SECTION,
-        default=15,
+        # Stock default (2026-09-22 DM call, extending the 08-09 re-convergence);
+        # the RetLab planner suite sets 15.
+        default=10,
         min=0,
         max=100,
     )
@@ -1630,7 +1644,8 @@ class Settings:
         "Armed Recon engagement range (NM)",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=DOCTRINE_DISTANCES_SECTION,
-        default=10,
+        # Stock default, as above; the RetLab planner suite sets 10.
+        default=5,
         min=0,
         max=25,
     )
@@ -1725,8 +1740,8 @@ class Settings:
         detail=(
             "Aircraft type selection is governed by the campaign and the squadron definitions available to "
             "Retribution. Squadrons are generated by Retribution if the faction does not have access to the campaign "
-            "designer's squadron/aircraft definitions. Use the above to increase/decrease aircraft variety by making "
-            "some selections random instead of picking aircraft types from a priority list."
+            "designer's squadron/aircraft definitions. Raise this to increase aircraft variety: some "
+            "selections are then made at random instead of from the priority list."
         ),
     )
     restrict_weapons_by_date: bool = boolean_option(
@@ -1766,8 +1781,8 @@ class Settings:
             "total conquest the stock ending demands. Adds to the normal endings, "
             "never replaces them. Pick a threshold above your starting share or "
             "the campaign ends immediately -- the VICTORY chip on the map ribbon "
-            "shows the live percentage. Works on any campaign; authored `victory:` "
-            "blocks stack with it."
+            "shows the live percentage. Works on any campaign; a campaign's own "
+            "victory conditions stack with it."
         ),
     )
     alternate_victory_attrition: int = bounded_int_option(
@@ -1816,8 +1831,8 @@ class Settings:
             "strike to stop it. Garrison it, kill the cell or cache, or strangle the "
             "source stronghold's caches to break the attempt. Total insurgent bases "
             "never exceed the campaign start (relocate, never grow); a completed flip "
-            "drains your mandate like any lost base. Requires COIN replenishment on; "
-            "intended for COIN campaigns that preseed it."
+            "costs you the base like any other capture. Requires COIN replenishment "
+            "on; intended for COIN campaigns that preseed it."
         ),
     )
     coin_ied: bool = boolean_option(
@@ -1829,12 +1844,12 @@ class Settings:
         detail=(
             "The insurgent supply roads are mined. Hidden emplacements appear on the "
             "ratline -- an emplaced device guarded by a small security team, or a "
-            "mobile VBIED driving for your lines -- recon-fogged targets you must find "
-            "(TARPS/ISR) and strike (CAS/Armed Recon) within a few turns. Destroying "
-            "the device clears the bomb (killing the team alone does not); one you "
-            "leave un-swept detonates on the coalition and drains your mandate (priced "
-            "by the campaign's will profile). Requires COIN replenishment on; intended "
-            "for COIN campaigns that preseed it."
+            "mobile VBIED driving for your lines -- each shown only as a search "
+            "circle on its road until you engage it. Find and strike them (CAS/Armed "
+            "Recon) within a few turns. Destroying the device clears the bomb "
+            "(killing the team alone does not); one you leave un-swept detonates on "
+            "the coalition and the casualties are announced. Requires COIN "
+            "replenishment on; intended for COIN campaigns that preseed it."
         ),
     )
     coin_hvt: bool = boolean_option(
@@ -1845,13 +1860,10 @@ class Settings:
         default=False,
         detail=(
             "The war is a manhunt. A named insurgent leader periodically surfaces near "
-            "a stronghold for a limited strike window -- a real recon-fogged target. "
-            "Killing him inside the window is a blow to the insurgency's momentum, but "
-            "he often shelters among his people (a stronghold on a population ring), so "
-            "the strike carries the collateral-damage dilemma the rings price: take the "
-            "shot dirty (a momentum blow AND a mandate-draining ROE violation), wait for "
-            "a clean one, or let the window close. Requires COIN replenishment on; "
-            "intended for COIN campaigns that preseed it."
+            "a stronghold for a limited strike window -- a real convoy, shown only as "
+            "a search circle until you engage it. Kill it inside the window or it "
+            "escapes; either way the outcome is announced. Requires COIN replenishment "
+            "on; intended for COIN campaigns that preseed it."
         ),
     )
     coin_dispersed_cells: bool = boolean_option(
@@ -1862,8 +1874,9 @@ class Settings:
         default=False,
         detail=(
             "The insurgency operates between the strongholds, not just in them. Small "
-            "recon-fogged cells appear out in the open countryside -- patrol for them "
-            "(TARPS + CAS), don't just hit known positions. A cell you leave alone "
+            "cells appear out in the open countryside, each shown only as a search "
+            "circle until you engage it -- patrol for them (CAS/Armed Recon), don't "
+            "just hit known positions. A cell you leave alone "
             "matures and slips into its home stronghold, bringing a destroyed ammo cache "
             "back into operation (re-opening the regeneration you worked to shut off), "
             "or reinforcing its garrison. Hunting the field cells is how you keep a "
@@ -2015,9 +2028,10 @@ class Settings:
         default=True,
         detail=(
             "If set, squadrons will be limited to a maximum number of pilots and dead "
-            "pilots will replenish at a fixed rate, each defined with the settings "
-            "below. Auto-purchase may buy aircraft for which there are no pilots"
-            "available, so this feature is still a work-in-progress."
+            "pilots will replenish at a fixed rate, set by 'Maximum number of pilots per "
+            "squadron' and 'Squadron pilot replenishment rate'. Auto-purchase may buy "
+            "aircraft for which there are no pilots available, so this feature is "
+            "still a work-in-progress."
         ),
     )
     #: The maximum number of pilots a squadron can have at one time. Changing this after
@@ -2088,12 +2102,12 @@ class Settings:
         max=100,
         detail=(
             "Chance of pilot survival and becoming a downed pilot for aircraft losses "
-            "where DCS did not report an ejection (AI kills and all losses on skipped/simulated turns)."
+            "where DCS did not report an ejection (AI kills and all losses on skipped/simulated turns). "
             "Real in-mission ejections always produce a downed pilot."
         ),
     )
     csar_control_point_radius: int = bounded_int_option(
-        "Control point radius resolving a downed pilot (nm)",
+        "Control point radius resolving a downed pilot (NM)",
         CAMPAIGN_MANAGEMENT_PAGE,
         PILOTS_AND_SQUADRONS_SECTION,
         default=15,
@@ -2143,7 +2157,7 @@ class Settings:
         max=10,
         detail=(
             "Number of turns a downed pilot in hostile territory or close to a front "
-            "line, where enemy ground forces are more likely to capture them waits for "
+            "line, where enemy ground forces are more likely to capture them, waits for "
             "rescue before going missing in action."
         ),
     )
@@ -2187,7 +2201,7 @@ class Settings:
             "several turns -- instead of an independent random draw each turn. "
             "Requires day-and-night missions (the day-only / night-only mission "
             "time settings opt out of the natural cycle and fall back to the "
-            "per-turn rotation). Turn off for the stock per-turn behaviour."
+            "per-turn rotation). Turn off for the stock per-turn behavior."
         ),
         # Stock default (2026-08-09 re-convergence): upstream rotates time of
         # day per turn with memoryless weather. RetLab planner suite preset
@@ -2258,7 +2272,7 @@ class Settings:
             "package needs), so the aircraft is your variety choice and the job is "
             "the war's. Also shows a pre-turn briefing of the reasons this turn "
             "matters: aviators evading with their capture odds, enemy command "
-            "damage you caused, victory progress, and scheduled squadron arrivals. "
+            "damage you caused, and victory progress. "
             "The normal map/ATO planning path is untouched -- this is an express "
             "lane, not a replacement."
         ),
@@ -2331,7 +2345,7 @@ class Settings:
         "Campaign features",
         default=True,
         detail=(
-            "Where the front line sits accounts for how much armour each side "
+            "Where the front line sits accounts for how much armor each side "
             "actually has there, not just how well each side is holding up. "
             "Two bases both at full strength no longer meet in the middle when "
             "one of them is far better equipped. With this off, only the "
@@ -2466,22 +2480,18 @@ class Settings:
         ),
     )
     adaptive_procurement: bool = boolean_option(
-        "AI procurement reads the strategic picture",
+        "Price-weighted AI ground purchases",
         CAMPAIGN_MANAGEMENT_PAGE,
         HQ_AUTOMATION_SECTION,
         # Stock default (2026-08-09 re-convergence): upstream buys uniformly at
         # random. RetLab planner suite preset turns this on.
         default=False,
         detail=(
-            "The AI commander's auto-spend follows its side's strategic read "
-            "instead of a fixed split: a surging enemy shifts budget toward the "
-            "armor its offensive spends, a consolidating one husbands ground and "
-            "rebuilds its air arm, and your own commander leans air-first during "
-            "the rollback air war and ground-first in the offensive phase "
-            "(rides Red plays with intent / campaign phases -- without those "
-            "signals the split is unchanged). Also weights ground-unit buys "
-            "toward the side's more capable hardware instead of picking "
-            "uniformly at random."
+            "Each side's AI commander weights its ground-unit buys by price, the "
+            "capability proxy the model has, so it fields its better hardware more "
+            "often than its cheapest. A weighting, not a maximum: variety is kept. "
+            "With this off, each buy is a uniform random pick among the units it "
+            "can afford."
         ),
     )
     auto_repair_air_defenses: bool = boolean_option(
@@ -2511,8 +2521,8 @@ class Settings:
         min=0,
         max=100,
         detail=(
-            "Used as a distribution to randomize 2/3/4-ships for BARCAP, CAS, OCA & ANTI-SHIP flights. "
-            "The weight W_i is calculated according to the following formula: &#10;&#13;"
+            "Used as a distribution to randomize 2/3/4-ships for BARCAP, CAS, OCA and anti-ship flights. "
+            "The weight W_i is calculated according to the following formula:<br />"
             "W_i = WF_i / (WF2 + WF3 + WF4)"
         ),
     )
@@ -2553,8 +2563,8 @@ class Settings:
         detail=(
             "Plans rescue packages with one helicopter instead of a pair. Cheaper "
             "in airframes and pilots, at the cost of having no wingman to cover the "
-            "pickup or take over if the lead is lost. The weight factors above do "
-            "not apply to CSAR either way."
+            "pickup or take over if the lead is lost. The 2/3/4-ship weight factors "
+            "do not apply to CSAR either way."
         ),
     )
 
@@ -2580,6 +2590,8 @@ class Settings:
             "Player startup time: fast forward until player startup time. "
             "Player taxi time: fast forward until player taxi time. "
             "Player takeoff time: fast forward until player takeoff time. "
+            "Player at IP: fast forward until a player flight reaches its IP, where "
+            "it spawns in the air; AI-only combat on the way resolves without stopping. "
             "First contact: fast forward until first contact between blue and red units. "
             "Manual: manually control fast forward. Show manual controls with --show-sim-speed-controls."
         ),
@@ -2591,8 +2603,8 @@ class Settings:
         default=CombatResolutionMethod.PAUSE,
         choices={
             "Pause": CombatResolutionMethod.PAUSE,
-            "Resolving combat (WIP)": CombatResolutionMethod.RESOLVE,
-            "Skipping combat": CombatResolutionMethod.SKIP,
+            "Resolve (WIP)": CombatResolutionMethod.RESOLVE,
+            "Skip": CombatResolutionMethod.SKIP,
         },
         detail=(
             "Pause stops fast-forward so the combat can be flown. Resolve uses the "
@@ -2670,7 +2682,7 @@ class Settings:
             "actually carries -- Link 16 on a Hornet or Viper, SADL on an A-10C. "
             "Without it the jet's terminal never comes up and the SA page stays "
             "empty. Era-correct gives it only to airframes whose datalink existed "
-            "by the campaign date; Always on is the old behaviour and is "
+            "by the campaign date; Always on is the old behavior and is "
             "anachronistic in a Cold War or Gulf War campaign; Never disables "
             "datalink for everyone."
         ),
@@ -2693,10 +2705,8 @@ class Settings:
         detail=(
             "Generate target/airfield reconnaissance pages for player flights with "
             "air-to-ground tasks, showing aimpoints, threat rings, and target area "
-            "context over satellite imagery. The historical marker/tile misalignment "
-            "was fixed 2026-07-18 (regional DCS-vs-real-world imagery offset applied "
-            "to every page + a subdivided warp on large extents); off by default "
-            "pending an in-game pass of the fix."
+            "context over satellite imagery. Off by default until the imagery "
+            "alignment has had an in-game pass."
         ),
     )
     generate_all_packages_kneeboard: bool = boolean_option(
@@ -2720,10 +2730,10 @@ class Settings:
         detail=(
             "Append a Threat Intel Brief page: the enemy air-defense laydown "
             "(SAM/EWR system, engagement range, HARM ALIC code, bullseye cue and "
-            "live/degraded/dead status), modelled on the per-system threat cards in "
+            "live/degraded/dead status), modeled on the per-system threat cards in "
             "professional campaign intelligence briefings. Recon-fog aware — an "
             "undiscovered site shows only its intel-tier band ('Unidentified MERAD') "
-            "until a TARPS overflight identifies it. On by default."
+            "until you engage it. On by default."
         ),
     )
     enable_package_code_words: bool = boolean_option(
@@ -2734,7 +2744,8 @@ class Settings:
         detail=(
             "Give each package three SRS code words (push / success / abort) and surface "
             "them so a briefing can be built before generation: a package tooltip in the "
-            "ATO list and a 'PUSH <word>' tag on the join waypoint, plus the code words "
+            "ATO list and a 'PUSH' tag naming the push word on the join waypoint, plus "
+            "the code words "
             "on the kneeboard (the flight's own words in the Mission Info BLUF and the "
             "side-wide table on the Support Info page). Human comms aids only — nothing "
             "scripts off them. Off by default."
@@ -2753,7 +2764,7 @@ class Settings:
         ),
     )
     target_recon_extra_threat_search_nmi: int = bounded_int_option(
-        "Extra threat search radius (nmi)",
+        "Extra threat search radius (NM)",
         MISSION_GENERATOR_PAGE,
         KNEEBOARD_SECTION,
         default=0,
@@ -2770,20 +2781,13 @@ class Settings:
         GAMEPLAY_SECTION,
         default=True,
         detail=(
-            "Does not adjust package waypoint times. Should not be used if players "
-            "have runway or in-air starts. Ignored when the mission has fewer than "
-            "two player slots: a lone player flight spawns at its planned start "
-            "time instead."
-        ),
-        tooltip=(
-            "Always spawns player aircraft immediately, even if their start time is "
-            "more than 10 minutes after the start of the mission. <strong>This does "
-            "not alter the timing of your mission. Your TOT will not change. This "
-            "option only allows the player to wait on the ground.</strong> This is "
-            "a multiplayer option (it keeps every player slot selectable from "
-            "mission start): a mission with fewer than two player slots ignores it, "
-            "spawning the flight at its planned start time — cold starts appear at "
-            "engine-start time, hot starts at their taxi or takeoff time."
+            "Spawns every player aircraft at mission start, even one whose start "
+            "time is more than 10 minutes in. <strong>Your TOT does not change: the "
+            "player simply waits on the ground.</strong> A multiplayer option that "
+            "keeps every player slot selectable from mission start; a mission with "
+            "fewer than two player slots ignores it and spawns the flight at its "
+            "planned start time (cold starts at engine start, hot starts at taxi or "
+            "takeoff). Should not be used if players have runway or in-air starts."
         ),
     )
     untasked_opfor_client_slots: bool = boolean_option(
@@ -2847,8 +2851,8 @@ class Settings:
         choices={v.value: v for v in StartType},
         default=StartType.WARM,
         detail=(
-            "Start type for combat search and rescue flights, overriding the AI "
-            "and player defaults above."
+            "Start type for combat search and rescue flights, overriding the "
+            "default start types for AI aircraft and player flights."
         ),
     )
     csar_hover_extraction: bool = boolean_option(
@@ -2857,10 +2861,10 @@ class Settings:
         GAMEPLAY_SECTION,
         default=True,
         detail=(
-            "Controls how an AI rescue helicopter recovers a downed pilot.\n\n"
-            "Unchecked: the helicopter lands and the pilot walks aboard.\n\n"
-            "Checked (default): the helicopter holds a low hover over the pickup and the "
-            "pilot is extracted by script, as though hoisted."
+            "Controls how an AI rescue helicopter recovers a downed pilot. "
+            "Checked (default): the helicopter holds a low hover over the pickup and "
+            "the pilot is extracted by script, as though hoisted. Unchecked: the "
+            "helicopter lands and the pilot walks aboard."
         ),
     )
     csar_rescue_ai_pilots: bool = boolean_option(
@@ -2904,8 +2908,8 @@ class Settings:
         default=False,
         detail=(
             "If set, a survivor will not climb aboard a player's helicopter until "
-            "its cabin door is open, and will not get out again until it is opened."
-            "Player Flights Only"
+            "its cabin door is open, and will not get out again until it is opened. "
+            "Player flights only."
         ),
     )
     default_player_laser_code: DefaultPlayerLaserCode = choices_option(
@@ -3073,7 +3077,7 @@ class Settings:
         default=True,
         detail=(
             "AI aircraft have unlimited fuel applied at start, removed at join/racetrack start,"
-            " and reapplied at split/racetrack end for applicable flights. "
+            " and reapplied at split/racetrack end for applicable flights."
         ),
     )
     dynamic_slots: bool = boolean_option(
@@ -3198,7 +3202,7 @@ class Settings:
             "menu can launch a 2/4-ship from any red airfield and vector it straight "
             "onto the nearest friendly fighters -- the emergency 'give the flight "
             "something to shoot' button for a session gone quiet. Restrict who sees "
-            "the menu with the redscramble plugin's 'Host player names' option: "
+            "the menu with the 'Host red scramble' plugin's 'Host player names' option: "
             "comma-separated DCS names or name fragments (substring match, so a "
             "static tag like 'Flash' covers 'Viper 1-1 | Flash' whatever the flight "
             "prefix); empty shows it to every BLUE client. "
@@ -3230,7 +3234,7 @@ class Settings:
             "is, and whether it lets you through, are read from who holds the "
             "airfields inside it. AI intruders are never engaged, and the "
             "auto-planner ignores the borders entirely. Needs the 'Neutral "
-            "border defense' LUA plugin ticked. Borders ship with the eight "
+            "border defense' Lua plugin ticked. Borders ship with the eight "
             "real-world terrains, so no campaign has to author anything; a "
             "campaign may still author its own. Batteries are free, untracked "
             "event content."
@@ -3298,7 +3302,7 @@ class Settings:
             "every salvo spends stock you never get back. The missiles are real "
             "weapons from a real, tracked ship: kills count at debrief, enemy "
             "point defense can intercept them, and sinking the shooter ends the "
-            "raids. Symmetric. Runs via the 'Cruise missile strikes' LUA plugin "
+            "raids. Symmetric. Runs via the 'Cruise missile strikes' Lua plugin "
             "-- keep that plugin enabled or this setting does nothing."
         ),
     )
@@ -3313,7 +3317,8 @@ class Settings:
             "raid: a salvo fired early in the mission at its highest-value "
             "reachable enemy ground object -- command centers and comms first, "
             "then war-industry buildings, then anything strikeable. Your own "
-            "raids respect the campaign ROE zones. Watch for the LAUNCH WARNING: "
+            "raids never pick a target hidden from your map, or one in a region "
+            "set to Ignore. Watch for the LAUNCH WARNING: "
             "an enemy raid is your point-defense SAMs' problem -- or yours."
         ),
     )
@@ -3325,11 +3330,12 @@ class Settings:
         detail=(
             "A ground-unit shipment that travels by sea -- a shipping lane between two "
             "friendly ports with no road link -- sails as a small CONVOY of cargo "
-            "ships instead of one lone hull (about one ship per two units, up to the "
-            "cap below). Each ship carries its own share of the cargo, so losses are "
+            "ships instead of one lone hull (about one ship per two units, up to "
+            "'Maximum cargo ships per sea convoy' on the Mission Generation page). "
+            "Each ship carries its own share of the cargo, so losses are "
             "proportional: sink two of five ships and roughly two-fifths of the "
             "reinforcement never arrives, the rest still lands. Turn it off for the "
-            "old single-ship behaviour."
+            "old single-ship behavior."
         ),
     )
     cargo_ship_convoy_max: int = bounded_int_option(
@@ -3355,7 +3361,7 @@ class Settings:
             "Warships start the mission on return-fire and are released to "
             "weapons-free one group at a time across a window, instead of every "
             "hull opening up at once. A modern anti-ship missile out-ranges the "
-            "whole theatre, so without this the fleets are in range of each other "
+            "whole theater, so without this the fleets are in range of each other "
             "from the moment the mission loads and the entire naval battle happens "
             "in the first five minutes. They still defend themselves while they "
             "wait -- this delays who shoots first, it does not disarm anyone. "
@@ -3377,7 +3383,7 @@ class Settings:
             "disarmed: it still shoots back, it just has no missiles left to open "
             "with. Land-attack cruise missiles are counted separately by their own "
             "setting, so nothing is charged twice. Symmetric. Runs via the 'Naval "
-            "magazines & weapons release' LUA plugin -- keep that plugin enabled "
+            "magazines & weapons release' Lua plugin -- keep that plugin enabled "
             "or this setting does nothing."
         ),
     )
@@ -3402,21 +3408,23 @@ class Settings:
         default=False,
         detail=(
             "Enemy GPS-jamming ground sites deny satellite guidance over an area "
-            "around themselves. A JDAM, JSOW, JASSM, SLAM-ER or KAB-*S released "
+            "around themselves. A JDAM, JSOW, JASSM, SLAM-ER or KAB-*S that flies "
             "into a live jammer's bubble is put down off the aimpoint -- further "
             "off the deeper inside the bubble it was -- so the pass fails and the "
-            "target survives. Laser, TV and IR weapons are unaffected, so the "
-            "answer is to change delivery method, stand off outside the bubble, "
+            "target survives. Releasing from outside the bubble does not save the "
+            "pass: a weapon aimed at a target inside it still flies in, and still "
+            "misses by at least a third of the full miss distance. Laser, TV and IR "
+            "weapons are unaffected, so the answer is to change delivery method "
             "or find and kill the jammer (which restores accuracy at once, in the "
             "same mission). Symmetric: a site degrades the other side's weapons "
             "only. Known jamming areas are briefed on the kneeboard, but only once "
-            "recon has actually found the site. Inert unless a campaign fields a "
-            "unit that jams. Runs via the 'GPS jamming' LUA plugin -- keep that "
+            "you have engaged the site. Inert unless a campaign fields a "
+            "unit that jams. Runs via the 'GPS jamming' Lua plugin -- keep that "
             "plugin enabled or this setting does nothing."
         ),
     )
     gps_jamming_default_reach_nm: float = bounded_float_option(
-        "GPS denial reach (nm)",
+        "GPS denial reach (NM)",
         enabled_when="gps_jamming",
         page=MISSION_GENERATION_PAGE,
         section=GENERAL_SECTION,
@@ -3461,7 +3469,7 @@ class Settings:
         "Fire support",
         detail=(
             "Heavy-bomber (B-52) Strike missions saturate the target area with a walking "
-            "carpet of bombs at time-on-target instead of a single aimpoint, modelling the "
+            "carpet of bombs at time-on-target instead of a single aimpoint, modeling the "
             "Operation Niagara Arc Light strikes. Tactical strikers (F-4/A-4) are unaffected."
         ),
         default=False,
@@ -3520,7 +3528,7 @@ class Settings:
         detail=(
             "A formation of transport helos runs one supply run per turn into a cut-off "
             "forward friendly outpost (launch field -> outpost -> back), tracked live on the "
-            "F10 map so you can find it and fly escort -- modelling the Khe Sanh 'Super "
+            "F10 map so you can find it and fly escort -- modeling the Khe Sanh 'Super "
             "Gaggle'. Needs a friendly forward outpost near the front, or it has no effect."
         ),
         default=False,
@@ -3642,13 +3650,13 @@ class Settings:
         default=False,
         detail=(
             "The graduated alternative to culling: rear-area garrison vehicle groups "
-            "keep existing (visible, strikeable, recon/BDA and threat rings stay "
-            "honest, kills record normally) but their AI is switched off at mission "
+            "keep existing (visible, strikeable, threat rings stay honest, kills "
+            "record normally) but their AI is switched off at mission "
             "start and woken only while an aircraft -- either side's -- is within the "
             "wake radius, cutting the sim cost of hundreds of thinking ground units. "
             "Air defenses, the front line, convoys and every scripted mover are never "
             "touched. Composes with culling: sleep what you keep, cull only what you "
-            "never want to exist. Runtime lives in the 'Ground AI sleep' LUA plugin "
+            "never want to exist. Runtime lives in the 'Ground AI sleep' Lua plugin "
             "(wake radius and cadence tunable there). OFF by default, and no campaign "
             "turns it on: an AI strike or SEAD flight cannot prosecute a sleeping "
             "group -- its attack task finds no target from the ingress point and the "
@@ -3729,7 +3737,7 @@ class Settings:
     enable_air_wing_adjustments: bool = False
     enable_enemy_buy_sell: bool = False
 
-    # LUA Plugins system
+    # Lua plugins system
     plugins: Dict[str, bool] = field(default_factory=dict)
 
     #: §93 target families -> RegionPriority value. Carries no option metadata on

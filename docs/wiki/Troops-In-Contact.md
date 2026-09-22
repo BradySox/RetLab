@@ -6,7 +6,7 @@ engagement, TIC keeps maneuver units in formation, has them trade theatrical sup
 fire, and moves them according to each side's combat stance — so the ground battle is
 something you can actually fly close air support over for the length of a sortie.
 
-TIC is a **plugin, default ON**. You can toggle it per campaign on the LUA Plugins Options
+TIC is a **plugin, default ON**. You can toggle it per campaign on the Lua Plugins
 page ("Troops In Contact").
 
 ## What TIC changes at the front

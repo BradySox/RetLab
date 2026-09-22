@@ -165,7 +165,7 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
   [Squadrons and Pilots](Squadrons-and-Pilots).
 
 Most campaign-facing systems have their own setting or plugin toggle. **Hidden enemy command
-posts** (Difficulty & Realism → Realism & restrictions) is on by default for new campaigns —
+posts** (RetLab Features → Recon, concealment & intel) is on by default for new campaigns —
 details on [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
 
 ---

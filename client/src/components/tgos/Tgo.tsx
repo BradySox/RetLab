@@ -63,7 +63,7 @@ function ConcealedTgo(props: TgoProps) {
     <Tooltip>
       Suspected enemy activity ({props.tgo.control_point_name})
       <br />
-      Somewhere in this area — fly recon to localize
+      Somewhere in this area — engage it to pin it down
       <br />
       <i>Left-click: intel · Right-click: plan a package</i>
     </Tooltip>

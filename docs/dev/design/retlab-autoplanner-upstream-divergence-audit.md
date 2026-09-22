@@ -196,6 +196,15 @@ nothing consults a front line -- so it does not re-open §6. In-game row B131.
 
 This amendment is the authority for AEW&C station spacing and the tanker step direction only.
 
+### Amendment 2026-09-22 — engagement ranges join the suite (DM call)
+
+The 2026-06 bump of `cas_engagement_range_distance` (10 → 15 NM) and
+`armed_recon_engagement_range_distance` (5 → 10 NM) was never ruled on by the
+re-convergence: neither the Ungated list nor the defaults flip covered it, so every new game
+still planned with the wider ranges. Found by the 2026-09-22 settings audit's upstream diff.
+Defaults are upstream's 10 / 5 again; the planner suite sets 15 / 10. No campaign preseeded
+either field. `test_fresh_settings_are_stock` now covers both.
+
 ## Levers, if pulling back (superseded by the decision above; kept for the record)
 
 1. "Stock planner" settings preset (the §28 preset machinery exists): flips the whole default-ON table above in one click. Can't touch the ungated items.

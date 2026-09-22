@@ -256,6 +256,7 @@ class QSquadronSelector(QDialog):
         self.init()
 
     def init(self):
+        self.setWindowTitle("Change squadron")
         vbox = QVBoxLayout()
         self.setLayout(vbox)
 

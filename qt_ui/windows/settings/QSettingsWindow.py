@@ -753,7 +753,7 @@ class DifficultyPresetBar(QGroupBox):
 
 
 class PlannerSuiteBar(QGroupBox):
-    """The one-click RetLab planner-suite switch atop the Campaign Doctrine page.
+    """The one-click RetLab planner-suite switch atop the RetLab Features page.
 
     Since the 2026-08-09 re-convergence decision the settings DEFAULTS are the
     stock (upstream) planner behavior; this bar opts a campaign back into the
@@ -766,7 +766,7 @@ class PlannerSuiteBar(QGroupBox):
         settings: Settings,
         on_apply: Callable[[bool], None],
     ) -> None:
-        super().__init__("Planner behavior")
+        super().__init__("Planner suite")
         self._on_apply = on_apply
 
         outer = QVBoxLayout()
@@ -775,9 +775,11 @@ class PlannerSuiteBar(QGroupBox):
         intro = QLabel(
             "One click sets the RetLab planner gates together: stock plans like "
             "upstream DCS Retribution; the RetLab suite turns on overlapping "
-            "BARCAP waves, SEAD-window strike timing, auto recon flights, "
-            "weather-aware planning, escort jammers, adaptive procurement, "
-            "and the continuous clock. Each can still be fine-tuned below."
+            "BARCAP waves, SEAD-window strike timing, one suppression flight per "
+            "package, SEAD escorts for front-line CAS, auto recon flights, "
+            "weather-aware planning, escort jammers, price-weighted AI ground "
+            "purchases, the continuous clock, and wider CAS and Armed Recon "
+            "engagement ranges. Each can still be changed on its own afterwards."
         )
         intro.setWordWrap(True)
         outer.addWidget(intro)
@@ -818,7 +820,7 @@ class QSettingsWindow(QDialog):
         self.setWindowTitle("Settings")
         self.setWindowIcon(CONST.ICONS["Settings"])
         # Open large by default. The stock 840x480 minimum left the settings pages -- the
-        # LUA Plugins Options page especially -- clipped behind a horizontal scrollbar, with
+        # Lua Plugin Options page especially -- clipped behind a horizontal scrollbar, with
         # the option labels' input controls pushed off the right edge. Give it room, but
         # clamp the initial size to the available screen so it never opens off-display.
         self.setMinimumSize(1000, 620)
@@ -946,14 +948,14 @@ class QSettingsWidget(QtWidgets.QWizardPage, SettingsContainer):
         self.categoryModel.appendRow(cheat)
         self.right_layout.addWidget(self.cheatPage)
 
-        plugins = QStandardItem("LUA Plugins")
+        plugins = QStandardItem("Lua Plugins")
         plugins.setIcon(CONST.ICONS["Plugins"])
         plugins.setEditable(False)
         plugins.setSelectable(True)
         self.categoryModel.appendRow(plugins)
         self.right_layout.addWidget(self.pluginsPage)
 
-        pluginsOptions = QStandardItem("LUA Plugins Options")
+        pluginsOptions = QStandardItem("Lua Plugin Options")
         pluginsOptions.setIcon(CONST.ICONS["PluginsOptions"])
         pluginsOptions.setEditable(False)
         pluginsOptions.setSelectable(True)

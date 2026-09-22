@@ -35,6 +35,8 @@ PLANNER_SUITE_VALUES: dict[str, tuple[Any, Any]] = {
     "max_escort_jammers": (0, 4),
     "adaptive_procurement": (False, True),
     "continuous_campaign_clock": (False, True),
+    "cas_engagement_range_distance": (10, 15),
+    "armed_recon_engagement_range_distance": (5, 10),
 }
 
 
