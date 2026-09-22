@@ -201,7 +201,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   are decided in native code — row `B125` owns both),
   `retlab-my-aircraft-notes.md` (**§102, BUILT 2026-09-22, not flown** — the My
   aircraft window, saved points and drawings per airframe, the per-airframe DTC
-  tab; §5a lists four §74 schema defects found and NOT fixed; rows `B134`/`B135`),
+  tab; §5a lists four §74 schema defects found and NOT fixed; rows `B135`/`B136`),
   `retlab-startup-times-notes.md` (**where a `startup_minutes:` value may come from** — read
   before adding one; unsourced numbers are the failure mode),
   `retlab-loadout-integrity-audit-notes.md`

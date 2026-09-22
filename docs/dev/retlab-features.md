@@ -10718,9 +10718,9 @@ The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`
 `tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
 `coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
 
-### Needs an in-game pass — B134, B135
+### Needs an in-game pass — B135, B136
 
-B134: the cockpit numbering and sequence 2. B135: hand-load, skipped waypoints, and
+B135: the cockpit numbering and sequence 2. B136: hand-load, skipped waypoints, and
 orbits and drawings on each jet's page.
 
 ### Deferred

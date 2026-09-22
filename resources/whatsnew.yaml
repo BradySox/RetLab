@@ -26,7 +26,7 @@ entries:
       Set Pilot loads it on a Viper, untick Join, draw an area. In the jet the
       cartridge should wait for you, the join point should be gone with the
       numbers closed up, and the area should be on the HSD.
-    row: B135
+    row: B136
   - date: 2026-09-22
     title: My aircraft, and points you save to your own jet
     change: >-
@@ -41,7 +41,7 @@ entries:
       Save a point to a Hornet or Viper and generate. The kneeboard's extra
       points page gives it a number; that STPT in the jet should be the same
       point, and SEQ1 should still be the route.
-    row: B134
+    row: B135
   - date: 2026-09-20
     title: A Lua profiler plugin for the flight where the sim keeps hitching
     change: >-

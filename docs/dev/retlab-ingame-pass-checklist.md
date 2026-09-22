@@ -303,8 +303,8 @@ stress it · `✗` fail signature reproduced in-game.
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☐ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
-| B134 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
-| B135 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
+| B135 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
+| B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8064,7 +8064,7 @@ for a window, and a stall log for the whole flight.
   end.
 
 
-### B135 — The DTC options do what the tab says: hand-load, skipped waypoints, your drawings · §102 · ☐ UNTESTED
+### B136 — The DTC options do what the tab says: hand-load, skipped waypoints, your drawings · §102 · ☐ UNTESTED
 
 The DTC tab was rebuilt per airframe on 2026-09-22
 ([retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md) §5).
@@ -8079,7 +8079,7 @@ The DTC tab was rebuilt per airframe on 2026-09-22
   ignored); the jet's STPT numbers do not match the kneeboard after a skip; a drawing is
   missing (no free line slot, or the jet rejected the line).
 
-### B134 — A saved point reaches the cockpit with the number the kneeboard gives it · §102 · ☐ UNTESTED
+### B135 — A saved point reaches the cockpit with the number the kneeboard gives it · §102 · ☐ UNTESTED
 
 Saved points (2026-09-22, [retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md))
 go into the §74 cartridge on route sequence 2 (Hornet, Viper) or the A-10's CDU EXTRA

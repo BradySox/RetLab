@@ -102,7 +102,7 @@ untick. Bring `Saved Games\DCS\Logs\MooseProfiler.txt` and `dcs.log`. **~10 min.
   top of the table is a code change; a small function-time share with stalls still
   logging is the turn's size. Either way the answer goes into the note's ledger.
 
-### 5 · A saved point is the same STPT in the jet as on the kneeboard — `B134`
+### 5 · A saved point is the same STPT in the jet as on the kneeboard — `B135`
 
 **Why this is a card.** A point has to be saved on purpose before a flight can show it.
 Headless tests pin the cartridge and the kneeboard numbers; only the jet shows whether

@@ -2,7 +2,7 @@
 
 One window for the seat the player is flying this turn: the aircraft, the points and
 drawings they saved for it, its loadout and its data cartridge. The DTC tab is rebuilt per
-airframe with real options. Built 2026-09-22. Not flown yet; rows **B134** and **B135**
+airframe with real options. Built 2026-09-22. Not flown yet; rows **B135** and **B136**
 own the verdicts.
 
 Source of the window and the saved points: juanjux/dcs-escalation, LGPL-3.0, the same
@@ -127,8 +127,8 @@ Offline it returns nothing. Only tile indices are sent. His design, kept.
 
 ## 9. Needs an in-game pass
 
-- **B134** — STPT N in the jet is the point the kneeboard numbers N; SEQ1 still the route.
-- **B135** — the DTC options: hand-load leaves the cartridge unloaded until selected; a
+- **B135** — STPT N in the jet is the point the kneeboard numbers N; SEQ1 still the route.
+- **B136** — the DTC options: hand-load leaves the cartridge unloaded until selected; a
   skipped type is gone from the jet with the numbers closed up; drawings and orbits show
   on each jet's page.
 
