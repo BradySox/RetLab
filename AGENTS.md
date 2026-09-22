@@ -609,7 +609,8 @@ procedure for measuring the ~217 airframes that still have no `fuel:` block.
 
 ### juanjux's fork — a second high-signal source (WATCH, established 2026-08-19)
 
-`juanjux/dcs-retribution` is upstream's most prolific non-maintainer contributor's personal
+`juanjux/dcs-escalation` (renamed from `juanjux/dcs-retribution` 2026-09; the old URL
+redirects) is upstream's most prolific non-maintainer contributor's personal
 fork: **64 PRs to upstream (28 merged)**, **100 of his own internal PRs**, and **954 commits /
 300 files ahead of upstream `dev`** — the same scale as ours, on a different philosophy. He is
 also the reviewer whose objection closed our #851.
@@ -618,7 +619,7 @@ also the reviewer whose objection closed our #851.
 tree unchanged while his feature PRs usually collide with something we solved differently.
 
 ```
-gh pr list --repo juanjux/dcs-retribution --state all --limit 40 --json number,title,state,createdAt
+gh pr list --repo juanjux/dcs-escalation --state all --limit 60 --json number,title,state,createdAt
 ```
 
 **Verify every claim against our own files before acting** — of the five defects reviewed on
