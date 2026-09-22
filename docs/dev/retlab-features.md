@@ -8415,7 +8415,10 @@ The generator spawns ships **`ReturnFire`** instead of `WeaponFree`, and the `na
 plugin releases each group to weapons-free at its own moment, **spread evenly** across
 `[releaseMinS, releaseMaxS]` (120–900 s). Evenly rather than rolled independently, so a small
 fleet cannot randomly land every release in the same few seconds — the §49 lesson, where
-everything firing in one frame was itself a measured problem.
+everything firing in one frame was itself a measured problem. **The manifest alternates
+sides** (`naval_group_magazines`, 2026-09-21): control-point order lists one coalition's fleets
+before the other's, and the stagger followed it, so one side's last release came the whole
+window after the other's first. Found in juanjux/dcs-escalation#345.
 
 **`ReturnFire`, never `WeaponHold`.** The point is to delay *initiation*, not to disarm
 anybody: a holding fleet is a defenceless fleet. This is also the feature's load-bearing

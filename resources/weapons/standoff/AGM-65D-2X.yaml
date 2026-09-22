@@ -1,5 +1,6 @@
 name: 2xAGM-65D
 year: 1986
+range: 13
 fallback: AGM-65D
 clsids:
   - "{E6A6262A-CA08-4B3D-B030-E1A993B98452}"

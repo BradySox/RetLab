@@ -344,6 +344,73 @@ class IadsNetwork:
                 logging.warning(warning_msg)
                 continue
             self._add_connections_from_config(node)
+        self._enrol_sites_the_config_does_not_name()
+
+    def _enrol_sites_the_config_does_not_name(self) -> None:
+        """Bring in the sites the campaign never listed, wired by range.
+
+        Only the keys of ``iads_config`` became nodes, so a site the author did
+        not name was outside the network entirely: never exported to Skynet,
+        nothing cued it, and bombing the power station beside it changed
+        nothing. The author cannot name them all -- an anonymous Ground-N slot
+        is filled by the faction long after the campaign was written. The
+        config is still honoured exactly; these come after it.
+        """
+        for go in self.ground_objects.values():
+            if go.original_name in self.iads_config:
+                continue
+            if not self._belongs_in_the_network(go):
+                continue
+            node = self.node_for_tgo(go)
+            if node is None:
+                continue
+            self._make_advanced_connections_by_range(node)
+
+    def enrol_sites_that_arrived_late(
+        self, ground_objects: Iterator[TheaterGroundObject]
+    ) -> list[str]:
+        """Wire any site that belongs in the network and has no grid link.
+
+        The network is built once, at New Game. A save built before unnamed
+        sites were enrolled, or one that gained objectives since, is repaired
+        here on load. Idempotent: a node already wired to a comms tower or a
+        power station is left alone. Returns the names it wired.
+        """
+        if not self.advanced_iads:
+            return []
+        for tgo in ground_objects:
+            self.ground_objects.setdefault(tgo.original_name, tgo)
+        enrolled = []
+        for go in self.ground_objects.values():
+            if go.original_name in self.iads_config:
+                continue
+            if not self._belongs_in_the_network(go):
+                continue
+            node = self.node_for_tgo(go)
+            if node is None or self._has_grid(node):
+                continue
+            self._make_advanced_connections_by_range(node)
+            if self._has_grid(node):
+                enrolled.append(go.name)
+        return enrolled
+
+    @staticmethod
+    def _has_grid(node: IadsNetworkNode) -> bool:
+        # Its own point defence does not count: a site that only points at
+        # itself is what an unwired one looks like.
+        return any(
+            group.iads_role.is_comms_or_power for group in node.connections.values()
+        )
+
+    @staticmethod
+    def _belongs_in_the_network(go: TheaterGroundObject) -> bool:
+        """The one test both the config-built and the range-built network apply."""
+        if isinstance(go, (IadsGroundObject, NavalGroundObject)):
+            return True
+        return (
+            isinstance(go, IadsBuildingGroundObject)
+            and IadsRole.for_category(go.category) == IadsRole.COMMAND_CENTER
+        )
 
     def _add_connections_from_config(self, node: IadsNetworkNode) -> None:
         """Add all connections for the given primary node based on the iads_config"""
@@ -361,11 +428,7 @@ class IadsNetwork:
     def initialize_network_from_range(self) -> None:
         """Initialize the IADS Network by range"""
         for go in self.ground_objects.values():
-            is_iads_go = isinstance(go, IadsGroundObject)
-            is_iads_sea = isinstance(go, NavalGroundObject)
-            is_iads_cc = isinstance(go, IadsBuildingGroundObject)
-            is_iads_cc &= IadsRole.for_category(go.category) == IadsRole.COMMAND_CENTER
-            if is_iads_go or is_iads_sea or is_iads_cc:
+            if self._belongs_in_the_network(go):
                 # Set as primary node
                 node = self.node_for_tgo(go)
                 if node is None:

@@ -113,7 +113,9 @@ version: "10.8"
 - `advanced_iads: true` with **range mode** auto-wires each red SAM to nearby comms,
   power, and command-center structures placed in the `.miz`, producing destroyable
   per-base C2 cells. A by-name `iads_config:` block is only possible when the SAMs have
-  fixed names.
+  fixed names. A site the block does not name is enrolled after it and wired by range, so
+  a slot the faction fills later still joins the network; the named sites get exactly the
+  connections the block gives them.
 - A `squadrons:` block (or per-base squadron entries) sets each side's starting air wing.
   A squadron entry can name a bare airframe, or reference a predefined squadron def under
   `resources/squadrons/<type>/<unit>.yaml` to pin a unit name and livery.

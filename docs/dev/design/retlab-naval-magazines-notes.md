@@ -62,7 +62,8 @@ and the harness already had `fire_shot`.
 ### N1 — staggered release (`naval_weapon_release_stagger`, default OFF)
 
 Ships generate `ReturnFire`; the plugin releases each group to `WeaponFree` at its own
-moment, **spread evenly** across `[releaseMinS, releaseMaxS]` (120–900 s).
+moment, **spread evenly** across `[releaseMinS, releaseMaxS]` (120–900 s), with the
+manifest alternating blue and red (2026-09-21) so the order never hands one side the window.
 
 Evenly rather than rolled independently per group — the §49 stagger precedent exists
 precisely because everything firing in the same frame was itself a measured problem,

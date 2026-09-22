@@ -35,7 +35,8 @@ git apply naval-station-keeping/station-keeping.patch \
 
 ## Why these five
 
-His own inventory of our fork (`inventario_fork_retlab.txt`, his repo root) sets the
+His own inventory of our fork (`inventario_fork_retlab.txt`, his repo root — **deleted
+by 2026-09-21**, and the repo is `juanjux/dcs-escalation` now) set the
 bar: pure Python, self-contained, no MOOSE, "clearly worth the maintenance". His
 README's 2026-08 review covered our commits to 2026-08-22 and queued §90, §69 and the
 §78 convoy half.

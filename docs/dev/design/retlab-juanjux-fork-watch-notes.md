@@ -1,12 +1,16 @@
 # juanjux's fork — a second high-signal source (WATCH, established 2026-08-19)
 
-`juanjux/dcs-retribution` is the personal fork of upstream's most prolific
+`juanjux/dcs-escalation` is the personal fork of upstream's most prolific
 non-maintainer contributor. It is not a competitor and not an upstream: it is a
 second fork of the same base, run to the same standards, finding the same class of
 defect we do — and finding some of them first.
 
-- Fork: https://github.com/juanjux/dcs-retribution (default branch `master`)
-- His working integration branch is `juanjux-dev`; `master` carries the built fork.
+- Fork: https://github.com/juanjux/dcs-escalation (default branch `master`).
+  **Renamed from `juanjux/dcs-retribution`** — found 2026-09-21; the old URL redirects,
+  so older links in this tree still resolve. His README now calls it *DCS Escalation*,
+  "the third iteration" after Liberation and Retribution.
+- The `juanjux-dev` integration branch is gone (404, 2026-09-21). Feature branches merge
+  straight to `master`, a dozen on a busy day.
 - He is the reviewer whose objection closed our #851 (HDS Ultimate Compilation).
 
 ## Why he is worth watching
@@ -423,6 +427,11 @@ already #773, this is the observation half).
 
 ## He keeps his own ledger on us — read it first (found 2026-08-24)
 
+**2026-09-21: `inventario_fork_retlab.txt` is deleted (404), and the README's *Queued
+from the 2026-08 review* section with it.** What survives is the README's *Taken and
+adapted From the 414Ret fork* section (15 rows) and `git log --author=bradyccox` in his
+tree. The description below is kept for what the file recorded while it existed.
+
 Two files in his repo say exactly what he has taken from us and what he has declined,
 with reasons. Neither was known to this note before 2026-08-24, and both are cheaper to
 read than any diff.
@@ -523,12 +532,75 @@ What that quote is evidence *of* is worked through above under
 — it is a testbed, and `ai-docs/howtoplay.md` is the artifact worth reading. Do not
 evaluate `game/agent/` for adoption yet; do read its docs.
 
+## Sweep 2026-09-21 — the fork is `dcs-escalation` now
+
+Prompted by his README. Measured: 377 PRs in the renamed repo, 12 merged on
+2026-09-21 alone, last push the same day. Every claim below was checked against our
+own files before it was written down.
+
+### He now carries 15 of ours, all credited
+
+The README's attribution section lists: TIC (§9), the mission-impact debrief (§4), the
+FLOT navmesh routing hazard, front-line unit spreading, pre-JOIN escort ROE, coastal
+anti-ship batteries (§78, coastal half), DEAD reachability, the weapons-coverage refresh,
+§60 radar doubling, the SAM layout set, bulk waypoint altitude, §80 task groups, §66 the
+mission archive, §86 GPS jamming, §81 magazines + stagger, and §68 price-weighted buys.
+His changelog also credits the Marianas 2027 campaign and China 2027 faction.
+
+**Two of those rows are things one of us reverted.** The navmesh hazard was reverted here
+on 2026-08-09 (planner re-convergence, work order D) and must not come back from his tree.
+His changelog still lists the support-orbit port that his own #40 backed out.
+
+### Fixed here from this sweep
+
+| His PR | Our evidence | Landed as |
+|---|---|---|
+| #353 Harpoon ingress 30 nm inside its reach | `AGM-84D.yaml` said 67 nm; DCS `cruise_missiles.lua` says `Range_max = 180000` (97 nm). | RetLab#1039 |
+| #377 Mavericks with no range (data half) | 0 of 21 AGM-65 yamls declared one; DCS `agm65_family.lua` gives 24 076 m (A/B/D/F/G/H/K) and 11 112 m (E/L). | RetLab#1039 |
+| #345 stagger order (order half) | `_naval_groups` walked control points in yaml order, so one side's last release came the whole window after the other's first. Release-on-attack, his other half, was already ours. | RetLab#1039 |
+| #336 sites the config never named · #355 sites added mid-campaign | `initialize_network_from_config` built nodes from the config keys only; the Skynet export walks nodes only. | RetLab#1040 |
+
+**Not taken from #377: the ingress floor.** He lowers both ring radii when a weapon's
+reach is under the doctrine floor, so a Maverick package runs in at 8 nm instead of 45.
+Ours only ever widens. That is a planner-behaviour call, not data — decide it separately.
+
+### Checked and NOT applicable
+
+- #338 (a jammer with no power kept jamming) — our §86 jammer is not an IADS node; the
+  Lua gates on the jammer vehicle being alive. A design difference, listed as a candidate.
+- #341, #346, #321 — his unsaved-changes prompt, his agent's squadron pin, his redesigned
+  location dialog. None of the three surfaces exists here.
+
+### He has, we do not — blocked by our own calls
+
+- LLM-controlled OPFOR (REST + MCP): no LLM runs in this fork under the doctrine-mining
+  programme.
+- Per-leg fuel costing with automatic tanker insertion: §46 was reverted 2026-08-09,
+  DECIDED, never re-litigate.
+- Live Pilots (morale, relationships, ranks that change skill): §96/§97 are a record,
+  never a reward. Opposite philosophy, same data.
+- Realistic CAS (in-mission ground-target discovery): requires TIC off.
+
+### Candidates, not taken
+
+- Turn slots from solar data per theater latitude, with `daytime_mode: table` for legacy
+  campaigns. Cheap, data-driven.
+- An ALIGN waypoint on the active runway's approach course, on by default.
+- A non-combat-losses toggle: AI crashes and collisions credited to no weapon do not
+  deplete a squadron.
+- One-way helicopter air assault at full ferry range.
+- A jammer goes dark with its power station (would need §86 sites as IADS nodes), and
+  his generator rule — a Patriot EPP-III keeps the battery alive through a grid cut. Our
+  §85 support sections already field the power units; the IADS does not read them.
+- His Skynet fork (3.3.0 base: HARM fixes, mobile SAMs, package-based culling) against
+  our `baron-branch` build of 16.05.2023. Both carry the HDS units. Not assessed.
+
 ## Running the watch
 
 Cheap pass, a few minutes:
 
 ```
-gh pr list --repo juanjux/dcs-retribution --state all --limit 40 --json number,title,state,createdAt
+gh pr list --repo juanjux/dcs-escalation --state all --limit 60 --json number,title,state,createdAt
 ```
 
 Read the `[FIX]` ones first — those are the ones that land in our tree unchanged.
