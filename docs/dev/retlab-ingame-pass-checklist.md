@@ -301,7 +301,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ☐ |
 | B130 | The Viper's STPT 25 is the bullseye the kneeboard names | §74 | ☐ |
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☐ |
-| B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
+| B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8032,7 +8032,19 @@ tanker) → Incirlik (hosts the KC-135s).
   that hosts no AWACS or tanker while one that does sits threatened and unused; a
   hand-fragged second AWACS stacked on the first, or stepped toward the threat.
 
-### B132 — The profiler names the sim-thread sink, or clears Lua of it · sim-thread freeze note · ☐ UNTESTED
+### B132 — The profiler names the sim-thread sink, or clears Lua of it · sim-thread freeze note · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+
+**Test 37 (2026-09-21, Anatolian Reach, 65 min, `Tacview-20260921-194148`):** the instrument
+works end to end — armed, heartbeats every 30 s, `Profiler Started/Stopped`,
+`MooseProfiler.txt` written. Verdict for the quiet phase only, because the default window
+(t+60 s for 300 s) closed before the battle: Lua function time 37.4 s of 300 s (12.5 %,
+hook-inflated), no function over 33 ms/call, RetLab plugins 1.6 s combined — **Lua is not
+the sink there**. The Lua heap runs a 430 MB → ~950 MB sawtooth every ~150 s (3.3 MB/s
+churn, mostly MOOSE `DeepCopy`), and most 250–600 ms stalls sit on the collection drop.
+The dominant finding is elsewhere: from t=960 to t=2640 the sim ran 30 s of model time in
+37–54 s of wall clock (755 quantizer clamps), and that stretch is the battle — unprofiled.
+PARTIAL until a flight profiles the battle window (delay ~900 s, duration 600 s). Ledger in
+[retlab-sim-thread-freeze-notes.md](design/retlab-sim-thread-freeze-notes.md).
 
 The measurement flight behind the 2026-09-20 freeze investigation
 ([retlab-sim-thread-freeze-notes.md](design/retlab-sim-thread-freeze-notes.md)). Three

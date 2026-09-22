@@ -135,6 +135,43 @@ of runtime game)`, then three tables sorted by total time, time per call, and ca
 A profiled flight is slower than an unprofiled one; compare *shares* between functions,
 never absolute seconds against a normal flight.
 
+## Test 37 — the first profiled flight (2026-09-21)
+
+Anatolian Reach again, the same turn regenerated with the plugin on, 65 min in an F-16C,
+`Tacview-20260921-194148`. Profiler window t+60 s for 300 s; stall log the whole flight.
+Output files kept beside the flight in `Desktop\New test\37`.
+
+**Lua function time, quiet phase:** 37.4 s of 300 s = 12.5 %, hook-inflated. Per source:
+MOOSE 16.6 s, unattributed builtins 11.7 s, MIST 3.1 s, Skynet 2.2 s, json 1.5 s,
+sortie_recorder 0.75 s, Splash Damage 0.58 s, neutralborder 0.46 s, everything else of
+ours under 0.25 s. No function above 33 ms/call; the slowest repeating one is Ops.CSAR's
+`_AddMedevacMenuItem`, 33 ms every 10 s. **Lua is not the sink in the quiet phase.**
+
+**Heap:** a sawtooth from ~430 MB to ~950 MB every ~150 s for the whole flight — the
+collector fires when the heap doubles (Lua's default pause of 200). Churn ~3.3 MB/s; the
+profiler's call table names MOOSE `DeepCopy`/`_copy` as the volume (3,444 deep copies,
+558,418 element copies in 300 s). Most sub-second stalls (250–600 ms, 48 over the flight)
+sit on a collection drop: t=71, 131, 270, 330, 1391, 1471, 1556, 1641, 3789, 3910. The
+430 MB floor is the live data — MOOSE and MIST databases of an 870-unit mission.
+
+**Sim rate, from the heartbeats (wall seconds per 30 s of model time):** 30.0 from t=60 to
+t=930; then 33–37 from t=960; then **45–54 from t=1230 to t=1770 and 39–45 to t=2610**;
+back to 30.0 at t=2640, the minute the DM left the jet for spectator. 755 `ANTIFREEZE`
+over the flight, 25–40 per minute inside that stretch, single digits outside it. Shots
+and kills per minute peak in the same windows. **The constant stutter is the battle: the
+sim thread running 20–45 % behind real time for 28 minutes.** The profiler window had
+closed 11 minutes before it started, so Lua's share in that phase is unmeasured.
+
+**Not stalls:** the 8–155 s gaps at 00:03, 00:06, 00:14, 00:15, 00:20 and 00:48 UTC carry
+DCS's `SAME MODEL TIME` — pauses or menus. Radio storage filled/trimmed three times, one
+stall each. No `CREATING PATH MAKES TOO LONG` this flight (TIC on, no wedge).
+
+**What this settles:** the sub-second freezes on a quiet turn are GC pauses on a large
+heap; the felt "constant freezing" is native sim overload during combat, and its lever is
+the size of what is fighting, not a script. **What it does not settle:** Lua's share during
+the battle. Next profiled flight: delay ~900 s, duration 600 s, so the window covers the
+first strike packages reaching their targets.
+
 ## Found on the way
 
 - `ai_reaction.lua` was a `scriptsWorkOrders` file reading
