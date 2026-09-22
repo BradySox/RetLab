@@ -16,7 +16,7 @@ from faker import Faker
 from game.ato import Flight, FlightType, Package
 from game.ato.savedpoints import SavedDrawing, SavedPoint
 from game.settings import AutoAtoBehavior, Settings
-from game.theater import ParkingType
+from game.theater import FrontLine, ParkingType
 from game.theater.player import Player
 from .intercept_reserve import (
     clamp_intercept_reserve,
@@ -550,6 +550,15 @@ class Squadron:
                 return False
             if not heli and self.aircraft.helicopter:
                 return False
+
+        if (
+            task is FlightType.SEAD_ESCORT
+            and self.aircraft.sead_escort_front_line_only
+            and self.settings.front_line_sead_escort
+            and not heli
+            and not isinstance(location, FrontLine)
+        ):
+            return False
 
         if heli and task == FlightType.REFUELING:
             return False

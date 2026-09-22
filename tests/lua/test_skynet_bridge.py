@@ -1,4 +1,4 @@
-"""Headless check of the two RetLab additions to the Skynet config bridge.
+"""Headless check of the three RetLab additions to the Skynet config bridge.
 
 The bridge (skynetiads-config.lua) is upstream's, plus:
 
@@ -8,6 +8,8 @@ The bridge (skynetiads-config.lua) is upstream's, plus:
   it on the next turn (juanjux/dcs-retribution#97).
 * AWACS fold -- a ground-starting AWACS is not a spawned group when the bridge
   runs; it is added once it exists instead of being skipped for the mission.
+* Point defence -- a PD is paired only if Skynet rates it HARM-capable, because
+  Skynet keeps the parent live on its PDs' ammo without asking (test 37).
 
 Skynet itself is faked: the real engine needs a live DCS world. The fake records
 what the bridge hands it, which is the whole contract under test.
@@ -24,18 +26,23 @@ PLUGIN = "resources/plugins/skynetiads/skynetiads-config.lua"
 FAKE_SKYNET = """
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
-SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {} }
+SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {}, pds = {} }
+-- Group name -> true where Skynet's type database rates the site HARM-capable (Tor, Patriot...).
+SkynetHarmCapable = {}
 
 local function element(iads, name)
     local e = { name = name }
     function e:setEngagementZone() end
     function e:setCanEngageHARM() end
+    function e:getCanEngageHARM() return SkynetHarmCapable[name] == true end
     function e:setHARMDetectionChance() end
     function e:setCanEngageAirWeapons() end
     function e:setGoLiveRangeInPercent() end
     function e:setAutonomousBehaviour() end
     function e:setActAsEW() end
-    function e:addPointDefence() end
+    function e:addPointDefence(pd)
+        table.insert(SkynetRecords.pds, { sam = name, pd = pd.name })
+    end
     function e:addConnectionNode(obj)
         table.insert(SkynetRecords.nodes, { sam = name, node = obj:getName(), exists = obj:isExist() })
     end
@@ -198,6 +205,33 @@ def test_air_start_awacs_is_added_immediately() -> None:
     h.assert_no_lua_errors()
     assert _list(h, h.lua.globals().SkynetRecords.ewrs) == ["Overlord-1"]
     assert h.pending_scheduled() == 0
+
+
+def test_only_a_harm_capable_point_defence_is_paired() -> None:
+    """Skynet's shallIgnoreHARMShutdown keeps the parent SAM emitting while its
+    PDs have missiles and launchers, and never checks that a PD can engage a
+    HARM. Test 37's SA-11 was paired with two Strela-1s and two ZU-23s, so it
+    could hold the Buk live into the shot. Only a PD Skynet itself rates
+    HARM-capable is paired; the other is still registered as a SAM site."""
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_SKYNET)
+    h.lua.execute('SkynetHarmCapable["PD-tor"] = true')
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {
+            "plugins": {"skynetiads": {"createRedIADS": True}},
+            "IADS": {
+                "BLUE": {},
+                "RED": {
+                    "Sam": [{"dcsGroupName": "SA-11", "PD": ["PD-tor", "PD-strela"]}]
+                },
+            },
+        }
+    )
+    h.load_plugin_script(PLUGIN)
+    h.assert_no_lua_errors()
+    rec = h.lua.globals().SkynetRecords
+    assert _list(h, rec.pds) == [{"sam": "SA-11", "pd": "PD-tor"}]
+    assert set(_list(h, rec.sams)) >= {"SA-11", "PD-tor", "PD-strela"}
 
 
 def test_other_coalitions_awacs_is_not_polled_for() -> None:

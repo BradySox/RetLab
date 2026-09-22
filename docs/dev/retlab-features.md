@@ -6972,6 +6972,20 @@ struck SAM site over following turns with the toggle on).
 
 ## §69 — Cross-package SEAD-before-strike coordination
 
+**Front-line SEAD escort (2026-09-22, `front_line_sead_escort`, RetLab planner suite).**
+Test 37 put four AV-8B SEAD escorts on deep packages; they carry AGM-122 Sidearm and
+AGM-65F, fired no Sidearm between them, and one pair died with the Armed Recon package it
+covered to an SA-11. The Harrier's job (DM call) is escorting helicopters and A-10s at the
+front, but upstream's CAS package asks only for a SEAD Sweep, which the AV-8B does not
+fly, and the Harrier's SEAD Escort priority (70 against 450 for the Hornet and Viper) put
+it on deep packages only once the HARM shooters were used up. With the gate on:
+`PlanCas` also proposes a SEAD Escort, ahead of the sweep; an airframe with
+`sead_escort_front_line_only: true` (the AV-8B) may take a SEAD Escort only on a front-line
+or helicopter-led package (`Squadron.can_auto_assign_mission`); and at a front line it
+ranks first (`AirWing.best_squadrons_for`), which also keeps the Hornets and Vipers for
+deep work. Off, planning is upstream's. `tests/retlab/test_front_line_sead_escort.py`;
+row B134 owns the fly.
+
 **What it is.** Packages were timed independently — the generic scheduler branch spreads
 each package's TOT randomly across the mission window, so nothing stopped a strike from
 arriving at a defended target half an hour BEFORE the SEAD package tasked against the SAM
@@ -9468,6 +9482,16 @@ the guard.
 
 ## §91 — Per-flight sortie records
 
+**A vacated seat freezes the record (2026-09-21, test 37).** The DM went to spectator at
+t=2601 and the Viper flew on under AI to dry tanks at t=3900; the record kept sampling it,
+because a record once marked `player` was treated as human for good, and §96 credited
+65 min for 43 flown. The sweep now re-checks the seat every pass: a `player` record whose
+unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` gets
+`player_left = <sweep time>`, is not sampled, is never made the group's AI anchor, and
+counts no shots, hits or kills until a human is in the seat again — which clears the
+mark, so a multiplayer reconnect into the same slot resumes rather than starts over.
+`tests/lua/test_sortie_recorder_runtime.py` models both; rows B70 and B113 own the fly.
+
 **Humans on a multiplayer host (2026-09-15, test 33).** The sweep found the host's own
 jet by `getPlayerName` and missed the remote pilot in the same group, whose unit answered
 that call only inside shot and hit events; he was filed as the AI wingman behind the
@@ -9941,7 +9965,7 @@ page that reads it.
 |---|---|
 | `sorties` | §91 records where `flew` is true |
 | `combat_sorties` | those on an air-to-air, air-to-ground or escort task |
-| `flight_seconds` | the record's `duration` |
+| `flight_seconds` | the record's `duration` — from a record §91 freezes when the human leaves the seat (2026-09-21), so time the AI flies the vacated jet is not the pilot's |
 | `shots`, `hits` | the record's counters |
 | `air_kills`, `ground_kills`, `naval_kills` | **new** — `S_EVENT_KILL`, see below |
 | `ejections` | the record's `ejected` flag |

@@ -522,7 +522,9 @@ FEATURES: tuple[Feature, ...] = (
         "sead_strike_coordination",
         "Cross-package SEAD-before-strike coordination",
         69,
-        settings_fields=("sead_strike_coordination",),
+        # front_line_sead_escort: front-line CAS takes a SEAD escort, and the
+        # Sidearm Harrier flies it instead of deep escorts (test 37).
+        settings_fields=("sead_strike_coordination", "front_line_sead_escort"),
     ),
     Feature(
         "comint_collection",

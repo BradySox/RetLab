@@ -756,6 +756,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "weather_aware_planning",  # §67
         "sead_strike_coordination",  # §69
         "single_sead_escort_flavour",  # §77
+        "front_line_sead_escort",  # §69
         "adaptive_procurement",  # §68
         "auto_repair_air_defenses",  # §68
     ],
@@ -1415,6 +1416,22 @@ class Settings:
             "With this on a package takes the first suppression flavour proposed "
             "and no more. Fighter escorts are unaffected: an anti-ship package "
             "still doubles them deliberately to saturate a ship's air defences."
+        ),
+    )
+
+    front_line_sead_escort: bool = boolean_option(
+        "Front-line CAS takes a SEAD escort",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        # Stock default: upstream's CAS package proposes only a SEAD Sweep, which
+        # the Sidearm Harrier cannot fly. RetLab planner suite turns this on.
+        default=False,
+        detail=(
+            "A CAS package on the front line also asks for a SEAD escort that rides "
+            "with the CAS flight when radar SAMs cover its route. Airframes marked "
+            "front-line-only for this job (the Sidearm-armed AV-8B) are preferred "
+            "for it and no longer escort deep packages, where their missiles cannot "
+            "reach the SAMs; deep packages keep the HARM shooters."
         ),
     )
 
