@@ -75,6 +75,13 @@ class QTopPanel(QFrame):
         self.air_wing.setDisabled(True)
         self.air_wing.clicked.connect(self.open_air_wing)
 
+        self.playable = QPushButton("My aircraft")
+        self.playable.setDisabled(True)
+        self.playable.setToolTip(
+            "What you are flying this turn: saved points, loadout and data cartridge"
+        )
+        self.playable.clicked.connect(self.open_playable_aircraft)
+
         self.transfers = QPushButton("Transfers")
         self.transfers.setDisabled(True)
         self.transfers.clicked.connect(self.open_transfers)
@@ -98,6 +105,7 @@ class QTopPanel(QFrame):
         self.buttonBox = QGroupBox("Misc")
         self.buttonBoxLayout = QHBoxLayout()
         self.buttonBoxLayout.addWidget(self.air_wing)
+        self.buttonBoxLayout.addWidget(self.playable)
         self.buttonBoxLayout.addWidget(self.transfers)
         self.buttonBoxLayout.addWidget(self.reroll_red_button)
         self.buttonBox.setLayout(self.buttonBoxLayout)
@@ -115,6 +123,7 @@ class QTopPanel(QFrame):
 
         self.controls = [
             self.air_wing,
+            self.playable,
             self.transfers,
             self.reroll_red_button,
             self.simSpeedControls,
@@ -148,6 +157,7 @@ class QTopPanel(QFrame):
             return
 
         self.air_wing.setEnabled(True)
+        self.playable.setEnabled(True)
         self.transfers.setEnabled(True)
 
         self.conditionsWidget.setCurrentTurn(game.turn, game.conditions)
@@ -179,6 +189,12 @@ class QTopPanel(QFrame):
     def open_air_wing(self):
         self.dialog = AirWingDialog(self.game_model, self.window())
         self.dialog.show()
+
+    def open_playable_aircraft(self) -> None:
+        from qt_ui.windows.playable import PlayableAircraftDialog
+
+        self.playable_dialog = PlayableAircraftDialog(self.game_model, self.window())
+        self.playable_dialog.show()
 
     def open_transfers(self):
         self.dialog = PendingTransfersDialog(self.game_model)
