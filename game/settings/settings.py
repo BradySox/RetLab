@@ -2270,13 +2270,13 @@ class Settings:
         default=True,
         detail=(
             "Keeps a permanent record for every pilot in the campaign: sorties, "
-            "combat sorties, hours airborne, air/ground/naval kills, ejections, "
-            "rank and awards. Open it from the squadron dialog. The numbers come "
+            "combat sorties, hours airborne, air/ground/naval kills, ejections "
+            "and rank. Open it from the squadron dialog. The numbers come "
             "from what the mission actually recorded, so a jet that never left "
             "the ramp logs nothing and a kill is credited only when DCS names "
             "the killer. A record, not a reward -- nothing here unlocks an "
             "aircraft, changes availability or gates a mission. Turn it off and "
-            "careers stop accumulating; what a pilot has already earned is kept."
+            "careers stop accumulating; what a pilot has already logged is kept."
         ),
     )
     lifetime_pilot_profiles: bool = boolean_option(

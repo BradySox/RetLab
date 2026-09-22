@@ -1,4 +1,4 @@
-# Ranks and awards for the pilot logbook (RetLab feature 96).
+# Rank ladders for the pilot logbook (RetLab feature 96).
 #
 # Data, not code. Retribution spans many air forces and seventy years, so a rank
 # ladder hard-coded to one service would be wrong for most campaigns. Add a
@@ -10,7 +10,7 @@
 # ground_kills, naval_kills, kills, ejections, missions_flown. An entry naming a
 # field that does not exist is skipped and logged -- it never blocks the app.
 #
-# Ranks and awards are RECORDS, not rewards. Nothing here unlocks an aircraft,
+# Ranks are RECORDS, not rewards. Nothing here unlocks an aircraft,
 # changes availability or gates a mission; that is the whole point of the
 # feature. See docs/dev/retlab-features.md section 96.
 
@@ -85,49 +85,3 @@ ranks:
       - key: of_5
         name: Lt. Col.
         requires: {combat_sorties: 70, flight_hours: 90}
-
-awards:
-  - key: first_sortie
-    name: First Sortie
-    description: Flew a mission and came home.
-    requires: {sorties: 1}
-
-  - key: combat_veteran
-    name: Combat Veteran
-    description: Twenty-five sorties on a combat task.
-    requires: {combat_sorties: 25}
-
-  - key: century
-    name: Century Pin
-    description: A hundred hours airborne.
-    requires: {flight_hours: 100}
-
-  - key: first_blood
-    name: First Blood
-    description: A confirmed kill.
-    requires: {kills: 1}
-
-  - key: ace
-    name: Ace
-    description: Five confirmed air-to-air kills.
-    requires: {air_kills: 5}
-
-  - key: double_ace
-    name: Double Ace
-    description: Ten confirmed air-to-air kills.
-    requires: {air_kills: 10}
-
-  - key: mud_mover
-    name: Mud Mover
-    description: Fifty ground kills.
-    requires: {ground_kills: 50}
-
-  - key: ship_killer
-    name: Ship Killer
-    description: A confirmed kill against a ship.
-    requires: {naval_kills: 1}
-
-  - key: silk_letdown
-    name: Silk Letdown
-    description: Left an aircraft under a parachute and lived to log it.
-    requires: {ejections: 1}

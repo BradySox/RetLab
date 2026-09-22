@@ -4,7 +4,7 @@ Opens from the toolbar with no campaign loaded, because that is the whole point
 of the feature: the record outlives every save. It is a pure read over
 ``pilot_profiles.json`` plus one write -- renaming a profile's display name.
 
-Numbers only. Ranks and awards are §96's, and belong to a campaign.
+Numbers only. Ranks are §96's, and belong to a campaign.
 """
 
 from __future__ import annotations

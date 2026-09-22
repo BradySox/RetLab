@@ -816,7 +816,7 @@ FEATURES: tuple[Feature, ...] = (
     Feature("pinned_bullseye", "Pinned bullseye", 95),
     Feature(
         # The career ledger between §91 (what a mission recorded) and the pilot
-        # roster (who flew it). Ranks and awards are data, not code:
+        # roster (who flew it). Ranks are data, not code:
         # resources/pilot_career.yaml.
         "pilot_career_logbook",
         "Pilot career logbook",

@@ -15,7 +15,7 @@ flew gets their own profile rather than all eight collapsing into one.
 
 Three things this deliberately does not do:
 
-* **No ranks or awards.** A lifetime page is numbers; §96 owns the ceremony.
+* **No ranks.** A lifetime page is numbers; §96 owns the rank.
 * **No AI.** Only slots a human actually occupied are filed.
 * **Nothing is ever recomputed.** A profile is an append-only ledger. There is
   no campaign to re-derive it from, so a bad write is permanent -- which is why

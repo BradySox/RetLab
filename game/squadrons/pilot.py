@@ -39,9 +39,6 @@ class PilotRecord:
     ground_kills: int = field(default=0)
     naval_kills: int = field(default=0)
     ejections: int = field(default=0)
-    #: Award keys earned, oldest first. Keys, never rendered names -- the names
-    #: live in resources/pilot_career.yaml and may be re-worded.
-    awards: list[str] = field(default_factory=list)
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         # Saves from before the logbook carry only missions_flown. A career that
@@ -59,7 +56,8 @@ class PilotRecord:
             ("ejections", 0),
         ):
             state.setdefault(name, default)
-        state.setdefault("awards", [])
+        # Awards were removed 2026-09-22; saves from before then still carry them.
+        state.pop("awards", None)
         self.__dict__.update(state)
 
     @property

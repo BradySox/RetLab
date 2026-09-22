@@ -13,6 +13,17 @@
 # changes sharing a date keep the order written here.
 
 entries:
+  - date: 2026-09-22
+    title: Pilot awards are gone
+    change: >-
+      The logbook no longer grants awards, and the SITREP no longer lists an
+      award line for each pilot who earned one. On a first turn that was
+      nearly every pilot who flew. Ranks and the logbook numbers are
+      unchanged. A save made before this loads without its awards.
+    watch: >-
+      After the next mission the SITREP should carry no Award lines, and a
+      pilot's Logbook should show the numbers and rank with no Awards list.
+    row: B113
   - date: 2026-09-20
     title: A Lua profiler plugin for the flight where the sim keeps hitching
     change: >-
@@ -249,7 +260,7 @@ entries:
     title: Pilots keep a logbook
     change: >-
       Every pilot now carries a permanent career: sorties, combat sorties, hours
-      airborne, air/ground/naval kills, ejections, a rank and awards. Open it
+      airborne, air/ground/naval kills, ejections and a rank. Open it
       with the Logbook button in the squadron dialog. The numbers come from what
       the mission actually recorded, so a jet that never left the ramp logs
       nothing, and a kill is credited only when DCS names the killer and the two
