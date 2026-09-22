@@ -89,7 +89,9 @@ gets paid again by the next feature that needs anything.
 
 ### What we build instead
 
-One record per flight, written by the base plugin, into the file that already comes home:
+One record per flight, written by the base plugin, into the file that already comes home
+(a human's record freezes when the seat is vacated — test 37, 2026-09-21 — so the AI's
+flying of that jet is never the pilot's):
 
 - where the flight actually went
 - how long it stayed on station

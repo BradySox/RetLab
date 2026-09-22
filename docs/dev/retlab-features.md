@@ -9468,6 +9468,16 @@ the guard.
 
 ## §91 — Per-flight sortie records
 
+**A vacated seat freezes the record (2026-09-21, test 37).** The DM went to spectator at
+t=2601 and the Viper flew on under AI to dry tanks at t=3900; the record kept sampling it,
+because a record once marked `player` was treated as human for good, and §96 credited
+65 min for 43 flown. The sweep now re-checks the seat every pass: a `player` record whose
+unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` gets
+`player_left = <sweep time>`, is not sampled, is never made the group's AI anchor, and
+counts no shots, hits or kills until a human is in the seat again — which clears the
+mark, so a multiplayer reconnect into the same slot resumes rather than starts over.
+`tests/lua/test_sortie_recorder_runtime.py` models both; rows B70 and B113 own the fly.
+
 **Humans on a multiplayer host (2026-09-15, test 33).** The sweep found the host's own
 jet by `getPlayerName` and missed the remote pilot in the same group, whose unit answered
 that call only inside shot and hit events; he was filed as the AI wingman behind the
@@ -9941,7 +9951,7 @@ page that reads it.
 |---|---|
 | `sorties` | §91 records where `flew` is true |
 | `combat_sorties` | those on an air-to-air, air-to-ground or escort task |
-| `flight_seconds` | the record's `duration` |
+| `flight_seconds` | the record's `duration` — from a record §91 freezes when the human leaves the seat (2026-09-21), so time the AI flies the vacated jet is not the pilot's |
 | `shots`, `hits` | the record's counters |
 | `air_kills`, `ground_kills`, `naval_kills` | **new** — `S_EVENT_KILL`, see below |
 | `ejections` | the record's `ejected` flag |

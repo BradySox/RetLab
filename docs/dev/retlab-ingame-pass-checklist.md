@@ -5646,7 +5646,7 @@ actually are.
 > weighting. That row needs a lopsided pair.
 ### B70 — Sortie records reach the campaign · §91 · ◐ PARTIAL
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. Fix owed in the recorder (freeze a player record when its unit leaves `coalition.getPlayers`). 42 records carry an empty track (parked airframes, by design).
+**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. **Fixed the same day:** the sweep now freezes a `player` record whose unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` (`player_left`), counts nothing for it, and resumes on a reconnect; harness-pinned, unflown. 42 records carry an empty track (parked airframes, by design).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the two-humans-in-one-group re-fly is still owed. On the WATCH card.
 
@@ -7718,7 +7718,7 @@ is lying and this row fails.
 
 ### B113 — A pilot's logbook fills in, and the kills are the ones they got · §96 · ◐ PARTIAL
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
+**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Fixed the same day in the recorder (`player_left`); the next flown seat-vacate is the check. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the second-human fix is unflown since test 33.
 

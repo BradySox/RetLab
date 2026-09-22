@@ -270,18 +270,44 @@ local function is_human(unit, unit_name)
     if safe(unit, "getPlayerName") ~= nil then
         return true
     end
-    if unit_name and humans[unit_name] then
-        return true
-    end
+    return unit_name ~= nil and humans[unit_name] == true
+end
+
+-- A human's record whose seat is empty this sweep. Test 37 (2026-09-21): the
+-- DM went to spectator at t=2601 and the jet flew on under AI to dry tanks at
+-- t=3900, and the record kept sampling it -- once marked player, always human --
+-- so the logbook credited 65 min for 43 flown. The seat is now checked every
+-- sweep: empty freezes the record (player_left = the sweep time) and nothing is
+-- sampled or credited until a human is in it again, which clears the mark so a
+-- multiplayer reconnect into the same slot resumes rather than starts over.
+local function seat_vacated(unit, unit_name, now)
     local record = unit_name and sortie_records.flights[unit_name]
-    return record ~= nil and record.player == true
+    if not record or record.player ~= true then
+        return false
+    end
+    if is_human(unit, unit_name) then
+        if record.player_left ~= nil then
+            record.player_left = nil
+            dirty_state = true
+        end
+        return false
+    end
+    if record.player_left == nil then
+        record.player_left = now
+        dirty_state = true
+    end
+    return true
 end
 
 -- Whether this unit's position is worth sampling. Humans always; for AI, the
 -- first jet of the group still alive, held until it dies rather than read off a
--- fixed index.
-local function should_sample(unit, group_has_anchor)
+-- fixed index. A vacated human seat is neither: not sampled, and never made the
+-- group's AI anchor.
+local function should_sample(unit, group_has_anchor, now)
     local unit_name = safe(unit, "getName")
+    if seat_vacated(unit, unit_name, now) then
+        return false
+    end
     if is_human(unit, unit_name) then
         return true
     end
@@ -323,7 +349,7 @@ function sortie_recorder_sample()
                             end
                         end
                         for _, unit in pairs(units) do
-                            if should_sample(unit, group_has_anchor) then
+                            if should_sample(unit, group_has_anchor, now) then
                                 sample_unit(unit, now)
                                 group_has_anchor = true
                             end
@@ -338,7 +364,9 @@ end
 
 local function count_on(initiator, field)
     local record = record_for(initiator)
-    if record then
+    -- Shots, hits and kills while the seat is empty are the AI's, not the
+    -- pilot's: a logbook is worth less than nothing if its numbers are generous.
+    if record and record.player_left == nil then
         record[field] = record[field] + 1
         dirty_state = true
     end
