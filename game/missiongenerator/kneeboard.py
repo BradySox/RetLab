@@ -2657,7 +2657,7 @@ class SavedPointsPage(KneeboardPage):
         self.total_pages = total_pages
 
     @classmethod
-    def paginate(
+    def split(
         cls,
         callsign: str,
         points: list[SavedPoint],
@@ -3282,7 +3282,7 @@ class KneeboardGenerator(MissionInfoGenerator):
 
         if flight.saved_points:
             pages.extend(
-                SavedPointsPage.paginate(
+                SavedPointsPage.split(
                     flight.callsign,
                     flight.saved_points,
                     self.game.theater,

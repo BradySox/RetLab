@@ -595,6 +595,20 @@ Ours only ever widens. That is a planner-behaviour call, not data — decide it 
 - His Skynet fork (3.3.0 base: HARM fixes, mobile SAMs, package-based culling) against
   our `baron-branch` build of 16.05.2023. Both carry the HDS units. Not assessed.
 
+### Adopted here 2026-09-22 — My aircraft and saved points (§102)
+
+| His PR | Taken | Notes |
+|---|---|---|
+| #343, #352, #357, #369 | saved points on the squadron, the server route, the picker's Save | capacity table trimmed to what our §74 loads |
+| #348, #350, #356 | the GPS picker and its copy/save popup | #348's Qt half (unit-card coordinates) not taken |
+| #354, #362 | points into the cartridge, numbered after the route | rewritten against our §74 `hornet.py`/`viper.py`; his `dtc.py` (#342) not taken |
+| #364 | the A-10 CDU writer, the elevation lookup | taken whole |
+| #360–#363 | the window | plus our Loadout and DTC tabs; his UI restyle not taken |
+
+Drift-watch: his capacity numbers and CDU format are measured on his install. If he
+changes either, re-read before re-syncing. See
+[retlab-my-aircraft-notes.md](retlab-my-aircraft-notes.md).
+
 ## Running the watch
 
 Cheap pass, a few minutes:

@@ -867,6 +867,7 @@ FEATURES: tuple[Feature, ...] = (
         101,
         settings_fields=("dynamic_slots_templates",),
     ),
+    Feature("my_aircraft", "My aircraft and saved points", 102),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

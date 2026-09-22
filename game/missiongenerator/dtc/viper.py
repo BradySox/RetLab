@@ -289,12 +289,12 @@ def _build_nav_pts(
     # The player's saved points (§102) come before the automatic anchors.
     if options.route:
         numbers = cockpit_numbers(flight, flight.saved_points)
-        for number, point in zip(numbers, flight.saved_points):
-            if number is None:
+        for slot, point in zip(numbers, flight.saved_points):
+            if slot is None:
                 continue
             alt_m = point.altitude_ft * 0.3048
             steerpoint = _steerpoint(
-                number,
+                slot,
                 waypoint_display_name(point.name),
                 point.x,
                 point.y,

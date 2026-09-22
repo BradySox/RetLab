@@ -13,6 +13,21 @@
 # changes sharing a date keep the order written here.
 
 entries:
+  - date: 2026-09-22
+    title: My aircraft, and points you save to your own jet
+    change: >-
+      A My aircraft button beside Air Wing lists the seats you are flying this
+      turn, with each one's saved points, its loadout and its data cartridge in
+      one window. The map has a crosshair button at top left: click any spot
+      to read its coordinates in every format and save it to your aircraft.
+      Hornets and Vipers get the points in the data cartridge on route
+      sequence 2, A-10s in the navigation computer, and every aircraft on a
+      kneeboard page.
+    watch: >-
+      Save a point to a Hornet or Viper and generate. The kneeboard's extra
+      points page gives it a number; that STPT in the jet should be the same
+      point, and SEQ1 should still be the route.
+    row: B134
   - date: 2026-09-20
     title: A Lua profiler plugin for the flight where the sim keeps hitching
     change: >-

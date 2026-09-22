@@ -124,7 +124,7 @@ def test_the_kneeboard_paginates_rather_than_capping(qt_free: None = None) -> No
 
     points = [_point(name=f"P{n}") for n in range(50)]
 
-    pages = SavedPointsPage.paginate(
+    pages = SavedPointsPage.split(
         "HAWG", points, cast(Any, None), cast(Any, None), False
     )
 
@@ -142,7 +142,7 @@ def test_one_page_of_points_is_not_numbered() -> None:
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
     from game.missiongenerator.kneeboard import SavedPointsPage
 
-    (page,) = SavedPointsPage.paginate(
+    (page,) = SavedPointsPage.split(
         "HAWG", [_point()], cast(Any, None), cast(Any, None), False
     )
 

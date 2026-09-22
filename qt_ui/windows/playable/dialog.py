@@ -60,6 +60,7 @@ from qt_ui.windows.playable.rows import (
     WAYPOINT,
 )
 
+
 def _label(text: str, css: str) -> QLabel:
     widget = QLabel(text)
     widget.setStyleSheet(f"{css} background: transparent; border: none;")

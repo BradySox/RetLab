@@ -113,5 +113,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §99 | Sandy rescue escort | — | — |
 | §100 | King on-scene commander | `opscsar` | — |
 | §101 | Dynamic spawn templates | — | `dynamic_slots_templates` |
+| §102 | My aircraft and saved points | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

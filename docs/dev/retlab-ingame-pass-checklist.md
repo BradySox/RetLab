@@ -256,7 +256,7 @@ no evidence either way after 33 missions.
 
 ## Outstanding rows at a glance
 
-83 rows need a live pass. Full detail is under each `###` heading below —
+84 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -303,6 +303,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☐ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
+| B134 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8061,6 +8062,23 @@ for a window, and a stall log for the whole flight.
   masking them — rerun with a longer delay); the `.txt` missing after a normal mission
   end.
 
+
+### B134 — A saved point reaches the cockpit with the number the kneeboard gives it · §102 · ☐ UNTESTED
+
+Saved points (2026-09-22, [retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md))
+go into the §74 cartridge on route sequence 2 (Hornet, Viper) or the A-10's CDU EXTRA
+plan, and onto a kneeboard page numbered the same way.
+
+- **Setup:** a player Hornet or Viper with the DTC on. Map → crosshair button (top left)
+  → click a spot → Save as waypoint. Or My aircraft → Add. Generate.
+- **Pass:** the kneeboard's "extra points" page lists the point with a number N. In the
+  jet, STPT N is that point (name and position), SEQ1 is still the route, and stepping to
+  SEQ2 (Hornet) shows only the saved points. Viper: the tanker/AWACS anchors now follow
+  the saved points. A-10: the CDU's EXTRA plan holds the point with a ground elevation.
+- **Fail signatures:** the point is missing in the jet (Route section off, or the
+  cartridge did not load); STPT N is a different point (the kneeboard and cartridge
+  numbering drifted); the Hornet's route sequence lost its legs (our filled `NAV_ROUTE`
+  and the `R2` flags disagree); the A-10 shows `EL: *****`.
 
 ### B133 — A SAM the campaign never named goes dark with the power station beside it · Skynet return · ☐ UNTESTED
 

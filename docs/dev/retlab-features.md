@@ -10660,3 +10660,60 @@ is absent; the sim's loader is native).
   base — needs a planned flight, and it would have to be a client slot too.
 - The dynamic jet is still invisible to the campaign (no loss, no §58 card, no §74
   cartridge). Separate and larger.
+
+## §102 — My aircraft and saved points
+
+A window for the seat the player is flying this turn, and the points they saved for it.
+Added 2026-09-22 from juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design
+note: [`retlab-my-aircraft-notes.md`](design/retlab-my-aircraft-notes.md).
+
+### Files
+
+- `qt_ui/windows/playable/` — the window (`dialog.py`, `rows.py`, `model.py`) and
+  `style.py`, the few styled controls it needs. Opened from `QTopPanel` ("My aircraft").
+- `game/ato/savedpoints.py` — `SavedPoint`, the per-airframe capacity table,
+  `add_point`/`remove_point`/`receivers`. Points live on `Squadron.saved_points`;
+  `Flight.saved_points` reads them.
+- `game/coordinates.py` (format + parse), `game/elevation.py` (network lookup, see the
+  note §4).
+- `game/server/coordinates/`, `game/server/savedpoints/` — the map picker's API.
+- `client/src/components/coordinatepicker/` — the GPS picker and its Save control.
+- `game/missiongenerator/dtc/savedpoints.py` — the cockpit numbers, shared by
+  `hornet.py`, `viper.py` and the kneeboard's `SavedPointsPage`.
+- `game/missiongenerator/a10cdu.py` — the A-10's CDU state, written into the miz after
+  it is saved.
+
+### What it does
+
+- The window's right side is three tabs: Saved points, Loadout (`QFlightPayloadTab`) and
+  DTC (`QFlightDtcTab`, §74). Changing aircraft or closing publishes `update_flight`, as
+  Edit Flight does.
+- Hornet and Viper: points follow the route in the §74 cartridge on sequence 2, only when
+  the cartridge and its Route section are on. Viper points come before the support
+  anchors and stop at 24.
+- A-10: points go in the CDU's `EXTRA` flight plan.
+- Every airframe: a kneeboard page numbered as the cockpit numbers them.
+
+### Constraints — do not undo
+
+- Points stay on the squadron (his #369: a rebuilt flight lost them).
+- One numbering function for the kneeboard and the cartridge.
+- The capacity table lists only airframes this tree loads points into.
+
+### Tests
+
+`tests/test_saved_points.py`, `tests/test_a10cdu.py`, `tests/test_coordinates.py`,
+`tests/test_coordinate_parsing.py`, `tests/test_elevation.py`,
+`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, the three
+`saved_points` cases in `tests/missiongenerator/test_dtc.py`, and the client's
+`coordinatepicker` jest suites.
+
+### Needs an in-game pass — B134
+
+The cockpit numbering and sequence 2 in the jet; the design note §6 lists what only a
+flight answers.
+
+### Deferred
+
+- F-14B(U) and AH-64D cartridges (kneeboard-only for now).
+- A coordinate-format setting; zoom on Show on map.

@@ -570,7 +570,9 @@ def test_viper_marks_the_target_and_the_run_in() -> None:
 
 
 def _saved(name: str) -> SavedPoint:
-    return SavedPoint(kind=PointKind.WAYPOINT, name=name, x=1.0, y=2.0, altitude_ft=1000)
+    return SavedPoint(
+        kind=PointKind.WAYPOINT, name=name, x=1.0, y=2.0, altitude_ft=1000
+    )
 
 
 def test_hornet_saved_points_follow_the_route_on_sequence_two() -> None:
