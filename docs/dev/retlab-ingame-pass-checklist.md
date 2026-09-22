@@ -256,33 +256,43 @@ no evidence either way after 33 missions.
 
 ## Test 37 — what it reached, and what it could not (2026-09-21)
 
-Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper out of Incirlik,
-`Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8` (main after #1038), TIC off,
-`profiler` on. Artifacts in `Desktop\New test\37`. The mission: 870 units, 313 aircraft
-in the recording (99 blue, 200 red, 14 neutral civil), 656 weapons. Blue lost 15 aircraft, red
-about 45 (the recording is a single-player full export, so removals are real). The human's
-package put 2 GBU-31 on Aleppo's runway and came home with all four Vipers; the OCA/Aircraft
-Eagles alongside lost three of four to MiG-25s and a Tunguska.
+Syria — Long Road to H3 turn 1 of a new game (archive
+`syria_the_long_road_to_h3_turn01_20260921-194101.miz`), 65 min, one human in the Pontiac 5
+OCA/Runway Viper out of Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build
+`5a11efa13` (main at #1038), TIC off, `profiler` on. Artifacts in `Desktop\New test\37`. The
+mission: 870 units, 313 aircraft in the recording (99 blue, 200 red, 14 neutral civil), 656
+weapons. Blue lost 15 aircraft in combat; red lost about 45. Removals at deck or field height
+with no weapon near are landings, not losses. The human's package put 2 GBU-31 on Aleppo's
+runway and came home with all four Vipers; the OCA/Aircraft Eagles alongside lost three of four
+to MiG-25s and a Tunguska.
 
-Rows moved (evidence under each heading): **B76** ✗ → ◐ (one tanker per method, 31 km
-apart); **S5** ✗ → ◐ (all four columns drove 22–35 km); **B123** ☐ → ◐ (the Armed Recon
-package died in transit to a neighbouring SA-11, nothing fired); **B129**, **B130**,
-**B131**, **B77**, **H14** ☐ → ◐ (one half each); **B132** ☐ → ◐ (the profiler works;
-the battle window is unprofiled — see the freeze note).
+**Corrected 2026-09-22 on a second look.** The first write-up named the campaign Anatolian
+Reach and the build `93c8128e8` (a branch commit made after the flight); matched weapons on
+5-second samples, which put missile terminals up to 5 km from their targets; and credited the
+SA-11's destruction to the wrong package. Weapon attributions below are from full-resolution
+tracks.
+
+Rows moved (evidence under each heading): **B131** ☐ → ☑ (the setup is exactly this turn);
+**B76** ✗ → ◐ (one tanker per method, 31 km apart); **S5** ✗ → ◐ (all four columns drove
+22–35 km); **B123** ☐ → ◐ (the Armed Recon package was shot down before its TOT by a
+neighbouring SA-11, nothing fired); **B129**, **B130**, **B77**, **H14** ☐ → ◐ (one half
+each); **B132** ☐ → ◐ (the profiler works; its stall log had a blind spot, fixed — see the
+freeze note).
 
 Evidence recorded without a status change: **B70/B113** (the recorder credited 22 min of AI
-flying to the vacated human seat — a defect, chip raised), **B97** (first attrition number
-for the §94 falsifier: 8 of 15 blue losses to SAMs, six of them one Buk salvo), **B126** (the
-DEAD on that Buk was fragged 21 min after the package it killed), **G33** (28 beacons keyed
-at 260000 Hz, needle still owed), **B121** (no neutral weapon fired, four missions now),
-**B39** (stagger released eight groups at the even 112 s the design specifies; `PENGUIN` logged
-a second `under attack` release after it was already free — cosmetic).
+flying to the vacated human seat — fixed), **B97** (first attrition number for the §94
+falsifier: 8 of 15 blue losses to SAMs, six of them to one SA-11 in 44 s), **B126** (the
+package that died transited that SA-11 while it was live; the SEAD that killed it arrived
+later and was not planned against it), **G30** and **G42** (four HARMs at the SA-11 fell
+2.3 km short; its paired point defence fired nothing), **G33** (28 beacons keyed at
+260000 Hz, needle still owed), **B39** (stagger released eight groups ~112 s apart;
+`PENGUIN` logged a second `under attack` release after it was already free — cosmetic).
 
 | Row | Why test 37 could not answer it |
 |---|---|
 | B108, B103 | TIC was off (left off after the freeze isolation flight) |
 | B120 | Nobody crossed a neutral border; 8 zones drawn, 5 defended, no hail |
-| G30 | The six HARMs went at BASS and GOPHER, neither a Skynet point-defence pair; MAVERICK's PD never had a HARM to answer |
+| G30 | Four HARMs went at MAVERICK, which has a paired point defence (0127: ZU-23 + Strela-1). The PD fired nothing — it has no radar SAM to answer a HARM with — and the HARMs fell 2.3 km short. Evidence under the heading; the row needs a radar-SHORAD pairing |
 | G25 | Not the COIN campaign; the Armed Recon package flew 2 F-15E + escorts, no drone |
 | H15 | Online, imagery present, no OFFLINE banner — the row's condition is the offline path |
 | H16 | The packages map drew the coastline fallback, not `syria.gif`; extent Cyprus → H3 (~600 km). Whether the raster should have covered it needs the `coverage_for` check, not a verdict from the page |
@@ -293,7 +303,7 @@ a second `under attack` release after it was already free — cosmetic).
 | B110, B104, B105, B115 | Not a SEAD jet; ROE tab, Apache TSD and the front-line shape are cockpit reads |
 | B117, B119, B106, G36, B71, B73, B122 | No CSAR flight fragged; 28 survivors on the map for next turn |
 | B6, B19, B20, B29, B54, B65, B66, B80, B94, B95, B112, B114, B124 | App-side or multi-turn; a flight does not reach them |
-| B11, B45, B32, G41, G42, G19, G40 | Setting off, no GPS weapon, no sea lane, no power-station strike, no RWR read, no TARPS |
+| B11, B45, B32, G41, G19, G40 | Setting off, no GPS weapon, no sea lane, no power-station strike, no TARPS |
 | B100, B101, B102, B118, B96, B92 | Wrong campaign or airframe (no F-4E, no Super Hornet, not Iron Gate) |
 | L5, L6, L9, L11, M6, O1, P1–P8 | Vietnam, COIN and map-tile rows; not this campaign |
 
@@ -305,7 +315,7 @@ note has the numbers).
 
 ## Outstanding rows at a glance
 
-83 rows need a live pass. Full detail is under each `###` heading below —
+82 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -349,7 +359,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B128 | An escort comes home when its primary never flies | §8 | ☐ |
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
 | B130 | The Viper's STPT 25 is the bullseye the kneeboard names | §74 | ◐ |
-| B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ◐ |
+| B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
@@ -2756,7 +2766,7 @@ target is actually enough reach in a real laydown, and whether the message lands
 
 ### B126 — An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after · doctrine row 8 · ☐ UNTESTED
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **not the EWR ordering, but the same doctrine seam.** Both DEAD packages shot: `BULLDOG DEAD` 7 JSOW at t=3080–3101 (all 5 units of `0125 | BULLDOG (SHORAD)` removed), `MAVERICK DEAD` 11 JSOW at t=3501–3523 (all 9 of `0126 | MAVERICK (SAM)` and its 4-unit PD removed). But MAVERICK's TOT was 06:07Z and the `Kharab Ishk Armed Recon` package routed through its MEZ at 05:46Z — 21 min earlier — and lost all six aircraft to it. §69 retimes a strike behind the suppressor of *its own* target; a package transiting another site's MEZ is not covered. Recorded under B123.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **not the EWR ordering, but the same doctrine seam.** The SA-11 `0126 | MAVERICK (SAM)` was live when `Kharab Ishk Armed Recon` (TOT 05:46Z) transited, and killed six aircraft of that package. What eventually killed it was unplanned against it: `FERRET SEAD Escort` (2× F/A-18C, escorting a BAI) fired four AGM-88 at it from 70–75 km at t=2419–2437, 21 s after the site opened fire; all four fell 2.2–2.4 km short at t=2563–2572. The same flight's GBU-38s then killed the four TELARs and two ZU-23s at t=2710–2715. `RAVEN SEAD Escort` GBU-38s killed the Strelas and a tanker truck at t=3272–3276. The site's own DEAD, `MAVERICK DEAD` (TOT 06:07Z), arrived to a dead site; its JSOW submunitions most likely took the search radar at t=3849 (no single weapon within 150 m). The fragged suppression for that site came 21 min after the package that had to cross it.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged: no turn in the captures follows an EWR kill.** Test 32's WEKA shot at LEOPARD is the closest thing seen (a lit site, lit because the SEAD escort ahead of it drew fire), which is the row's second fail signature working as intended, not the ordering. Needs the turn after an EWR dies.
 
@@ -2888,6 +2898,8 @@ EWR covering a site is dead, Skynet runs the site autonomous and live from T0.
 - **Fail signature:** dcs.log still shows "no rescue helos/template; skipping" (the old bail; stale plugin) or "dcsRetribution.CombatSAR not present" (the emitter early-return resurfaced); no snatch with force-capture on (G20 regression); the un-rescued pilot dies at debrief with the toggle on (the `_combat_sar_mia_unit_ids` sparing / `combat_sar_survivors` state never written — check state.json); no re-spawn next mission (`persistentSurvivors` missing from the miz's CombatSAR node); the same evader duplicated in the ledger (turn_downed reset); an evader stranded MIA forever after toggling the setting off mid-campaign (the always-resolve contract broke); a capture roll that never fires even 40 NM deep (`resolve_downed_pilots` not hooked in `finish_turn`).
 
 ### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ☐ UNTESTED
+
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **a HARM at a paired site, and the pairing could not answer.** `FERRET SEAD Escort` fired four AGM-88 at `0126 | MAVERICK (SAM)` (SA-11) at t=2419–2437, from 70–75 km. Skynet had paired it with `0127 | MAVERICK (PD)`: two ZU-23 and two Strela-1 — guns and an IR missile, nothing that can engage a HARM. The PD fired nothing; the HARMs fell 2.2–2.4 km short at t=2563–2572. The row's pass needs a radar SHORAD (Tor, Tunguska, Pantsir) as the PD; this pairing is the fail-by-construction case, and worth checking in the Skynet config that IR-only groups are not being paired as point defence.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised through Skynet in any capture.** Test 32 is the only Skynet mission with HARM shots (8), and none was fired at a site with a paired point defence (POODLE never woke). The MANTIS-era test 14 evidence is now irrelevant. Needs a deliberate HARM at a site whose `(PD)` group Skynet holds dark.
 
@@ -3201,7 +3213,7 @@ either way — the row needs a shot deliberately taken at a site that has point 
 
 ### H14 — The kneeboard SAR line is accurate, and the rescue crew gets a usable card · CSAR · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the striker-card half.** Page 1 carries `SAR 260 kHz ADF — If down: your beacon keys automatically — squawk 7700, voice on GUARD …`, four lines, no overflow, and every survivor this mission keyed that channel: 28 `Added Radio Beacon 260000 Hertz` lines in `dcs.log`. No CSAR flight was fragged, so the crew's card is still owed.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the striker-card half.** Page 1 carries `SAR 260 kHz ADF — If down: your beacon keys automatically — squawk 7700, voice on GUARD …`, four lines, no overflow, and every survivor this mission keyed that channel: 28 `Added Radio Beacon 260000 Hertz` lines in `dcs.log`. No CSAR flight was fragged, so the crew's card is still owed.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised.** Test 33's Viper kneeboard (eight pages, read off the miz) carries no SAR line because no survivor was on the map at generation; no capture had a CSAR package with a kneeboard to read. Unchanged.
 
@@ -4579,7 +4591,7 @@ save drop stays, because that pop IS the cleanup for old saves.
 
 ### S5 — Ambient supply convoys: both sides' roads have randomized traffic · §50 · ◐ PARTIAL (2026-09-21, test 37; was ✗ REGRESSED (2026-09-16, audit))
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **all four columns drove.** Off the recording: red `Convoy 001` 23–24 km, `Convoy 002` 22 km, `Convoy 004` 27 km; blue `Convoy 003` (VAB Mephisto, MLRS, MCV-80, HMMWV) 35 km. No column parked. TIC was off this flight, so this is the stock mover path. The parked-column signature from tests 17, 28 and 31 did not reproduce on this map; those captures stand, so the row goes to PARTIAL, not VERIFIED.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **all four columns drove.** Off the recording: red `Convoy 001` 23–24 km, `Convoy 002` 22 km, `Convoy 004` 27 km; blue `Convoy 003` (VAB Mephisto, MLRS, MCV-80, HMMWV) 35 km. No column parked. TIC was off this flight, so this is the stock mover path. The parked-column signature from tests 17, 28 and 31 did not reproduce on this map; those captures stand, so the row goes to PARTIAL, not VERIFIED.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **REGRESSED: columns still park, and not only blue.** Every capture with convoys was measured off the recording (path length per unit over the mission). Drove: red on Vectron's Claw, Iron Gate (three columns, 5–46 km), Hornet's Nest, Caucasus 2026, Noisy Cricket (85 km) and Peace Spring (57 km); blue on Hornet's Nest (test 28, 12.7 km) and Noisy Cricket (test 32, 4 km). **Parked for the whole mission:** both blue columns on Inherent Resolve test 17 (Convoy 003, LAV-25/Bradley/HMMWV/MLRS/MRAP, and Convoy 004, M1A2/M6, each with a 5–7 point on-road route in the miz), the blue column on Caucasus 2026 test 31 (eight T-64BV, 41 min), and red Convoy 002 on Hornet's Nest test 28 (ten vehicles, 22 min). The 2026-07-07 distinct-road fix did not remove the failure, and the Inherent Resolve re-fly this row was waiting for reproduced it. Three of fifteen columns across seven missions; mixed tracked/wheeled columns dominate the parked set but the T-64 column is single-type, so that lead is not the whole story. This also blocks S3 (test 17's four ambush zones were keyed to the two parked blue columns).
 
@@ -5646,7 +5658,7 @@ actually are.
 > weighting. That row needs a lopsided pair.
 ### B70 — Sortie records reach the campaign · §91 · ◐ PARTIAL
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. **Fixed the same day:** the sweep now freezes a `player` record whose unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` (`player_left`), counts nothing for it, and resumes on a reconnect; harness-pinned, unflown. 42 records carry an empty track (parked airframes, by design).
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. **Fixed the same day:** the sweep now freezes a `player` record whose unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` (`player_left`), counts nothing for it, and resumes on a reconnect; harness-pinned, unflown. 42 records carry an empty track (parked airframes, by design).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the two-humans-in-one-group re-fly is still owed. On the WATCH card.
 
@@ -5965,6 +5977,8 @@ Play a turn on a **front-less** campaign whose AWACS is not at the field nearest
 
 ### G42 — Skynet is the engine again · Skynet return · ◐ PARTIAL
 
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **consistent with the HARM defence, not proof of it.** The SA-11 `MAVERICK` fired its last missile at t=2470; four HARMs launched at it t=2419–2437 fell 2.2–2.4 km off the site 90 s later. A site that goes dark on HARM detection produces exactly that miss, but the recording carries no emission state, so it cannot be told apart from the HARMs losing the radar for another reason.
+
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **three of the four pass clauses seen; the HARM clause was measured and did not happen.** Loads and runs to full length with no `enableEmission` fault on tests 30, 32 and 33 (25 min, 2 h 14 min, 93 min). Sites dark until cued (KIWI's SA-11 held fire until the DEAD four-ship was inside 30 km). Unhandled sites named (OKAPI, WATERBUCK). The one site that took HARMs, LEOPARD (SA-11, test 32), did **not** go dark: WEKA fired two AGM-88 at t=4157 and t=4165, LEOPARD launched at t=4165, 4170, 4177 and 4197 while the HARMs were in the air, lost two launchers at t=4250 and t=4256, and launched again at t=4294 and t=4305. Skynet's HARM defence is a per-site detection roll, so one site is not a verdict, but on the only measurable case the site fought through the shot rather than shutting down. Recorded, not tuned; the HARM clause stays open.
 
 **2026-09-15, test 33** (Syria — Operation Peace Spring turn 2, multiplayer listen host with two humans in the MAVERICK Viper strike, 93 min, `Tacview-20260915-205127-DCS-Host`, DCS 2.9.29.27468, build `611eedfcd`; the turn-3 save `91526.retribution` is the auto-planner's own frag on the same build) — 93 min, no crash, no `enableEmission` fault. One rejection: `0092 | WATERBUCK (PD)` is a point-defence group Skynet cannot classify; its parent SA-10 was still fragged and the turn-3 auto-planner still targets it.
@@ -6200,7 +6214,7 @@ turn on a wing with a small dedicated-jammer squadron and read the ATO before fl
 
 ### B76 — A mixed boom/probe wing gets a tanker of each · U15 reinstated · ◐ PARTIAL (2026-09-21, test 37; was ✗ REGRESSED (2026-09-17, headless))
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the positive case held.** The one `Incirlik Refueling` support package carried two flights, `|2|1|` KC-135 MPRS (probe) and `|2|2|` KC-135 (boom), on separate racetracks: orbit centres 37.58N 35.22E and 37.85N 35.11E off the recording, 31 km apart, both north of Incirlik and clear of the belt. Texaco 3 and Arco 3 on the kneeboard, one TACAN each. The negative case (a single-method wing still gets exactly one) is not exercised, so the row moves off REGRESSED to PARTIAL rather than VERIFIED.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the positive case held.** The one `Incirlik Refueling` support package carried two flights, `|2|1|` KC-135 MPRS (probe) and `|2|2|` KC-135 (boom), on separate racetracks: orbit centres 37.58N 35.22E and 37.85N 35.11E off the recording, 31 km apart, both north of Incirlik and clear of the belt. Texaco 3 and Arco 3 on the kneeboard, one TACAN each. The negative case (a single-method wing still gets exactly one) is not exercised, so the row moves off REGRESSED to PARTIAL rather than VERIFIED.
 
 **2026-09-17 — the fail signature, reproduced headless on two real saves.** Long Road to H3,
 `autosave` turn 1 and `brady` turn 3, blue replanned read-only through the full planner: the
@@ -6225,7 +6239,7 @@ row re-run in-game to go back to VERIFIED.
 
 ### B77 — A player's ramp allowance matches the airframe · #214 startup times · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the Viper half, a measurement.** Authored `startup_minutes: 4`; the card briefed Takeoff 05:15Z against a 05:03:06Z start, a 12-minute ramp allowance including the Incirlik taxi. Off the recording the human lead was airborne at +13.0 min and the AI wingmen at +13.5, +14.1 and +14.7. One minute late on the lead; whether the start was unhurried is the DM's to say. No F-4E flown.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the Viper half, a measurement.** Authored `startup_minutes: 4`; the card briefed Takeoff 05:15Z against a 05:03:06Z start, a 12-minute ramp allowance including the Incirlik taxi. Off the recording the human lead was airborne at +13.0 min and the AI wingmen at +13.5, +14.1 and +14.7. One minute late on the lead; whether the start was unhurried is the DM's to say. No F-4E flown.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not decidable from a capture** (the allowance is read off the briefing card). Unchanged, on the WATCH card.
 
@@ -6624,7 +6638,7 @@ mission-generation question.
   that is enough to contest the pass, and whether Kobuleti's transit leaves useful fuel.
 ### B97 — One salvo, and only the targeted flight breaks · §94 · ◐ PARTIAL
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the pre-registered falsifier has its first number.** No DEBUG line (the toggle was inert until 2026-09-20, fixed on this branch after the miz was generated), so the pass criterion is unread. Attrition, off the recording: 15 blue aircraft lost, 8 of them to SAMs — six to one SA-11 (`MAVERICK`) in 47 s (both `Kharab Ishk Armed Recon` F-15Es, both its F-14A escorts, both its AV-8B SEAD escorts; nine 9M38M1 fired), one M-2000C to an S-300 at 13,500 m, one F-15E to a Tunguska. Six to air-to-air (four to MiG-25 R-40s, two to MiG-29s), one Apache to a tank. Whether Evade Fire would have saved the Kharab Ishk six is unknowable from one flight; the design note's falsifier is "loss rates against SAM belts rise enough to change how a campaign plays", and a six-for-nine Buk salvo is the shape it names. A decision for the DM, not a tuning.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **the pre-registered falsifier has its first number.** No DEBUG line: the toggle worked in this build (#1038 moved the script to a config work order) and was simply off, so the pass criterion is unread. Attrition: 15 blue aircraft lost in combat, 8 to SAMs — six to one SA-11 (`0126 | MAVERICK (SAM)`), which fired 13 9M38M1 from t=2399 to t=2470 and killed both `Kharab Ishk Escort` F-14As, both `Kharab Ishk Armed Recon` F-15Es and both `Kharab Ishk SEAD Escort` AV-8Bs between t=2431 and t=2475 (terminals 206–750 m from each victim, each removed within 0.1 s); one M-2000C to an SA-5 (5V28) at 13,500 m; one F-15E to a Tunguska. Six to air-to-air (four to MiG-25 R-40s, two to MiG-29s), one Apache to a tank ATGM. Whether Evade Fire would have saved the Kharab Ishk six is unknowable from one flight; a package lost whole to one MERAD is the shape the design note's falsifier names. A decision for the DM, not a tuning.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** no capture since test 32 had `DEBUG` on. The population metric is the same shape on test 33 (no red SAM salvo turned more than a handful of jets).
 
@@ -6998,7 +7012,7 @@ dropped (`landing_ejection_for` in `dcs_retribution.lua`, pinned by
 
 ### B123 — An Armed Recon flight engages a gun-defended target instead of overflying the search point · §35 · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **fail signature 2's shape, with a different cause.** `Kharab Ishk Armed Recon` (2× F-15E, TOT 05:46Z) reached its search area, fired nothing in 33 min airborne, and both jets died at t=2449/2458 to `0126 | MAVERICK (SAM)`, the SA-11 sitting beside the target: nine 9M38M1 launched in 47 s from t=2423, six kills across the package — both Eagles, both `Kharab Ishk Escort` F-14As, both `Kharab Ishk SEAD Escort` Harriers. The Harriers fired no HARM. The site's own DEAD (`MAVERICK DEAD`, 4 Hornets, 11 JSOW at t=3501–3523, all 9 units of the site removed) carried TOT 06:07Z, 21 min after the Armed Recon it would have covered. The zone logic this row tests was never reached: the package was killed in transit by a neighbouring MERAD whose suppression the planner scheduled later. Recorded under B126 too.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **fail signature 2's outcome, before the zone logic was reached.** `Kharab Ishk Armed Recon` (2× F-15E, 6 GBU-38, TOT 05:46:35Z = t=2609) fired nothing in 33 min airborne and both jets were shot down at t=2449 and t=2458, 2.5 min before TOT, by the SA-11 `0126 | MAVERICK (SAM)`. Its own SEAD escort was two AV-8Bs carrying AGM-122 Sidearm and AGM-65F — no weapon that reaches a Buk — and both were shot down too, with the package's F-14A escort. The row's question (does the flight engage instead of overflying) was not reached; the loss says the package had no suppression that could touch the threat on its route. Recorded under B126.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised since the fix.** Tests 31–33 fragged no Armed Recon flight at all; test 30 is the pre-fix failure. Unchanged.
 
@@ -7718,7 +7732,7 @@ is lying and this row fails.
 
 ### B113 — A pilot's logbook fills in, and the kills are the ones they got · §96 · ◐ PARTIAL
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Fixed the same day in the recorder (`player_left`); the next flown seat-vacate is the check. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Fixed the same day in the recorder (`player_left`); the next flown seat-vacate is the check. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the second-human fix is unflown since test 33.
 
@@ -8054,7 +8068,7 @@ than waiting on a hangar deck that never clears, and client flights are never mo
 
 ### B129 — A flight with fuel to spare has no tanker leg · §46-adjacent · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **one airframe, both halves.** Pontiac 5 (F-16C, Incirlik → Aleppo → Incirlik, 250 nm round trip) carries no Refuel row, RTB margin +6,111 lb, route Hold → Join → Ingress → Strike → Split → Land. The miz still holds 37 `REFUEL` waypoints on other flights, so the drop is per-flight, not global. Whether every flight that kept a leg genuinely needed it is not measured.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **one airframe, both halves.** Pontiac 5 (F-16C, Incirlik → Aleppo → Incirlik, 250 nm round trip) carries no Refuel row, RTB margin +6,111 lb, route Hold → Join → Ingress → Strike → Split → Land. The miz still holds 37 `REFUEL` waypoints on other flights, so the drop is per-flight, not global. Whether every flight that kept a leg genuinely needed it is not measured.
 
 - **Setup:** any turn with tankers planned and a long-legged aircraft on a short sortie —
   a bomber or a Strike Eagle off a near field.
@@ -8067,7 +8081,7 @@ than waiting on a hangar deck that never clears, and client flights are never mo
 
 ### B130 — The Viper's STPT 25 is the bullseye the kneeboard names · §74 · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the cartridge half.** `Retribution Pontiac 5 F-16C_50.dtc` holds 13 NAV_PTS: the route on 1–6, the route's own Bullseye point as STPT 7 at x=125577 y=123125 (the miz's blue bullseye, to the metre), and the six support anchors on 8–13. Nothing is written at 25, so DCS fills it from the miz — the same point. The kneeboard names it (`Bullseye: Aleppo — 36°10'50"N 37°13'28"E`). The DED read and the HSD readouts are the cockpit half and are still owed.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the cartridge half.** `Retribution Pontiac 5 F-16C_50.dtc` holds 13 NAV_PTS: the route on 1–6, the route's own Bullseye point as STPT 7 at x=125577 y=123125 (the miz's blue bullseye, to the metre), and the six support anchors on 8–13. Nothing is written at 25, so DCS fills it from the miz — the same point. The kneeboard names it (`Bullseye: Aleppo — 36°10'50"N 37°13'28"E`). The DED read and the HSD readouts are the cockpit half and are still owed.
 
 - **Setup:** any campaign turn with a client F-16C and DTC on. Slot in, read the kneeboard
   Bullseye line, then select STPT 25 on the DED.
@@ -8075,9 +8089,9 @@ than waiting on a hangar deck that never clears, and client flights are never mo
 - **Fail signature:** STPT 25 holds a tanker or AWACS anchor (test 36's DED read the AWACS
   orbit), or the cartridge writes fewer anchors than it used to and one you wanted is gone.
 
-### B131 — The land AWACS orbit sits over land, and two AWACS never share a racetrack · support orbits · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+### B131 — The land AWACS orbit sits over land, and two AWACS never share a racetrack · support orbits · ☑ VERIFIED (2026-09-21, test 37; was ☐ UNTESTED)
 
-**2026-09-21, test 37** (Syria — Anatolian Reach, 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `93c8128e8`, `Desktop\New test\37`) — **the ordinary path, on a different campaign.** Off the recording, t=1200–3900: `Incirlik AEW&C` E-3A orbit centre 37.71N 35.11E, inland Turkey 80 km north of Incirlik; `CVN-71 AEW&C` E-2C 36.54N 33.41E over the sea by the boat; 108 NM apart. Tankers off Incirlik, not Gaziantep; the A-6E on the carrier. No orbit centred on the LHA. Not the setup's condition (every blue field threatened), so the fallback anchor is still owed.
+**2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **the setup exactly: Long Road to H3, turn 1 of a new game.** Off the recording, t=1200–3900: `Incirlik AEW&C` E-3A orbit centre 37.71N 35.11E, inland Turkey ~80 km north of Incirlik; `CVN-71 AEW&C` E-2C 36.54N 33.41E over the sea by the boat; 108 NM apart. Both land tankers off Incirlik, not Gaziantep; the A-6E on the carrier. No orbit centred on the LHA. Every pass item holds. The optional spacing check (a hand-fragged second AWACS) was not flown.
 
 The fix for the three overlapping orbits in the test 36 follow-up (2026-09-17). With
 every blue field inside red's threat zone, the land AEW&C anchor fell back to a generic
@@ -8108,13 +8122,13 @@ tanker) → Incirlik (hosts the KC-135s).
 
 ### B132 — The profiler names the sim-thread sink, or clears Lua of it · sim-thread freeze note · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
-**Test 37 (2026-09-21, Anatolian Reach, 65 min, `Tacview-20260921-194148`):** the instrument
+**Test 37 (2026-09-21, Long Road to H3 turn 1, 65 min, `Tacview-20260921-194148`):** the instrument
 works end to end — armed, heartbeats every 30 s, `Profiler Started/Stopped`,
 `MooseProfiler.txt` written. Verdict for the quiet phase only, because the default window
 (t+60 s for 300 s) closed before the battle: Lua function time 37.4 s of 300 s (12.5 %,
 hook-inflated), no function over 33 ms/call, RetLab plugins 1.6 s combined — **Lua is not
 the sink there**. The Lua heap runs a 430 MB → ~950 MB sawtooth every ~150 s (3.3 MB/s
-churn, mostly MOOSE `DeepCopy`), and most 250–600 ms stalls sit on the collection drop.
+churn; the profiler cannot say what allocates it), and 17 of the 41 sub-2 s stalls sit on a visible collection drop. Re-analysed 2026-09-22 in model time: the stalls are phase-locked to a 5 s cycle (p≈0.002), not 15/30/60 s. The stall log also had a blind spot — it measured model lag, so a freeze DCS caught up from was invisible — fixed; see the freeze note.
 The dominant finding is elsewhere: from t=960 to t=2640 the sim ran 30 s of model time in
 37–54 s of wall clock (755 quantizer clamps), and that stretch is the battle — unprofiled.
 PARTIAL until a flight profiles the battle window (delay ~900 s, duration 600 s). Ledger in
@@ -8122,9 +8136,9 @@ PARTIAL until a flight profiles the battle window (delay ~900 s, duration 600 s)
 
 The measurement flight behind the 2026-09-20 freeze investigation
 ([retlab-sim-thread-freeze-notes.md](design/retlab-sim-thread-freeze-notes.md)). Three
-flights on an 870-unit Anatolian Reach turn froze ~1 s every 15–30 s; TIC's stuck-unit
+flights on an 870-unit Long Road to H3 turn froze ~1 s every 15–30 s; TIC's stuck-unit
 retry, the 15 s `state.json` write and §94's sweep were each accused and each cleared
-(the freezes are not phase-locked to any timer, and TIC-off still froze). What is left is
+(test 37's stalls are locked to a 5 s cycle, not to any of their 15/30/60 s timers, and TIC-off still froze). What is left is
 either a Lua script or DCS itself choking on the size, and the log cannot tell them apart.
 The `profiler` plugin (`resources/plugins/profiler/`, default off) can: MOOSE's PROFILER
 for a window, and a stall log for the whole flight.
