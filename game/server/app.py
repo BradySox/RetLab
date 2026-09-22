@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 
 from . import (
     controlpoints,
+    coordinates,
     debuggeometries,
     downedpilots,
     eventstream,
@@ -15,6 +16,7 @@ from . import (
     mapzones,
     navmesh,
     qt,
+    savedpoints,
     supplyroutes,
     tgos,
     waypoints,
@@ -34,6 +36,7 @@ async def _key_error_as_404(request: Request, exc: KeyError) -> JSONResponse:
 
 
 app.include_router(controlpoints.router)
+app.include_router(coordinates.router)
 app.include_router(debuggeometries.router)
 app.include_router(downedpilots.router)
 app.include_router(eventstream.router)
@@ -45,6 +48,7 @@ app.include_router(maptiles.router)
 app.include_router(mapzones.router)
 app.include_router(navmesh.router)
 app.include_router(qt.router)
+app.include_router(savedpoints.router)
 app.include_router(supplyroutes.router)
 app.include_router(tgos.router)
 app.include_router(waypoints.router)

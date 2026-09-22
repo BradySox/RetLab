@@ -315,7 +315,7 @@ note has the numbers).
 
 ## Outstanding rows at a glance
 
-83 rows need a live pass. Full detail is under each `###` heading below —
+85 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -362,7 +362,9 @@ stress it · `✗` fail signature reproduced in-game.
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
-| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ◐ |
+| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ☐ |
+| B135 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
+| B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -7431,6 +7433,13 @@ check the campaign) reads UNKNOWN. In the air, a friendly type the FCR types out
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **no client Apache in any capture.** Unchanged.
 
+**2026-09-22, builder changed before any flight (§102, DM call).** The editor deletes a TSD
+line outside 2-4 vertices (`NAV/Lines.lua:52,241`), and the builder wrote up to 8. The
+front line is now 2-4 vertex pieces, the tanker boxes are 4-corner TSD **areas**, and
+route `eta` is per leg rather than a running total (`NAV/Routes.lua`). Read the front
+line as a run of short lines and the tanker as an area. The manual (Dec 2025, p195)
+lists TSD lines and areas as not implemented, so an empty TSD is a possible result.
+
 `apache.py` is the fourth §74 builder: WPTHZ waypoints W01.., the ALPHA route in
 the editor's own leg shape, fogged SAM sites as TGT points, the FLOT as TSD
 lines. Partitions the planner computes nothing for are omitted or ship as the
@@ -8204,3 +8213,35 @@ fired nothing, and one pair died to an SA-11. See §69's front-line SEAD escort 
   SEAD escort under a radar SAM (the proposal or the threat trigger); a Hornet or Viper on
   the CAS escort while a Harrier sat idle (the ranking term); Harriers that join and then
   never fire (the Sidearm finds no emitter — record what radar was there).
+### B135 — A saved point reaches the cockpit with the number the kneeboard gives it · §102 · ☐ UNTESTED
+
+Saved points (2026-09-22, [retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md))
+go into the §74 cartridge on route sequence 2 (Hornet, Viper) or the A-10's CDU EXTRA
+plan, and onto a kneeboard page numbered the same way.
+
+- **Setup:** a player Hornet or Viper with the DTC on. Map → crosshair button (top left)
+  → click a spot → Save as waypoint. Or My aircraft → Add. Generate.
+- **Pass:** the kneeboard's "extra points" page lists the point with a number N. In the
+  jet, STPT N is that point (name and position), SEQ1 is still the route, and stepping to
+  SEQ2 (Hornet) shows only the saved points. Viper: the tanker/AWACS anchors now follow
+  the saved points. A-10: the CDU's EXTRA plan holds the point with a ground elevation.
+- **Fail signatures:** the point is missing in the jet (Route section off, or the
+  cartridge did not load); STPT N is a different point (the kneeboard and cartridge
+  numbering drifted); the Hornet's route sequence lost its legs (our filled `NAV_ROUTE`
+  and the `R2` flags disagree); the A-10 shows `EL: *****`.
+
+### B136 — The DTC options do what the tab says: hand-load, skipped waypoints, your drawings · §102 · ☐ UNTESTED
+
+The DTC tab was rebuilt per airframe on 2026-09-22
+([retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md) §5).
+
+- **Setup:** a player Viper or Hornet. DTC tab: Loading → "Pilot loads it"; untick Join in
+  the waypoint list. Map: draw an area and save an orbit to the jet. Generate.
+- **Pass:** the jet spawns with the cartridge in its DTC list but not loaded; loading it by
+  hand works. The route has no join point, the numbers close up, and the kneeboard route
+  table shows `-` on the join row. The area and the orbit show on the SA page (Hornet:
+  the orbit in the CAP list) or the HSD (Viper).
+- **Fail signatures:** the cartridge loads at spawn anyway (the `AutoLoad = false` flag is
+  ignored); the jet's STPT numbers do not match the kneeboard after a skip; a drawing is
+  missing (no free line slot, or the jet rejected the line).
+

@@ -1,106 +1,45 @@
-"""Edit Flight -> DTC tab: the planner's per-flight cartridge controls (§74).
+"""Edit Flight -> DTC tab: the planner's per-flight cartridge controls (§74, §102).
 
-Shown only for DTC-capable airframes (FA-18C, F-16C, F-14B(U)). Writes
-``flight.dtc_options`` live -- the choices pickle with the save and the next
-generation's ``DtcGenerator`` honors them. A section that is off leaves the
-jet's own defaults untouched: omitted from the Hornet and Viper cartridges,
-written as the editor's reset state on the Tomcat, whose descriptor cannot
-take a partial cartridge.
+Writes ``flight.dtc_options`` live; the next generation's ``DtcGenerator`` honors it.
+Only the sections this airframe's cartridge carries are offered, with what each does
+on this jet (``game/missiongenerator/dtc/sections.py``). A section that is off leaves
+the jet's own defaults untouched: omitted from the Hornet, Viper and Apache
+cartridges, written as the editor's reset state on the Tomcat.
 """
 
+from __future__ import annotations
+
+from typing import Any, Callable, Optional
+
+from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFrame,
     QGroupBox,
+    QHBoxLayout,
     QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QSpinBox,
     QVBoxLayout,
+    QWidget,
 )
 
 from game import Game
 from game.ato.flight import Flight
+from game.ato.flightwaypointtype import FlightWaypointType
+from game.missiongenerator.dtc.sections import GROUPS, SECTIONS, sections_for
 
-#: (label, DtcOptions field, tooltip) for the section checkboxes.
-_SECTIONS = (
-    (
-        "TIS send-to list (F-14B(U))",
-        "comms",
-        "The package's flights on the Tomcat's TIS send-to list. F-14B(U) "
-        "only: the Hornet's and Viper's radio presets come from the mission "
-        "itself, so neither cartridge carries a comm section.",
-    ),
-    (
-        "Route steerpoints + push times",
-        "route",
-        "The flight's waypoints as named steerpoints with the planned "
-        "per-leg speeds and ETAs. On the F-14B(U) the route goes on flight "
-        "plan 2 -- plan 1 is the mission editor's own -- and the bullseye and "
-        "divert become reference points.",
-    ),
-    (
-        "Recovery aids (TACAN / ICLS / ACLS, home waypoint)",
-        "nav_aids",
-        "Pre-tunes the recovery TACAN -- the boat's full card on a carrier "
-        "flight -- sets the FPAS home waypoint, and designates the bullseye as "
-        "the air-to-air waypoint. Hornet only; the Viper carries no equivalent "
-        "cartridge section.",
-    ),
-    (
-        "Front line (FLOT)",
-        "flot_and_zones",
-        "The front line on the SA page (Hornet), as HSD lines (Viper) or as "
-        "a plot line (F-14B(U)).",
-    ),
-    (
-        "Own orbit + tanker/AWACS orbits",
-        "friendly_orbits",
-        "This flight's own orbit first -- its patrol track, or its hold point "
-        "when it flies no track -- then the tanker and AWACS orbits. Never "
-        "another flight's CAP station. Racetracks on the Hornet's SA page, "
-        "extra named steerpoints after the route on the Viper, reference "
-        "points on the F-14B(U).",
-    ),
-    (
-        "Known enemy SAM rings",
-        "threat_rings",
-        "Threat rings for enemy air-defense sites your recon has confirmed "
-        "(the campaign map's exact sites only -- suspected sites never leak). "
-        "Rings on the Hornet and Viper; named reference points on the "
-        "F-14B(U).",
-    ),
-    (
-        "Pre-planned target points",
-        "jdam_targets",
-        "The flight's targets as pre-planned aimpoints on every weapon "
-        "station, with the run-in heading and release parameters. F-14B(U) "
-        "only; the other jets carry no equivalent cartridge section.",
-    ),
-    (
-        "Recovery fields + the target airfield",
-        "destinations",
-        "Friendly airfields and boats as Destination steerpoints, the briefed "
-        "divert first and the enemy field you are working over right after "
-        "it. Viper only; the other jets carry no equivalent section.",
-    ),
-    (
-        "ROE air target table",
-        "roe_table",
-        "The F-16C ROE tab's Air Target Data Table, derived from this "
-        "campaign's order of battle: a family only your side flies is "
-        "declared FRIENDLY, one only the enemy flies HOSTILE, anything "
-        "flown by both (or nobody) stays UNKNOWN. Green circles need one "
-        "ROE factor, so the friendly declarations are what stop "
-        "blue-on-blue. Viper only.",
-    ),
-    (
-        "Countermeasure programs",
-        "countermeasures",
-        "The CMDS manual programs and the bingo counts: MAN 1 dispenses "
-        "flares only and MAN 5 chaff only, so one button answers an IR shot "
-        "and another a radar one. The three AUTO programs and BYP keep the "
-        "jet's own values. Viper only.",
-    ),
-)
+#: Waypoint types never offered in the picker: row 0 is never written.
+_NOT_OFFERED = {FlightWaypointType.TAKEOFF}
+
+#: The distance the SAM filter starts at when it is first ticked.
+DEFAULT_THREAT_RADIUS_NM = 30
+
+
+def _waypoint_type_label(name: str) -> str:
+    return name.replace("_", " ").title()
 
 
 class QFlightDtcTab(QFrame):
@@ -110,17 +49,14 @@ class QFlightDtcTab(QFrame):
         super().__init__()
         self.flight = flight
         self.game = game
+        self.section_boxes: list[tuple[QCheckBox, str]] = []
+        self.waypoint_list: Optional[QListWidget] = None
 
         layout = QVBoxLayout()
-
         intro = QLabel(
-            "This flight's native DCS data cartridge auto-loads at spawn: "
-            "route, recovery aids, the SA picture, the Viper's ROE "
-            "table and, on the F-14B(U), "
-            "pre-planned JDAM points -- straight into the jet, and multiplayer "
-            "clients get it with the mission download. Radio presets and the "
-            "route reach the jet through the mission anyway; the cartridge adds "
-            "the rest. Changes apply the next time the mission is generated."
+            "This flight's DCS data cartridge. Only what this aircraft's cartridge"
+            " can hold is listed. Changes apply the next time the mission is"
+            " generated."
         )
         intro.setWordWrap(True)
         layout.addWidget(intro)
@@ -135,22 +71,150 @@ class QFlightDtcTab(QFrame):
         self.mode_selector.currentIndexChanged.connect(self.on_mode_changed)
         layout.addWidget(self.mode_selector)
 
-        self.contents_group = QGroupBox("Cartridge contents")
-        contents_layout = QVBoxLayout()
-        self.section_boxes: list[tuple[QCheckBox, str]] = []
-        for label, attr, tooltip in _SECTIONS:
-            box = QCheckBox(label)
-            box.setChecked(getattr(flight.dtc_options, attr))
-            box.setToolTip(tooltip)
-            box.toggled.connect(self._make_section_writer(attr))
-            contents_layout.addWidget(box)
-            self.section_boxes.append((box, attr))
-        self.contents_group.setLayout(contents_layout)
+        self.contents_group = QWidget()
+        contents = QVBoxLayout()
+        contents.setContentsMargins(0, 0, 0, 0)
+        contents.addWidget(self._loading_box())
+        for group in GROUPS:
+            box = self._group_box(group)
+            if box is not None:
+                contents.addWidget(box)
+        self.contents_group.setLayout(contents)
         layout.addWidget(self.contents_group)
 
         layout.addStretch()
         self.setLayout(layout)
         self._update_enabled_state()
+
+    # ------------------------------------------------------------------ layout
+
+    @property
+    def _dcs_id(self) -> Optional[str]:
+        unit_type = getattr(self.flight, "unit_type", None)
+        dcs_type = getattr(unit_type, "dcs_unit_type", None)
+        return getattr(dcs_type, "id", None)
+
+    def _offered(self) -> list[Any]:
+        dcs_id = self._dcs_id
+        return list(SECTIONS) if dcs_id is None else sections_for(dcs_id)
+
+    def _loading_box(self) -> QGroupBox:
+        box = QGroupBox("Loading")
+        row = QVBoxLayout()
+        self.load_selector = QComboBox()
+        self.load_selector.addItem("Load at spawn", True)
+        self.load_selector.addItem("Pilot loads it from the DTC page", False)
+        self.load_selector.setCurrentIndex(
+            0 if self.flight.dtc_options.auto_load else 1
+        )
+        self.load_selector.currentIndexChanged.connect(self._on_load_changed)
+        row.addWidget(self.load_selector)
+        row.addWidget(
+            self._note(
+                "Pilot loads it: the cartridge is still in the jet's list, and"
+                " nothing is loaded until the crew selects it."
+            )
+        )
+        box.setLayout(row)
+        return box
+
+    def _group_box(self, group: str) -> Optional[QGroupBox]:
+        sections = [s for s in self._offered() if s.group == group]
+        if not sections:
+            return None
+        box = QGroupBox(group)
+        column = QVBoxLayout()
+        dcs_id = self._dcs_id
+        for section in sections:
+            check = QCheckBox(section.label)
+            check.setChecked(getattr(self.flight.dtc_options, section.attr))
+            check.toggled.connect(self._make_section_writer(section.attr))
+            column.addWidget(check)
+            description = (
+                section.on.get(dcs_id)
+                if dcs_id is not None
+                else " / ".join(section.on.values())
+            )
+            if description:
+                column.addWidget(self._note(description, indent=True))
+            self.section_boxes.append((check, section.attr))
+            if section.attr == "route":
+                column.addWidget(self._waypoint_picker())
+            elif section.attr == "threat_rings":
+                column.addLayout(self._threat_radius_row())
+        box.setLayout(column)
+        return box
+
+    @staticmethod
+    def _note(text: str, indent: bool = False) -> QLabel:
+        label = QLabel(text)
+        label.setWordWrap(True)
+        label.setStyleSheet(
+            "color: #8a99a6; font-size: 11px;"
+            + (" margin-left: 22px;" if indent else "")
+        )
+        return label
+
+    def _waypoint_picker(self) -> QWidget:
+        """One row per kind of waypoint in this flight plan; unticked kinds stay out
+        of the cartridge, and the numbers after them close up."""
+        holder = QWidget()
+        column = QVBoxLayout()
+        column.setContentsMargins(22, 0, 0, 0)
+        column.addWidget(
+            self._note(
+                "Waypoints in the cartridge. An unticked kind is left out and the"
+                " numbers after it close up; the kneeboard prints '-' on its row."
+            )
+        )
+        counts: dict[str, int] = {}
+        plan = getattr(self.flight, "flight_plan", None)
+        for waypoint in getattr(plan, "waypoints", []) or []:
+            if waypoint.waypoint_type in _NOT_OFFERED:
+                continue
+            name = waypoint.waypoint_type.name
+            counts[name] = counts.get(name, 0) + 1
+        skipped = set(self.flight.dtc_options.skipped_waypoints)
+        for name in skipped - set(counts):
+            counts[name] = 0
+        listing = QListWidget()
+        for name, count in counts.items():
+            text = _waypoint_type_label(name) + (f"  ({count})" if count else "")
+            item = QListWidgetItem(text)
+            item.setData(Qt.ItemDataRole.UserRole, name)
+            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsUserCheckable)
+            item.setCheckState(
+                Qt.CheckState.Unchecked if name in skipped else Qt.CheckState.Checked
+            )
+            listing.addItem(item)
+        listing.setMaximumHeight(min(22 * max(len(counts), 1) + 8, 190))
+        listing.itemChanged.connect(self._on_waypoint_toggled)
+        self.waypoint_list = listing
+        column.addWidget(listing)
+        holder.setLayout(column)
+        return holder
+
+    def _threat_radius_row(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setContentsMargins(22, 0, 0, 0)
+        radius = self.flight.dtc_options.threat_ring_radius_nm
+        self.threat_near_route = QCheckBox("Only sites whose ring comes within")
+        self.threat_near_route.setChecked(radius is not None)
+        self.threat_radius = QSpinBox()
+        self.threat_radius.setRange(0, 300)
+        self.threat_radius.setSuffix(" nm of the route")
+        self.threat_radius.setValue(
+            radius if radius is not None else DEFAULT_THREAT_RADIUS_NM
+        )
+        self.threat_radius.setEnabled(radius is not None)
+        self.threat_near_route.toggled.connect(self._write_threat_radius)
+        self.threat_radius.valueChanged.connect(lambda _v: self._write_threat_radius())
+        row.addWidget(self.threat_near_route)
+        row.addWidget(self.threat_radius)
+        row.addStretch()
+        return row
+
+    # ------------------------------------------------------------------ writes
 
     def _follow_label(self) -> str:
         state = "on" if self.game.settings.dtc_data_cartridges else "off"
@@ -169,7 +233,24 @@ class QFlightDtcTab(QFrame):
         self.flight.dtc_options.enabled = self.mode_selector.itemData(index)
         self._update_enabled_state()
 
-    def _make_section_writer(self, attr: str):  # type: ignore[no-untyped-def]
+    def _on_load_changed(self, index: int) -> None:
+        self.flight.dtc_options.auto_load = bool(self.load_selector.itemData(index))
+
+    def _write_threat_radius(self) -> None:
+        near = self.threat_near_route.isChecked()
+        self.threat_radius.setEnabled(near)
+        self.flight.dtc_options.threat_ring_radius_nm = (
+            self.threat_radius.value() if near else None
+        )
+
+    def _on_waypoint_toggled(self, item: QListWidgetItem) -> None:
+        name = item.data(Qt.ItemDataRole.UserRole)
+        skipped = [n for n in self.flight.dtc_options.skipped_waypoints if n != name]
+        if item.checkState() != Qt.CheckState.Checked:
+            skipped.append(name)
+        self.flight.dtc_options.skipped_waypoints = skipped
+
+    def _make_section_writer(self, attr: str) -> Callable[[bool], None]:
         def write(checked: bool) -> None:
             setattr(self.flight.dtc_options, attr, checked)
 

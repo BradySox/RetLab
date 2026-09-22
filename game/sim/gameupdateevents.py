@@ -143,6 +143,10 @@ class GameUpdateEvents:
         self.deleted_iads_connections.add(connection_id)
         return self.update_supply_routes()
 
+    def look_at(self, latlng: LatLng) -> GameUpdateEvents:
+        self.reset_on_map_center = latlng
+        return self
+
     def update_supply_routes(self) -> GameUpdateEvents:
         self.updated_supply_routes = True
         return self

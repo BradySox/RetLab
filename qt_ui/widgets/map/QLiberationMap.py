@@ -41,6 +41,11 @@ class QLiberationMap(QWebEngineView):
             QWebEngineSettings.WebAttribute.LocalContentCanAccessRemoteUrls, True
         )
 
+        # The coordinate picker copies through execCommand, which needs this.
+        self.page.settings().setAttribute(
+            QWebEngineSettings.WebAttribute.JavascriptCanAccessClipboard, True
+        )
+
         if dev:
             url = QUrl("http://localhost:3000")
         else:

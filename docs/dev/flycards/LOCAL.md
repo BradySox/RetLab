@@ -121,6 +121,20 @@ Planner behaviour bar → **RetLab suite**, pass a turn, read the ATO before fly
   The deep half passed on test 38's ATO; the front half needs a turn where a radar
   SAM reaches the front — test 38's nearest ring was 10 km short of it.
 
+### 5 · A saved point is the same STPT in the jet as on the kneeboard — `B135`
+
+**Why this is a card.** A point has to be saved on purpose before a flight can show it.
+Headless tests pin the cartridge and the kneeboard numbers; only the jet shows whether
+sequence 2 works beside the route. Note:
+[`retlab-my-aircraft-notes.md`](../design/retlab-my-aircraft-notes.md).
+
+**Try:** a player Hornet or Viper with the DTC on. Map → crosshair button (top left) →
+click a spot → **Save as waypoint**. Generate, fly to the ramp. **~10 min.**
+
+- **Record:** the kneeboard's extra-points number N, what STPT N is in the jet, and
+  whether SEQ1 is still the whole route.
+- **Pass criterion:** STPT N is the saved point, named, at its position; SEQ1 unchanged.
+
 ## Done
 
 ### 2 · A target you destroyed stays destroyed next turn — `B63` — **CLOSED 2026-09-16**

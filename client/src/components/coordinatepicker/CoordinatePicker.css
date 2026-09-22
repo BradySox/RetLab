@@ -1,0 +1,146 @@
+.cp-crosshair {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ffff00;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.cp-popup {
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+  min-width: 190px;
+}
+
+.cp-text {
+  font-weight: 600;
+  margin-bottom: 6px;
+  user-select: text;
+  cursor: pointer;
+}
+
+.cp-text:hover {
+  text-decoration: underline;
+}
+
+.cp-others {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.cp-others div {
+  cursor: pointer;
+  user-select: text;
+}
+
+.cp-others div:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+.cp-save {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.cp-save select {
+  width: 100%;
+  font: inherit;
+  margin-bottom: 4px;
+}
+
+.cp-save-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.cp-save-buttons button {
+  flex: 1;
+}
+
+.cp-save-none,
+.cp-save-said {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.cp-save-said {
+  margin-top: 4px;
+}
+
+.cp-save-asking {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(128, 128, 128, 0.35);
+  font-size: 11px;
+}
+
+.cp-save-asking .cp-save-buttons {
+  margin-top: 4px;
+}
+
+.cp-save-alt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  opacity: 0.85;
+  margin-bottom: 4px;
+}
+
+.cp-save-alt input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+}
+
+/* The toggle in the map corner, sized and lit like the ruler button beside it. */
+.cp-toggle a {
+  width: 30px;
+  height: 30px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='6'/%3E%3Cpath d='M12 1v5M12 18v5M1 12h5M18 12h5'/%3E%3C/svg%3E");
+  background-size: 20px 20px;
+}
+
+.cp-toggle-on {
+  border-color: chartreuse !important;
+}
+
+/* §102: the drawing panel and the kind/orbit controls. */
+.cp-draw {
+  position: absolute;
+  top: 12px;
+  left: 60px;
+  z-index: 1000;
+  background: #fff;
+  padding: 8px 10px;
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  font:
+    13px/1.4 system-ui,
+    sans-serif;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cp-draw-title {
+  font-weight: 600;
+}
+
+.cp-draw-hint {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.cp-save-kind {
+  margin-top: 4px;
+}
