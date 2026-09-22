@@ -1,5 +1,6 @@
 name: AGM-65F
 year: 1991
+range: 13
 fallback: 3xAGM-65D
 clsids:
   - "LAU_117_AGM_65F"   # LAU-117 with AGM-65F - Maverick F (IIR ASM)

@@ -1,5 +1,6 @@
 name: 2xAGM-65A
 year: 1972
+range: 13
 clsids:
   - "{HB_F4EAGM-65A_LAU88_2x_Right}"
   - "{HB_F4EAGM-65A_LAU88_2x_Left}"

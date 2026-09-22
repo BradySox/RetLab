@@ -48,6 +48,7 @@ Symmetric: blue's Burkes are bound by exactly the same rule as red's Type 055s.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from itertools import zip_longest
 from typing import TYPE_CHECKING, Iterator, Optional
 
 if TYPE_CHECKING:
@@ -156,16 +157,27 @@ def naval_group_magazines(game: "Game") -> list[NavalGroupMagazine]:
     A group with an empty magazine is still listed (with ``remaining`` 0) so the
     plugin knows to hold it at ``ReturnFire`` from mission start rather than
     letting a spent fleet fight on as if freshly loaded.
+
+    The order is the N1 release order, so the sides alternate. Control-point
+    order lists one coalition's fleets before the other's, and a stagger that
+    followed it released one side's last group up to the whole window (13 min)
+    after the other's first.
     """
     ensure_magazines(game)
     mags = magazines(game)
-    return [
-        NavalGroupMagazine(
+    by_side: dict[str, list[NavalGroupMagazine]] = {"blue": [], "red": []}
+    for tgo, group in _naval_groups(game):
+        entry = NavalGroupMagazine(
             group_name=group.group_name,
             coalition="blue" if tgo.control_point.captured.is_blue else "red",
             remaining=max(0, mags.get(group.group_name, 0)),
         )
-        for tgo, group in _naval_groups(game)
+        by_side[entry.coalition].append(entry)
+    return [
+        entry
+        for pair in zip_longest(by_side["blue"], by_side["red"])
+        for entry in pair
+        if entry is not None
     ]
 
 
