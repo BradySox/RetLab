@@ -82,25 +82,42 @@ that field instead of the fragged slot. **~10 min.**
   slot is still in the list. Route and radios are the two answers; write them into §4 of
   the note. A missing type in the dynamic list is the `wsType` fail signature.
 
-### 4 · The profiler names what freezes the sim thread — `B132`
+### 4 · The profiler covers the slow stretch, and one F10 minute splits it — `B132`
 
-**Why this is a card.** The 2026-09-20 turn froze ~1 s every 15–30 s and three flights
-of log reading could not say why: TIC's retry, the `state.json` write and §94's sweep
-were each cleared by a checkable test, and the rest leaves no log line. Only a
-measurement separates "our Lua" from "DCS on 870 units", and it has to be arranged.
-Evidence and how to read the output:
+**Why this is a card.** Test 37 cleared Lua in the quiet phase, found the sub-second
+stalls locked to a 5 s cycle, and showed the sim running 0.55–0.8× for 28 minutes
+while a human was in the jet — then 1.0× the moment the DM went to spectator. The
+profiler window had closed before that stretch, and the first stall log could not see a
+freeze DCS catches up from (fixed in #1043). Evidence and how to read the output:
 [`retlab-sim-thread-freeze-notes.md`](../design/retlab-sim-thread-freeze-notes.md).
 
-**Try:** the turn that freezes (Anatolian Reach, or any turn that hitches). Plugin
-Options → tick **Lua profiler**, regenerate, fly **≥ 6 min past spawn-in, no pausing**,
-untick. Bring `Saved Games\DCS\Logs\MooseProfiler.txt` and `dcs.log`. **~10 min.**
+**Try:** a busy turn — Long Road to H3 is the one that hitched. Plugin Options → tick
+**Lua profiler**, set **Start profiling after 900 s** and **Profile for 600 s**,
+regenerate. Fly **≥ 25 min past spawn-in, no pausing**. Once the sim feels slow, note
+the mission time, **switch to the F10 map for 60 s**, then back to the cockpit. Note
+the time of every freeze you feel. Untick afterwards. Bring `MooseProfiler.txt` and
+`dcs.log`. **~30 min.**
 
-- **Record:** the `Function time … (N %)` line, the top five rows of the first table
-  with their source files, and the `PROFILER| alive` heartbeat's `stalls=` count at the
-  end.
-- **Pass criterion:** none — this card produces a verdict, not a number. One script on
-  top of the table is a code change; a small function-time share with stalls still
-  logging is the turn's size. Either way the answer goes into the note's ledger.
+- **Record:** the `Function time … (N %)` line and the top five rows; the heartbeat
+  spacing either side of the F10 minute; each `stall` line's `model +` value.
+- **Pass criterion:** none — it produces a verdict. F10 at real time while the cockpit
+  lags points at rendering; F10 still slow points at the jet's sensors or the sim.
+  Stalls with `model +` near their length are hitches the old log missed.
+
+### 5 · Front-line CAS takes a Harrier SEAD escort, and no deep package does — `B134`
+
+**Why this is a card.** Needs the RetLab planner suite switched on, which is off by
+default. Built from test 37, where four Sidearm Harriers escorted deep packages, fired
+nothing, and one pair died to an SA-11.
+
+**Try:** Long Road to H3 (it has the LHA Harriers and radar SHORAD at the front).
+Planner behaviour bar → **RetLab suite**, pass a turn, read the ATO before flying.
+**~5 min**, plus any CAS package you fly anyway.
+
+- **Record:** which squadron took each SEAD Escort, and the package it rides with.
+- **Pass criterion:** a front-line CAS package under a radar SAM carries a SEAD
+  Escort, the Harriers when free; no BAI, strike, OCA, DEAD or Armed Recon package
+  carries a Harrier SEAD escort.
 
 ## Done
 
