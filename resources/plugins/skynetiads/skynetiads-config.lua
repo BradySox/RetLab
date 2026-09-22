@@ -154,9 +154,14 @@ if dcsRetribution and SkynetIADS then
             for i, pd in pairs(element.PD) do
                 env.info(string.format("DCSRetribution|Skynet-IADS plugin - adding IADS Point Defence %s", pd))
                 local point_defence = iads:addSAMSite(pd)
-                if point_defence ~= nil then
-                    -- only add as point defence if skynet can handle the PD unit
+                -- Skynet keeps the parent emitting under a HARM on its PDs' missile count alone,
+                -- never asking whether a PD can hit a HARM, so a Strela-1 or gun PD holds an SA-11
+                -- live into the shot (test 37). Pair only a PD Skynet rates HARM-capable; the rest
+                -- still fight as ordinary SAM sites. retlab-skynet-return-notes.md.
+                if point_defence ~= nil and point_defence:getCanEngageHARM() == true then
                     iads_unit:addPointDefence(point_defence)
+                elseif point_defence ~= nil then
+                    env.info(string.format("DCSRetribution|Skynet-IADS plugin - %s cannot engage a HARM; not paired as point defence", pd))
                 end
             end
         end

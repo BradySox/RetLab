@@ -69,10 +69,22 @@ Plus one fork line: `P14_SR` in the S-200 search-radar block, because the two SA
 Site layouts pair the S-200 with a Tall King. Coverage audit 2026-09-12: of the 151 unit ids
 the anti-air layouts and preset groups field, every radar id is in the database.
 
-## 5. The config bridge — upstream's plus two additions
+## 5. The config bridge — upstream's plus three additions
 
-Upstream's `skynetiads-config.lua` is kept whole. Two blocks are added, both harness-tested
+Upstream's `skynetiads-config.lua` is kept whole. Three blocks are added, all harness-tested
 in `tests/lua/test_skynet_bridge.py`:
+
+- **Point defence must be able to engage a HARM (2026-09-22).** Skynet's
+  `shallIgnoreHARMShutdown()` keeps a SAM emitting under a HARM when its point defences have
+  enough missiles and launchers for the HARMs inbound. It checks `getCanEngageHARM()` for the site
+  itself but not for the point defences. The layouts' PD slot takes any faction unit of class
+  `SHORAD` (`fill` draws from the whole faction), and that class includes the IR-only Strela-1
+  and Strela-10. Test 37's red point defences: SPARROW got a Tor; MAVERICK (SA-11) and QUAGGA got
+  two Strela-1s; THRUSH and MOLE got guns only. MAVERICK's Strelas could hold the Buk live into
+  four HARMs with nothing able to shoot them. The bridge now pairs a PD only when Skynet's own
+  type database rates it HARM-capable (Tor, S-300, Patriot, NASAMS, C-RAM in this build — not
+  the Tunguska or Osa), and logs the rest, which still join the network as ordinary SAM sites.
+  Upstream carries the same wiring. Row G30 owns the fly.
 
 - **DeadC2.** The campaign emits, per coalition, the C2 nodes it already knows are destroyed
   (`IadsNetwork.dead_c2_names`, kept from the 08-19 fix). Skynet reads a SAM with no comms or
