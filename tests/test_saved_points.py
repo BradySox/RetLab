@@ -45,8 +45,10 @@ def test_a_flight_starts_with_nothing_written_down() -> None:
 def test_each_airframe_takes_what_its_own_cartridge_holds() -> None:
     """The Hornet's navigation set is 59 with HOME and the bullseye spoken for; the
     Viper's stop at 24, since STPT 25 is its bullseye."""
-    assert capacity_for("FA-18C_hornet") == Capacity(waypoints=57, markpoints=0)
-    assert capacity_for("F-16C_50") == Capacity(waypoints=24, markpoints=0)
+    assert capacity_for("FA-18C_hornet") == Capacity(57, 0, orbits=6)
+    assert capacity_for("F-16C_50") == Capacity(24, 0, orbits=3)
+    assert capacity_for("F-14BU") == Capacity(50, 0, orbits=4)
+    assert capacity_for("AH-64D_BLK_II") == Capacity(50, 0, orbits=12)
     assert capacity_for("A-10C_2") == Capacity(waypoints=2050, markpoints=0)
     # No §74 cartridge for the CJS Super Hornets: kneeboard only.
     assert capacity_for("FA-18E") == Capacity(waypoints=0, markpoints=0)
@@ -155,8 +157,19 @@ def test_one_page_of_points_is_not_numbered() -> None:
 def test_only_a_kind_the_aircraft_can_be_given_is_offered() -> None:
     """A button that saves a markpoint and then explains that the markpoint will
     never reach the cockpit is a question nobody should have been asked."""
-    for aircraft in ("FA-18C_hornet", "F-16C_50", "A-10C_2"):
-        assert kinds_for(aircraft) == [PointKind.WAYPOINT]
+    navigation = [PointKind.WAYPOINT, PointKind.IP, PointKind.TARGET, PointKind.HOLD]
+    for aircraft in ("FA-18C_hornet", "F-16C_50", "F-14BU", "AH-64D_BLK_II"):
+        assert kinds_for(aircraft) == navigation + [PointKind.ORBIT]
+    # The A-10's database has no orbit element.
+    assert kinds_for("A-10C_2") == navigation
+
+
+def test_the_navigation_kinds_share_one_pool() -> None:
+    flight = _flight("F-16C_50")
+    for kind in (PointKind.IP, PointKind.TARGET, PointKind.HOLD):
+        assert add_point(cast(Any, flight), _point(kind))
+    assert room_for(cast(Any, flight), PointKind.WAYPOINT) == 21
+    assert room_for(cast(Any, flight), PointKind.ORBIT) == 3
 
 
 def test_an_airframe_nobody_measured_is_offered_nothing() -> None:

@@ -426,12 +426,14 @@ class PointRow:
         used: int = 0,
         maximum: int = 0,
         number: int = 0,
+        room: int = 0,
     ) -> None:
         self.kind = kind
         self.index = index
         self.point = point
         self.used = used
         self.maximum = maximum
+        self.room = room
         #: Its place among its own kind, which is what the cockpit shows.
         self.number = number
 
@@ -455,14 +457,32 @@ class PointsModel(QAbstractTableModel):
         self._format = coordinates
         self._rows = []
         if aircraft is not None:
+            # Navigation kinds share one numbering, in the order the cockpit gets
+            # them; orbits and markpoints count on their own.
+            places: dict[int, int] = {}
+            place = 0
+            for index, point in enumerate(aircraft.points):
+                if point.kind.is_navigation:
+                    place += 1
+                    places[index] = place
             for kind in aircraft.kinds:
                 held = aircraft.of_kind(kind)
                 self._rows.append(
-                    PointRow(kind, used=len(held), maximum=aircraft.maximum(kind))
+                    PointRow(
+                        kind,
+                        used=len(held),
+                        maximum=aircraft.maximum(kind),
+                        room=aircraft.room(kind),
+                    )
                 )
                 for number, (index, point) in enumerate(held, start=1):
                     self._rows.append(
-                        PointRow(kind, index=index, point=point, number=number)
+                        PointRow(
+                            kind,
+                            index=index,
+                            point=point,
+                            number=places.get(index, number),
+                        )
                     )
         self.endResetModel()
 
@@ -503,7 +523,7 @@ class PointsModel(QAbstractTableModel):
     def _header_text(self, row: PointRow) -> str:
         # A kind the aircraft cannot be given says so rather than reading "2 / 0".
         count = (
-            f"{row.used} / {row.maximum}"
+            f"{row.used}  ·  room for {row.room} more"
             if row.maximum
             else f"{row.used} · kneeboard only"
         )
@@ -528,12 +548,16 @@ class PointsModel(QAbstractTableModel):
                 return font
             return None
 
-        letter = "W" if row.kind is PointKind.WAYPOINT else "MK"
+        letter = KIND_LETTERS.get(row.kind, "W")
         if role in (Qt.ItemDataRole.DisplayRole, Qt.ItemDataRole.EditRole):
             if column == NAME:
                 if role == Qt.ItemDataRole.EditRole:
                     return row.point.name
                 name = row.point.name or "Unnamed — click to name"
+                if row.kind is PointKind.ORBIT:
+                    name += (
+                        f"   {row.point.heading_deg:03d}° {row.point.length_nm:g} nm"
+                    )
                 return f"{letter}{row.number}   {name}"
             if column == POSITION:
                 return self.coordinates_of(row.point)
@@ -594,8 +618,28 @@ class PointsModel(QAbstractTableModel):
         return base
 
 
+#: The prefix a row's number carries, so an IP reads IP3 and a target TGT4.
+KIND_LETTERS = {
+    PointKind.WAYPOINT: "W",
+    PointKind.MARKPOINT: "MK",
+    PointKind.IP: "IP",
+    PointKind.TARGET: "TGT",
+    PointKind.HOLD: "HLD",
+    PointKind.ORBIT: "ORB",
+}
+
+_KIND_COLOURS = {
+    PointKind.WAYPOINT: WAYPOINT,
+    PointKind.MARKPOINT: MARKPOINT,
+    PointKind.IP: HELICOPTER,
+    PointKind.TARGET: DANGER_TEXT,
+    PointKind.HOLD: "#C7B2F0",
+    PointKind.ORBIT: "#F0D08F",
+}
+
+
 def kind_colour(kind: PointKind) -> str:
-    return WAYPOINT if kind is PointKind.WAYPOINT else MARKPOINT
+    return _KIND_COLOURS.get(kind, WAYPOINT)
 
 
 class PointDelegate(QStyledItemDelegate):
@@ -661,7 +705,7 @@ class PointDelegate(QStyledItemDelegate):
         centre = QPoint(rect.left() + 14, rect.top() + 18)
         painter.setPen(Qt.PenStyle.NoPen)
         painter.setBrush(QColor(kind_colour(row.kind)))
-        if row.kind is PointKind.WAYPOINT:
+        if row.kind.is_navigation or row.kind is PointKind.ORBIT:
             painter.drawEllipse(centre, 4, 4)
         else:
             painter.translate(centre)

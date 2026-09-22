@@ -1,56 +1,44 @@
 // Putting the picked point into one of the player's own aircraft.
 //
-// A spot is worth writing down long before it is worth a flight plan, and it goes to
-// one aircraft rather than into the plan everybody else flies. Only aircraft somebody
-// is actually sitting in are offered: an AI has nobody in it to read a point.
+// Ported from juanjux/dcs-escalation (LGPL-3.0). The kind picker, the orbit's heading
+// and length, and "Draw from here" are §102.
 //
-// Which kinds an airframe can be handed and how many more of each it will take are the
-// server's answer -- they come off the aircraft's own limits -- so this asks rather
-// than deciding. A kind the aircraft cannot be given is not offered at all: a button
-// that saves a markpoint and then explains that the markpoint will never reach the
-// cockpit is a question nobody should have been asked.
-import { HTTP_URL } from "../../api/backend";
+// Only aircraft somebody is actually sitting in are offered, and only the kinds the
+// server says that airframe can be handed: a kind that would never reach the cockpit
+// is not a button.
+import {
+  KIND_LABEL,
+  Receiver,
+  announceChange,
+  detailOf,
+  fetchReceivers,
+  postJson,
+} from "./receivers";
 import { LatLng } from "leaflet";
 import { useEffect, useState } from "react";
-
-interface Receiver {
-  id: string;
-  callsign: string;
-  aircraft: string;
-  departure: string;
-  kinds: string[];
-  room: Record<string, number>;
-}
-
-const LABEL: Record<string, string> = {
-  waypoint: "waypoint",
-  markpoint: "markpoint",
-};
 
 export default function SavePoint(props: {
   at: LatLng;
   name: string;
   elevationFt?: number;
+  onDraw?: () => void;
 }) {
   const [receivers, setReceivers] = useState<Receiver[] | null>(null);
   const [chosen, setChosen] = useState<string>("");
+  const [kind, setKind] = useState<string>("");
   const [said, setSaid] = useState<string>("");
-  // A weapon aimed at a saved point from the wrong elevation lands short or long,
-  // which is what a JDAM or a JSOW does with a target of opportunity.
+  // A weapon aimed at a saved point from the wrong elevation lands short or long.
   const [feet, setFeet] = useState<string>(
     props.elevationFt === undefined ? "" : String(props.elevationFt),
   );
+  const [heading, setHeading] = useState<string>("90");
+  const [length, setLength] = useState<string>("20");
 
   useEffect(() => {
     let dropped = false;
     (async () => {
       try {
-        const response = await fetch(`${HTTP_URL}saved-points/`);
-        // Whatever comes back, this is a popup on the map: an error page, an older
-        // server that has never heard of this, anything that is not a list of
-        // aircraft leaves the control quiet rather than throwing inside a render.
-        const body: unknown = response.ok ? await response.json() : null;
-        const list: Receiver[] = Array.isArray(body) ? body : [];
+        const list = await fetchReceivers();
         if (dropped) {
           return;
         }
@@ -76,30 +64,28 @@ export default function SavePoint(props: {
   }
 
   const receiver = receivers.find((one) => one.id === chosen) ?? receivers[0];
+  const kinds = receiver.kinds ?? [];
+  const current = kinds.includes(kind) ? kind : kinds[0] ?? "";
+  const room = receiver.room?.[current] ?? 0;
 
-  const save = async (kind: string) => {
+  const save = async () => {
+    setSaid("");
     try {
-      const response = await fetch(`${HTTP_URL}saved-points/${receiver.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          kind: kind,
-          name: props.name,
-          lat: props.at.lat,
-          lng: props.at.lng,
-          altitude_ft: Math.max(0, Math.round(Number(feet) || 0)),
-        }),
+      const { ok, body } = await postJson(`saved-points/${receiver.id}`, {
+        kind: current,
+        name: props.name,
+        lat: props.at.lat,
+        lng: props.at.lng,
+        altitude_ft: Math.max(0, Math.round(Number(feet) || 0)),
+        heading_deg: Math.round(Number(heading) || 0),
+        length_nm: Math.max(1, Number(length) || 20),
       });
-      const body: unknown = await response.json().catch(() => null);
-      if (!response.ok) {
-        const detail =
-          body && typeof body === "object" && "detail" in body
-            ? String((body as { detail: unknown }).detail)
-            : "Could not save it";
-        setSaid(detail);
+      if (!ok) {
+        setSaid(detailOf(body, "Could not save it"));
         return;
       }
       const updated = body as Receiver | null;
+      announceChange();
       if (!updated || typeof updated.id !== "string") {
         setSaid("Saved");
         return;
@@ -127,6 +113,19 @@ export default function SavePoint(props: {
           </option>
         ))}
       </select>
+      {kinds.length > 1 && (
+        <select
+          className="cp-save-kind"
+          value={current}
+          onChange={(e) => setKind(e.target.value)}
+        >
+          {kinds.map((one) => (
+            <option key={one} value={one}>
+              {KIND_LABEL[one] ?? one}
+            </option>
+          ))}
+        </select>
+      )}
       <label className="cp-save-alt">
         Elevation
         {props.elevationFt === undefined ? "" : " (ground)"}
@@ -140,27 +139,45 @@ export default function SavePoint(props: {
         />
         ft
       </label>
+      {current === "orbit" && (
+        <label className="cp-save-alt">
+          Heading
+          <input
+            type="number"
+            min={0}
+            max={359}
+            value={heading}
+            onChange={(e) => setHeading(e.target.value)}
+          />
+          ° for
+          <input
+            type="number"
+            min={1}
+            value={length}
+            onChange={(e) => setLength(e.target.value)}
+          />
+          nm
+        </label>
+      )}
       <div className="cp-save-buttons">
-        {(receiver.kinds ?? []).map((kind) => {
-          const room = receiver.room[kind] ?? 0;
-          return (
-            <button
-              key={kind}
-              disabled={room <= 0}
-              title={
-                room > 0
-                  ? `Room for ${room} more`
-                  : `${receiver.callsign} has no room for another`
-              }
-              onClick={() => {
-                setSaid("");
-                save(kind);
-              }}
-            >
-              Save as {LABEL[kind] ?? kind}
-            </button>
-          );
-        })}
+        {current !== "" && (
+          <button
+            disabled={room <= 0}
+            title={
+              room > 0
+                ? `Room for ${room} more`
+                : `${receiver.callsign} has no room for another`
+            }
+            onClick={save}
+          >
+            Save as {(KIND_LABEL[current] ?? current).toLowerCase()}
+          </button>
+        )}
+        {props.onDraw && (
+          <button title="Click the map to add corners" onClick={props.onDraw}>
+            Draw from here
+          </button>
+        )}
       </div>
       {said !== "" && <div className="cp-save-said">{said}</div>}
     </div>

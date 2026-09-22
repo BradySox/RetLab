@@ -1178,3 +1178,11 @@ section's guess, now falsified for the Hornet. Since one box is what the pilot g
 ordered by distance from the flight's target, and the AWACS gets no box on any
 airframe. Every builder passes its flight to `support_boxes`; without one (the
 geometry tests) it still boxes every support orbit.
+
+## Per-airframe tab and player content (2026-09-22, §102)
+
+The DTC tab now offers only the sections each jet carries, and adds load timing, a
+waypoint-type skip list and a near-the-route SAM filter. Player points and drawings ride
+every cartridge. Everything is in
+[retlab-my-aircraft-notes.md](retlab-my-aircraft-notes.md); its §5a lists four schema
+defects in the builders above, with DCS file:line sources, **found and not fixed**.

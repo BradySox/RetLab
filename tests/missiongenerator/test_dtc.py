@@ -194,6 +194,7 @@ def _flight(
         divert=None,
         dtc_options=dtc_options if dtc_options is not None else DtcOptions(),
         saved_points=[],
+        saved_drawings=[],
     )
 
 
@@ -975,7 +976,7 @@ def test_all_sections_off_builds_no_cartridge(
     # Programmatic all-off: a section flag added later must not quietly
     # revive this cartridge (roe_table did exactly that on its first run).
     bare = DtcOptions(
-        **{f.name: False for f in dataclasses.fields(DtcOptions) if f.type == "bool"}
+        **{f.name: False for f in dataclasses.fields(DtcOptions) if f.type == "bool"}  # type: ignore[arg-type]
     )
     generator = _generator(_game(), [_flight(dtc_options=bare)])
     generator.generate()
@@ -2565,3 +2566,182 @@ def test_a_long_boundary_cannot_starve_the_support_boxes(
     ]
     assert len(boxes) == 3
     assert all(len(line["vertices"]) == SUPPORT_BOX_POINTS for line in boxes)
+
+
+# ------------------------------------------------ §102 saved points, skips, rings
+
+
+def test_tomcat_saved_points_take_plan_three_with_their_codes() -> None:
+    flight, mission_data, game = _tomcat_fixture()
+    flight.saved_points = [
+        _saved("BRIDGE"),
+        SavedPoint(kind=PointKind.IP, name="GAS STN", x=5.0, y=6.0, altitude_ft=300),
+    ]
+    nav = json.loads(build_tomcat_cartridge(flight, mission_data, game, "T").to_json())[
+        "data"
+    ]["NAV"]
+    plan = nav[2]
+    assert plan["name"] == "SAVED"
+    assert [w["name"] for w in plan["waypoints"]] == ["BRIDGE", "GASSTXIP"]
+    assert plan["waypoints"][0]["elev"] == 1000  # feet, as the NAV page takes
+    assert kneeboard_numbers(flight, game.settings) == [1, 2]
+
+
+def test_tomcat_saved_points_do_not_need_the_route_section() -> None:
+    flight, mission_data, game = _tomcat_fixture()
+    flight.saved_points = [_saved("BRIDGE")]
+    flight.dtc_options = DtcOptions(route=False)
+    nav = json.loads(build_tomcat_cartridge(flight, mission_data, game, "T").to_json())[
+        "data"
+    ]["NAV"]
+    assert [w["name"] for w in nav[2]["waypoints"]] == ["BRIDGE"]
+
+
+def test_apache_saved_points_follow_the_route_on_bravo() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("AH-64D_BLK_II")
+    flight.saved_points = [_saved("SMOKE"), _saved("RIDGE")]
+    mission = json.loads(
+        build_apache_cartridge(flight, mission_data, game, "A").to_json()
+    )["data"]["NAV"]["Mission_1"]
+    points = mission["Points"]["WPTHZ"]["POINTS"]
+    assert [p["note"] for p in points] == ["TARGET", "LANDING", "SMOKE", "RIDGE"]
+    assert [p["num"] for p in points[2:]] == [3, 4]
+    bravo = mission["Routes"][1]
+    assert bravo["isEnabled"] is True
+    assert [leg["num"] for leg in bravo["POINTS"]] == [3, 4]
+    assert kneeboard_numbers(flight, game.settings) == [3, 4]
+
+
+def test_a_skipped_waypoint_kind_closes_up_the_jet_and_the_kneeboard() -> None:
+    from game.missiongenerator.dtc.savedpoints import route_numbers
+
+    flight, mission_data, game = _hornet_fixture()
+    flight.dtc_options = DtcOptions(skipped_waypoints=["TARGET_POINT"])
+    flight.saved_points = [_saved("SMOKE")]
+    nav_pts = json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]["WYPT"]["NAV_PTS"]
+    assert [(p["wypt_num"], p["text_note"]) for p in nav_pts] == [
+        (1, "LANDING"),
+        (2, "SMOKE"),
+    ]
+    assert route_numbers(flight, game.settings) == ["0", "-", "1"]
+    assert kneeboard_numbers(flight, game.settings) == [2]
+
+
+def test_skips_leave_the_kneeboard_alone_without_a_cartridge_route() -> None:
+    from game.missiongenerator.dtc.savedpoints import route_numbers
+
+    flight, _mission_data, game = _hornet_fixture()
+    flight.dtc_options = DtcOptions(skipped_waypoints=["TARGET_POINT"], route=False)
+    assert route_numbers(flight, game.settings) == ["0", "1", "2"]
+
+
+def test_the_sam_filter_keeps_only_rings_near_the_route() -> None:
+    from game.missiongenerator.dtc.common import threat_sites_for
+
+    flight, _mission_data, game = _hornet_fixture()
+    # The fixture's SA-2 sits ~99 km from the target leg with a 43 km ring.
+    assert len(threat_sites_for(game, flight)) == 1
+    flight.dtc_options = DtcOptions(threat_ring_radius_nm=10)
+    assert threat_sites_for(game, flight) == []
+    flight.dtc_options = DtcOptions(threat_ring_radius_nm=40)
+    assert len(threat_sites_for(game, flight)) == 1
+
+
+def _orbit(name: str = "CAP") -> SavedPoint:
+    return SavedPoint(
+        kind=PointKind.ORBIT, name=name, x=0.0, y=0.0, heading_deg=0, length_nm=10.0
+    )
+
+
+def _drawing(corners: int, closed: bool, name: str = "BOX") -> Any:
+    from game.ato.savedpoints import SavedDrawing
+
+    points = [(float(i * 1000), float((i % 2) * 1000)) for i in range(corners)]
+    return SavedDrawing(name=name, points=points, closed=closed)
+
+
+def test_hand_load_binds_the_cartridge_without_autoload(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setitem(
+        CARTRIDGE_BUILDERS,
+        "FA-18C_hornet",
+        lambda f, md, g, name: DtcCartridge(name, "FA-18C_hornet", "Caucasus", {}),
+    )
+    flight = _flight(dtc_options=DtcOptions(auto_load=False))
+    _generator(_game(), [flight]).generate()
+    unit = flight.client_units[0]
+    assert [c["name"] for c in unit.dtc_cartridges] == [
+        "Retribution Wizard 1 FA-18C_hornet"
+    ]
+    assert unit.dtc_autoload is False
+
+
+def test_hornet_player_orbit_is_a_cap_point_and_a_drawing_a_flot_line() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.saved_points = [_orbit("MYCAP")]
+    flight.saved_drawings = [_drawing(4, closed=True)]
+    sa = json.loads(build_hornet_cartridge(flight, mission_data, game, "H").to_json())[
+        "data"
+    ]["SA"]
+    cap = sa["CAP_PTS"][-1]
+    assert cap["note"] == "MYCAP"
+    assert cap["course"] == 0
+    assert cap["length"] == pytest.approx(18520.0)
+    assert cap["x"] == pytest.approx(9260.0)  # the centre of the 10 nm leg
+    flot = sa["FAOR_FLOT"]["FLOT"]
+    assert flot[-1]["note"] == "BOX"
+    assert len(flot[-1]["points"]) == 5  # an area closes by repeating its corner
+
+
+def test_viper_player_shapes_take_hsd_line_sets_before_support_boxes() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.saved_points = [_orbit("MYCAP")]
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    mine = [p for p in geo if p["note"] == "MYCAP"]
+    assert len(mine) == 5
+    assert len(geo) <= 25
+
+
+def test_tomcat_drawings_ride_plan_three() -> None:
+    flight, mission_data, game = _tomcat_fixture()
+    flight.saved_drawings = [_drawing(3, closed=False, name="RIVER")]
+    nav = json.loads(build_tomcat_cartridge(flight, mission_data, game, "T").to_json())[
+        "data"
+    ]["NAV"]
+    assert nav[2]["name"] == "SAVED"
+    assert len(nav[2]["lines"]) == 1
+    assert nav[2]["lines"][0]["closed"] is False
+    assert len(nav[2]["lines"][0]["points"]) == 3
+
+
+def test_apache_areas_are_four_corners_and_long_lines_are_split() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("AH-64D_BLK_II")
+    flight.saved_points = [_orbit("HOLDBOX")]
+    flight.saved_drawings = [_drawing(7, closed=False, name="MSR")]
+    mission = json.loads(
+        build_apache_cartridge(flight, mission_data, game, "A").to_json()
+    )["data"]["NAV"]["Mission_1"]
+    assert [a["note"] for a in mission["Areas"]] == ["HOLDBOX"]
+    assert len(mission["Areas"][0]["vertices"]) == 4
+    msr = [line for line in mission["Lines"] if line["note"] == "MSR"]
+    assert [len(line["vertices"]) for line in msr] == [4, 4]
+    assert all(2 <= len(line["vertices"]) <= 4 for line in msr)
+
+
+def test_drawings_off_leaves_them_out() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("AH-64D_BLK_II")
+    flight.saved_drawings = [_drawing(4, closed=True)]
+    flight.dtc_options = DtcOptions(drawings=False)
+    mission = json.loads(
+        build_apache_cartridge(flight, mission_data, game, "A").to_json()
+    )["data"]["NAV"]["Mission_1"]
+    assert mission["Areas"] == []

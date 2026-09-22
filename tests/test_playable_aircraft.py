@@ -134,7 +134,8 @@ def test_the_ceiling_is_what_the_aircraft_can_be_given() -> None:
     """Not a guard figure: the Viper takes 24 steerpoints and no markpoint at all."""
     one = data.Aircraft(_flight(aircraft="F-16C_50"))
 
-    assert one.ceiling == 24
+    # 24 steerpoints and 3 orbit boxes.
+    assert one.ceiling == 27
     assert one.maximum(PointKind.MARKPOINT) == 0
 
 
@@ -160,7 +161,9 @@ def test_a_kind_with_points_keeps_its_group_even_when_the_aircraft_takes_none() 
 def test_a_kind_with_neither_room_nor_points_gets_no_group() -> None:
     one = data.Aircraft(_flight(aircraft="FA-18C_hornet"))
 
-    assert one.kinds == [PointKind.WAYPOINT]
+    # The shared navigation pool shows as waypoints; orbits have their own group.
+    assert one.kinds == [PointKind.WAYPOINT, PointKind.ORBIT]
+    assert data.Aircraft(_flight(aircraft="A-10C_2")).kinds == [PointKind.WAYPOINT]
 
 
 # ------------------------------------------------------------ the headline

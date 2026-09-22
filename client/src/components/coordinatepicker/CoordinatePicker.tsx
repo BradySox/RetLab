@@ -18,13 +18,14 @@
 // The formatting is the server's, so the map, the objective dialog and anything added
 // later say the same thing about the same spot.
 import { HTTP_URL } from "../../api/backend";
+import DrawPanel from "./DrawPanel";
 import PickerToggle from "./PickerToggle";
 import SavePoint from "./SavePoint";
 import { copyText } from "./clipboard";
 import "./CoordinatePicker.css";
 import L, { LatLng, Marker as LeafletMarker } from "leaflet";
 import { useEffect, useRef, useState } from "react";
-import { Marker, Popup, useMapEvent } from "react-leaflet";
+import { Marker, Polyline, Popup, useMapEvent } from "react-leaflet";
 
 interface Picked {
   at: LatLng;
@@ -57,6 +58,8 @@ export default function CoordinatePicker() {
   const [picking, setPicking] = useState(false);
   const [picked, setPicked] = useState<Picked | null>(null);
   const [copied, setCopied] = useState(false);
+  // §102: while a drawing is open every bare-map click is a corner.
+  const [drawing, setDrawing] = useState<LatLng[] | null>(null);
   const marker = useRef<LeafletMarker | null>(null);
 
   // A popup inside a marker is bound to it, not opened: react-leaflet only opens the
@@ -73,6 +76,10 @@ export default function CoordinatePicker() {
       landedOnSomething(event.originalEvent.target) ||
       measuring()
     ) {
+      return;
+    }
+    if (drawing !== null) {
+      setDrawing([...drawing, event.latlng]);
       return;
     }
     const { lat, lng } = event.latlng;
@@ -102,7 +109,35 @@ export default function CoordinatePicker() {
   const toggle = () => {
     setPicking((on) => !on);
     setPicked(null);
+    setDrawing(null);
   };
+
+  const startDrawing = () => {
+    if (picked !== null) {
+      setDrawing([picked.at]);
+      setPicked(null);
+    }
+  };
+
+  if (drawing !== null) {
+    return (
+      <>
+        <PickerToggle on={picking} toggle={toggle} />
+        {drawing.length > 1 && (
+          <Polyline
+            positions={drawing}
+            pathOptions={{ color: "#ffff00", dashArray: "6 4", weight: 2 }}
+            interactive={false}
+          />
+        )}
+        <DrawPanel
+          points={drawing}
+          undo={() => setDrawing(drawing.slice(0, -1))}
+          close={() => setDrawing(null)}
+        />
+      </>
+    );
+  }
 
   if (picked === null) {
     return <PickerToggle on={picking} toggle={toggle} />;
@@ -133,6 +168,7 @@ export default function CoordinatePicker() {
               at={picked.at}
               name={picked.text}
               elevationFt={picked.elevationFt}
+              onDraw={startDrawing}
             />
             <div className="cp-others">
               {Object.entries(picked.all)

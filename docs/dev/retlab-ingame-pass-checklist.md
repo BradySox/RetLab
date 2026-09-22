@@ -256,7 +256,7 @@ no evidence either way after 33 missions.
 
 ## Outstanding rows at a glance
 
-84 rows need a live pass. Full detail is under each `###` heading below —
+85 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -304,6 +304,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
 | B134 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
+| B135 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8062,6 +8063,21 @@ for a window, and a stall log for the whole flight.
   masking them — rerun with a longer delay); the `.txt` missing after a normal mission
   end.
 
+
+### B135 — The DTC options do what the tab says: hand-load, skipped waypoints, your drawings · §102 · ☐ UNTESTED
+
+The DTC tab was rebuilt per airframe on 2026-09-22
+([retlab-my-aircraft-notes.md](design/retlab-my-aircraft-notes.md) §5).
+
+- **Setup:** a player Viper or Hornet. DTC tab: Loading → "Pilot loads it"; untick Join in
+  the waypoint list. Map: draw an area and save an orbit to the jet. Generate.
+- **Pass:** the jet spawns with the cartridge in its DTC list but not loaded; loading it by
+  hand works. The route has no join point, the numbers close up, and the kneeboard route
+  table shows `-` on the join row. The area and the orbit show on the SA page (Hornet:
+  the orbit in the CAP list) or the HSD (Viper).
+- **Fail signatures:** the cartridge loads at spawn anyway (the `AutoLoad = false` flag is
+  ignored); the jet's STPT numbers do not match the kneeboard after a skip; a drawing is
+  missing (no free line slot, or the jet rejected the line).
 
 ### B134 — A saved point reaches the cockpit with the number the kneeboard gives it · §102 · ☐ UNTESTED
 

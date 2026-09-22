@@ -174,7 +174,7 @@ def _flight_plan(numbers: Sequence[int]) -> list[str]:
 def settings(flight: Any, terrain: Any) -> str:
     """The navigation computer for one aircraft, as its SETTINGS.lua."""
     route = list(flight.waypoints)
-    saved = list(flight.saved_points)
+    saved = [p for p in flight.saved_points if p.kind.is_navigation]
     numbers = numbers_for(len(route), len(saved))
 
     entries: list[str] = []
@@ -228,7 +228,7 @@ def write_into_mission(game: Game, mission_data: Any, mission: Path) -> list[str
             continue
         if flight.aircraft_type.dcs_unit_type.id not in AIRCRAFT:
             continue
-        if not flight.saved_points:
+        if not any(p.kind.is_navigation for p in flight.saved_points):
             continue
         entries[inside_mission(flight)] = settings(flight, game.theater.terrain)
     if not entries:

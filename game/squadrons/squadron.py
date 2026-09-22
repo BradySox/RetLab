@@ -14,7 +14,7 @@ from dcs.unit import Skill
 from faker import Faker
 
 from game.ato import Flight, FlightType, Package
-from game.ato.savedpoints import SavedPoint
+from game.ato.savedpoints import SavedDrawing, SavedPoint
 from game.settings import AutoAtoBehavior, Settings
 from game.theater import ParkingType
 from game.theater.player import Player
@@ -120,9 +120,13 @@ class Squadron:
     saved_points: list[SavedPoint] = field(
         init=False, hash=False, compare=False, repr=False, default_factory=list
     )
+    saved_drawings: list[SavedDrawing] = field(
+        init=False, hash=False, compare=False, repr=False, default_factory=list
+    )
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("saved_points", [])
+        state.setdefault("saved_drawings", [])
         if "id" not in state:
             state["id"] = uuid4()
         if "callsign" not in state:

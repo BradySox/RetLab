@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLineEdit,
     QListView,
+    QListWidget,
     QMenu,
     QPushButton,
     QSizePolicy,
@@ -189,6 +190,14 @@ class NewPoint(QDialog):
         self.units.addItems(["feet", "metres"])
         styled_input(self.units, width=100)
         self.read = _label("", f"font-size: 11px; color: {QUIET_INK};")
+        from game.ato.savedpoints import kinds_for
+
+        self.kind = QComboBox()
+        for kind in kinds_for(aircraft.dcs_id) or [PointKind.WAYPOINT]:
+            self.kind.addItem(kind.label, kind)
+        styled_input(self.kind, width=140)
+        self.heading = styled_input(QLineEdit("90"), width=70)
+        self.length = styled_input(QLineEdit("20"), width=70)
         self.save = style_button(QPushButton("Save"), "primary")
         self.save.setEnabled(False)
         cancel = style_button(QPushButton("Cancel"), "normal")
@@ -206,6 +215,28 @@ class NewPoint(QDialog):
             _label("Name", f"font-size: 11px; font-weight: bold; color: {CAPTION};")
         )
         form.addWidget(self.name)
+        form.addSpacing(6)
+        form.addWidget(
+            _label("Kind", f"font-size: 11px; font-weight: bold; color: {CAPTION};")
+        )
+        kind_row = QHBoxLayout()
+        kind_row.setContentsMargins(0, 0, 0, 0)
+        kind_row.setSpacing(8)
+        kind_row.addWidget(self.kind)
+        self.orbit_row = QWidget()
+        orbit = QHBoxLayout()
+        orbit.setContentsMargins(0, 0, 0, 0)
+        orbit.addWidget(_label("heading", f"font-size: 11px; color: {QUIET_INK};"))
+        orbit.addWidget(self.heading)
+        orbit.addWidget(_label("deg for", f"font-size: 11px; color: {QUIET_INK};"))
+        orbit.addWidget(self.length)
+        orbit.addWidget(_label("nm", f"font-size: 11px; color: {QUIET_INK};"))
+        self.orbit_row.setLayout(orbit)
+        kind_row.addWidget(self.orbit_row)
+        kind_row.addStretch()
+        form.addLayout(kind_row)
+        self.kind.currentIndexChanged.connect(lambda _i: self._show_orbit())
+        self._show_orbit()
         form.addSpacing(6)
         form.addWidget(
             _label(
@@ -241,6 +272,22 @@ class NewPoint(QDialog):
         self.save.clicked.connect(self.accept)
         cancel.clicked.connect(self.reject)
         self._paste_what_is_on_the_clipboard()
+
+    def _show_orbit(self) -> None:
+        self.orbit_row.setVisible(self.kind.currentData() is PointKind.ORBIT)
+
+    @property
+    def orbit(self) -> tuple[int, float]:
+        """(heading, length nm) as typed, with the defaults for anything unreadable."""
+        try:
+            heading = int(float(self.heading.text() or 90)) % 360
+        except ValueError:
+            heading = 90
+        try:
+            length = max(1.0, float(self.length.text() or 20))
+        except ValueError:
+            length = 20.0
+        return heading, length
 
     def _paste_what_is_on_the_clipboard(self) -> None:
         """A position on the clipboard is almost certainly what the button was for."""
@@ -412,8 +459,19 @@ class PlayableAircraftDialog(QDialog):
         bar.addWidget(self.paste)
         bar.addWidget(self.status)
         bar.addStretch()
-        bar.addWidget(_label("●  waypoint", f"font-size: 11px; color: {WAYPOINT};"))
-        bar.addWidget(_label("◆  markpoint", f"font-size: 11px; color: {MARKPOINT};"))
+        for legend_kind in (
+            PointKind.WAYPOINT,
+            PointKind.IP,
+            PointKind.TARGET,
+            PointKind.HOLD,
+            PointKind.ORBIT,
+        ):
+            bar.addWidget(
+                _label(
+                    f"●  {legend_kind.label.lower()}",
+                    f"font-size: 11px; color: {rows.kind_colour(legend_kind)};",
+                )
+            )
         toolbar.setLayout(bar)
 
         right_inner = QWidget()
@@ -424,7 +482,22 @@ class PlayableAircraftDialog(QDialog):
         self.carried.setContentsMargins(12, 4, 12, 4)
         self.carried.setWordWrap(True)
         inner.addWidget(self.carried)
-        inner.addWidget(self.points_view)
+        inner.addWidget(self.points_view, 3)
+        self.drawings_caption = _label(
+            "",
+            f"font-size: 11px; font-weight: bold; color: {CAPTION};"
+            " padding: 6px 12px 2px;",
+        )
+        inner.addWidget(self.drawings_caption)
+        self.drawings_view = QListWidget()
+        self.drawings_view.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.drawings_view.customContextMenuRequested.connect(self.drawing_menu_at)
+        self.drawings_view.doubleClicked.connect(lambda _i: self.show_drawing_on_map())
+        self.drawings_view.setStyleSheet(
+            f"QListWidget {{ background: {CARD_BG}; border: 1px solid {CARD_BORDER};"
+            f" color: {TITLE_INK}; font-size: 12px; }}"
+        )
+        inner.addWidget(self.drawings_view, 1)
         right_inner.setLayout(inner)
 
         self.points_caption, self.points_label = _captioned(
@@ -590,31 +663,103 @@ class PlayableAircraftDialog(QDialog):
         for row in self.points_model.header_rows():
             self.points_view.setFirstColumnSpanned(row, QModelIndex(), True)
         self.carried.setText(self._how_it_is_carried(one))
+        self._show_drawings(one)
         self._retitle()
         self._restate()
+
+    def _show_drawings(self, one: Optional[data.Aircraft]) -> None:
+        self.drawings_view.clear()
+        drawings = [] if one is None else list(one.flight.saved_drawings)
+        room = 0
+        if one is not None:
+            from game.ato.savedpoints import drawing_capacity_for
+
+            room = drawing_capacity_for(one.dcs_id)[0]
+        where = f"the cockpit takes {room}" if room else "map and kneeboard only"
+        self.drawings_caption.setText(
+            f"DRAWINGS  ·  {len(drawings)}  ·  {where}" "  ·  draw them from the map"
+        )
+        for drawing in drawings:
+            shape = "Area" if drawing.closed else "Line"
+            self.drawings_view.addItem(
+                f"{shape}  ·  {drawing.name}  ·  {len(drawing.points)} corners"
+            )
+
+    def show_drawing_on_map(self) -> None:
+        one = self.selected
+        game = self.game
+        row = self.drawings_view.currentRow()
+        if one is None or game is None or row < 0:
+            return
+        drawings = one.flight.saved_drawings
+        if row >= len(drawings) or not drawings[row].points:
+            return
+        from dcs.mapping import Point
+
+        from game.server import EventStream
+        from game.sim import GameUpdateEvents
+
+        x, y = drawings[row].points[0]
+        where = Point(x, y, game.theater.terrain)
+        EventStream.put_nowait(GameUpdateEvents().look_at(where.latlng()))
+
+    def delete_current_drawing(self) -> None:
+        one = self.selected
+        row = self.drawings_view.currentRow()
+        if one is None or row < 0:
+            return
+        from game.ato.savedpoints import remove_drawing
+
+        remove_drawing(one.flight, row)
+        self.show_points()
+
+    def drawing_menu_at(self, where: QPoint) -> None:
+        item = self.drawings_view.itemAt(where)
+        if item is None:
+            return
+        self.drawings_view.setCurrentItem(item)
+        menu = QMenu(self)
+        show = QAction("Show on map", menu)
+        show.triggered.connect(self.show_drawing_on_map)
+        menu.addAction(show)
+        menu.addSeparator()
+        delete = QAction("Delete", menu)
+        delete.triggered.connect(self.delete_current_drawing)
+        menu.addAction(delete)
+        menu.exec(self.drawings_view.viewport().mapToGlobal(where))
 
     def _how_it_is_carried(self, one: Optional[data.Aircraft]) -> str:
         """What this airframe does with the points, said where they are edited."""
         if one is None:
             return ""
         from game.missiongenerator.a10cdu import AIRCRAFT as A10
+        from game.missiongenerator.dtc.apache import APACHE_UNIT_TYPE
         from game.missiongenerator.dtc.hornet import HORNET_UNIT_TYPE
+        from game.missiongenerator.dtc.tomcat import TOMCAT_UNIT_TYPE
         from game.missiongenerator.dtc.viper import VIPER_UNIT_TYPE
 
-        if one.dcs_id in (HORNET_UNIT_TYPE, VIPER_UNIT_TYPE):
+        where = {
+            HORNET_UNIT_TYPE: "after the flight plan on sequence 2; orbits on the"
+            " SA page's CAP list, drawings as SA lines",
+            VIPER_UNIT_TYPE: "after the flight plan on sequence 2, IPs and targets"
+            " with their HSD symbols; orbits and drawings as HSD lines",
+            APACHE_UNIT_TYPE: "after the flight plan on route BRAVO; orbits and"
+            " drawings as TSD areas and lines",
+            TOMCAT_UNIT_TYPE: "on flight plan 3 (SAVED), with drawings as its plot"
+            " lines",
+        }.get(one.dcs_id)
+        if where is not None:
             options = one.flight.dtc_options
             game = self.game
             enabled = game is not None and options.resolve_enabled(
                 game.settings.dtc_data_cartridges
             )
-            if enabled and options.route:
-                return (
-                    "Loaded from the data cartridge, numbered after the flight plan"
-                    " and on route sequence 2. SEQ1 is still the route."
-                )
+            needs_route = one.dcs_id != TOMCAT_UNIT_TYPE
+            if enabled and options.saved_points and (options.route or not needs_route):
+                return f"Loaded from the data cartridge, {where}."
             return (
-                "Kneeboard only: the data cartridge, or its Route section, is off"
-                " for this flight (see the DTC tab)."
+                "Kneeboard only: the data cartridge, its Saved points section or its"
+                " Flight plan section is off for this flight (see the DTC tab)."
             )
         if one.dcs_id in A10:
             return (
@@ -688,18 +833,20 @@ class PlayableAircraftDialog(QDialog):
             return
         from dcs.mapping import Point
 
-        from game.ato.savedpoints import SavedPoint, add_point, kinds_for
+        from game.ato.savedpoints import SavedPoint, add_point
 
-        kinds = kinds_for(one.dcs_id)
         where = Point.from_latlng(asked.latlng, game.theater.terrain)
+        heading, length = asked.orbit
         add_point(
             one.flight,
             SavedPoint(
-                kind=kinds[0] if kinds else PointKind.WAYPOINT,
+                kind=asked.kind.currentData() or PointKind.WAYPOINT,
                 name=asked.name.text().strip() or "Point",
                 x=where.x,
                 y=where.y,
                 altitude_ft=asked.altitude_ft,
+                heading_deg=heading,
+                length_nm=length,
             ),
         )
         self.show_points()

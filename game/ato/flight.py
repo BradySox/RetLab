@@ -14,7 +14,7 @@ from game.theater import ControlPoint, MissionTarget
 from game.utils import Distance
 from .flightmembers import FlightMembers
 from .flightroster import FlightRoster
-from .savedpoints import SavedPoint, points_of
+from .savedpoints import SavedDrawing, SavedPoint, drawings_of, points_of
 from .flightstate import FlightState, Navigating, Uninitialized
 from .flightstate.killed import Killed
 from .flighttype import FlightType
@@ -371,6 +371,11 @@ class Flight(
     def saved_points(self) -> list[SavedPoint]:
         """The player's saved map points for this aircraft; kept on the squadron."""
         return points_of(self)
+
+    @property
+    def saved_drawings(self) -> list[SavedDrawing]:
+        """The player's lines and areas for this aircraft; kept on the squadron."""
+        return drawings_of(self)
 
     @property
     def unit_type(self) -> AircraftType:

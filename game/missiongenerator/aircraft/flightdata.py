@@ -8,7 +8,7 @@ from dcs.flyingunit import FlyingUnit
 
 from game.ato.dtcoptions import DtcOptions
 from game.ato.flighttype import FlightType
-from game.ato.savedpoints import SavedPoint
+from game.ato.savedpoints import SavedDrawing, SavedPoint
 from game.ato.starttype import StartType
 from game.callsigns import create_group_callsign_from_unit
 from game.squadrons import Squadron
@@ -105,6 +105,7 @@ class FlightData:
 
     #: The player's saved map points; not part of the flight plan.
     saved_points: list[SavedPoint] = field(default_factory=list)
+    saved_drawings: list[SavedDrawing] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])

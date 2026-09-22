@@ -39,7 +39,7 @@ from dcs.planes import F_15ESE
 from suntime import Sun, SunTimeException  # type: ignore
 from tabulate import tabulate
 
-from game.ato.savedpoints import PointKind, SavedPoint
+from game.ato.savedpoints import PointKind, SavedDrawing, SavedPoint
 from game.ato.codewords import PushCategory, present_categories, push_category_for
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypoint import FlightWaypoint
@@ -80,7 +80,7 @@ from .kneeboard_recon.atis import (
     has_thunderstorm_cells,
     wind_from_deg,
 )
-from .dtc.savedpoints import kneeboard_numbers
+from .dtc.savedpoints import kneeboard_numbers, route_numbers
 from .missiondata import AwacsInfo, TankerInfo
 from ..persistency import kneeboards_dir
 
@@ -565,7 +565,7 @@ def _labelled_time(label: str, value: str) -> str:
 
 @dataclass(frozen=True)
 class NumberedWaypoint:
-    number: int
+    number: int | str
     waypoint: FlightWaypoint
 
 
@@ -611,7 +611,7 @@ class FlightPlanBuilder:
         self.patrol_burn: Optional[float] = None
         self.patrol_push_margin: Optional[float] = None
 
-    def add_waypoint(self, waypoint_num: int, waypoint: FlightWaypoint) -> None:
+    def add_waypoint(self, waypoint_num: int | str, waypoint: FlightWaypoint) -> None:
         if waypoint.waypoint_type == FlightWaypointType.TARGET_POINT:
             self.target_points.append(NumberedWaypoint(waypoint_num, waypoint))
             return
@@ -992,9 +992,12 @@ class BriefingPage(KneeboardPage):
         zulu_tz: Optional[datetime.tzinfo] = None,
         bullseye_moved: bool = False,
         bullseye_anchor: Optional[str] = None,
+        route_labels: Optional[List[str]] = None,
     ) -> None:
         self.flight = flight
         self.bullseye = bullseye
+        # The cockpit's number for each route row (§102 skipped waypoints).
+        self.route_labels = route_labels
         # The bullseye is pinned for the campaign, so the one turn it does move
         # is the one turn the pilots need telling.
         self.bullseye_moved = bullseye_moved
@@ -1083,8 +1086,11 @@ class BriefingPage(KneeboardPage):
             patrol_speed=self.flight.patrol_speed,
             zulu_tz=self.zulu_tz,
         )
-        for num, waypoint in enumerate(self.flight.waypoints):
-            flight_plan_builder.add_waypoint(num, waypoint)
+        labels = self.route_labels or [
+            str(num) for num in range(len(self.flight.waypoints))
+        ]
+        for label, waypoint in zip(labels, self.flight.waypoints):
+            flight_plan_builder.add_waypoint(label, waypoint)
 
         # The fuel ladder rides in the flight plan: a Fuel column (planned remaining
         # at each RTB steerpoint) + a one-line RTB margin call-out, instead of a
@@ -2628,6 +2634,15 @@ def _brief_loadout(units: List[Any]) -> str:
     return " · ".join(parts)
 
 
+#: The prefix a saved point's cockpit number carries on the kneeboard.
+_SAVED_MARKS = {
+    PointKind.MARKPOINT: "MK",
+    PointKind.IP: "IP",
+    PointKind.TARGET: "TGT",
+    PointKind.HOLD: "HLD",
+}
+
+
 class SavedPointsPage(KneeboardPage):
     """The player's saved map points for this aircraft (§102), numbered as the jet
     numbers them. Paginated: an A-10 holds far more than a page does."""
@@ -2644,9 +2659,12 @@ class SavedPointsPage(KneeboardPage):
         numbers: Optional[list[Optional[int]]] = None,
         page: int = 1,
         total_pages: int = 1,
+        drawings: Optional[list[SavedDrawing]] = None,
     ) -> None:
         self.callsign = callsign
         self.points = points
+        #: Listed on the first page by their first corner (§102).
+        self.drawings = drawings or []
         self.numbers: list[Optional[int]] = (
             numbers if numbers is not None else list(range(1, len(points) + 1))
         )
@@ -2665,6 +2683,7 @@ class SavedPointsPage(KneeboardPage):
         coordinate_format: CoordinateFormat,
         dark_kneeboard: bool,
         numbers: Optional[list[Optional[int]]] = None,
+        drawings: Optional[list[SavedDrawing]] = None,
     ) -> List["SavedPointsPage"]:
         if numbers is None:
             numbers = list(range(1, len(points) + 1))
@@ -2679,6 +2698,7 @@ class SavedPointsPage(KneeboardPage):
                 numbers=numbers[start : start + cls.ROWS_PER_PAGE],
                 page=index + 1,
                 total_pages=len(starts),
+                drawings=drawings,
             )
             for index, start in enumerate(starts)
         ]
@@ -2691,13 +2711,32 @@ class SavedPointsPage(KneeboardPage):
         for number, point in zip(self.numbers, self.points):
             at = Point(point.x, point.y, self.theater.terrain)
             # A point with no cockpit number did not fit and must be keyed in.
-            mark = "MK" if point.kind is PointKind.MARKPOINT else ""
+            mark = _SAVED_MARKS.get(point.kind, "")
+            name = point.name
+            if point.kind is PointKind.ORBIT:
+                name = f"{name} {point.heading_deg:03d}/{point.length_nm:g}nm"
+                label = "ORB"
+            else:
+                label = f"{mark}{number}" if number is not None else "-"
             rows.append(
                 [
-                    f"{mark}{number}" if number is not None else "-",
-                    point.name,
+                    label,
+                    name,
                     format_latlng(at.latlng(), self.coordinate_format),
                     f"{point.altitude_ft} ft" if point.altitude_ft else "",
+                ]
+            )
+        for drawing in self.drawings if self.page == 1 else []:
+            if not drawing.points:
+                continue
+            x, y = drawing.points[0]
+            at = Point(x, y, self.theater.terrain)
+            rows.append(
+                [
+                    "AREA" if drawing.closed else "LINE",
+                    drawing.name,
+                    format_latlng(at.latlng(), self.coordinate_format),
+                    f"{len(drawing.points)} pts",
                 ]
             )
         writer.table(rows, headers=["STPT", "Name", "Position", "Elev"])
@@ -3247,6 +3286,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                 theater=self.game.theater,
                 omit_weather=omit_weather,
                 bluf_lines=bluf_lines,
+                route_labels=route_numbers(flight, self.game.settings),
                 zulu_tz=zulu_tz,
                 bullseye_moved=(
                     self.game.coalition_for(flight.friendly).bullseye_moved_on_turn
@@ -3280,7 +3320,7 @@ class KneeboardGenerator(MissionInfoGenerator):
         if notes := self.game.notes:
             pages.append(NotesPage(notes, self.dark_kneeboard))
 
-        if flight.saved_points:
+        if flight.saved_points or flight.saved_drawings:
             pages.extend(
                 SavedPointsPage.split(
                     flight.callsign,
@@ -3289,6 +3329,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                     coordinate_format(self.game.settings),
                     self.dark_kneeboard,
                     numbers=kneeboard_numbers(flight, self.game.settings),
+                    drawings=flight.saved_drawings,
                 )
             )
 

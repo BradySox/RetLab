@@ -120,11 +120,16 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   air-to-air waypoint; Vipers get the friendly recovery fields as Destination steerpoints,
   the briefed divert first and the enemy field they are working over beside it. A
   per-flight DTC tab controls the cartridge or any single section of it.
-- **My aircraft** (top bar) is one window for the seat you are flying: the points you
-  saved for it, its loadout and its data cartridge. Save a point from the map's crosshair
-  button, or type or paste one in. Hornets and Vipers load the points from the cartridge
-  on route sequence 2, A-10s from the navigation computer, and every aircraft gets them on
-  a kneeboard page with the cockpit's own numbers.
+- **My aircraft** (top bar) is one window for the seat you are flying: the points and
+  drawings you saved for it, its loadout and its data cartridge.
+- Save a point from the map's crosshair button as a waypoint, IP, target, hold or orbit,
+  or draw a line or an area. Each jet gets them where its cartridge has a place: Hornets
+  and Vipers after the route on sequence 2, the F-14B(U) on flight plan 3, the Apache on
+  route BRAVO, the A-10 in its navigation computer. Every aircraft gets them on a
+  kneeboard page with the cockpit's own numbers.
+- The DTC tab shows only what your aircraft's cartridge carries. You choose load at spawn
+  or by hand, which kinds of waypoint go into the jet, and whether SAM rings are limited to
+  the ones near your route.
 - The F-14B(U) cartridge is built differently, because plan 1 of its navigation page is
   already the mission route. It leaves that alone and adds the front line as map lines, the
   bullseye, divert, tanker, AWACS and CAP anchors and the confirmed SAM sites as reference

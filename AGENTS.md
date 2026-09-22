@@ -200,8 +200,8 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   loadout, properties and livery off the template, but route carry and the missing `wsType`
   are decided in native code — row `B125` owns both),
   `retlab-my-aircraft-notes.md` (**§102, BUILT 2026-09-22, not flown** — the My
-  aircraft window and saved points from juanjux/dcs-escalation; what differs from
-  his tree and why; row `B134` owns the cockpit numbering),
+  aircraft window, saved points and drawings per airframe, the per-airframe DTC
+  tab; §5a lists four §74 schema defects found and NOT fixed; rows `B134`/`B135`),
   `retlab-startup-times-notes.md` (**where a `startup_minutes:` value may come from** — read
   before adding one; unsourced numbers are the failure mode),
   `retlab-loadout-integrity-audit-notes.md`
@@ -527,7 +527,7 @@ linked design note.
 99. **Sandy rescue escort** — an armed escort that works the ground around a downed pilot while the helicopter comes in: a track centred on the survivor, flown by the A-10 and the Apache. Hand-fragged only — the auto-planner never adds one.
 100. **King on-scene commander** — the player-flown C-130J King finds the survivor by DF cuts on the beacon (two cuts far enough apart make a fix; inside pod range with line of sight it snaps exact), sweeps the ground around the fix for threats reported as a class and a rough position, and passes the picture — text and map marks — to the player-crewed Sandy and helicopter. Cues only: it never lases, and nothing is pushed onto an AI flight.
 101. **Dynamic spawn templates** — a pilot who takes a DCS dynamic slot no longer gets a blank jet: at each base, one player flight of each type is marked as DCS's Dyn.SPAWN Template and the warehouse link written, so the dynamic jet is built from that flight (loadout, properties and livery for certain; route and radio presets are decided in native code and are what row B125 flies). Client flights only, no clone, and the fragged slot still flies as itself. Types with no player flight at the base stay blank. Off with `dynamic_slots`, and its own toggle beneath it.
-102. **My aircraft and saved points** — one window for the seat you are flying this turn: its saved map points, its loadout and its §74 data cartridge. A point saved from the map's GPS picker lands in the Hornet or Viper cartridge on route sequence 2, in the A-10's navigation computer, and on a kneeboard page numbered as the cockpit numbers it. Kept on the squadron, so re-planning a flight does not lose them. Ported from juanjux/dcs-escalation.
+102. **My aircraft, saved points and the DTC options** — one window for the seat you are flying: saved points (waypoint, IP, target, hold, orbit) and drawings, the loadout and the data cartridge. Points and drawings reach the Hornet, Viper, F-14B(U), Apache and A-10 where each cockpit has a place, and a kneeboard page with the cockpit's numbers. The DTC tab shows only what the jet's cartridge carries, with load-at-spawn or by-hand, waypoint types to leave out, and SAM rings near the route. Window and points ported from juanjux/dcs-escalation.
 
 ### Retired, removed or shelved — do not restore
 

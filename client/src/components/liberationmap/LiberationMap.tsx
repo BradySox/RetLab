@@ -1,6 +1,7 @@
 import { selectMapCenter } from "../../api/mapSlice";
 import { useAppSelector } from "../../app/hooks";
 import CoordinatePicker from "../coordinatepicker";
+import SavedPointsLayer from "../coordinatepicker/SavedPointsLayer";
 import MapLayersControl from "../maplayers/MapLayersControl";
 import LeafletRuler from "../ruler/Ruler";
 import "./LiberationMap.css";
@@ -19,6 +20,7 @@ export default function LiberationMap() {
       <ScaleControl />
       <LeafletRuler />
       <MapLayersControl />
+      <SavedPointsLayer />
       <CoordinatePicker />
     </MapContainer>
   );

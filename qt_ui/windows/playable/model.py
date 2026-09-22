@@ -152,14 +152,10 @@ class Aircraft:
 
     @property
     def ceiling(self) -> int:
-        """How many points this aircraft can actually be given.
-
-        The measured capacities added up, which for every airframe so far is its
-        waypoints: none of them can be handed a markpoint. A kind it cannot take
-        contributes nothing rather than a guard figure, so the number on the row is
-        one the cockpit would recognise.
-        """
-        return sum(self.maximum(kind) for kind in PointKind)
+        """How many points this aircraft can actually be given: the navigation
+        kinds share one pool, orbits and markpoints have their own."""
+        capacity = capacity_for(self.dcs_id)
+        return capacity.waypoints + capacity.markpoints + capacity.orbits
 
     @property
     def total_room(self) -> int:
@@ -167,12 +163,17 @@ class Aircraft:
 
     @property
     def kinds(self) -> list[PointKind]:
-        """The kinds this airframe has room for at all.
-
-        A kind it cannot hold gets no group: an empty group headed "0 / 0" is a row
-        of chrome saying nothing.
-        """
-        return [kind for kind in PointKind if self.maximum(kind) > 0 or self.used(kind)]
+        """The groups the points pane shows: waypoints whenever the airframe takes
+        any, any other kind once it has points, and orbits when it takes them."""
+        shown = []
+        for kind in PointKind:
+            if self.used(kind):
+                shown.append(kind)
+            elif kind is PointKind.WAYPOINT and self.maximum(kind) > 0:
+                shown.append(kind)
+            elif kind is PointKind.ORBIT and self.maximum(kind) > 0:
+                shown.append(kind)
+        return shown
 
     def rename_point(self, index: int, name: str) -> None:
         points = self.points
