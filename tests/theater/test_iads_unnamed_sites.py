@@ -17,6 +17,7 @@ from dcs.mapping import Point
 from dcs.terrain import Terrain
 
 from game.migrator import Migrator
+from game.point_with_heading import PointWithHeading
 from game.theater.iadsnetwork.iadsnetwork import IadsNetwork
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.theater.player import Player
@@ -27,6 +28,7 @@ from game.theater.theatergroundobject import (
     ShipGroundObject,
 )
 from game.theater.theatergroup import IadsGroundGroup
+from game.utils import Heading
 
 _ids = iter(range(1, 10_000))
 
@@ -49,7 +51,11 @@ def _site(
         is_friendly=lambda player: (player is Player.BLUE) == blue,
     )
     group = IadsGroundGroup(
-        next(_ids), name, site.position, [SimpleNamespace(alive=True)], site
+        next(_ids),
+        name,
+        PointWithHeading.from_point(site.position, Heading.from_degrees(0)),
+        [SimpleNamespace(alive=True)],  # type: ignore[list-item]
+        site,
     )
     group.iads_role = role
     site.groups = [group]
