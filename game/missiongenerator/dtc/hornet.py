@@ -25,6 +25,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
+from game.missiongenerator.dtc.savedpoints import cockpit_numbers
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     leg_altitude,
@@ -154,6 +155,8 @@ def _build_wypt(
             home_wypt = number
         elif waypoint.waypoint_type.name == "BULLSEYE":
             aa_wypt = number
+    if options.route:
+        nav_pts.extend(_saved_wypt(flight))
     if options.nav_aids:
         nav_settings = _build_nav_settings(flight, carrier, home_wypt, aa_wypt)
     else:
@@ -165,6 +168,34 @@ def _build_wypt(
         "terrain": game.theater.terrain.name,
         "mirror_NAV_PTS": False,
     }
+
+
+def _saved_wypt(flight: FlightData) -> list[dict[str, Any]]:
+    """The player's saved points (§102), after the route, on sequence 2."""
+    entries: list[dict[str, Any]] = []
+    numbers = cockpit_numbers(flight, flight.saved_points)
+    for order, (number, point) in enumerate(zip(numbers, flight.saved_points), 1):
+        if number is None:
+            continue
+        alt_m = point.altitude_ft * 0.3048
+        entry: dict[str, Any] = {
+            "wypt_num": number,
+            "id": f"STPT{number}",
+            "text_note": waypoint_display_name(point.name),
+            "note": "",
+            "x": point.x,
+            "y": point.y,
+            "alt": min(max(alt_m, _WYPT_ALT_MIN_M), _WYPT_ALT_MAX_M),
+            "altitudeType": 1,
+            "velocityType": 3,
+            "R1": False,
+            "R2": True,
+            "R2_order": order,
+            "R3": False,
+        }
+        entry.update(_oa_defaults(number))
+        entries.append(entry)
+    return entries
 
 
 def _find_carrier(

@@ -38,6 +38,7 @@ from .convoygenerator import ConvoyGenerator
 from .csargenerator import CsarGenerator
 from .drawingsgenerator import DrawingsGenerator
 from game.weather.atmosxliveweather import LiveWeather, apply_weather
+from .a10cdu import write_into_mission as write_a10_cdu
 from .dtc import DtcGenerator
 from .dynamicspawntemplates import (
     DynamicSpawnTemplateGenerator,
@@ -192,6 +193,9 @@ class MissionGenerator:
         output.parent.mkdir(parents=True, exist_ok=True)
         logging.info("MIZ generation: saving mission to %s", output)
         self.mission.save(output)
+
+        # The A-10 has no cartridge; its saved points (§102) go into the CDU state.
+        write_a10_cdu(self.game, self.mission_data, output)
 
         logging.info("MIZ generation: complete")
 

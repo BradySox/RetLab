@@ -14,6 +14,7 @@ from dcs.unit import Skill
 from faker import Faker
 
 from game.ato import Flight, FlightType, Package
+from game.ato.savedpoints import SavedPoint
 from game.settings import AutoAtoBehavior, Settings
 from game.theater import ParkingType
 from game.theater.player import Player
@@ -114,7 +115,14 @@ class Squadron:
         init=False, hash=False, compare=False, default=False
     )
 
+    #: Points the player saved for the aircraft flown out of here. On the squadron,
+    #: not the flight: a flight is cancelled and rebuilt several times a turn.
+    saved_points: list[SavedPoint] = field(
+        init=False, hash=False, compare=False, repr=False, default_factory=list
+    )
+
     def __setstate__(self, state: dict[str, Any]) -> None:
+        state.setdefault("saved_points", [])
         if "id" not in state:
             state["id"] = uuid4()
         if "callsign" not in state:

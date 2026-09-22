@@ -25,6 +25,7 @@ from dcs.terrain import Caucasus
 
 from game.ato.dtcoptions import DtcOptions
 from game.ato.flighttype import FlightType
+from game.ato.savedpoints import PointKind, SavedPoint
 from game.ato.flightwaypoint import GROUND_MARKED_WAYPOINTS
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.dtc import DtcGenerator
@@ -44,6 +45,7 @@ from game.missiongenerator.dtc.common import (
 )
 from game.missiongenerator.dtc.generator import CARTRIDGE_BUILDERS
 from game.missiongenerator.dtc.hornet import build_hornet_cartridge
+from game.missiongenerator.dtc.savedpoints import kneeboard_numbers
 from game.missiongenerator.dtc import tomcat
 from game.missiongenerator.dtc.tomcat import (
     jdam_stations,
@@ -191,6 +193,7 @@ def _flight(
         arrival=arrival if arrival is not None else _runway("Kutaisi", 259.0),
         divert=None,
         dtc_options=dtc_options if dtc_options is not None else DtcOptions(),
+        saved_points=[],
     )
 
 
@@ -564,6 +567,56 @@ def test_viper_marks_the_target_and_the_run_in() -> None:
     assert [p["type"] for p in route] == ["IP", "TGT", "STPT", "STPT"]
     # The id prefix stays STPT whatever the sub-type is (the editor's own rule).
     assert [p["id"] for p in route] == ["STPT1", "STPT2", "STPT3", "STPT4"]
+
+
+def _saved(name: str) -> SavedPoint:
+    return SavedPoint(kind=PointKind.WAYPOINT, name=name, x=1.0, y=2.0, altitude_ft=1000)
+
+
+def test_hornet_saved_points_follow_the_route_on_sequence_two() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.saved_points = [_saved("SMOKE"), _saved("BRIDGE")]
+    data = json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]
+    nav_pts = data["WYPT"]["NAV_PTS"]
+    assert [p["text_note"] for p in nav_pts] == ["TARGET", "LANDING", "SMOKE", "BRIDGE"]
+    assert [p["wypt_num"] for p in nav_pts[2:]] == [3, 4]
+    assert [(p["R1"], p["R2"], p["R2_order"]) for p in nav_pts[2:]] == [
+        (False, True, 1),
+        (False, True, 2),
+    ]
+    assert nav_pts[2]["alt"] == pytest.approx(304.8)
+    # The kneeboard prints the number the jet gives the point.
+    assert kneeboard_numbers(flight, game.settings) == [3, 4]
+
+
+def test_saved_points_stay_out_when_the_route_section_is_off() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.saved_points = [_saved("SMOKE")]
+    flight.dtc_options = DtcOptions(route=False)
+    assert kneeboard_numbers(flight, game.settings) == [3]
+    data = json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]
+    assert "SMOKE" not in [p["text_note"] for p in data["WYPT"]["NAV_PTS"]]
+
+
+def test_viper_saved_points_come_before_the_anchors_and_stop_at_24() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.saved_points = [_saved(f"P{n}") for n in range(30)]
+    data = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]
+    nav_pts = data["MPD"]["NAV_PTS"]
+    assert [p["note"] for p in nav_pts[:3]] == ["TARGET", "LANDING", "P0"]
+    assert nav_pts[2]["R2"] is True and nav_pts[2]["R1"] is False
+    assert nav_pts[-1]["number"] == 24
+    assert "TKR ARCO" not in [p["note"] for p in nav_pts]
+    numbers = kneeboard_numbers(flight, game.settings)
+    assert numbers[:2] == [3, 4]
+    assert numbers[21] == 24 and numbers[22] is None
 
 
 def test_viper_route_stops_at_the_auto_sequencing_limit() -> None:

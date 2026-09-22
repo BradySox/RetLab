@@ -14,6 +14,7 @@ from game.theater import ControlPoint, MissionTarget
 from game.utils import Distance
 from .flightmembers import FlightMembers
 from .flightroster import FlightRoster
+from .savedpoints import SavedPoint, points_of
 from .flightstate import FlightState, Navigating, Uninitialized
 from .flightstate.killed import Killed
 from .flighttype import FlightType
@@ -365,6 +366,11 @@ class Flight(
     @property
     def client_count(self) -> int:
         return self.roster.player_count
+
+    @property
+    def saved_points(self) -> list[SavedPoint]:
+        """The player's saved map points for this aircraft; kept on the squadron."""
+        return points_of(self)
 
     @property
     def unit_type(self) -> AircraftType:

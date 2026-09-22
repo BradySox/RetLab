@@ -39,10 +39,12 @@ from dcs.planes import F_15ESE
 from suntime import Sun, SunTimeException  # type: ignore
 from tabulate import tabulate
 
+from game.ato.savedpoints import PointKind, SavedPoint
 from game.ato.codewords import PushCategory, present_categories, push_category_for
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
+from game.coordinates import CoordinateFormat, coordinate_format, format_latlng
 from game.data.alic import AlicCodes
 from game.data.threat_reference import ThreatReference, reference_for
 from game.data.units import UnitClass
@@ -78,6 +80,7 @@ from .kneeboard_recon.atis import (
     has_thunderstorm_cells,
     wind_from_deg,
 )
+from .dtc.savedpoints import kneeboard_numbers
 from .missiondata import AwacsInfo, TankerInfo
 from ..persistency import kneeboards_dir
 
@@ -2625,6 +2628,82 @@ def _brief_loadout(units: List[Any]) -> str:
     return " · ".join(parts)
 
 
+class SavedPointsPage(KneeboardPage):
+    """The player's saved map points for this aircraft (§102), numbered as the jet
+    numbers them. Paginated: an A-10 holds far more than a page does."""
+
+    ROWS_PER_PAGE = 22
+
+    def __init__(
+        self,
+        callsign: str,
+        points: list[SavedPoint],
+        theater: "ConflictTheater",
+        coordinate_format: CoordinateFormat,
+        dark_kneeboard: bool,
+        numbers: Optional[list[Optional[int]]] = None,
+        page: int = 1,
+        total_pages: int = 1,
+    ) -> None:
+        self.callsign = callsign
+        self.points = points
+        self.numbers: list[Optional[int]] = (
+            numbers if numbers is not None else list(range(1, len(points) + 1))
+        )
+        self.theater = theater
+        self.coordinate_format = coordinate_format
+        self.dark_kneeboard = dark_kneeboard
+        self.page = page
+        self.total_pages = total_pages
+
+    @classmethod
+    def paginate(
+        cls,
+        callsign: str,
+        points: list[SavedPoint],
+        theater: "ConflictTheater",
+        coordinate_format: CoordinateFormat,
+        dark_kneeboard: bool,
+        numbers: Optional[list[Optional[int]]] = None,
+    ) -> List["SavedPointsPage"]:
+        if numbers is None:
+            numbers = list(range(1, len(points) + 1))
+        starts = list(range(0, max(len(points), 1), cls.ROWS_PER_PAGE))
+        return [
+            cls(
+                callsign,
+                points[start : start + cls.ROWS_PER_PAGE],
+                theater,
+                coordinate_format,
+                dark_kneeboard,
+                numbers=numbers[start : start + cls.ROWS_PER_PAGE],
+                page=index + 1,
+                total_pages=len(starts),
+            )
+            for index, start in enumerate(starts)
+        ]
+
+    def write(self, path: Path) -> None:
+        writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
+        counted = f" ({self.page}/{self.total_pages})" if self.total_pages > 1 else ""
+        writer.title(f"{self.callsign} extra points{counted}")
+        rows = []
+        for number, point in zip(self.numbers, self.points):
+            at = Point(point.x, point.y, self.theater.terrain)
+            # A point with no cockpit number did not fit and must be keyed in.
+            mark = "MK" if point.kind is PointKind.MARKPOINT else ""
+            rows.append(
+                [
+                    f"{mark}{number}" if number is not None else "-",
+                    point.name,
+                    format_latlng(at.latlng(), self.coordinate_format),
+                    f"{point.altitude_ft} ft" if point.altitude_ft else "",
+                ]
+            )
+        writer.table(rows, headers=["STPT", "Name", "Position", "Elev"])
+        writer.write(path)
+
+
 class NotesPage(KneeboardPage):
     """A kneeboard page containing the campaign owner's notes."""
 
@@ -3200,6 +3279,18 @@ class KneeboardGenerator(MissionInfoGenerator):
         # Only create the notes page if there are notes to show.
         if notes := self.game.notes:
             pages.append(NotesPage(notes, self.dark_kneeboard))
+
+        if flight.saved_points:
+            pages.extend(
+                SavedPointsPage.paginate(
+                    flight.callsign,
+                    flight.saved_points,
+                    self.game.theater,
+                    coordinate_format(self.game.settings),
+                    self.dark_kneeboard,
+                    numbers=kneeboard_numbers(flight, self.game.settings),
+                )
+            )
 
         # The SEAD/Strike Target Info page is superseded by the recon Detail page, which
         # already lists the same emitters + role + HARM ALIC over a satellite view. When

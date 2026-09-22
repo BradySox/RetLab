@@ -1,0 +1,182 @@
+"""Points the player puts in his own aircraft.
+
+A spot on the map is worth writing down long before it is worth a flight plan: the
+smoke somebody called in, the ship that was not there yesterday, the field the convoy
+turns at. The coordinate picker can read any point; this is where one goes once it has
+been read, and it goes to one aircraft -- the player's -- rather than into the flight
+plan everyone else has to fly.
+
+Two kinds, because the aircraft make the distinction: a **waypoint** is part of the
+navigation set and the aircraft flies to it, a **markpoint** is a spot marked for
+reference. How many of each an airframe holds is its own business -- a number per
+module, read off DCS's own data-cartridge scripts rather than remembered -- and an
+airframe nobody has measured claims none.
+
+They belong to the squadron the player flies out of rather than to one flight,
+because a flight is a plan and a plan is cancelled and rebuilt several times a turn.
+
+They appear on a kneeboard page of their own, so the route page stays the route, and
+in the aircraft itself where the airframe can hold them: the data cartridge on the
+Hornet and the Viper, the navigation computer on the A-10. Always outside the route
+the mission generated.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import TYPE_CHECKING, Any, Iterable, Optional
+
+if TYPE_CHECKING:
+    from game.ato.flight import Flight
+
+
+class PointKind(Enum):
+    """The values are the save format: renaming one breaks a campaign in progress."""
+
+    WAYPOINT = "waypoint"
+    MARKPOINT = "markpoint"
+
+    @property
+    def label(self) -> str:
+        return "Waypoint" if self is PointKind.WAYPOINT else "Markpoint"
+
+
+@dataclass
+class SavedPoint:
+    """One point, as the player wrote it down."""
+
+    kind: PointKind
+    name: str
+    #: DCS world coordinates, the frame everything else in the campaign uses.
+    x: float
+    y: float
+    altitude_ft: int = 0
+
+
+@dataclass(frozen=True)
+class Capacity:
+    """How many of each kind an airframe will take.
+
+    Zero is not "unsupported": a point with nowhere to go still goes on the
+    kneeboard, which is where the player reads it off and enters it himself. It is
+    the number the aircraft can be *given*.
+    """
+
+    waypoints: int
+    markpoints: int
+
+    def of(self, kind: PointKind) -> int:
+        return self.waypoints if kind is PointKind.WAYPOINT else self.markpoints
+
+
+#: An airframe nobody has measured. It is not refused -- its points ride on the
+#: kneeboard like everyone else's -- it simply gets the fallback below rather than a
+#: number it cannot keep.
+UNMEASURED = Capacity(waypoints=0, markpoints=0)
+
+#: What an unmeasured airframe is allowed. Not a page: the kneeboard paginates, so
+#: this is only a guard against a list nobody could use, for an aircraft whose real
+#: ceiling nobody has looked up yet.
+UNKNOWN_CEILING = 50
+
+#: What each airframe's cockpit is actually handed in this fork: the §74 cartridge on
+#: the Hornet (WYPT_NAV.lua caps the set at 59; 58/59 are HOME and the bullseye) and
+#: the Viper (STPT 25 is the bullseye), and the CDU state on the A-10
+#: (NavigationComputer_param.lua indexes 0-2050). None of them can be handed a
+#: markpoint. Every other airframe gets the kneeboard page only.
+CAPACITY: dict[str, Capacity] = {
+    "FA-18C_hornet": Capacity(waypoints=57, markpoints=0),
+    "F-16C_50": Capacity(waypoints=24, markpoints=0),
+    "A-10C": Capacity(waypoints=2050, markpoints=0),
+    "A-10C_2": Capacity(waypoints=2050, markpoints=0),
+}
+
+
+def capacity_for(dcs_id: str) -> Capacity:
+    return CAPACITY.get(dcs_id, UNMEASURED)
+
+
+def points_of(flight: Flight) -> list[SavedPoint]:
+    """The points saved for this aircraft.
+
+    They belong to the squadron, not to the flight: a flight is cancelled and rebuilt
+    with the same aircraft and the same player several times a turn, and points kept
+    on the flight went with it.
+
+    A save written while they were on the flight has them moved across here once,
+    the first time anything asks.
+    """
+    squadron = flight.squadron
+    points = getattr(squadron, "saved_points", None)
+    if points is None:
+        points = []
+        squadron.saved_points = points
+
+    # Popped from the instance dict rather than read off the flight, because
+    # Flight.saved_points is a property and the property is what attribute access
+    # finds.
+    for point in flight.__dict__.pop("saved_points", None) or []:
+        if point not in points:
+            points.append(point)
+    return points
+
+
+def kinds_for(dcs_id: str) -> list[PointKind]:
+    """The kinds this airframe can be handed, most useful first.
+
+    Only what will actually reach the aircraft. Offering a markpoint to a Hornet and
+    then explaining in a dialog that it will only reach the kneeboard is a question
+    the player should never have been asked: the answer is in the airframe, and the
+    control can just not offer it.
+
+    An airframe nobody has measured is offered nothing, which is the truth about it.
+    """
+    return [kind for kind in PointKind if reaches_the_aircraft(dcs_id, kind)]
+
+
+def reaches_the_aircraft(dcs_id: str, kind: PointKind) -> bool:
+    """Whether the airframe's own cartridge or database carries this kind.
+
+    False for an airframe nobody has measured as well: a point that cannot be shown
+    to go in is one to say so about. Either way the point is still written down --
+    the kneeboard takes both kinds -- it just does not reach the cockpit by itself.
+    """
+    return capacity_for(dcs_id).of(kind) > 0
+
+
+def room_for(flight: Flight, kind: PointKind) -> int:
+    """How many more of this kind the flight will take.
+
+    The aircraft's own number, not the kneeboard's: an A-10 indexes two thousand
+    waypoints and the page paginates to suit. Only an airframe nobody has measured
+    falls back to a guard figure.
+    """
+    held = sum(1 for point in points_of(flight) if point.kind is kind)
+    aircraft = capacity_for(flight.unit_type.dcs_unit_type.id).of(kind)
+    return max((aircraft or UNKNOWN_CEILING) - held, 0)
+
+
+def add_point(flight: Flight, point: SavedPoint) -> bool:
+    """Write one down, unless there is no room left for its kind."""
+    if room_for(flight, point.kind) <= 0:
+        return False
+    points_of(flight).append(point)
+    return True
+
+
+def remove_point(flight: Flight, index: int) -> bool:
+    points = points_of(flight)
+    if not 0 <= index < len(points):
+        return False
+    del points[index]
+    return True
+
+
+def receivers(coalition: Any) -> Iterable[Flight]:
+    """Every flight the player is actually flying, which is the only kind that can
+    be handed a point: an AI aircraft has nobody in it to read one."""
+    for package in coalition.ato.packages:
+        for flight in package.flights:
+            if flight.client_count > 0:
+                yield flight

@@ -35,6 +35,7 @@ from typing import TYPE_CHECKING, Any
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.roedata import build_atdt
+from game.missiongenerator.dtc.savedpoints import cockpit_numbers
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     leg_altitude,
@@ -285,6 +286,28 @@ def _build_nav_pts(
         )
         if on_route:
             prev_route_wp = waypoint
+    # The player's saved points (§102) come before the automatic anchors.
+    if options.route:
+        numbers = cockpit_numbers(flight, flight.saved_points)
+        for number, point in zip(numbers, flight.saved_points):
+            if number is None:
+                continue
+            alt_m = point.altitude_ft * 0.3048
+            steerpoint = _steerpoint(
+                number,
+                waypoint_display_name(point.name),
+                point.x,
+                point.y,
+                alt_m,
+                1,
+                False,
+                463.0,
+                0,
+                False,
+                "STPT",
+            )
+            steerpoint["R2"] = True
+            points.append(steerpoint)
     # Support anchors after the route: this flight's own orbit (racetrack, or
     # the hold point when it flies none), then the tanker/AEW&C orbits -- the
     # Viper's stand-in for the Hornet's SA racetracks. Other flights' CAP
