@@ -194,6 +194,8 @@ class FlightGroupConfigurator:
             start_type=self.flight.start_type,
             patrol_speed=patrol_speed,
             dtc_options=self.flight.dtc_options,
+            saved_points=list(self.flight.saved_points),
+            saved_drawings=list(self.flight.saved_drawings),
         )
 
         self.register_escort_leash()

@@ -678,3 +678,33 @@ def known_enemy_threat_sites(game: Game, viewer: Player) -> list[ThreatSite]:
             )
     sites.sort(key=lambda site: site.range_m, reverse=True)
     return sites
+
+
+def _distance_to_route(x: float, y: float, route: list[tuple[float, float]]) -> float:
+    """Metres from a point to the nearest leg of the route polyline."""
+    if len(route) == 1:
+        return math.hypot(x - route[0][0], y - route[0][1])
+    best = math.inf
+    for (ax, ay), (bx, by) in zip(route, route[1:]):
+        dx, dy = bx - ax, by - ay
+        length_sq = dx * dx + dy * dy
+        t = 0.0 if length_sq == 0 else ((x - ax) * dx + (y - ay) * dy) / length_sq
+        t = max(0.0, min(1.0, t))
+        best = min(best, math.hypot(x - (ax + t * dx), y - (ay + t * dy)))
+    return best
+
+
+def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
+    """The known sites this flight's cartridge draws: every one, or only those
+    whose ring comes within the DTC tab's distance of the route (§102)."""
+    sites = known_enemy_threat_sites(game, flight.friendly)
+    radius_nm = flight.dtc_options.threat_ring_radius_nm
+    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    if radius_nm is None or not route:
+        return sites
+    limit = radius_nm * 1852.0
+    return [
+        site
+        for site in sites
+        if _distance_to_route(site.x, site.y, route) - site.range_m <= limit
+    ]

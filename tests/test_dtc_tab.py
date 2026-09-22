@@ -81,6 +81,8 @@ def test_section_checkboxes_write_the_options() -> None:
         "jdam_targets",
         "roe_table",
         "countermeasures",
+        "saved_points",
+        "drawings",
     }
     # Every section is on by default except countermeasures, which waits on the
     # flown CMDS check (B28).
@@ -103,3 +105,59 @@ def test_existing_choices_are_reflected() -> None:
     by_attr = {attr: box for box, attr in tab.section_boxes}
     assert not by_attr["comms"].isChecked()
     assert by_attr["route"].isChecked()
+
+
+def _typed_tab(dcs_id: str, waypoint_types: list[str]) -> Any:
+    from game.ato.flightwaypointtype import FlightWaypointType
+    from qt_ui.windows.mission.flight.QFlightDtcTab import QFlightDtcTab
+
+    flight = SimpleNamespace(
+        dtc_options=DtcOptions(),
+        unit_type=SimpleNamespace(dcs_unit_type=SimpleNamespace(id=dcs_id)),
+        flight_plan=SimpleNamespace(
+            waypoints=[
+                SimpleNamespace(waypoint_type=FlightWaypointType[name])
+                for name in waypoint_types
+            ]
+        ),
+    )
+    game = SimpleNamespace(settings=SimpleNamespace(dtc_data_cartridges=True))
+    return QFlightDtcTab(flight, game), flight  # type: ignore[arg-type]
+
+
+def test_a_hornet_is_offered_only_what_its_cartridge_carries() -> None:
+    tab, _ = _typed_tab("FA-18C_hornet", ["TAKEOFF", "NAV", "LANDING_POINT"])
+    offered = {attr for _box, attr in tab.section_boxes}
+    assert "nav_aids" in offered and "saved_points" in offered
+    assert not offered & {"roe_table", "destinations", "jdam_targets", "comms"}
+
+
+def test_unticking_a_waypoint_kind_skips_it() -> None:
+    from PySide6.QtCore import Qt
+
+    tab, flight = _typed_tab("F-16C_50", ["TAKEOFF", "JOIN", "NAV", "NAV", "SPLIT"])
+    listing = tab.waypoint_list
+    names = [
+        listing.item(i).data(Qt.ItemDataRole.UserRole) for i in range(listing.count())
+    ]
+    assert names == ["JOIN", "NAV", "SPLIT"]  # the takeoff row is never offered
+    listing.item(0).setCheckState(Qt.CheckState.Unchecked)
+    assert flight.dtc_options.skipped_waypoints == ["JOIN"]
+    listing.item(0).setCheckState(Qt.CheckState.Checked)
+    assert flight.dtc_options.skipped_waypoints == []
+
+
+def test_the_sam_filter_writes_a_radius_only_when_ticked() -> None:
+    tab, flight = _typed_tab("F-16C_50", ["TAKEOFF"])
+    assert flight.dtc_options.threat_ring_radius_nm is None
+    tab.threat_near_route.setChecked(True)
+    tab.threat_radius.setValue(15)
+    assert flight.dtc_options.threat_ring_radius_nm == 15
+    tab.threat_near_route.setChecked(False)
+    assert flight.dtc_options.threat_ring_radius_nm is None
+
+
+def test_load_timing_writes_auto_load() -> None:
+    tab, flight = _typed_tab("F-16C_50", ["TAKEOFF"])
+    tab.load_selector.setCurrentIndex(1)
+    assert flight.dtc_options.auto_load is False

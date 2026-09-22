@@ -9,7 +9,7 @@ missing field to ``DtcOptions()``, which reproduces pre-feature behavior).
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Optional
 
 
@@ -52,6 +52,19 @@ class DtcOptions:
     #: before an MPD upload, and AutoLoad fires on a cold jet with the knob
     #: elsewhere. Checklist B28 carries the flown check that would flip this.
     countermeasures: bool = False
+    #: The player's saved points (§102): the route's second sequence, the
+    #: Tomcat's plan 3.
+    saved_points: bool = True
+    #: The player's own lines and areas (§102), on each jet's free drawing slots.
+    drawings: bool = True
+    #: Known SAM sites within this many nm of the route; None writes every one.
+    threat_ring_radius_nm: Optional[int] = None
+    #: Load at spawn. Off binds the cartridge but leaves loading to the pilot, so
+    #: the Viper crew can set CMDS to STBY first (checklist B28).
+    auto_load: bool = True
+    #: FlightWaypointType names left out of the cartridge's route. The kneeboard
+    #: prints "-" for them, so its numbers still match the jet.
+    skipped_waypoints: list[str] = field(default_factory=list)
 
     def __setstate__(self, state: dict[str, object]) -> None:
         """A field added after a save was written unpickles to its default."""
@@ -78,5 +91,7 @@ class DtcOptions:
                 self.destinations,
                 self.jdam_targets,
                 self.roe_table,
+                self.saved_points,
+                self.drawings,
             )
         )

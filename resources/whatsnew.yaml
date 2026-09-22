@@ -14,16 +14,34 @@
 
 entries:
   - date: 2026-09-22
-    title: Pilot awards are gone
+    title: The DTC tab shows your jet's own options, and you can draw on the map
     change: >-
-      The logbook no longer grants awards, and the SITREP no longer lists an
-      award line for each pilot who earned one. On a first turn that was
-      nearly every pilot who flew. Ranks and the logbook numbers are
-      unchanged. A save made before this loads without its awards.
+      The DTC tab lists only what your aircraft's cartridge carries, with what
+      each part does on that jet. New choices: load at spawn or by hand, which
+      kinds of waypoint go into the jet, and SAM rings only near your route.
+      Saved points can be waypoints, IPs, targets, holds or orbits, and the
+      map's crosshair popup can draw lines and areas. The F-14B(U) and the
+      Apache now load your points too.
     watch: >-
-      After the next mission the SITREP should carry no Award lines, and a
-      pilot's Logbook should show the numbers and rank with no Awards list.
-    row: B113
+      Set Pilot loads it on a Viper, untick Join, draw an area. In the jet the
+      cartridge should wait for you, the join point should be gone with the
+      numbers closed up, and the area should be on the HSD.
+    row: B136
+  - date: 2026-09-22
+    title: My aircraft, and points you save to your own jet
+    change: >-
+      A My aircraft button beside Air Wing lists the seats you are flying this
+      turn, with each one's saved points, its loadout and its data cartridge in
+      one window. The map has a crosshair button at top left: click any spot
+      to read its coordinates in every format and save it to your aircraft.
+      Hornets and Vipers get the points in the data cartridge on route
+      sequence 2, A-10s in the navigation computer, and every aircraft on a
+      kneeboard page.
+    watch: >-
+      Save a point to a Hornet or Viper and generate. The kneeboard's extra
+      points page gives it a number; that STPT in the jet should be the same
+      point, and SEQ1 should still be the route.
+    row: B135
   - date: 2026-09-20
     title: A Lua profiler plugin for the flight where the sim keeps hitching
     change: >-

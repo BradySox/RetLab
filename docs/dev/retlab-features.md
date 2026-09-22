@@ -10687,3 +10687,76 @@ is absent; the sim's loader is native).
   base — needs a planned flight, and it would have to be a client slot too.
 - The dynamic jet is still invisible to the campaign (no loss, no §58 card, no §74
   cartridge). Separate and larger.
+
+## §102 — My aircraft, saved points and the DTC options
+
+A window for the seat the player is flying this turn, the points and drawings they save for
+it, and a per-airframe DTC tab. Added 2026-09-22; the window and the saved points are from
+juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
+[`retlab-my-aircraft-notes.md`](design/retlab-my-aircraft-notes.md).
+
+### Files
+
+- `qt_ui/windows/playable/` — the window (`dialog.py`, `rows.py`, `model.py`, `style.py`).
+  Opened from `QTopPanel` ("My aircraft").
+- `qt_ui/windows/mission/flight/QFlightDtcTab.py` — the DTC tab, per airframe, driven by
+  `game/missiongenerator/dtc/sections.py`.
+- `game/ato/savedpoints.py` — `SavedPoint` (kinds, orbit heading/length),
+  `SavedDrawing`, the capacity tables. Both live on the `Squadron`.
+- `game/ato/dtcoptions.py` — new fields `saved_points`, `drawings`,
+  `threat_ring_radius_nm`, `auto_load`, `skipped_waypoints`.
+- `game/missiongenerator/dtc/savedpoints.py` — cockpit numbering for points and route
+  rows, the waypoint skip, the player shapes. Shared by all four builders and the kneeboard.
+- `game/missiongenerator/dtc/common.py:threat_sites_for` — the near-the-route SAM filter.
+- `game/missiongenerator/a10cdu.py` — the A-10's CDU state.
+- `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
+  `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
+- `client/src/components/coordinatepicker/` — the GPS picker, Save with kinds, the draw
+  panel (`DrawPanel.tsx`) and the map layer (`SavedPointsLayer.tsx`).
+
+### What it does
+
+- Points: waypoint, IP, target, hold (one pool) and orbit (its own). Each jet gets them
+  where its schema has a place — the note's §2 table.
+- Drawings: lines and areas on each jet's free line slots — the note's §3 table.
+- DTC tab: only the sections the jet carries; load at spawn or by hand; waypoint types to
+  leave out; SAM sites only near the route.
+- Kneeboard: an "extra points" page with the cockpit's numbers; the route table prints
+  `-` on a skipped row.
+
+### Constraints — do not undo
+
+- Points and drawings stay on the squadron (his #369).
+- One numbering function for the kneeboard and the cartridges.
+- Hornet/Viper/Apache points need the Flight plan section (those cartridges replace the
+  whole navigation set).
+- Skips are waypoint-type names, never indices.
+
+### §74 schema fixes (2026-09-22)
+
+Four defects the schema research found in the §74 builders, fixed on the DM's call; the
+design note §5a has each DCS file:line source:
+
+- Apache: TSD lines kept to 2-4 vertices (the editor deletes others); tanker boxes are
+  4-corner areas.
+- Apache: route `eta` per leg, not a running total.
+- Hornet: one `TGT` per route sequence.
+- Tomcat: every plan held to 3 lines (route as line) or 4, and 50 points in all.
+
+### Tests
+
+The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`,
+`tests/test_saved_points.py`, `tests/test_a10cdu.py`, `tests/test_coordinates.py`,
+`tests/test_coordinate_parsing.py`, `tests/test_elevation.py`,
+`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
+`coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
+
+### Needs an in-game pass — B135, B136
+
+B135: the cockpit numbering and sequence 2. B136: hand-load, skipped waypoints, and
+orbits and drawings on each jet's page.
+
+### Deferred
+
+- A Tomcat generation run; times on/off; a coordinate-format
+  setting; zoom on Show on map.
