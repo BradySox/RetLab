@@ -239,6 +239,9 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   are the cautionary case, since `INVALID ATC` fires during terrain init for helipads
   that are not in our `.miz` at all, on every map),
   `retlab-dcs-olympus-notes.md`, `retlab-ui-redesign-directions.md` (+ `-mockups.html`),
+  `retlab-ui-consistency-audit-notes.md` (**the UI text house style** — US English, NM,
+  descriptions visible and naming other settings rather than pointing at them — the
+  2026-09-22 decisions, what the tests guard, and the open UI backlog),
   `retlab-juanjux-fork-watch-notes.md` (**the second fork we watch** — his adoption ledger,
   what is already ours, and the OPFOR-AI precedent for seam 7),
   `retlab-fincenturion-dist-notes.md` (**study note, nothing adopted** — a third party's
@@ -328,12 +331,13 @@ plugins. When a feature has both, the Python side sets up and the Lua side execu
 move runtime logic into the planner or vice versa.
 
 **Plugin script injection (the uniform late-init pass).** Most RetLab plugins are normal
-work-order plugins. TIC and MooseAtis additionally need their main script loaded **after**
-every plugin's config table exists (their init reads `dcsRetribution.plugins.<name>` / MOOSE
-at file scope) — an ordering the per-plugin work-order pass can't express. They are `LuaPlugin`
-subclasses (`game/plugins/{tic,mooseatis}.py`, registered in `manager.py`'s `_PLUGIN_CLASSES`)
+work-order plugins. TIC additionally needs its main script loaded **after**
+every plugin's config table exists (its init reads `dcsRetribution.plugins.<name>` / MOOSE
+at file scope) — an ordering the per-plugin work-order pass can't express. It is a `LuaPlugin`
+subclass (`game/plugins/tic.py`, registered in `manager.py`'s `_PLUGIN_CLASSES`; `MooseAtis` is
+registered there too, but only to inject the current map's sound files)
 declaring `late_init_files()` / `late_init_preamble()` / `should_late_init()`; `inject_plugins()`
-runs a **second pass** that calls `inject_late_init()` on each after the normal config pass. A
+runs a **second pass** that calls `inject_late_init()` after the normal config pass. A
 missing/renamed init file is now caught by a test (`game/plugins/tests/test_late_init.py`)
 instead of the feature silently never starting. (Replaces the old hand-injected
 `_inject_*_script()` "scramble pattern".)
@@ -905,6 +909,11 @@ aircraft. Do NOT "resync" this block from upstream until they fix it.
     smaller failure than re-opening a settled question.
   - Measured 2026-08-11: the fork ran **8.3%** comment density against upstream's **4.8%**, and
     2.5× its rate of multi-line blocks. Re-measure before claiming a cleanup worked.
+- **UI text house style (STANDARD, 2026-09-22 DM call).** Every user-visible string is US
+  English (field names keep their spelling); nautical miles are `NM`; a setting's description
+  renders in full, names another setting by its label rather than "above"/"below", and never
+  describes a removed feature as live. `tests/settings/test_settings_text.py` guards the
+  settings; the rules and the open backlog are in `retlab-ui-consistency-audit-notes.md`.
 - **ADHD-friendly agent output (STANDARD, 2026-07-20).** The reader has ADHD; every agent
   reply is shaped so an ADHD brain can act on it. The rules live in the vendored
   [`i-have-adhd`](https://github.com/ayghri/i-have-adhd) skill

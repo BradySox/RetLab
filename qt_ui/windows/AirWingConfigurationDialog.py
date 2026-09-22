@@ -909,7 +909,7 @@ class AirWingConfigurationDialog(QDialog):
             "coalition. You can make changes at a later stage if "
             'the "Enable Air Wing adjustments" cheat option is enabled.'
             "<br /><br />"
-            "To accept your changes and continue, close this window."
+            'To keep your changes and continue, click "Accept Changes".'
         )
 
         layout.addWidget(doc_label)

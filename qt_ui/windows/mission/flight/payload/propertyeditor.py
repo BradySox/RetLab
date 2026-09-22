@@ -71,7 +71,7 @@ class PropertyEditor(QGridLayout):
 
             label = prop.label
             if widget is None:
-                label = f"<strong>{label}</label>"
+                label = f"<strong>{label}</strong>"
 
             label = QLabel(label)
             if widget is None:

@@ -1422,8 +1422,9 @@ Design notes: `docs/dev/design/retlab-air-defense-planning-notes.md` (read this 
   placement jitter. Falls back to the full doctrine band instead. This is an upstream
   bug and is queued as a post-freeze carve. Tests:
   `tests/ato/flightplans/test_cap_orbit_distance_band.py`.
-- Engagement-range bumps: `game/settings/settings.py` (`cas_engagement_range_distance`
-  10->15 nm, `armed_recon_engagement_range_distance` 5->10 nm).
+- Engagement-range bumps: `cas_engagement_range_distance` 10 -> 15 NM,
+  `armed_recon_engagement_range_distance` 5 -> 10 NM. **Planner suite only since 2026-09-22**:
+  the defaults are upstream's 10 / 5 and the suite sets 15 / 10 (divergence audit, amendment).
 - Cruise/patrol altitude doctrine (Campaign Doctrine page, all default to **no behavior
   change**, settable per campaign so the squadron tunes altitude to taste rather than the
   hardcoded ~24k Hornet CAP):
@@ -2847,7 +2848,7 @@ plugin scored captures nothing read.
 **It was not inert while it sat there.** On landing it popped a blue-coalition cue reading
 `RECON: <callsign> confirmed BDA on N target(s) at <target>` — a claim about a mechanic that no
 longer existed — and to produce that N it scanned every RED ground and ship unit in the
-mission. The six LUA Plugins settings rows tuned only that scan.
+mission. The six Lua Plugin Options rows tuned only that scan.
 
 The MOOSE Ops.TARS engine this section originally described was cut on 2026-08-05
 (`7eb247659`). Its design note `414th-tars-recon-notes.md` was deleted 2026-08-20 with the
@@ -2919,7 +2920,7 @@ recon-plugins-default migration now flips only TARS. Do **not** restore the plug
   `redscramble-config.lua` branches on). Checklist B80; tests
   `game/plugins/tests/test_string_options.py`.
 
-A polish pass over the **LUA Plugins Options** page so every plugin explains itself.
+A polish pass over the **Lua Plugin Options** page (named LUA Plugins Options until 2026-09-22) so every plugin explains itself.
 - New `descriptionInUI` field on `plugin.json` (optional, top-level). Parsed in
   `game/plugins/luaplugin.py` (`LuaPluginDefinition.description` +
   `LuaPlugin.description`) and rendered as an italic, word-wrapped line spanning the
@@ -3813,7 +3814,13 @@ we are overlooking") landed a second IA pass on both surfaces:
   gates only the pack's `vap_*` ground objects); the Theater page's docs links lead with RetLab
   wiki. The mod list stays the curated 16-of-~50 `ModSettings` (the hidden rest are deliberately
   retired/scrubbed content) — now stated in the Mods page docstring so the subset is a decision,
-  not an accident.
+  not an accident. **Corrected 2026-09-22:** the subset missed five flags campaigns preseed, so
+  their units were stripped from every new game — `uh_60l` (13 campaigns; the 2026-07-26 un-cut
+  relied on a toggle this trim had removed), `oh_6` (Yankee Station, Velvet Thunder; the OH-6A
+  never left the five US Vietnam factions), `jas39_gripen`, `frenchpack`, `spanishnavypack`.
+  Toggles restored; `tests/test_mod_toggles.py` fails CI when a campaign preseeds a mod with no
+  toggle. The subtitle names `Default.zip` again: Save Settings writes `settings.json`, which
+  `load_default_settings` reads, so saving over `Default.zip` does set the default.
 - **Section regroup** (FIELD_LAYOUT-only, no field moved, no save impact): Campaign Management's
   three one-field orphan sections merged into a **"Campaign features"** opener
   (phases/clock/carrier-ops) and "Economy & reserves" renamed **"Commander economy"**; Mission
@@ -4063,6 +4070,17 @@ real `resizeEvent` driven offscreen on a pageless `NewGameWizard` subclass (grow
 no resize/fit feedback loop, and a window that fits is left where the user put it). The subclass is
 deliberate: lifting `resizeEvent` onto a bare `QWizard` **segfaults PySide6**, because its
 zero-argument `super()` is bound to `NewGameWizard` and `self` is not one.
+
+### 2026-09-22 consistency audit
+
+Layout, on the DM's calls: a **CSAR flights** section beside **Combat search & rescue** takes
+the seven CSAR knobs that sat under Altitudes and Aircraft start types (the CSAR start type
+stays with the other start types); the motorpool cap moves to **Performance → World detail**;
+the cargo-convoy cap gets its own **Sea supply convoys** section; the plugin pages are
+**Lua Plugins** and **Lua Plugin Options**. Plugin option descriptions now render under their
+label, and text and dropdown options refresh on a campaign switch. Settings text is US
+English. The rules, the guards and the open backlog are in
+`docs/dev/design/retlab-ui-consistency-audit-notes.md`.
 
 ## §29 — Campaign SITREP kneeboard band
 
@@ -5110,7 +5128,7 @@ The buddy A-6 is pinned to the strike package and can't move, so the pass moves 
 
 ### Gating
 
-Behind `long_range_carrier_ops` (`Settings`, Campaign Management → Carrier operations, **default OFF**),
+Behind `long_range_carrier_ops` (`Settings`, RetLab Features → Naval & missile strike, **default OFF**),
 BLUE only, guarded at every step — no carrier, no Hornets, no legal target ⇒ silent no-op. Preseeded ON in
 `resources/campaigns/coin_enduring_resolve.yaml` alongside `max_mission_range_planes: 600`; every other
 campaign is byte-for-byte untouched.
@@ -5336,7 +5354,7 @@ clock reads the same date and simply begins marching forward from there. No jump
 
 ### Gating
 
-`continuous_campaign_clock` — Campaign Management → **Campaign clock & weather**, **default OFF
+`continuous_campaign_clock` — RetLab Features → **Campaign clock & era**, **default OFF
 since the 2026-08-09 re-convergence** (the planner-suite preset turns it on). Off = the stock
 per-turn rotation + memoryless weather exactly. Requires day-and-night missions (above).
 
@@ -6201,10 +6219,11 @@ groups stop the poll, no node = clean no-op) + `tests/missiongenerator/test_aisl
 positive list: garrisons in, AD/missiles/ships/buildings/concealed movers/dead groups out, gated
 off).
 
-Gated `perf_ground_ai_sleep` (Mission Generation → Performance, default **OFF** until flown; the
+Gated `perf_ground_ai_sleep` (RetLab Features → Performance, default **OFF**: an AI strike or SEAD
+flight cannot prosecute a sleeping group, measured on Desert Trident 2026-08-24, #986; the
 `aisleep` plugin's own `defaultValue` is ON so the setting is the only gate — the §36
 saved-default-off lesson). Wake radius, poll cadence and grace are plugin options. **Not preseeded
-in Red Tide** (feature-locked); flip the setting for the next MP event. **Needs an in-game pass**
+in Red Tide**; enable it only when nothing is fragged against the garrisons it puts to sleep. **Needs an in-game pass**
 (checklist B11): that a slept garrison actually costs less (server frame/CPU on a dense mission),
 wakes seamlessly on approach, and that the IADS/TIC/convoys/movers are visibly untouched.
 
@@ -6228,7 +6247,7 @@ cost.) The diagnosis that ruled out everything else: the player spawn had **13 o
 25 km**, and `ModelTimeQuantizer: ANTIFREEZE ENABLED` began ~1 min in while cold-starting on that
 empty ramp — so neither local scenery density nor the GPU, but global sim load.
 
-`perf_aaa_site_sleep` (Mission Generation → Performance, default **OFF**,
+`perf_aaa_site_sleep` (RetLab Features → Performance, default **OFF**,
 `enabled_when=perf_ground_ai_sleep`) adds `aa`-category gun sites to the positive list, behind
 **two independent guards** in `_air_defense_group_may_sleep`:
 
@@ -7670,7 +7689,7 @@ and the Fulcrum is an AI-only module with no cockpit (checked 2026-08-22, see th
 design note's table). The clean first-class seams are PR'd to `dcs-retribution/pydcs`; when the
 pin moves, `cartridge.py` shrinks to the model + builders.
 
-Gated `dtc_data_cartridges` (Mission Generation → Cockpit data, default **ON** — the
+Gated `dtc_data_cartridges` (RetLab Features → Cockpit & kneeboard, default **ON** — the
 kill switch; OFF is byte-identical output). Tests
 `tests/missiongenerator/test_dtc.py` (shapes, fog, mirroring, the pydcs seams, a
 real miz round-trip through pydcs load). Checklist **B28** — in-game pass DONE:
@@ -9002,8 +9021,8 @@ installations you attack separately. Red Tide is deliberately not a candidate �
 GPS-guided weapons postdate it entirely.
 
 **Settings.** `gps_jamming` (RetLab Features → Electronic & command warfare, default **OFF**,
-preseeded nowhere) + `gps_jamming_default_reach_nm` (30) / `gps_jamming_miss_radius_m` (200)
-(Mission Generation → Comms war, `enabled_when=gps_jamming`). Plugin options cover the degrade
+preseeded nowhere) + `gps_jamming_default_reach_nm` (15) / `gps_jamming_miss_radius_m` (200)
+(Mission Generation → GPS jamming, `enabled_when=gps_jamming`). Plugin options cover the degrade
 chance (85 %), terminal altitude (100 ft AGL), the shooter cue, grace, and the track step. **The
 miss detonates with the store's own warhead** (`desc.warhead.explosiveMass`, scaled by
 `missPowerScalePct`, default 100 %), so a 2000 lb JDAM craters like one and a 500 lb JDAM does

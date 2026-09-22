@@ -1,7 +1,7 @@
 # Lua Plugins
 
 Retribution plans and spawns a mission in Python, but the **runtime behavior** inside the
-generated `.miz` — electronic warfare, recon scoring, frontline firefights, combat-SAR
+generated `.miz` — electronic warfare, frontline firefights, combat-SAR
 rescues — is driven by **Lua plugins** injected into the mission. This page explains
 how the plugin system works, the fork's hand-injected plugins, the Lua discipline the CI
 gate enforces, and lists the notable RetLab plugins.
@@ -15,10 +15,10 @@ A `plugin.json` describes the plugin to both the loader and the settings UI:
 
 | Field | Meaning |
 |---|---|
-| `nameInUI` / `descriptionInUI` | Title and explanation shown on the LUA Plugins settings page. |
+| `nameInUI` / `descriptionInUI` | Title and explanation. The name is listed on the Lua Plugins page; the description heads the plugin's box on the Lua Plugin Options page. |
 | `skipUI` | Hide the plugin from the settings UI. Used by `base`, `intercept` and `opscsar`. |
 | `defaultValue` | Whether the plugin starts enabled. |
-| `specificOptions` | Per-plugin tunables (each with its own `mnemonic`, label, default, min/max) shown as settings. `choices` renders a dropdown instead of a spinner; `enabledWhen` greys an option out until a named sibling option is set. |
+| `specificOptions` | Per-plugin tunables (each with its own `mnemonic`, label, optional `descriptionInUI`, default, min/max) shown as settings. `choices` renders a dropdown instead of a spinner; `enabledWhen` greys an option out until a named sibling option is set. |
 | `scriptsWorkOrders` | The Lua files to inject, with load/disable directives. |
 | `configurationWorkOrders` | Configuration scripts, same shape. |
 
@@ -28,17 +28,17 @@ mandatory core every mission loads.
 
 ### The late-init pass: load-after-config plugins
 
-Most plugins are ordinary work-order plugins. But a couple of the fork's features —
-**TIC** and **MooseAtis** — must load their main script **after** every plugin's
-configuration has been injected, because their init reads `dcsRetribution.plugins.<name>`
+Most plugins are ordinary work-order plugins. But one of the fork's features —
+**TIC** — must load its main script **after** every plugin's
+configuration has been injected, because its init reads `dcsRetribution.plugins.<name>`
 (and MOOSE) the moment it loads. The normal work-order pass loads a plugin's scripts before
 its own config, so it can't express that ordering.
 
-These are `LuaPlugin` subclasses (`game/plugins/tic.py`, `game/plugins/mooseatis.py`,
-registered in `game/plugins/manager.py`'s `_PLUGIN_CLASSES`) that declare what to load late via
+It is a `LuaPlugin` subclass (`game/plugins/tic.py`, registered in
+`game/plugins/manager.py`'s `_PLUGIN_CLASSES`) that declares what to load late via
 `late_init_files()`, an optional `late_init_preamble()`, and a `should_late_init()` gate.
-`inject_plugins()` then runs a **second pass** that loads each one's files after the normal
-config pass — so the vendored MOOSE class plus the small `*_414_init.lua` that owns
+`inject_plugins()` then runs a **second pass** that loads those files after the normal
+config pass — so the vendored MOOSE class plus the small `tic_retlab_init.lua` that owns
 construction land last, with everything they need already present.
 
 The robustness win over the old hand-injected approach: a missing or renamed init file is
@@ -50,10 +50,9 @@ of the feature **silently never starting** in-game. (This replaces the former
 
 Write runtime logic against **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim).
 
-**MIST is retired.** The `base` plugin's `"mist"` work order loads
-`resources/plugins/base/mist_moose_shim.lua`, a vanilla-DCS shim implementing only the `mist.*`
-symbols the remaining consumers actually call — CTLD, the intercept glue, the core script, the
-sortie recorder, the COIN runtime, and the upstream land/water relocate scripts.
+**MIST** is upstream's `mist_4_5_126.lua`, loaded by the `base` plugin's `"mist"` work order.
+CTLD, the intercept glue, the core script, the sortie recorder, the COIN runtime, the relocate
+scripts and Skynet call it directly.
 
 MOOSE API docs:
 https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html
@@ -75,14 +74,14 @@ gate catches parse-time errors only — **runtime behavior still needs an in-gam
 
 ## Per-plugin options UI
 
-Each plugin's `specificOptions` render on the LUA Plugins settings page with
-squadron-readable labels and units, and `descriptionInUI` explains what the system does.
+Each plugin's `specificOptions` render on the Lua Plugin Options page with
+squadron-readable labels and units, each option's `descriptionInUI` under its label.
 For example, the C-130J plugin exposes EW-capacity regen, area/spot jam ranges, and max
-ELINT tracks as sliders.
+ELINT tracks as spin boxes.
 
 ## The plugins
 
-All 24, in `plugins.json` load order. "Inert unless" means the plugin ships in every mission
+All 26, grouped by area; `plugins.json` holds the load order. "Inert unless" means the plugin ships in every mission
 but does nothing until the mission generator emits its data — turning the matching campaign
 setting off costs nothing at runtime.
 
@@ -90,11 +89,11 @@ setting off costs nothing at runtime.
 
 | Plugin | Default | What it does |
 |---|---|---|
-| `base` | on | Mandatory core scripts, the MIST→MOOSE shim, `Moose.lua`, and the sortie recorder. |
+| `base` | on | Mandatory core scripts, MIST, `Moose.lua`, and the sortie recorder. |
 | `ctld` | on | CTLD — sling-loading crates, deploying troops and vehicles, JTAC autolasing. Also carries the §76 paradrop runtime. |
 | `MooseSoundhandler` | off | Radio-call and combat sound effects on in-game events. |
 | `MooseMarkerOps` | off | MOOSE MarkerOps — F10 map-marker command parsing. |
-| `MooseAtis` | off | MOOSE ATIS broadcasts. (Late-init plugin.) |
+| `MooseAtis` | off | MOOSE ATIS broadcasts. Injects only the current map's spoken field names. |
 
 ### Air defense, EW and ISR
 
@@ -106,6 +105,7 @@ setting off costs nothing at runtime.
 | `gpsjamming` | on | GPS denial — satellite-guided weapons released inside the bubble land long. Inert unless a live GPS-jamming group is on the map. |
 | `bigeye` | off | BigEye EWR — text threat reports to pilots, prioritised by contact danger. |
 | `lotatc` | off | Exports anti-air sites to LotATC so GCI controllers see the SAM/AAA picture. |
+| `neutralborder` | on | Neutral-country border defense: SAM batteries inside each non-belligerent border, a radio hail on entry, the whole country turning hostile when pressed. Inert unless the setting is on. |
 
 ### Ground war and the front line
 
@@ -134,6 +134,7 @@ setting off costs nothing at runtime.
 | `splashdamage3` | on | The squadron's locked, softened Splash Damage 3.4.2 build. No user-adjustable options by design. |
 | `aisleep` | on | Ground AI sleep — distant garrisons stop thinking and wake on approach. Inert unless the performance setting is on. |
 | `ai_reaction` | on | Smart threat reaction — only the flight a missile is actually guiding on goes defensive; everything else holds formation and uses countermeasures. |
+| `profiler` | off | Lua profiler — a diagnostic that times plugin work and writes `MooseProfiler.txt`. Slows the mission while it runs. |
 
 > **There is no recon plugin.** It was removed on 2026-08-20 along with its capture ledger:
 > the 2026-08-18 rework made engaging a site the only reveal, so nothing read a capture.

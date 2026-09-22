@@ -586,7 +586,6 @@ class QLiberationWindow(QMainWindow):
             "bbirchnz",
             "eddiwood",
             "root0fall",
-            "calvinmorrow",
             "UKayeF",
             "Captain Cody",
             "steveveepee",
@@ -631,7 +630,7 @@ class QLiberationWindow(QMainWindow):
             "which was originally developed by <b>shdwp</b>. "
             "DCS Liberation 2.0 is a partial rewrite based on this work by <b>Khopa</b>. "
             "DCS Retribution was forked during development of "
-            "DCS Liberation v6.0.0 in 2022 by <b>Raffson</> & <b>MetalStormGhost</>."
+            "DCS Liberation v6.0.0 in 2022 by <b>Raffson</b> & <b>MetalStormGhost</b>."
             "<h4>Contributors</h4>"
             + ", ".join(contributors)
             + "<h4>Special Thanks  :</h4>"

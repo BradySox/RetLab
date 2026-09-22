@@ -1,4 +1,4 @@
-# LUA Plugin system
+# Lua plugin system
 
 This plugin system was made for injecting LUA scripts in dcs-liberation missions.
 
@@ -18,10 +18,11 @@ Here's a quick rundown of the file's components :
  
 - `skipUI` : if *true*, this plugin will not appear in the plugins selection user interface. Useful to force a plugin ON or OFF (see the *base* plugin)
 - `nameInUI` : the title of the plugin as it will appear in the plugins selection user interface.
-- `descriptionInUI` : *optional*. A one-line summary of what the plugin does, rendered (italic, word-wrapped) under the plugin's group-box header on the *LUA Plugins Options* page. Omit it (or leave it empty) to render no description.
+- `descriptionInUI` : *optional*. A one-line summary of what the plugin does, rendered (italic, word-wrapped) under the plugin's group-box header on the *Lua Plugin Options* page. Omit it (or leave it empty) to render no description.
 - `defaultValue` : the selection value of the plugin, when first installed ; if true, plugin is selected.
 - `specificOptions` : a list of specific plugin options
   - `nameInUI` : the title of the option as it will appear in the plugins specific options user interface.
+  - `descriptionInUI` : *optional*. What the option does, rendered under its label.
   - `mnemonic` : the short, technical name of the option. It's the name of the LUA variable passed to the configuration script, and the name of the option in the application's settings 
   - `defaultValue` : the selection value of the option, when first installed ; if true, option is selected. A boolean renders a checkbox; an int or float renders a spin box.
   - `minimumValue` / `maximumValue` : *optional*, numeric options only. The spin-box bounds (default 0 and 10000 if omitted).
@@ -61,11 +62,11 @@ The easiest way to create a custom plugin is to copy an existing plugin, and mod
 
 ![New settings pages](0.png "New settings pages")
 
-Custom plugins can be enabled or disabled in the new *LUA Plugins* settings page.
+Custom plugins can be enabled or disabled on the *Lua Plugins* settings page.
 
 ![LUA Plugins settings page](1.png "LUA Plugins settings page")
 
-For plugins which expose specific options (such as "use smoke" for the *JTACAutoLase* plugin), the *LUA Plugins Options* settings page lists these options.
+For plugins which expose specific options (such as "use smoke" for the *JTACAutoLase* plugin), the *Lua Plugin Options* settings page lists these options.
 
 ![LUA Plugins Options settings page](2.png "LUA Plugins settings page")
 

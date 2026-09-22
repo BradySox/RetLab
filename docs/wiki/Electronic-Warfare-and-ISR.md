@@ -118,7 +118,7 @@ will prosecute it.
 
 ## Plugin options (tunables)
 
-All exposed in the Plugin Options UI under **C-130J Mission Systems** (default ON):
+All exposed on the Lua Plugin Options page under **C-130J Mission Systems** (default ON):
 
 | Option | Default | Range | Effect |
 |---|---|---|---|

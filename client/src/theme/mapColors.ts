@@ -39,10 +39,6 @@ export const mapColors = {
   routeContested: "#c85050",
   routeActive: "#ffffff", // the live-transport highlight line
 
-  // --- personnel (§21 downed aviators) ---
-  pilotMia: "#ff8c2e", // rescue orange: an evader awaiting pickup (actionable)
-  pilotPow: "#9aa0a6", // gray: held at an enemy field (freed by recapture)
-
   // --- bordering-nation airspace (§96) ---
   // Three colour families, one per owner (DM call): colour says WHO owns the
   // airspace, and the shade says whether it bites. A neutral that refuses
@@ -100,8 +96,6 @@ export interface StrokeSignature {
 export const mapStrokes: Record<
   | "suspectedArea"
   | "suspectedCluster"
-  | "pilotMia"
-  | "pilotPow"
   | "airspaceEnforced"
   | "airspaceOpen"
   | "airspaceBelligerent",
@@ -123,8 +117,6 @@ export const mapStrokes: Record<
     casingWeight: 4.5,
     casingColor: mapColors.suspectedCasing,
   },
-  pilotMia: { weight: 2.5, casingWeight: 6 },
-  pilotPow: { dashArray: "3 5", weight: 2.5, casingWeight: 6 },
   // A long map-boundary dash — the one pattern that reads as a border rather
   // than a hazard. 16/10 is the removed §40 ROE zone's own signature, whose
   // comment called it "an authored border: firm, legal" — exactly this.

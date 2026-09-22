@@ -103,7 +103,7 @@ Two things every future test flight needs:
 
 ## The `profiler` plugin
 
-`resources/plugins/profiler/` — default off, shown in Plugin Options as *Lua profiler
+`resources/plugins/profiler/` — default off, listed on the Lua Plugins page as *Lua profiler
 (diagnostic)*. One script, `profiler-config.lua`, two instruments:
 
 - **MOOSE PROFILER.** `debug.sethook` on every Lua call for a window (default: start at
@@ -123,7 +123,7 @@ Two things every future test flight needs:
 
 ### Runbook
 
-1. Settings → Plugin Options → tick *Lua profiler*. Leave the three numbers alone unless
+1. Settings → Lua Plugins → tick *Lua profiler*. Leave the three numbers alone unless
    the mission is short.
 2. Regenerate the turn (a plugin toggle only reaches the next generated `.miz`).
 3. Fly ≥ 6 minutes past spawn-in. Do not pause: a pause is a stall to the probe. Note

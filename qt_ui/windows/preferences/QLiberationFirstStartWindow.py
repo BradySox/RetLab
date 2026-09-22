@@ -73,7 +73,7 @@ class QLiberationFirstStartWindow(QDialog):
         """
         self.warning_text = QTextEdit(WARN_TEXT)
         self.warning_text.setReadOnly(True)
-        self.apply_button = QPushButton("I have read everything and I Accept")
+        self.apply_button = QPushButton("I have read this and accept")
         self.apply_button.clicked.connect(lambda: self.apply())
         self.initUI()
 

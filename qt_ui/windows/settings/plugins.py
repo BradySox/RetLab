@@ -1,3 +1,4 @@
+import html
 from typing import Dict, List
 
 from PySide6.QtCore import Qt, QLocale
@@ -15,9 +16,17 @@ from PySide6.QtWidgets import (
 )
 
 from game.plugins import LuaPlugin, LuaPluginManager
-from game.plugins.luaplugin import plugin_option_is_enabled
+from game.plugins.luaplugin import LuaPluginOption, plugin_option_is_enabled
 from game.settings import Settings
 from game.settings.ISettingsContainer import SettingsContainer
+
+
+def option_label_html(option: LuaPluginOption) -> str:
+    """Name in bold with the description beneath it: the main settings pages' shape."""
+    text = f"<strong>{html.escape(option.name)}</strong>"
+    if option.description:
+        text += f"<br />{html.escape(option.description)}"
+    return text
 
 
 class PluginsBox(QGroupBox):
@@ -71,6 +80,9 @@ class PluginOptionsBox(QGroupBox):
 
         layout = QGridLayout()
         layout.setAlignment(Qt.AlignmentFlag.AlignTop)
+        # As on the main pages: the label column takes the spare width, so a
+        # wrapped description uses the row instead of a narrow strip.
+        layout.setColumnStretch(0, 1)
         self.setLayout(layout)
 
         self.widgets: Dict[str, QWidget] = {}
@@ -93,7 +105,8 @@ class PluginOptionsBox(QGroupBox):
             row += 1
 
         for option in plugin.options:
-            label = QLabel(option.name)
+            label = QLabel(option_label_html(option))
+            label.setWordWrap(True)
             label.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             layout.addWidget(label, row, 0)
             self.labels[option.identifier] = label
@@ -189,6 +202,12 @@ class PluginOptionsBox(QGroupBox):
                 w.setValue(float(value))
             elif isinstance(w, QSpinBox):
                 w.setValue(int(value))
+            # Without these two a campaign's text or dropdown value (redscramble's
+            # "Flash") showed the stale default after a wizard campaign switch.
+            elif isinstance(w, QComboBox):
+                w.setCurrentText(str(value))
+            elif isinstance(w, QLineEdit):
+                w.setText(str(value))
         self.refresh_enabled_states()
 
 

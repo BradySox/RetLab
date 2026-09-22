@@ -342,16 +342,16 @@ class UnitTransactionFrame(QFrame, Generic[TransactionItemType]):
     @staticmethod
     def purchase_tooltip(is_enabled: bool) -> str:
         if is_enabled:
-            return "Buy unit. Use Shift or Ctrl key to buy multiple units at once."
+            return "Buy unit. Use Shift or Ctrl to buy 10 or 5 at once."
         else:
-            return "Unit can not be bought."
+            return "Unit cannot be bought."
 
     @staticmethod
     def sell_tooltip(is_enabled: bool) -> str:
         if is_enabled:
-            return "Sell unit. Use Shift or Ctrl key to buy multiple units at once."
+            return "Sell unit. Use Shift or Ctrl to sell 10 or 5 at once."
         else:
-            return "Unit can not be sold."
+            return "Unit cannot be sold."
 
     def info(self, item: TransactionItemType) -> None:
         self.info_window = QUnitInfoWindow(

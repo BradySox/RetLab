@@ -164,8 +164,9 @@ class Sitrep:
             plural = "s" if self.pilots_recovered != 1 else ""
             lines.append(f"Recovered {self.pilots_recovered} downed pilot{plural}")
         # Evaders still down (getattr: pre-feature pickled sitreps lack the field).
+        # Not "MIA": the CSAR settings use missing in action for a pilot who was lost.
         for mia_line in getattr(self, "pilots_mia", None) or []:
-            lines.append(f"MIA: {mia_line}")
+            lines.append(f"Awaiting rescue: {mia_line}")
         # §52: enemy command-network status when degraded (getattr for old saves).
         red_c2 = getattr(self, "red_c2_status", None)
         if red_c2:

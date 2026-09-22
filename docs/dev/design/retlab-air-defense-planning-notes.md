@@ -112,7 +112,7 @@ Moose dispatcher path.
     (the knob is now coherent, so higher = more offensive everywhere).
   - Bumped two engagement-range defaults so AI A2G is less passive:
     `cas_engagement_range_distance` 10 -> 15 NM, `armed_recon_engagement_range_distance`
-    5 -> 10 NM.
+    5 -> 10 NM. Since 2026-09-22 these are planner-suite values; the defaults are upstream's.
   - Verified-but-unchanged: `max_mission_range_planes` is a *floor*
     (`max(aircraft.max_mission_range, setting)`), not a cap, so raising it risks
     tasking short-legged jets beyond fuel; left at 150. `airbase_threat_range`

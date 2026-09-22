@@ -14,8 +14,8 @@ class NewGameSettings(QtWidgets.QWizardPage):
         self.setTitle("Campaign options")
         self.setSubTitle(
             "\nDifficulty, doctrine, and every campaign option (pre-seeded by the "
-            "selected campaign). Use Save Settings to make your choices the default "
-            "for future games."
+            "selected campaign). To make your choices the default for future games, "
+            "use Save Settings and save over Default.zip in the Settings folder."
         )
         self.setPixmap(
             QtWidgets.QWizard.WizardPixmap.LogoPixmap,
@@ -35,7 +35,11 @@ class NewGameSettings(QtWidgets.QWizardPage):
 
     @staticmethod
     def _load_campaign_settings(campaign: Campaign, settings: Settings) -> None:
-        campaign_settings = Settings.deserialize_state_dict(campaign.settings)
+        # The same order a save load runs: without the migration, a campaign that
+        # preseeds a renamed key (eplrs_enabled) silently keeps the new default.
+        campaign_settings = Settings._migrate_legacy_settings(
+            Settings.deserialize_state_dict(campaign.settings)
+        )
         # `settings` already has every plugin option seeded with its default (via
         # load_default_settings -> Settings.__setstate__ -> LuaPluginManager). The
         # campaign may carry its own plugin choices, but those must only *override*

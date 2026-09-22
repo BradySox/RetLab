@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from typing import Any
 
 from game.plugins import LuaPluginManager
-from game.settings import Settings
+from game.settings import DatalinkPolicy, Settings
 from qt_ui.windows.newgame.WizardPages.QNewGameSettings import NewGameSettings
 
 
@@ -62,3 +62,16 @@ def test_campaign_plugin_choices_override_but_do_not_drop_others() -> None:
     assert settings.plugin_option("ctld") == (not seeded_default)
     # ...without dropping options the campaign didn't mention.
     settings.plugin_option("ctld.tailorctld")  # must not raise
+
+
+def test_campaign_legacy_keys_are_migrated() -> None:
+    # A campaign preseeding a renamed key kept the new field's default: the
+    # wizard skipped the migration a save load runs.
+    settings = _seeded_settings()
+
+    NewGameSettings._load_campaign_settings(
+        _campaign({"eplrs_enabled": False}), settings
+    )
+
+    assert settings.datalink_policy is DatalinkPolicy.NEVER
+    assert "eplrs_enabled" not in settings.__dict__

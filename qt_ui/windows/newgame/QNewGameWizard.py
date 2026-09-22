@@ -149,6 +149,11 @@ class NewGameWizard(QtWidgets.QWizard):
             ukrainemilitaryassetspack=self.field("ukrainemilitaryassetspack"),
             fa_18efg=self.field("fa_18efg"),
             fa18ef_tanker=self.field("fa18ef_tanker"),
+            jas39_gripen=self.field("jas39_gripen"),
+            oh_6=self.field("oh_6"),
+            uh_60l=self.field("uh_60l"),
+            frenchpack=self.field("frenchpack"),
+            spanishnavypack=self.field("spanishnavypack"),
         )
 
         blue_faction = self.faction_selection_page.selected_blue_faction
@@ -205,7 +210,7 @@ class IntroPage(QtWidgets.QWizardPage):
         )
 
         label = QtWidgets.QLabel(
-            "This wizard will help you setup a new game.\n\n"
+            "This wizard will help you set up a new game.\n\n"
             "Please make sure you saved and backed up your previous game before going through."
         )
         label.setWordWrap(True)

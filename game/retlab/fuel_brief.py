@@ -205,7 +205,7 @@ def fuel_brief_text(brief: Optional[FuelBrief]) -> str:
     text = (
         f"Fuel plan{estimated}: burns ~{brief.burn_lbs:,.0f} lb · carries "
         f"{brief.carried_lbs:,.0f} lb ({brief.internal_lbs:,.0f} internal{bags}) · "
-        f"RTB margin {sign}{abs(brief.dry_margin_lbs):,.0f} lb unrefuelled"
+        f"RTB margin {sign}{abs(brief.dry_margin_lbs):,.0f} lb unrefueled"
     )
     if brief.refuel_passes:
         text += (

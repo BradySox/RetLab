@@ -255,7 +255,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **GPS jamming.** A JDAM, JSOW, JASSM or SLAM-ER released inside an enemy jamming bubble flies
   its normal profile and lands off the aimpoint — further off the deeper inside you released.
   Laser and TV weapons are unaffected; killing the jammer restores accuracy immediately. A
-  scouted jamming area is briefed on the kneeboard, an unscouted one is not.
+  jamming site is briefed on the kneeboard once you have engaged it.
 - **What's New.** A toolbar button lists the recent changes in the build you are running,
   newest first, each with a line saying what to look for in the next mission.
 - **Target priorities.** Tell the auto-planner where to push and what to chase. Mark an enemy

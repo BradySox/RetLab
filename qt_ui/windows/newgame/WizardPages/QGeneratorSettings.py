@@ -5,8 +5,11 @@ budgets) with the installed-mods checklist; the generator options now live on th
 Theater page (everything that shapes the world being built sits where you pick it),
 leaving this page a single job: declare which mods this group's DCS installs carry.
 
-Only mods the fork's factions actually consume are listed (ModSettings knows ~50;
-the rest are deliberately retired/scrubbed content and stay permanently off).
+Only mods the fork's factions or campaigns use are listed. ModSettings knows ~50;
+the rest stay permanently off, and a faction that lists their units has them
+stripped. A mod a campaign preseeds needs its toggle here, or the preseed is
+silently ignored: UH-60L, JAS 39, OH-6, Frenchpack and the Spanish navy pack
+were missing until 2026-09-22 and stripped from every new game.
 Field names are unchanged, so the wizard's accept() reads the same fields.
 """
 
@@ -67,6 +70,12 @@ class GeneratorOptions(QtWidgets.QWizardPage):
             "https://forum.dcs.world/topic/256589-vsn-northrop-grumman-ea-6b-prowler/"
         )
         self.registerField("ea6b_prowler", self.ea6b_prowler)
+        self.jas39_gripen = QtWidgets.QCheckBox()
+        self.registerField("jas39_gripen", self.jas39_gripen)
+        self.oh_6 = QtWidgets.QCheckBox()
+        self.registerField("oh_6", self.oh_6)
+        self.uh_60l = QtWidgets.QCheckBox()
+        self.registerField("uh_60l", self.uh_60l)
 
         aircraft_pairs = [
             ("A-4E-C Skyhawk (v2.3.0)", self.a4_skyhawk),
@@ -82,7 +91,10 @@ class GeneratorOptions(QtWidgets.QWizardPage):
             ),
             ("F-22A Raptor (v2.0.0)", self.f22_raptor),
             ("F-111C Aardvark (Warpig Production v2.260208)", self.f111c),
+            ("JAS 39 Gripen (v1.8.5-beta)", self.jas39_gripen),
+            ("OH-6 Cayuse (v1.7)", self.oh_6),
             ("OV-10A Bronco", self.ov10a_bronco),
+            ("UH-60L Black Hawk (v2.1.5)", self.uh_60l),
         ]
 
         # --- Asset packs ----------------------------------------------------------
@@ -103,12 +115,16 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.oh_6_vietnamassetpack = QtWidgets.QCheckBox()
         self.oh_6_vietnamassetpack.setToolTip(
             "Ground objects only (hooches, watchtowers, VC bunkers, bicycle "
-            "logistics, gun trucks). The OH-6A helicopter itself is no longer "
-            "carried by any faction."
+            "logistics, gun trucks). The OH-6A helicopter is the separate "
+            "OH-6 Cayuse toggle."
         )
         self.registerField("oh_6_vietnamassetpack", self.oh_6_vietnamassetpack)
         self.vietnamwarvessels = QtWidgets.QCheckBox()
         self.registerField("vietnamwarvessels", self.vietnamwarvessels)
+        self.frenchpack = QtWidgets.QCheckBox()
+        self.registerField("frenchpack", self.frenchpack)
+        self.spanishnavypack = QtWidgets.QCheckBox()
+        self.registerField("spanishnavypack", self.spanishnavypack)
 
         pack_pairs = [
             (
@@ -130,9 +146,14 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 self.ukrainemilitaryassetspack,
             ),
             ("CurrentHill USA Military Assets (1.5.0)", self.usamilitaryassetspack),
+            ("Frenchpack (v4.9.1)", self.frenchpack),
             (
                 "OH-6 Vietnam Asset Pack — ground objects (v1.2)",
                 self.oh_6_vietnamassetpack,
+            ),
+            (
+                "Spanish Naval Assets pack (desdemicabina 3.2.0)",
+                self.spanishnavypack,
             ),
             ("Vietnam War Vessels (v3.2.0 by TeTeT)", self.vietnamwarvessels),
         ]
@@ -222,3 +243,8 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.vietnamwarvessels.setChecked(s.get("vietnamwarvessels", False))
         self.fa_18efg.setChecked(s.get("fa_18efg", False))
         self.fa18ef_tanker.setChecked(s.get("fa18ef_tanker", False))
+        self.jas39_gripen.setChecked(s.get("jas39_gripen", False))
+        self.oh_6.setChecked(s.get("oh_6", False))
+        self.uh_60l.setChecked(s.get("uh_60l", False))
+        self.frenchpack.setChecked(s.get("frenchpack", False))
+        self.spanishnavypack.setChecked(s.get("spanishnavypack", False))

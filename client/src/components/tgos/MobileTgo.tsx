@@ -50,9 +50,9 @@ function destinationTooltipText(
     destination.distanceTo(tgo.position)
   ).toFixed(1);
   if (!inRange) {
-    return `Out of range (${distance}nm away)`;
+    return `Out of range (${distance} NM away)`;
   }
-  return `${tgo.name} moving ${distance}nm to ${formatLatLng(
+  return `${tgo.name} moving ${distance} NM to ${formatLatLng(
     destination
   )} next turn`;
 }

@@ -61,22 +61,22 @@ class QWeatherWidget(QGroupBox):
 
         windsLayout.addWidget(self.makeIcon(CONST.ICONS["Weather_winds"]), 0, 0, 3, 1)
 
-        windsLayout.addWidget(self.makeLabel("At GL"), 0, 1)
-        windsLayout.addWidget(self.makeLabel("At FL08"), 1, 1)
-        windsLayout.addWidget(self.makeLabel("At FL26"), 2, 1)
+        windsLayout.addWidget(self.makeLabel("Ground"), 0, 1)
+        windsLayout.addWidget(self.makeLabel("2,000 m"), 1, 1)
+        windsLayout.addWidget(self.makeLabel("8,000 m"), 2, 1)
 
         self.windGLSpeedLabel = self.makeLabel("0kts")
-        self.windGLDirLabel = self.makeLabel("0º")
+        self.windGLDirLabel = self.makeLabel("0°")
         windsLayout.addWidget(self.windGLSpeedLabel, 0, 2)
         windsLayout.addWidget(self.windGLDirLabel, 0, 3)
 
         self.windFL08SpeedLabel = self.makeLabel("0kts")
-        self.windFL08DirLabel = self.makeLabel("0º")
+        self.windFL08DirLabel = self.makeLabel("0°")
         windsLayout.addWidget(self.windFL08SpeedLabel, 1, 2)
         windsLayout.addWidget(self.windFL08DirLabel, 1, 3)
 
         self.windFL26SpeedLabel = self.makeLabel("0kts")
-        self.windFL26DirLabel = self.makeLabel("0º")
+        self.windFL26DirLabel = self.makeLabel("0°")
         windsLayout.addWidget(self.windFL26SpeedLabel, 2, 2)
         windsLayout.addWidget(self.windFL26DirLabel, 2, 3)
 
@@ -117,21 +117,21 @@ class QWeatherWidget(QGroupBox):
         windGlSpeed = mps(self.conditions.weather.wind.at_0m.speed or 0)
         windGlDir = str(self.conditions.weather.wind.at_0m.direction or 0).rjust(3, "0")
         self.windGLSpeedLabel.setText(f"{int(windGlSpeed.knots)}kts")
-        self.windGLDirLabel.setText(f"{windGlDir}º")
+        self.windGLDirLabel.setText(f"{windGlDir}°")
 
         windFL08Speed = mps(self.conditions.weather.wind.at_2000m.speed or 0)
         windFL08Dir = str(self.conditions.weather.wind.at_2000m.direction or 0).rjust(
             3, "0"
         )
         self.windFL08SpeedLabel.setText(f"{int(windFL08Speed.knots)}kts")
-        self.windFL08DirLabel.setText(f"{windFL08Dir}º")
+        self.windFL08DirLabel.setText(f"{windFL08Dir}°")
 
         windFL26Speed = mps(self.conditions.weather.wind.at_8000m.speed or 0)
         windFL26Dir = str(self.conditions.weather.wind.at_8000m.direction or 0).rjust(
             3, "0"
         )
         self.windFL26SpeedLabel.setText(f"{int(windFL26Speed.knots)}kts")
-        self.windFL26DirLabel.setText(f"{windFL26Dir}º")
+        self.windFL26DirLabel.setText(f"{windFL26Dir}°")
 
     def update_forecast_from_preset(self, preset: CloudPreset) -> None:
         self.forecastFog.setText("No fog")
@@ -192,7 +192,7 @@ class QWeatherWidget(QGroupBox):
             self.forecastFog.setText("No fog")
         else:
             visibility = round(self.conditions.weather.fog.visibility.nautical_miles, 1)
-            self.forecastFog.setText(f"Fog vis: {visibility}nm")
+            self.forecastFog.setText(f"Fog vis: {visibility} NM")
             if cloud_density > 1:
                 weather_type = "cloudy-fog"
             else:

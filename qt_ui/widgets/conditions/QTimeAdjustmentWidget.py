@@ -20,7 +20,8 @@ class QTimeAdjustmentWidget(QWidget):
         vbox.addWidget(QLabel("<h2><b>Time & Date:</b></h2>"))
         vbox.addWidget(
             QLabel(
-                '<h4 style="color:orange"><b>WARNING: CHANGING TIME/DATE WILL RE-INITIALIZE THE TURN</b></h4>'
+                '<h4 style="color:orange"><b>ACCEPT keeps your flight plans and re-times '
+                "them. RE-ROLL TURN discards both sides' plans.</b></h4>"
             )
         )
 

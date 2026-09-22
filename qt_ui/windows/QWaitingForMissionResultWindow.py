@@ -296,7 +296,10 @@ class QWaitingForMissionResultWindow(QDialog):
 
     def submit_manually(self):
         file = QFileDialog.getOpenFileName(
-            self, "Select game file to open", filter="json(*.json)", dir="."
+            self,
+            "Select the mission results file (state.json)",
+            filter="json(*.json)",
+            dir=".",
         )
         if file[0] != "":
             logging.debug("Processing manually submitted %s", file[0])

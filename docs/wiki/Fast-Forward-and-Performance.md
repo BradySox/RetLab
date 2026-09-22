@@ -10,22 +10,23 @@ turns).
 Fast-forward accelerates mission time so you spawn into a conflict that is already underway
 instead of waiting through startup, taxi, and a long transit before anything happens.
 
-Fast-forward begins **when you push the take-off button** and runs until it reaches the
-first of these:
+Fast-forward begins **when you push the take-off button**. Where it stops is **Fast forward
+until**, under **Settings → Mission Generation → Simulation & fast-forward**:
 
+- **Player startup, taxi or takeoff time** — the first player flight reaches that phase.
+- **Player at IP** — a player flight reaches its IP and spawns there in the air.
 - **First contact** — an enemy threat range or an ingress waypoint.
-- **Startup, taxi, or takeoff** of a player flight.
+- **Manual** — you set the speed yourself. Needs the `--show-sim-speed-controls` launch flag.
+- **No fast forward** — the mission starts at its planned start time.
 
-You enable it under **Settings → Mission Generator**, "Fast forward mission to first
-contact." Related options:
+**Combat encountered during fast-forward** decides what a fight on the way does:
 
-- **Player missions interrupt fast forward.** If a player's startup falls before first
-  contact, fast-forward pauses for that startup/taxi/takeoff. Testing tip: add a "+15 min
-  past ASAP TOT" offset to player flights.
-- **Auto-resolve combat.** If takeoff would occur after first contact, the system simulates
-  the combat and starts the mission at your take-off time. Note the documented warning:
-  combining auto-resolve with "Never" for player interruptions means fast-forward will never
-  stop.
+- **Pause** stops fast-forward so the combat can be flown. It can stop before your chosen
+  condition.
+- **Resolve** simulates the combat and carries on. It can cause heavy losses.
+- **Skip** ignores the combat.
+
+Testing tip: add a "+15 min past ASAP TOT" offset to player flights.
 
   > **Fork note:** the auto-resolver is **capability-weighted**, not a coin flip. Air-to-air is
   > decided by best A2A task-priority × aircraft count (a modern fighter beats an obsolete one, and
@@ -42,11 +43,13 @@ game state.
 Large campaigns can stress CPU and GPU. These options trade detail for framerate:
 
 - **Ground AI sleep** *(fork feature)*. **"Distant ground AI sleeps until aircraft approach"**
-  (Mission Generation → Performance) is the middle ground culling never had: rear-area
+  (RetLab Features → Performance) is the middle ground culling never had: rear-area
   garrisons keep existing — visible, strikeable, kills count normally — but their AI is
   switched off while no aircraft is within ~15 NM, cutting the cost of hundreds of thinking
   ground units without deleting anything. SAM sites, the front line, convoys and every
-  scripted mover are never touched. Off by default until it has an in-game pass.
+  scripted mover are never touched. Off by default: an AI strike or SEAD flight cannot hit a
+  sleeping group, so turn it on only when nothing is fragged against the garrisons it puts
+  to sleep.
 - **Distant unit culling.** Removes ground units and buildings beyond a set distance from
   exclusion zones (front lines, airfields, mission targets). Air units are never culled. Set
   it too large and culling does little; too small and the experience suffers. Note the
@@ -55,7 +58,7 @@ Large campaigns can stress CPU and GPU. These options trade detail for framerate
   Ground AI sleep first; keep culling for what you never want to exist at all.
 - **Budget / aircraft counts.** Lower budgets and income reduce how many aircraft can be
   bought. Keeping the maximum under roughly **150 aircraft per side** helps performance.
-- **Smoke on frontline.** Frontline smoke can hurt GPU framerate, especially during CAS.
+- **Front-line smoke.** Front-line smoke can hurt GPU framerate, especially during CAS.
 - **Convoy distances.** Disabling full-distance convoy driving reduces CPU-heavy pathfinding.
 - **Infantry squads.** Removing them cuts unit count without changing gameplay outcomes.
 - **Destroyed unit carcasses.** Unchecking removes dead-unit wrecks to recover performance.
@@ -81,19 +84,19 @@ client. So the levers, in order of payoff:
 
 | Setting | Where | Event night | What it buys |
 |---|---|---|---|
-| Maximum ground units deployed per frontline | Mission Generation → Performance | **60 → 30** | The single biggest lever — halves the FLOT vehicles, their infantry escorts, and the TIC battle script's workload (which scales super-linearly with combatants) |
-| Distant ground AI sleeps until aircraft approach | Mission Generation → Performance | **On** | Rear garrisons stop running AI until someone actually flies there; nothing is deleted |
-| Generate infantry squads alongside vehicles | Mission Generation → Performance | Off | Removes ~5 infantry per armor group (MANPAD coverage partially remains) |
-| Ambient suppressive fire | Plugin Options → Troops In Contact | Off | Stops the constant scripted tracer fire on the FLOT — every burst is a network event in MP |
-| Front-line smoke effects | Mission Generation → Performance | Off (or spacing 6000+) | Smoke columns are pure client-side GPU cost, worst exactly where CAS flies |
-| Battle damage at depleted bases (fires, smoke, wreckage) | Mission Generation | Off | Burning bases look great and cost real FPS for everyone nearby |
-| Generate carcasses for units destroyed in previous turns | Mission Generation → Performance | Off | Wrecks accumulate every turn; a campaign 10+ turns in carries hundreds |
-| Disable untasked OPFOR (and OWNFOR) aircraft at airfields | Mission Generation → Performance | On | Deletes decorative parked jets nobody will fight |
-| Culling of distant units | Mission Generation → Performance | Optional, ~70 km | Modest gains (see the caveat above); try it after the rest |
-| Moving ground units | Mission Generation → Performance | Last resort: Off | The FLOT stands and fights in place — kills the battle's movement, keeps the shooting |
+| Maximum ground units deployed per frontline | Performance → World detail | **60 → 30** | The single biggest lever — halves the FLOT vehicles, their infantry escorts, and the TIC battle script's workload (which scales super-linearly with combatants) |
+| Distant ground AI sleeps until aircraft approach | RetLab Features → Performance | Off, unless nothing is fragged at the rear garrisons | Rear garrisons stop running AI until someone actually flies there; an AI strike or SEAD flight cannot hit a sleeping group |
+| Generate infantry squads alongside vehicles | Performance → World detail | Off | Removes ~5 infantry per armor group (MANPAD coverage partially remains) |
+| Ambient suppressive fire | Lua Plugin Options → Troops In Contact | Off | Stops the constant scripted tracer fire on the FLOT — every burst is a network event in MP |
+| Front-line smoke effects | Performance → World detail | Off (or spacing 6000+) | Smoke columns are pure client-side GPU cost, worst exactly where CAS flies |
+| Battle damage at depleted bases (fires, smoke, wreckage) | Mission Generation → Battlefield life | Off | Burning bases look great and cost real FPS for everyone nearby |
+| Generate carcasses for units destroyed in previous turns | Performance → World detail | Off | Wrecks accumulate every turn; a campaign 10+ turns in carries hundreds |
+| Disable untasked OPFOR (and OWNFOR) aircraft at airfields | Performance → Culling & untasked units | On | Deletes decorative parked jets nobody will fight |
+| Culling of distant units | Performance → Culling & untasked units | Optional, ~70 km | Modest gains (see the caveat above); try it after the rest |
+| Moving ground units | Performance → World detail | Last resort: Off | The FLOT stands and fights in place — kills the battle's movement, keeps the shooting |
 
-**Not worth disabling:** the feature plugins that sound heavy mostly aren't. Combat SAR, comms
-jamming, the briefing cards, GPS jamming and the red comms net are
+**Not worth disabling:** the feature plugins that sound heavy mostly aren't. Combat SAR, the
+briefing cards and GPS jamming are
 event-driven and near-idle until their moment comes — turning them off buys nothing measurable.
 The battlefield's *density* and the *effects* are the cost, not the feature scripts.
 

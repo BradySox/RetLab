@@ -168,13 +168,13 @@ class QFlightCreator(QDialog):
         )
         if squadron is not None and required_start_type:
             self.start_type.setEnabled(False)
-        layout.addWidget(
-            QLabel(
-                "Any option other than Cold will make this flight "
-                + "non-targetable<br />by OCA/Aircraft missions. This will affect "
-                + "game balance."
-            )
+        cold_note = QLabel(
+            "Any option other than Cold will make this flight "
+            "non-targetable by OCA/Aircraft missions. This will affect "
+            "game balance."
         )
+        cold_note.setWordWrap(True)
+        layout.addWidget(cold_note)
 
         self.custom_name = QLineEdit()
         self.custom_name.textChanged.connect(self.set_custom_name_text)
@@ -399,10 +399,10 @@ class QFlightCreator(QDialog):
             return
 
         role_alignment = (
-            "primary-role match"
+            "This is the squadron's primary role"
             if squadron.primary_task == task
             else (
-                "non-primary role for this squadron "
+                "This is a secondary role for this squadron "
                 f"(primary: {self._doctrine.display_name_for(squadron.primary_task)})"
             )
         )
@@ -410,7 +410,7 @@ class QFlightCreator(QDialog):
             f"{aircraft.display_name} will fly {self._doctrine.display_name_for(task)} "
             f"from {squadron.location.name} "
             f"with {squadron.untasked_aircraft} untasked aircraft available. "
-            f"Selected squadron is a {role_alignment}. "
+            f"{role_alignment}. "
             f"Current loadout: {loadout or 'None'}."
         )
 
