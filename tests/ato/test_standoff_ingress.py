@@ -106,8 +106,42 @@ def test_widening_changes_only_the_ingress_bound() -> None:
 def test_the_yaml_range_reaches_the_weapon_group() -> None:
     # Guards the loader: `range:` is in nautical miles, and the weapon proxies it.
     harpoon = WeaponGroup.named("AGM-84D")
-    assert harpoon.standoff_range == nautical_miles(67)
-    assert harpoon.weapons[0].standoff_range == nautical_miles(67)
+    assert harpoon.standoff_range == nautical_miles(97)
+    assert harpoon.weapons[0].standoff_range == nautical_miles(97)
+
+
+def test_the_harpoon_range_is_the_one_dcs_flies() -> None:
+    # cruise_missiles.lua: Range_max = 180000 m for the AGM-84D, and the A shares
+    # its flight model. 67 nm was the real Block 1C figure, and it put the run
+    # 30 nm inside the missile's reach.
+    for name in ("AGM-84A", "AGM-84D"):
+        assert WeaponGroup.named(name).standoff_range == nautical_miles(97)
+
+
+def test_every_maverick_declares_its_seeker_range() -> None:
+    # agm65_family.lua: 24076 m for the A/B/D/F/G/H/K, 11112 m for the E. A
+    # Maverick with no range was excluded from the package number, so a Harpoon
+    # flight alongside it dragged the Maverick shooters out to the Harpoon's IP.
+    for name in (
+        "AGM-65A",
+        "AGM-65B",
+        "AGM-65D",
+        "AGM-65F",
+        "AGM-65G",
+        "AGM-65H",
+        "AGM-65K",
+    ):
+        assert WeaponGroup.named(name).standoff_range == nautical_miles(13), name
+    assert WeaponGroup.named("AGM-65E").standoff_range == nautical_miles(6)
+
+
+def test_a_maverick_flight_keeps_a_mixed_package_at_the_doctrine_bound() -> None:
+    # 97 nm Harpoon flight + 13 nm Maverick flight: the shortest shooter sets the
+    # number, and 13 nm is inside the bound, so nothing is widened.
+    assert (
+        _ingress_for(_package(nautical_miles(97), nautical_miles(13)))
+        == MODERN_DOCTRINE.max_ingress_distance
+    )
 
 
 def test_a_weapon_with_no_authored_range_reports_none() -> None:
