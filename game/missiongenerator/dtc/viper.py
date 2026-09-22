@@ -35,6 +35,12 @@ from typing import TYPE_CHECKING, Any
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.roedata import build_atdt
+from game.missiongenerator.dtc.savedpoints import (
+    closed_ring,
+    cockpit_numbers,
+    kept_waypoints,
+    player_shapes,
+)
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     leg_altitude,
@@ -44,7 +50,7 @@ from game.missiongenerator.dtc.common import (
     SUPPORT_BOX_POINTS,
     is_route_waypoint,
     is_target_waypoint,
-    known_enemy_threat_sites,
+    threat_sites_for,
     leg_speed_kmh,
     own_orbit_track,
     seconds_of_day,
@@ -74,6 +80,8 @@ MAX_GEO_LINE_SETS = 4
 #: shared across the four line sets with no per-set cap of their own, so the
 #: boundary takes L1 whole and L2-L4 stay free.
 MAX_GEO_POINTS = 25
+#: What the boundary keeps however much the player draws (§102).
+MIN_BOUNDARY_POINTS = 10
 MAX_THREAT_POINTS = 15
 #: DEST owns steerpoints 81-99, and the editor refuses a 20th.
 MAX_DESTINATIONS = 19
@@ -157,6 +165,10 @@ def _steerpoint(
         "OAP_2_DeltaX": 0,
         "OAP_2_DeltaY": 0,
     }
+
+
+#: The HSD symbol for the saved kinds that have one (square IP, triangle target).
+_SAVED_TYPES = {"ip": "IP", "target": "TGT"}
 
 
 def _steerpoint_type(waypoint: FlightWaypoint) -> str:
@@ -261,7 +273,7 @@ def _build_nav_pts(
     # Match the kneeboard's numbering: its row 0 (takeoff/spawn) is not
     # emitted, so STPT n in the jet is kneeboard waypoint n (the flown
     # Hornet off-by-one applied here identically).
-    waypoints = flight.waypoints[1:] if options.route else []
+    waypoints = kept_waypoints(flight) if options.route else []
     for waypoint in waypoints:
         if len(points) >= MAX_ROUTE_STEERPOINTS:
             break
@@ -285,6 +297,28 @@ def _build_nav_pts(
         )
         if on_route:
             prev_route_wp = waypoint
+    # The player's saved points (§102) come before the automatic anchors.
+    if options.route and options.saved_points:
+        numbers = cockpit_numbers(flight, flight.saved_points)
+        for slot, point in zip(numbers, flight.saved_points):
+            if slot is None:
+                continue
+            alt_m = point.altitude_ft * 0.3048
+            steerpoint = _steerpoint(
+                slot,
+                waypoint_display_name(point.name),
+                point.x,
+                point.y,
+                alt_m,
+                1,
+                False,
+                463.0,
+                0,
+                False,
+                _SAVED_TYPES.get(point.kind.value, "STPT"),
+            )
+            steerpoint["R2"] = True
+            points.append(steerpoint)
     # Support anchors after the route: this flight's own orbit (racetrack, or
     # the hold point when it flies none), then the tanker/AEW&C orbits -- the
     # Viper's stand-in for the Hornet's SA racetracks. Other flights' CAP
@@ -627,15 +661,32 @@ def _build_geo_lines(
     """
     options = flight.dtc_options
     line_sets: list[tuple[str, list[tuple[float, float]]]] = []
+    # The player's orbits and drawings (§102) go before the support boxes: they
+    # were drawn on purpose. The boundary keeps at least MIN_BOUNDARY_POINTS.
+    player: list[tuple[str, list[tuple[float, float]]]] = []
+    player_budget = MAX_GEO_POINTS - MIN_BOUNDARY_POINTS
+    for name, points, closed in player_shapes(flight, orbits_as_boxes=True):
+        corners = closed_ring(points) if closed else points
+        if len(player) >= MAX_GEO_LINE_SETS - 1 or len(corners) > player_budget:
+            continue
+        player.append((name, corners))
+        player_budget -= len(corners)
+    used = sum(len(corners) for _name, corners in player)
+    room = MAX_GEO_LINE_SETS - 1 - len(player)
     boxes = (
-        support_boxes(mission_data, MAX_GEO_LINE_SETS - 1, flight)
-        if options.friendly_orbits
+        support_boxes(mission_data, room, flight)
+        if options.friendly_orbits and room > 0
         else []
     )
+    while boxes and used + len(boxes) * SUPPORT_BOX_POINTS > (
+        MAX_GEO_POINTS - MIN_BOUNDARY_POINTS
+    ):
+        boxes.pop()
     if options.flot_and_zones:
-        boundary_budget = MAX_GEO_POINTS - len(boxes) * SUPPORT_BOX_POINTS
+        boundary_budget = MAX_GEO_POINTS - used - len(boxes) * SUPPORT_BOX_POINTS
         if boundary_budget >= 2:
             line_sets.extend(red_land_boundary(game, 1, boundary_budget))
+    line_sets.extend(player)
     line_sets.extend(boxes)
     geo_points: list[dict[str, Any]] = []
     for set_index, (name, points) in enumerate(line_sets[:MAX_GEO_LINE_SETS]):
@@ -659,7 +710,7 @@ def _build_geo_lines(
 
 def _build_threat_pts(flight: FlightData, game: Game) -> list[dict[str, Any]]:
     threats: list[dict[str, Any]] = []
-    for site in known_enemy_threat_sites(game, flight.friendly)[:MAX_THREAT_POINTS]:
+    for site in threat_sites_for(game, flight)[:MAX_THREAT_POINTS]:
         number = len(threats) + 1
         threats.append(
             {
@@ -693,6 +744,8 @@ def build_viper_cartridge(
     # defaults stand (the §74 Edit Flight DTC tab).
     if (
         options.route
+        or options.saved_points
+        or options.drawings
         or options.friendly_orbits
         or options.flot_and_zones
         or options.threat_rings

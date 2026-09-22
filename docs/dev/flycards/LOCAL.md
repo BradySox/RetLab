@@ -102,6 +102,20 @@ untick. Bring `Saved Games\DCS\Logs\MooseProfiler.txt` and `dcs.log`. **~10 min.
   top of the table is a code change; a small function-time share with stalls still
   logging is the turn's size. Either way the answer goes into the note's ledger.
 
+### 5 · A saved point is the same STPT in the jet as on the kneeboard — `B135`
+
+**Why this is a card.** A point has to be saved on purpose before a flight can show it.
+Headless tests pin the cartridge and the kneeboard numbers; only the jet shows whether
+sequence 2 works beside the route. Note:
+[`retlab-my-aircraft-notes.md`](../design/retlab-my-aircraft-notes.md).
+
+**Try:** a player Hornet or Viper with the DTC on. Map → crosshair button (top left) →
+click a spot → **Save as waypoint**. Generate, fly to the ramp. **~10 min.**
+
+- **Record:** the kneeboard's extra-points number N, what STPT N is in the jet, and
+  whether SEQ1 is still the whole route.
+- **Pass criterion:** STPT N is the saved point, named, at its position; SEQ1 unchanged.
+
 ## Done
 
 ### 2 · A target you destroyed stays destroyed next turn — `B63` — **CLOSED 2026-09-16**

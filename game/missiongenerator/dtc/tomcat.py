@@ -39,6 +39,12 @@ from dcs.weapons_data import Weapons
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.dtc.cartridge import DtcCartridge
+from game.missiongenerator.dtc.savedpoints import (
+    TOMCAT_SAVED_PLAN,
+    is_skipped,
+    kept_waypoints,
+    player_shapes,
+)
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     bearing_degrees,
@@ -46,7 +52,7 @@ from game.missiongenerator.dtc.common import (
     support_boxes,
     is_route_waypoint,
     is_target_waypoint,
-    known_enemy_threat_sites,
+    threat_sites_for,
     leg_altitude,
     leg_speed_kmh,
     own_orbit_track,
@@ -495,7 +501,7 @@ def _additional_points(
             centre_x, centre_y = track.center
             points.append(_reference(coords, track.callsign, centre_x, centre_y))
     if options.threat_rings:
-        for index, site in enumerate(known_enemy_threat_sites(game, flight.friendly)):
+        for index, site in enumerate(threat_sites_for(game, flight)):
             name = _threat_name(site.label)
             # One hostile area in the jet, and it sets the threat axis from
             # the bullseye (manual: first valid point in the order HA, DP,
@@ -587,7 +593,11 @@ def _build_nav(
     options = flight.dtc_options
     plans = [_empty_plan() for _ in range(MAX_PLANS)]
     off_route = (
-        [w for w in flight.waypoints if not is_route_waypoint(w)]
+        [
+            w
+            for w in flight.waypoints
+            if not is_route_waypoint(w) and not is_skipped(flight, w)
+        ]
         if options.route
         else []
     )
@@ -596,6 +606,7 @@ def _build_nav(
     plans[0]["lines"] = list(lines)
     plans[0]["additional_points"] = list(references)
     if not options.route:
+        _fit_plan(plans[0])
         return plans
 
     route = plans[1]
@@ -608,7 +619,7 @@ def _build_nav(
     previous: Optional[FlightWaypoint] = None
     surface_target_named = False
     priority = 0
-    for waypoint in flight.waypoints[1:]:
+    for waypoint in kept_waypoints(flight):
         if not is_route_waypoint(waypoint):
             continue
         if len(route["waypoints"]) == MAX_WAYPOINTS:
@@ -636,7 +647,83 @@ def _build_nav(
         route["waypoints"].append(entry)
         previous = waypoint
     _number_duplicates(route["waypoints"])
+    for plan in plans:
+        _fit_plan(plan)
     return plans
+
+
+def _line_cost(line: dict[str, Any]) -> int:
+    """A closed line spends one more point on its closing corner."""
+    return len(line["points"]) + (1 if line.get("closed") else 0)
+
+
+def _fit_plan(plan: dict[str, Any]) -> None:
+    """Hold a plan to the jet's limits (``F-14BU_DTC.lua``): three lines when the
+    route draws as one, four otherwise, and 50 points across waypoints, line
+    points and references. The route is never cut; the last references go
+    first (the smallest SAM rings), then the last lines (the tanker boxes)."""
+    plan["lines"] = plan["lines"][
+        : MAX_LINES - 1 if plan["route_as_line"] else MAX_LINES
+    ]
+
+    def total() -> int:
+        return (
+            len(plan["waypoints"])
+            + sum(_line_cost(line) for line in plan["lines"])
+            + len(plan["additional_points"])
+        )
+
+    while total() > MAX_PLAN_POINTS and plan["additional_points"]:
+        plan["additional_points"].pop()
+    while total() > MAX_PLAN_POINTS and plan["lines"]:
+        plan["lines"].pop()
+
+
+#: The jet's own point codes for the saved kinds that have one.
+_SAVED_CODES = {"ip": "XIP", "target": "XST"}
+SAVED_PLAN_NAME = "SAVED"
+
+
+#: Waypoints, line points and additional points share this per plan
+#: (``F-14BU_DTC.lua`` NAV limits).
+MAX_PLAN_POINTS = 50
+
+
+def _saved_plan(flight: FlightData, coords: _Coords) -> Optional[dict[str, Any]]:
+    """The player's saved points and drawings (§102) as plan 3."""
+    points = (
+        [p for p in flight.saved_points if p.kind.is_navigation]
+        if flight.dtc_options.saved_points
+        else []
+    )
+    shapes = player_shapes(flight, orbits_as_boxes=True)
+    if not points and not shapes:
+        return None
+    plan = _empty_plan()
+    plan["name"] = SAVED_PLAN_NAME
+    budget = MAX_PLAN_POINTS - len(points[:MAX_WAYPOINTS])
+    for _name, corners, closed in shapes:
+        if len(plan["lines"]) >= MAX_LINES:
+            break
+        cap = MAX_LINE_POINTS - 1 if closed else MAX_LINE_POINTS
+        kept = corners[:cap]
+        cost = len(kept) + (1 if closed else 0)
+        if len(kept) < 2 or cost > budget:
+            continue
+        plan["lines"].append(
+            {"points": [coords.of(x, y) for x, y in kept], "closed": closed}
+        )
+        budget -= cost
+    for point in points[:MAX_WAYPOINTS]:
+        base = sanitize_short_name(waypoint_display_name(point.name), WAYPOINT_NAME_LEN)
+        code = _SAVED_CODES.get(point.kind.value)
+        entry: dict[str, Any] = {"name": _suffixed(base, code) if code else base}
+        entry.update(coords.of(point.x, point.y, point.altitude_ft))
+        entry["spd"] = 0
+        entry["tot"] = ""
+        plan["waypoints"].append(entry)
+    _number_duplicates(plan["waypoints"])
+    return plan
 
 
 def _jdam_target(
@@ -814,6 +901,10 @@ def build_tomcat_cartridge(
         data["NAV"] = _build_nav(flight, mission_data, game, coords)
     else:
         data["NAV"] = [_empty_plan() for _ in range(MAX_PLANS)]
+    if options.saved_points or options.drawings:
+        saved = _saved_plan(flight, coords)
+        if saved is not None:
+            data["NAV"][TOMCAT_SAVED_PLAN - 1] = saved
     if options.jdam_targets:
         data["JDAM"] = _build_jdam(flight, game, coords)
     else:

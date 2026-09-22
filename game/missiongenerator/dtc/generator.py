@@ -93,8 +93,9 @@ class DtcGenerator:
         if cartridge is None:
             return
         self.mission.add_dtc_cartridge(cartridge.name, cartridge.to_json())
+        # Hand-load (§102) still binds the cartridge; the pilot selects it.
         for unit in clients:
-            unit.add_dtc_cartridge(cartridge.name)
+            unit.add_dtc_cartridge(cartridge.name, autoload=options.auto_load)
         self.cartridges.append(cartridge)
         used_names.add(cartridge.name)
 

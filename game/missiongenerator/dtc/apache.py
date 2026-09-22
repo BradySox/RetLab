@@ -27,11 +27,17 @@ import math
 from typing import TYPE_CHECKING, Any
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
+from game.missiongenerator.dtc.savedpoints import (
+    closed_ring,
+    cockpit_numbers,
+    kept_waypoints,
+    player_shapes,
+)
 from game.missiongenerator.dtc.common import (
     red_land_boundary,
     support_boxes,
     is_route_waypoint,
-    known_enemy_threat_sites,
+    threat_sites_for,
     leg_speed_kmh,
     seconds_of_day,
     steerpoint_altitude,
@@ -49,14 +55,17 @@ APACHE_UNIT_TYPE = "AH-64D_BLK_II"
 MAX_WAYPOINTS = 50
 #: TGT/THRT points 1-50.
 MAX_TARGET_POINTS = 50
-#: The TSD line partition ships 15 LINES; keep each to the sample's vertex
-#: style rather than guessing a per-line cap.
+#: The editor keeps a TSD line of 2-4 vertices and deletes any other
+#: (``NAV/Lines.lua:52,241``); an area has exactly 4 (``NAV/Areas.lua``).
 MAX_LINES = 15
-MAX_LINE_VERTICES = 8
-#: Of the 15, three are held back for the support boxes so a theater with many
-#: fronts cannot spend every line on the boundary.
+MAX_LINE_VERTICES = 4
+AREA_VERTICES = 4
+MAX_AREAS = 12
+#: The boundary is asked for runs this long, then split into 4-vertex lines.
+BOUNDARY_RUNS = 3
+BOUNDARY_RUN_POINTS = 10
+#: The tanker boxes are areas; they take at most this many of the 12.
 MAX_SUPPORT_BOXES = 3
-MAX_BOUNDARY_LINES = MAX_LINES - MAX_SUPPORT_BOXES
 
 #: Symbol ids from the ME-saved sample: 6 = waypoint, 1 = generic target.
 _WPTHZ_SYMBOL = 6
@@ -104,7 +113,7 @@ def _build_waypoints(flight: FlightData, game: Game) -> list[dict[str, Any]]:
     points: list[dict[str, Any]] = []
     # Match the kneeboard's numbering: row 0 (takeoff/spawn) is not emitted,
     # so W-number n is kneeboard waypoint n (the Hornet/Viper convention).
-    for waypoint in flight.waypoints[1:]:
+    for waypoint in kept_waypoints(flight):
         if len(points) >= MAX_WAYPOINTS:
             break
         points.append(
@@ -128,12 +137,14 @@ def _build_route(
 
     Only waypoints the jet actually flies join the sequence -- an off-route
     point (a briefed reference) stays a WPTHZ entry the crew can direct-to.
+    ``eta`` is the leg's own seconds, the first point's the start time
+    (``NAV/Routes.lua:540-549,857-874``), not a running total.
     """
     legs: list[dict[str, Any]] = []
     prev_wp = None
     prev_point: dict[str, Any] | None = None
     eta = 0.0
-    for waypoint, point in zip(flight.waypoints[1:], waypoints):
+    for waypoint, point in zip(kept_waypoints(flight), waypoints):
         if not is_route_waypoint(waypoint):
             continue
         speed_kts = leg_speed_kmh(prev_wp, waypoint) / 1.852
@@ -144,8 +155,7 @@ def _build_route(
             distance = math.hypot(
                 point["x"] - prev_point["x"], point["y"] - prev_point["y"]
             )
-            if speed_kts > 0:
-                eta += distance / (speed_kts * 0.514)
+            eta = distance / (speed_kts * 0.514) if speed_kts > 0 else 0.0
         legs.append(
             {
                 "num": point["num"],
@@ -161,9 +171,51 @@ def _build_route(
     return legs
 
 
+#: WPTHZ symbol per saved kind; a kind with no symbol of its own is a waypoint.
+_SAVED_SYMBOLS: dict[str, int] = {}
+
+
+def _saved_waypoints(flight: FlightData) -> list[dict[str, Any]]:
+    """The player's saved points (§102) as W-points after the route."""
+    points: list[dict[str, Any]] = []
+    numbers = cockpit_numbers(flight, flight.saved_points)
+    for number, point in zip(numbers, flight.saved_points):
+        if number is None:
+            continue
+        points.append(
+            _nav_point(
+                number,
+                "W",
+                _SAVED_SYMBOLS.get(point.kind.value, _WPTHZ_SYMBOL),
+                waypoint_display_name(point.name),
+                point.x,
+                point.y,
+                point.altitude_ft * 0.3048,
+            )
+        )
+    return points
+
+
+def _saved_route(points: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Route BRAVO over the saved points, so stepping through them is a switch."""
+    legs: list[dict[str, Any]] = []
+    for point in points:
+        legs.append(
+            {
+                "num": point["num"],
+                "alt": point["alt"],
+                "speed": 0.0,
+                "dist": 0.0,
+                "eta": 0.0,
+                "fix": False,
+            }
+        )
+    return legs
+
+
 def _build_targets(flight: FlightData, game: Game) -> list[dict[str, Any]]:
     points: list[dict[str, Any]] = []
-    for site in known_enemy_threat_sites(game, flight.friendly)[:MAX_TARGET_POINTS]:
+    for site in threat_sites_for(game, flight)[:MAX_TARGET_POINTS]:
         points.append(
             _nav_point(
                 len(points) + 1,
@@ -178,29 +230,74 @@ def _build_targets(flight: FlightData, game: Game) -> list[dict[str, Any]]:
     return points
 
 
+def _chunks(corners: list[tuple[float, float]]) -> list[list[tuple[float, float]]]:
+    """A long line as consecutive 4-vertex lines that share their joining corner."""
+    step = MAX_LINE_VERTICES - 1
+    return [
+        corners[start : start + MAX_LINE_VERTICES]
+        for start in range(0, max(len(corners) - 1, 1), step)
+        if len(corners[start : start + MAX_LINE_VERTICES]) >= 2
+    ]
+
+
+def _line(name: str, piece: list[tuple[float, float]]) -> dict[str, Any]:
+    return {
+        "note": name,
+        "text": "",
+        "type_num": _LINE_TYPE,
+        "vertices": [{"x": x, "y": y} for x, y in piece],
+    }
+
+
+def _area(name: str, corners: list[tuple[float, float]]) -> dict[str, Any]:
+    """The editor's own shape for a new area (``NAV/Areas.lua:498-501``)."""
+    return {
+        "note": name,
+        "vertices": [{"x": x, "y": y} for x, y in corners],
+        "caption_pos": [],
+        "center_pos": {"x": 0, "y": 0},
+    }
+
+
 def _build_lines(
     game: Game, mission_data: MissionData, flight: FlightData
-) -> list[dict[str, Any]]:
-    """The red-land boundary, then a box around each tanker this aircraft can use."""
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The red-land boundary as 4-vertex lines, and each usable tanker as an area."""
     options = flight.dtc_options
     lines: list[dict[str, Any]] = []
-    sets: list[tuple[str, list[tuple[float, float]]]] = []
+    areas: list[dict[str, Any]] = []
     if options.flot_and_zones:
-        sets.extend(red_land_boundary(game, MAX_BOUNDARY_LINES, MAX_LINE_VERTICES))
+        for name, points in red_land_boundary(game, BOUNDARY_RUNS, BOUNDARY_RUN_POINTS):
+            for piece in _chunks(points):
+                if len(lines) < MAX_LINES:
+                    lines.append(_line(name, piece))
     if options.friendly_orbits:
-        sets.extend(
-            support_boxes(
-                mission_data, min(MAX_SUPPORT_BOXES, MAX_LINES - len(sets)), flight
-            )
-        )
-    for name, points in sets:
-        vertices = [{"x": x, "y": y} for x, y in points[:MAX_LINE_VERTICES]]
-        if len(vertices) < 2:
+        for name, box in support_boxes(mission_data, MAX_SUPPORT_BOXES, flight):
+            corners = box[:-1] if len(box) > 1 and box[0] == box[-1] else box
+            if len(corners) == AREA_VERTICES:
+                areas.append(_area(name, corners))
+    return lines, areas
+
+
+def _player_drawings(
+    flight: FlightData, lines_used: int, areas_used: int
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The player's orbits and drawings (§102) as TSD lines and areas."""
+    lines: list[dict[str, Any]] = []
+    areas: list[dict[str, Any]] = []
+    for name, corners, closed in player_shapes(flight, orbits_as_boxes=True):
+        if (
+            closed
+            and len(corners) == AREA_VERTICES
+            and areas_used + len(areas) < MAX_AREAS
+        ):
+            areas.append(_area(name, corners))
             continue
-        lines.append(
-            {"note": name, "text": "", "type_num": _LINE_TYPE, "vertices": vertices}
-        )
-    return lines
+        pieces = _chunks(closed_ring(corners) if closed else corners)
+        if lines_used + len(lines) + len(pieces) > MAX_LINES:
+            continue
+        lines.extend(_line(name, piece) for piece in pieces)
+    return lines, areas
 
 
 def _empty_mission() -> dict[str, Any]:
@@ -232,10 +329,22 @@ def build_apache_cartridge(
         if legs:
             mission["Routes"][0]["isEnabled"] = True
             mission["Routes"][0]["POINTS"] = legs
+        if options.saved_points:
+            saved = _saved_waypoints(flight)
+            if saved:
+                waypoints.extend(saved)
+                mission["Routes"][1]["isEnabled"] = True
+                mission["Routes"][1]["POINTS"] = _saved_route(saved)
     if options.threat_rings:
         mission["Points"]["TGT"]["POINTS"] = _build_targets(flight, game)
+    support_areas: list[dict[str, Any]] = []
     if options.flot_and_zones or options.friendly_orbits:
-        mission["Lines"] = _build_lines(game, mission_data, flight)
+        mission["Lines"], support_areas = _build_lines(game, mission_data, flight)
+    player_lines, player_areas = _player_drawings(
+        flight, len(mission["Lines"]), len(support_areas)
+    )
+    mission["Lines"].extend(player_lines)
+    mission["Areas"] = support_areas + player_areas
 
     data: dict[str, Any] = {
         "type": APACHE_UNIT_TYPE,

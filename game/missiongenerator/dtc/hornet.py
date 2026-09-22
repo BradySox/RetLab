@@ -25,6 +25,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
+from game.ato.savedpoints import SavedPoint
+from game.missiongenerator.dtc.savedpoints import (
+    closed_ring,
+    cockpit_numbers,
+    kept_waypoints,
+    player_shapes,
+    saved_orbits,
+)
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     leg_altitude,
@@ -32,7 +40,7 @@ from game.missiongenerator.dtc.common import (
     support_boxes,
     is_route_waypoint,
     is_target_waypoint,
-    known_enemy_threat_sites,
+    threat_sites_for,
     leg_speed_kmh,
     own_orbit_track,
     seconds_of_day,
@@ -109,12 +117,13 @@ def _build_wypt(
     home_wypt = 1
     aa_wypt: Optional[int] = None
     route_order = 0
+    target_flagged = False
     prev_route_wp = None
     # The kneeboard numbers the flight plan from 0 (row 0 = takeoff/spawn).
     # Skip that row so the jet's STPT n IS the kneeboard's waypoint n — the
     # flown off-by-one had every briefed number shifted (target "wp 4" was
     # STPT 5 in the jet). The dropped point is where the jet spawns anyway.
-    waypoints = flight.waypoints[1 : MAX_WAYPOINTS + 1] if options.route else []
+    waypoints = kept_waypoints(flight)[:MAX_WAYPOINTS] if options.route else []
     for number, waypoint in enumerate(waypoints, start=1):
         on_route = is_route_waypoint(waypoint)
         route_alt_m, altitude_type = leg_altitude(waypoint, game)
@@ -146,14 +155,18 @@ def _build_wypt(
                 "speed": leg_speed_kmh(prev_route_wp, waypoint),
                 "ETA": seconds_of_day(game, waypoint.tot),
                 "FIX_Time": waypoint.tot is not None,
-                "TGT": is_target_waypoint(waypoint),
+                # One TGT per sequence (ROUTE_SEQ.lua:1286-1300): the first.
+                "TGT": is_target_waypoint(waypoint) and not target_flagged,
             }
+            target_flagged = target_flagged or is_target_waypoint(waypoint)
             prev_route_wp = waypoint
         nav_pts.append(entry)
         if "LANDING" in waypoint.waypoint_type.name:
             home_wypt = number
         elif waypoint.waypoint_type.name == "BULLSEYE":
             aa_wypt = number
+    if options.route and options.saved_points:
+        nav_pts.extend(_saved_wypt(flight))
     if options.nav_aids:
         nav_settings = _build_nav_settings(flight, carrier, home_wypt, aa_wypt)
     else:
@@ -165,6 +178,34 @@ def _build_wypt(
         "terrain": game.theater.terrain.name,
         "mirror_NAV_PTS": False,
     }
+
+
+def _saved_wypt(flight: FlightData) -> list[dict[str, Any]]:
+    """The player's saved points (§102), after the route, on sequence 2."""
+    entries: list[dict[str, Any]] = []
+    numbers = cockpit_numbers(flight, flight.saved_points)
+    for order, (number, point) in enumerate(zip(numbers, flight.saved_points), 1):
+        if number is None:
+            continue
+        alt_m = point.altitude_ft * 0.3048
+        entry: dict[str, Any] = {
+            "wypt_num": number,
+            "id": f"STPT{number}",
+            "text_note": waypoint_display_name(point.name),
+            "note": "",
+            "x": point.x,
+            "y": point.y,
+            "alt": min(max(alt_m, _WYPT_ALT_MIN_M), _WYPT_ALT_MAX_M),
+            "altitudeType": 1,
+            "velocityType": 3,
+            "R1": False,
+            "R2": True,
+            "R2_order": order,
+            "R3": False,
+        }
+        entry.update(_oa_defaults(number))
+        entries.append(entry)
+    return entries
 
 
 def _find_carrier(
@@ -253,6 +294,22 @@ def _cap_point(track: SupportTrack, number: int) -> dict[str, Any]:
     }
 
 
+def _saved_cap_point(point: SavedPoint, number: int) -> dict[str, Any]:
+    """A player orbit (§102): centred on its leg, flown along its heading."""
+    end_x, end_y = point.orbit_end()
+    return {
+        "id": f"CAP_PTS_{number}",
+        "num": number,
+        "x": (point.x + end_x) / 2,
+        "y": (point.y + end_y) / 2,
+        "course": point.heading_deg,
+        "length": point.length_nm * 1852.0,
+        "diameter": _CAP_ORBIT_DIAMETER_M,
+        "turn_direction": "Left",
+        "note": point.name,
+    }
+
+
 def _line_points(
     prefix: str, line_num: int, points: list[tuple[float, float]]
 ) -> list[dict[str, Any]]:
@@ -279,10 +336,18 @@ def _build_sa(
         ordered = ([own] if own is not None else []) + support_tracks(mission_data)
         for track in ordered[:MAX_CAP_POINTS]:
             caps.append(_cap_point(track, len(caps) + 1))
+    # The player's own orbits (§102) follow, on the same flip-through list.
+    for orbit in saved_orbits(flight):
+        if len(caps) >= MAX_CAP_POINTS:
+            break
+        caps.append(_saved_cap_point(orbit, len(caps) + 1))
 
     flot_lines: list[dict[str, Any]] = []
+    # The boundary gives up lines to the player's drawings, down to one.
+    drawn = player_shapes(flight, orbits_as_boxes=False)
+    boundary_lines = max(1, MAX_FLOT_LINES - len(drawn))
     if options.flot_and_zones:
-        for name, points in red_land_boundary(game, MAX_FLOT_LINES, MAX_LINE_POINTS):
+        for name, points in red_land_boundary(game, boundary_lines, MAX_LINE_POINTS):
             line_num = len(flot_lines) + 1
             flot_lines.append(
                 {
@@ -292,6 +357,20 @@ def _build_sa(
                     "points": _line_points("FLOT", line_num, points),
                 }
             )
+    # The player's drawings (§102) take the FLOT lines the boundary left.
+    for name, points, closed in drawn:
+        if len(flot_lines) >= MAX_FLOT_LINES:
+            break
+        line_num = len(flot_lines) + 1
+        corners = closed_ring(points) if closed else points
+        flot_lines.append(
+            {
+                "id": f"FLOT_{line_num}",
+                "num": line_num,
+                "note": name,
+                "points": _line_points("FLOT", line_num, corners),
+            }
+        )
 
     faor_lines: list[dict[str, Any]] = []
     if options.friendly_orbits:
@@ -308,7 +387,7 @@ def _build_sa(
 
     threats: list[dict[str, Any]] = []
     if options.threat_rings:
-        for site in known_enemy_threat_sites(game, flight.friendly)[:MAX_MEZ_THREATS]:
+        for site in threat_sites_for(game, flight)[:MAX_MEZ_THREATS]:
             number = len(threats) + 1
             threats.append(
                 {
@@ -383,7 +462,13 @@ def build_hornet_cartridge(
     if options.route or options.nav_aids:
         carrier = _find_carrier(flight, mission_data)
         data["WYPT"] = _build_wypt(flight, game, carrier)
-    if options.flot_and_zones or options.friendly_orbits or options.threat_rings:
+    if (
+        options.flot_and_zones
+        or options.friendly_orbits
+        or options.threat_rings
+        or saved_orbits(flight)
+        or player_shapes(flight, orbits_as_boxes=False)
+    ):
         data["SA"] = _build_sa(flight, mission_data, game)
     return DtcCartridge(
         name=name, unit_type=HORNET_UNIT_TYPE, terrain=terrain, data=data
