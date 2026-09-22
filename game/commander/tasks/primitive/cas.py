@@ -33,6 +33,11 @@ class PlanCas(PackagePlanningTask[FrontLine]):
         size = self.get_flight_size()
         self.propose_flight(FlightType.CAS, size)
         self.propose_flight(FlightType.TARCAP, 2, EscortType.AirToAir)
+        # A SEAD escort that rides with the CAS flight -- the job the Sidearm Harrier
+        # is for, which it cannot get through the sweep below. Ahead of the sweep so
+        # single_sead_escort_flavour keeps this one.
+        if self.target.coalition.game.settings.front_line_sead_escort:
+            self.propose_flight(FlightType.SEAD_ESCORT, 2, EscortType.Sead)
         # Without an escort_type this is fulfilled as a *primary* flight: never
         # threat-tested, never prunable, and a package scrub when no sweeper is
         # free -- which drained the wing's Growlers onto every CAS package.

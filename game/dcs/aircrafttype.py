@@ -340,6 +340,12 @@ class AircraftType(UnitType[Type[FlyingType]]):
     #: -- that counts CTLD infantry seats and is clamped for gameplay.
     airlift_capacity: Optional[int] = None
 
+    #: The SEAD escort weapon only reaches short-range air defence (the AV-8B's
+    #: Sidearm), so with ``front_line_sead_escort`` on it escorts front-line and
+    #: helicopter-led packages only. Test 37: four such escorts went deep, fired
+    #: nothing, and one pair died to the SA-11 it was meant to cover.
+    sead_escort_front_line_only: bool = False
+
     _by_name: ClassVar[dict[str, AircraftType]] = {}
     _by_unit_type: ClassVar[dict[type[FlyingType], list[AircraftType]]] = defaultdict(
         list
@@ -865,6 +871,9 @@ class AircraftType(UnitType[Type[FlyingType]]):
             ),
             datalink_introduced=cls._parse_datalink_introduced(data),
             airlift_capacity=cls._parse_airlift_capacity(data),
+            sead_escort_front_line_only=bool(
+                data.get("sead_escort_front_line_only", False)
+            ),
         )
 
     @staticmethod

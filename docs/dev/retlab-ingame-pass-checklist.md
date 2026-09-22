@@ -315,7 +315,7 @@ note has the numbers).
 
 ## Outstanding rows at a glance
 
-82 rows need a live pass. Full detail is under each `###` heading below —
+83 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -362,6 +362,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
+| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8183,3 +8184,21 @@ range, on New Game and on loading an older save.
   dead (the link exists but Skynet did not receive it — check the generated
   `skynet` config for the group); a named site gained a link it was not given (the config
   is no longer honoured exactly).
+
+### B134 — Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package · §69 · ☐ UNTESTED
+
+Built 2026-09-22 from test 37: four Sidearm Harriers flew SEAD escort on deep packages,
+fired nothing, and one pair died to an SA-11. See §69's front-line SEAD escort paragraph.
+
+- **Setup:** a campaign with an AV-8B squadron and radar SHORAD near the front (Long Road
+  to H3 has both). Turn on the RetLab planner suite (or `front_line_sead_escort`), pass a
+  turn, and read the ATO. ~5 min, no fly needed; fly one CAS package for the second half.
+- **Pass:** a front-line CAS package whose route is covered by a radar SAM carries a SEAD
+  Escort, and it is the Harrier squadron when one is free. No BAI, strike, OCA, DEAD or
+  Armed Recon package carries a Harrier SEAD escort. Flown: the Harriers stay with the CAS
+  flight and fire Sidearms at the front's radar SHORAD.
+- **Fail signatures:** a Harrier SEAD escort on a deep package (the eligibility rule is not
+  reached — check `sead_escort_front_line_only` on the AV-8B and the setting); CAS with no
+  SEAD escort under a radar SAM (the proposal or the threat trigger); a Hornet or Viper on
+  the CAS escort while a Harrier sat idle (the ranking term); Harriers that join and then
+  never fire (the Sidearm finds no emitter — record what radar was there).
