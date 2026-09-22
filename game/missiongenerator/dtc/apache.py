@@ -55,14 +55,17 @@ APACHE_UNIT_TYPE = "AH-64D_BLK_II"
 MAX_WAYPOINTS = 50
 #: TGT/THRT points 1-50.
 MAX_TARGET_POINTS = 50
-#: The TSD line partition ships 15 LINES; keep each to the sample's vertex
-#: style rather than guessing a per-line cap.
+#: The editor keeps a TSD line of 2-4 vertices and deletes any other
+#: (``NAV/Lines.lua:52,241``); an area has exactly 4 (``NAV/Areas.lua``).
 MAX_LINES = 15
-MAX_LINE_VERTICES = 8
-#: Of the 15, three are held back for the support boxes so a theater with many
-#: fronts cannot spend every line on the boundary.
+MAX_LINE_VERTICES = 4
+AREA_VERTICES = 4
+MAX_AREAS = 12
+#: The boundary is asked for runs this long, then split into 4-vertex lines.
+BOUNDARY_RUNS = 3
+BOUNDARY_RUN_POINTS = 10
+#: The tanker boxes are areas; they take at most this many of the 12.
 MAX_SUPPORT_BOXES = 3
-MAX_BOUNDARY_LINES = MAX_LINES - MAX_SUPPORT_BOXES
 
 #: Symbol ids from the ME-saved sample: 6 = waypoint, 1 = generic target.
 _WPTHZ_SYMBOL = 6
@@ -134,6 +137,8 @@ def _build_route(
 
     Only waypoints the jet actually flies join the sequence -- an off-route
     point (a briefed reference) stays a WPTHZ entry the crew can direct-to.
+    ``eta`` is the leg's own seconds, the first point's the start time
+    (``NAV/Routes.lua:540-549,857-874``), not a running total.
     """
     legs: list[dict[str, Any]] = []
     prev_wp = None
@@ -150,8 +155,7 @@ def _build_route(
             distance = math.hypot(
                 point["x"] - prev_point["x"], point["y"] - prev_point["y"]
             )
-            if speed_kts > 0:
-                eta += distance / (speed_kts * 0.514)
+            eta = distance / (speed_kts * 0.514) if speed_kts > 0 else 0.0
         legs.append(
             {
                 "num": point["num"],
@@ -226,78 +230,73 @@ def _build_targets(flight: FlightData, game: Game) -> list[dict[str, Any]]:
     return points
 
 
-def _build_lines(
-    game: Game, mission_data: MissionData, flight: FlightData
-) -> list[dict[str, Any]]:
-    """The red-land boundary, then a box around each tanker this aircraft can use."""
-    options = flight.dtc_options
-    lines: list[dict[str, Any]] = []
-    sets: list[tuple[str, list[tuple[float, float]]]] = []
-    if options.flot_and_zones:
-        sets.extend(red_land_boundary(game, MAX_BOUNDARY_LINES, MAX_LINE_VERTICES))
-    if options.friendly_orbits:
-        sets.extend(
-            support_boxes(
-                mission_data, min(MAX_SUPPORT_BOXES, MAX_LINES - len(sets)), flight
-            )
-        )
-    for name, points in sets:
-        vertices = [{"x": x, "y": y} for x, y in points[:MAX_LINE_VERTICES]]
-        if len(vertices) < 2:
-            continue
-        lines.append(
-            {"note": name, "text": "", "type_num": _LINE_TYPE, "vertices": vertices}
-        )
-    return lines
-
-
-#: The editor keeps a line of 2-4 vertices and an area of exactly 4
-#: (``NAV/Lines.lua``, ``NAV/Areas.lua``); it deletes anything else.
-PLAYER_LINE_VERTICES = 4
-AREA_VERTICES = 4
-MAX_AREAS = 12
-
-
 def _chunks(corners: list[tuple[float, float]]) -> list[list[tuple[float, float]]]:
     """A long line as consecutive 4-vertex lines that share their joining corner."""
-    step = PLAYER_LINE_VERTICES - 1
+    step = MAX_LINE_VERTICES - 1
     return [
-        corners[start : start + PLAYER_LINE_VERTICES]
+        corners[start : start + MAX_LINE_VERTICES]
         for start in range(0, max(len(corners) - 1, 1), step)
-        if len(corners[start : start + PLAYER_LINE_VERTICES]) >= 2
+        if len(corners[start : start + MAX_LINE_VERTICES]) >= 2
     ]
 
 
+def _line(name: str, piece: list[tuple[float, float]]) -> dict[str, Any]:
+    return {
+        "note": name,
+        "text": "",
+        "type_num": _LINE_TYPE,
+        "vertices": [{"x": x, "y": y} for x, y in piece],
+    }
+
+
+def _area(name: str, corners: list[tuple[float, float]]) -> dict[str, Any]:
+    """The editor's own shape for a new area (``NAV/Areas.lua:498-501``)."""
+    return {
+        "note": name,
+        "vertices": [{"x": x, "y": y} for x, y in corners],
+        "caption_pos": [],
+        "center_pos": {"x": 0, "y": 0},
+    }
+
+
+def _build_lines(
+    game: Game, mission_data: MissionData, flight: FlightData
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """The red-land boundary as 4-vertex lines, and each usable tanker as an area."""
+    options = flight.dtc_options
+    lines: list[dict[str, Any]] = []
+    areas: list[dict[str, Any]] = []
+    if options.flot_and_zones:
+        for name, points in red_land_boundary(game, BOUNDARY_RUNS, BOUNDARY_RUN_POINTS):
+            for piece in _chunks(points):
+                if len(lines) < MAX_LINES:
+                    lines.append(_line(name, piece))
+    if options.friendly_orbits:
+        for name, box in support_boxes(mission_data, MAX_SUPPORT_BOXES, flight):
+            corners = box[:-1] if len(box) > 1 and box[0] == box[-1] else box
+            if len(corners) == AREA_VERTICES:
+                areas.append(_area(name, corners))
+    return lines, areas
+
+
 def _player_drawings(
-    flight: FlightData, lines_used: int
+    flight: FlightData, lines_used: int, areas_used: int
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """The player's orbits and drawings (§102) as TSD lines and areas."""
     lines: list[dict[str, Any]] = []
     areas: list[dict[str, Any]] = []
     for name, corners, closed in player_shapes(flight, orbits_as_boxes=True):
-        if closed and len(corners) == AREA_VERTICES and len(areas) < MAX_AREAS:
-            # The editor's own shape for a new area (NAV/Areas.lua).
-            areas.append(
-                {
-                    "note": name,
-                    "vertices": [{"x": x, "y": y} for x, y in corners],
-                    "caption_pos": [],
-                    "center_pos": {"x": 0, "y": 0},
-                }
-            )
+        if (
+            closed
+            and len(corners) == AREA_VERTICES
+            and areas_used + len(areas) < MAX_AREAS
+        ):
+            areas.append(_area(name, corners))
             continue
         pieces = _chunks(closed_ring(corners) if closed else corners)
         if lines_used + len(lines) + len(pieces) > MAX_LINES:
             continue
-        for piece in pieces:
-            lines.append(
-                {
-                    "note": name,
-                    "text": "",
-                    "type_num": _LINE_TYPE,
-                    "vertices": [{"x": x, "y": y} for x, y in piece],
-                }
-            )
+        lines.extend(_line(name, piece) for piece in pieces)
     return lines, areas
 
 
@@ -338,11 +337,14 @@ def build_apache_cartridge(
                 mission["Routes"][1]["POINTS"] = _saved_route(saved)
     if options.threat_rings:
         mission["Points"]["TGT"]["POINTS"] = _build_targets(flight, game)
+    support_areas: list[dict[str, Any]] = []
     if options.flot_and_zones or options.friendly_orbits:
-        mission["Lines"] = _build_lines(game, mission_data, flight)
-    player_lines, player_areas = _player_drawings(flight, len(mission["Lines"]))
+        mission["Lines"], support_areas = _build_lines(game, mission_data, flight)
+    player_lines, player_areas = _player_drawings(
+        flight, len(mission["Lines"]), len(support_areas)
+    )
     mission["Lines"].extend(player_lines)
-    mission["Areas"] = player_areas
+    mission["Areas"] = support_areas + player_areas
 
     data: dict[str, Any] = {
         "type": APACHE_UNIT_TYPE,

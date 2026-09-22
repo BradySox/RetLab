@@ -2158,7 +2158,11 @@ def test_apache_cartridge_shape() -> None:
     assert [leg["num"] for leg in legs] == [1, 2, 3]
     assert legs[0]["dist"] == 0.0
     assert legs[1]["dist"] > 0
-    assert legs[1]["eta"] > legs[0]["eta"]
+    # Per leg, not a running total (NAV/Routes.lua): distance over speed.
+    for leg in legs[1:]:
+        assert leg["eta"] == pytest.approx(
+            leg["dist"] / (leg["speed"] * 0.514), rel=0.01
+        )
     assert all(
         set(leg) == {"num", "alt", "speed", "dist", "eta", "fix"} for leg in legs
     )
@@ -2558,14 +2562,15 @@ def test_a_long_boundary_cannot_starve_the_support_boxes(
     assert [line["closed"] for line in tomcat_lines] == [False, False, True, True]
 
     flight, mission_data, game = _apache_fixture()
-    apache_lines = json.loads(
+    mission = json.loads(
         build_apache_cartridge(flight, mission_data, game, "Both").to_json()
-    )["data"]["NAV"]["Mission_1"]["Lines"]
-    boxes = [
-        line for line in apache_lines if line["note"] in ("ARCO", "SHELL", "TEXACO")
-    ]
-    assert len(boxes) == 3
-    assert all(len(line["vertices"]) == SUPPORT_BOX_POINTS for line in boxes)
+    )["data"]["NAV"]["Mission_1"]
+    # The editor deletes a TSD line outside 2-4 vertices (NAV/Lines.lua), so the
+    # tankers are 4-corner areas and the boundary is split into short lines.
+    assert [area["note"] for area in mission["Areas"]] == ["ARCO", "SHELL", "TEXACO"]
+    assert all(len(area["vertices"]) == 4 for area in mission["Areas"])
+    assert mission["Lines"]
+    assert all(2 <= len(line["vertices"]) <= 4 for line in mission["Lines"])
 
 
 # ------------------------------------------------ §102 saved points, skips, rings
@@ -2729,8 +2734,8 @@ def test_apache_areas_are_four_corners_and_long_lines_are_split() -> None:
     mission = json.loads(
         build_apache_cartridge(flight, mission_data, game, "A").to_json()
     )["data"]["NAV"]["Mission_1"]
-    assert [a["note"] for a in mission["Areas"]] == ["HOLDBOX"]
-    assert len(mission["Areas"][0]["vertices"]) == 4
+    mine = [a for a in mission["Areas"] if a["note"] == "HOLDBOX"]
+    assert len(mine) == 1 and len(mine[0]["vertices"]) == 4
     msr = [line for line in mission["Lines"] if line["note"] == "MSR"]
     assert [len(line["vertices"]) for line in msr] == [4, 4]
     assert all(2 <= len(line["vertices"]) <= 4 for line in msr)
@@ -2744,4 +2749,63 @@ def test_drawings_off_leaves_them_out() -> None:
     mission = json.loads(
         build_apache_cartridge(flight, mission_data, game, "A").to_json()
     )["data"]["NAV"]["Mission_1"]
-    assert mission["Areas"] == []
+    assert "BOX" not in [a["note"] for a in mission["Areas"]]
+
+
+# ------------------------------------------- §74 schema fixes (2026-09-22, DM call)
+
+
+def test_hornet_flags_one_target_per_sequence() -> None:
+    """ROUTE_SEQ.lua refuses a second TGT in a sequence."""
+    flight, mission_data, game = _hornet_fixture()
+    second = _waypoint(
+        "TARGET 2",
+        FlightWaypointType.TARGET_POINT,
+        61000,
+        81000,
+        7620,
+        datetime(1988, 7, 15, 7, 31),
+        targets=[object()],
+    )
+    flight.waypoints = flight.waypoints[:2] + [second] + flight.waypoints[2:]
+    route = json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]["WYPT"]["NAV_ROUTE"][0]
+    assert "STPT2" in route  # the second target is on the sequence
+    flagged = [name for name, leg in route.items() if leg["TGT"]]
+    assert flagged == ["STPT1"]
+
+
+def test_tomcat_plans_stay_inside_the_jets_limits(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Three lines when the route draws as one, and 50 points a plan in all."""
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments",
+        lambda game: [
+            (f"Front {n}", [(float(n * 100000 + i * 2000), 0.0) for i in range(9)])
+            for n in range(4)
+        ],
+    )
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.support_tracks",
+        lambda data: [
+            _orbit_track(name, "TKR", 20000.0) for name in ("ARCO", "SHELL", "TEXACO")
+        ],
+    )
+    flight, mission_data, game = _tomcat_fixture()
+    nav = json.loads(
+        build_tomcat_cartridge(flight, mission_data, game, "Full").to_json()
+    )["data"]["NAV"]
+
+    def points(plan: dict[str, Any]) -> int:
+        lines = sum(len(l["points"]) + (1 if l["closed"] else 0) for l in plan["lines"])
+        return len(plan["waypoints"]) + lines + len(plan["additional_points"])
+
+    assert nav[1]["route_as_line"] is True
+    assert len(nav[1]["lines"]) <= 3
+    assert len(nav[0]["lines"]) <= 4
+    for plan in nav:
+        assert points(plan) <= 50
+    # The route is never what gives way.
+    assert len(nav[1]["waypoints"]) == 3

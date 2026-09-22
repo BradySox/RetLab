@@ -82,20 +82,24 @@ so the number on the kneeboard is the jet's:
   the route. Default every known site, as before.
 - **Saved points** and **Your drawings** are sections of their own.
 
-## 5a. §74 defects the schema research found — reported, not fixed
+## 5a. §74 defects the schema research found — fixed 2026-09-22 (DM call)
 
-Found while mapping §3 against the DCS install. **None is fixed here**; each needs a
-decision or a flight. (Reproduce before fixing.)
+Found while mapping §3 against the DCS install; all four fixed on the DM's call the same
+day. Each is pinned by a test in `tests/missiongenerator/test_dtc.py`. Not flown: B105
+carries the Apache check. The Tomcat change only trims what exceeded the jet's own limit,
+so B91 (verified) stands.
 
 1. **Apache lines over 4 vertices** are deleted by the editor (`Lines.lua:52,241,
-   1112-1127`); §74 writes up to 8 plus 5-point boxes. Player drawings already obey 2-4.
+   1112-1127`); §74 wrote up to 8 plus 5-point boxes. **Now:** the boundary is split
+   into 2-4 vertex lines, and each tanker box is a 4-corner TSD area (`Areas.lua`).
 2. **Apache route `eta` is per leg**, the first point carrying the start time
-   (`Routes.lua:540-549,857-874`); §74 writes a running total.
-3. **Hornet: one `TGT` per route sequence** (`ROUTE_SEQ.lua:1286-1300`); §74 marks every
-   target.
-4. **Tomcat plan 2 over its limits**: `route_as_line` allows 3 lines, and waypoints, line
-   points and references share 50 (`F-14BU_DTC.lua:164-168,2674-2707`); plan 2 can carry
-   the route, 4 lines and 20 references. Plan 3 obeys both.
+   (`Routes.lua:540-549,857-874`); §74 wrote a running total. **Now:** per leg.
+3. **Hornet: one `TGT` per route sequence** (`ROUTE_SEQ.lua:1286-1300`); §74 marked every
+   target. **Now:** only the first target on the sequence.
+4. **Tomcat plans over their limits**: `route_as_line` allows 3 lines, and waypoints,
+   line points and references share 50 (`F-14BU_DTC.lua:164-168,2674-2707`, a closed
+   line spending one more). **Now:** every plan is fitted: the route is never cut, the
+   last references go first (the smallest rings), then the last lines (tanker boxes).
 
 Also noted: Hornet `text_note` is capped at 5 characters by the editor
 (`WYPT_NAV.lua:1187`); we write up to 24, for the route and saved points alike.
@@ -140,5 +144,5 @@ generation (Hornet, Viper, Apache, A-10; no save had an F-14B(U)).
 ## 10. Deferred
 
 - A Tomcat F-14B(U) generation run (unit tests only so far).
-- The four §74 defects in §5a.
+- The Hornet `text_note` 5-character cap (§5a, noted only).
 - Times on/off per flight; the coordinate-format setting; zoom on Show on map.

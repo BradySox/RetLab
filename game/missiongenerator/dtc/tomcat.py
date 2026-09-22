@@ -606,6 +606,7 @@ def _build_nav(
     plans[0]["lines"] = list(lines)
     plans[0]["additional_points"] = list(references)
     if not options.route:
+        _fit_plan(plans[0])
         return plans
 
     route = plans[1]
@@ -646,7 +647,36 @@ def _build_nav(
         route["waypoints"].append(entry)
         previous = waypoint
     _number_duplicates(route["waypoints"])
+    for plan in plans:
+        _fit_plan(plan)
     return plans
+
+
+def _line_cost(line: dict[str, Any]) -> int:
+    """A closed line spends one more point on its closing corner."""
+    return len(line["points"]) + (1 if line.get("closed") else 0)
+
+
+def _fit_plan(plan: dict[str, Any]) -> None:
+    """Hold a plan to the jet's limits (``F-14BU_DTC.lua``): three lines when the
+    route draws as one, four otherwise, and 50 points across waypoints, line
+    points and references. The route is never cut; the last references go
+    first (the smallest SAM rings), then the last lines (the tanker boxes)."""
+    plan["lines"] = plan["lines"][
+        : MAX_LINES - 1 if plan["route_as_line"] else MAX_LINES
+    ]
+
+    def total() -> int:
+        return (
+            len(plan["waypoints"])
+            + sum(_line_cost(line) for line in plan["lines"])
+            + len(plan["additional_points"])
+        )
+
+    while total() > MAX_PLAN_POINTS and plan["additional_points"]:
+        plan["additional_points"].pop()
+    while total() > MAX_PLAN_POINTS and plan["lines"]:
+        plan["lines"].pop()
 
 
 #: The jet's own point codes for the saved kinds that have one.
@@ -671,19 +701,20 @@ def _saved_plan(flight: FlightData, coords: _Coords) -> Optional[dict[str, Any]]
         return None
     plan = _empty_plan()
     plan["name"] = SAVED_PLAN_NAME
-    budget = MAX_PLAN_POINTS
+    budget = MAX_PLAN_POINTS - len(points[:MAX_WAYPOINTS])
     for _name, corners, closed in shapes:
         if len(plan["lines"]) >= MAX_LINES:
             break
         cap = MAX_LINE_POINTS - 1 if closed else MAX_LINE_POINTS
         kept = corners[:cap]
-        if len(kept) < 2 or len(kept) > budget - len(points[:1]):
+        cost = len(kept) + (1 if closed else 0)
+        if len(kept) < 2 or cost > budget:
             continue
         plan["lines"].append(
             {"points": [coords.of(x, y) for x, y in kept], "closed": closed}
         )
-        budget -= len(kept)
-    for point in points[: min(MAX_WAYPOINTS, budget)]:
+        budget -= cost
+    for point in points[:MAX_WAYPOINTS]:
         base = sanitize_short_name(waypoint_display_name(point.name), WAYPOINT_NAME_LEN)
         code = _SAVED_CODES.get(point.kind.value)
         entry: dict[str, Any] = {"name": _suffixed(base, code) if code else base}

@@ -10729,10 +10729,16 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
   whole navigation set).
 - Skips are waypoint-type names, never indices.
 
-### Found, not fixed
+### §74 schema fixes (2026-09-22)
 
-Four §74 schema defects, cited in the design note §5a (Apache line vertices and ETA,
-Hornet one TGT per sequence, Tomcat plan 2 limits).
+Four defects the schema research found in the §74 builders, fixed on the DM's call; the
+design note §5a has each DCS file:line source:
+
+- Apache: TSD lines kept to 2-4 vertices (the editor deletes others); tanker boxes are
+  4-corner areas.
+- Apache: route `eta` per leg, not a running total.
+- Hornet: one `TGT` per route sequence.
+- Tomcat: every plan held to 3 lines (route as line) or 4, and 50 points in all.
 
 ### Tests
 
@@ -10749,5 +10755,5 @@ orbits and drawings on each jet's page.
 
 ### Deferred
 
-- A Tomcat generation run; the four §74 defects; times on/off; a coordinate-format
+- A Tomcat generation run; times on/off; a coordinate-format
   setting; zoom on Show on map.

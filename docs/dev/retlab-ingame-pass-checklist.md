@@ -7433,6 +7433,13 @@ check the campaign) reads UNKNOWN. In the air, a friendly type the FCR types out
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **no client Apache in any capture.** Unchanged.
 
+**2026-09-22, builder changed before any flight (§102, DM call).** The editor deletes a TSD
+line outside 2-4 vertices (`NAV/Lines.lua:52,241`), and the builder wrote up to 8. The
+front line is now 2-4 vertex pieces, the tanker boxes are 4-corner TSD **areas**, and
+route `eta` is per leg rather than a running total (`NAV/Routes.lua`). Read the front
+line as a run of short lines and the tanker as an area. The manual (Dec 2025, p195)
+lists TSD lines and areas as not implemented, so an empty TSD is a possible result.
+
 `apache.py` is the fourth §74 builder: WPTHZ waypoints W01.., the ALPHA route in
 the editor's own leg shape, fogged SAM sites as TGT points, the FLOT as TSD
 lines. Partitions the planner computes nothing for are omitted or ship as the

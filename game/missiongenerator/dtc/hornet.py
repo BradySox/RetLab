@@ -117,6 +117,7 @@ def _build_wypt(
     home_wypt = 1
     aa_wypt: Optional[int] = None
     route_order = 0
+    target_flagged = False
     prev_route_wp = None
     # The kneeboard numbers the flight plan from 0 (row 0 = takeoff/spawn).
     # Skip that row so the jet's STPT n IS the kneeboard's waypoint n — the
@@ -154,8 +155,10 @@ def _build_wypt(
                 "speed": leg_speed_kmh(prev_route_wp, waypoint),
                 "ETA": seconds_of_day(game, waypoint.tot),
                 "FIX_Time": waypoint.tot is not None,
-                "TGT": is_target_waypoint(waypoint),
+                # One TGT per sequence (ROUTE_SEQ.lua:1286-1300): the first.
+                "TGT": is_target_waypoint(waypoint) and not target_flagged,
             }
+            target_flagged = target_flagged or is_target_waypoint(waypoint)
             prev_route_wp = waypoint
         nav_pts.append(entry)
         if "LANDING" in waypoint.waypoint_type.name:
