@@ -166,3 +166,24 @@ Also seen: `0002 | OKAPI (SAM)`, an SA-11 site regenerated as four launchers aft
 search radar and command post on turn 1, is rejected by `setupElements` (no search radar) and
 fights as plain DCS AI, radiating from T0. Its eight launches killed three BARCAP Tomcats. Any
 radar SAM that loses its search radar comes back this way; it is outside the net and HARM-able.
+
+## The flag defaults from the miz (2026-09-21)
+
+`advanced_iads` only chooses the network mode. What range mode consumes is the command
+centre, comms tower and power station statics the author placed, and with none of them
+the flag changes nothing: every site is a node with no connections, which is basic mode
+by another name. Measured across the 54 campaigns without the flag (50 omit it, 4 write
+`false`): 51 place no buildings at all, and 3 placed them without the flag — Desert Sabre
+(12 comms towers, 12 power stations, and `advanced_iads: false` written over them), Allied
+Sword (a command centre, 2 power stations), Retake the Falklands (2 command centres, a
+comms tower). Their SAMs were never wired to the buildings standing beside them.
+
+- `Campaign.from_file` now sets the flag whenever the miz places any of the three statics
+  (`miz_carries_iads_infrastructure`, a text scan of the zip's mission entry, under a
+  second for the whole catalogue). An explicit `false` does not override the buildings —
+  Desert Sabre is the case that decided it — and the wizard's Advanced IADS box, which is
+  enabled for any campaign the flag is on for, is the per-game opt-out.
+- **Nothing is placed** (DM call 2026-09-21). A campaign with no buildings stays basic.
+  Synthesising infrastructure for the 51 was proposed and declined.
+- `tests/retlab/test_iads_promotion.py`. The in-game half is row B133's pass on one of
+  the three: a Desert Sabre SAM goes down with the power station beside it.

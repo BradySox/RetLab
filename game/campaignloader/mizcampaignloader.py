@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import itertools
 import logging
+import zipfile
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Iterator, List, TYPE_CHECKING, Tuple, Optional
@@ -1034,3 +1035,25 @@ class MizCampaignLoader:
         for z in zones:
             self.mission.triggers.zones().remove(z)
         self.theater.add_rebel_zones(zones)
+
+
+def miz_carries_iads_infrastructure(miz: Path) -> bool:
+    """Whether the miz places any command centre, comms tower or power station.
+
+    Read from the zip's mission text without a pydcs parse, because this runs
+    for every campaign the New Game wizard lists. A campaign that placed the
+    statics runs in range mode on the strength of this whatever ``advanced_iads``
+    says: three shipped campaigns had the buildings and not the flag, so their
+    SAMs were never wired to them (2026-09-21).
+    """
+    unit_ids = (
+        MizCampaignLoader.COMMAND_CENTER_UNIT_TYPE,
+        MizCampaignLoader.CONNECTION_NODE_UNIT_TYPE,
+        MizCampaignLoader.POWER_SOURCE_UNIT_TYPE,
+    )
+    try:
+        with zipfile.ZipFile(miz) as archive:
+            mission = archive.read("mission")
+    except (OSError, zipfile.BadZipFile, KeyError):
+        return False
+    return any(f'"{unit_id}"'.encode() in mission for unit_id in unit_ids)
