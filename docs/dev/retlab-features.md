@@ -9969,9 +9969,8 @@ page that reads it.
 | `shots`, `hits` | the record's counters |
 | `air_kills`, `ground_kills`, `naval_kills` | **new** — `S_EVENT_KILL`, see below |
 | `ejections` | the record's `ejected` flag |
-| `awards` | award keys, granted by `update_awards` after each fold |
 
-`game/retlab/career.py` owns the fold, the rank walk and the award grant.
+`game/retlab/career.py` owns the fold and the rank walk.
 `game/sim/missionresultsprocessor.py:commit_pilot_careers` calls it.
 `qt_ui/windows/PilotLogbookDialog.py` renders it, opened by a **Logbook** button on the
 squadron dialog.
@@ -10007,12 +10006,12 @@ record and splits it by the target's `getDesc().category`.
 - **The resolver is wrapped.** The fold runs inside mission-results commit; a lookup fault
   costs one record, never the turn's results.
 
-### Ranks and awards are data
+### Ranks are data
 
 `resources/pilot_career.yaml`. The fork ships campaigns spanning many air forces and seventy
 years, so a ladder hard-coded to one service would be wrong for most of them. Three ladders
-(commonwealth, soviet, and a fallback used by everything else) and nine awards; a squadron
-picks the first ladder naming its DCS country, else the fallback.
+(commonwealth, soviet, and a fallback used by everything else); a squadron picks the first
+ladder naming its DCS country, else the fallback.
 
 `requires:` is a "field must be at least this" map over the career record. A requirement
 naming an unknown field **rejects its entry** rather than dropping the requirement — a
@@ -10020,14 +10019,15 @@ dropped requirement would be met by everyone on their first sortie. The rank is 
 grade whose requirements are met, walked to the end of the ladder rather than stopping at the
 first miss, so a ladder mixing requirement fields cannot strand a pilot on a low rung.
 
-An award, once earned, is never taken back; a key with no matching entry is dropped when
-rendering, so a career from an older build still opens.
+### Awards — removed 2026-09-22
 
-### Consumer
+DM call. Nine awards lived in the same data file, granted after each fold and never taken
+back, and each one earned put an `Award: <pilot> — <names>` line on the SITREP for every
+BLUE pilot, AI included. `First Sortie` needed one sortie, so a turn-1 SITREP carried one
+award line per BLUE pilot who flew, below the losses it exists to report.
 
-The SITREP gains an award line for BLUE pilots (`Award: Capt Mitchell — Ace`). A career is
-otherwise only visible to someone who goes looking for it, and the one moment worth telling
-the player about is the one that just happened.
+The constraint to keep: **a per-pilot line on the SITREP scales with the roster.** Anything
+that adds one again must be capped or limited to human-flown seats.
 
 ### Save migration
 
@@ -10036,15 +10036,18 @@ build starts its careers at zero — the honest degrade, because the sortie reco
 would have been folded from are long gone. The logbook page says so rather than showing a
 wall of unexplained zeroes.
 
+It also drops the `awards` key a pre-2026-09-22 save carries. An old save's pickled `Sitrep`
+keeps its `award_lines` attribute; nothing reads it.
+
 ### Tests
 
-`tests/test_pilot_career.py` (18) · four kill cases added to
-`tests/lua/test_sortie_recorder_runtime.py`.
+`tests/test_pilot_career.py` (17) · the old-save award case in `tests/test_sitrep.py` ·
+four kill cases added to `tests/lua/test_sortie_recorder_runtime.py`.
 
 ### Deferred
 
 - **Red careers accumulate but have no surface.** The fold runs for both coalitions because
-  the bookkeeping is free; only BLUE's awards reach the SITREP.
+  the bookkeeping is free.
 - **No per-campaign rank ladders.** A campaign yaml cannot yet name a ladder, so an era-
   specific service ladder means editing the shipped data file.
 - **`missions_flown` still counts assignments.** Re-pointing the skill ladder at `sorties`
@@ -10118,8 +10121,8 @@ only a boolean. It now records the name, and a profile is keyed on it.
   A human flew it; losing the sortie to a failed lookup is worse than a vague label.
 - **Its own setting, separate from §96.** This one writes outside the save, and that is
   exactly the thing a player might want to decline while keeping campaign careers.
-- **No ranks and no awards.** A user call: the lifetime page is numbers. §96 owns the
-  ceremony, where a rank belongs to a service and a campaign.
+- **No ranks.** A user call: the lifetime page is numbers. A rank belongs to a service and a
+  campaign, so it stays with §96.
 - **Nothing here raises.** It runs inside mission-results commit and backs a window that
   opens with no game. A store that cannot be read or written is logged and skipped.
 

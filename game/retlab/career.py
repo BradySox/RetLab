@@ -1,4 +1,4 @@
-"""Pilot career logbook (§96) — ranks, awards and the career view.
+"""Pilot career logbook (§96) — ranks and the career view.
 
 Retribution already knew who a pilot was, whether they were alive, and how many
 times the ATO had put them in a seat. It never knew what any of them had *done*:
@@ -9,15 +9,15 @@ This module is the ledger between the two. It owns nothing about a mission —
 `fold_sortie_records` is called once when results are committed, and everything
 here is a pure read over the accumulated record.
 
-Ranks and awards are data (`resources/pilot_career.yaml`), not code, because the
-fork ships campaigns spanning many air forces and seventy years. A ladder
-hard-coded to one service would be wrong for most of them.
+Ranks are data (`resources/pilot_career.yaml`), not code, because the fork
+ships campaigns spanning many air forces and seventy years. A ladder hard-coded
+to one service would be wrong for most of them.
 
 Records, never rewards. Nothing here unlocks an aircraft, changes availability,
 or gates a mission. The career is a read-out of what happened.
 
 Nothing in this module raises. It backs a dialog and a per-turn fold, and a
-malformed data file must cost an empty award list, never a turn.
+malformed data file must cost the ranks, never a turn.
 """
 
 from __future__ import annotations
@@ -81,17 +81,8 @@ class RankLadder:
 
 
 @dataclass(frozen=True)
-class Award:
-    key: str
-    name: str
-    description: str
-    requires: Mapping[str, float]
-
-
-@dataclass(frozen=True)
 class CareerData:
     ladders: tuple[RankLadder, ...]
-    awards: tuple[Award, ...]
 
     def ladder_for(self, country: Optional[str]) -> Optional[RankLadder]:
         """The ladder a squadron of this country ranks against.
@@ -107,14 +98,8 @@ class CareerData:
                 return ladder
         return None
 
-    def award(self, key: str) -> Optional[Award]:
-        for award in self.awards:
-            if award.key == key:
-                return award
-        return None
 
-
-_EMPTY = CareerData(ladders=(), awards=())
+_EMPTY = CareerData(ladders=())
 
 #: Parsed once. The file ships with the build and cannot change under a running
 #: app, and the logbook dialog would otherwise re-read it per pilot.
@@ -171,22 +156,8 @@ def _ladder_from(raw: Any, index: int) -> Optional[RankLadder]:
     return RankLadder(key, tuple(str(c) for c in countries), tuple(grades))
 
 
-def _award_from(raw: Any) -> Optional[Award]:
-    if not isinstance(raw, dict):
-        return None
-    key = raw.get("key")
-    name = raw.get("name")
-    if not key or not name:
-        logging.warning("Pilot career: award with no key/name")
-        return None
-    requires = _requirements_from(raw.get("requires"), f"award {key}")
-    if requires is None:
-        return None
-    return Award(str(key), str(name), str(raw.get("description") or ""), requires)
-
-
 def load_career_data(path: Optional[Path] = None) -> CareerData:
-    """Ranks and awards from the data file.
+    """The rank ladders from the data file.
 
     Returns empty data — never raises — when the file is missing, unreadable or
     malformed. A single bad entry is skipped rather than discarding the file.
@@ -198,7 +169,7 @@ def load_career_data(path: Optional[Path] = None) -> CareerData:
     try:
         raw = yaml.safe_load(source.read_text(encoding="utf-8"))
     except FileNotFoundError:
-        logging.info("No %s; the pilot logbook has no ranks or awards", source)
+        logging.info("No %s; the pilot logbook has no ranks", source)
         raw = None
     except (OSError, yaml.YAMLError):
         logging.exception("Could not read %s", source)
@@ -211,12 +182,7 @@ def load_career_data(path: Optional[Path] = None) -> CareerData:
             for index, entry in enumerate(raw.get("ranks") or [])
             if (ladder := _ladder_from(entry, index)) is not None
         ]
-        awards = [
-            award
-            for entry in raw.get("awards") or []
-            if (award := _award_from(entry)) is not None
-        ]
-        data = CareerData(tuple(ladders), tuple(awards))
+        data = CareerData(tuple(ladders))
 
     if path is None:
         _cache = data
@@ -256,42 +222,6 @@ def rank_for(
     return held
 
 
-def awards_held(
-    record: "PilotRecord", data: Optional[CareerData] = None
-) -> list[Award]:
-    """The awards the record carries, in the order they were earned.
-
-    A key with no matching entry is dropped: an award may be renamed or removed
-    from the data file, and a career from an older build must still open.
-    """
-    career = data if data is not None else load_career_data()
-    held = []
-    for key in record.awards:
-        award = career.award(key)
-        if award is not None:
-            held.append(award)
-    return held
-
-
-def update_awards(
-    record: "PilotRecord", data: Optional[CareerData] = None
-) -> list[Award]:
-    """Grants every award the record now qualifies for. Returns the new ones.
-
-    Once granted, an award is never taken back — the key stays on the record even
-    if the data file later raises the bar.
-    """
-    career = data if data is not None else load_career_data()
-    earned = []
-    for award in career.awards:
-        if award.key in record.awards:
-            continue
-        if _meets(record, award.requires):
-            record.awards.append(award.key)
-            earned.append(award)
-    return earned
-
-
 def is_combat_sortie(flight_type: Any) -> bool:
     """Whether a task counts as a combat sortie.
 
@@ -309,11 +239,7 @@ def is_combat_sortie(flight_type: Any) -> bool:
         return False
 
 
-def fold_sortie_records(
-    records: Sequence["SortieRecord"],
-    pilot_for: Any,
-    data: Optional[CareerData] = None,
-) -> dict[str, list[Award]]:
+def fold_sortie_records(records: Sequence["SortieRecord"], pilot_for: Any) -> None:
     """Adds a mission's §91 records to the careers of the pilots who flew them.
 
     ``pilot_for`` maps a DCS unit name to ``(pilot, flight_type)``, returning
@@ -325,11 +251,7 @@ def fold_sortie_records(
     a parked airframe would add one for a jet that never moved (§91's
     ``MIN_SORTIE_DISTANCE_M``). Their weapons and kills are lost with them; a
     logbook that overcounts sorties is worse than one that misses a stray shot.
-
-    Returns the awards earned this mission, keyed by pilot name, for a caller
-    that wants to say so.
     """
-    earned: dict[str, list[Award]] = {}
     for record in records:
         if not record.flew:
             continue
@@ -355,10 +277,6 @@ def fold_sortie_records(
         career.naval_kills += record.naval_kills
         if record.ejected:
             career.ejections += 1
-        new_awards = update_awards(career, data)
-        if new_awards:
-            earned.setdefault(pilot.name, []).extend(new_awards)
-    return earned
 
 
 def career_lines(record: "PilotRecord") -> list[tuple[str, str]]:

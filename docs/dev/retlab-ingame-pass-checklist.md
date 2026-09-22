@@ -7742,6 +7742,8 @@ is lying and this row fails.
 
 ### B113 — A pilot's logbook fills in, and the kills are the ones they got · §96 · ◐ PARTIAL
 
+**2026-09-22 — awards removed** (DM call). Item 4 checked a rank and awards; it checks the rank alone now. The `first_sortie` and `first_blood` in the test-33 entry below no longer exist. Status unchanged.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Fixed the same day in the recorder (`player_left`); the next flown seat-vacate is the check. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the second-human fix is unflown since test 33.
@@ -7761,8 +7763,7 @@ destroy something on the ground, land, accept results, then reopen the same pilo
    samples every 30 s and only counts you from the first sample airborne.
 3. **The kills you actually got are in the right columns.** A MiG is an air kill, a SAM
    launcher is a ground kill, a patrol boat is a naval kill.
-4. **A rank and any earned awards render**, and the award also appeared on the SITREP band
-   of the next mission's kneeboard.
+4. **A rank renders** in the logbook heading, and the SITREP carries no `Award:` lines.
 5. **AI pilots in the same flight also have logbooks** with a sortie added.
 
 **Fail signatures, and what each means:**

@@ -147,6 +147,17 @@ def test_c2_status_renders_but_rides_along_with_real_news() -> None:
     assert quiet.is_empty
 
 
+def test_a_sitrep_saved_with_award_lines_does_not_show_them() -> None:
+    # Awards were removed 2026-09-22. A save from before then pickled its last
+    # SITREP with an award line per pilot who flew; unpickling restores the
+    # attribute straight into __dict__, so the band must simply never read it.
+    sitrep = Sitrep(
+        1, date(2004, 6, 1), SideLosses(1, 0, 0), SideLosses(0, 0, 0), [], [], 0
+    )
+    sitrep.__dict__["award_lines"] = ["Award: Anthony Cline — First Sortie, Ace"]
+    assert not any(line.startswith("Award:") for line in sitrep.kneeboard_lines())
+
+
 def test_loss_phrase_handles_none_and_site_plural() -> None:
     none_side = Sitrep(
         1, date(2000, 1, 1), SideLosses(0, 0, 0), SideLosses(0, 0, 2), [], [], 0

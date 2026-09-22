@@ -370,6 +370,16 @@ REMOVED: tuple[Removed, ...] = (
         r"deck_placement_delay|spawn a second behind",
         allow=("removed", "no longer", "historical"),
     ),
+    Removed(
+        # S96's awards. Ranks are live and share pilot_career.yaml, so neither a
+        # bare "rank" nor the file name belongs here. "Mud Mover" and "Ace" are
+        # ordinary aviation words and stay out too.
+        "pilot career awards (S96)",
+        "2026-09-22",
+        r"[Rr]anks? and awards|\bawards_held\b|\bupdate_awards\b|\baward_lines\b"
+        r"|First Sortie|Silk Letdown|Century Pin|Award: ",
+        allow=("removed", "no longer", "historical"),
+    ),
 )
 
 

@@ -80,12 +80,6 @@ class Sitrep:
     #: find out why. Empty when everything is supplied, so a healthy theatre
     #: stays quiet. Absent on pre-feature pickled sitreps.
     supply_lines: List[str] = field(default_factory=list)
-    #: §96: BLUE pilots who earned a career award this mission ("Award: Capt
-    #: Mitchell — Ace"). A career is otherwise only visible to someone who goes
-    #: looking for it in the squadron dialog, and the one moment worth telling
-    #: the player about is the one that just happened. Rides along with real
-    #: news. Absent on pre-feature pickled sitreps (read via getattr).
-    award_lines: List[str] = field(default_factory=list)
 
     @property
     def is_empty(self) -> bool:
@@ -120,7 +114,6 @@ class Sitrep:
         red_c2_status: Optional[str] = None,
         victory_lines: Optional[List[str]] = None,
         supply_lines: Optional[List[str]] = None,
-        award_lines: Optional[List[str]] = None,
     ) -> "Sitrep":
         blue = debriefing.loss_counts(Player.BLUE)
         red = debriefing.loss_counts(Player.RED)
@@ -155,7 +148,6 @@ class Sitrep:
                 getattr(debriefing.state_data, "sortie_records", ())
             ),
             supply_lines=list(supply_lines or []),
-            award_lines=list(award_lines or []),
         )
 
     def kneeboard_lines(self) -> List[str]:
@@ -190,9 +182,6 @@ class Sitrep:
         sortie_line = getattr(self, "sortie_line", None)
         if sortie_line:
             lines.append(sortie_line)
-        # §96: awards earned this mission (getattr for old pickled sitreps).
-        for award_line in getattr(self, "award_lines", None) or []:
-            lines.append(award_line)
         return lines
 
 

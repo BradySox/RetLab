@@ -1,6 +1,6 @@
 """The pilot logbook (§96) — one pilot's career, as a page.
 
-Reads only what `PilotRecord` already carries plus the rank/award data in
+Reads only what `PilotRecord` already carries plus the rank data in
 `resources/pilot_career.yaml`; it computes nothing and mutates nothing. Careers
 are folded in once per turn when mission results are committed, so a logbook
 opened mid-planning shows the same numbers as one opened after the debrief.
@@ -15,7 +15,7 @@ from typing import Optional
 
 from PySide6.QtWidgets import QDialog, QLabel, QTextBrowser, QVBoxLayout
 
-from game.retlab.career import awards_held, career_lines, rank_for
+from game.retlab.career import career_lines, rank_for
 from game.squadrons.pilot import Pilot, PilotStatus
 from game.squadrons.squadron import Squadron
 
@@ -70,19 +70,6 @@ def _render(pilot: Pilot, squadron: Squadron) -> str:
             f"<td>{html.escape(value)}</td></tr>"
         )
     parts.append("</table>")
-
-    awards = awards_held(record)
-    parts.append("<p><b>Awards</b></p>")
-    if awards:
-        parts.append("<ul>")
-        for award in awards:
-            entry = f"<li>{html.escape(award.name)}"
-            if award.description:
-                entry += f" — {html.escape(award.description)}"
-            parts.append(entry + "</li>")
-        parts.append("</ul>")
-    else:
-        parts.append("<p>None yet.</p>")
 
     if not record.sorties:
         # The empty case is the common one on turn 1 and after loading a save

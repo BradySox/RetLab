@@ -278,7 +278,7 @@ entries:
     title: Pilots keep a logbook
     change: >-
       Every pilot now carries a permanent career: sorties, combat sorties, hours
-      airborne, air/ground/naval kills, ejections, a rank and awards. Open it
+      airborne, air/ground/naval kills, ejections and a rank. Open it
       with the Logbook button in the squadron dialog. The numbers come from what
       the mission actually recorded, so a jet that never left the ramp logs
       nothing, and a kill is credited only when DCS names the killer and the two
