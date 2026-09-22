@@ -256,7 +256,7 @@ no evidence either way after 33 missions.
 
 ## Outstanding rows at a glance
 
-82 rows need a live pass. Full detail is under each `###` heading below —
+83 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -302,6 +302,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B130 | The Viper's STPT 25 is the bullseye the kneeboard names | §74 | ☐ |
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☐ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ☐ |
+| B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8060,3 +8061,26 @@ for a window, and a stall log for the whole flight.
   masking them — rerun with a longer delay); the `.txt` missing after a normal mission
   end.
 
+
+### B133 — A SAM the campaign never named goes dark with the power station beside it · Skynet return · ☐ UNTESTED
+
+A campaign with an `iads_config:` block only exported the sites the block named, so a
+SAM in an anonymous slot fought as a standalone DCS group: never in Skynet, never dark,
+never cued, and the power station beside it protected nothing (2026-09-21,
+[retlab-skynet-return-notes.md](design/retlab-skynet-return-notes.md), found in
+juanjux/dcs-escalation#336). Unnamed sites are now enrolled after the config and wired by
+range, on New Game and on loading an older save.
+
+- **Setup:** a config-mode campaign (Red Tide or Iron Gate) and a red SAM that sits in a
+  Ground-N slot rather than under a name in the yaml. Check the map's IADS layer first:
+  the site must now draw a link to a comms tower or power station within 35 nm.
+- **Pass:** the site behaves as a netted one — it is dark until the network cues it and
+  the map shows the link — and after the power station beside it is destroyed, the next
+  turn's mission has the site down (no emissions, no engagement) the way the named sites
+  behind that station are. Loading a save from before this change logs `IADS: wired …`
+  once and the link appears.
+- **Fail signatures:** the unnamed site still has no link on the map (it is not an
+  `IadsGroundObject`, or the campaign is basic-mode); it engages after its station is
+  dead (the link exists but Skynet did not receive it — check the generated
+  `skynet` config for the group); a named site gained a link it was not given (the config
+  is no longer honoured exactly).

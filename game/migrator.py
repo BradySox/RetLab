@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import typing
 from datetime import timedelta
+import logging
 from typing import TYPE_CHECKING, Any
 
 from dcs.countries import countries_by_name
@@ -65,6 +66,7 @@ class Migrator:
         try_set_attr(self.game.settings, "max_csar_flights", 2)
         try_set_attr(self.game.settings, "csar_hover_extraction", False)
         self._ensure_motorpool_tgos()
+        self._wire_iads_sites_that_arrived_late()
         self._reload_terrain()
         self._update_theater()
         self._update_campaign_name()
@@ -336,6 +338,16 @@ class Migrator:
                         GroupTask.MOTORPOOL,
                     )
                 )
+
+    def _wire_iads_sites_that_arrived_late(self) -> None:
+        # The network is built once, at New Game; a site its config never named
+        # was outside it for the rest of the campaign until 2026-09-21.
+        network = self.game.theater.iads_network
+        enrolled = network.enrol_sites_that_arrived_late(
+            self.game.theater.ground_objects
+        )
+        if enrolled:
+            logging.info("IADS: wired %s", ", ".join(sorted(enrolled)))
 
     def _reload_terrain(self) -> None:
         t = self.game.theater.terrain
