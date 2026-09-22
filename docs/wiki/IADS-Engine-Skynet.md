@@ -76,7 +76,7 @@ The plugin's options are upstream's, under **Plugins → Skynet IADS**.
 | Enable Mobile SAMs SHORAD | off | SA-8/9/13/15/19 shoot-and-scoot, with emission time and scoot distances |
 | Enable Mobile SAMs MERAD | off | The same for SA-6/11/17 |
 | Adjust default SAMs GoLiveRange | off | Per-type go-live range for the SA-5/10/17/20/23 |
-| `advanced_iads` (campaign) | per campaign | Enables the comms/power/command-center graph |
+| `advanced_iads` (campaign) | per campaign | Enables the comms/power/command-center graph. Also on whenever the miz places any of the three statics; the wizard box opts out per game |
 
 ## See also
 

@@ -21,7 +21,7 @@ from game.version import CAMPAIGN_FORMAT_VERSION
 from .campaignairwingconfig import CampaignAirWingConfig
 from .campaigncarrierconfig import CampaignCarrierConfig
 from .campaigngroundconfig import TgoConfig
-from .mizcampaignloader import MizCampaignLoader
+from .mizcampaignloader import MizCampaignLoader, miz_carries_iads_infrastructure
 from ..factions import FACTIONS, Faction
 
 PERF_FRIENDLY = 0
@@ -107,6 +107,16 @@ class Campaign:
             faction_name = cls.register_faction(campaign_file.name, enemy_faction)
             enemy_faction = faction_name if faction_name else "Russia 1990"
 
+        # The flag only picks the network mode; what range mode consumes is the
+        # buildings. A campaign that placed them gets the mode whatever the yaml
+        # says (Desert Sabre wrote `false` over 12 power stations); the wizard's
+        # Advanced IADS box is the per-game opt-out.
+        miz_name = data.get("miz")
+        advanced_iads = bool(data.get("advanced_iads", False)) or (
+            bool(miz_name)
+            and miz_carries_iads_infrastructure(path.parent / str(miz_name))
+        )
+
         return cls(
             data["name"],
             TheaterLoader(data["theater"].lower()).menu_thumbnail_dcs_relative_path,
@@ -125,7 +135,7 @@ class Campaign:
             data.get("performance", 0),
             data,
             path,
-            data.get("advanced_iads", False),
+            advanced_iads,
             data.get("settings", {}),
             data.get("era"),
         )

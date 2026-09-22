@@ -92,7 +92,10 @@ version: "10.8"
 - `theater` names the DCS terrain (e.g. `GermanyCW`, `Caucasus`, `Syria`).
 - `recommended_*_faction` must match faction names exactly (see [Custom Factions](Custom-Factions)).
 - `recommended_start_date` gates date-restricted units and weapons.
-- `advanced_iads: true` turns on networked air defense (see below).
+- `advanced_iads: true` turns on networked air defense (see below). A campaign that places
+  any command centre, comms tower or power station static runs in range mode whether or not
+  the key says so; the New Game wizard's Advanced IADS box is the per-game opt-out. A
+  campaign with no buildings stays basic.
 - `recommended_*_money` / `*_income_multiplier` set the starting and per-turn economy per
   side — the lever for making one side the aggressor.
 - `control_point_strengths:` (optional) overrides a base's starting strength (`0..1`). The
