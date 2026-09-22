@@ -362,7 +362,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
-| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ☐ |
+| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ◐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8185,7 +8185,9 @@ range, on New Game and on loading an older save.
   `skynet` config for the group); a named site gained a link it was not given (the config
   is no longer honoured exactly).
 
-### B134 — Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package · §69 · ☐ UNTESTED
+### B134 — Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package · §69 · ◐ PARTIAL (2026-09-22, test 38 ATO read; was ☐ UNTESTED)
+
+**2026-09-22, test 38 ATO read** (Long Road to H3 turn 2, `brady.retribution` saved 18:40, main `983ba7a52`, RetLab planner suite on) — **the deep half passes; the front half was not reached, correctly.** DM's read: looks good. From the save: all seven deep SEAD Escorts are Vipers (480th FS) or Hornets (VFA-192, VFA-37) — MOCKINGBIRD and CICADA BAI, the Kharab Ishk Armed Recon, IBIS and FANGTOOTH strikes, SPARROW and QUAGGA DEAD — and no Harrier flies anywhere; VMA-231 sits on LHA-1 with 8 of 8 untasked. The one CAS package (2 Apaches, Gaziantep/Kharab Ishk) proposes the SEAD Escort, but the planner's need check reads only the escorted leg, FLOT START → FLOT END, and no radar SAM covers it: the nearest radar-SAM zone is 10.3 km off and no red radar-SAM site is within 30 km of the front. Re-planned headlessly three times with the same result. VMA-231 is eligible for that package (196 NM, inside the 250 NM mission range). The front half needs a turn with a radar SAM over the FLOT.
 
 Built 2026-09-22 from test 37: four Sidearm Harriers flew SEAD escort on deep packages,
 fired nothing, and one pair died to an SA-11. See §69's front-line SEAD escort paragraph.

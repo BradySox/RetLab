@@ -115,9 +115,11 @@ Planner behaviour bar → **RetLab suite**, pass a turn, read the ATO before fly
 **~5 min**, plus any CAS package you fly anyway.
 
 - **Record:** which squadron took each SEAD Escort, and the package it rides with.
-- **Pass criterion:** a front-line CAS package under a radar SAM carries a SEAD
-  Escort, the Harriers when free; no BAI, strike, OCA, DEAD or Armed Recon package
-  carries a Harrier SEAD escort.
+- **Pass criterion:** a front-line CAS package whose FLOT leg (FLOT START → FLOT
+  END) sits inside a radar-SAM ring carries a SEAD Escort, the Harriers when free;
+  no BAI, strike, OCA, DEAD or Armed Recon package carries a Harrier SEAD escort.
+  The deep half passed on test 38's ATO; the front half needs a turn where a radar
+  SAM reaches the front — test 38's nearest ring was 10 km short of it.
 
 ## Done
 
