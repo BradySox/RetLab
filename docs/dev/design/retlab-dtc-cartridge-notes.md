@@ -220,8 +220,18 @@ from 2026-07-19 to 2026-09-13 (`git show 78085dfd7:game/missiongenerator/dtc/car
 B28-verified content only, and **only what the miz cannot already deliver** (DM
 rule 2026-09-13): the Hornet COMM presets and an airfield-elevation table were
 built and then cut on that rule, so upstream steerpoints read 0 — stated in the
-PR as the known gap. The Tomcat, the ROE table, the tanker/AWACS boxes, the
-chained boundary and CMDS wait on B91/B104/B115. It uses pydcs #39's seams (pin
+PR as the known gap. **Synced 2026-09-22 (DM: "add it to the upstream PR along
+with anything else we are missing"), head `b085da04`:** the Viper's anchors stop
+at STPT 24 so 25 stays the bullseye, the Hornet flags one TGT per sequence, the
+fronts chain into one continuous boundary (the B115 gate lifted by that call;
+upstream's fronts are straight, so the carve chains straight bars), and the tanker
+boxes ride Hornet FAOR and Viper GEO L2-L4. **Upstream's boxes are the nearest
+tankers of any type** (DM call, same day): upstream has no boom/probe model (the
+fork's is the held #243 answer, inventory item 28), so a Hornet's one visible box
+can be a boom tanker, the 2026-09-13 defect; the PR states it. **Not carried:**
+§102 saved points, ported from juanjux's fork; he said on #966 the same day that
+he carries them, and the reply there points him at the free route sequence 2. The
+Tomcat, the ROE table and CMDS still wait on B91/B104. It uses pydcs #39's seams (pin
 at the PR-branch SHA, which pip resolves through GitHub's PR refs). Work in the
 isolated worktree `..\retribution-pr-dtc`, which has its own venv on the #39 pin.
 
