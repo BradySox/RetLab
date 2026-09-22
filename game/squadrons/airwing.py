@@ -5,17 +5,17 @@ from collections import defaultdict
 from typing import Iterator, Optional, Sequence, TYPE_CHECKING, Any
 
 from game.ato.closestairfields import ObjectiveDistanceCache
+from game.ato.flighttype import FlightType
 from game.dcs.aircrafttype import AircraftType, AirRefuelType
 from .squadrondefloader import SquadronDefLoader
 from ..campaignloader.squadrondefgenerator import SquadronDefGenerator
 from ..factions.faction import Faction
-from ..theater import ControlPoint, MissionTarget
+from ..theater import ControlPoint, FrontLine, MissionTarget
 from ..utils import Distance
 
 if TYPE_CHECKING:
     from game.game import Game
     from game.theater.player import Player
-    from ..ato.flighttype import FlightType
     from .squadron import Squadron
 
 
@@ -111,6 +111,13 @@ class AirWing:
                 )
             )
 
+        # A front-line-only SEAD escort (the Sidearm Harrier) goes first at the
+        # front, which also keeps the HARM shooters free for the deep packages.
+        front_line_escort = (
+            task is FlightType.SEAD_ESCORT
+            and self.settings.front_line_sead_escort
+            and isinstance(location, FrontLine)
+        )
         return sorted(
             ordered,
             key=lambda s: (
@@ -120,7 +127,12 @@ class AirWing:
                 int(s.primary_task != task)
                 + Distance.from_meters(s.location.distance_to(location)).nautical_miles
                 / self.settings.primary_task_distance_factor
-                + best_aircraft.index(s.aircraft) / len(best_aircraft),
+                + best_aircraft.index(s.aircraft) / len(best_aircraft)
+                - (
+                    2
+                    if front_line_escort and s.aircraft.sead_escort_front_line_only
+                    else 0
+                ),
             ),
         )
 

@@ -6,9 +6,11 @@
 --   * MOOSE's PROFILER (debug.sethook on every call) says WHICH Lua function ate the time. It
 --     needs os/io/lfs, which Retribution's MissionScripting.lua leaves open. It slows the
 --     mission, so it runs for a window, not the whole flight.
---   * The stall log says WHEN the sim thread stopped, whatever stopped it. Two consecutive
---     model-time ticks a wall-clock gap apart longer than the threshold is a stall; DCS logs no
---     frame time, and ANTIFREEZE only fires past the quantizer's own limit. Runs all mission.
+--   * The stall log says WHEN the sim thread stopped, whatever stopped it: a wall-clock gap
+--     between probe runs longer than the tick plus the threshold. Measured on wall time alone,
+--     because DCS catches model time up after a short freeze -- a model-lag measure (the first
+--     version, test 37) never sees those. Each line carries the model advance too, so a
+--     caught-up hitch (model ~ wall) reads apart from a lag (model << wall). Runs all mission.
 -- If the profiler's function total is a small share of the window while the stall log is full,
 -- the stall is native DCS (pathfinding, radio storage, model loads), not Lua.
 ---------------------------------------------------------------------------------------------------
@@ -40,13 +42,14 @@ if haveClock then
 
     local function probe(_, now)
         local wall = os.clock()
-        local gap = (wall - lastWall) - (now - lastModel)
+        local gap = (wall - lastWall) - TICK_S
         if gap > HITCH_S then
             stalls = stalls + 1
             if gap > worst then
                 worst = gap
             end
-            log(string.format("stall %4.0f ms at t=%.1f  heap=%.0f KB", gap * 1000, now, heapKB()))
+            log(string.format("stall %4.0f ms at t=%.2f  model +%.2f s  heap=%.0f KB",
+                gap * 1000, now, now - lastModel, heapKB()))
         end
         if now >= nextBeat then
             nextBeat = now + HEARTBEAT_S

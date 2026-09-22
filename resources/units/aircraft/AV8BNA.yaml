@@ -69,6 +69,7 @@ tasks:
   SEAD: 70
   SEAD Escort: 70
   Strike: 590
+sead_escort_front_line_only: true
 
 # Air-to-air refueling method (receiver).
 air_refuel_type: probe

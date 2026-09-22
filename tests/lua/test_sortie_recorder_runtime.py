@@ -692,6 +692,76 @@ def test_a_slot_a_human_takes_late_is_still_named() -> None:
     assert record["player_name"] == "Viper"
 
 
+def _vacate(harness: DcsPluginHarness, unit_name: str) -> None:
+    """The human leaves the seat: no getPlayerName, and off coalition.getPlayers."""
+    harness.lua.execute(f'Unit.getByName("{unit_name}").playerName = nil')
+
+
+def test_a_vacated_seat_freezes_the_record() -> None:
+    """Test 37 (2026-09-21): the DM went to spectator at t=2601 and the jet flew
+    on under AI to dry tanks at t=3900. The record kept sampling it -- once marked
+    player, always human -- so the logbook credited 65 min for 43 flown, plus
+    whatever the AI did with the jet."""
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(
+        _flight(
+            "Enfield 1-1",
+            2,
+            [_unit("Enfield 1-1-1", playerName="Flash"), _unit("Enfield 1-1-2")],
+        )
+    )
+    for step in range(2):
+        harness.advance_to(step * 30.0)
+        harness.update_unit("Enfield 1-1", {"x": step * 4000.0})
+        _sample(harness)
+
+    _vacate(harness, "Enfield 1-1-1")
+    for step in range(2, 4):
+        harness.advance_to(step * 30.0)
+        harness.update_unit("Enfield 1-1", {"x": step * 4000.0})
+        _sample(harness)
+    harness.lua.eval("sortie_recorder_on_shot")(
+        harness.lua.eval('Unit.getByName("Enfield 1-1-1")'), _weapon(harness, "AIM-9")
+    )
+    harness.assert_no_lua_errors()
+
+    record = _records(harness)["Enfield 1-1-1"]
+    assert len(record["track"]) == 2
+    assert record["last_seen"] == 30.0
+    assert record["player_left"] == 60.0
+    assert record["player"] is True and record["player_name"] == "Flash"
+    # The AI's shot after the seat emptied is not the pilot's.
+    assert record["shots"] == 0
+    # The empty seat is not recycled as the group's AI anchor; the wingman is.
+    assert "Enfield 1-1-2" in _records(harness)
+
+
+def test_a_reconnect_into_the_same_seat_resumes_the_record() -> None:
+    # A multiplayer client dropping and rejoining the slot must not lose the rest
+    # of the sortie to the freeze; the gap simply shows in the track.
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(
+        _flight("Enfield 1-1", 2, [_unit("Enfield 1-1-1", playerName="Flash")])
+    )
+    harness.advance_to(0.0)
+    _sample(harness)
+    _vacate(harness, "Enfield 1-1-1")
+    harness.advance_to(30.0)
+    harness.update_unit("Enfield 1-1", {"x": 4000.0})
+    _sample(harness)
+    harness.lua.execute('Unit.getByName("Enfield 1-1-1").playerName = "Flash"')
+    harness.advance_to(60.0)
+    harness.update_unit("Enfield 1-1", {"x": 8000.0})
+    _sample(harness)
+
+    record = _records(harness)["Enfield 1-1-1"]
+    assert record["last_seen"] == 60.0
+    assert [s["x"] for s in record["track"]] == [0.0, 8000.0]
+    assert "player_left" not in record
+
+
 def test_the_player_name_survives_the_counters_only_write() -> None:
     harness = DcsPluginHarness()
     _load(harness)

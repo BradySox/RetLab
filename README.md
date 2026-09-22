@@ -151,6 +151,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   date and time. Falls back to generated weather if the observation cannot be fetched.
 - Strike packages headed into a defended area are timed just behind the SEAD servicing that
   SAM. Fly the SEAD yourself and the AI push forms behind you.
+- Front-line CAS gets a SEAD escort, and the Sidearm-armed Harrier flies it. Harriers no
+  longer escort deep packages their missiles cannot protect. Part of the RetLab planner suite.
 - Also: overlapping jittered BARCAP waves, weighted off-mission combat resolution, per-side
   planner unpredictability.
 
