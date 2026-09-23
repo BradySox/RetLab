@@ -163,6 +163,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   SAM. Fly the SEAD yourself and the AI push forms behind you.
 - Front-line CAS gets a SEAD escort, and the Sidearm-armed Harrier flies it. Harriers no
   longer escort deep packages their missiles cannot protect. Part of the RetLab planner suite.
+- Packages route around SAM rings they do not need to enter on the way from the join to the
+  target and back to the split, instead of flying straight through. Part of the RetLab planner
+  suite.
 - Also: overlapping jittered BARCAP waves, weighted off-mission combat resolution, per-side
   planner unpredictability.
 

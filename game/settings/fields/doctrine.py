@@ -396,6 +396,22 @@ class DoctrineSettings:
             "reach the SAMs; deep packages keep the HARM shooters."
         ),
     )
+    route_around_sams: bool = boolean_option(
+        "Packages route around SAMs they don't need to enter",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        # Stock default: upstream flies JOIN->INGRESS and TARGET->SPLIT straight.
+        # RetLab planner suite turns this on.
+        default=False,
+        detail=(
+            "The legs from the join point to the ingress point and from the target "
+            "to the split point are straight lines, and can cut through a SAM ring "
+            "that has nothing to do with the target. With this on, those legs get "
+            "nav points that take the package around the edge of any such ring. "
+            "Rings covering the target are still flown through. Helicopters are "
+            "unaffected."
+        ),
+    )
     sead_strike_coordination: bool = boolean_option(
         "Strikes push behind their SEAD window",
         page=CAMPAIGN_DOCTRINE_PAGE,

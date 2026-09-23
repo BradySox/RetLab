@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from abc import ABC
 from collections.abc import Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Any
 from datetime import datetime, timedelta
 from typing import Optional
 from typing import TYPE_CHECKING, TypeVar
@@ -10,9 +11,10 @@ from typing import TYPE_CHECKING, TypeVar
 from dcs import Point
 
 from game.flightplan import HoldZoneGeometry
+from game.flightplan.samdetour import package_detour
 from game.theater import MissionTarget, TheaterGroundObject
 from game.theater.theatergroup import SceneryUnit, TheaterUnit
-from game.utils import nautical_miles, Speed, feet
+from game.utils import Distance, nautical_miles, Speed, feet
 from .flightplan import FlightPlan
 from .formation import FormationFlightPlan, FormationLayout
 from .ibuilder import IBuilder
@@ -33,21 +35,30 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
         # Ingress is here so the join->ingress leg is paced to the package. It was
         # the one transit leg every flight priced on its own, which let the light
         # escorts run ahead of the strikers they were escorting.
-        return {
-            self.layout.ingress,
-            self.layout.join,
-            self.layout.split,
-        } | set(self.layout.targets)
+        return (
+            {
+                self.layout.ingress,
+                self.layout.join,
+                self.layout.split,
+            }
+            | set(self.layout.targets)
+            | set(self.layout.ingress_nav)
+            | set(self.layout.egress_nav)
+        )
 
     @property
     def combat_speed_waypoints(self) -> set[FlightWaypoint]:
         # Deliberately NOT package_speed_waypoints: ingress is paced with the
         # package but is not a combat leg, and this set drives fuel burn. Including
         # it would charge combat consumption from the join on every strike package.
-        return {
-            self.layout.join,
-            self.layout.split,
-        } | set(self.layout.targets)
+        return (
+            {
+                self.layout.join,
+                self.layout.split,
+            }
+            | set(self.layout.targets)
+            | set(self.layout.egress_nav)
+        )
 
     def speed_between_waypoints(self, a: FlightWaypoint, b: FlightWaypoint) -> Speed:
         # FlightWaypoint is only comparable by identity, so adding
@@ -102,10 +113,16 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
             )
         return total
 
+    def _time_along(self, legs: list[FlightWaypoint]) -> timedelta:
+        return sum(
+            (self.total_time_between_waypoints(a, b) for a, b in zip(legs, legs[1:])),
+            timedelta(),
+        )
+
     @property
     def join_time(self) -> datetime:
-        travel_time = self.total_time_between_waypoints(
-            self.layout.join, self.layout.ingress
+        travel_time = self._time_along(
+            [self.layout.join, *self.layout.ingress_nav, self.layout.ingress]
         )
         return self.ingress_time - travel_time
 
@@ -132,8 +149,8 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
             self.layout.ingress, self.target_area_waypoint
         )
         # Carries time_at_target: see total_time_between_waypoints.
-        travel_time_egress = self.total_time_between_waypoints(
-            self.target_area_waypoint, self.layout.split
+        travel_time_egress = self._time_along(
+            [self.target_area_waypoint, *self.layout.egress_nav, self.layout.split]
         )
         return self.ingress_time + travel_time_ingress + travel_time_egress
 
@@ -169,6 +186,14 @@ class FormationAttackLayout(FormationLayout):
     targets: list[FlightWaypoint]
     initial: Optional[FlightWaypoint] = None
     lineup: Optional[FlightWaypoint] = None
+    #: Detours round SAM rings on the straight legs (samdetour.py).
+    ingress_nav: list[FlightWaypoint] = field(default_factory=list)
+    egress_nav: list[FlightWaypoint] = field(default_factory=list)
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state.setdefault("ingress_nav", [])
+        state.setdefault("egress_nav", [])
+        self.__dict__.update(state)
 
     def iter_waypoints(self) -> Iterator[FlightWaypoint]:
         yield self.departure
@@ -176,12 +201,14 @@ class FormationAttackLayout(FormationLayout):
             yield self.hold
         yield from self.nav_to
         yield self.join
+        yield from self.ingress_nav
         if self.lineup:
             yield self.lineup
         yield self.ingress
         if self.initial is not None:
             yield self.initial
         yield from self.targets
+        yield from self.egress_nav
         yield self.split
         if self.refuel is not None:
             yield self.refuel
@@ -191,6 +218,13 @@ class FormationAttackLayout(FormationLayout):
             yield self.divert
         yield self.bullseye
         yield from self.custom_waypoints
+
+    def delete_waypoint(self, waypoint: FlightWaypoint) -> bool:
+        for sequence in (self.ingress_nav, self.egress_nav):
+            if waypoint in sequence:
+                sequence.remove(waypoint)
+                return True
+        return super().delete_waypoint(waypoint)
 
 
 FlightPlanT = TypeVar("FlightPlanT", bound=FlightPlan[FormationAttackLayout])
@@ -230,15 +264,18 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
 
         lineup = None
         if self.flight.flight_type == FlightType.STRIKE:
-            hdg = self.package.target.position.heading_between_point(ingress.position)
-            pos = ingress.position.point_from_heading(hdg, nautical_miles(10).meters)
-            lineup = builder.nav(pos, builder.get_combat_altitude)
+            lineup = builder.nav(
+                self._lineup_position(ingress.position), builder.get_combat_altitude
+            )
 
         is_helo = self.flight.is_helo
         ingress_egress_altitude = builder.get_combat_altitude
         use_agl_ingress_egress = is_helo
 
         refuel = self._build_refuel(builder)
+        ingress_nav, egress_nav = self._sam_detours(
+            builder, ingress_egress_altitude, use_agl_ingress_egress
+        )
 
         return FormationAttackLayout(
             departure=builder.takeoff(self.flight.departure),
@@ -266,6 +303,38 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
             divert=builder.divert(self.flight.divert),
             bullseye=builder.bullseye(),
             custom_waypoints=list(),
+            ingress_nav=ingress_nav,
+            egress_nav=egress_nav,
+        )
+
+    def _lineup_position(self, ingress: Point) -> Point:
+        hdg = self.package.target.position.heading_between_point(ingress)
+        return ingress.point_from_heading(hdg, nautical_miles(10).meters)
+
+    def _sam_detours(
+        self, builder: WaypointBuilder, altitude: Distance, altitude_is_agl: bool
+    ) -> tuple[list[FlightWaypoint], list[FlightWaypoint]]:
+        """Nav points round the SAM rings JOIN->INGRESS and TARGET->SPLIT cut.
+
+        Built from the package's shared points, so every flight in it (escorts
+        included) flies the same detour. Helos fly their own low-level legs.
+        """
+        waypoints = self.package.waypoints
+        if self.flight.is_helo or waypoints is None:
+            return [], []
+        # Routed to the strike line-up point, which sits just short of the IP.
+        ingress = package_detour(
+            self.package,
+            self.coalition,
+            waypoints.join,
+            self._lineup_position(waypoints.ingress),
+        )
+        egress = package_detour(
+            self.package, self.coalition, self.package.target.position, waypoints.split
+        )
+        return (
+            [builder.nav(p, altitude, altitude_is_agl) for p in ingress],
+            [builder.nav(p, altitude, altitude_is_agl) for p in egress],
         )
 
     def _build_refuel(self, builder: WaypointBuilder) -> Optional[FlightWaypoint]:

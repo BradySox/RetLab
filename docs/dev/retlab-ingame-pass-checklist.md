@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-89 rows need a live pass. Full detail is under each `###` heading below —
+90 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -376,6 +376,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B138 | A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird | §62 | ☐ |
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
+| B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8354,3 +8355,20 @@ Built 2026-09-23. Unit-tested; this row checks the app. An app check, not a flig
   onto a site hidden on the map, and red's ATO is unchanged.
 - **Fail signatures:** a price shown for an unengaged site; a hidden site in the ATO; red's ATO
   changing with the setting; a power plant pushed down the list.
+
+### B141 — Packages route around a SAM ring that covers none of their targets · §69 · ☐ UNTESTED
+
+Built 2026-09-23 from Graveyard of Empires turn 1, where every deep package flew straight
+through SABERTOOTH (Buk-M3, 38 NM) on the join-to-ingress and target-to-split legs. Replanned
+headlessly: 2,349 NM inside the ring before, 113 NM after.
+
+- **Setup:** any campaign with a SAM ring between your bases and a deeper target it does not
+  cover (Graveyard of Empires: SABERTOOTH at Shindand, targets at Herat). RetLab planner suite
+  on (or `route_around_sams`). Pass a turn, open a Herat strike's route.
+- **Pass:** extra NAV points between JOIN and INGRESS and between the target and SPLIT take
+  the route round the ring's edge. The package arrives on its TOT. Flown: the SAM does not
+  engage the package on those legs.
+- **Fail signatures:** the leg still cuts the ring (check the join is not deep inside it); the
+  package reaches the IP late (the detour time is not in `join_time`); escorts and strikers
+  split up at the detour (they should share the package's points); a detour through a
+  neighboring country (the navmesh ignores borders).
