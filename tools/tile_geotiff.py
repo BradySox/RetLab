@@ -103,11 +103,6 @@ def _mercator_to_lat_lon(mx: float, my: float) -> Tuple[float, float]:
     return lat, lon
 
 
-def _zoom_resolution(z: int) -> float:
-    """Mercator metres per pixel at zoom ``z``."""
-    return 2.0 * _MERCATOR_ORIGIN / (_TILE_PX * (2**z))
-
-
 def _native_zoom(scale: float) -> int:
     """Finest standard zoom at least as fine as the source resolution."""
     return max(0, math.ceil(math.log2(2.0 * _MERCATOR_ORIGIN / (_TILE_PX * scale))))

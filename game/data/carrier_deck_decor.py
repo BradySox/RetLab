@@ -51,7 +51,6 @@ same frame as the DCS mission format's linked-static ``offsets`` table.
 
 from __future__ import annotations
 
-import math
 from typing import NamedTuple
 from zlib import crc32
 
@@ -312,14 +311,6 @@ STREET_VARIANTS: list[list[DeckStatic]] = [
     ]
     for variant in _CAMPAIGN_A_STREET_VARIANTS
 ]
-
-
-def clears_known_spots(item: DeckStatic) -> bool:
-    """Whether this placement keeps its required distance from every known spot."""
-    return all(
-        math.hypot(item.x - sx, item.y - sy) >= MIN_SPOT_CLEARANCE_M
-        for sx, sy in KNOWN_PARKING_SPOTS
-    )
 
 
 def _pick(
