@@ -4343,8 +4343,8 @@ it's covered) — and emits each as `dcsRetribution.VietnamOps.navalGunfire.ship
 (coalition from `TheaterGroundObject.faction_color`). Targets and ranging are resolved live, so the node only
 needs which ships have guns and whose side they're on.
 
-The `vietnamops` plugin runs **two modes** off that list (both via `MOOSE GROUP:TaskFireAtPoint` + `PushTask`,
-the same path TIC uses for naval artillery):
+The `vietnamops` plugin runs **two modes** off that list (both via `MOOSE GROUP:TaskFireAtPoint` + `PushTask`;
+TIC has no artillery path of its own — its `TaskFireAtPoint` is combatants' direct-fire tracer shooting):
 
 - **Player call-for-fire (F10).** Each coalition that owns gun ships gets an F10 **"Naval Fire Mission →
   Fire on last F10 map marker"** command. It reads the coalition's most recent F10 mark

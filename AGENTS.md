@@ -138,7 +138,13 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   `retlab-het-convoy-notes.md` (**scoping only, nothing built** — a ground transfer
   spawns its own cargo, so ten T-90Ms road-march themselves between bases; heavy
   equipment transporters on §78's existing `ConvoyUnit.shipment` manifest model.
-  Needs the 2026-08-26 patch's SLT-50/HX81, so it is gated on the pydcs re-export)
+  Needs the 2026-08-26 patch's SLT-50/HX81, so it is gated on the pydcs re-export),
+  `retlab-observer-gated-artillery-notes.md` (**scoping only, nothing built** — frontline
+  artillery fires once, blind, at a stale spawn point; fire it when a TIC unit sees an
+  enemy, reusing TIC's sight results, airfields excluded),
+  `retlab-front-movement-arrows-notes.md` (**scoping only, nothing built** — display-only
+  arrows for last turn's front movement; makes B66 readable, so the §90 gate does not
+  block it)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (**§94, adopted 2026-08-24 from
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,
@@ -166,7 +172,11 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   targets never register as killed; the M4 IADS stand-in; the proxy unit that was built and
   reverted, and the position matcher measured to have no input. **The reported failure was never
   reproduced — read §8.1 before building anything here**)
-- **Planning / doctrine** — `retlab-planner-doctrine-mining-notes.md` (**the working
+- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (**scoping only, nothing
+  built** — juanjux's High Command objective rating without its prizes: importance and
+  difficulty per enemy target from our own numbers, a panel line and a blue-only planner
+  weight; the whole system is on "watch, decide later"),
+  `retlab-planner-doctrine-mining-notes.md` (**the working
   procedure for teaching the scripted planner, and the queue** — juanjux's LLM played six
   campaigns as red and wrote down what a competent commander must do; we mine that for
   things our planner *cannot express*, and build them as ordinary Python. **No LLM runs in
