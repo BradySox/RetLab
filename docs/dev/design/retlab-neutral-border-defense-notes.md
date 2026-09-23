@@ -215,7 +215,8 @@ out. Pakistan, Iran, Turkmenistan, Uzbekistan and Tajikistan have nothing to scr
 from, so the airfield-only v1 could not do the map the feature most wants.
 
 A zone now declares **either** `airfield:` **or** `spawn: [x, y]` + `spawn_alt_ft:`
-(exactly one; both or neither skips the zone). A point zone air-spawns a standing CAP
+(exactly one; both or neither skips the zone). *`spawn_alt_ft` and the zone's `aircraft:`
+were deleted 2026-09-23 with the rest of the patrol's inputs; the origin now only stations SAMs.* A point zone air-spawns a standing CAP
 over its own territory via MOOSE `SpawnFromVec3`, which is what a nervous neighbour
 actually keeps up anyway. Stand-down routes back to the station instead of a field.
 
@@ -604,7 +605,8 @@ front of you.
 ranges, untouched — plus `load_postures` and `posture_for` that read it, and
 `aircraft_for`, which is the one answer nothing else can give: a country holding
 no control points has no faction to borrow a jet from, so without it a border
-cannot scramble anything.
+cannot scramble anything. *(Deleted 2026-09-23 with the aircraft rows: the patrol
+went 2026-09-07.)*
 
 **Deleted:** `permits_overflight`, `bloc_for_country`, `bloc_for_faction`. All
 three existed only to answer consent, and the fork does not keep code for a
@@ -773,8 +775,8 @@ four of its five parts are in:
   wins outright; `from_terrain` marks the shipped list as a cache, refreshed on
   load so a save never freezes whatever shipped that day.
 - **Origin and airframe are automatic.** ✅ An airfield inside the polygon if the
-  terrain has one, else the station point; the airframe from the postures table's
-  `aircraft` column via `aircraft_for`.
+  terrain has one, else the station point. (The airframe half, `aircraft_for`, went
+  with the patrol; deleted 2026-09-23.)
 - **Per-side overflight.** ✅ Modelled in the Lua — `permits_blue` / `permits_red`
   are separate, and `scan_group` checks the intruder against its own side's flag.
   (This note previously said the Lua did not model it. It has since 2026-08-26.)

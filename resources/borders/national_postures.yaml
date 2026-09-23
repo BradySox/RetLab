@@ -21,10 +21,6 @@
 # Countries that did not exist yet have no ranges before independence; the
 # territory belongs to the predecessor, which has its own entry (USSR, GDR).
 #
-# `aircraft` is optional and secondary — the alert type a §98 flight should fly.
-# Vanilla pydcs ids only (hard fork constraint: no mods). Omitted where no
-# vanilla type matches a real operator; the engine has a fallback.
-#
 # A comment marks every country DCS does not model. Those can only ever be drawn
 # or permitted — a zone that spawns nothing needs no pydcs country.
 
@@ -43,8 +39,6 @@ countries:
       - { from: "1992-04", to: "2001-11", posture: contested }
       - { from: "2001-11", to: "2021-08", posture: closed }
       - { from: "2021-08", to: "present", posture: contested }
-    aircraft:
-      - { from: "1978", to: "2001", id: MiG-21Bis }
 
   Argentina:
     toward_us_led:
@@ -72,8 +66,6 @@ countries:
       - { from: "1955-10", to: "present", posture: closed }
     toward_ru_led:
       - { from: "1955-10", to: "present", posture: closed }
-    aircraft:
-      - { from: "2004", to: "2008", id: F-5E-3 }               # leased from Switzerland
 
   Azerbaijan:
     # Not a pydcs country — drawable and permittable, never a defender.
@@ -93,17 +85,12 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1990", to: "present", id: F-16C bl.50 }
 
   Belgium:
     toward_us_led:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1979", id: F-100D }
-      - { from: "1979", to: "present", id: F-16A MLU }
 
   Chile:
     toward_us_led:
@@ -118,9 +105,6 @@ countries:
       - { from: "1955", to: "1970-11", posture: closed }
       - { from: "1970-11", to: "1973-09", posture: contested }
       - { from: "1973-09", to: "present", posture: closed }
-    aircraft:
-      - { from: "1976", to: "2006", id: F-5E-3 }
-      - { from: "2006", to: "present", id: F-16C bl.50 }
 
   China:
     toward_us_led:
@@ -133,10 +117,6 @@ countries:
       - { from: "1969-09", to: "1989-05", posture: closed }
       - { from: "1989-05", to: "2001-07", posture: contested }
       - { from: "2001-07", to: "present", posture: permissive } # Treaty of Good-Neighbourliness; SCO
-    aircraft:
-      - { from: "1965", to: "1990", id: MiG-19P }               # J-6
-      - { from: "1990", to: "2005", id: MiG-21Bis }             # J-7
-      - { from: "2005", to: "present", id: J-11A }
 
   Cyprus:
     # The whole island, north included (DM call 2026-08-25) — a de facto entity
@@ -144,7 +124,7 @@ countries:
     # Non-aligned since independence; not in NATO. The Akrotiri and Dhekelia SBAs
     # are UK sovereign territory sitting inside this polygon, so on any campaign
     # the UK plays, §98's derived rule flips Cyprus blue-aligned on its own and
-    # never consults this table. No combat aircraft — no `aircraft` block.
+    # never consults this table.
     toward_us_led:
       - { from: "1955", to: "1960-08", posture: allied }        # Crown colony
       - { from: "1960-08", to: "present", posture: contested }
@@ -161,9 +141,6 @@ countries:
     toward_ru_led:
       - { from: "1955-05", to: "1991-07", posture: allied }     # Warsaw Pact founder
       - { from: "1991-07", to: "present", posture: closed }
-    aircraft:
-      - { from: "1962", to: "1990", id: MiG-21Bis }
-      - { from: "1990", to: "present", id: MiG-29A }
 
   Denmark:
     # NATO founder, but the standing base policy bars foreign forces on Danish
@@ -172,9 +149,6 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1980", id: F-100D }
-      - { from: "1980", to: "present", id: F-16A MLU }
 
   Egypt:
     toward_us_led:
@@ -186,9 +160,6 @@ countries:
       - { from: "1967-06", to: "1972-07", posture: allied }     # Soviet combat units in country
       - { from: "1972-07", to: "1976-03", posture: contested }  # advisers expelled Jul 1972
       - { from: "1976-03", to: "present", posture: closed }     # friendship treaty abrogated
-    aircraft:
-      - { from: "1960", to: "1985", id: MiG-21Bis }
-      - { from: "1985", to: "present", id: F-16C bl.52d }
 
   Finland:
     # The 1948 FCMA obliged Finland to resist a Western attack through Finnish
@@ -199,9 +170,6 @@ countries:
       - { from: "2023-04", to: "present", posture: allied }     # NATO, 4 Apr 2023
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1963", to: "1998", id: MiG-21Bis }
-      - { from: "1998", to: "present", id: FA-18C_hornet }
 
   France:
     # Left NATO's integrated command in 1966 and rejoined in 2009, and denied US
@@ -212,10 +180,6 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1975", id: F-100D }
-      - { from: "1975", to: "2000", id: Mirage-F1C }
-      - { from: "2000", to: "present", id: M-2000C }
 
   GDR:
     # Ceases to exist 3 Oct 1990; the territory is Germany's after that.
@@ -223,9 +187,6 @@ countries:
       - { from: "1955-05", to: "1990-10", posture: closed }
     toward_ru_led:
       - { from: "1955-05", to: "1990-10", posture: allied }     # Warsaw Pact founder
-    aircraft:
-      - { from: "1962", to: "1988", id: MiG-21Bis }
-      - { from: "1988", to: "1990-10", id: MiG-29G }
 
   Georgia:
     toward_us_led:
@@ -237,8 +198,6 @@ countries:
       - { from: "1993-12", to: "2003-11", posture: permissive } # CIS; Russian bases in country
       - { from: "2003-11", to: "2008-08", posture: contested }  # Rose Revolution
       - { from: "2008-08", to: "present", posture: closed }     # the August war
-    aircraft:
-      - { from: "1992", to: "present", id: Su-25 }
 
   Germany:
     # FRG 1955-1990, unified from 3 Oct 1990. It refused US use of German soil for
@@ -248,9 +207,6 @@ countries:
       - { from: "1955-05", to: "present", posture: allied }     # NATO accession 6 May 1955
     toward_ru_led:
       - { from: "1955-05", to: "present", posture: closed }
-    aircraft:
-      - { from: "1958", to: "1974", id: F-86F Sabre }
-      - { from: "1974", to: "present", id: F-4E }
 
   Hungary:
     toward_us_led:
@@ -261,9 +217,6 @@ countries:
     toward_ru_led:
       - { from: "1955-05", to: "1991-07", posture: allied }     # Warsaw Pact founder
       - { from: "1991-07", to: "present", posture: closed }
-    aircraft:
-      - { from: "1961", to: "1993", id: MiG-21Bis }
-      - { from: "1993", to: "present", id: MiG-29A }
 
   India:
     # Measured on the Afghanistan map at 1.03 % with no airfield, and deliberately
@@ -279,10 +232,6 @@ countries:
       - { from: "1962-10", to: "1971-08", posture: permissive }
       - { from: "1971-08", to: "1991-12", posture: allied }
       - { from: "1991-12", to: "present", posture: permissive }
-    aircraft:
-      - { from: "1964", to: "1987", id: MiG-21Bis }
-      - { from: "1987", to: "2002", id: MiG-29A }
-      - { from: "2002", to: "present", id: Su-30 }
 
   Iran:
     toward_us_led:
@@ -296,10 +245,6 @@ countries:
       - { from: "1955-11", to: "1979-02", posture: closed }     # CENTO was aimed at the USSR
       - { from: "1979-02", to: "1989-06", posture: contested }
       - { from: "1989-06", to: "present", posture: permissive } # the Rafsanjani-Gorbachev arms accord
-    aircraft:
-      - { from: "1965", to: "1977", id: F-5E-3 }
-      - { from: "1977", to: "1990", id: F-14A }
-      - { from: "1990", to: "present", id: MiG-29A }
 
   Iraq:
     toward_us_led:
@@ -318,11 +263,6 @@ countries:
       - { from: "1972-04", to: "1991-02", posture: allied }     # Treaty of Friendship, 9 Apr 1972
       - { from: "1991-02", to: "2003-05", posture: contested }
       - { from: "2003-05", to: "present", posture: closed }
-    aircraft:
-      - { from: "1965", to: "1980", id: MiG-21Bis }
-      - { from: "1980", to: "1991", id: Mirage-F1EQ }
-      - { from: "1991", to: "2003", id: MiG-25PD }
-      - { from: "2014", to: "present", id: F-16C bl.52d }
 
   Israel:
     # No treaty ally, but a Major Non-NATO Ally since 1987 and the one country on
@@ -334,9 +274,6 @@ countries:
       - { from: "1987-02", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1969", to: "1980", id: F-4E }
-      - { from: "1980", to: "present", id: F-16C bl.50 }
 
   Jordan:
     toward_us_led:
@@ -347,10 +284,6 @@ countries:
       - { from: "1996-11", to: "present", posture: allied }     # Major Non-NATO Ally; Muwaffaq Salti
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1969", to: "1981", id: F-5E-3 }
-      - { from: "1981", to: "1997", id: Mirage-F1CJ }
-      - { from: "1997", to: "present", id: F-16A MLU }
 
   Kuwait:
     # 1990-08 to 1991-02 is the occupation: the airspace was Iraq's and was
@@ -365,9 +298,6 @@ countries:
       - { from: "1961-06", to: "1976-11", posture: closed }
       - { from: "1976-11", to: "1991-02", posture: contested }  # first GCC state to buy Soviet arms
       - { from: "1991-02", to: "present", posture: closed }
-    aircraft:
-      - { from: "1977", to: "1992", id: Mirage-F1CK }
-      - { from: "1992", to: "present", id: FA-18C_hornet }
 
   Lebanon:
     toward_us_led:
@@ -380,8 +310,6 @@ countries:
       - { from: "2005-04", to: "present", posture: contested }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }        # the 2008 MiG-29 offer was never taken up
-    aircraft:
-      - { from: "2008", to: "present", id: MiG-29A }            # the type Russia offered in 2008
 
   Luxembourg:
     # Not a pydcs country — drawable and permittable, never a defender.
@@ -397,9 +325,6 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1957", to: "1980", id: F-5E-3 }
-      - { from: "1980", to: "present", id: F-16A MLU }
 
   Oman:
     toward_us_led:
@@ -408,9 +333,6 @@ countries:
       - { from: "1980-04", to: "present", posture: allied }     # Facilities Access Agreement, 21 Apr 1980
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }        # no relations until 1985
-    aircraft:
-      - { from: "1975", to: "1993", id: Hawk }
-      - { from: "1993", to: "present", id: F-16C bl.50 }
 
   Pakistan:
     toward_us_led:
@@ -426,11 +348,6 @@ countries:
       - { from: "1965-09", to: "1979-12", posture: contested }  # Tashkent; Soviet arms sales 1968-70
       - { from: "1979-12", to: "1989-02", posture: hostile }    # PAF shootdowns over Pakistani territory
       - { from: "1989-02", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1965", id: F-86F Sabre }
-      - { from: "1965", to: "1983", id: MiG-19P }               # F-6
-      - { from: "1983", to: "2010", id: F-16A }
-      - { from: "2010", to: "present", id: JF-17 }
 
   Poland:
     toward_us_led:
@@ -441,10 +358,6 @@ countries:
     toward_ru_led:
       - { from: "1955-05", to: "1991-07", posture: allied }     # Warsaw Pact founder
       - { from: "1991-07", to: "present", posture: closed }
-    aircraft:
-      - { from: "1963", to: "1989", id: MiG-21Bis }
-      - { from: "1989", to: "2006", id: MiG-29A }
-      - { from: "2006", to: "present", id: F-16C bl.52d }
 
   Qatar:
     toward_us_led:
@@ -453,9 +366,6 @@ countries:
       - { from: "2000-01", to: "present", posture: allied }     # Al Udeid access; the CAOC from 2003
     toward_ru_led:
       - { from: "1971-09", to: "present", posture: closed }
-    aircraft:
-      - { from: "1984", to: "1997", id: Mirage-F1EDA }
-      - { from: "1997", to: "present", id: Mirage 2000-5 }
 
   Russia:
     # Successor to the USSR from 26 Dec 1991.
@@ -465,9 +375,6 @@ countries:
       - { from: "2015-05", to: "present", posture: closed }
     toward_ru_led:
       - { from: "1991-12", to: "present", posture: allied }
-    aircraft:
-      - { from: "1991-12", to: "2010", id: MiG-31 }
-      - { from: "2010", to: "present", id: Su-30 }
 
   Saudi Arabia:
     toward_us_led:
@@ -479,9 +386,6 @@ countries:
       - { from: "2019-10", to: "present", posture: allied }     # PSAB reoccupied after Abqaiq
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }        # no relations 1938-1990
-    aircraft:
-      - { from: "1971", to: "1981", id: F-5E-3 }
-      - { from: "1981", to: "present", id: F-15C }
 
   Slovakia:
     # Czechoslovakia until Jan 1993; the Warsaw Pact ranges below are its.
@@ -493,8 +397,6 @@ countries:
     toward_ru_led:
       - { from: "1955-05", to: "1991-07", posture: allied }
       - { from: "1991-07", to: "present", posture: closed }
-    aircraft:
-      - { from: "1993", to: "present", id: MiG-29A }
 
   Sweden:
     # Non-aligned in public through the Cold War, with documented secret
@@ -506,17 +408,12 @@ countries:
       - { from: "2024-03", to: "present", posture: allied }     # NATO, 7 Mar 2024
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1971", to: "2005", id: AJS37 }
 
   Switzerland:
     toward_us_led:
       - { from: "1955", to: "present", posture: closed }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1978", to: "1997", id: F-5E-3 }
-      - { from: "1997", to: "present", id: FA-18C_hornet }
 
   Syria:
     toward_us_led:
@@ -529,10 +426,6 @@ countries:
       - { from: "1955", to: "1971-07", posture: permissive }
       - { from: "1971-07", to: "2024-12", posture: allied }     # Tartus; the 1980 Treaty; Hmeimim from 2015
       - { from: "2024-12", to: "present", posture: contested }
-    aircraft:
-      - { from: "1966", to: "1982", id: MiG-21Bis }
-      - { from: "1982", to: "1990", id: MiG-23MLD }
-      - { from: "1990", to: "present", id: MiG-29A }
 
   Tajikistan:
     # Not a pydcs country — drawable and permittable, never a defender.
@@ -549,9 +442,6 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1979", id: F-86F Sabre }
-      - { from: "1979", to: "present", id: F-16A MLU }
 
   Turkey:
     toward_us_led:
@@ -564,10 +454,6 @@ countries:
       - { from: "2003-04", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1958", to: "1974", id: F-100D }
-      - { from: "1974", to: "1990", id: F-4E }
-      - { from: "1990", to: "present", id: F-16C bl.50 }
 
   Turkmenistan:
     # Not a pydcs country — drawable and permittable, never a defender.
@@ -586,18 +472,12 @@ countries:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1980", id: Hawk }
-      - { from: "1980", to: "present", id: Tornado GR4 }
 
   USA:
     toward_us_led:
       - { from: "1955", to: "present", posture: allied }
     toward_ru_led:
       - { from: "1955", to: "present", posture: closed }
-    aircraft:
-      - { from: "1955", to: "1975", id: F-100D }
-      - { from: "1975", to: "present", id: F-15C }
 
   USSR:
     # Ceases to exist 26 Dec 1991; the territory afterwards is Russia's, Georgia's,
@@ -606,10 +486,6 @@ countries:
       - { from: "1955", to: "1991-12", posture: closed }
     toward_ru_led:
       - { from: "1955", to: "1991-12", posture: allied }
-    aircraft:
-      - { from: "1955", to: "1965", id: MiG-19P }
-      - { from: "1965", to: "1980", id: MiG-21Bis }
-      - { from: "1980", to: "1991-12", id: MiG-31 }
 
   United Arab Emirates:
     toward_us_led:
@@ -618,9 +494,6 @@ countries:
       - { from: "1994-07", to: "present", posture: allied }     # the Defense Cooperation Agreement; Al Dhafra
     toward_ru_led:
       - { from: "1971-12", to: "present", posture: closed }
-    aircraft:
-      - { from: "1983", to: "2005", id: Mirage 2000-5 }
-      - { from: "2005", to: "present", id: F-16C bl.52d }
 
   Uzbekistan:
     # Not a pydcs country — drawable and permittable, never a defender.

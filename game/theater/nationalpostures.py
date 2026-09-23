@@ -1,13 +1,8 @@
-"""Dated national postures (§98): what each country flew, and where it stood.
+"""Dated national postures (§98): where each country stood, toward each bloc.
 
 Reads ``resources/borders/national_postures.yaml`` — 47 countries, both blocs,
 244 dated ranges in five buckets. Sources and the reasoning behind every range
 are in ``docs/dev/design/retlab-national-postures-notes.md``.
-
-**What this decides today: the airframe.** ``aircraft_for`` is what lets a border
-be drawn from terrain data alone — the campaign names no fighter and the era
-picks one, so the same file is right in 1975 and 2025. Nothing else can supply
-it: a country with no control points has no faction to borrow a jet from.
 
 **What it no longer decides: whether you may transit.** That was its original
 job and it was dropped on 2026-08-26 (DM call) in favour of deriving consent
@@ -101,27 +96,3 @@ def posture_for(
         except (KeyError, TypeError, ValueError):
             continue
     return DEFAULT_POSTURE
-
-
-def aircraft_for(
-    country: str,
-    on: date,
-    postures: Optional[dict[str, Any]] = None,
-) -> Optional[str]:
-    """The interceptor this country flew on ``on``, or None if unrecorded.
-
-    Lets a border be drawn from terrain data alone: the campaign states no
-    airframe, and the era picks one. Vanilla pydcs ids only.
-    """
-    table = load_postures() if postures is None else postures
-    ranges = (table.get(country) or {}).get("aircraft")
-    if not ranges:
-        return None
-    when = (on.year, on.month)
-    for entry in ranges:
-        try:
-            if _sort_key(entry["from"]) <= when < _sort_key(entry["to"]):
-                return str(entry["id"])
-        except (KeyError, TypeError, ValueError):
-            continue
-    return None

@@ -80,8 +80,6 @@ neutral_border_defense:
   # Pakistan (east of the corridor) -- real boundary data via tools/neutral_border_geo.py (20 vertices).
   - country: Pakistan
     spawn: [-375979, 341652]
-    spawn_alt_ft: 20000
-    aircraft: MiG-21Bis
     sam: true
     # OVERRIDE. The table reads Pakistan permissive toward the US bloc in
     # 2006 and that is correct -- but the permission was for designated
@@ -99,8 +97,6 @@ neutral_border_defense:
   # Pakistan (west of the corridor) -- real boundary data via tools/neutral_border_geo.py (23 vertices).
   - country: Pakistan
     spawn: [-727669, -259559]
-    spawn_alt_ft: 20000
-    aircraft: MiG-21Bis
     sam: true
     # OVERRIDE. The table reads Pakistan permissive toward the US bloc in
     # 2006 and that is correct -- but the permission was for designated
@@ -119,8 +115,6 @@ neutral_border_defense:
   # Iran -- real boundary data via tools/neutral_border_geo.py (23 vertices).
   - country: Iran
     spawn: [-315321, -523142]
-    spawn_alt_ft: 20000
-    aircraft: MiG-29A
     sam: true
     border: [
       [362618, -610647], [297812, -537768], [286753, -462297], [173921, -455803],

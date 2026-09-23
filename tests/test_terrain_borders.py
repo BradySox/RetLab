@@ -34,9 +34,8 @@ def test_every_shipped_terrain_parses(terrain: str) -> None:
         zone = NeutralBorderZone.from_yaml(entry)
         assert zone is not None, f"{terrain}: {entry.get('country')} failed to parse"
         assert len(zone.border) >= 3
-        # Geometry and an origin only -- posture and airframe come from the
-        # dated table, so a terrain file must never pin an era-specific value.
-        assert zone.aircraft is None, f"{terrain}: {zone.country} pins an airframe"
+        # Geometry and an origin only: a terrain file must never pin an
+        # era-specific value.
         assert zone.overflight_override is None
         assert zone.posture_override is None
         assert (zone.airfield is None) != (zone.spawn is None), "exactly one origin"

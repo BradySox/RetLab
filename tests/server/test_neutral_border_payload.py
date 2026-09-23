@@ -31,7 +31,6 @@ def _zone() -> NeutralBorderZone:
         {
             "country": "Lebanon",
             "airfield": "Rayak",
-            "aircraft": "MiG-29A",
             "floor_ft": 10000,
             "sam": True,
             # A coarse box inside Lebanon is enough to prove the transform; the
