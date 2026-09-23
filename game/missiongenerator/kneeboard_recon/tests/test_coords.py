@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from dcs.terrain.caucasus.caucasus import Caucasus
+from dcs.terrain.nevada import Nevada
 from dcs.mapping import LatLng, Point
 
 from game.missiongenerator.kneeboard_recon.coords import (
@@ -48,6 +49,16 @@ def test_point_to_dms_formats_with_decimal_seconds(caucasus: Caucasus) -> None:
     assert "E" in result
     # Decimal seconds are present (format: DD°MM'SS.ss"<dir>)
     assert '"' in result
+
+
+def test_point_to_dms_west_of_greenwich() -> None:
+    """pydcs printed Nevada as -115°42'...W: a stray minus and the wrong minutes."""
+    p = Point.from_latlng(LatLng(36.2, -115.3), Nevada())
+    result = point_to_dms(p)
+    assert result.startswith("36°12'")
+    assert " 115°18'" in result
+    assert result.endswith('"W')
+    assert "-" not in result
 
 
 def test_bullseye_bearing_range_nm_due_east(caucasus: Caucasus) -> None:

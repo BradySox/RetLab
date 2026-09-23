@@ -26,13 +26,14 @@ class CoordinateFormat(Enum):
     MGRS = "MGRS"
 
 
-def _dms_parts(value: float) -> tuple[int, int, float]:
+def _dms_parts(value: float, decimals: int) -> tuple[int, int, float]:
+    """The sign is the caller's to print; seconds that would round to 60 carry."""
     value = abs(value)
     degrees = int(value)
     minutes_full = (value - degrees) * 60
     minutes = int(minutes_full)
     seconds = (minutes_full - minutes) * 60
-    if round(seconds, 2) >= 60:
+    if round(seconds, decimals) >= 60:
         seconds = 0.0
         minutes += 1
     if minutes >= 60:
@@ -48,13 +49,29 @@ def format_dms(latlng: LatLng, decimals: int = 0) -> str:
         (latlng.lat, "NS", 2),
         (latlng.lng, "EW", 3),
     ):
-        degrees, minutes, seconds = _dms_parts(value)
+        degrees, minutes, seconds = _dms_parts(value, decimals)
         hemisphere = hemispheres[0] if value >= 0 else hemispheres[1]
         second_width = 2 if not decimals else 3 + decimals
         parts.append(
             f"{hemisphere}{degrees:0{width}d}°{minutes:02d}'"
             f'{seconds:0{second_width}.{decimals}f}"'
         )
+    return " ".join(parts)
+
+
+def format_dms_suffix(latlng: LatLng, decimals: int = 0) -> str:
+    """``42°07'24"N 41°59'15"E``: the kneeboard's layout.
+
+    Replaces pydcs's ``LatLng.format_dms``, which prints S and W as a minus plus the
+    complementary minutes (115°18'W came out as ``-115°42'00"W``) and can print 60
+    seconds. Byte-identical to it for every other N/E point, so its seconds keep
+    pydcs's width: ``0.00``, not ``00.00``.
+    """
+    parts = []
+    for value, hemispheres in ((latlng.lat, "NS"), (latlng.lng, "EW")):
+        degrees, minutes, seconds = _dms_parts(value, decimals)
+        hemisphere = hemispheres[0] if value >= 0 else hemispheres[1]
+        parts.append(f"{degrees}°{minutes:02d}'{seconds:02.{decimals}f}\"{hemisphere}")
     return " ".join(parts)
 
 

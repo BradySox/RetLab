@@ -19,8 +19,8 @@ function metersToNauticalMiles(meters: number) {
 }
 
 function formatLatLng(latLng: LatLng) {
-  const lat = latLng.lat.toFixed(2);
-  const lng = latLng.lng.toFixed(2);
+  const lat = Math.abs(latLng.lat).toFixed(2);
+  const lng = Math.abs(latLng.lng).toFixed(2);
   const ns = latLng.lat >= 0 ? "N" : "S";
   const ew = latLng.lng >= 0 ? "E" : "W";
   return `${lat}&deg;${ns} ${lng}&deg;${ew}`;

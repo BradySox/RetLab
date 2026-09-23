@@ -4,7 +4,10 @@ from types import SimpleNamespace
 from typing import Any
 from unittest.mock import MagicMock
 
+import pytest
 from dcs.vehicles import AirDefence
+
+import game.missiongenerator.kneeboard as kneeboard
 
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
@@ -23,15 +26,21 @@ class _DummyPosition:
         self.y = 0.0
 
     def latlng(self) -> SimpleNamespace:
-        return SimpleNamespace(
-            format_dms=lambda include_decimal_seconds=True: self.location
-        )
+        return SimpleNamespace(location=self.location)
 
     def heading_between_point(self, other: Any) -> float:
         return 0.0
 
     def distance_to_point(self, other: Any) -> float:
         return 0.0
+
+
+@pytest.fixture(autouse=True)
+def _location_as_coordinates(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The page prints the fake's name where the coordinates go."""
+    monkeypatch.setattr(
+        kneeboard, "format_dms_suffix", lambda latlng, decimals=0: latlng.location
+    )
 
 
 def _bullseye() -> Any:

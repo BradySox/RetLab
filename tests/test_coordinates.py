@@ -17,6 +17,7 @@ from game.coordinates import (
     format_dd,
     format_ddm,
     format_dms,
+    format_dms_suffix,
     format_latlng,
     format_mgrs,
 )
@@ -34,6 +35,41 @@ def test_degrees_minutes_seconds() -> None:
 
 def test_degrees_minutes_seconds_with_decimals() -> None:
     assert format_dms(CREECH, decimals=2) == "N36°35'18.96\" W115°40'24.96\""
+
+
+def test_the_kneeboard_layout_west() -> None:
+    """pydcs printed this as 36°12'00"N -115°42'00"W: a minus and 0.7 of a degree."""
+    assert format_dms_suffix(LatLng(36.2, -115.3)) == "36°12'00\"N 115°18'00\"W"
+
+
+def test_the_kneeboard_layout_south_and_west() -> None:
+    """pydcs: -51°18'00"S -58°54'00"W, on both halves."""
+    assert format_dms_suffix(LatLng(-51.7, -58.1)) == "51°42'00\"S 58°06'00\"W"
+    assert (
+        format_dms_suffix(LatLng(-51.7, -58.1), decimals=2)
+        == "51°42'0.00\"S 58°06'0.00\"W"
+    )
+
+
+@pytest.mark.parametrize("decimals", [0, 2])
+@pytest.mark.parametrize(
+    "latlng",
+    [LatLng(42.1234, 41.9876), LatLng(33.5, 36.25), LatLng(35.0212, 35.9876)],
+)
+def test_the_kneeboard_layout_is_unchanged_north_and_east(
+    latlng: LatLng, decimals: int
+) -> None:
+    """Byte-identical to pydcs where it was right, so those kneeboards do not move."""
+    assert format_dms_suffix(latlng, decimals) == latlng.format_dms(
+        include_decimal_seconds=bool(decimals)
+    )
+
+
+def test_seconds_that_round_to_sixty_carry() -> None:
+    """pydcs printed 42°07'60"N here; so did format_dms before the carry used the precision."""
+    latlng = LatLng(42 + 7 / 60 + 59.7 / 3600, 41.5)
+    assert format_dms_suffix(latlng).startswith("42°08'00\"N")
+    assert format_dms(latlng).startswith("N42°08'00\"")
 
 
 def test_degrees_decimal_minutes() -> None:

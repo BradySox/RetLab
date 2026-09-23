@@ -44,7 +44,12 @@ from game.ato.codewords import PushCategory, present_categories, push_category_f
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
-from game.coordinates import CoordinateFormat, coordinate_format, format_latlng
+from game.coordinates import (
+    CoordinateFormat,
+    coordinate_format,
+    format_dms_suffix,
+    format_latlng,
+)
 from game.data.alic import AlicCodes
 from game.data.threat_reference import ThreatReference, reference_for
 from game.data.units import UnitClass
@@ -1321,7 +1326,7 @@ class BriefingPage(KneeboardPage):
         """
         where = f"{self.bullseye_anchor} — " if self.bullseye_anchor else ""
         moved = "   ** MOVED THIS TURN **" if self.bullseye_moved else ""
-        coords = self.bullseye.position.latlng().format_dms()
+        coords = format_dms_suffix(self.bullseye.position.latlng())
         return f"Bullseye: {where}{coords}{moved}"
 
     def _row_with_atis(self, row_title: str, runway: Optional[RunwayData]) -> List[str]:
@@ -1922,7 +1927,7 @@ class SeadTaskPage(KneeboardPage):
             "" if number is None else str(number),
             self._unit_description(unit),
             self.alic_for(unit),
-            unit.position.latlng().format_dms(include_decimal_seconds=True),
+            format_dms_suffix(unit.position.latlng(), decimals=2),
         ]
 
     @property
@@ -1997,8 +2002,8 @@ class StrikeTaskPage(KneeboardPage):
                     (
                         "Search around target area waypoint"
                         if self._approximate_target_intel
-                        else target.waypoint.position.latlng().format_dms(
-                            include_decimal_seconds=True
+                        else format_dms_suffix(
+                            target.waypoint.position.latlng(), decimals=2
                         )
                     ),
                 ]

@@ -14,6 +14,16 @@
 
 entries:
   - date: 2026-09-22
+    title: Kneeboard coordinates are right on Nevada and the South Atlantic
+    change: >-
+      West and south coordinates printed with a minus sign and the wrong
+      minutes: 115°18'W came out as -115°42'00"W. They now print 115°18'00"W.
+      Northern and eastern maps are unchanged.
+    watch: >-
+      On a Nevada turn, the kneeboard's bullseye line has no minus sign and
+      its degrees and minutes match the F10 map's readout over the bullseye.
+    row: B137
+  - date: 2026-09-22
     title: A crashed aircraft no longer switches off a SAM network
     change: >-
       When an aircraft crashed where a radar could still see the wreck, Skynet
