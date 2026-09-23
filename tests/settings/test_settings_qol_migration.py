@@ -1,4 +1,5 @@
 from game.settings import AiRadioBehavior, Settings
+from game.settings.migration import migrate_legacy_settings
 
 
 def test_ai_radio_behavior_defaults_to_limited() -> None:
@@ -7,27 +8,27 @@ def test_ai_radio_behavior_defaults_to_limited() -> None:
 
 def test_legacy_radio_booleans_migrate_to_single_choice() -> None:
     assert (
-        Settings._migrate_legacy_settings(
-            {"limit_ai_radios": False, "silence_ai_radios": False}
-        )["ai_radio_behavior"]
+        migrate_legacy_settings({"limit_ai_radios": False, "silence_ai_radios": False})[
+            "ai_radio_behavior"
+        ]
         is AiRadioBehavior.FULL
     )
     assert (
-        Settings._migrate_legacy_settings(
-            {"limit_ai_radios": True, "silence_ai_radios": False}
-        )["ai_radio_behavior"]
+        migrate_legacy_settings({"limit_ai_radios": True, "silence_ai_radios": False})[
+            "ai_radio_behavior"
+        ]
         is AiRadioBehavior.LIMITED
     )
     assert (
-        Settings._migrate_legacy_settings(
-            {"limit_ai_radios": True, "silence_ai_radios": True}
-        )["ai_radio_behavior"]
+        migrate_legacy_settings({"limit_ai_radios": True, "silence_ai_radios": True})[
+            "ai_radio_behavior"
+        ]
         is AiRadioBehavior.SILENT
     )
 
 
 def test_obsolete_settings_are_discarded_during_migration() -> None:
-    migrated = Settings._migrate_legacy_settings(
+    migrated = migrate_legacy_settings(
         {
             "prefer_squadrons_with_matching_primary_task": True,
             "pretense_num_of_cargo_planes": 12,
@@ -68,18 +69,18 @@ def test_obsolete_settings_are_not_user_visible() -> None:
 def test_ground_start_truck_toggles_merge_either_base_type() -> None:
     # A save that enabled trucks at *either* base type keeps them enabled after
     # the airbase/roadbase toggles are consolidated into one.
-    enabled_at_roadbase_only = Settings._migrate_legacy_settings(
+    enabled_at_roadbase_only = migrate_legacy_settings(
         {"ground_start_trucks": False, "ground_start_trucks_roadbase": True}
     )
     assert enabled_at_roadbase_only["ground_start_trucks"] is True
     assert "ground_start_trucks_roadbase" not in enabled_at_roadbase_only
 
-    enabled_at_airbase_only = Settings._migrate_legacy_settings(
+    enabled_at_airbase_only = migrate_legacy_settings(
         {"ground_start_trucks": True, "ground_start_trucks_roadbase": False}
     )
     assert enabled_at_airbase_only["ground_start_trucks"] is True
 
-    disabled_everywhere = Settings._migrate_legacy_settings(
+    disabled_everywhere = migrate_legacy_settings(
         {"ground_start_trucks": False, "ground_start_trucks_roadbase": False}
     )
     assert disabled_everywhere["ground_start_trucks"] is False
@@ -88,7 +89,7 @@ def test_ground_start_truck_toggles_merge_either_base_type() -> None:
 def test_ground_power_truck_toggles_merge_either_base_type() -> None:
     # Same consolidation for the ground-power trucks (which default ON). A save
     # that turned them off at *both* base types stays off; otherwise on.
-    off_at_both = Settings._migrate_legacy_settings(
+    off_at_both = migrate_legacy_settings(
         {
             "ground_start_ground_power_trucks": False,
             "ground_start_ground_power_trucks_roadbase": False,
@@ -97,7 +98,7 @@ def test_ground_power_truck_toggles_merge_either_base_type() -> None:
     assert off_at_both["ground_start_ground_power_trucks"] is False
     assert "ground_start_ground_power_trucks_roadbase" not in off_at_both
 
-    off_at_roadbase_only = Settings._migrate_legacy_settings(
+    off_at_roadbase_only = migrate_legacy_settings(
         {
             "ground_start_ground_power_trucks": True,
             "ground_start_ground_power_trucks_roadbase": False,

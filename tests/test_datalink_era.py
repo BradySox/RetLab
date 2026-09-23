@@ -21,6 +21,7 @@ from game import persistency
 from game.datalinkera import datalink_available
 from game.dcs.aircrafttype import AircraftType
 from game.settings import DatalinkPolicy
+from game.settings.migration import migrate_legacy_settings
 
 
 @pytest.fixture(scope="module")
@@ -108,7 +109,7 @@ def test_the_old_boolean_migrates_to_an_explicit_choice() -> None:
         (True, DatalinkPolicy.ALWAYS),
         (False, DatalinkPolicy.NEVER),
     ):
-        migrated = Settings._migrate_legacy_settings({"eplrs_enabled": had_it})
+        migrated = migrate_legacy_settings({"eplrs_enabled": had_it})
         assert migrated["datalink_policy"] is expected
 
     assert Settings().datalink_policy is DatalinkPolicy.ERA_CORRECT

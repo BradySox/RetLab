@@ -244,7 +244,7 @@ carve-after-pass rule.
 - `game/retlab/victory.py` — the whole engine (conditions, parse, cache,
   baseline, verdict, overview).
 - `game/game.py` — the `check_win_loss` branch.
-- `game/settings/settings.py` — the two knobs + the "Victory conditions"
+- `game/settings/` — the two knobs + the "Victory conditions"
   section.
 - `game/sitrep.py` + `game/sim/missionresultsprocessor.py` — the SITREP lines.
 - `game/server/game/models.py` + `client/src/components/campaignstatus/` —

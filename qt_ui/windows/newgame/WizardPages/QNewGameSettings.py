@@ -5,6 +5,7 @@ from PySide6 import QtWidgets, QtGui
 from game.campaignloader import Campaign
 from game.settings import Settings
 from qt_ui.windows.settings.QSettingsWindow import QSettingsWidget
+from game.settings.migration import migrate_legacy_settings
 
 
 class NewGameSettings(QtWidgets.QWizardPage):
@@ -37,7 +38,7 @@ class NewGameSettings(QtWidgets.QWizardPage):
     def _load_campaign_settings(campaign: Campaign, settings: Settings) -> None:
         # The same order a save load runs: without the migration, a campaign that
         # preseeds a renamed key (eplrs_enabled) silently keeps the new default.
-        campaign_settings = Settings._migrate_legacy_settings(
+        campaign_settings = migrate_legacy_settings(
             Settings.deserialize_state_dict(campaign.settings)
         )
         # `settings` already has every plugin option seeded with its default (via

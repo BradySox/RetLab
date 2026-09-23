@@ -565,7 +565,7 @@ Files: `resources/plugins/combatsar/combatsar-config.lua` (always-run + `syncSur
 `game/debriefing.py` (`combat_sar_survivors` parse), `game/sim/missionresultsprocessor.py`
 (MIA sparing + the ledger pilot-fallback in `record_pow_captures` + `record_downed_pilots` +
 SITREP), `game/sitrep.py` (`pilots_mia`), `game/game.py` (state + the finish_turn hook),
-`game/settings/settings.py`. Tests: ~~`tests/retlab/test_downed_pilots.py`~~,
+`game/settings/`. Tests: ~~`tests/retlab/test_downed_pilots.py`~~,
 ~~`tests/lua/test_combatsar_ledger.py`~~ (the real plugin under a MOOSE-stub sandbox: no-rescue
 config runs, eject → sync → snatch, evader respawn), ~~`tests/test_combat_sar_scoring.py`~~,
 ~~`tests/missiongenerator/test_combat_sar_sandy_luadata.py`~~. In-game pass: checklist **G29**.

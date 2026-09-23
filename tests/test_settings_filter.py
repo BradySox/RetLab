@@ -83,7 +83,7 @@ def test_feature_gate_list_matches_the_registry() -> None:
 
     assert set(_FEATURE_GATE_NAMES) == registry_bool_gates, (
         "FEATURE_GATE_FIELDS has drifted from the feature registry; add the new "
-        "feature's boolean gate to a section in game/settings/settings.py"
+        "feature's boolean gate to a section in game/settings/layout.py"
     )
 
 

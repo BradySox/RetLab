@@ -244,7 +244,7 @@ when the registry, feature list, catalog and checklist drift apart):
 > card-assigned.
 
 All four inputs are parseable and already parsed elsewhere: `game/retlab/features.py`
-(feature → setting), `game/settings/settings.py` (defaults), the campaign yamls
+(feature → setting), `game/settings/` (defaults), the campaign yamls
 (`tests/retlab/test_campaign_plugin_preseed.py` already walks these), and the checklist.
 This is the mechanical half of Part 2, and it means the rule cannot silently lapse.
 
