@@ -30,8 +30,7 @@ Work flows: edit **local** → push to **fork** → (if contributing back) open 
 fork to **upstream `dev`**.
 
 Two gotchas that bite every session:
-- The account was renamed `BradySox` → **`BradySox`**. Old URLs redirect, but
-  **`gh pr create` REQUIRES an explicit `--head`** or it resolves the wrong owner.
+- `gh pr create` needs an explicit `--head`, or it resolves the wrong owner.
 - Sessions usually run in a **git worktree** under `.claude/worktrees/`, not the main
   checkout. Validate with the main checkout's venv by absolute path, `cd`'d into the worktree.
 
@@ -62,8 +61,7 @@ in that order:
 - All upstream PRs target the `dev` branch. **Never** propose a PR against `main`.
 - New work starts on a fresh branch cut from `dev`.
 - **One PR = one feature/bugfix/change.** Small PRs get reviewed faster, and testers can't
-  isolate a bug inside a big mixed PR. *This standard is currently under strain fork-side —
-  recent landings have bundled many unrelated changes into one day's work. Prefer splitting.*
+  isolate a bug inside a big mixed PR.
 - User-visible features and fixes need a note in `changelog.md`. Skip for refactors with no
   visible behaviour change and for bugs that never shipped.
 - **Upstream PRs open as drafts** by default; un-draft only on an explicit call.
@@ -103,9 +101,7 @@ pytest tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/t
 
 ## Rule 4: The fork's architecture — Python plans, Lua executes
 
-**This replaces the old "everything must be generator-emitted" rule, which described an earlier
-era and now argues against the fork's actual, working design.** The fork runs ~30 Lua plugins
-deliberately. The real standard is the *split*, not the absence of Lua.
+The fork runs ~30 Lua plugins deliberately. The standard is the *split*, not the absence of Lua.
 
 **The split.** Python decides; Lua executes. A feature with both halves keeps setup, targeting,
 safety and consequence in Python, and only runtime behaviour in Lua. Don't move planning logic
@@ -119,22 +115,19 @@ with a flown failure:
    invents no units. (Cost of learning: §35 and §37 were both reworked off `coalition.addGroup`.)
 2. **Safety is decided in Python as a positive list.** The emitter enumerates exactly what the
    plugin may touch; the plugin cannot widen it. This bounds the blast radius of the
-   least-testable layer with the most-testable one. (§59 is the canonical statement; §36's
-   player-spawn-field exclusion is the canonical guarantee.)
+   least-testable layer with the most-testable one. (§59 is the canonical statement.)
 3. **Movement only.** A mover feature relocates things; the *consequence* stays in the
    turn-boundary force model. A mover that gets shot down just stops being routed.
 4. **One emitter, one entry point.** Each `game/missiongenerator/*luadata.py` exposes exactly
    one `populate_*` function and emits nothing when the feature has no work — no node ⇒ the
-   plugin no-ops. All 16 emitters follow this; keep it that way.
+   plugin no-ops. Every emitter follows this; keep it that way.
 
 **Plugin mechanics.** A plugin is a folder under `resources/plugins/` with a `plugin.json`,
 registered in `resources/plugins/plugins.json` (field table in `references/upstream-rules.md`).
 Two traps, both flown:
 - **An unticked plugin silently kills its setting.** Any campaign that preseeds a feature must
   preseed its plugin too (the §36 lesson).
-- **Lua is 5.1, vanilla DCS units only, definition order matters.** MIST is retired in favour of
-  a compat shim — when merging upstream Lua, **grep it for `mist.`**; a symbol the shim lacks
-  dies at runtime, not in CI.
+- **Lua is 5.1, vanilla DCS units only, definition order matters.**
 
 If a design genuinely needs standalone Lua outside this system, stop and flag it.
 
@@ -205,7 +198,7 @@ first, marked "(Recommended)", each with its trade-off.
 | Fork feature layer | `game/retlab/` — turn-model features, hooked from `finish_turn` / `initialize_turn` / `plan_missions` |
 | IADS engine | **Skynet** (upstream's), with two bridge additions: dead C2 stand-ins and a deferred AWACS add. The MOOSE MANTIS bridge ran 2026-06-24 to 2026-09-12 and is removed; there is no selector |
 | Framework | **MOOSE** for the fork's plugins; **MIST** is upstream's `mist_4_5_126.lua` again (the compat shim went with the MANTIS bridge) |
-| Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts — the `recon` plugin was removed 2026-08-20) · `JAMMING` (C-130J standoff EW) · `SCAR` (repurposed into the CSAR "Sandy" rescue escort — the armour-hunt scenario is deleted) · `COMBAT_SAR` · `ESCORT_JAMMER` |
+| Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts) · `JAMMING` (C-130J standoff EW) · `ESCORT_JAMMER` · `CSAR` (upstream #929's rescue) |
 | CI gates | `lint.yml` (black whole-tree + mypy game/tests) · `test.yml` (pytest incl. 3 out-of-tree dirs) · `lua-lint.yml` (blocking syntax gate) · `retlab-latest.yml` (rolling pre-release) |
 | Release | rolling `latest` pre-release is *the* release; pinned tags are `v<X.Y.Z>-retlab`. **Never `git push --tags`** |
 | Squadron script stack | separate repo: `tyfoultz/414th-Joint-Fighter-Group`, `bradys-changes` branch |
@@ -213,7 +206,8 @@ first, marked "(Recommended)", each with its trade-off.
 **Removed — do not restore** (each was deliberate, with save-compat tombstones): the DTC v1
 export, Flight Control ATC, the drop-spawn cheat, the compact kneeboard deck + cover page +
 brief sheet, campaign phases & ROE zones, the political-will economy, the war/munitions economy,
-Red Intent, the blank-canvas campaign maker. Minefields are **shelved**, not deleted.
+Red Intent, the blank-canvas campaign maker, minefields, the SCUD-hunt relocation, comms jamming
+and COMINT, airbase harassment, the living battlespace. `CLAUDE.md`'s removed table is the full list.
 
 ---
 

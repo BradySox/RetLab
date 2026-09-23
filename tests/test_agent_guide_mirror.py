@@ -46,8 +46,8 @@ def test_agents_md_mirrors_claude_md() -> None:
 def test_both_guides_import_the_same_shared_files() -> None:
     """The `@`-imported files are shared, not duplicated.
 
-    `docs/dev/CLAUDE-architecture.md` and `docs/dev/CLAUDE-ci.md` are referenced by
-    both guides through the same paths, so editing one updates both faces for free.
+    `docs/dev/CLAUDE-ci.md` is referenced by both guides through the same path, so
+    editing it updates both faces for free.
     A copy of either under an AGENTS-specific name would reintroduce the drift this
     module exists to catch.
     """
