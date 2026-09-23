@@ -570,7 +570,7 @@ stress it · `✗` fail signature reproduced in-game.
 ### A2 — QRA base-defense doctrine · §1 · ☑ VERIFIED
 
 **History:** 2026-06-24
-- **Setup:** Default doctrine (`qra_gci_max_radius_nm` 60, `qra_engagement_range_nm` 38).
+- **Setup:** Default doctrine (QRA scramble radius 60 NM, engagement range 38 NM; constants since 2026-09-23).
 - **Pass:** QRA scrambles only when a raid closes within ~60 NM and interceptors
   don't chase far past the FLOT — they screen their own base, not the front line.
 - **Fail signature:** QRA pushing forward over the FLOT (the pre-tuning

@@ -12,10 +12,20 @@ if TYPE_CHECKING:
     from game.theater import ConflictTheater
 
 
+#: How close a detected raid must be to a base before that base scrambles QRA.
+#: Forward defense opens it up (``QRA_FORWARD_REACH_NM``).
+QRA_GCI_MAX_RADIUS_NM = 60
+
+#: How far a scrambled interceptor chases before disengaging (Moose SetEngageRadius).
+QRA_ENGAGEMENT_RANGE_NM = 38
+
+#: With forward defense on, how far around each of its own bases a side fights.
+QRA_DEFENSE_DEPTH_NM = 60
+
 #: GCI-ambush scramble radius cap (Vietnam W5). An ambush-doctrine side scrambles
 #: LATE -- the raid is already deep when the MiGs launch, so the intercept happens
 #: near the strike package's target instead of duelling the sweep at the border.
-#: The stock setting still applies when it is tighter.
+#: ``QRA_GCI_MAX_RADIUS_NM`` still applies when it is tighter.
 AMBUSH_GCI_RADIUS_NM = 40
 
 #: Forward-defense reach: with ``qra_forward_defense`` on, the ceiling on how far a
@@ -175,7 +185,7 @@ def defense_zone_entries(
     airspace is always defended no matter how far back the anchor sits -- which is what
     lets rear fields' QRA fight over the front at all.
 
-    Defaulting ``depth`` to the stock ``qra_gci_max_radius_nm`` makes this
+    Defaulting ``depth`` to ``QRA_GCI_MAX_RADIUS_NM`` makes this
     non-regressive: the set of raids that used to trigger a GCI (within that radius of
     *some* base) is exactly the union of the circles.
     """

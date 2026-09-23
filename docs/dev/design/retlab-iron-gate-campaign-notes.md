@@ -243,8 +243,9 @@ each wave's fresh coverage, so more waves get planned. The flown mission had it 
 which is why that ATO reached 225 min where this save's reaches 184. It is a multiplier on
 the problem, not its cause.
 
-So a carrier campaign wants `max_carrier_simultaneous_barcaps` at 2 or more. Iron Gate
-preseeds neither setting and should not — they are doctrine, not campaign content.
+So a carrier campaign wants `max_carrier_simultaneous_barcaps` at 2 or more. Since 2026-09-23
+it is the constant `MAX_CARRIER_SIMULTANEOUS_BARCAPS = 2` in `missionscheduler.py`, so no save
+can set it to 1.
 
 Separately, `sortie_records` logged **183 flights when 30 aircraft moved**: parked inventory
 recorded as sorties. That is §91's problem, not this campaign's — checklist B70.

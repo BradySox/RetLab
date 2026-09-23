@@ -318,9 +318,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "ownfor_default_qra_reserve",
                     "opfor_default_qra_reserve",
                     "qra_forward_defense",
-                    "qra_defense_depth_nm",
-                    "qra_gci_max_radius_nm",
-                    "qra_engagement_range_nm",
                     "qra_comms_enabled",
                 ],
             ),
@@ -331,8 +328,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "barcap_overlap_time",
                     "desired_awacs_mission_duration",
                     "desired_tanker_on_station_time",
-                    "max_simultaneous_recovery_tankers",
-                    "max_carrier_simultaneous_barcaps",
                     "aircraft_per_recovery_tanker",
                 ],
             ),
@@ -601,16 +596,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 ],
             ),
             (
-                # §51's jamming and §70's red net were removed on 2026-09-07,
-                # leaving §86's two reach/miss knobs. Renamed to what is left;
-                # field names are unchanged, so campaign preseeds are untouched.
-                "GPS jamming",
-                [
-                    "gps_jamming_default_reach_nm",
-                    "gps_jamming_miss_radius_m",
-                ],
-            ),
-            (
                 # Native DCS data cartridges (§74): the jet starts with the
                 # mission already in the avionics.
                 "Cockpit data",
@@ -660,7 +645,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "generate_threat_intel_kneeboard",
                     "enable_package_code_words",
                     "generate_sitrep_kneeboard",
-                    "target_recon_extra_threat_search_nmi",
                 ],
             ),
         ],
@@ -1068,19 +1052,6 @@ class Settings:
             "independently of OWNFOR. Per-squadron values can be edited afterward."
         ),
     )
-    qra_gci_max_radius_nm: int = bounded_int_option(
-        "QRA GCI max scramble radius (NM)",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=60,
-        min=1,
-        max=400,
-        detail=(
-            "Caps how close a detected raid must be to a defended base before that "
-            "base scrambles its QRA interceptors. Opened up automatically while "
-            "'QRA defends the front' is on."
-        ),
-    )
     qra_forward_defense: bool = boolean_option(
         "QRA defends the front (rear bases answer forward raids)",
         page=CAMPAIGN_DOCTRINE_PAGE,
@@ -1094,33 +1065,6 @@ class Settings:
             "base still answers first; a rear base only launches once the closer "
             "one's alert aircraft are spent. Turn this off for the legacy behavior, "
             "where a base only ever defends itself."
-        ),
-    )
-    qra_defense_depth_nm: int = bounded_int_option(
-        "QRA defended airspace radius (NM)",
-        enabled_when="qra_forward_defense",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=60,
-        min=10,
-        max=200,
-        detail=(
-            "How far around each of its own bases a side will fight, while 'QRA "
-            "defends the front' is on. A base that holds the front line always "
-            "defends its stretch of the line too, reaching a little way past it. "
-            "Larger values let interceptors push further from home."
-        ),
-    )
-    qra_engagement_range_nm: int = bounded_int_option(
-        "QRA interceptor engagement range (NM)",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=38,
-        min=1,
-        max=200,
-        detail=(
-            "How far a scrambled interceptor chases a target (Moose SetEngageRadius) "
-            "before disengaging."
         ),
     )
     qra_comms_enabled: bool = boolean_option(
@@ -1155,35 +1099,6 @@ class Settings:
         detail=(
             "Also determines how many tanker flights are planned: mission duration "
             "divided by desired on-station time."
-        ),
-    )
-    max_simultaneous_recovery_tankers: int = bounded_int_option(
-        "Max simultaneous carrier recovery tankers",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=2,
-        min=1,
-        max=8,
-        detail=(
-            "Caps how many recovery (RECOVERY task) tankers may be on-station over a "
-            "carrier at the same time. Extra recovery tankers are queued to start once "
-            "an earlier one departs."
-        ),
-    )
-    max_carrier_simultaneous_barcaps: int = bounded_int_option(
-        "Max simultaneous carrier BARCAP waves",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=2,
-        min=1,
-        max=8,
-        detail=(
-            "How many BARCAP waves a carrier stacks on-station simultaneously before "
-            "queueing the next wave to launch after the current ones recover. Land "
-            "bases use overlapping waves instead (see BARCAP wave overlap). "
-            "At 1 nothing stacks, so a carrier's doubled wave count is spent on "
-            "waves in sequence rather than aircraft on station together, and the "
-            "schedule can run hours past the mission."
         ),
     )
     autoplan_tankers_for_strike: bool = boolean_option(
@@ -2763,18 +2678,6 @@ class Settings:
             "turn. On by default."
         ),
     )
-    target_recon_extra_threat_search_nmi: int = bounded_int_option(
-        "Extra threat search radius (NM)",
-        MISSION_GENERATOR_PAGE,
-        KNEEBOARD_SECTION,
-        default=0,
-        min=0,
-        max=50,
-        detail=(
-            "Additional nautical miles beyond the default search radius to include "
-            "threats on the target recon kneeboard. 0 uses the default radius only."
-        ),
-    )
     never_delay_player_flights: bool = boolean_option(
         "Spawn player flights immediately (keep planned TOT)",
         MISSION_GENERATOR_PAGE,
@@ -3426,40 +3329,6 @@ class Settings:
             "plugin enabled or this setting does nothing."
         ),
     )
-    gps_jamming_default_reach_nm: float = bounded_float_option(
-        "GPS denial reach (NM)",
-        enabled_when="gps_jamming",
-        page=MISSION_GENERATION_PAGE,
-        section=GENERAL_SECTION,
-        default=15.0,
-        min=5.0,
-        max=150.0,
-        divisor=1,
-        detail=(
-            "How far a jamming site denies GPS, for units whose own data file "
-            "names no reach. This is the size of the denied TARGET area, not a "
-            "denied release area -- a weapon aimed at anything inside the bubble "
-            "flies through it whatever range it was launched from, so standing "
-            "off does not help against a covered target. Keep it local: a bubble "
-            "that denies a target cluster is a decision, while a map-sized one "
-            "just switches a weapon class off."
-        ),
-    )
-    gps_jamming_miss_radius_m: float = bounded_float_option(
-        "Miss distance at full jamming (m)",
-        enabled_when="gps_jamming",
-        page=MISSION_GENERATION_PAGE,
-        section=GENERAL_SECTION,
-        default=200.0,
-        min=25.0,
-        max=1500.0,
-        divisor=1,
-        detail=(
-            "How far off the aimpoint a fully-jammed weapon lands. Scaled down "
-            "toward the edge of the bubble, so a store clipping the fringe is "
-            "nudged and one released over the emitter is thrown well clear."
-        ),
-    )
 
     # Vietnam Ops (period-ops suite) -- opt-in Vietnam-era runtime mechanics. All
     # default OFF globally; the Vietnam campaign YAMLs flip the relevant ones ON via
@@ -3988,6 +3857,15 @@ class Settings:
             # Consolidated into the CarrierDeckPolicy enum (value already
             # migrated above).
             "player_flights_sixpack",
+            # Tuning knobs folded into constants 2026-09-23 (simplification pass).
+            "gps_jamming_default_reach_nm",
+            "gps_jamming_miss_radius_m",
+            "qra_gci_max_radius_nm",
+            "qra_defense_depth_nm",
+            "qra_engagement_range_nm",
+            "max_carrier_simultaneous_barcaps",
+            "max_simultaneous_recovery_tankers",
+            "target_recon_extra_threat_search_nmi",
             # Replaced by the DatalinkPolicy choice so a 1988 campaign and a 2027
             # one can both be right (value already migrated above).
             "eplrs_enabled",

@@ -73,8 +73,6 @@ class _Theater:
 
 class _Settings:
     gps_jamming = True
-    gps_jamming_default_reach_nm = 30.0
-    gps_jamming_miss_radius_m = 200.0
 
 
 class _Game:

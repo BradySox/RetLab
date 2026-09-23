@@ -395,6 +395,15 @@ REMOVED: tuple[Removed, ...] = (
         r"|First Sortie|Silk Letdown|Century Pin|Award: ",
         allow=("removed", "no longer", "historical"),
     ),
+    Removed(
+        "eight tuning settings folded into constants",
+        "2026-09-23",
+        r"gps_jamming_default_reach_nm|gps_jamming_miss_radius_m"
+        r"|qra_gci_max_radius_nm|qra_defense_depth_nm"
+        r"|qra_engagement_range_nm|max_carrier_simultaneous_barcaps"
+        r"|max_simultaneous_recovery_tankers"
+        r"|target_recon_extra_threat_search_nmi",
+    ),
 )
 
 

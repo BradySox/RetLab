@@ -243,8 +243,7 @@ def _banner_text_for_reason(reason: str) -> str:
     """Pick the OFFLINE banner string for a ``render_tiles`` failure reason.
 
     The tile-cap path is broken out because it is the only failure mode the
-    user can act on — they can shrink the corridor or
-    ``target_recon_extra_threat_search_nmi``. Network/projection failures
+    user can act on — they can shrink the corridor. Network/projection failures
     share the generic banner; the log line carries the underlying cause.
     """
     if reason == FAILURE_TILE_CAP:
