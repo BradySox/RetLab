@@ -12,7 +12,7 @@ re-verify with GitHub before acting on any line.
 - **Upstream merged into five branches** — #788, #920, #925, #884, #881. Each conflicted on `changelog.md` only; both sides kept, upstream's `tests` green on each.
 - **#792 was behind the fork:** the wind-layer labels read `FL080 (2000m)` / `FL260 (8000m)`. Now `2,000 m (FL066)` / `8,000 m (FL262)`, as fork #1048 corrected them.
 - **#874 named a paid campaign** in `game/data/carrier_comms.py`'s docstring. Replaced with the fork's generic wording (fork `855205169`).
-- **#874 now also carries §62** (squadron-sequenced board numbers, `afa5d01`, pushed 2026-09-23 by another session). The code matches the fork. It is a second feature on a one-feature PR — DM call whether it stays there.
+- **#874 now also carries §62** (squadron-sequenced board numbers, `afa5d01`, pushed 2026-09-23 by another session). The code matches the fork. It is a second feature on a one-feature PR; **DM call 2026-09-23: it stays on #874.**
 - **#874 open item, not ported:** the fork's `_resolve_tacan` recomputes an auto-assigned TACAN each turn (`tacan_is_auto`, fork `017ab3389`). It needs upstream #758's `TacanContainer.tacan_is_auto`, which upstream `dev` lacks. The PR keeps "any stored channel wins".
 - **Current, nothing owed:** #966 (§74 core; later fork commits are §102), #896 (code identical; the body refresh in `retlab-pr896-body-refresh.md` is still owed), #884, #881, #872 (the PR's "Skynet-managed" comment is ahead of the fork's stale MANTIS one), #925, #920, #788.
 - **Deliberately not ported:** #881's two pre-existing export drifts (`vwv_rf101b.category`, `vap_vc_zil.name`) — outside the carved lines. #920's `915ac07f8` skip-list change — only needed if fork #882's field-elevation takeoff is carved.
