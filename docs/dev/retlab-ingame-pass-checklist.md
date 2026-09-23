@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-86 rows need a live pass. Full detail is under each `###` heading below —
+87 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -373,6 +373,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B135 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
 | B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
 | B137 | A Nevada kneeboard coordinate is the point the F10 map shows | kneeboard coordinates | ☐ |
+| B138 | A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird | §62 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8296,3 +8297,27 @@ printed page against the map.
 - **Fail signatures:** a `-` before the longitude; minutes that differ from the F10 map
   by the complement (`42'` against `18'`); `60"` in any seconds field.
 
+### B138 — A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird · §62 · ☐ UNTESTED
+
+The payload tab's **Set board number** pins the lead's modex; the wingmen follow in order.
+Taking a number another flight has pinned moves that flight to the next free run, and generation skips pinned
+numbers in every squadron sequence and re-rolls a random pydcs number that lands on one
+(2026-09-23). Unit-tested; this row checks the jets in DCS.
+
+- **Setup:** any carrier campaign with a Hornet squadron. Frag two Hornet packages. On the
+  first flight, tick **Set board number** and enter 105 on a four-ship. On the second
+  (a two-ship), pin 106: the tab says the first flight moved from 105 to 108. Frag a third
+  Hornet flight on automatic. Generate.
+- **Pass:** in the F2 view the second flight reads 106, 107 and the first 108-111. No other
+  Hornet in the mission reads any of those. The automatic flight is numbered in the
+  squadron block, skipping only the pinned numbers.
+- **Livery half (2026-09-23 DM rule):** the Tomcat livery follows the board number, and the
+  CAG / hi-vis livery is the X00 jet's alone. Frag a VF-143 F-14B(U) four-ship on automatic:
+  jet 100 wears AG100, the other three AG106. Pin 103 on a VF-103 B(U) two-ship: jet 103
+  wears AA103.
+- **Livery names checked against the install 2026-09-23:** all 17 `livery_set` entries in
+  the five F-14B(U) presets and F-14B VF-32 match a `.zip` under `CoreMods\aircraft\F14\Liveries`
+  (`f-14bu`, `f-14b`). A jet in default paint is a picker fault, not a missing livery.
+- **Fail signatures:** a pinned flight on random numbers; two jets sharing a number; the
+  first flight still reading 105 after the second took 106; CAG paint on any jet not
+  numbered X00.
