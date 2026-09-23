@@ -150,3 +150,32 @@ real campaign before anyone calls it a bug.
 - Re-read when he ships the naval, indirect-fires or airborne-resupply work — indirect fires
   is the one that would touch a seam we have open (§9 TIC).
 - If candidate 2 or 3 is ever picked up, it gets its own design note; this one stays a study.
+
+## 11. Indirect fires shipped (his Discord post, 2026-09-18)
+
+The §10 re-read trigger fired a day after this note. First working version, his words:
+refinement still owed, effectiveness "TBD", performance hit reported as minuscule.
+
+- **FSCM dialog.** The player assigns which artillery (battalion → company → platoon) supports
+  which maneuver units, each with a priority and a time window. A range map shows how many of
+  the supported units the battery can reach.
+- **Runtime.** Builds the list of candidate enemies and candidate observers; every 25 s it
+  checks whether any observer sees any enemy, and if one does, it calls for fire from the
+  assigned battery. A debug overlay shows each tube's state: configured, on cooldown, busy.
+
+**Where it lands here.** Our frontline artillery does nothing on its own: TIC leaves artillery
+groups vanilla (features doc §9, generator contract), so they fire only at what they see
+themselves. Observer-gated fire is the missing half, and it is visible from the air, which
+is the reason he gives.
+
+**Gates, before anything is scoped:**
+- The licence (§7), still unasked.
+- The **observer-gated trigger** is the concept worth taking. The FSCM dialog is platoon-level
+  command (admission rule 3, §6). An automatic pairing (nearest battery in range supports the
+  wedge in front of it) would fit pillar 3.5.
+- Real units firing through `TaskFireAtPoint` is what `vietnamops` §34 and TIC's naval
+  artillery already do, so it would not be phantom fire. Keep it out of any airfield's area
+  (the §36 hard constraint).
+- The cost of a 25 s observers × enemies sight check has not been measured against
+  [retlab-sim-thread-freeze-notes.md](retlab-sim-thread-freeze-notes.md). Profile it with
+  the `profiler` plugin before claiming it is cheap.
