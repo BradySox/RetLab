@@ -526,7 +526,7 @@ total_time_between_waypoints` adds `time_at_target` on the leg into `layout.spli
 `split_time` is now that same sum, so the two clocks agree by construction
 (`tests/ato/flightplans/test_formationattack.py`).
 (`game/ato/package.py`, `game/ato/flightplans/formation.py`,
-`game/ato/flightplans/formationattack.py`, `game/missiongenerator/kneeboard.py`; tests
+`game/ato/flightplans/formationattack.py`, `game/missiongenerator/kneeboard/`; tests
 `tests/ato/flightplans/test_formationattack.py` +
 `tests/missiongenerator/test_flightplan_fuel_column.py`.) The same machinery gained the
 join→ingress leg on 2026-09-01 — see §8 and
@@ -832,7 +832,9 @@ functions so the rule is testable without building the widget).
 
 ### Kneeboards
 
-**Kneeboard consolidation + overflow pagination** (`game/missiongenerator/kneeboard.py`,
+**Kneeboard package layout (2026-09-23).** `kneeboard.py` (3,650 lines) was split into a package, one module per page family: `writer` (page writer, time formats, `TableKneeboardPage`), `flightplan`, `briefing`, `support`, `taskpages`, `threatintel`, `pages` (saved points, notes, SITREP, index), `packagesmap`, `generator` (`KneeboardGenerator`). `__init__` re-exports the old public names. Imports run one way: everything depends on `writer`, nothing depends on `generator`.
+
+**Kneeboard consolidation + overflow pagination** (`game/missiongenerator/kneeboard/`,
 `kneeboard_page.py`): kneeboards are built once per `.miz` by `KneeboardGenerator.generate()`,
 which buckets pages per **airframe** (DCS can't do per-group kneeboards) and writes each
 `KneeboardPage` to a PNG. PR #73 folded the standalone Airfield Directory into the bottom of
@@ -1080,7 +1082,7 @@ cross-campaign leakage). Old saves migrate via a `__setstate__` `setdefault`. Co
 `tests/missiongenerator/test_custom_kneeboards.py`; the Qt dialog itself: in-game pass ☑ VERIFIED 2026-06-26 (H4).
 
 **Threat Intel Brief kneeboard (auto-generated enemy AD dossier).** A `ThreatIntelBriefPage`
-(`game/missiongenerator/kneeboard.py`) auto-generates the enemy air-defense dossier for a player
+(`game/missiongenerator/kneeboard/`) auto-generates the enemy air-defense dossier for a player
 flight as **one card per system** (sites aggregated), modelled on the per-system threat cards in
 professional campaign Intelligence Briefings (design note `retlab-campaign-doc-ideas-harvest.md`).
 `build_threat_intel_cards()` groups enemy `SamGroundObject` / `EwrGroundObject` by system and each
@@ -1317,7 +1319,7 @@ controls four behaviors together when set to Approximate:
   `STPT | Description | ALIC | Location` table with precise coords; that STPT pairs each
   target to its `TARGET_POINT` waypoint **by order** (not position), so it stays
   populated even when Approximate intel offsets the waypoint.
-  (`game/missiongenerator/kneeboard.py`)
+  (`game/missiongenerator/kneeboard/`)
 - **Emitters only, not the whole site.** Both tables list only the **HARM-targetable emitters**
   — units with an **ALIC** code (radars and self-contained TELs) via `_emitter_units` — not the
   launchers, command trucks and AAA guns that pad `strike_targets`. The cue table additionally
@@ -3600,7 +3602,7 @@ starts on page 2) and for `paginate()` expanding a flight's block. `pages_by_air
 
 | Area | Path |
 |---|---|
-| Index page + generate | `game/missiongenerator/kneeboard.py` (`KneeboardIndexPage`, `generate`, `client_flights_by_airframe`, `_build_index_page`) |
+| Index page + generate | `game/missiongenerator/kneeboard/` (`KneeboardIndexPage`, `generate`, `client_flights_by_airframe`, `_build_index_page`) |
 | Tests | `tests/missiongenerator/test_kneeboard_index.py` |
 
 ### Gotchas / deferred
@@ -4133,7 +4135,7 @@ high ground" was generic survival copy with no campaign meaning).
 | Capture hook | `game/sim/missionresultsprocessor.py` (`record_sitrep`, last in `commit`) |
 | Persistence | `game/game.py` (`last_sitrep` + `__setstate__` default) |
 | Setting | `game/settings/settings.py` (`generate_sitrep_kneeboard`, default ON, Kneeboards page) |
-| Render | `game/missiongenerator/kneeboard.py` (`BriefingPage`, `_briefing_sitrep`) |
+| Render | `game/missiongenerator/kneeboard/` (`BriefingPage`, `_briefing_sitrep`) |
 | Tests | `tests/test_sitrep.py`, `tests/missiongenerator/test_kneeboard_index.py` (gating); `COMMIT_STEPS` in `tests/test_missionresultsprocessor.py` |
 
 ### Gotchas / deferred
@@ -4174,7 +4176,7 @@ stock page (the rework's rule: upstream's pages, our info folded in).
 
 | Area | Path |
 |---|---|
-| Successor surfaces | `game/missiongenerator/kneeboard.py` (`BriefingPage` SITREP section, `KneeboardIndexPage`) |
+| Successor surfaces | `game/missiongenerator/kneeboard/` (`BriefingPage` SITREP section, `KneeboardIndexPage`) |
 | Tests | `tests/missiongenerator/test_kneeboard_index.py` (start-page math, SITREP gating, render) |
 
 ## §31 — One-page Brief Sheet + deck-wide colour scheme — RETIRED (2026-07-13)
@@ -4203,7 +4205,7 @@ mission/game-plan/laser/freq/weather/fields helpers, and `game/data/brevity_refe
 
 | Area | Path |
 |---|---|
-| Surviving helpers | `game/missiongenerator/kneeboard.py` (`_bluf_lines`, `_brief_air_threats`, `_brief_sam_threats`, `_brief_loadout`, `_brief_sar`, `CodeWordsBlock`, `SupportPage._render_code_words`) |
+| Surviving helpers | `game/missiongenerator/kneeboard/` (`_bluf_lines`, `_brief_air_threats`, `_brief_sam_threats`, `_brief_loadout`, `_brief_sar`, `CodeWordsBlock`, `SupportPage._render_code_words`) |
 | Tests | `tests/missiongenerator/test_kneeboard_bluf.py` (BLUF lines, code-words block, helper survivors) |
 
 ## §32 — Arc Light heavy-bomber Strike carpet (Vietnam Ops suite)
@@ -9110,7 +9112,7 @@ follow-up kept out of v1 so the runtime can be flown alone.
 
 Files: `game/retlab/gps_jamming.py`, `game/dcs/groundunittype.py`,
 `game/missiongenerator/gpsjammingluadata.py`, `game/missiongenerator/luagenerator.py`,
-`game/missiongenerator/kneeboard.py`, `game/settings/settings.py`,
+`game/missiongenerator/kneeboard/`, `game/settings/settings.py`,
 `resources/plugins/gpsjamming/`, `resources/units/ground_units/GPS_Spoofer_{Red,Blue}.yaml`,
 `resources/layouts/anti_air/GPS_Jamming_Site.{yaml,miz}`,
 `resources/layouts/anti_air/S-300{_Site, Site (Single Radar)}.yaml` + `S-300_Site.miz`,
@@ -10019,7 +10021,7 @@ every `Bullseye <brg> for <nm>` cue on the SEAD and threat-intel pages.
 - `game/theater/bullseye.py` (`MAX_DRIFT`, `Bullseye.drifted_from`) ·
   `game/theater/conflicttheater.py` (`bullseye_anchors`, `_closest_opposing_pair`) ·
   `game/coalition.py` (`anchor_bullseye`, pin state, migration) · `game/game.py`
-  (`set_bullseye`) · `game/missiongenerator/kneeboard.py` (the banner) ·
+  (`set_bullseye`) · `game/missiongenerator/kneeboard/` (the banner) ·
   `game/retlab/features.py`.
 - `tests/theater/test_bullseye.py` — 10 tests: the fleet and off-map skips, the
   boats-only fallback, that `closest_opposing_control_points` still sees the fleet, the
