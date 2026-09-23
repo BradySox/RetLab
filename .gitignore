@@ -53,3 +53,4 @@ resources/scripts/MissionScripting.original.lua
 
 # mypy
 .mypy_cache/
+CLAUDE.local.md

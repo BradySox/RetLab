@@ -79,7 +79,7 @@ feature — each carries the design rationale, the flown-test findings, and the 
 |---|---|
 | [retlab-features.md](docs/dev/retlab-features.md) | **The deep dive.** Every feature with file paths, gotchas, tests, deferred work. |
 | [retlab-feature-index.md](docs/dev/retlab-feature-index.md) | Generated catalog of every feature with its plugin and `Settings` wiring. |
-| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. |
+| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. Find a row: `grep -n "^### B55 "`, then Read ~15 lines from there. Never search a bare row ID. |
 | [flycards/WATCH.md](docs/dev/flycards/WATCH.md) | The standing opportunistic watch list — rows to adjudicate on any flight. |
 | [flycards/LOCAL.md](docs/dev/flycards/LOCAL.md) | The rolling local test card for contrived conditions. |
 | [retlab-early-systems-decision-ledger.md](docs/dev/retlab-early-systems-decision-ledger.md) | The 2026-07-18 deep-audit verdicts on the early-systems core, with self-play evidence. |
@@ -399,6 +399,10 @@ runtime and the feature silently never starts" class + pinning safety invariants
 periods, exclusion lists, one-shot latches). First coverage: `vietnamops`. It models no DCS
 AI/physics, so real behavior still needs an in-game pass (see the in-game-pass checklist).
 
+**Finding things in the big files.**
+- `game/settings/settings.py`: field `grep -n "^    <field>:"`; by UI label `grep -n -B1 '"<Label>'` (the label is on the line after the field).
+- `game/missiongenerator/kneeboard.py`: one class per page — `grep -n "^class .*Page"` first.
+
 ---
 
 ## Features at a Glance
@@ -406,6 +410,7 @@ AI/physics, so real behavior still needs an in-game pass (see the in-game-pass c
 One line each. **Full internals — file paths, gotchas, tests, deferred work, flown-test findings
 — are in [docs/dev/retlab-features.md](docs/dev/retlab-features.md) under the matching §N.** Read
 that section before editing a feature; this list is an index, not a spec.
+Find §N: `grep -nE "^## (§)?57[. ]"` — §1–18 are mostly headed `## N.`, the rest `## §N —`.
 
 The generated catalog is [docs/dev/retlab-feature-index.md](docs/dev/retlab-feature-index.md); the
 source of truth is the registry `game/retlab/features.py` (regenerate with
