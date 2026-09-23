@@ -578,6 +578,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "sead_strike_coordination",  # §69
         "single_sead_escort_flavour",  # §77
         "front_line_sead_escort",  # §69
+        "route_around_sams",  # §69
         "adaptive_procurement",  # §68
         "auto_repair_air_defenses",  # §68
     ],

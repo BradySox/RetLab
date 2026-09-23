@@ -88,7 +88,13 @@ def test_the_leg_out_of_the_target_carries_the_time_over_it() -> None:
     plan.layout = cast(
         Any,
         SimpleNamespace(
-            hold=None, ingress=join, join=join, split=split, targets=targets
+            hold=None,
+            ingress=join,
+            join=join,
+            split=split,
+            targets=targets,
+            ingress_nav=[],
+            egress_nav=[],
         ),
     )
 
