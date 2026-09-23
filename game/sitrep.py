@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import List, Optional, Sequence, TYPE_CHECKING, cast
 
-from game.sortierecord import SortieRecord, sorties_flown
+from game.sortierecord import SortieRecord
 from game.theater.player import Player
 
 if TYPE_CHECKING:

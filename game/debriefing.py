@@ -10,7 +10,6 @@ from typing import (
     Dict,
     Iterator,
     List,
-    Optional,
     TYPE_CHECKING,
     Union,
 )

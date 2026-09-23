@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import random
 from typing import Optional, TYPE_CHECKING
 
 from dcs.mapping import Point

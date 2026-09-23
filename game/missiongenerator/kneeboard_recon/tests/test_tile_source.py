@@ -8,7 +8,7 @@ import socket
 from collections.abc import Generator
 from pathlib import Path
 from typing import Any
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 from urllib.request import Request
 

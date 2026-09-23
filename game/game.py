@@ -29,7 +29,6 @@ from game.plugins import LuaPluginManager
 from game.sitrep import Sitrep
 from game.utils import Distance
 from . import naming, persistency
-from .ato import Flight
 from .ato.flighttype import FlightType
 from .campaignloader import CampaignAirWingConfig
 from .coalition import Coalition

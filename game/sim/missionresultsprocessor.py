@@ -27,7 +27,6 @@ from ..ato.airtaaskingorder import AirTaskingOrder
 
 if TYPE_CHECKING:
     from ..game import Game
-    from game.dcs.groundunittype import GroundUnitType
 
 
 #: How close a TARPS pass has to come to a hidden command post to find it. Was

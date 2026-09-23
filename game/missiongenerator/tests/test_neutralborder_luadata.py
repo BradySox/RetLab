@@ -139,7 +139,6 @@ def test_the_era_picks_the_tier_and_the_room_picks_the_rung() -> None:
 def test_no_ladder_offers_a_system_its_own_era_refuses() -> None:
     """MODERN_FROM sits at the modern ladder's latest export for this reason.
     A rung the date then rejects silently drops the country a tier."""
-    from datetime import date
 
     from game.missiongenerator.neutralbordersams import (
         MODERN_FROM,

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from dcs.mapping import LatLng, Point
+from dcs.mapping import LatLng
 
 from game import Game
 from game.coordinates import CoordinateFormat, format_latlng

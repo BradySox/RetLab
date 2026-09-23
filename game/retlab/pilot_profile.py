@@ -31,7 +31,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Optional, Sequence, TYPE_CHECKING
+from typing import Any, Optional, Sequence, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from game.sortierecord import SortieRecord

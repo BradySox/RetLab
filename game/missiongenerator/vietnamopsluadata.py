@@ -44,7 +44,6 @@ from game.data.units import HEAVY_BOMBER_DCS_IDS, UnitClass
 
 if TYPE_CHECKING:
     from game import Game
-    from game.theater import ControlPoint
 
     from .aircraft.flightdata import FlightData
     from .luagenerator import LuaData, LuaItem

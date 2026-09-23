@@ -10,7 +10,6 @@ import pytest
 from dcs.weather import Wind
 
 from game.missiongenerator.kneeboard_recon.atis import (
-    AtisBlock,
     altimeter_setting_inhg,
     build_atis_block,
     compute_qfe_inhg,

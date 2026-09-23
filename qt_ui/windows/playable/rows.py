@@ -23,7 +23,6 @@ from PySide6.QtGui import (
     QColor,
     QFont,
     QFontMetrics,
-    QMouseEvent,
     QPainter,
     QPen,
 )

@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 
 from typing_extensions import TYPE_CHECKING
 
-from game.ato.flightstate import Uninitialized, Completed, InCombat
+from game.ato.flightstate import Uninitialized, Completed
 from game.settings.settings import FastForwardStopCondition, CombatResolutionMethod
 from .combat import CombatInitiator, FrozenCombat
 from .simulationresults import SimulationResults

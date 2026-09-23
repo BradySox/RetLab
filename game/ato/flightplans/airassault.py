@@ -7,7 +7,6 @@ from typing import Iterator, TYPE_CHECKING, Type
 
 from game.theater.controlpoint import ControlPointType
 from game.theater.missiontarget import MissionTarget
-from .. import FlightType
 from game.utils import Distance, feet, meters
 from ._common_ctld import generate_random_ctld_point
 from .formationattack import (

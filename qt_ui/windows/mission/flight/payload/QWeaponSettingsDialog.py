@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QMessageBox,
 )
 
-from dcs.weapon_settings import WeaponSettings, WeaponSetting
+from dcs.weapon_settings import WeaponSetting
 from game.data.weapons import Weapon
 
 

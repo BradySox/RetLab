@@ -13,15 +13,13 @@ from typing import (
     ClassVar,
     Dict,
     Optional,
-    Sequence,
     TYPE_CHECKING,
     List,
     Tuple,
-    Union,
     cast,
 )
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from dcs.mapping import LatLng, Point as DcsPoint
 from dcs.terrain.terrain import Airport, Terrain
 from suntime import Sun, SunTimeException  # type: ignore

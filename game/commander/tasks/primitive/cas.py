@@ -6,7 +6,7 @@ from game.ato.flighttype import FlightType
 from game.commander.missionproposals import EscortType
 from game.commander.tasks.packageplanningtask import PackagePlanningTask
 from game.commander.theaterstate import TheaterState
-from game.theater import FrontLine, Player
+from game.theater import FrontLine
 
 
 @dataclass

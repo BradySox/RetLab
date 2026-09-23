@@ -66,7 +66,6 @@ if TYPE_CHECKING:
     from dcs import Point
 
     from game import Game
-    from game.ato.dtcoptions import DtcOptions
     from game.ato.flightwaypoint import FlightWaypoint
     from game.missiongenerator.aircraft.flightdata import FlightData
     from game.missiongenerator.missiondata import MissionData
