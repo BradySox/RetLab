@@ -370,6 +370,13 @@ etribution-pr`. **Still gated on pydcs [#39](https://github.com/dcs-retribution/
 - **Status:** opened 2026-07-16 as **draft [PR #874](https://github.com/dcs-retribution/dcs-retribution/pull/874)**
   on dev @ `ef576acc`; validated on that base: pytest 256 passed, Black clean,
   mypy clean (the fork side landed as [RetLab#611](https://github.com/BradySox/RetLab/pull/611)).
+- **2026-09-23: §62 folded in (DM call).** The PR is now a Navy pass. Upstream `dev` @ `49e8067f`
+  merged into the branch (`568e5930`), then §62 as its own commit (`afa5d01b`): `ModexAllocator`,
+  `LiveryAllocator`, `Squadron.ordered_livery_set`, the F-14B(U) presets collapsed to one
+  livery-set preset per squadron (upstream's task lists kept, the fork's `TARPS` not carried),
+  and F-14B VF-32 reordered. The fork's QRA and §61 modex hooks are fork-only and stay here.
+  pytest 508 passed, Black and mypy clean. Title/body refresh:
+  [retlab-pr874-body-refresh.md](retlab-pr874-body-refresh.md).
 
 ---
 

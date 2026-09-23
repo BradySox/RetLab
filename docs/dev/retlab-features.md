@@ -6535,10 +6535,13 @@ sequences, the two-livery and one-livery degenerate cases, the empty-set no-op, 
 rejoin) and `tests/test_squadron_livery_sets.py` (every F-14B(U) preset carries a set, leads
 with its lowest modex, and repeats no board number).
 
-**In-game pass: ◐ PARTIAL** (checklist B15). Hornet sequencing verified 2026-07-16 on the flown
+**Upstream:** carried on [dcs-retribution#874](https://github.com/dcs-retribution/dcs-retribution/pull/874)
+since 2026-09-23 as a second commit beside §65 (inventory item 19), without the QRA and §61 hooks.
+
+**In-game pass: ☑ VERIFIED** (checklist B15, 2026-09-16 audit: the Tomcat livery order read from
+the generated miz on three campaigns). Hornet sequencing verified 2026-07-16 on the flown
 Scenic Route turn-3 test (*"The Modex on our fork is 100% working … Everyone's modex looked
 accurate"*) — that reading stands for the Hornet, whose liveries do carry the number material.
-The Tomcat's livery sequence has not been flown.
 
 That mechanism is what any per-pilot modex work rests on — see upstream issue
 [#863](https://github.com/dcs-retribution/dcs-retribution/issues/863) (per-pilot modex pins in
