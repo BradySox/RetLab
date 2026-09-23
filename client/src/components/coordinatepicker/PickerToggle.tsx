@@ -33,7 +33,8 @@ export default function PickerToggle(props: PickerToggleProps) {
       const button = L.DomUtil.create("a", "", container);
       button.href = "#";
       button.setAttribute("role", "button");
-      button.title = "GPS coordinates: read any point on the map";
+      button.title =
+        "Pick a point: read its coordinates or save it to your aircraft";
       // Leaflet would otherwise pan the map under the button and follow the href.
       L.DomEvent.disableClickPropagation(container);
       L.DomEvent.on(button, "click", (event: Event) => {

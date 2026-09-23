@@ -6,6 +6,7 @@
         {
             "nameInUI": "Seconds between offensive jamming checks",
             "mnemonic": "tickSec",
+            "minimumValue": 1,
             "defaultValue": 10
         },
         {

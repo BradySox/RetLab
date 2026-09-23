@@ -16,7 +16,8 @@ drawings, Tomcat/Apache wiring and the DTC options are ours.
   - **Saved points** — the points table, grouped by kind, plus a drawings list. Rename,
     copy/paste between aircraft, Add (type or paste a position, pick a kind), show on the
     map, delete.
-  - **Loadout** — the Edit Flight `QFlightPayloadTab`, unchanged.
+  - **Payload** — the Edit Flight `QFlightPayloadTab`, unchanged, under its Edit
+    Flight name.
   - **DTC** — the Edit Flight `QFlightDtcTab`, rebuilt (§5).
 - **The map** — the crosshair button at top left reads any spot. Its popup saves the spot
   as a kind, or starts a drawing. A layer shows every saved point, orbit and drawing.
@@ -66,19 +67,35 @@ so the number on the kneeboard is the jet's:
 - A point that did not fit prints `-`. An orbit prints `ORB` with heading and length.
   Drawings are listed on the first page by their first corner.
 
+The window numbers and counts from the same module (`point_numbers`, `route_slots`), on
+the planned route rather than the generated one. Generation only drops rows (a dry
+refuel point, an air start), so the window can understate the room, never overstate it.
+It counts **room in the jet**: the airframe's capacity less the route's numbers. With
+the cartridge, its Saved points section or (Hornet/Viper/Apache) its Flight plan section
+off, the jet takes none and the window says kneeboard only. Add still accepts points
+there, up to the airframe's capacity or 50 for an unmeasured airframe
+(`UNKNOWN_CEILING`); they go on the kneeboard.
+
 ## 5. The DTC tab
 
 - **Per airframe.** Only the sections this jet's cartridge carries
   (`game/missiongenerator/dtc/sections.py`), grouped Navigation / Situation picture /
-  Weapons and defence / Comms, each with what it does on this jet.
+  Weapons and defense / Comms, each with what it does on this jet.
 - **Loading.** Load at spawn (default) or pilot loads it. Hand-load still binds the
   cartridge; it writes `AutoLoad = false` on the unit (`dcs/flyingunit.py:106-121`). This
   is the answer to B28's STBY objection, and campaign G's own choice.
 - **Waypoints in the cartridge.** One tick per waypoint type in the plan. An unticked type
-  is left out of the Hornet, Viper, Apache and Tomcat route; the numbers after it close up
-  and the kneeboard route table prints `-` on its row. Stored as type names, so a re-plan
-  keeps the choice.
-- **Known SAM sites near the route.** Optional: only sites whose ring comes within N nm of
+  is left out of the Hornet, Viper, Apache and Tomcat route and the numbers after it close
+  up. On the Hornet, Viper and Apache the kneeboard route table prints `-` on its row and
+  closes up too. **Not on the Tomcat**: `route_numbers()` renumbers only the jets whose
+  cartridge route replaces the editor's, so the kneeboard keeps every row and runs ahead
+  of plan 2 after a skip. The tab says so. Stored as type names, so a re-plan keeps the
+  choice.
+- **Whether the flight gets a cartridge.** "Follow the Pre-load DTC data cartridges
+  setting", "Build a cartridge for this flight" or "No cartridge for this flight". The
+  first two used to read "Always/Never load", which sat above the Loading choice and read
+  as its contradiction.
+- **Known SAM sites near the route.** Optional: only sites whose ring comes within N NM of
   the route. Default every known site, as before.
 - **Saved points** and **Your drawings** are sections of their own.
 

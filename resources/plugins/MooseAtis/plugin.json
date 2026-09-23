@@ -2,10 +2,8 @@
     "nameInUI": "Moose ATIS",
     "defaultValue": false,
     "specificOptions": [
-        { "nameInUI": "Announce Field Name (when supported by MOOSE + soundfile present)", "mnemonic": "AnnounceFieldName", "defaultValue": true },
         { "nameInUI": "ATIS Base Frequency (MHz)", "mnemonic": "AtisBaseFreqMHz", "minimumValue": 118, "maximumValue": 399, "defaultValue": 131 },
-        { "nameInUI": "ATIS Frequency Spacing (kHz)", "mnemonic": "AtisSpacingKHz", "minimumValue": 25, "maximumValue": 5000, "defaultValue": 500 },
-        { "nameInUI": "Debug Mode", "mnemonic": "AtisDebug", "defaultValue": false }
+        { "nameInUI": "ATIS Frequency Spacing (kHz)", "mnemonic": "AtisSpacingKHz", "minimumValue": 25, "maximumValue": 5000, "defaultValue": 500 }
     ],
     "scriptsWorkOrders": [],
     "configurationWorkOrders": [

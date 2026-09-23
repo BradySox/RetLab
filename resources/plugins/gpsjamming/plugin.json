@@ -43,6 +43,7 @@
             "nameInUI": "Weapon-track sample step (s)",
             "descriptionInUI": "Keep small. The terminal gate is predictive (it fires when the weapon would be through the floor by the NEXT sample), so a coarse step only makes the destroy happen higher, never later than impact.",
             "mnemonic": "trackStepS",
+            "minimumValue": 0.05,
             "defaultValue": 0.2
         },
         {

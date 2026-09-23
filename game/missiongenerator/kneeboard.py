@@ -2711,7 +2711,7 @@ class SavedPointsPage(KneeboardPage):
     def write(self, path: Path) -> None:
         writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         counted = f" ({self.page}/{self.total_pages})" if self.total_pages > 1 else ""
-        writer.title(f"{self.callsign} extra points{counted}")
+        writer.title(f"{self.callsign} saved points{counted}")
         rows = []
         for number, point in zip(self.numbers, self.points):
             at = Point(point.x, point.y, self.theater.terrain)

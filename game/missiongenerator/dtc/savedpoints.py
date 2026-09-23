@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Sequence
 
 if TYPE_CHECKING:
+    from game.ato.dtcoptions import DtcOptions
     from game.ato.flightwaypoint import FlightWaypoint
     from game.ato.savedpoints import SavedPoint
     from game.missiongenerator.aircraft.flightdata import FlightData
@@ -81,17 +82,14 @@ def route_numbers(flight: FlightData, settings: Settings) -> list[str]:
     return numbers
 
 
-def cartridge_route_length(flight: FlightData) -> int:
-    """How many cockpit numbers the cartridge's route takes: row 0 is not emitted."""
+def route_slots(aircraft: str, flown: int, route: bool) -> int:
+    """How many cockpit numbers a cartridge route of ``flown`` waypoints takes ahead
+    of the saved points."""
     from game.missiongenerator.dtc.hornet import MAX_WAYPOINTS
     from game.missiongenerator.dtc.viper import MAX_ROUTE_STEERPOINTS
 
     hornet, viper, tomcat, apache = _types()
-    flown = len(kept_waypoints(flight))
-    aircraft = flight.aircraft_type.dcs_unit_type.id
-    if aircraft == tomcat:
-        return 0
-    if not flight.dtc_options.route:
+    if aircraft == tomcat or not route:
         return 0
     if aircraft == hornet:
         return min(flown, MAX_WAYPOINTS)
@@ -102,19 +100,37 @@ def cartridge_route_length(flight: FlightData) -> int:
     return flown
 
 
-def carries_saved_points(flight: FlightData, settings: Settings) -> bool:
-    """Whether this flight's cartridge will hold its saved points at all."""
-    aircraft = flight.aircraft_type.dcs_unit_type.id
+def cartridge_route_length(flight: FlightData) -> int:
+    """How many cockpit numbers the cartridge's route takes: row 0 is not emitted."""
+    return route_slots(
+        flight.aircraft_type.dcs_unit_type.id,
+        len(kept_waypoints(flight)),
+        flight.dtc_options.route,
+    )
+
+
+def cartridge_takes_points(
+    aircraft: str, options: DtcOptions, campaign_setting: bool
+) -> bool:
+    """Whether a player flight of this type gets its saved points in the cartridge."""
     if aircraft not in _types():
         return False
-    if not flight.friendly.is_blue or not flight.client_units:
-        return False
-    options = flight.dtc_options
-    if not options.resolve_enabled(settings.dtc_data_cartridges):
+    if not options.resolve_enabled(campaign_setting):
         return False
     if not options.saved_points:
         return False
     return aircraft == _types()[2] or options.route
+
+
+def carries_saved_points(flight: FlightData, settings: Settings) -> bool:
+    """Whether this flight's cartridge will hold its saved points at all."""
+    if not flight.friendly.is_blue or not flight.client_units:
+        return False
+    return cartridge_takes_points(
+        flight.aircraft_type.dcs_unit_type.id,
+        flight.dtc_options,
+        settings.dtc_data_cartridges,
+    )
 
 
 def _last_point(aircraft: str) -> int:
@@ -127,13 +143,11 @@ def _last_point(aircraft: str) -> int:
     }[aircraft]
 
 
-def cockpit_numbers(
-    flight: FlightData, points: Sequence[SavedPoint]
+def _numbered_after(
+    aircraft: str, route: int, points: Sequence[SavedPoint]
 ) -> list[Optional[int]]:
-    """The cartridge number of each navigation point; None for one that did not
-    fit or is not a navigation point (an orbit goes elsewhere)."""
-    number = cartridge_route_length(flight) + 1
-    last = _last_point(flight.aircraft_type.dcs_unit_type.id)
+    number = route + 1
+    last = _last_point(aircraft)
     numbers: list[Optional[int]] = []
     for point in points:
         if not point.kind.is_navigation:
@@ -144,24 +158,59 @@ def cockpit_numbers(
     return numbers
 
 
-def kneeboard_numbers(flight: FlightData, settings: Settings) -> list[Optional[int]]:
-    """What the kneeboard prints beside each saved point.
+def cockpit_numbers(
+    flight: FlightData, points: Sequence[SavedPoint]
+) -> list[Optional[int]]:
+    """The cartridge number of each navigation point; None for one that did not
+    fit or is not a navigation point (an orbit goes elsewhere)."""
+    return _numbered_after(
+        flight.aircraft_type.dcs_unit_type.id, cartridge_route_length(flight), points
+    )
 
-    The cartridge's number when there is one, the A-10's CDU number, and otherwise the
-    next number after the kneeboard's own route rows (which count from 0).
+
+def point_numbers(
+    aircraft: str,
+    waypoints: Sequence[FlightWaypoint],
+    options: DtcOptions,
+    points: Sequence[SavedPoint],
+    in_cartridge: bool,
+    in_cdu: bool,
+) -> list[Optional[int]]:
+    """The number each saved point carries, in the jet and on the kneeboard.
+
+    The cartridge's number when ``in_cartridge``, the A-10's CDU number when
+    ``in_cdu``, and otherwise the next number after the kneeboard's own route rows
+    (which count from 0). ``waypoints`` includes row 0, the spawn.
     """
-    from game.missiongenerator.a10cdu import AIRCRAFT as A10, numbers_for
+    from game.missiongenerator.a10cdu import numbers_for
 
-    points = flight.saved_points
-    if carries_saved_points(flight, settings):
-        return cockpit_numbers(flight, points)
+    if in_cartridge:
+        skipped = options.skipped_waypoints
+        flown = [w for w in waypoints[1:] if w.waypoint_type.name not in skipped]
+        route = route_slots(aircraft, len(flown), options.route)
+        return _numbered_after(aircraft, route, points)
     navigation = [p for p in points if p.kind.is_navigation]
-    if flight.aircraft_type.dcs_unit_type.id in A10 and flight.client_units:
-        numbers = iter(numbers_for(len(flight.waypoints), len(navigation)))
+    if in_cdu:
+        numbers = iter(numbers_for(len(waypoints), len(navigation)))
     else:
-        start = len(flight.waypoints)
+        start = len(waypoints)
         numbers = iter(range(start, start + len(navigation)))
     return [next(numbers) if p.kind.is_navigation else None for p in points]
+
+
+def kneeboard_numbers(flight: FlightData, settings: Settings) -> list[Optional[int]]:
+    """What the kneeboard prints beside each saved point (see ``point_numbers``)."""
+    from game.missiongenerator.a10cdu import AIRCRAFT as A10
+
+    aircraft = flight.aircraft_type.dcs_unit_type.id
+    return point_numbers(
+        aircraft,
+        flight.waypoints,
+        flight.dtc_options,
+        flight.saved_points,
+        carries_saved_points(flight, settings),
+        aircraft in A10 and bool(flight.client_units),
+    )
 
 
 #: A player orbit drawn as a box is this wide, the SA page's CAP diameter.

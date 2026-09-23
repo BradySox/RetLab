@@ -19,6 +19,7 @@ checked against the code before anything was changed.
 | No setting, published page or plugin text presents a removed feature as live | `tools/audit_stale_docs.py` (CI); the settings test reuses its table |
 | Plugin option descriptions render under the label, as on the generated pages | `tests/test_plugin_option_descriptions.py` |
 | A mod a shipped campaign preseeds has a New Game toggle | `tests/test_mod_toggles.py` |
+| A plugin loop period (`…IntervalS`, `…RepathS`, `…StepS`, `tickSec`) has a positive `minimumValue` | `tests/test_plugin_option_timers.py` |
 | Units are a trailing parenthetical: `(NM)`, `(km)`, `(m)`, `(ft)`, `(%)`, `(minutes)` | review |
 | A setting whose runtime is a plugin names that plugin by its display name | review |
 
@@ -73,6 +74,12 @@ Growler named only the EA-18G, COIN cited the political mandate, TIC's jitter la
 (the code does ±45 % plus a per-group tempo), intercept pointed at "Campaign Doctrine". The
 soundhandler's Tomahawk call referenced a sound it never packed.
 
+**Plugin option behavior (same-day follow-up):** Skynet's "Exclude SA-15" was a no-op (an inner
+`local` shadowed the list; upstream carries it too, inventory item 39) and its 12 dependent
+options now gray out with their master; MooseAtis lost "Debug Mode" (never read) and "Announce
+Field Name" (needs `ATIS:SetReportName`, absent from the bundled MOOSE); nine loop periods got a
+positive minimum, so 0 no longer reschedules a loop on every pass.
+
 **Qt windows — text that said something false:** closing Air Wing Configuration discards (the
 text said it accepts); the time/date warning said changing it re-initializes the turn (ACCEPT
 keeps and re-times the plans); the sell tooltip said "buy"; the results-file picker said "game
@@ -123,24 +130,37 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 |---|---|
 | Kneeboard coordinates (`kneeboard.py`, `kneeboard_recon/coords.py`, `pages.py`) | pydcs `LatLng.format_dms()` prints a west or south component with a minus sign and the complementary minutes: `(36.2, -115.3)` → `-115°42'00"W`, true 115°18'W. Every Nevada and South Atlantic kneeboard coordinate is wrong |
 | `game/retlab/c2_decapitation.py:58-80` | The C2 chip and SITREP line count every enemy command post, hidden ones included, so "1/3 operational" leaks how many exist |
-| `resources/plugins/skynetiads/skynetiads-config.lua:293-296` | "Exclude SA-15" does nothing: an inner `local sams` shadows the list. Same in upstream — a carve candidate |
-| `resources/plugins/MooseAtis/plugin.json:5,8` | "Debug Mode" is read and never used; "Announce Field Name" needs a MOOSE method the bundled build lacks |
-| 8 plugin timer options | No `minimumValue`, so 0 is accepted and the loop runs every scheduler pass |
-| `skynetiads/plugin.json` | 12 options depend on a master toggle but declare no `enabledWhen` |
 | Plugin pages | Not reached by the settings search or "Only changed"; no campaign badge; unticking a plugin does not gray its options |
 | `qt_ui/windows/sp/QSpPilotModeDialog.py:179,220` | Offers "join a package" sorties, then says joining "is not wired up yet" |
 | COIN HVT and IED | Since the will economy went, a kill or a detonation is an announcement only; the features have no consequence |
 
 ### My aircraft window and the per-airframe DTC tab (§102, landed the same day)
 
-Audited after the rebase; 29 findings, handed on rather than fixed here because the feature was
-still moving. The ones that say something false: the header's mission-local time is marked "Z";
-"no DCS data cartridge, saved points go on the kneeboard" on the A-10, whose points go into the
-navigation computer; the Elev tooltip says nothing knows the ground height, which
-`game/elevation.py` does; slot counts ignore the route the points are numbered after; the Viper
-section text puts saved points on steerpoints 21-24 (they follow the route); "the kneeboard
-prints '-'" is false on the F-14B(U). The rest is naming drift ("GPS Points", "Loadout" for the
-Payload tab, `.title()` giving "Ingress Sead"), "nm", plurals and hover-only hints.
+Audited after the rebase; 29 findings. **The text findings are fixed** (branch
+`claude/my-aircraft-text-audit`):
+
+- Header time reads "local", not "Z".
+- The DTC tab's no-cartridge note says where the A-10's points go (the navigation computer).
+- The Elev tooltip and the Add hint say the ground height is filled in when the lookup answers.
+- Room is counted after the route, in the jet, and "kneeboard only" where the jet takes none.
+  Points carry the jet's and the kneeboard's numbers (`point_numbers`, shared).
+- Viper route text: the saved points follow the route, not steerpoints 21-24.
+- The skip note and the "kneeboard only" line are per airframe (the F-14B(U) differs).
+- One name, "saved points": the map toggle, the kneeboard page title, What's New.
+- The "Loadout" tab is "Payload", its Edit Flight name.
+- NM, °, ft/m; "IP", "IPs", "Save as IP"; curated waypoint-type labels ("Hold", not
+  "Loiter"); the cartridge choice reads "Build a cartridge / No cartridge"; the setting
+  label names the AH-64D.
+- Plurals, " · " separators, word wrap on long labels, "double-click to name", one
+  threat-ring wording, "type" for waypoint types, rank abbreviations without periods.
+
+Still open, behavior rather than text:
+
+| Where | Defect |
+|---|---|
+| `qt_ui/windows/playable/model.py` `Clipboard` | Copy all and Paste drop an orbit's heading and length (it pastes as 090 for 20 NM) and never copy drawings |
+| `game/ato/savedpoints.py` `points_of` | Points live on the squadron, so two player flights from one squadron show the same points and the headline counts them twice |
+| `client/.../coordinatepicker/SavePoint.tsx` | The map offers no Save on an unmeasured airframe (no kinds), while Add in the window accepts up to 50 for the kneeboard |
 
 ### Wider passes, not started
 

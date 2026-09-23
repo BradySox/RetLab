@@ -10734,7 +10734,7 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/missiongenerator/a10cdu.py` — the A-10's CDU state.
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
-- `client/src/components/coordinatepicker/` — the GPS picker, Save with kinds, the draw
+- `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
   panel (`DrawPanel.tsx`) and the map layer (`SavedPointsLayer.tsx`).
 
 ### What it does
@@ -10744,7 +10744,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Drawings: lines and areas on each jet's free line slots — the note's §3 table.
 - DTC tab: only the sections the jet carries; load at spawn or by hand; waypoint types to
   leave out; SAM sites only near the route.
-- Kneeboard: an "extra points" page with the cockpit's numbers; the route table prints
+- Window: room counted in the jet, after the planned route; points carry the jet's
+  numbers (`point_numbers`, the same function the kneeboard uses).
+- Kneeboard: a "saved points" page with the cockpit's numbers; the route table prints
   `-` on a skipped row.
 
 ### Constraints — do not undo

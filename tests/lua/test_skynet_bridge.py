@@ -11,6 +11,8 @@ The bridge (skynetiads-config.lua) is upstream's, plus:
 * Point defence -- a PD is paired only if Skynet rates it HARM-capable, because
   Skynet keeps the parent live on its PDs' ammo without asking (test 37).
 
+Also pinned: "Exclude SA-15", which upstream's copy shadows into a no-op.
+
 Skynet itself is faked: the real engine needs a live DCS world. The fake records
 what the bridge hands it, which is the whole contract under test.
 """
@@ -26,7 +28,7 @@ PLUGIN = "resources/plugins/skynetiads/skynetiads-config.lua"
 FAKE_SKYNET = """
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
-SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {}, pds = {} }
+SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {}, pds = {}, actMobile = {} }
 -- Group name -> true where Skynet's type database rates the site HARM-capable (Tor, Patriot...).
 SkynetHarmCapable = {}
 
@@ -40,6 +42,9 @@ local function element(iads, name)
     function e:setGoLiveRangeInPercent() end
     function e:setAutonomousBehaviour() end
     function e:setActAsEW() end
+    function e:setActMobile(enable)
+        table.insert(SkynetRecords.actMobile, { nato = name, enable = enable })
+    end
     function e:addPointDefence(pd)
         table.insert(SkynetRecords.pds, { sam = name, pd = pd.name })
     end
@@ -68,7 +73,7 @@ function SkynetIADS:addCommandCenter(obj)
     table.insert(SkynetRecords.commandCenters, { name = obj:getName(), exists = obj:isExist(), coalition = obj:getCoalition() })
     return element(self, obj:getName())
 end
-function SkynetIADS:getSAMSitesByNatoName() return element(self, "byNato") end
+function SkynetIADS:getSAMSitesByNatoName(nato) return element(self, nato) end
 function SkynetIADS:addRadioMenu() end
 function SkynetIADS:activate() end
 """
@@ -239,3 +244,42 @@ def test_other_coalitions_awacs_is_not_polled_for() -> None:
     h, rec = _bridge(dead_c2=[], awacs=awacs)
     assert h.pending_scheduled() == 0
     assert _list(h, rec.ewrs) == []
+
+
+def _mobile_shorad(exclude_sa15: bool) -> list[str]:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_SKYNET)
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {
+            "plugins": {
+                "skynetiads": {
+                    "createRedIADS": True,
+                    "actMobile": True,
+                    "actMobileMaxEmissionTime": 30,
+                    "actMobileMinimumScootDistance": 300,
+                    "actMobileMaximumScootDistance": 500,
+                    "actMobile_exclude_SA15": exclude_sa15,
+                }
+            },
+            "IADS": {"BLUE": {}, "RED": {}},
+        }
+    )
+    h.load_plugin_script(PLUGIN)
+    h.assert_no_lua_errors()
+    return [r["nato"] for r in _list(h, h.lua.globals().SkynetRecords.actMobile)]
+
+
+def test_mobile_shorad_includes_sa15_by_default() -> None:
+    assert _mobile_shorad(exclude_sa15=False) == [
+        "SA-8",
+        "SA-9",
+        "SA-13",
+        "SA-15",
+        "SA-19",
+    ]
+
+
+def test_exclude_sa15_leaves_the_tor_static() -> None:
+    # Upstream declares the shorter list with an inner `local`, which shadows the
+    # one the loop reads, so the option never excluded anything.
+    assert _mobile_shorad(exclude_sa15=True) == ["SA-8", "SA-9", "SA-13", "SA-19"]

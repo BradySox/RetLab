@@ -17,6 +17,12 @@ import {
 import { LatLng } from "leaflet";
 import { useEffect, useState } from "react";
 
+// The kind inside a sentence: "waypoint", but "IP".
+function kindWord(kind: string): string {
+  const label = KIND_LABEL[kind] ?? kind;
+  return label === label.toUpperCase() ? label : label.toLowerCase();
+}
+
 export default function SavePoint(props: {
   at: LatLng;
   name: string;
@@ -156,7 +162,7 @@ export default function SavePoint(props: {
             value={length}
             onChange={(e) => setLength(e.target.value)}
           />
-          nm
+          NM
         </label>
       )}
       <div className="cp-save-buttons">
@@ -170,7 +176,7 @@ export default function SavePoint(props: {
             }
             onClick={save}
           >
-            Save as {(KIND_LABEL[current] ?? current).toLowerCase()}
+            Save as {kindWord(current)}
           </button>
         )}
         {props.onDraw && (

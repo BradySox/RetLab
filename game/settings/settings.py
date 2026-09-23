@@ -3154,13 +3154,14 @@ class Settings:
         default=True,
     )
     dtc_data_cartridges: bool = boolean_option(
-        "Pre-load DTC data cartridges (F/A-18C, F-16C, F-14B(U))",
+        "Pre-load DTC data cartridges (F/A-18C, F-16C, F-14B(U), AH-64D)",
         page=MISSION_GENERATION_PAGE,
         section=GENERAL_SECTION,
         default=True,
         detail=(
             "Embed a native DCS Data Transfer Cartridge for every blue client "
-            "Hornet, Viper and F-14B(U) flight and auto-load it at spawn. "
+            "Hornet, Viper, F-14B(U) and Apache flight. It loads at spawn unless "
+            "the flight's DTC tab says the pilot loads it. "
             "Hornet: the route with "
             "push times, recovery TACAN/ICLS/ACLS, the bullseye as the A/A "
             "waypoint, and the SA page -- front line, your own orbit, the "
@@ -3169,6 +3170,8 @@ class Settings:
             "Destinations with the enemy field you are working over beside the "
             "divert. F-14B(U): references and the front line, the route on plan "
             "2, pre-planned JDAM aimpoints, and the package in the TIS list. "
+            "Apache: the route on route ALPHA, the front line and known SAM sites "
+            "on the TSD, and a box on the tanker. "
             "Radio presets and the route reach every jet through the mission "
             "anyway, so turning this off costs only the extras. Threat rings "
             "respect recon fog: only sites your map shows exactly. The cartridge "

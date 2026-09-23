@@ -38,8 +38,8 @@ SECTIONS: tuple[Section, ...] = (
         {
             HORNET_UNIT_TYPE: "The route as named waypoints on sequence 1, with the"
             " planned leg speeds and times.",
-            VIPER_UNIT_TYPE: "The route as steerpoints 1-20 with times on target;"
-            " 21-24 hold the saved points and support anchors.",
+            VIPER_UNIT_TYPE: "The route as steerpoints from 1 (20 at most) with times"
+            " on target. Saved points and support anchors follow it, up to 24.",
             TOMCAT_UNIT_TYPE: "The route on flight plan 2 with its times. Plan 1 stays"
             " the mission editor's own.",
             APACHE_UNIT_TYPE: "The route as W-points on route ALPHA, with leg speeds"
@@ -111,11 +111,14 @@ SECTIONS: tuple[Section, ...] = (
         "Known SAM sites",
         PICTURE,
         {
-            HORNET_UNIT_TYPE: "Rings on the SA page for sites your side has engaged.",
-            VIPER_UNIT_TYPE: "HSD threat rings for sites your side has engaged.",
-            TOMCAT_UNIT_TYPE: "Reference points; the widest ring is the hostile"
-            " area that sets the threat axis.",
-            APACHE_UNIT_TYPE: "Target points on the TSD.",
+            HORNET_UNIT_TYPE: "Threat rings on the SA page for the sites your side"
+            " has engaged.",
+            VIPER_UNIT_TYPE: "Threat rings on the HSD for the sites your side has"
+            " engaged.",
+            TOMCAT_UNIT_TYPE: "Reference points for the sites your side has engaged;"
+            " the widest ring is the hostile area that sets the threat axis.",
+            APACHE_UNIT_TYPE: "Target points on the TSD for the sites your side has"
+            " engaged.",
         },
     ),
     Section(

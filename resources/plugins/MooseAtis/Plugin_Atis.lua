@@ -1,12 +1,8 @@
 env.info("-----DCSRetribution|MOOSE ATIS plugin - start -----")
 
-local announceFieldName = true
-local atisDebug = false
-if dcsRetribution and dcsRetribution.plugins and dcsRetribution.plugins.MooseAtis then
-    local cfg = dcsRetribution.plugins.MooseAtis
-    if cfg.AnnounceFieldName ~= nil then announceFieldName = cfg.AnnounceFieldName end
-    if cfg.AtisDebug ~= nil then atisDebug = cfg.AtisDebug end
-end
+-- Reads no plugin options; the frequency pair is used by the mission generator.
+-- "Debug Mode" (never used) and "Announce Field Name" (needs ATIS:SetReportName,
+-- absent from the bundled Moose.lua) were removed 2026-09-22.
 
 if not (dcsRetribution and dcsRetribution.Atis) then
     env.info("-----dcsRetribution.Atis NOT FOUND -- no ATIS stations created")
@@ -22,12 +18,6 @@ for _, entry in pairs(dcsRetribution.Atis) do
         -- path) does not resolve and the ATIS plays silently.
         local soundPath = "l10n/DEFAULT/"
         atis:SetSoundfilesPath(soundPath, soundPath, soundPath)
-        -- Field-name suppression is best-effort: this MOOSE build exposes no
-        -- such setter, so the guard never fires here (AnnounceFieldName is
-        -- advisory). Guarded so a future MOOSE that adds one Just Works.
-        if (not announceFieldName) and atis.SetReportName then
-            atis:SetReportName(false)
-        end
         atis:Start()
         env.info(string.format(
             "DCSRetribution|MOOSE ATIS: started %s on %.3f MHz", entry.name, entry.freq
