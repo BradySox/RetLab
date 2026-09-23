@@ -127,14 +127,31 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 
 ### My aircraft window and the per-airframe DTC tab (§102, landed the same day)
 
-Audited after the rebase; 29 findings, handed on rather than fixed here because the feature was
-still moving. The ones that say something false: the header's mission-local time is marked "Z";
-"no DCS data cartridge, saved points go on the kneeboard" on the A-10, whose points go into the
-navigation computer; the Elev tooltip says nothing knows the ground height, which
-`game/elevation.py` does; slot counts ignore the route the points are numbered after; the Viper
-section text puts saved points on steerpoints 21-24 (they follow the route); "the kneeboard
-prints '-'" is false on the F-14B(U). The rest is naming drift ("GPS Points", "Loadout" for the
-Payload tab, `.title()` giving "Ingress Sead"), "nm", plurals and hover-only hints.
+Audited after the rebase; 29 findings. **The text findings are fixed** (branch
+`claude/my-aircraft-text-audit`):
+
+- Header time reads "local", not "Z".
+- The DTC tab's no-cartridge note says where the A-10's points go (the navigation computer).
+- The Elev tooltip and the Add hint say the ground height is filled in when the lookup answers.
+- Room is counted after the route, in the jet, and "kneeboard only" where the jet takes none.
+  Points carry the jet's and the kneeboard's numbers (`point_numbers`, shared).
+- Viper route text: the saved points follow the route, not steerpoints 21-24.
+- The skip note and the "kneeboard only" line are per airframe (the F-14B(U) differs).
+- One name, "saved points": the map toggle, the kneeboard page title, What's New.
+- The "Loadout" tab is "Payload", its Edit Flight name.
+- NM, °, ft/m; "IP", "IPs", "Save as IP"; curated waypoint-type labels ("Hold", not
+  "Loiter"); the cartridge choice reads "Build a cartridge / No cartridge"; the setting
+  label names the AH-64D.
+- Plurals, " · " separators, word wrap on long labels, "double-click to name", one
+  threat-ring wording, "type" for waypoint types, rank abbreviations without periods.
+
+Still open, behavior rather than text:
+
+| Where | Defect |
+|---|---|
+| `qt_ui/windows/playable/model.py` `Clipboard` | Copy all and Paste drop an orbit's heading and length (it pastes as 090 for 20 NM) and never copy drawings |
+| `game/ato/savedpoints.py` `points_of` | Points live on the squadron, so two player flights from one squadron show the same points and the headline counts them twice |
+| `client/.../coordinatepicker/SavePoint.tsx` | The map offers no Save on an unmeasured airframe (no kinds), while Add in the window accepts up to 50 for the kneeboard |
 
 ### Wider passes, not started
 

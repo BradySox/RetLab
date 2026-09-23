@@ -14,6 +14,18 @@
 
 entries:
   - date: 2026-09-22
+    title: My aircraft counts the room your route leaves
+    change: >-
+      The saved points count and number the way the jet does: after the route
+      on the Hornet, Viper and Apache, from 1 on the F-14B(U). With the
+      cartridge off, the window says kneeboard only. The Loadout tab is now
+      Payload, as in Edit Flight, and the kneeboard page is Saved points.
+    watch: >-
+      On a Viper with a ten-steerpoint route and no saved points, the
+      Waypoints group reads room for 14 more in the jet. Save one: it reads
+      W11, and the kneeboard and the jet both number it 11.
+    row: B135
+  - date: 2026-09-22
     title: A crashed aircraft no longer switches off a SAM network
     change: >-
       When an aircraft crashed where a radar could still see the wreck, Skynet
@@ -67,14 +79,14 @@ entries:
     title: My aircraft, and points you save to your own jet
     change: >-
       A My aircraft button beside Air Wing lists the seats you are flying this
-      turn, with each one's saved points, its loadout and its data cartridge in
+      turn, with each one's saved points, its payload and its data cartridge in
       one window. The map has a crosshair button at top left: click any spot
       to read its coordinates in every format and save it to your aircraft.
       Hornets and Vipers get the points in the data cartridge on route
       sequence 2, A-10s in the navigation computer, and every aircraft on a
       kneeboard page.
     watch: >-
-      Save a point to a Hornet or Viper and generate. The kneeboard's extra
+      Save a point to a Hornet or Viper and generate. The kneeboard's saved
       points page gives it a number; that STPT in the jet should be the same
       point, and SEQ1 should still be the route.
     row: B135

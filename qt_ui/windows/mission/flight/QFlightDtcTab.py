@@ -38,8 +38,52 @@ _NOT_OFFERED = {FlightWaypointType.TAKEOFF}
 DEFAULT_THREAT_RADIUS_NM = 30
 
 
+#: The picker's names for the waypoint types; LOITER is the plan's HOLD point.
+#: Anything missing falls back to its enum name in sentence case.
+_WAYPOINT_TYPE_LABELS = {
+    "ASCEND_POINT": "Ascend",
+    "PATROL": "Patrol",
+    "PATROL_TRACK": "Patrol track",
+    "NAV": "Nav",
+    "INGRESS_STRIKE": "Ingress (strike)",
+    "INGRESS_SEAD": "Ingress (SEAD)",
+    "INGRESS_CAS": "Ingress (CAS)",
+    "INGRESS_ESCORT": "Ingress (escort)",
+    "INGRESS_DEAD": "Ingress (DEAD)",
+    "INGRESS_SWEEP": "Ingress (sweep)",
+    "INGRESS_BAI": "Ingress (BAI)",
+    "INGRESS_OCA_RUNWAY": "Ingress (OCA runway)",
+    "INGRESS_OCA_AIRCRAFT": "Ingress (OCA aircraft)",
+    "INGRESS_AIR_ASSAULT": "Ingress (air assault)",
+    "INGRESS_ANTI_SHIP": "Ingress (anti-ship)",
+    "INGRESS_SEAD_SWEEP": "Ingress (SEAD sweep)",
+    "INGRESS_ARMED_RECON": "Ingress (armed recon)",
+    "INGRESS_RECON": "Ingress (recon)",
+    "INGRESS_CSAR": "Ingress (CSAR)",
+    "CAS": "CAS",
+    "EGRESS": "Egress",
+    "DESCENT_POINT": "Descent",
+    "LANDING_POINT": "Landing",
+    "TARGET_POINT": "Target",
+    "TARGET_GROUP_LOC": "Target area",
+    "TARGET_SHIP": "Target ship",
+    "CUSTOM": "Custom",
+    "JOIN": "Join",
+    "SPLIT": "Split",
+    "LOITER": "Hold",
+    "DIVERT": "Divert",
+    "PICKUP_ZONE": "Pickup zone",
+    "DROPOFF_ZONE": "Drop-off zone",
+    "BULLSEYE": "Bullseye",
+    "REFUEL": "Refuel",
+    "CARGO_STOP": "Cargo stop",
+    "RECOVERY_TANKER": "Recovery tanker",
+    "CSAR_PICKUP": "CSAR pickup",
+}
+
+
 def _waypoint_type_label(name: str) -> str:
-    return name.replace("_", " ").title()
+    return _WAYPOINT_TYPE_LABELS.get(name) or name.replace("_", " ").capitalize()
 
 
 class QFlightDtcTab(QFrame):
@@ -63,8 +107,8 @@ class QFlightDtcTab(QFrame):
 
         self.mode_selector = QComboBox()
         self.mode_selector.addItem(self._follow_label(), None)
-        self.mode_selector.addItem("Always load for this flight", True)
-        self.mode_selector.addItem("Never load for this flight", False)
+        self.mode_selector.addItem("Build a cartridge for this flight", True)
+        self.mode_selector.addItem("No cartridge for this flight", False)
         self.mode_selector.setCurrentIndex(
             {None: 0, True: 1, False: 2}[flight.dtc_options.enabled]
         )
@@ -156,17 +200,12 @@ class QFlightDtcTab(QFrame):
         return label
 
     def _waypoint_picker(self) -> QWidget:
-        """One row per kind of waypoint in this flight plan; unticked kinds stay out
+        """One row per type of waypoint in this flight plan; unticked types stay out
         of the cartridge, and the numbers after them close up."""
         holder = QWidget()
         column = QVBoxLayout()
         column.setContentsMargins(22, 0, 0, 0)
-        column.addWidget(
-            self._note(
-                "Waypoints in the cartridge. An unticked kind is left out and the"
-                " numbers after it close up; the kneeboard prints '-' on its row."
-            )
-        )
+        column.addWidget(self._note(self._waypoint_picker_note()))
         counts: dict[str, int] = {}
         plan = getattr(self.flight, "flight_plan", None)
         for waypoint in getattr(plan, "waypoints", []) or []:
@@ -202,7 +241,7 @@ class QFlightDtcTab(QFrame):
         self.threat_near_route.setChecked(radius is not None)
         self.threat_radius = QSpinBox()
         self.threat_radius.setRange(0, 300)
-        self.threat_radius.setSuffix(" nm of the route")
+        self.threat_radius.setSuffix(" NM of the route")
         self.threat_radius.setValue(
             radius if radius is not None else DEFAULT_THREAT_RADIUS_NM
         )
@@ -216,9 +255,26 @@ class QFlightDtcTab(QFrame):
 
     # ------------------------------------------------------------------ writes
 
+    def _waypoint_picker_note(self) -> str:
+        from game.missiongenerator.dtc.tomcat import TOMCAT_UNIT_TYPE
+
+        lead = (
+            "Waypoints in the cartridge. An unticked type is left out and the"
+            " numbers after it close up"
+        )
+        if self._dcs_id == TOMCAT_UNIT_TYPE:
+            # route_numbers() renumbers only the jets whose route replaces the ME's.
+            return (
+                f"{lead} on flight plan 2. The kneeboard still numbers every row, so"
+                " after a left-out waypoint its numbers run ahead of the plan's."
+            )
+        return (
+            f"{lead}; the kneeboard prints '-' on its row and closes up the same way."
+        )
+
     def _follow_label(self) -> str:
         state = "on" if self.game.settings.dtc_data_cartridges else "off"
-        return f"Follow the campaign setting (currently {state})"
+        return f"Follow the Pre-load DTC data cartridges setting (currently {state})"
 
     @property
     def _resolved_enabled(self) -> bool:

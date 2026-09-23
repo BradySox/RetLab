@@ -161,3 +161,19 @@ def test_load_timing_writes_auto_load() -> None:
     tab, flight = _typed_tab("F-16C_50", ["TAKEOFF"])
     tab.load_selector.setCurrentIndex(1)
     assert flight.dtc_options.auto_load is False
+
+
+def test_waypoint_types_read_as_the_plan_names_them() -> None:
+    tab, _ = _typed_tab("F-16C_50", ["TAKEOFF", "INGRESS_SEAD", "LOITER"])
+    listing = tab.waypoint_list
+    labels = [listing.item(i).text() for i in range(listing.count())]
+    assert labels == ["Ingress (SEAD)  (1)", "Hold  (1)"]
+
+
+def test_the_skip_note_is_true_for_the_airframe() -> None:
+    # Only the jets whose cartridge route replaces the editor's renumber the
+    # kneeboard; the Tomcat's route is plan 2 and the kneeboard keeps every row.
+    viper, _ = _typed_tab("F-16C_50", ["TAKEOFF", "NAV"])
+    tomcat, _ = _typed_tab("F-14BU", ["TAKEOFF", "NAV"])
+    assert "prints '-'" in viper._waypoint_picker_note()
+    assert "prints '-'" not in tomcat._waypoint_picker_note()

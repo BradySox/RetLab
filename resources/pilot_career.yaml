@@ -4,6 +4,7 @@
 # ladder hard-coded to one service would be wrong for most campaigns. Add a
 # ladder here rather than in Python; a squadron picks the first ladder listing
 # its DCS country, and the ladder with no `countries:` is the fallback.
+# Grade names are abbreviated on every ladder, without periods.
 #
 # `requires:` is a plain "field must be at least this" map over the pilot's
 # career record: sorties, combat_sorties, flight_hours, shots, hits, air_kills,
@@ -52,36 +53,36 @@ ranks:
       - Georgia
     grades:
       - key: sv_1
-        name: Lieutenant
+        name: Lt
         requires: {}
       - key: sv_2
-        name: Senior Lieutenant
+        name: Sr Lt
         requires: {combat_sorties: 5}
       - key: sv_3
-        name: Captain
+        name: Capt
         requires: {combat_sorties: 15}
       - key: sv_4
-        name: Major
+        name: Maj
         requires: {combat_sorties: 35, flight_hours: 40}
       - key: sv_5
-        name: Lieutenant Colonel
+        name: Lt Col
         requires: {combat_sorties: 70, flight_hours: 90}
 
   # No `countries:`, so this is the fallback for every other air force.
   - ladder: default
     grades:
       - key: of_1
-        name: 2nd Lt.
+        name: 2nd Lt
         requires: {}
       - key: of_2
-        name: 1st Lt.
+        name: 1st Lt
         requires: {combat_sorties: 5}
       - key: of_3
-        name: Capt.
+        name: Capt
         requires: {combat_sorties: 15}
       - key: of_4
-        name: Maj.
+        name: Maj
         requires: {combat_sorties: 35, flight_hours: 40}
       - key: of_5
-        name: Lt. Col.
+        name: Lt Col
         requires: {combat_sorties: 70, flight_hours: 90}
