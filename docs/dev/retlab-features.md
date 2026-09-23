@@ -3123,7 +3123,11 @@ dark-themed control: `client/src/components/maplayers/MapLayersControl.tsx` (+ `
   `Game.client_map_layers` (`game/game.py`, `__setstate__` defaults it for old saves) and
   carried by the per-turn autosave, so choices survive turns and reopening the app (QtWebEngine
   drops `localStorage` on reload). Server side: `game/server/game/routes.py` (`MapLayersJs`).
-- **Preset views** — Default / SEAD / Recon / Clean, plus a "Hide all overlays" button.
+- **Preset views** — Default / SEAD / Recon / Clean, plus a "Hide all overlays" button that
+  turns every layer off. A preset sets layers only: it leaves the fog overview and the Display
+  options group alone (`PRESET_EXEMPT`), and every preset keeps Neutral airspace and Downed
+  pilots on (`ALWAYS_ON`). SEAD includes Other ground objects, where the EWRs and C2 nodes
+  its IADS lines end at are drawn.
 - **Air-defense class rows are FILTERS, not layers** (reworked 2026-07-29 off a flown report
   that read as a fog bug — "with reveal fog of war on, SAM sites show nothing at the actual
   location, just a blank circle you can only find by hovering"). The row group was five

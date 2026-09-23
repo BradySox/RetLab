@@ -15,6 +15,10 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import SplitLines from "../splitlines/SplitLines";
 import summarizeUnits from "../unitsummary/summarizeUnits";
 import { MovementPath, MovementPathHandle } from "../controlpoints/MovementPath";
+import {
+  formatLatLng,
+  metersToNauticalMiles,
+} from "../controlpoints/destinationFormat";
 import { TgoTooltip, iconForTgo } from "./shared";
 import { LatLng, Marker as LMarker, LatLngLiteral } from "leaflet";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -25,21 +29,6 @@ import { Marker, Tooltip } from "react-leaflet";
 // (MobileControlPoint) so a ship drag reads the same way: the live
 // nautical-mile distance plus the destination coordinates, or an
 // out-of-range notice with how far the attempted move was.
-function metersToNauticalMiles(meters: number): number {
-  return meters * 0.000539957;
-}
-
-function formatLatLng(latLng: LatLng): string {
-  // Use the absolute value: the hemisphere is already carried by the N/S and
-  // E/W suffix, so a southern/western coordinate must not also keep its minus
-  // sign (e.g. "32.50&deg;S", not "-32.50&deg;S").
-  const lat = Math.abs(latLng.lat).toFixed(2);
-  const lng = Math.abs(latLng.lng).toFixed(2);
-  const ns = latLng.lat >= 0 ? "N" : "S";
-  const ew = latLng.lng >= 0 ? "E" : "W";
-  return `${lat}&deg;${ns} ${lng}&deg;${ew}`;
-}
-
 function destinationTooltipText(
   tgo: TgoModel,
   destinationish: LatLngLiteral,
