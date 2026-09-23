@@ -2,24 +2,25 @@
 
 Paste-ready title and description for
 [dcs-retribution#874](https://github.com/dcs-retribution/dcs-retribution/pull/874).
-The PR grew on 2026-09-23 from carrier comms alone to a Navy pass: the fork's §62 board
-numbers were added as a second, isolated commit (`afa5d01b`), on the DM's call. Updating an
-existing PR is allowed under the freeze.
+The PR grew on 2026-09-23 from carrier comms alone to a Navy pass, on the DM's call: the
+fork's §62 board numbers (`afa5d01b`), then the pinned board number and the X00-only CAG
+livery rule (`0e1ccf92`), each an isolated commit. Updating an existing PR is allowed under
+the freeze.
 
-Head after the update: `afa5d01b` on `BradySox/dcs-retribution:carrier-comms-curation`, with
-upstream `dev` @ `49e8067f` merged in (`568e5930`). Black, `mypy game tests` and pytest
-(508 passed) green on that head.
+Head after the update: `8b81b516` on `BradySox/dcs-retribution:carrier-comms-curation`, with
+upstream `dev` @ `49e8067f` merged in (`568e5930`) and another session's header rewording
+(`832b7a72`) merged. Black, `mypy game tests` and pytest (524 passed) green on that head.
 
 ## Title
 
 ```
-Navy: curated carrier comms and squadron-sequenced board numbers
+Navy: curated carrier comms, sequenced board numbers, and a pinnable board number
 ```
 
 ## Body
 
 ```markdown
-Two Navy fixes, as two isolated commits so either can be reviewed or dropped on its own.
+Navy fixes in three isolated commits, so each can be reviewed or dropped on its own.
 
 ## 1. Curated carrier comms (`b65729ac`)
 
@@ -53,9 +54,8 @@ jets spawn with arbitrary three-digit modexes.
   the `Country`, so the random allocator cannot hand a number inside it to another jet.
 - The Tomcat does not draw `onboard_num`. No F-14 livery declares a board-number material
   (Su-27, MiG-29A, F-15C, Su-25 and FA-18C liveries all do), so the painted number is the livery.
-- `LiveryAllocator`: a squadron's first jet of the mission gets entry 0 of its `livery_set`
-  (the CAG bird); the rest cycle. A set of fewer than three cycles whole. This replaces the
-  random round-robin during mission generation, which could put two CAG birds in one squadron.
+- `LiveryAllocator` replaces the random round-robin during mission generation, which could put
+  two CAG birds in one squadron. Commit 3 changes how it picks.
   `Squadron.ordered_livery_set` rejoins `_livery_pool` so a save taken mid-rotation loses no livery.
 - Data: each F-14B(U) squadron shipped as two presets (High Vis / Low Vis), each pinning one
   livery, so every jet in a squadron showed the same painted number. They are now one preset per
@@ -67,13 +67,31 @@ jets spawn with arbitrary three-digit modexes.
 Tests: `tests/missiongenerator/test_modex.py` (8), `tests/missiongenerator/test_livery_allocator.py`
 (7), `tests/test_squadron_livery_sets.py` (4 checks over the five presets).
 
-Flown in our fork: Hornet numbers checked in the F2 view; Tomcat livery order checked in the
-generated miz on three campaigns (VF-103 AA100 once then AA101/103/105; VF-143 alternating its
-two liveries).
+Flown in our fork: Hornet numbers checked in the F2 view; the Tomcat CAG-first livery order
+checked in the generated miz on three campaigns.
+
+## 3. Pinned board number, and the CAG livery is X00's alone (`0e1ccf92`)
+
+- Payload tab: **Set board number** pins the lead's number; wingmen follow in order
+  (105 → 105, 106, 107, 108). Any airframe. Stored as `Flight.board_number`; old saves read None.
+- The tab refuses a run that overlaps another flight of the coalition or passes 999, keeps the
+  previous value, and names the flight that holds the number (`board_number_conflict`).
+- At generation `ModexAllocator` claims pinned numbers per coalition first. The pinned flight
+  wears them; squadron sequences skip them; a random pydcs number that lands on one is
+  re-rolled; claims are reserved with each `Country`. So no other package wears a pinned number.
+- The Tomcat livery follows the jet's board number. A livery painted with that number is used
+  where the set has one. A CAG / hi-vis livery (an X00 number, or "CAG" / "Hi Vis" in the name)
+  goes to the X00 jet only. Other jets cycle the line liveries.
+- Before this, a two-livery set such as F-14B(U) VF-143 put its CAG bird on every second jet.
+- The idle ramp path now stamps the number before painting, so the livery can read it.
+- A Tomcat pin reaches the paint only where a livery with that number exists; the tab says so.
+
+Tests: the pinned cases in `tests/missiongenerator/test_modex.py` (15 in all), and
+`tests/missiongenerator/test_livery_allocator.py` (16). Not flown yet.
 
 ## Checks
 
-Black, `mypy game tests`, pytest (508 passed) on current `dev` (`49e8067f`).
+Black, `mypy game tests`, pytest (524 passed) on current `dev` (`49e8067f`).
 ```
 
 ## Notes for whoever pastes it
