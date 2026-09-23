@@ -157,6 +157,9 @@ class Flight(
             apply_flight_defaults(self)
         self.use_same_loadout_for_all_members = True
         self.use_same_livery_for_all_members = True
+        # The lead's board number, pinned on the payload tab; wingmen follow in
+        # order. None leaves numbering to the mission generator.
+        self.board_number: Optional[int] = None
         # RetLab: an override for this flight's REFUEL waypoint position, set by the
         # long-range carrier post-planning pass (game/retlab/carrier_ops.py). A
         # carrier flight whose package has no tanker of its own would otherwise route
@@ -326,6 +329,8 @@ class Flight(
             state["manual_takeoff_time"] = None
         if "dtc_options" not in state:
             state["dtc_options"] = DtcOptions()
+        if "board_number" not in state:
+            state["board_number"] = None
         self.__dict__.update(state)
         if isinstance(self.roster, FlightRoster):
             self.roster = FlightMembers.from_roster(self, self.roster)

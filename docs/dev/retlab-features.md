@@ -6535,6 +6535,18 @@ sequences, the two-livery and one-livery degenerate cases, the empty-set no-op, 
 rejoin) and `tests/test_squadron_livery_sets.py` (every F-14B(U) preset carries a set, leads
 with its lowest modex, and repeats no board number).
 
+**2026-09-23 — the livery follows the board number; the CAG bird is X00's alone (DM rule).**
+The two-livery rule above broke it: VF-143's AG100 flew on every second jet. `next_livery`
+now takes the jet's modex (stamped before painting; the ramp path was reordered to match),
+passed only when it means something — a curated modex squadron or a pinned flight. A jet
+wears the livery painted with its own number if the set has one (`livery_modex` reads the
+three digits that do not follow a dash, so `VF-103 … AA100` reads 100). A CAG / hi-vis
+livery (`is_cag_livery`: an X00 number, or `CAG` / `Hi Vis` in the name) goes to the X00
+jet and no other. Every other jet cycles the remaining line liveries; a set with no line
+livery returns None and the jet takes the squadron's plain livery. Without a meaningful
+number, the squadron's first jet of the mission stands in for X00. VF-143 B(U) now flies
+AG100 on 100 and AG106 on every line jet.
+
 **Upstream:** carried on [dcs-retribution#874](https://github.com/dcs-retribution/dcs-retribution/pull/874)
 since 2026-09-23 as a second commit beside §65 (inventory item 19), without the QRA and §61 hooks.
 
@@ -6542,6 +6554,26 @@ since 2026-09-23 as a second commit beside §65 (inventory item 19), without the
 the generated miz on three campaigns). Hornet sequencing verified 2026-07-16 on the flown
 Scenic Route turn-3 test (*"The Modex on our fork is 100% working … Everyone's modex looked
 accurate"*) — that reading stands for the Hornet, whose liveries do carry the number material.
+
+### A pinned board number per flight (2026-09-23)
+
+The Payload tab's **Set board number** (`BoardNumberSelector` in
+`qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py`) stores `Flight.board_number`:
+the lead's number, wingmen following in order. Any airframe, not just the curated set.
+`board_number_conflict` (in `modex.py`) refuses a run that overlaps another flight of the
+coalition's ATO or runs past 999; the tab then keeps the previous value and says who holds
+the number.
+
+At generation `ModexAllocator` claims every pinned number per coalition before stamping
+anything. The pinned flight wears its numbers; squadron sequences skip claimed numbers; a
+random pydcs number that lands on one is re-rolled; the claims are reserved with each
+country. A clash the tab could not see (a flight resized after pinning) goes to the first
+flight in ATO order and the later member falls back to automatic. On the Tomcat the pinned
+number reaches the miz but not the paint (see above), which the tab says.
+
+Persisted on the flight (`__setstate__` defaults it to None). Tests: the pinned cases in
+`tests/missiongenerator/test_modex.py`, and `tests/test_board_number_selector.py` (offscreen
+Qt). In-game pass: checklist **B138**.
 
 That mechanism is what any per-pilot modex work rests on — see upstream issue
 [#863](https://github.com/dcs-retribution/dcs-retribution/issues/863) (per-pilot modex pins in

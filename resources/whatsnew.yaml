@@ -13,6 +13,29 @@
 # changes sharing a date keep the order written here.
 
 entries:
+  - date: 2026-09-23
+    title: Set a flight's board number yourself
+    change: >-
+      The Payload tab has a Set board number box. The number you enter is the
+      lead's and the wingmen follow in order, so 105 on a four-ship gives 105,
+      106, 107, 108. A number another flight already holds is refused, and no
+      other package is given one of yours. The Tomcat's painted number is its
+      livery, so on the F-14 this changes the mission file only.
+    watch: >-
+      Pin 105 on a Hornet four-ship. In the F2 view its jets read 105 to 108
+      and no other Hornet in the mission wears those numbers.
+    row: B138
+  - date: 2026-09-23
+    title: Only the X00 jet flies the CAG bird
+    change: >-
+      A Tomcat's painted number is its livery, and each jet now wears the
+      livery for its own board number where the squadron has one. The CAG /
+      hi-vis livery goes to the X00 jet and never to a line jet; a squadron
+      with one CAG and one line livery puts the line livery on every other jet.
+    watch: >-
+      A VF-143 F-14B(U) four-ship: jet 100 in AG100, the other three in AG106.
+      No jet but 100 shows the CAG paint.
+    row: B138
   - date: 2026-09-22
     title: Kneeboard coordinates are right on Nevada and the South Atlantic
     change: >-

@@ -497,7 +497,7 @@ linked design note.
 59. **Ground AI sleep** — the middle tier between keeping and culling, with AAA sites behind two guards.
 60. **SAM guidance-radar redundancy** — two spaced track radars, so one HARM is not a site kill.
 61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
-62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead.
+62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead. The Payload tab can pin a flight's number (wingmen follow); no other package reuses it.
 63. **Ship-launched cruise missile raids** — finite no-rearm magazines, auto raids and an F10 call-for-fire, with a defender launch wake.
 64. **Carrier deck spawn policy** — six-pack as last resort plus the MP slot-timing fix.
 65. **Curated carrier comms** — per-hull TACAN, ident, ICLS, Link 4 and ATC feeding the CV Operations Data page.

@@ -185,7 +185,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Carrier comms match the hull: TACAN and ident (Roosevelt 71X TRO, Stennis 74X STN), stable
   channels, the ship's real name. If a map beacon owns the hull channel the boat takes the
   nearest free one. Navy jets wear sequential per-squadron modexes, and a Tomcat squadron
-  flies its CAG bird plus line jets rather than four copies of one airframe.
+  flies its CAG bird plus line jets rather than four copies of one airframe. The Payload tab
+  can pin a flight's board number (the lead's; wingmen follow) and no other package reuses it.
 - Carrier decks carry dressing — tractors, crash truck, deck crew, LSO team — placed clear of
   every parking spot and catapult, and standing for the whole mission.
 - Carriers steam for wind down the **angled** deck, not the bow, using each hull's own deck
