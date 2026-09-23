@@ -382,7 +382,7 @@ in-game-pass checklist row.
 | Planner taskings (P3 gate) | `game/commander/tasks/` (`primitive/*`, `packageplanningtask.py`, `theatercommandertask.py`) |
 | New-game wizard (P2) | `qt_ui/windows/newgame/QNewGameWizard.py` + `WizardPages/*` |
 | Preset pattern to mirror (P2) | `game/settings/difficultypreset.py` |
-| Display read-path (P1b) | `game/missiongenerator/kneeboard.py` + the 9 `qt_ui` flight-type sites |
+| Display read-path (P1b) | `game/missiongenerator/kneeboard/` + the 9 `qt_ui` flight-type sites |
 
 ## 11. Map reality
 
