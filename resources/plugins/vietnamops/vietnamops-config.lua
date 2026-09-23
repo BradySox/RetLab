@@ -398,7 +398,7 @@ end
 -- The generator emits each gun ship + coalition (dcsRetribution.VietnamOps.navalGunfire);
 -- targets + ranging are resolved live. Coastal only by construction -- with no enemy ground
 -- (or no friendly ground to mark) in a ship's range, nothing fires. MOOSE TaskFireAtPoint
--- (as the TIC artillery path uses) + raw DCS for target discovery / menus. pcall-guarded.
+-- + raw DCS for target discovery / menus. pcall-guarded.
 -------------------------------------------------------------------------------
 if suite.navalGunfire and suite.navalGunfire.ships then
     local RANGE = 10 * NM_TO_M       -- m, gun reach for ship/target selection (option in NM)

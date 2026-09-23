@@ -83,8 +83,10 @@ Smallest first. None started; each carries its own gate.
    deck stagger are the candidates. **No instance in our build = no fix.**
 2. **Retreat along the axis the attack actually came from**, not a fixed fallback direction.
    A §90 detail, cheap and legible. Gate: **B65–B68 flown first.** B65 is PARTIAL and B66
-   UNTESTED; the BMS note's candidate-1 gate applies verbatim — extending an untested model
-   buries the test, and so does replacing one.
+   UNTESTED (B67 and B68 VERIFIED as of 2026-09-23); the BMS note's candidate-1 gate applies
+   verbatim — extending an untested model buries the test, and so does replacing one.
+   Today's retreat is derived, not fixed: `find_retreat_point` (`flotgenerator.py:1081`) goes
+   20 km straight back from the front's advance heading. An attack-axis value does not exist.
 3. **PBEM.** The only genuinely new territory on offer. Gate: DM appetite, and a hard
    dependency — asymmetric two-player turns need per-viewer intel to mean anything, and §3
    deliberately refuses that for blue while red is never fogged at all. **PBEM without the
@@ -146,7 +148,9 @@ real campaign before anyone calls it a bug.
 
 ## 10. Owed
 
-- Ask the licence (§7). Nothing else is actionable until that answer exists.
+- Ask the licence (§7). It gates reading or taking his code; it does not gate reimplementing a
+  concept from our own APIs, which is all §12 proposes. We have never had his code — only
+  screenshots and posts.
 - Re-read when he ships the naval, indirect-fires or airborne-resupply work — indirect fires
   is the one that would touch a seam we have open (§9 TIC).
 - If candidate 2 or 3 is ever picked up, it gets its own design note; this one stays a study.
@@ -163,19 +167,62 @@ refinement still owed, effectiveness "TBD", performance hit reported as minuscul
   checks whether any observer sees any enemy, and if one does, it calls for fire from the
   assigned battery. A debug overlay shows each tube's state: configured, on cooldown, busy.
 
-**Where it lands here.** Our frontline artillery does nothing on its own: TIC leaves artillery
-groups vanilla (features doc §9, generator contract), so they fire only at what they see
-themselves. Observer-gated fire is the missing half, and it is visible from the air, which
-is the reason he gives.
+**Where it lands here.** TIC does not manage artillery. Our frontline battery gets one
+generator-timed `FireAtPoint` at a random 1–45 min, aimed at an enemy group's *spawn point*
+chosen at generation, so it fires once, blind, at a stale point. Observer-gated fire is the
+missing half, and it is visible from the air, which is the reason he gives.
 
-**Gates, before anything is scoped:**
-- The licence (§7), still unasked.
-- The **observer-gated trigger** is the concept worth taking. The FSCM dialog is platoon-level
-  command (admission rule 3, §6). An automatic pairing (nearest battery in range supports the
-  wedge in front of it) would fit pillar 3.5.
-- Real units firing through `TaskFireAtPoint` is what `vietnamops` §34 and TIC's naval
-  artillery already do, so it would not be phantom fire. Keep it out of any airfield's area
-  (the §36 hard constraint).
-- The cost of a 25 s observers × enemies sight check has not been measured against
-  [retlab-sim-thread-freeze-notes.md](retlab-sim-thread-freeze-notes.md). Profile it with
-  the `profiler` plugin before claiming it is cheap.
+Scoped in [retlab-observer-gated-artillery-notes.md](retlab-observer-gated-artillery-notes.md):
+automatic pairing instead of his FSCM dialog (admission rule 3), TIC's existing sight
+results reused instead of a second loop, airfields excluded, the tick kept off a 5 s multiple.
+
+## 12. The whole project, mapped (2026-09-23)
+
+Everything his posts show, 2026-08-28 to 2026-09-18, one row each. Source is screenshots and
+posts only. His 2026-09-15 post adds movement indicators on the map and early engineering and
+artillery units.
+
+| His system | Our seam | Verdict |
+|---|---|---|
+| Tile ground war (Voronoi tiles, capture by majority) | §90 front model | Rival. Not taken (§6) |
+| Maneuver units: battalion → company → platoon, five states, morale/fatigue/supplies | §90 + TIC | Welded to tiles. Corroborates admission rule 1 (§3). Not taken |
+| Per-side intel tiers | §3 | Tombstone (§6) |
+| PBEM with a Game Master role | none | New. Gated on an intel model (§5.3) |
+| Campaign editor, snapshot-not-diff | removed maker | DM-only reopen (§5.4) |
+| **Bridges and connecting zones between tiles** | §90 rung A supply | **Candidate — see below** |
+| **Movement indicators; Attack routes and Defensive lines layers** | §90 on the map | **Candidate** — [retlab-front-movement-arrows-notes.md](retlab-front-movement-arrows-notes.md) |
+| **Surface fires (artillery + FSCM)** | TIC artillery | **Candidate** — [retlab-observer-gated-artillery-notes.md](retlab-observer-gated-artillery-notes.md) |
+| Engineering units | none | Too early; no detail shown. Watch — likely tied to bridges |
+| Battle-plan dialogs, platoon orders | — | Admission rule 3. Not taken |
+| "Order package" from a tile | right-click frag on the front and on sites | Already ours |
+| OPFOR AI aggressiveness sliders | §55 | Tombstone (§6) |
+| Bounded deployment stagger | TIC retry, §64 | Candidate 1, gated on an instance (§5.1) |
+| Retreat along the attack's axis | §90, flotgenerator | Candidate 2, gated on B66 (§5.2) |
+| Legacy ground objects bound to the owning territory | `closest_control_point` | Check, not a defect (§8) |
+| Open ideas: airborne resupply, naval combat | §37, §76, airlift capacity; §63/§78/§81 | Watch; we have both seams |
+
+### Bridges as supply nodes — the candidate nothing else covers
+
+Bridges exist here only as strike targets (`waypointbuilder.py:396`). Killing one changes
+nothing about supply. A supply route that crosses a dead bridge could count as cut for §90
+rung A, which is what already happens when a road's control point falls.
+
+Why it is the strongest idea in his project for this fork: it turns an air-to-ground mission
+into a front-line effect, and the mission builder is the product (§4).
+
+Gates, in order:
+1. **Does a bridge's death register?** Bridges are scenery. The scenery kill note found
+   buildings raise DEAD but clutter raises KILL only; bridges were never measured. One strike
+   in a test mission settles it.
+2. **Which routes cross which bridges.** Geometry from the route polyline against the
+   theatre's bridge positions. Where DCS exposes those positions is unchecked.
+3. Repair: a bridge that stays down forever is a permanent cut. Needs a rule (turns, or
+   engineers — his engineering units may be exactly this).
+
+No note yet; write one when gate 1 has an answer.
+
+### What his "brittle" remark tells us
+
+His 2026-09-15 post: the more he adds through an LLM, the more earlier features get
+overwritten by mistake. That is the failure CI, the Lua harness, the feature registry and
+`audit_stale_docs.py` exist to catch here. It is evidence for keeping them, not a candidate.
