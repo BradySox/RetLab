@@ -27,7 +27,10 @@ def _flight(ato: Any, count: int, board_number: int | None = None) -> Any:
     flight = SimpleNamespace(
         count=count,
         board_number=board_number,
-        squadron=SimpleNamespace(coalition=SimpleNamespace(ato=ato)),
+        squadron=SimpleNamespace(
+            coalition=SimpleNamespace(ato=ato),
+            aircraft=SimpleNamespace(dcs_unit_type=SimpleNamespace(id="FA-18C_hornet")),
+        ),
         unit_type=SimpleNamespace(dcs_unit_type=SimpleNamespace(id="FA-18C_hornet")),
         package=SimpleNamespace(
             package_description="Strike", target=SimpleNamespace(name="Bridge")

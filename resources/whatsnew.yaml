@@ -14,9 +14,9 @@
 
 entries:
   - date: 2026-09-23
-    title: Set a flight's board number yourself
+    title: Set a Hornet or Tomcat flight's board number yourself
     change: >-
-      The Payload tab has a Set board number box. The number you enter is the
+      On a Hornet or Tomcat flight the Payload tab has a Set board number box. The number you enter is the
       lead's and the wingmen follow in order, so 105 on a four-ship gives 105,
       106, 107, 108. A number another flight already holds is refused, and no
       other package is given one of yours. The Tomcat's painted number is its

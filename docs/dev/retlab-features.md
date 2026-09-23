@@ -6545,7 +6545,9 @@ livery (`is_cag_livery`: an X00 number, or `CAG` / `Hi Vis` in the name) goes to
 jet and no other. Every other jet cycles the remaining line liveries; a set with no line
 livery returns None and the jet takes the squadron's plain livery. Without a meaningful
 number, the squadron's first jet of the mission stands in for X00. VF-143 B(U) now flies
-AG100 on 100 and AG106 on every line jet.
+AG100 on 100 and AG106 on every line jet. **Navy only** (DM call, 2026-09-23): the painter
+hands the allocator only `MODEX_AIRCRAFT_IDS` squadrons; every other livery set keeps the
+random round-robin.
 
 **Upstream:** carried on [dcs-retribution#874](https://github.com/dcs-retribution/dcs-retribution/pull/874)
 since 2026-09-23 as a second commit beside §65 (inventory item 19), without the QRA and §61 hooks.
@@ -6559,7 +6561,8 @@ accurate"*) — that reading stands for the Hornet, whose liveries do carry the 
 
 The Payload tab's **Set board number** (`BoardNumberSelector` in
 `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py`) stores `Flight.board_number`:
-the lead's number, wingmen following in order. Any airframe, not just the curated set.
+the lead's number, wingmen following in order. **Navy only** (DM call, 2026-09-23): the box
+shows only for `MODEX_AIRCRAFT_IDS` flights, and a pin on anything else is ignored.
 `board_number_conflict` (in `modex.py`) refuses a run that overlaps another flight of the
 coalition's ATO or runs past 999; the tab then keeps the previous value and says who holds
 the number.

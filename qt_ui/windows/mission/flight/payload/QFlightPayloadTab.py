@@ -26,6 +26,7 @@ from game.missiongenerator.aircraft.modex import (
     MAX_BOARD_NUMBER,
     MIN_BOARD_NUMBER,
     board_number_conflict,
+    is_modex_flight,
 )
 from game.retlab.fuel_brief import fuel_brief_for, fuel_brief_text
 from game.utils import KG_TO_LBS
@@ -322,8 +323,11 @@ class QFlightPayloadTab(QFrame):
         hbox.addWidget(self.livery_selector, stretch=1)
         members_layout.addLayout(hbox)
 
-        self.board_number_selector = BoardNumberSelector(self.flight)
-        members_layout.addLayout(self.board_number_selector)
+        # Navy only: the Hornets and Tomcats that wear sequenced modexes (§62).
+        self.board_number_selector: BoardNumberSelector | None = None
+        if is_modex_flight(self.flight):
+            self.board_number_selector = BoardNumberSelector(self.flight)
+            members_layout.addLayout(self.board_number_selector)
 
         left_column.addWidget(members_box)
 
@@ -506,7 +510,8 @@ class QFlightPayloadTab(QFrame):
 
     def resize_for_flight(self) -> None:
         self.member_selector.setMaximum(self.flight.count - 1)
-        self.board_number_selector.refresh()
+        if self.board_number_selector is not None:
+            self.board_number_selector.refresh()
 
     def reload_from_flight(self) -> None:
         self.sync_loadout_selector()
