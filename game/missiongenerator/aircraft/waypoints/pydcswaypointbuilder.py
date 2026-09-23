@@ -13,6 +13,7 @@ from game.ato import Flight, FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
 from game.ato.traveltime import GroundSpeed
+from game.missiongenerator import f15ecc
 from game.missiongenerator.missiondata import MissionData
 from game.theater import MissionTarget, TheaterUnit, OffMapSpawn
 from ._helper import create_stop_orbit_trigger
@@ -204,7 +205,7 @@ class PydcsWaypointBuilder:
     def register_special_strike_points(
         self,
         targets: Iterable[Union[MissionTarget, TheaterUnit]],
-        start: int = 1,
+        first_mission: int = 0,
     ) -> None:
         """Create special strike  waypoints for various aircraft"""
         for i, t in enumerate(targets):
@@ -212,11 +213,14 @@ class PydcsWaypointBuilder:
                 self.group.add_nav_target_point(t.position, "PP" + str(i + 1))
             if self.group.units[0].unit_type in [F_14B, F_14A_135_GR] and i == 0:
                 self.group.add_nav_target_point(t.position, "ST")
-            # Add F-15E mission target points as mission 1 (for JDAM for instance)
+            # F-15E CC missions for JDAMs; the manual warns an out-of-range entry can
+            # invalidate the mission, so nothing is written past the jet's 40.
             if self.group.units[0].unit_type == F_15ESE:
-                self.group.add_nav_target_point(
-                    t.position, f"M{(i//8)+start}.{i%8+1}\nH-1\nA0\nV0"
-                )
+                slot = f15ecc.cc_mission(first_mission + i)
+                if slot is not None:
+                    self.group.add_nav_target_point(
+                        t.position, f"M{slot[0]}.{slot[1]}\nH-1\nA0\nV0"
+                    )
 
     def register_special_ingress_points(self) -> None:
         # Register Tomcat Initial Point

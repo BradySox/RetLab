@@ -2834,8 +2834,9 @@ was proven in MP (a hand-built mission pre-loaded the user's Hornet with zero pi
 action). The rebuilt-from-scratch export is **§74** (`game/missiongenerator/dtc/`),
 which shares nothing with this retired implementation.
 
-(The F-15E CDU data-cartridge slot labels on the strike-task kneeboard — the
-`DTC M1.1` references in `kneeboard.py` — are an unrelated upstream feature and remain.)
+(The F-15E smart-weapon CC mission labels on the strike-task kneeboard — `(CC 1/1)`,
+numbered by `game/missiongenerator/f15ecc.py` — are an unrelated upstream feature and remain.
+They were `DTC M1.1` until the 2026-09-23 manual pass: the jet shows `CC set/mission`.)
 
 ---
 

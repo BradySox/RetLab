@@ -13,6 +13,7 @@ from game.coordinates import (
     format_dms_suffix,
 )
 from game.data.alic import AlicCodes
+from game.missiongenerator import f15ecc
 from game.settings.settings import TargetIntelPrecision
 from game.theater import TheaterGroundObject, TheaterUnit
 from game.theater.bullseye import Bullseye
@@ -308,17 +309,17 @@ class StrikeTaskPage(KneeboardPage):
         """The Strike Task 'Description' cell for one target.
 
         Built from the waypoint's display_name so a player's rename shows here too, and
-        NOT written back to the waypoint: the F15E DTC data-cartridge slot reference stays
+        NOT written back to the waypoint: the F15E CC mission reference stays
         confined to this page. (The previous code mutated pretty_name in place, which both
         leaked the DTC tag into the list / flight-plan kneeboard and, once renames moved to
         custom_name, regressed this page to the long auto name.)
         """
         if is_f15e:
-            # Slot math must match the CDU data-cartridge programming in
-            # PydcsWaypointBuilder.register_special_strike_points ("M{i//8+1}.{i%8+1}")
-            # so the kneeboard label points at the slot the jet was actually programmed
-            # with -- 8 minor slots per major group.
-            return f"{display_name} (DTC M{(index // 8) + 1}.{index % 8 + 1})"
+            # Same numbering the .miz writer uses; worded as the jet's Smart Weapons page
+            # shows it, where the WSO steps to it with NEXT SET / NEXT MSN.
+            slot = f15ecc.cc_mission(index)
+            if slot is not None:
+                return f"{display_name} (CC {slot[0]}/{slot[1]})"
         return display_name
 
     @property

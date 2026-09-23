@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-89 rows need a live pass. Full detail is under each `###` heading below —
+90 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -376,6 +376,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B138 | A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird | §62 | ☐ |
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
+| B141 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8354,3 +8355,18 @@ Built 2026-09-23. Unit-tested; this row checks the app. An app check, not a flig
   onto a site hidden on the map, and red's ATO is unchanged.
 - **Fail signatures:** a price shown for an unengaged site; a hidden site in the ATO; red's ATO
   changing with the setting; a power plant pushed down the list.
+
+### B141 — A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio · F-15E manual pass · ☐ UNTESTED
+
+Built 2026-09-23 from the F-15E Manual v1.7 (5.7 radios, 13.4.7.4-5 CC missions). Unit-tested.
+
+- **Setup:** a player F-15E Strike flight carrying GBU-38/31 against a target with more than 8
+  aimpoints (a factory or oil complex), plus one waypoint added by hand in the flight plan.
+  Air start or cold start. ~15 min.
+- **Pass (CC):** on the Smart Weapons page, CC MEM, NEXT SET / NEXT MSN step through set 1 and
+  set 2 as the planned targets; each matches the kneeboard Strike page's `(CC set/mission)`
+  label. The hand-added waypoint is the first mission of the next set, not a duplicate of set 2.
+- **Pass (radio):** UFC radio 1 (ARC-164) channel 1 is the flight frequency; radio 2 (ARC-210)
+  carries ATC, AWACS, package and tanker presets.
+- **Fail signatures:** a CC mission that will not transfer or is flagged invalid; two missions
+  with the same set/mission number; a kneeboard label pointing at a different aimpoint.

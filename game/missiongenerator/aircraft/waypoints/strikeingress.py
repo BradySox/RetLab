@@ -6,6 +6,7 @@ from dcs.planes import B_17G, B_52H, Tu_22M3, B_1B, F_15ESE
 from dcs.point import MovingPoint
 from dcs.task import Bombing, Expend, OptFormation, WeaponType, CarpetBombing
 
+from game.missiongenerator import f15ecc
 from game.utils import mach, meters
 from .pydcswaypointbuilder import PydcsWaypointBuilder
 
@@ -100,5 +101,10 @@ class StrikeIngressBuilder(PydcsWaypointBuilder):
         if not self._special_wpts_injected:
             self.register_special_strike_points(self.waypoint.targets)
             if self.flight.unit_type.dcs_unit_type == F_15ESE:
-                self.register_special_strike_points(self.flight.custom_targets, 2)
+                # Player-placed targets open a fresh set; a fixed set 2 collided with
+                # the planned targets whenever there were more than 8.
+                self.register_special_strike_points(
+                    self.flight.custom_targets,
+                    f15ecc.next_free_set_index(len(self.waypoint.targets)),
+                )
             self._special_wpts_injected = True
