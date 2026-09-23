@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-85 rows need a live pass. Full detail is under each `###` heading below —
+86 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -372,6 +372,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ◐ |
 | B135 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
 | B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
+| B137 | A Nevada kneeboard coordinate is the point the F10 map shows | kneeboard coordinates | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8279,4 +8280,19 @@ The DTC tab was rebuilt per airframe on 2026-09-22
 - **Fail signatures:** the cartridge loads at spawn anyway (the `AutoLoad = false` flag is
   ignored); the jet's STPT numbers do not match the kneeboard after a skip; a drawing is
   missing (no free line slot, or the jet rejected the line).
+
+### B137 — A Nevada kneeboard coordinate is the point the F10 map shows · kneeboard coordinates · ☐ UNTESTED
+
+pydcs's `LatLng.format_dms` printed every S or W coordinate as a minus plus the
+complementary minutes (115°18'W came out `-115°42'00"W`). The kneeboard now formats
+with `game.coordinates.format_dms_suffix` (2026-09-22). Unit-tested; this row checks the
+printed page against the map.
+
+- **Setup:** Red Flag 81-2 (Nevada), any turn. Generate and open the kneeboard in the jet.
+- **Pass:** the briefing page's `Bullseye:` line, a SEAD/DEAD target's Location column and
+  a recon page's DMS column carry no minus sign and end in `N` and `W`. Hover the F10
+  map (DMS readout) over the bullseye: degrees and minutes match the card's line. Same
+  check on a Caucasus or Syria turn: the card reads as it did before the fix.
+- **Fail signatures:** a `-` before the longitude; minutes that differ from the F10 map
+  by the complement (`42'` against `18'`); `60"` in any seconds field.
 

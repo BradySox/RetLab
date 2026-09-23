@@ -39,7 +39,7 @@ from .atis import build_atis_block, draw_atis_block
 from .basemap import render_basemap
 from . import airport_imagery as _airport_imagery
 from game.persistency import tile_cache_dir
-from .coords import bullseye_bearing_range_nm, point_to_mgrs
+from .coords import bullseye_bearing_range_nm, point_to_dms, point_to_mgrs
 from .extent import MapExtent, aspect_correct, corridor_extent, square_extent
 from .markers import (
     Aimpoint,
@@ -1386,7 +1386,7 @@ class DetailReconPage(_RecordingPage):
         row_y = y_top + 22
         for a in aimpoints:
             mgrs_str = point_to_mgrs(a.position)
-            dms_str = a.position.latlng().format_dms(include_decimal_seconds=True)
+            dms_str = point_to_dms(a.position)
             color = palette.destroyed if a.is_dead else palette.fg
             desc = a.description + (" (DESTROYED)" if a.is_dead else "")
             self._record(a.label)

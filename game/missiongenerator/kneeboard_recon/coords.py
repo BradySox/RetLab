@@ -12,6 +12,7 @@ import logging
 import mgrs as mgrs_lib
 from dcs.mapping import Point
 
+from game.coordinates import format_dms_suffix
 from game.utils import Heading, meters
 
 logger = logging.getLogger(__name__)
@@ -60,7 +61,7 @@ def point_to_dms(point: Point) -> str:
 
     Matches the existing kneeboard convention (e.g. `BriefingPage`).
     """
-    return point.latlng().format_dms(include_decimal_seconds=True)
+    return format_dms_suffix(point.latlng(), decimals=2)
 
 
 def bullseye_bearing_range_nm(bullseye: Point, target: Point) -> tuple[Heading, float]:
