@@ -32,7 +32,7 @@ is legacy only and should not be extended.
   so the per-launch single/pair mix emerges across the theater's alert bases; true
   per-scramble variation would need a dispatcher GCI hook (deferred). Lua falls back to 2
   if an old save omits the field. Tests: `tests/squadrons/test_intercept_reserve.py`.
-- Campaign doctrine: `game/settings/settings.py` exposes
+- Campaign doctrine: `game/settings/` exposes
   `ownfor_default_qra_reserve`, `opfor_default_qra_reserve` and `qra_comms_enabled`.
   The radii are constants in `interceptluadata.py`, a **base-defense** posture (lowered
   after playtest feedback that QRA screened forward over the FLOT):
@@ -333,7 +333,7 @@ Do not re-add `ewrj` to `resources/plugins/plugins.json` or restore the old
 `EWJamming` / `startEWjamm` / `startIAdefjamming` Python hooks. F-16/A-10 ECM
 pods should not create the old generic F10 "Jammer menu"; only the C-130J
 Mission Systems plugin owns RetLab scripted jamming now. Legacy saved `ewrj`
-settings are purged on load in `game/settings/settings.py`. **In-game pass ☑ VERIFIED
+settings are purged on load in `game/settings/migration.py`. **In-game pass ☑ VERIFIED
 2026-06-25** (G5): no generic Jammer F10 menu on fighters, no `ewrj`/`EWJamming`/`startEWjamm`/
 `startIAdefjamming` in the generated mission.
 
@@ -1290,7 +1290,7 @@ row is superseded by these retirements; H12 tracks the reworked deck's in-game p
 
 ## 5. Player target location precision
 
-`TargetIntelPrecision` enum (`EXACT` / `APPROXIMATE`) in `game/settings/settings.py`
+`TargetIntelPrecision` enum (`EXACT` / `APPROXIMATE`) in `game/settings/enums.py`
 controls four behaviors together when set to Approximate:
 
 - Player-only target steerpoints are offset to a randomised area within 1–3 NM of
@@ -3026,7 +3026,7 @@ The core settings model and every active plugin definition received a consumer-l
 audit (2026-06-18). UI work is intentionally separate; the full grouping/dependency
 handoff lives in [`docs/dev/settings-qol-audit.md`](settings-qol-audit.md).
 
-- **Removed four dead/duplicate fields** (`game/settings/settings.py`): unused
+- **Removed four dead/duplicate fields** (`game/settings/`): unused
   `prefer_squadrons_with_matching_primary_task`, duplicate `pretense_num_of_cargo_planes`,
   permanently-disabled `nevatim_parking_fix` (plus its Nevatim/Ramon restricted-slot code
   in `flightgroupspawner.py` and the `Migrator` force-off line), and the hidden legacy
@@ -3066,7 +3066,7 @@ defensive threat response.
   strength 0 it returns the list unchanged (strict priority); as strength rises, lower-rank
   targets become progressively more likely to be picked first, while the top target stays
   the single most likely pick at any non-extreme setting.
-- **Two settings** (`game/settings/settings.py`, Campaign Doctrine / General):
+- **Two settings** (`game/settings/`, Campaign Doctrine / General):
   `ownfor_planner_unpredictability` and `opfor_planner_unpredictability` (0–100, **default 0**).
   The helper reads the knob for the planning coalition's side. Default 0 preserves the exact
   deterministic planner, so existing campaigns and tests are unchanged.
@@ -3478,7 +3478,7 @@ the baseline "no modern cueing" option (`Not installed` / `Visor Only`, id `0`).
 | Gate class | `game/dcs/aircraftproperties.py` (`PropertyDateGate`) |
 | Per-aircraft data | `resources/units/aircraft/{FA-18C_hornet,F-16C_50,A-10C_2,MiG-29 Fulcrum}.yaml` (`date_gated_properties`) |
 | Registry wiring | `game/dcs/aircrafttype.py` (`AircraftType.property_date_gate`) |
-| Setting | `game/settings/settings.py` (`restrict_props_by_date`, Difficulty & Realism → Realism & restrictions) |
+| Setting | `game/settings/` (`restrict_props_by_date`, Difficulty & Realism → Realism & restrictions) |
 | Generation clamp | `game/missiongenerator/aircraft/flightgroupconfigurator.py` (`degrade_props_for_date`) |
 | UI filter | `qt_ui/windows/mission/flight/payload/propertycombobox.py`, `propertyeditor.py`, `QFlightPayloadTab.py` |
 | Tests | `tests/dcs/test_aircraftproperties.py` (registry gates exactly the four airframes, pydcs label pin, JHMCS gated pre-2003, baseline/NVG always available, clamp-to-baseline, empty gate on ungated airframes, per-airframe HMS/HMCS years, non-gated property untouched) |
@@ -3614,6 +3614,8 @@ starts on page 2) and for `paginate()` expanding a flight's block. `pages_by_air
 
 ## §28 — Settings IA reorg + difficulty presets
 
+**Package layout (2026-09-23).** `settings.py` (4,326 lines) was split. `Settings` itself (fields not on a page, the plugin store, save loading, the dialog queries) is ~460 lines and inherits one field mixin per storage page from `fields/` (`difficulty`, `doctrine`, `campaignmanagement`, `missiongenerator`, `missiongeneration`, `vietnamops`, `performance`). The dialog layout is `layout.py`, the enums `enums.py`, the legacy-state rewrites `migration.py`. `settings.py` re-exports every enum because old saves pickled them under that module name. Verified: all 227 fields, defaults, metadata and the 51-section dialog layout identical before and after, and two real saves load.
+
 Two coupled UX wins on the settings surface (the in-game **Settings** dialog and the **New Game**
 wizard both render from the same `QSettingsWidget`), plus the 2026-08-03 surface rework below.
 
@@ -3740,7 +3742,7 @@ and left two grab-bag sections — `Campaign Doctrine / General` (34 settings) a
 `Mission Generator / Gameplay` (37) — that no one could navigate.
 
 The reorg introduces a single source of truth for the layout: **`FIELD_LAYOUT`** in
-`game/settings/settings.py` (built from the readable `_LAYOUT_SPEC`), an *ordered* map of
+`game/settings/layout.py` (built from the readable `_LAYOUT_SPEC`), an *ordered* map of
 `field name → (page, section)`. The three classmethods now resolve each field's group via
 `_effective_layout` (FIELD_LAYOUT, falling back to the field's own `page=`/`section=` metadata so
 nothing is ever dropped) and emit in FIELD_LAYOUT order via `_ordered_user_fields`. Net effect:
@@ -3780,7 +3782,7 @@ wingman quality, not a difficulty lever) is deliberately left alone by every pre
 
 | Area | Path |
 |---|---|
-| Layout source of truth | `game/settings/settings.py` (`_LAYOUT_SPEC`, `FIELD_LAYOUT`, `_effective_layout`, `_ordered_user_fields`) |
+| Layout source of truth | `game/settings/layout.py` (`_LAYOUT_SPEC`, `FIELD_LAYOUT`, `_effective_layout`, `_ordered_user_fields`) |
 | Preset engine | `game/settings/difficultypreset.py` (`DifficultyPreset`, `PRESET_VALUES`, `apply_preset`, `detect_preset`) |
 | UI | `qt_ui/windows/settings/QSettingsWindow.py` (`DifficultyPresetBar`, page injection), `qt_ui/uiconstants.py` (icons) |
 | Tests | `tests/settings/test_field_layout.py`, `tests/settings/test_difficultypreset.py` |
@@ -4134,7 +4136,7 @@ high ground" was generic survival copy with no campaign meaning).
 | Model + builder + gate | `game/sitrep.py` (`Sitrep`, `SideLosses`, `sitrep_for_kneeboard`) |
 | Capture hook | `game/sim/missionresultsprocessor.py` (`record_sitrep`, last in `commit`) |
 | Persistence | `game/game.py` (`last_sitrep` + `__setstate__` default) |
-| Setting | `game/settings/settings.py` (`generate_sitrep_kneeboard`, default ON, Kneeboards page) |
+| Setting | `game/settings/` (`generate_sitrep_kneeboard`, default ON, Kneeboards page) |
 | Render | `game/missiongenerator/kneeboard/` (`BriefingPage`, `_briefing_sitrep`) |
 | Tests | `tests/test_sitrep.py`, `tests/missiongenerator/test_kneeboard_index.py` (gating); `COMMIT_STEPS` in `tests/test_missionresultsprocessor.py` |
 
@@ -4254,7 +4256,7 @@ missions never load any of it.
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`populate_vietnam_ops_lua`, `HEAVY_BOMBER_DCS_IDS`) |
 | Hook | `game/missiongenerator/luagenerator.py` (call in `generate_plugin_data`) |
 | Plugin | `resources/plugins/vietnamops/` (`plugin.json`, `vietnamops-config.lua`) |
-| Setting | `game/settings/settings.py` (`vietnam_arc_light`, "Vietnam Ops" page) |
+| Setting | `game/settings/` (`vietnam_arc_light`, "Vietnam Ops" page) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (eligibility gate, off = no node, no bombers = no record) |
 
 ### Gotchas / deferred — in-game pass ☑ VERIFIED 2026-06-28 (L1)
@@ -4303,7 +4305,7 @@ without the `flak` marker.
 |---|---|
 | Emitter (on-marker) | `game/missiongenerator/vietnamopsluadata.py` (`_populate_flak`) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (flak section) |
-| Setting / options | `game/settings/settings.py` (`vietnam_flak_gauntlet`); plugin `specificOptions` (range/ceiling/miss/power) |
+| Setting / options | `game/settings/` (`vietnam_flak_gauntlet`); plugin `specificOptions` (range/ceiling/miss/power) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (marker on/off, independence from Arc Light) |
 
 ### Gotchas / deferred — in-game pass ☑ VERIFIED 2026-07-01 (checklist L2): 2nd softening flown, user pass "light but fairer"
@@ -4365,7 +4367,7 @@ Symmetric (either side's gun ships). `pcall`-guarded; inert without the `navalGu
 |---|---|
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`_populate_naval_gunfire`, `NAVAL_GUN_SHIP_CLASSES`) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (NGFS section) |
-| Setting / options | `game/settings/settings.py` (`vietnam_naval_gunfire`); plugin `specificOptions` (range/rounds/salvo/auto/cadence) |
+| Setting / options | `game/settings/` (`vietnam_naval_gunfire`); plugin `specificOptions` (range/rounds/salvo/auto/cadence) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (gun-ship classification + coalition, carrier excluded, off / no-gun-ship = no node) |
 
 ### Gotchas / deferred — in-game pass done (checklist L3)
@@ -4510,7 +4512,7 @@ whose longest ring is 8 NM or more gets a 12 NM zone. In-game pass owed: **B123*
 | Turn hook | `game/game.py` (`finish_turn`, once per turn after transfer processing) |
 | Right-click server | `game/server/qt/routes.py` (`POST /qt/create-package/supply-route/{id}`), `game/server/supplyroutes/models.py` (`interdiction_target_for_route_id`, route id encodes both CP ids) |
 | Right-click client | `client/src/components/supplyroute/SupplyRoute.tsx` (`contextmenu` → `useOpenNewSupplyRoutePackageDialogMutation`; hook hand-added to `_liberationApi.ts`) |
-| Setting | `game/settings/settings.py` (`vietnam_convoy_interdiction`) — no plugin options (the plugin has no convoy runtime) |
+| Setting | `game/settings/` (`vietnam_convoy_interdiction`) — no plugin options (the plugin has no convoy runtime) |
 | Tests | `tests/retlab/test_vietnam_convoy.py` (corridor pick incl. `exclude_sources`; unit skim respects the fraction cap; setting-off / budget-full / turn-0 no-op; tops the budget up to the deficit; concurrent convoys spread across distinct corridors; a single-corridor campaign stays capped at one; COIN seeds from the insurgent whitelist; **a non-COIN Vietnam campaign seeds an empty source from `Faction.frontline_units`**; no pool available degrades to a no-op). `tests/retlab/test_red_tempo.py` (the surge-widened budget + doubled skim, still source-fraction-clamped). `game/missiongenerator/tests/test_vietnamops_luadata.py` asserts the emitter **never** emits a `convoy` node. `tests/server/test_supply_route_interdiction.py` (route-id → enemy-end resolution). |
 
 ### Gotchas / deferred
@@ -4638,7 +4640,7 @@ commitment is then cleared (charged once). **No base-Lua / debrief-schema change
 | Turn hook / debrief | `game/game.py` (`finish_turn` → `plan_super_gaggle`; `super_gaggle_commitment` persisted), `game/sim/missionresultsprocessor.py` (`commit_super_gaggle`) |
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`_populate_super_gaggle`, reads the commitment) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (Super Gaggle section — single run, committed names) |
-| Setting / options | `game/settings/settings.py` (`vietnam_super_gaggle`); plugin `specificOptions` (transit speed / altitudes / launch delay `gaggleDelaySec` — type & count come from the squadrons) |
+| Setting / options | `game/settings/` (`vietnam_super_gaggle`); plugin `specificOptions` (transit speed / altitudes / launch delay `gaggleDelaySec` — type & count come from the squadrons) |
 | Tests | `tests/retlab/test_super_gaggle.py` (plan draws real squadron airframes with capped counts, clears when off / no outpost / no helo squadron; reconcile charges only killed names, floors at 0, credits delivery on survival, clears the commitment). `game/missiongenerator/tests/test_vietnamops_luadata.py` (emitter serializes a commitment's outpost/launch/helo+suppressor names; no commitment → no node). |
 
 ### Gotchas / deferred
@@ -4697,7 +4699,7 @@ Same shape as §33 flak — an **on-marker + runtime discovery**, no per-mission
 |---|---|
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`_populate_fac`) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (FAC section) |
-| Setting / options | `game/settings/settings.py` (`vietnam_fac_marking`); plugin `specificOptions` (type/range/cadence) |
+| Setting / options | `game/settings/` (`vietnam_fac_marking`); plugin `specificOptions` (type/range/cadence) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (the `fac` on-marker is emitted when the setting is on, independent of the other suite features; off = no node) |
 
 ### Gotchas / deferred
@@ -4767,7 +4769,7 @@ weapon-tracking pattern), no per-mission data:
 |---|---|
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`_populate_snake_nape`) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (Snake and nape section) |
-| Setting / options | `game/settings/settings.py` (`vietnam_snake_and_nape`); plugin `specificOptions` (release ceiling/speed, weapon patterns, per-impact power) |
+| Setting / options | `game/settings/` (`vietnam_snake_and_nape`); plugin `specificOptions` (release ceiling/speed, weapon patterns, per-impact power) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (the `snakeNape` on-marker is emitted when the setting is on, independent of the other suite features; off = no node) |
 
 ### Gotchas / deferred
@@ -5146,7 +5148,7 @@ campaign is byte-for-byte untouched.
 | Planner | `game/retlab/carrier_ops.py` (`plan_carrier_strike` + `route_carrier_flights_to_buddy_tanker`) |
 | Hook | `game/coalition.py` (`plan_missions`: strike before `TheaterCommander`, buddy-tanker routing after) |
 | Refuel override | `game/ato/flight.py` (`refuel_point_override` + `refuel_waypoint_position`); `game/ato/flightplans/{formationattack,tarcap,escort}.py` (builders honor it) |
-| Setting | `game/settings/settings.py` (`long_range_carrier_ops` + `_LAYOUT_SPEC` "Carrier operations") |
+| Setting | `game/settings/` (`long_range_carrier_ops` + `_LAYOUT_SPEC` "Carrier operations") |
 | Preseed | `resources/campaigns/coin_enduring_resolve.yaml` (`settings:` block) |
 | Tests | `tests/retlab/test_carrier_ops.py` (off-switch, red no-op, carrier discovery, squadron pick, already-planned guard, ROE-respecting nearest-cache target, buddy-tanker routing); `tests/retlab/test_coin.py` (the campaign preseed lock) |
 
@@ -5370,7 +5372,7 @@ per-turn rotation + memoryless weather exactly. Requires day-and-night missions 
 |---|---|
 | Clock + weather | `game/weather/conditions.py` (`Conditions.advance`, the `previous=` path in `generate_weather` → `_evolve_weather_type` MH step, `MIN/MAX_TURN_ADVANCE_HOURS`, `_WEATHER_LADDER`, `_WEATHER_PERSISTENCE_KERNEL`) |
 | Game wiring | `game/game.py` (`continuous_clock_active`, `advance_conditions`, `current_day`, `current_turn_time_of_day`, `finish_turn`) |
-| Setting | `game/settings/settings.py` (`continuous_campaign_clock`) |
+| Setting | `game/settings/` (`continuous_campaign_clock`) |
 | Tests | `tests/weather/test_continuous_campaign_clock.py` (monotonic march within the 3–7 h band; time-of-day derived; date rolls at midnight; weather biased toward the previous rung; zero seasonal chance still honoured; memoryless without `previous`) |
 
 ### Gotchas / deferred (checklist T1 — in-game pass DONE)
@@ -5578,7 +5580,7 @@ changed** — same radius, same grace, same cue, same ROE-only discipline.
 | Visibility | `game/theater/theatergroundobject.py` (`map_hidden` + the `hidden_on_player_map` leaf), `game/server/eventstream/models.py` (SSE filter), `game/commander/battlepositions.py` (planner skip) |
 | State | `game.convoy_ambush_state` (declared in `Game.__init__`, `setdefault` in `__setstate__`) |
 | Spring | `game/missiongenerator/convoyambushgenerator.py` (`ConvoyAmbushGenerator`, run from `missiongenerator.py` after `ConvoyGenerator`/`CargoShipGenerator`) — native DCS trigger rules, **no plugin** |
-| Settings | `game/settings/settings.py` (`ambient_supply_convoys` + `convoy_ambush`, Mission Generation → Battlefield life, both default **ON**) |
+| Settings | `game/settings/` (`ambient_supply_convoys` + `convoy_ambush`, Mission Generation → Battlefield life, both default **ON**) |
 | Tests | `tests/retlab/test_ambient_convoys.py` (the randomized both-sides top-up, same-road stacking, corridor orientation, COIN kit, every guard); `tests/retlab/test_convoy_ambush.py` (the chance roll + gauntlet placement + the map_hidden contract + the `ROAD_BEARING_CAMPAIGNS` inventory guard); `tests/missiongenerator/test_convoyambushgenerator.py` (the authored zone/trigger/conditions/actions, per-ambush flags, the dug-in options, serialization, every guard — driven against a real `dcs.Mission`) |
 
 ### Gotchas / deferred
@@ -5795,7 +5797,7 @@ bare `hidden_on_player_map`, so the reveal overview cannot change the count.
 | Core | `game/retlab/c2_decapitation.py` (`c2_health`, `unpredictability_bonus`, `offensive_package_cap`, `c2_status_line`) |
 | Planner hooks | `game/commander/tasks/targetorder.py` `_unpredictability_for` (adds the bonus, clamps to 100); `game/commander/tasks/compound/nextaction.py` `_offensive_tempo_exhausted` (the A2 throttle gate on the offensive middle) |
 | Legibility | `game/sitrep.py` (`red_c2_status`), `game/sim/missionresultsprocessor.py` `record_sitrep`, `game/server/game/models.py` (`red_c2`), `client/src/components/campaignstatus/CampaignStatusBar.tsx`, `game/retlab/pre_turn_briefing.py` `_consequence_items` |
-| Setting | `game/settings/settings.py` (`c2_decapitation_effects`, Air Doctrine, default **OFF**) |
+| Setting | `game/settings/` (`c2_decapitation_effects`, Air Doctrine, default **OFF**) |
 | Tests | `tests/retlab/test_c2_decapitation.py` (health/bonus/status/gates, hidden posts excluded from the line but counted by `c2_health`, the overview cannot change the line, + the A2 cap math and HTN gating); `tests/test_planner_unpredictability.py` (the shuffler coupling + intact/off determinism); `tests/test_sitrep.py` (the band line, rides-along); `tests/retlab/test_pre_turn_briefing.py` (the brief asks for red's network) |
 
 ### Gotchas / deferred
@@ -6810,7 +6812,7 @@ starts; AI always, clients per policy); `should_activate_late` exempts client ca
 COLD flights. `FlightGroupConfigurator` threads its `use_client` flag into
 `WaypointGenerator` (the `multiplayer` param), consumed by `should_delay_flight` /
 `should_activate_late` for the single-player bypass. No plugin, no Lua, no miz-format
-change; `game/settings/settings.py` carries the enum + `_migrate_legacy_settings`
+change; `game/settings/` carries the enum + `_migrate_legacy_settings`
 migration.
 
 **Tests**: `tests/missiongenerator/test_carrier_deck_policy.py` (the trigger matrix:
@@ -7972,7 +7974,7 @@ upstream FR for exactly this; the core (module + `check_win_loss` branch + knobs
 zero fork couplings. Carve after the in-app pass, the §63/§65 pattern.
 
 Files: `game/retlab/victory.py`, `game/game.py` (branch + baseline latch +
-`victory_baseline`/`victory_announced` attrs), `game/settings/settings.py`,
+`victory_baseline`/`victory_announced` attrs), `game/settings/`,
 `game/sitrep.py` + `game/sim/missionresultsprocessor.py`,
 `game/server/game/models.py`, `client/src/components/campaignstatus/`,
 `client/src/api/_liberationApi.ts` (hand-added types). Tests
@@ -8781,7 +8783,7 @@ byte-identical: the button is hidden and nothing else in the app changes.
 
 Files: `game/retlab/sp_pilot_mode.py`, `game/retlab/pre_turn_briefing.py`,
 `qt_ui/windows/sp/QSpPilotModeDialog.py`,
-`qt_ui/windows/QWaitingForMissionResultWindow.py`, `game/settings/settings.py`. Tests:
+`qt_ui/windows/QWaitingForMissionResultWindow.py`, `game/settings/`. Tests:
 `tests/retlab/test_sp_pilot_mode.py` (20) +
 `tests/retlab/test_pre_turn_briefing.py` (16). Design note:
 `docs/dev/design/retlab-single-player-loop-notes.md`. Checklist: **B41** (in-app).
@@ -9112,7 +9114,7 @@ follow-up kept out of v1 so the runtime can be flown alone.
 
 Files: `game/retlab/gps_jamming.py`, `game/dcs/groundunittype.py`,
 `game/missiongenerator/gpsjammingluadata.py`, `game/missiongenerator/luagenerator.py`,
-`game/missiongenerator/kneeboard/`, `game/settings/settings.py`,
+`game/missiongenerator/kneeboard/`, `game/settings/`,
 `resources/plugins/gpsjamming/`, `resources/units/ground_units/GPS_Spoofer_{Red,Blue}.yaml`,
 `resources/layouts/anti_air/GPS_Jamming_Site.{yaml,miz}`,
 `resources/layouts/anti_air/S-300{_Site, Site (Single Radar)}.yaml` + `S-300_Site.miz`,
@@ -9880,7 +9882,7 @@ multiply.
 
 - `game/retlab/region_priorities.py` · `game/theater/controlpoint.py` ·
   `game/commander/objectivefinder.py` · `game/retlab/cruise_raids.py` ·
-  `game/retlab/carrier_ops.py` · `game/settings/settings.py` · server/web UI under
+  `game/retlab/carrier_ops.py` · `game/settings/` · server/web UI under
   `game/server/controlpoints/` + `client/src/`.
 - Tests: `tests/retlab/test_region_priorities.py` (the factor gates, the ordering
   effect, the IGNORED drop, the rescue exemption, the off-gate identity).
@@ -10541,7 +10543,7 @@ an AI flight that clips a wall is not fired on, and only the player is.
 
 - `game/theater/neutralborder.py` · `game/campaignloader/mizcampaignloader.py` ·
   `game/missiongenerator/neutralbordergenerator.py` · `neutralborderluadata.py` ·
-  `game/settings/settings.py` (`neutral_border_defense`) ·
+  `game/settings/` (`neutral_border_defense`) ·
   `resources/plugins/neutralborder/` · `tools/neutral_border_geo.py`.
 - `tests/lua/test_neutralborder_runtime.py` — 30 harness tests on real Lua 5.1: the
   hail on entry and the second call at dwell, dwell escalation, weapon-release
@@ -10754,7 +10756,7 @@ each generation and need nothing.
 - `game/missiongenerator/dynamicspawntemplates.py` — `DynamicSpawnTemplateGenerator`.
   Called at the end of `MissionGenerator.generate_warehouses`, after the air units exist
   and the ship/heliport warehouses are emitted (it needs both).
-- `game/settings/settings.py` — `dynamic_slots_templates` (default on, enabled under
+- `game/settings/` — `dynamic_slots_templates` (default on, enabled under
   `dynamic_slots`).
 - `requirements.txt` — the pydcs pin moved to `BradySox/pydcs` `dyn-spawn-template`
   (`beb37634`), one commit on the DTC pin: `FlyingGroup.dyn_spawn_template`, emitted as

@@ -6,7 +6,7 @@ waypoints and comm card, even if the fit is not exact. Row `B125` owns the in-ga
 
 ## 1. The problem
 
-`dynamic_slots` (`game/settings/settings.py`) turns on the airbase flag and nothing else.
+`dynamic_slots` (`game/settings/`) turns on the airbase flag and nothing else.
 A dynamic-slot jet spawns with DCS's stock loadout, no route, no radio presets and no
 aircraft properties. It is also invisible to the campaign: no loss recorded, no §58
 briefing card, no §5 grounded steerpoint, no §74 cartridge. This note covers the blank jet

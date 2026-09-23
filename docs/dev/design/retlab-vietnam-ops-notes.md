@@ -49,7 +49,7 @@ Combat SAR, and TIC.
 
 A dedicated settings page (alongside Difficulty & Realism, Air Doctrine, …) holds every toggle.
 The §28 settings IA is fully metadata-driven: the page is one entry in
-`_LAYOUT_SPEC` (`game/settings/settings.py`) plus a page→icon mapping in
+`_LAYOUT_SPEC` (`game/settings/layout.py`) plus a page→icon mapping in
 `qt_ui/uiconstants.py`, and the dialog + New Game wizard build themselves from it. New boolean
 fields are save-safe by construction (`Settings.__setstate__` backfills missing fields from a
 fresh `Settings()`).

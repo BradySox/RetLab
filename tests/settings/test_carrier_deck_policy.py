@@ -1,4 +1,5 @@
 from game.settings import CarrierDeckPolicy, Settings
+from game.settings.migration import migrate_legacy_settings
 
 
 def test_default_is_last_resort() -> None:
@@ -9,17 +10,17 @@ def test_legacy_sixpack_boolean_migrates_to_policy() -> None:
     # ON exempted player flights from the off-six-pack placement delay, so they
     # filled the six-pack: that intent maps to SIXPACK_FIRST. OFF already
     # behaved like the last-resort policy.
-    on = Settings._migrate_legacy_settings({"player_flights_sixpack": True})
+    on = migrate_legacy_settings({"player_flights_sixpack": True})
     assert on["carrier_deck_policy"] is CarrierDeckPolicy.SIXPACK_FIRST
     assert "player_flights_sixpack" not in on
 
-    off = Settings._migrate_legacy_settings({"player_flights_sixpack": False})
+    off = migrate_legacy_settings({"player_flights_sixpack": False})
     assert off["carrier_deck_policy"] is CarrierDeckPolicy.LAST_RESORT
     assert "player_flights_sixpack" not in off
 
 
 def test_migration_never_stomps_an_existing_policy() -> None:
-    migrated = Settings._migrate_legacy_settings(
+    migrated = migrate_legacy_settings(
         {
             "player_flights_sixpack": True,
             "carrier_deck_policy": CarrierDeckPolicy.LAST_RESORT,

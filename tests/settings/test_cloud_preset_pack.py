@@ -3,6 +3,7 @@ from dcs.cloud_presets import CLOUD_PRESETS
 from game.settings import Settings
 from game.settings.settings import CloudPresetPack
 from pydcs_extensions import AtmosXClouds, BanditClouds, Weather2Clouds
+from game.settings.migration import migrate_legacy_settings
 
 
 def test_default_is_stock_presets() -> None:
@@ -10,17 +11,17 @@ def test_default_is_stock_presets() -> None:
 
 
 def test_legacy_bandit_boolean_migrates_to_the_pack_choice() -> None:
-    on = Settings._migrate_legacy_settings({"use_bandit_clouds": True})
+    on = migrate_legacy_settings({"use_bandit_clouds": True})
     assert on["cloud_preset_pack"] is CloudPresetPack.BANDIT
     assert "use_bandit_clouds" not in on
 
-    off = Settings._migrate_legacy_settings({"use_bandit_clouds": False})
+    off = migrate_legacy_settings({"use_bandit_clouds": False})
     assert off["cloud_preset_pack"] is CloudPresetPack.NONE
     assert "use_bandit_clouds" not in off
 
 
 def test_migration_never_stomps_an_existing_pack() -> None:
-    migrated = Settings._migrate_legacy_settings(
+    migrated = migrate_legacy_settings(
         {
             "use_bandit_clouds": True,
             "cloud_preset_pack": CloudPresetPack.ATMOSX,

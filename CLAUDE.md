@@ -400,8 +400,8 @@ periods, exclusion lists, one-shot latches). First coverage: `vietnamops`. It mo
 AI/physics, so real behavior still needs an in-game pass (see the in-game-pass checklist).
 
 **Finding things in the big files.**
-- `game/settings/settings.py`: field `grep -n "^    <field>:"`; by UI label `grep -n -B1 '"<Label>'` (the label is on the line after the field).
-- `game/missiongenerator/kneeboard.py`: one class per page — `grep -n "^class .*Page"` first.
+- `game/settings/`: a field lives in `fields/<page>.py` — `grep -rn "^    <field>:" game/settings/fields`; by UI label `grep -rn -B1 '"<Label>' game/settings/fields` (the label is on the line after the field). Dialog layout is `layout.py`, old-save rewrites `migration.py`.
+- `game/missiongenerator/kneeboard/` (a package since #1066): one module per page family — `grep -rn "^class .*Page" game/missiongenerator/kneeboard` first.
 
 ---
 
