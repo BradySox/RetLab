@@ -4,14 +4,12 @@ import math
 from dcs.point import MovingPoint
 from dcs.task import (
     AttackGroup,
-    EngageGroup,
     Expend,
     OptECMUsing,
     WeaponType as DcsWeaponType,
     OptRestrictAfterburner,
 )
 
-from game.data.weapons import WeaponType
 from game.theater import TheaterGroundObject
 from .pydcswaypointbuilder import PydcsWaypointBuilder
 

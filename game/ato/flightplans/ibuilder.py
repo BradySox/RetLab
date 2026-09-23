@@ -6,7 +6,6 @@ from typing import Any, Generic, TYPE_CHECKING, TypeVar
 from game.navmesh import NavMeshError
 from .flightplan import FlightPlan, Layout
 from .planningerror import PlanningError
-from ..flighttype import FlightType
 from ..packagewaypoints import PackageWaypoints
 
 if TYPE_CHECKING:

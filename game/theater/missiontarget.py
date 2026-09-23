@@ -7,7 +7,6 @@ from dcs.mapping import Point
 if TYPE_CHECKING:
     from game.ato.flighttype import FlightType
     from game.theater import TheaterUnit, Coalition, Player
-    from game.utils import Heading
 
 
 class MissionTarget:

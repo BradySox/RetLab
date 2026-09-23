@@ -41,7 +41,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # Pin imports to THIS checkout's code (worktree-safe): `python tools/...` puts
 # tools/ on sys.path, not the repo root, and the shared venv could otherwise

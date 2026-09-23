@@ -1,6 +1,6 @@
 """Print all preset sentinel unit type IDs used by MizCampaignLoader."""
 
-from dcs.vehicles import AirDefence, Armor
+from dcs.vehicles import AirDefence
 from dcs.statics import Fortification, Warehouse
 
 print("LONG_RANGE_SAM:")

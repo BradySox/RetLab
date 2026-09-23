@@ -4,7 +4,6 @@ import logging
 from datetime import datetime
 from functools import cached_property
 from typing import Any, Dict, List, TYPE_CHECKING, Tuple
-from uuid import UUID
 
 from dcs import Point
 from dcs.action import AITaskPush
@@ -51,7 +50,6 @@ from game.theater.controlpoint import (
     Airfield,
     ControlPoint,
     Fob,
-    NavalControlPoint,
 )
 from game.unitmap import UnitMap
 from .aircraftpainter import AircraftPainter

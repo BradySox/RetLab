@@ -3,11 +3,9 @@
 
 from __future__ import annotations
 
-import pytest
 
 from game.missiongenerator.kneeboard_recon.label_layout import (
     LabelRequest,
-    PlacedLabel,
     Rect,
     _label_edge_toward,
     place_labels,

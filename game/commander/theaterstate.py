@@ -32,7 +32,6 @@ from game.theater.theatergroundobject import (
     VehicleGroupGroundObject,
 )
 from game.threatzones import ThreatZones
-from game.utils import nautical_miles
 
 if TYPE_CHECKING:
     from game import Game

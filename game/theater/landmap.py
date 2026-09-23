@@ -10,7 +10,7 @@ from dcs.drawing.polygon import FreeFormPolygon
 from dcs.mapping import Point
 from dcs.mission import Mission
 from dcs.terrain.terrain import Terrain
-from shapely import geometry, LineString
+from shapely import LineString
 from shapely.geometry import MultiPolygon, Polygon
 import shapely as shp
 

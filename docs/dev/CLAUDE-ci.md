@@ -7,6 +7,10 @@ Every push to `main` runs these workflows:
    stdlib-only). Exit 1 = a published page still briefs a removed feature; exit 2 = a
    row in the audit's own table is inert. All three block, so they gate the rolling
    release as well as PRs.
+   Plus **Dead code (advisory)**: `python tools/dead_code_report.py` — pyflakes unused
+   imports (skipping `__init__.py` re-exports and `noqa` lines) + vulture at ≥80 %
+   with `tools/vulture_whitelist.py`. Zero on 2026-09-23; reported to the Step
+   Summary, never blocks.
 2. **`test.yml`** — pytest over `tests` **plus the three out-of-tree test dirs under
    `game/`** (`game/missiongenerator/tests`, `game/missiongenerator/kneeboard_recon/tests`,
    `game/plugins/tests`) — added 2026-07-10; before that those ~245 tests never ran in CI.

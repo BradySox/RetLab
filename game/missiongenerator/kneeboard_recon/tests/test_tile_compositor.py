@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import MagicMock, patch
 
-import pytest
 from PIL import Image
 
 from game.missiongenerator.kneeboard_recon import tile_compositor

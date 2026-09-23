@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import math
 
-import pytest
 from PIL import Image, ImageDraw
 
 from game.missiongenerator.kneeboard_recon.threat_rings import draw_threat_rings

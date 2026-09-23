@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 from typing import Iterable, List, TYPE_CHECKING
-from functools import cached_property
 
 from dcs.mapping import Polygon
 from dcs.triggers import TriggerZone, TriggerZoneCircular, TriggerZoneQuadPoint
-
-from game.theater.theatergroundobject import NAME_BY_CATEGORY
 
 if TYPE_CHECKING:
     from dcs.mapping import Point
@@ -14,8 +11,6 @@ if TYPE_CHECKING:
 
 class ControlPointInfluenceRadiusError(RuntimeError):
     """Error for when there are insufficient conditions to create a ControlPointInfluenceRadius."""
-
-    pass
 
 
 class ControlPointInfluenceRadius:

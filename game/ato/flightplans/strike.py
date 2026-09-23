@@ -10,7 +10,6 @@ from .formationattack import (
 )
 from .invalidobjectivelocation import InvalidObjectiveLocation
 from .tacticaloverlay import TacticalOverlay, TacticalOverlayDisplay, attack_run_overlay
-from .waypointbuilder import StrikeTarget
 from ..flightwaypointtype import FlightWaypointType
 
 

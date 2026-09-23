@@ -10,7 +10,7 @@ from game.missiongenerator.vietnamopsluadata import (
     HEAVY_BOMBER_DCS_IDS,
     populate_vietnam_ops_lua,
 )
-from game.theater import ControlPointType, Player
+from game.theater import ControlPointType
 
 
 def _flight(dcs_id: str, flight_type: FlightType, group_name: str) -> Any:
