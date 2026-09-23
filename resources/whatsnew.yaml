@@ -26,6 +26,19 @@ entries:
       shows none.
     row: B139
   - date: 2026-09-23
+    title: A target's panel says why it matters
+    change: >-
+      An enemy target's panel has a Why it matters line: the income it earns
+      the enemy, the front-line vehicles an ammo depot keeps fielded, how far a
+      command post's loss cuts the enemy's offensive packages, or the price of
+      what stands there, and where it ranks among others of its kind. Tick HQ
+      priority targets (Campaign Doctrine) and the auto-planner leans toward
+      the top of each kind.
+    watch: >-
+      Open an enemy factory you have struck: the line names its income and a
+      rank. A site you have not engaged reads Unknown.
+    row: B140
+  - date: 2026-09-23
     title: Set a Hornet or Tomcat flight's board number yourself
     change: >-
       On a Hornet or Tomcat flight the Payload tab has a Set board number box. The number you enter is the

@@ -866,6 +866,15 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("dynamic_slots_templates",),
     ),
     Feature("my_aircraft", "My aircraft and saved points", 102),
+    Feature(
+        # What losing each enemy target costs the enemy, ranked within its §93
+        # family; a Target Intel line always, a blue-only planner weight when on.
+        # docs/dev/design/retlab-hq-priority-targets-notes.md.
+        "hq_priority_targets",
+        "HQ priority targets",
+        103,
+        settings_fields=("hq_priority_targets",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),
