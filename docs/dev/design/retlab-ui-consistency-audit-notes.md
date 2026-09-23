@@ -19,6 +19,7 @@ checked against the code before anything was changed.
 | No setting, published page or plugin text presents a removed feature as live | `tools/audit_stale_docs.py` (CI); the settings test reuses its table |
 | Plugin option descriptions render under the label, as on the generated pages | `tests/test_plugin_option_descriptions.py` |
 | A mod a shipped campaign preseeds has a New Game toggle | `tests/test_mod_toggles.py` |
+| A plugin loop period (`…IntervalS`, `…RepathS`, `…StepS`, `tickSec`) has a positive `minimumValue` | `tests/test_plugin_option_timers.py` |
 | Units are a trailing parenthetical: `(NM)`, `(km)`, `(m)`, `(ft)`, `(%)`, `(minutes)` | review |
 | A setting whose runtime is a plugin names that plugin by its display name | review |
 
@@ -73,6 +74,12 @@ Growler named only the EA-18G, COIN cited the political mandate, TIC's jitter la
 (the code does ±45 % plus a per-group tempo), intercept pointed at "Campaign Doctrine". The
 soundhandler's Tomahawk call referenced a sound it never packed.
 
+**Plugin option behavior (same-day follow-up):** Skynet's "Exclude SA-15" was a no-op (an inner
+`local` shadowed the list; upstream carries it too, inventory item 39) and its 12 dependent
+options now gray out with their master; MooseAtis lost "Debug Mode" (never read) and "Announce
+Field Name" (needs `ATIS:SetReportName`, absent from the bundled MOOSE); nine loop periods got a
+positive minimum, so 0 no longer reschedules a loop on every pass.
+
 **Qt windows — text that said something false:** closing Air Wing Configuration discards (the
 text said it accepts); the time/date warning said changing it re-initializes the turn (ACCEPT
 keeps and re-times the plans); the sell tooltip said "buy"; the results-file picker said "game
@@ -117,10 +124,6 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 | `client/.../downedpilots/DownedPilot.tsx:62-66` | Enemy downed pilots show a rescue countdown and "Right click to plan a CSAR mission", which opens an empty dialog |
 | `client/.../controlpoints/MobileControlPoint.tsx:21-27` | Carrier drag tooltip prints "-51.70°S"; `MobileTgo.tsx:32-41` already fixed this |
 | `client/.../eventsfeed/EventsFeed.tsx:31-33` | Shows upstream log bodies of 40 hyphens every turn |
-| `resources/plugins/skynetiads/skynetiads-config.lua:293-296` | "Exclude SA-15" does nothing: an inner `local sams` shadows the list. Same in upstream — a carve candidate |
-| `resources/plugins/MooseAtis/plugin.json:5,8` | "Debug Mode" is read and never used; "Announce Field Name" needs a MOOSE method the bundled build lacks |
-| 8 plugin timer options | No `minimumValue`, so 0 is accepted and the loop runs every scheduler pass |
-| `skynetiads/plugin.json` | 12 options depend on a master toggle but declare no `enabledWhen` |
 | Plugin pages | Not reached by the settings search or "Only changed"; no campaign badge; unticking a plugin does not gray its options |
 | `qt_ui/windows/sp/QSpPilotModeDialog.py:179,220` | Offers "join a package" sorties, then says joining "is not wired up yet" |
 | COIN HVT and IED | Since the will economy went, a kill or a detonation is an announcement only; the features have no consequence |

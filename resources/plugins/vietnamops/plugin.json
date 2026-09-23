@@ -73,6 +73,7 @@
         {
             "nameInUI": "Naval gunfire: seconds between automatic fire missions",
             "mnemonic": "ngfsAutoIntervalS",
+            "minimumValue": 10,
             "defaultValue": 90,
             "enabledWhen": "ngfsAuto"
         },
@@ -111,6 +112,7 @@
         {
             "nameInUI": "FAC(A): seconds between target marks per FAC",
             "mnemonic": "facIntervalS",
+            "minimumValue": 10,
             "defaultValue": 120
         },
         {

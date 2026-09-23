@@ -41,22 +41,26 @@
         {
             "nameInUI": "Maximum emission time (s) for Mobile SHORAD",
             "mnemonic": "actMobileMaxEmissionTime",
-            "defaultValue": 30
+            "defaultValue": 30,
+            "enabledWhen": "actMobile"
         },
         {
             "nameInUI": "Minimum scoot distance (m) for Mobile SHORAD",
             "mnemonic": "actMobileMinimumScootDistance",
-            "defaultValue": 300
+            "defaultValue": 300,
+            "enabledWhen": "actMobile"
         },
         {
             "nameInUI": "Maximum scoot distance (m) for Mobile SHORAD",
             "mnemonic": "actMobileMaximumScootDistance",
-            "defaultValue": 500
+            "defaultValue": 500,
+            "enabledWhen": "actMobile"
         },
         {
             "nameInUI": "Exclude SA-15",
             "mnemonic": "actMobile_exclude_SA15",
-            "defaultValue": false
+            "defaultValue": false,
+            "enabledWhen": "actMobile"
         },
         {
             "nameInUI": "Enable Mobile SAMs MERAD (SA-6/11/17)",
@@ -66,17 +70,20 @@
         {
             "nameInUI": "Maximum emission time (s) for Mobile MERAD",
             "mnemonic": "actMobileMaxEmissionTime_merad",
-            "defaultValue": 120
+            "defaultValue": 120,
+            "enabledWhen": "actMobile_merad"
         },
         {
             "nameInUI": "Minimum scoot distance (m) for Mobile MERAD",
             "mnemonic": "actMobileMinimumScootDistance_merad",
-            "defaultValue": 500
+            "defaultValue": 500,
+            "enabledWhen": "actMobile_merad"
         },
         {
             "nameInUI": "Maximum scoot distance (m) for Mobile MERAD",
             "mnemonic": "actMobileMaximumScootDistance_merad",
-            "defaultValue": 3000
+            "defaultValue": 3000,
+            "enabledWhen": "actMobile_merad"
         },
         {
             "nameInUI": "Adjust default SAMs GoLiveRange",
@@ -86,27 +93,32 @@
         {
             "nameInUI": "SA-5 GoLiveRange (% max interceptor range)",
             "mnemonic": "adjustGoLiveRange_SA5",
-            "defaultValue": 100
+            "defaultValue": 100,
+            "enabledWhen": "adjustGoLiveRange"
         },
         {
             "nameInUI": "SA-10 GoLiveRange (% max interceptor range)",
             "mnemonic": "adjustGoLiveRange_SA10",
-            "defaultValue": 100
+            "defaultValue": 100,
+            "enabledWhen": "adjustGoLiveRange"
         },
         {
             "nameInUI": "SA-17 GoLiveRange (% max interceptor range)",
             "mnemonic": "adjustGoLiveRange_SA17",
-            "defaultValue": 100
+            "defaultValue": 100,
+            "enabledWhen": "adjustGoLiveRange"
         },
         {
             "nameInUI": "SA-20 GoLiveRange (% max interceptor range)",
             "mnemonic": "adjustGoLiveRange_SA20",
-            "defaultValue": 100
+            "defaultValue": 100,
+            "enabledWhen": "adjustGoLiveRange"
         },
         {
             "nameInUI": "SA-23 GoLiveRange (% max interceptor range)",
             "mnemonic": "adjustGoLiveRange_SA23",
-            "defaultValue": 100
+            "defaultValue": 100,
+            "enabledWhen": "adjustGoLiveRange"
         }
     ],
     "scriptsWorkOrders": [
