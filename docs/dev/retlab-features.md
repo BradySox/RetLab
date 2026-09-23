@@ -8546,6 +8546,11 @@ Expenditure mirrors into the new `naval_magazines_state` Lua→Python channel (t
 boundary. **Generation never debits**, so re-generating a mission is free (the §54 lesson).
 There is no rearm.
 
+The next turn's SITREP carries one line per **blue** group that fired: `<group>: N anti-ship
+missile(s) fired, M left`, or `WINCHESTER` at zero (`winchester_lines` → `Sitrep.naval_lines`).
+Red stock stays hidden. The function existed from the start but nothing called it until
+2026-09-23.
+
 ### The per-mission salvo cap (`salvoPerMission` plugin option, default 6)
 
 The first flight that exercised both tiers end to end (Vectron's Claw turn 1,

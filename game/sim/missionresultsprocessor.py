@@ -142,6 +142,7 @@ class MissionResultsProcessor:
         # the campaign authors a `victory:` block or a knob is on.
         from game.retlab.victory import victory_sitrep_lines
         from game.retlab.supply_report import supply_sitrep_lines
+        from game.retlab.naval_magazines import winchester_lines
 
         self.game.last_sitrep = Sitrep.from_debriefing(
             debriefing,
@@ -151,6 +152,7 @@ class MissionResultsProcessor:
             red_c2_status=c2_status_line(self.game, Player.RED),
             victory_lines=victory_sitrep_lines(self.game),
             supply_lines=supply_sitrep_lines(self.game),
+            naval_lines=winchester_lines(self.game, debriefing),
         )
 
     def _downed_pilot_sitrep_lines(self) -> list[str]:

@@ -177,3 +177,26 @@ def test_sitrep_for_kneeboard_gating() -> None:
     assert sitrep_for_kneeboard(None, enabled=True) is None  # turn 1 / no prior
     assert sitrep_for_kneeboard(empty, enabled=True) is None  # quiet turn
     assert sitrep_for_kneeboard(sitrep, enabled=True) is sitrep  # shown
+
+
+def test_naval_magazine_lines_ride_along_on_the_band() -> None:
+    # §81: winchester_lines existed and was tested, but nothing called it, so a
+    # group that emptied its tubes never said so.
+    sitrep = Sitrep.from_debriefing(
+        _debrief(_loss(0, 0, 0), _loss(0, 0, 1)),
+        turn=4,
+        day=date(2000, 1, 1),
+        naval_lines=["CG Vella Gulf: WINCHESTER anti-ship — 8 fired, no rearm"],
+    )
+    assert (
+        "CG Vella Gulf: WINCHESTER anti-ship — 8 fired, no rearm"
+        in sitrep.kneeboard_lines()
+    )
+
+
+def test_a_pre_feature_sitrep_without_naval_lines_still_renders() -> None:
+    sitrep = Sitrep.from_debriefing(
+        _debrief(_loss(1, 0, 0), _loss(0, 0, 0)), turn=2, day=date(2000, 1, 1)
+    )
+    del sitrep.__dict__["naval_lines"]
+    assert sitrep.kneeboard_lines()[0].startswith("Friendly losses:")
