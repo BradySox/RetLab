@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Iterator, Optional, Sequence
+from typing import Any, Optional, Sequence
 
 from game.ato.savedpoints import (
     PointKind,
@@ -257,11 +257,6 @@ class Aircraft:
                 shown.append(kind)
         return shown
 
-    def rename_point(self, index: int, name: str) -> None:
-        points = self.points
-        if 0 <= index < len(points):
-            points[index].name = name.strip()[: self.name_length] or points[index].name
-
     @property
     def name_length(self) -> int:
         """How long a point's name may be before the cockpit truncates it.
@@ -370,9 +365,3 @@ class Clipboard:
             if add_point(aircraft.flight, copy):
                 written += 1
         return written
-
-
-def kind_rows(aircraft: Aircraft) -> Iterator[tuple[PointKind, list[tuple[int, Any]]]]:
-    """The groups the points pane draws, in the airframe's own order."""
-    for kind in aircraft.kinds:
-        yield kind, aircraft.of_kind(kind)

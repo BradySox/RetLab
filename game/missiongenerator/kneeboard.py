@@ -59,9 +59,9 @@ from game.radio.radios import RadioFrequency
 from game.runways import RunwayData
 from game.settings.settings import TargetIntelPrecision
 from game.sitrep import Sitrep, sitrep_for_kneeboard
-from game.theater import FrontLine, TheaterGroundObject, TheaterUnit
+from game.theater import TheaterGroundObject, TheaterUnit
 from game.theater.bullseye import Bullseye
-from game.theater.controlpoint import Airfield, ControlPoint
+from game.theater.controlpoint import Airfield
 from game.theater.theatergroundobject import EwrGroundObject, SamGroundObject
 from game.utils import Distance, Speed, UnitSystem, inches_hg, meters, mps, pounds
 from game.weather.weather import Weather
@@ -74,9 +74,6 @@ from .kneeboard_recon import generate_recon_pages
 from .kneeboard_recon.pages import (
     _FLIGHT_TYPES_WITH_RECON,
     _should_emit_departure,
-    AirbaseReconPage,
-    DetailReconPage,
-    FrontLineDetailPage,
 )
 from .kneeboard_recon.atis import (
     THUNDERSTORM_PRESSURE_DROP_INHG,
@@ -1792,9 +1789,6 @@ class SeadTaskPage(KneeboardPage):
         distance = meters(self.bullseye.position.distance_to_point(position))
         return f"Bullseye {bearing:03.0f} for {distance.nautical_miles:.0f}"
 
-    def _bullseye_cue(self, unit: TheaterUnit) -> str:
-        return self._bullseye_cue_for(unit.position)
-
     def _target_area_stpt(self) -> Optional[int]:
         """The single steerpoint that best anchors the whole site: the per-target
         waypoint nearest the site center. ``None`` when the flight has no per-target
@@ -2495,22 +2489,6 @@ class ThreatIntelBriefPage(KneeboardPage):
         self._render_card(probe, card)
         return probe.y
 
-    def render_cards(self, writer: KneeboardPageWriter) -> int:
-        """Draw as many cards as fit below the cursor; return the number drawn.
-
-        Used by the compact deck's Threats & Targets page, which composes the cards
-        under a shared title with the target ALIC table. Greedy single-page fill (no
-        continuation) so the compact deck stays within its page budget.
-        """
-        limit = writer.image_size[1] - writer.page_margin
-        drawn = 0
-        for card in self.cards:
-            if drawn and writer.y + self._card_height(card) > limit:
-                break
-            self._render_card(writer, card)
-            drawn += 1
-        return drawn
-
     def write(self, path: Path) -> None:
         writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         self._draw_header(writer)
@@ -2761,7 +2739,7 @@ class NotesPage(KneeboardPage):
 
     def write(self, path: Path) -> None:
         writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
-        writer.title(f"Notes")
+        writer.title("Notes")
         writer.text(self.notes, wrap=True)
         writer.write(path)
 

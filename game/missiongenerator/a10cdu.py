@@ -29,15 +29,14 @@ from __future__ import annotations
 import logging
 import zipfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Iterable, Sequence
+from typing import TYPE_CHECKING, Any, Sequence
 
 from dcs.mapping import Point
 
-from game.ato.savedpoints import SavedPoint, points_of
+from game.ato.savedpoints import SavedPoint
 
 if TYPE_CHECKING:
     from game import Game
-    from game.ato.flight import Flight
 
 #: The aircraft whose cockpit keeps its navigation computer here.
 AIRCRAFT = {"A-10C", "A-10C_2"}
@@ -57,18 +56,6 @@ EXTRA_PLAN = 2
 EXTRA_PLAN_NAME = "EXTRA"
 
 TAB = "\t"
-
-
-def flights_with_points(game: Game) -> Iterable[Flight]:
-    """Every A-10 the player is flying that has something written down for it."""
-    for package in game.blue.ato.packages:
-        for flight in package.flights:
-            if flight.client_count <= 0:
-                continue
-            if flight.unit_type.dcs_unit_type.id not in AIRCRAFT:
-                continue
-            if points_of(flight):
-                yield flight
 
 
 def numbers_for(route_length: int, count: int) -> list[int]:

@@ -555,34 +555,6 @@ def red_land_boundary(
     return [(f"FLOT {n}", points) for n, points in enumerate(runs, start=1)]
 
 
-def _decimate_closed(
-    points: list[tuple[float, float]], max_points: int
-) -> list[tuple[float, float]]:
-    """Reduce a polygon outline to at most ``max_points`` including a closing
-    repeat of the first vertex."""
-    unique = list(points)
-    if len(unique) > 1 and unique[0] == unique[-1]:
-        unique = unique[:-1]
-    budget = max_points - 1  # reserve the closing point
-    if len(unique) > budget:
-        step = len(unique) / budget
-        unique = [unique[int(i * step)] for i in range(budget)]
-    return unique + [unique[0]]
-
-
-def _circle_outline(
-    center: tuple[float, float], radius_m: float, segments: int
-) -> list[tuple[float, float]]:
-    cx, cy = center
-    points = []
-    for i in range(segments):
-        angle = 2 * math.pi * i / segments
-        points.append(
-            (cx + radius_m * math.cos(angle), cy + radius_m * math.sin(angle))
-        )
-    return points
-
-
 @dataclass(frozen=True)
 class ThreatSite:
     """One enemy air-defense site the blue player's map already shows exact."""

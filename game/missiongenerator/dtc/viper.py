@@ -104,13 +104,6 @@ _COM2_DEFAULT_FREQS = [
 _CUSTOM_THREAT_ALT = 9144
 
 
-def _default_comm_table(freqs: list[float]) -> dict[str, Any]:
-    return {
-        f"Channel_{i}": {"freq": freq, "modulation": 1}
-        for i, freq in enumerate(freqs, start=1)
-    }
-
-
 def _steerpoint(
     number: int,
     name: str,
