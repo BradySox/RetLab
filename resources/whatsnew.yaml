@@ -14,6 +14,25 @@
 
 entries:
   - date: 2026-09-22
+    title: A crashed aircraft no longer switches off a SAM network
+    change: >-
+      When an aircraft crashed where a radar could still see the wreck, Skynet
+      tripped over it every cycle and stopped cueing that side's SAM sites for
+      the rest of the mission. It now ignores the wreck.
+    watch: >-
+      Once something has crashed near a SAM belt, the SAMs still come up when
+      you are detected. dcs.log has no "Static doesn't exist" lines.
+    row: G43
+  - date: 2026-09-22
+    title: Logbook flight time counts only time in the air
+    change: >-
+      Flight time used to start at slot-in, so a cold start logged its whole
+      start-up and taxi. It now runs from the first sample airborne to the last.
+    watch: >-
+      Fly a cold start, land and accept results: the logbook's new time is
+      close to wheels-up to touchdown, not slot-in to the end of the mission.
+    row: B113
+  - date: 2026-09-22
     title: UH-60L, OH-6, JAS 39, Frenchpack and Spanish navy toggles are back
     change: >-
       The New Game Mods page lists them again. Without a toggle their units

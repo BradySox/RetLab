@@ -473,6 +473,42 @@ def test_a_parked_aircraft_that_takes_off_records_normally_again() -> None:
     harness.assert_no_lua_errors()
 
 
+def test_the_airborne_span_excludes_the_ramp_and_the_rollout() -> None:
+    """Test 38: first/last_seen started on the ramp, so the logbook read 31 min
+    for 18.8 airborne. Flight time is read off these two instead."""
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(
+        _flight("Enfield 1-1", 2, [_unit("Enfield 1-1-1", airborne=False)])
+    )
+
+    for step in range(10):
+        harness.advance_to(step * 30.0)
+        harness.update_unit(
+            "Enfield 1-1", {"x": step * 4000.0, "airborne": 3 <= step <= 7}
+        )
+        _sample(harness)
+
+    record = _records(harness)["Enfield 1-1-1"]
+    assert (record["first_seen"], record["last_seen"]) == (0.0, 270.0)
+    assert (record["first_airborne"], record["last_airborne"]) == (90.0, 210.0)
+    light = harness.to_python(harness.lua.eval("sortie_recorder_payload")(False))
+    assert light["flights"]["Enfield 1-1-1"]["first_airborne"] == 90.0
+
+
+def test_an_aircraft_that_never_flies_keeps_the_never_airborne_sentinel() -> None:
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(
+        _flight("Enfield 1-1", 2, [_unit("Enfield 1-1-1", airborne=False)])
+    )
+
+    _sample(harness)
+
+    record = _records(harness)["Enfield 1-1-1"]
+    assert (record["first_airborne"], record["last_airborne"]) == (-1, -1)
+
+
 def test_the_periodic_payload_carries_counters_but_no_track() -> None:
     """state.json is rewritten every 15 s; the track is far too costly to encode.
 

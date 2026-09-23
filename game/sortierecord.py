@@ -88,6 +88,10 @@ class SortieRecord:
     air_kills: int = 0
     ground_kills: int = 0
     naval_kills: int = 0
+    #: First and last sample taken in the air; -1 if never airborne, None from a
+    #: recorder that predates them. first/last_seen include the ramp and taxi.
+    first_airborne: float | None = None
+    last_airborne: float | None = None
 
     @property
     def kills(self) -> int:
@@ -96,7 +100,11 @@ class SortieRecord:
     @property
     def duration(self) -> float:
         """Seconds the flight was airborne and observed."""
-        return max(0.0, self.last_seen - self.first_seen)
+        if self.first_airborne is None or self.last_airborne is None:
+            return max(0.0, self.last_seen - self.first_seen)
+        if self.first_airborne < 0:
+            return 0.0
+        return max(0.0, self.last_airborne - self.first_airborne)
 
     @property
     def distance_flown(self) -> float:
@@ -143,6 +151,10 @@ def _sample_from(raw: Any) -> TrackSample | None:
         return None
 
 
+def _optional_float(value: Any) -> float | None:
+    return None if value is None else float(value)
+
+
 def _record_from(name: str, raw: Any) -> SortieRecord | None:
     if not isinstance(raw, dict):
         return None
@@ -170,6 +182,8 @@ def _record_from(name: str, raw: Any) -> SortieRecord | None:
             air_kills=int(raw.get("air_kills", 0)),
             ground_kills=int(raw.get("ground_kills", 0)),
             naval_kills=int(raw.get("naval_kills", 0)),
+            first_airborne=_optional_float(raw.get("first_airborne")),
+            last_airborne=_optional_float(raw.get("last_airborne")),
         )
     except (TypeError, ValueError):
         return None
