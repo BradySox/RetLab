@@ -1229,6 +1229,8 @@ circle would obviously be fake. Nothing to fly. See features doc §79 and §3.
 
 ### B39 — Cross-turn naval magazines · §81 · ◐ PARTIAL
 
+**2026-09-23 — new leg: the SITREP line.** `winchester_lines` is now wired. **Pass:** after a mission where a blue group fires anti-ship missiles, the next turn's SITREP (kneeboard band, web LAST TURN, Qt debrief) reads `<group>: N anti-ship missile(s) fired, M left`, or `WINCHESTER` at zero. **Fail:** no line, or a red group listed.
+
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged.** Every mission since test 11 released on schedule and fired no anti-ship missile, so the salvo cap has still not been exercised; Vectron's Claw turn 3 remains the mission that would.
 
 **2026-09-15, test 33** (Syria — Operation Peace Spring turn 2, multiplayer listen host with two humans in the MAVERICK Viper strike, 93 min, `Tacview-20260915-205127-DCS-Host`, DCS 2.9.29.27468, build `611eedfcd`; the turn-3 save `91526.retribution` is the auto-planner's own frag on the same build) — BABIRUSA (red, Naval Two Ship) released at +318 s, the Forrestal group at +708 s and +1098 s; no anti-ship shot all mission, `naval_magazines_state` empty. Same shape as tests 24, 30 and 32.

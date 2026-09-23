@@ -80,6 +80,10 @@ class Sitrep:
     #: find out why. Empty when everything is supplied, so a healthy theatre
     #: stays quiet. Absent on pre-feature pickled sitreps.
     supply_lines: List[str] = field(default_factory=list)
+    #: §81: blue warships that fired anti-ship stock, and what is left. Without
+    #: it a group that went winchester reads as a bug on the next quiet turn.
+    #: Rides along with real news. Absent on pre-feature pickled sitreps.
+    naval_lines: List[str] = field(default_factory=list)
 
     @property
     def is_empty(self) -> bool:
@@ -114,6 +118,7 @@ class Sitrep:
         red_c2_status: Optional[str] = None,
         victory_lines: Optional[List[str]] = None,
         supply_lines: Optional[List[str]] = None,
+        naval_lines: Optional[List[str]] = None,
     ) -> "Sitrep":
         blue = debriefing.loss_counts(Player.BLUE)
         red = debriefing.loss_counts(Player.RED)
@@ -148,6 +153,7 @@ class Sitrep:
                 getattr(debriefing.state_data, "sortie_records", ())
             ),
             supply_lines=list(supply_lines or []),
+            naval_lines=list(naval_lines or []),
         )
 
     def kneeboard_lines(self) -> List[str]:
@@ -179,6 +185,9 @@ class Sitrep:
         # Seam 5: bases the enemy has cut off (getattr for old pickled sitreps).
         for supply_line in getattr(self, "supply_lines", None) or []:
             lines.append(supply_line)
+        # §81: naval magazine state (getattr for old pickled sitreps).
+        for naval_line in getattr(self, "naval_lines", None) or []:
+            lines.append(naval_line)
         # Seam 1: what the flying amounted to (getattr for old pickled sitreps).
         sortie_line = getattr(self, "sortie_line", None)
         if sortie_line:

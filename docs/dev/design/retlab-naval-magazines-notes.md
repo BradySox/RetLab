@@ -354,7 +354,7 @@ Secondary unknowns, all in the B39 checklist row:
   sustaining a fleet becomes a logistics decision rather than a free reset. Only worth
   building once N2 is flown and the numbers are known to be roughly right.
 - **N4 — the unit-card readout.** `tgo_magazines` is already written for it (friendly
-  side only, like §63's). `winchester_lines` covers the SITREP half today.
+  side only, like §63's). `winchester_lines` covers the SITREP half (wired into `Sitrep.naval_lines` 2026-09-23; it was written and tested but uncalled until then).
 
 ---
 
