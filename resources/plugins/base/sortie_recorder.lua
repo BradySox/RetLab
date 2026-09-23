@@ -133,6 +133,9 @@ local function record_for(unit)
         player_name = safe(unit, "getPlayerName") or "",
         first_seen = -1,
         last_seen = -1,
+        -- Airborne span, for flight time: first/last_seen include the ramp (test 38).
+        first_airborne = -1,
+        last_airborne = -1,
         track = {},
         shots = 0,
         hits = 0,
@@ -162,6 +165,12 @@ local function sample_unit(unit, now)
         record.first_seen = now
     end
     record.last_seen = now
+    if safe(unit, "inAir") then
+        if record.first_airborne < 0 then
+            record.first_airborne = now
+        end
+        record.last_airborne = now
+    end
     -- Re-read each sweep: a slot can be taken by a human mid-mission.
     local crew = safe(unit, "getPlayerName")
     if crew == nil and humans[unit_name] then
@@ -451,6 +460,8 @@ function sortie_recorder_payload(include_track)
             player_name = record.player_name,
             first_seen = record.first_seen,
             last_seen = record.last_seen,
+            first_airborne = record.first_airborne,
+            last_airborne = record.last_airborne,
             track = {},
             shots = record.shots,
             hits = record.hits,

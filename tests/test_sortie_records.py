@@ -155,6 +155,48 @@ def test_duration_is_never_negative() -> None:
     assert record.duration == 0.0
 
 
+def test_duration_is_the_airborne_span_not_the_ramp() -> None:
+    """Test 38: a cold start sampled from t=30, airborne 780-1890, read 31 min."""
+    (record,) = parse_sortie_records(
+        _payload(
+            **{
+                "Sparrow 1-1-1": _flight(
+                    first_seen=30.0,
+                    last_seen=1890.0,
+                    first_airborne=780.0,
+                    last_airborne=1890.0,
+                )
+            }
+        )
+    )
+
+    assert record.duration == 1110.0
+
+
+def test_a_record_that_never_left_the_ground_has_no_flight_time() -> None:
+    (record,) = parse_sortie_records(
+        _payload(
+            **{
+                "Sparrow 1-1-1": _flight(
+                    first_seen=30.0,
+                    last_seen=900.0,
+                    first_airborne=-1.0,
+                    last_airborne=-1.0,
+                )
+            }
+        )
+    )
+
+    assert record.duration == 0.0
+
+
+def test_a_recorder_without_the_airborne_span_keeps_the_old_duration() -> None:
+    (record,) = parse_sortie_records(_payload(**{"Enfield 1-1-1": _flight()}))
+
+    assert record.first_airborne is None
+    assert record.duration == 3600.0
+
+
 def test_the_record_is_hashable_and_frozen() -> None:
     (record,) = parse_sortie_records(_payload(**{"Enfield 1-1-1": _flight()}))
 

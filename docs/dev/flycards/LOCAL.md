@@ -82,27 +82,23 @@ that field instead of the fragged slot. **~10 min.**
   slot is still in the list. Route and radios are the two answers; write them into §4 of
   the note. A missing type in the dynamic list is the `wsType` fail signature.
 
-### 4 · The profiler covers the slow stretch, and one F10 minute splits it — `B132`
+### 4 · Which part of your own jet slows the sim — `B132`
 
-**Why this is a card.** Test 37 cleared Lua in the quiet phase, found the sub-second
-stalls locked to a 5 s cycle, and showed the sim running 0.55–0.8× for 28 minutes
-while a human was in the jet — then 1.0× the moment the DM went to spectator. The
-profiler window had closed before that stretch, and the first stall log could not see a
-freeze DCS catches up from (fixed in #1043). Evidence and how to read the output:
+**Why this is a card.** Tests 37 and 38 both ran slow only while a human was in the jet at
+the fight, and full speed the moment the pilot went to spectator. Test 38's F10 minute felt smooth,
+but the sim clock stayed slow, so rendering is not it and Lua was cleared where it was
+measured. What is left is the jet's own systems against a ~300-aircraft picture. Evidence:
 [`retlab-sim-thread-freeze-notes.md`](../design/retlab-sim-thread-freeze-notes.md).
 
-**Try:** a busy turn — Long Road to H3 is the one that hitched. Plugin Options → tick
-**Lua profiler**, set **Start profiling after 900 s** and **Profile for 600 s**,
-regenerate. Fly **≥ 25 min past spawn-in, no pausing**. Once the sim feels slow, note
-the mission time, **switch to the F10 map for 60 s**, then back to the cockpit. Note
-the time of every freeze you feel. Untick afterwards. Bring `MooseProfiler.txt` and
-`dcs.log`. **~30 min.**
+**Try:** Long Road to H3 again, a Viper in a package that reaches the fight. Plugin
+Options → **Lua profiler**, **Start profiling after 1500 s**, **Profile for 600 s**. Once the
+sim feels slow, note the mission time and switch off, **one at a time for 60 s each**, on the
+SNSR PWR panel (left console): **FCR**, then **LEFT HDPT**, then **RIGHT HDPT** (the two intake pods, HTS and TGP).
+Switch each back on before the next. Untick afterwards. **~35 min.**
 
-- **Record:** the `Function time … (N %)` line and the top five rows; the heartbeat
-  spacing either side of the F10 minute; each `stall` line's `model +` value.
-- **Pass criterion:** none — it produces a verdict. F10 at real time while the cockpit
-  lags points at rendering; F10 still slow points at the jet's sensors or the sim.
-  Stalls with `model +` near their length are hitches the old log missed.
+- **Record:** the mission time of each switch-off; the heartbeat spacing during each.
+- **Pass criterion:** none; it produces a verdict. A heartbeat back at 30 s names the system.
+  None coming back puts it on the jet's datalink or the airframe itself.
 
 ### 5 · Front-line CAS takes a Harrier SEAD escort, and no deep package does — `B134`
 

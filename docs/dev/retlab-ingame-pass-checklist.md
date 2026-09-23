@@ -313,6 +313,14 @@ MOOSE AIRBOSS logged `EventData.IniUnit=nil in event CRASH!` 96 times, once per 
 upstream's handler; the sim ran at 55–80 % real time for 28 min of the battle (the freeze
 note has the numbers).
 
+## Test 38 — what it reached, and what it could not (2026-09-22)
+
+Syria — Long Road to H3 turn 2 (archive `syria_the_long_road_to_h3_turn02_20260922-195036.miz`), 37 min, one human in the SPARROW SEAD Viper lead out of Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048) pulled two minutes before generation, RetLab planner suite on, `profiler` on (t+900 s for 600 s). Artifacts in `Desktop\New test\38`. A card flight: LOCAL items 4 and 5, not a full sweep of the outstanding rows.
+
+Rows moved: **B130** ◐ → ☑ (the DED read). New row **G43** (◐): a crashed aircraft stalled blue's Skynet for 31 minutes; fixed.
+
+Evidence recorded without a status change: **B134** (the ATO read before flying: the deep half passes), **B77** (+12:53 against +12 briefed, as on test 37), **B132** (Lua cleared in the window; the slow stretch follows the human and does not lift on F10), **B70** (the vacated-seat fix holds), **B113** (flight time counted the ramp; fixed).
+
 ## Outstanding rows at a glance
 
 85 rows need a live pass. Full detail is under each `###` heading below —
@@ -358,7 +366,6 @@ stress it · `✗` fail signature reproduced in-game.
 | B125 | A dynamic-slot jet spawns with the template's route, radios and loadout | §101 | ☐ |
 | B128 | An escort comes home when its primary never flies | §8 | ☐ |
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
-| B130 | The Viper's STPT 25 is the bullseye the kneeboard names | §74 | ◐ |
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
 | B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
@@ -369,6 +376,7 @@ stress it · `✗` fail signature reproduced in-game.
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
 | G42 | Skynet is the engine again: sites dark until cued, HARM defence, no `enableEmission` crash | Skynet return | ◐ |
+| G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ◐ |
 | G33 | Survivor ADF beacon: the pinned 260 kHz drives a real needle | CSAR (upstream #929 + RetLab pin) | ◐ |
 | G34 | AI landing pickup: touchdown, embark, and the rescue reported back | CSAR | ☑ |
 | G35 | AI hover hoist completes and releases the flight, including over water | CSAR | ☑ |
@@ -5661,6 +5669,8 @@ actually are.
 > weighting. That row needs a lopsided pair.
 ### B70 — Sortie records reach the campaign · §91 · ◐ PARTIAL
 
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **the vacated-seat fix holds.** The human went to spectator at t=1903 (`relinquished`). The record (`SPARROW SEAD|2|30|… Pilot #1`, Flash) stops at `last_seen` 1890 with `player_left` 1920, 49 samples; the AI that flew the jet on is not credited. Pilot #2 took the group's anchor at t=1920, as designed. The two-humans-in-one-group re-fly is still owed.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. **Fixed the same day:** the sweep now freezes a `player` record whose unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` (`player_left`), counts nothing for it, and resumes on a reconnect; harness-pinned, unflown. 42 records carry an empty track (parked airframes, by design).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the two-humans-in-one-group re-fly is still owed. On the WATCH card.
@@ -6015,6 +6025,15 @@ profiles from HFXLegion's fork compiled in.
   `enableEmission` concern from the C-130 line — record the log and stop, do not tune around it);
   a modded site named as unhandled (add its profile to the compiled build).
 
+### G43 — A crash in a radar's view never stalls a Skynet network · Skynet return · ◐ PARTIAL
+
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **found from the log; fixed and harness-tested the same day.** A red Mi-24P crashed at t=347. From t=349 to mission end `dcs.log` carries `MIST|doScheduledFunctions … skynet-iads-compiled.lua:2770: Static doesn't exist` 174 times, about every 10 s. A blue radar kept reporting the wreck. Skynet's `getDetectedTargets` skips a nil `target.object`, but the wreck is non-nil and gone, so `getTypeName` raised and aborted `SkynetIADS.evaluateContacts` part-way through every cycle. For 31 minutes no early-warning radar on that side cued a SAM site, and no site ran its end-of-cycle go-dark. Upstream Skynet (`walder/Skynet-IADS`, master and develop) has the same line.
+
+- **Fix:** `target.object and target.object:isExist()`, a second fork line in the compiled build (`retlab-skynet-return-notes.md` §4). `tests/lua/test_skynet_engine.py` runs the real method: a wreck is skipped and the live contacts after it are still returned. Both tests fail without the guard.
+- **Setup:** none. Any mission in which an aircraft crashes inside a Skynet radar's coverage.
+- **Pass:** `dcs.log` has no `Static doesn't exist` from `skynet-iads-compiled.lua`.
+- **Fail signature:** the line returns from another line number — another object Skynet reads before the guard. Record the line.
+
 ### G41 — A bombed power station keeps its SAMs down on the NEXT turn · Skynet bridge, DeadC2 · ☐ UNTESTED
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised, and the row's log lines are MANTIS's.** No save on the machine carries a dead command centre, comms node or power station (`dead_c2_names` is empty on `91526`, `CSAR`, `Maybe 414`, `test 1` and the three August saves; the only damaged node anywhere is the ARGALI EWR in the Vectron's Claw turn-3 save, 3 of 5 units dead), so the next-turn half has never had a turn to run on. The `MANTIS C2 - power '<name>' lost` line in the pass criterion no longer exists; the runtime half now announces itself as `DCSRetribution|Skynet-IADS plugin - <name> is destroyed; registering a dead stand-in` at mission start, and the `DeadC2` array is what `luagenerator.py` emits from `dead_c2_names`. Read those two, not the MANTIS line, when a strike on a C2 node finally lands.
@@ -6241,6 +6260,8 @@ row re-run in-game to go back to VERIFIED.
 - **Fail signature:** two tankers of the *same* method, which means a proposal went out without its method or the constraint is not reaching `best_squadron_for` (before 2026-09-17 the unconstrained first flight did exactly this). Or a second tanker launching far from the station while one of its method sits there, which means it is being ranked from the first tanker's field. Or two tankers stacked on one racetrack, which means the orbit slot is not being applied. Or the package gone entirely in the negative case, which means the extra flight is not actually optional.
 
 ### B77 — A player's ramp allowance matches the airframe · #214 startup times · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **the same answer as test 37.** The card briefed Takeoff 14:13L against a 14:01 start (+12 min); the human was airborne at +12:53 (`takeoff` at t=773). Test 37 read +13.0 against +12. Time acceleration ran on the ramp (18–25 wall seconds per 30 s of model time between t=330 and t=570), so the start's own wall-clock length is not measured. The F-4E and Hornet halves are still unflown.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the Viper half, a measurement.** Authored `startup_minutes: 4`; the card briefed Takeoff 05:15Z against a 05:03:06Z start, a 12-minute ramp allowance including the Incirlik taxi. Off the recording the human lead was airborne at +13.0 min and the AI wingmen at +13.5, +14.1 and +14.7. One minute late on the lead; whether the start was unhurried is the DM's to say. No F-4E flown.
 
@@ -7742,6 +7763,8 @@ is lying and this row fails.
 
 ### B113 — A pilot's logbook fills in, and the kills are the ones they got · §96 · ◐ PARTIAL
 
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **item 2 fails on the ramp; fixed the same day.** Terry Fleming (the seat Flash flew) reads 1 sortie, 31.0 min, 3 shots, 1 hit, 0 kills. Airborne was t=773–1903, 18.8 min. `SortieRecord.duration` was `last_seen − first_seen`, and the first sample is at t=30 on the ramp, so a cold start logged its start-up and taxi. Test 37's 64.5 min carried the same 13 min. The recorder now keeps `first_airborne` / `last_airborne` (`unit:inAir()` at each sample) and flight time is that span; a `state.json` without them keeps the old figure. The SITREP's hours airborne and §97's minutes read the same property. Item 3 holds: the human's AIM-120B hit the MiG-29A at t=1653.6, Pilot #2's 1.1 s later, and DCS's `kill` event names #2. The next flown mission re-checks item 2.
+
 **2026-09-22 — awards removed** (DM call). Item 4 checked a rank and awards; it checks the rank alone now. The `first_sortie` and `first_blood` in the test-33 entry below no longer exist. Status unchanged.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **item 2 fails for a vacated seat.** See B70: the human left the jet at t≈2601 and the record ran to t=3900 under AI control, so the flight time folded into the logbook overstates the sortie by ~22 min. Fixed the same day in the recorder (`player_left`); the next flown seat-vacate is the check. Items 1, 3 and 5 unchanged (2 GBU-31 on the runway, no unit kill, no kill column — the test-33 shape).
@@ -8090,7 +8113,9 @@ than waiting on a hangar deck that never clears, and client flights are never mo
   knob. Conversely a bomber still detouring past its own field means the drop did not fire;
   check whether the airframe has a measured `fuel:` block (most do not).
 
-### B130 — The Viper's STPT 25 is the bullseye the kneeboard names · §74 · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+### B130 — The Viper's STPT 25 is the bullseye the kneeboard names · §74 · ☑ VERIFIED (2026-09-22, test 38; was ◐ PARTIAL)
+
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **the cockpit half passes.** DM's read on the ramp: STPT 25 on the DED is the Aleppo bullseye the kneeboard names (`Bullseye: Aleppo — 36°10'50"N 37°13'28"E`). The cartridge (`Retribution Ford 5 F-16C_50.dtc`) again writes 24 NAV_PTS and leaves 25 to the miz, as on test 37. The HSD readout was not read separately; it references the bullseye steerpoint, and nothing here moves it off 25.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the cartridge half.** `Retribution Pontiac 5 F-16C_50.dtc` holds 13 NAV_PTS: the route on 1–6, the route's own Bullseye point as STPT 7 at x=125577 y=123125 (the miz's blue bullseye, to the metre), and the six support anchors on 8–13. Nothing is written at 25, so DCS fills it from the miz — the same point. The kneeboard names it (`Bullseye: Aleppo — 36°10'50"N 37°13'28"E`). The DED read and the HSD readouts are the cockpit half and are still owed.
 
@@ -8132,6 +8157,15 @@ tanker) → Incirlik (hosts the KC-135s).
   hand-fragged second AWACS stacked on the first, or stepped toward the threat.
 
 ### B132 — The profiler names the sim-thread sink, or clears Lua of it · sim-thread freeze note · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+
+**2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`); profiler t+900 s for 600 s — **Lua cleared again; the window closed 60 s before the slow stretch.**
+- **Window (t=900–1500):** the human airborne, en route to the join. Sim at 1.0× (29.0–32.4 wall seconds per 30 s) with the hook on. 16 stalls of 259–529 ms, every one at t ≡ 0–1.25 (mod 5): the 5 s lock again.
+- **`Function time 142.5 %` is an accounting artefact.** Skynet raised `Static doesn't exist` 174 times (row G43). MOOSE's profiler never sees a return from a call that errors, so `getTypeName` (600 s over 300 calls) and both Skynet `create`s (35 s each) timed from one error to the next return. `GetDetectedUnitTypeName` (61 s) has the same shape. No stall in the window passed 529 ms, which a real 1.5–2 s call would have caused.
+- **Slow stretch (t=1560–1890):** 32.8–36.0 wall seconds per 30 s (0.83–0.91×; test 37 0.55–0.8×), 8–17 `ANTIFREEZE` per 30 s. It runs from the human reaching the fight (AIM-120 at t=1636, S-300 shots at the human t=1815–1824) to the seat change at t=1903. The next heartbeat is 30.4 s and it stays at 30. The Lua workload does not change across a seat change.
+- **F10 minute:** DM's read, "F10 felt normal". No heartbeat in the stretch came back to 30 s, so the map drew smoothly while the sim clock stayed slow. Rendering is not the sink. The human's own jet is what is left: radar, HTS, TGP, datalink against ~300 aircraft.
+- **Freezes:** 23 stalls over 250 ms in 37 min; DM felt "fewer / only a few". Beside mission load (27 s) and the seat change (35 s): 2.1 s at t=131, 7.0 s at t=1567 (no log line; heap 963 MB → 488 MB across it), the rest 254–529 ms. Every stall advanced model time by 0.25 s: nothing was a freeze DCS caught up from.
+
+PARTIAL until a flight splits the own-ship candidates (LOCAL item 4).
 
 **Test 37 (2026-09-21, Long Road to H3 turn 1, 65 min, `Tacview-20260921-194148`):** the instrument
 works end to end — armed, heartbeats every 30 s, `Profiler Started/Stopped`,

@@ -65,7 +65,7 @@ Upstream's compiled Skynet has not changed since our removal (last real edit 202
    SA-10 block. 14 of its 64 unit ids name units no fork faction fields (the Germany pack and
    newer US-pack Patriots); an unmatched profile is inert.
 
-Plus one fork line: `P14_SR` in the S-200 search-radar block, because the two SA-5 Legacy
+Plus two fork lines. **`isExist()` in `getDetectedTargets` (2026-09-22):** upstream skips a nil `target.object`, but a crashed aircraft's wreck stays a radar target that is non-nil and gone. Its `getTypeName` raised `Static doesn't exist` and aborted `evaluateContacts` every cycle, 174 times on test 38. Upstream Skynet has the same line; `tests/lua/test_skynet_engine.py` pins the guard, row G43 owns the fly. And `P14_SR` in the S-200 search-radar block, because the two SA-5 Legacy
 Site layouts pair the S-200 with a Tall King. Coverage audit 2026-09-12: of the 151 unit ids
 the anti-air layouts and preset groups field, every radar id is in the database.
 

@@ -3765,7 +3765,8 @@ function SkynetIADSAbstractRadarElement:getDetectedTargets()
 			for i = 1, #targets do
 				local target = targets[i]
 				-- there are cases when a destroyed object is still visible as a target to the radar, don't add it, will cause errors everywhere the dcs object is accessed
-				if target.object then
+				-- RetLab: a crashed aircraft's wreck is non-nil but gone; getTypeName on it aborted the IADS cycle (test 38)
+				if target.object and target.object:isExist() then
 					local iadsTarget = SkynetIADSContact:create(target, self)
 					iadsTarget:refresh()
 					if self:isTargetInRange(iadsTarget) then

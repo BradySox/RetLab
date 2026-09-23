@@ -214,6 +214,32 @@ freeze DCS caught up from — and what the in-cockpit slowdown is. Next flight: 
 log, profiler delay ~900 s and duration 600 s so it covers the slow stretch, and one F10-map
 minute during it.
 
+## Test 38 — the second profiled flight (2026-09-22)
+
+Long Road to H3 turn 2, 37 min in the SPARROW SEAD Viper lead, main `a9c756b2f`, TIC as before, `Tacview-20260922-195428`. Profiler window t+900 s for 600 s. Files in `Desktop\New test\38` and `Saved Games\DCS\Logs\MooseProfiler-002.txt`. The fixed stall log ran the whole flight.
+
+| Phase (model time) | Wall s per 30 s | `ANTIFREEZE` per 30 s | Human |
+|---|---|---|---|
+| t=30–330 | 30.0 | 0–1 | on the ramp |
+| t=330–570, t=780–900 | 18–27 | 2–6 | time acceleration |
+| t=900–1500 (profiler on) | 29.0–32.4 | 1–19 | airborne, en route to the join |
+| t=1560–1890 | 32.8–36.0 | 6–17 | at the fight |
+| t=1920–2220 | 29.9–30.4 | 0–1 | spectator |
+
+**Lua, measured:** the sim held 1.0× through the window with the hook on. The report's `Function time 142.5 %` is not load. MOOSE's profiler starts a function's clock on `call` and stops it on `return`, and a call that raises never returns. Skynet raised 174 times (below), so `getTypeName`, both Skynet `create`s and MOOSE's `GetDetectedUnitTypeName` timed from an error to the next return. The stall log confirms it: nothing in the window passed 529 ms. **Discount any function whose seconds-per-call no stall line matches, and grep `dcs.log` for `Error in scheduled function` before reading the report.**
+
+**The 5 s lock repeats:** all 16 stalls in the window sit at t ≡ 0–1.25 (mod 5). The probe grid makes that 30 % of phases, so 16 of 16 is 0.3^16 by chance.
+
+**The slowdown is the human's jet, not rendering and not Lua.**
+- It began when the human reached the fight (AIM-120 at t=1636) and ended on the first heartbeat after the seat change at t=1903, with the same Lua running either side of it.
+- The DM took the F10 minute inside it. The map felt normal, but no heartbeat returned to 30 s. The map renders cheaply; the sim clock did not recover.
+- Left: the jet's own systems against a big picture. The radar and both intake pods switch off on the SNSR PWR panel, one at a time for a minute; LOCAL item 4 does that.
+- Milder than test 37 (0.83–0.91× against 0.55–0.8×).
+
+**Freezes:** 23 stalls over 250 ms in 37 min. The DM felt "fewer / only a few". Beside mission load (27 s) and the seat change (35 s): 2.1 s at t=131, 7.0 s at t=1567, the rest 254–529 ms. The 7 s one has no log line; the heap fell from 963 MB to 488 MB across it. Every stall advanced model time by only 0.25 s, so the old log's blind spot hid nothing on this flight.
+
+**Found on the way:** Skynet's contact cycle aborted every ~10 s from t=349. A red Mi-24P crashed at t=347 and a blue radar kept reporting the wreck, which Skynet read without checking it still existed (checklist G43, fixed). This is Lua churn every 10 s, but it is not a freeze: no stall lines up with it.
+
 ## Found on the way
 
 - `ai_reaction.lua` was a `scriptsWorkOrders` file reading

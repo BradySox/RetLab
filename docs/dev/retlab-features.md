@@ -9534,7 +9534,7 @@ double-count guard. **Seven holes in one wall is a missing schema, not seven fea
 `resources/plugins/base/sortie_recorder.lua` samples airborne aircraft every 30 s and counts shots,
 hits and ejections from the shared event handler. Per aircraft: track (time, position, altitude,
 fuel), first and last seen, shots, hits, ejected, and whether a human ever occupied the slot.
-`game/sortierecord.py` parses it and derives duration, distance flown, fuel at end and peak altitude.
+`game/sortierecord.py` parses it and derives duration, distance flown, fuel at end and peak altitude. Duration is the airborne span: the recorder notes the first and last sample where `unit:inAir()` (2026-09-22, test 38); a `state.json` without them falls back to `last_seen − first_seen`.
 
 Loads before `dcs_retribution.lua` in `resources/plugins/base/plugin.json`.
 
@@ -9984,7 +9984,7 @@ page that reads it.
 |---|---|
 | `sorties` | §91 records where `flew` is true |
 | `combat_sorties` | those on an air-to-air, air-to-ground or escort task |
-| `flight_seconds` | the record's `duration` — from a record §91 freezes when the human leaves the seat (2026-09-21), so time the AI flies the vacated jet is not the pilot's |
+| `flight_seconds` | the record's `duration` — the span from the first sample in the air to the last (`first_airborne`/`last_airborne`, 2026-09-22; before that it ran from slot-in, so a cold start logged its taxi), from a record §91 freezes when the human leaves the seat (2026-09-21), so time the AI flies the vacated jet is not the pilot's |
 | `shots`, `hits` | the record's counters |
 | `air_kills`, `ground_kills`, `naval_kills` | **new** — `S_EVENT_KILL`, see below |
 | `ejections` | the record's `ejected` flag |
