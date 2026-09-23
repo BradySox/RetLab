@@ -236,6 +236,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   line bows instead of running straight, showing salients where the ground is good. The line is
   drawn only across ground vehicles can actually drive on, so a front pinched into a pass is
   narrower than the width setting asks for rather than sitting on the ridge beside it.
+  An arrow on the map shows which way each front moved last turn and how far; hover it for the
+  distance and your own stance. Map layer **Front movement last turn**, under Front lines.
 - **Missions report back.** Every flight's track, time airborne, fuel, shots and hits come home
   with the results, not just which aircraft died. The campaign summary says what the day's
   flying actually amounted to. No third-party software required.

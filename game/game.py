@@ -559,11 +559,14 @@ class Game:
                 statuses = supply_statuses(player_points, self.blue.transit_network)
             for cp in player_points:
                 for front_line in cp.front_lines.values():
-                    front_line.update_position()
+                    front_line.settle_position()
                     events.update_front_line(front_line)
                 status = statuses.get(cp)
                 multiplier = 1.0 if status is None else RECOVERY_MULTIPLIER[status]
                 cp.base.affect_strength(+PLAYER_BASE_STRENGTH_RECOVERY * multiplier)
+        else:
+            for front_line in self.theater.conflicts():
+                front_line.hold_position()
 
         # After the first mission, reveal surviving MERAD groups. They start hidden
         # so players don't know enemy SA-6/11/17 positions before flying; the first

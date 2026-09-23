@@ -9546,8 +9546,30 @@ de-duplicating it. `create_convoy_route` is now idempotent on the connection.
 `tests/theater/test_supply_route_drivability.py` locks both, and the duplicate test fails without
 the guard.
 
+### The map shows last turn's movement (2026-09-23)
+
+An arrow at each front's centre, pointing the way the line moved last turn, blue if blue
+advanced and red if red did; its length follows the distance, clamped to 3–12 km so it reads at
+any zoom. None under 500 m. Tooltip: side, distance in NM, the base it moved toward, blue's own
+stance. Red's stance is not shown. Display only — nothing about how the line moves changed.
+
+- `FrontLine.settle_position()` replaces `update_position()` in `finish_turn`. It stores
+  `previous_progress` and `settled_progress`, distance along the route from blue, so the
+  difference is the movement the model produced. `hold_position()` runs on a skipped turn so
+  a stale arrow does not linger. Pre-feature saves have neither field: no arrow until two
+  turns have settled.
+- A capture recreates the front, so a new front starts with no arrow.
+- Direction comes from `blue_forward_heading` (the route's own bearing), not the bounds'
+  left/right heading.
+- Server: `FrontMovementJs` on `FrontLineJs.movement` (`game/server/frontlines/models.py`).
+  Client: `FrontMovementLayer`, layer row `frontMovement`, a sub-row of Front lines, on by
+  default.
+- It makes B66 readable from the map. Checklist B139. Design note:
+  `docs/dev/design/retlab-front-movement-arrows-notes.md`.
+
 ### Tests
 
+`tests/theater/test_front_movement.py` (7) · `FrontMovementLayer.test.tsx` (2) ·
 `tests/theater/test_supply_status.py` (13) · `tests/sim/test_assault_cost.py` (7) ·
 `tests/theater/test_front_line_weight.py` (11) · `tests/theater/test_front_line_terrain.py` (10) ·
 `tests/missiongenerator/test_front_line_salients.py` (10) ·
