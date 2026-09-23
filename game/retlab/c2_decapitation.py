@@ -56,12 +56,17 @@ MIN_OFFENSIVE_PACKAGES = 2
 
 
 def _command_centers(
-    coalition: "Coalition", theater: "ConflictTheater"
+    coalition: "Coalition",
+    theater: "ConflictTheater",
+    viewer: Optional["Player"] = None,
 ) -> Tuple[int, int]:
     """(alive, total) command-center TGO count over the coalition's own bases.
 
     A command center counts as alive while any of its units is alive (the same
-    aliveness test the IADS emitter uses)."""
+    aliveness test the IADS emitter uses). With a `viewer`, posts hidden from
+    that side's map are left out of both numbers, dead or alive."""
+    from game.theater.fogofwar import hidden_from
+
     alive = 0
     total = 0
     for cp in theater.controlpoints:
@@ -69,6 +74,8 @@ def _command_centers(
             continue
         for tgo in cp.ground_objects:
             if getattr(tgo, "category", None) != C2_CATEGORY:
+                continue
+            if viewer is not None and hidden_from(viewer, tgo):
                 continue
             total += 1
             if any(
@@ -127,15 +134,17 @@ def offensive_package_cap(
 
 
 def c2_status_line(game: "Game", player: "Player") -> Optional[str]:
-    """A one-line SITREP descriptor of a side's command-network status.
+    """A one-line descriptor of a side's command network, as BLUE sees it.
 
-    None when the feature is off, the side fields no command centers, or the
-    network is fully intact (nothing to report). Counts are the player's own
-    BDA claim, framed as claimed by the SITREP that renders this."""
+    Counts only the posts on BLUE's map: a hidden post would leak through the
+    total. None when the feature is off, no post is visible, or every visible
+    one is intact. `c2_health` stays on ground truth for the planner."""
+    from game.theater.player import Player
+
     if not getattr(game.settings, "c2_decapitation_effects", False):
         return None
     coalition = game.coalition_for(player)
-    alive, total = _command_centers(coalition, game.theater)
+    alive, total = _command_centers(coalition, game.theater, viewer=Player.BLUE)
     if total == 0 or alive >= total:
         return None
-    return f"{alive}/{total} command posts operational"
+    return f"{alive}/{total} known command posts operational"
