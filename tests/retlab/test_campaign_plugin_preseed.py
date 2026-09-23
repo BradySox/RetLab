@@ -246,12 +246,20 @@ def _campaign_paths() -> list[Path]:
 
 
 def _plugin_backed_settings() -> dict[str, str]:
-    """Maps a ``Settings`` field name to the plugin id that runs it."""
+    """Maps a ``Settings`` field name to the plugin id that runs it.
+
+    A plugin with no checkbox (``skipUI``) is always on, so it needs no preseed.
+    """
+    import json
+
     from game.retlab.features import FEATURES
 
     mapping: dict[str, str] = {}
     for feature in FEATURES:
         if feature.retired or feature.plugin_id is None:
+            continue
+        manifest = Path("resources/plugins") / feature.plugin_id / "plugin.json"
+        if json.loads(manifest.read_text(encoding="utf-8-sig")).get("skipUI"):
             continue
         for field in feature.settings_fields:
             mapping[field] = feature.plugin_id

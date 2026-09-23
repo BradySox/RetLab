@@ -171,7 +171,6 @@ settings:
     # §61 host scramble.
     # (§50's ambush spring is authored as native DCS triggers -- no plugin.)
     redscramble: true
-    vietnamops: true
     gpsjamming: true                 # §86 GPS jamming runtime -- the setting does NOTHING without it
     # §61 host-menu gate: only DCS names containing "Flash" see the HOST: Red Scramble menu.
     redscramble.hostPlayers: Flash

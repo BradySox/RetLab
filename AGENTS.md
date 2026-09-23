@@ -450,7 +450,8 @@ linked design note.
   (tests 24, 31, 33, 34) and was removed 2026-09-16. Helicopters are unaffected; a one-off
   strike is not this, a cadence is.
 - **A plugin toggle is a second gate.** An unticked plugin silently kills its setting — campaigns
-  must preseed both (the §36 lesson).
+  must preseed both (the §36 lesson). A `skipUI` plugin has no checkbox and is always on
+  (`LuaPlugin.enabled`), so it needs no preseed: `base`, `intercept`, `opscsar`, `vietnamops`.
 
 ### Live features
 

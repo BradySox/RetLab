@@ -174,12 +174,7 @@ neutral_border_defense:
     ]
 
 settings:
-  # The Vietnam Ops mechanics below run on the `vietnamops` Lua plugin, and a host
-  # whose saved plugin defaults have it unticked loses them with no log line (the §36
-  # lesson). The plugin ships defaultValue: true, but a campaign preseed is what
-  # overrides a saved default.
   plugins:
-    vietnamops: true
     # §98 runtime -- the neutral_border_defense setting does nothing without it.
     neutralborder: true
   # §98: Iran, Pakistan, Turkmenistan, Uzbekistan and Tajikistan defend their

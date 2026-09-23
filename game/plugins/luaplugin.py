@@ -267,6 +267,10 @@ class LuaPlugin(PluginSettings):
 
     @property
     def enabled(self) -> bool:
+        # A plugin with no checkbox cannot be switched back on, so a stored
+        # False (an old save, a preseed) must not strand it off.
+        if not self.show_in_ui:
+            return True
         return type(self.get_value) == bool and self.get_value
 
     @classmethod

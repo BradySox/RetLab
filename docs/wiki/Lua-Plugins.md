@@ -16,7 +16,7 @@ A `plugin.json` describes the plugin to both the loader and the settings UI:
 | Field | Meaning |
 |---|---|
 | `nameInUI` / `descriptionInUI` | Title and explanation. The name is listed on the Lua Plugins page; the description heads the plugin's box on the Lua Plugin Options page. |
-| `skipUI` | Hide the plugin from the settings UI. Used by `base`, `intercept` and `opscsar`. |
+| `skipUI` | No checkbox: the plugin is always on, and its options page still shows. Used by `base`, `intercept`, `opscsar` and `vietnamops`. |
 | `defaultValue` | Whether the plugin starts enabled. |
 | `specificOptions` | Per-plugin tunables (each with its own `mnemonic`, label, optional `descriptionInUI`, default, min/max) shown as settings. `choices` renders a dropdown instead of a spinner; `enabledWhen` greys an option out until a named sibling option is set. |
 | `scriptsWorkOrders` | The Lua files to inject, with load/disable directives. |
@@ -113,7 +113,7 @@ setting off costs nothing at runtime.
 |---|---|---|
 | `tic` | on | Troops In Contact — formation-keeping frontline units fighting prolonged scripted firefights. (Late-init plugin.) |
 | `coin` | on | The COIN insurgency layer's movers and ambient pressure. Inert unless a COIN campaign. |
-| `vietnamops` | on | The Vietnam Ops suite (Arc Light, flak gauntlet, naval gunfire, convoy interdiction, Super Gaggle, FAC(A), snake-and-nape). |
+| `vietnamops` | always | The Vietnam Ops suite (Arc Light, flak gauntlet, naval gunfire, convoy interdiction, Super Gaggle, FAC(A), snake-and-nape). Inert unless one of the Vietnam Ops settings is on. |
 
 ### Naval and carrier
 
