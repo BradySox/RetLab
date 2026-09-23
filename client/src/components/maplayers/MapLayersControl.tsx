@@ -369,20 +369,32 @@ const DEFAULT_ON: LayerId[] = [
   "flightBlue",
 ];
 
-// Presets list only the layers they switch ON; everything else goes off. The fog
-// overview is left at its current state by presets (never force-revealed).
+// Toggles a preset never touches: the fog overview (never force-revealed) and
+// the display options, which are behaviours rather than layers.
+const PRESET_EXEMPT: LayerId[] = ["revealFog", "emitterHighlight"];
+
+// Border and downed-pilot layers ride every preset: they draw nothing on a quiet
+// map, and a hidden border is one you cross.
+const ALWAYS_ON: LayerId[] = ["neutralBorders", "downedPilotsBlue"];
+
+// Presets list only the layers they switch ON; every other layer goes off.
 const PRESETS: Record<string, LayerId[]> = {
   Default: DEFAULT_ON,
+  // otherGround carries the EWRs, command centers and power plants the IADS
+  // lines end at.
   SEAD: [
+    ...ALWAYS_ON,
     "controlPoints",
     "frontLines",
     "airDefenses",
+    "otherGround",
     "enemySamThreat",
     "enemySamDetection",
     "enemyIads",
     "flightBlue",
   ],
   Recon: [
+    ...ALWAYS_ON,
     "controlPoints",
     "frontLines",
     "airDefenses",
@@ -391,7 +403,7 @@ const PRESETS: Record<string, LayerId[]> = {
     "otherGround",
     "enemySamThreat",
   ],
-  Clean: ["controlPoints", "frontLines"],
+  Clean: [...ALWAYS_ON, "controlPoints", "frontLines"],
 };
 
 const STORAGE_KEY = "fjg.mapLayers.v2";
@@ -552,8 +564,13 @@ export default function MapLayersControl() {
   ).map((row) => row.task);
 
   const toggle = (id: LayerId) => setVisible((v) => ({ ...v, [id]: !v[id] }));
-  const applyPreset = (name: string) =>
-    setVisible((v) => ({ ...fromList(PRESETS[name]), revealFog: v.revealFog }));
+  const applyLayers = (ids: LayerId[]) =>
+    setVisible((v) => {
+      const next = fromList(ids);
+      for (const id of PRESET_EXEMPT) next[id] = v[id];
+      return next;
+    });
+  const applyPreset = (name: string) => applyLayers(PRESETS[name]);
   const toggleGroup = (key: string) =>
     setOpenGroups((g) => ({ ...g, [key]: !g[key] }));
 
@@ -633,13 +650,19 @@ export default function MapLayersControl() {
           </button>
           {openGroups[g.key] &&
             g.rows.map((r) => (
-              <Row key={r.id} id={r.id} accent={r.accent} sub={r.sub} />
+              <Row
+                key={r.id}
+                id={r.id}
+                accent={r.accent}
+                sub={r.sub}
+                enabledWhen={r.enabledWhen}
+              />
             ))}
         </Fragment>
       ))}
 
       <div className="ml-foot">
-        <button onClick={() => applyPreset("Clean")}>Hide all overlays</button>
+        <button onClick={() => applyLayers([])}>Hide all overlays</button>
       </div>
     </div>
   );
