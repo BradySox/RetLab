@@ -14,7 +14,6 @@ import pytest
 from game.theater.nationalpostures import (
     RU_LED,
     US_LED,
-    aircraft_for,
     load_postures,
     posture_for,
 )
@@ -27,8 +26,6 @@ def test_the_shipped_table_loads_and_is_well_formed() -> None:
     assert len(table) > 40, "the shipped table should carry every DCS-map nation"
     for country, body in table.items():
         for bloc, ranges in body.items():
-            if bloc == "aircraft":
-                continue
             assert bloc in (US_LED, RU_LED), f"{country}: unknown bloc {bloc}"
             for entry in ranges:
                 assert entry["posture"] in VALID, f"{country}: {entry}"
@@ -82,22 +79,3 @@ def test_present_extends_to_the_far_future() -> None:
 )
 def test_documented_history(country: str, when: date, bloc: str, expected: str) -> None:
     assert posture_for(country, when, bloc) == expected
-
-
-# -- what the table still decides ---------------------------------------------
-# Consent moved to the airbases inside a border on 2026-08-26 (DM call), so
-# `permits_overflight`, `bloc_for_country` and `bloc_for_faction` are gone with
-# it. The posture ranges are kept and still read by `posture_for`; the airframe
-# is the answer §98 actually uses.
-
-
-def test_the_era_picks_the_interceptor() -> None:
-    """The reason the table survives: a country with no control points has no
-    faction to borrow a jet from, and nothing else knows what it flew."""
-    assert aircraft_for("Turkey", date(1965, 1, 1)) == "F-100D"
-    assert aircraft_for("Turkey", date(1985, 1, 1)) == "F-4E"
-    assert aircraft_for("Turkey", date(2022, 1, 1)) == "F-16C bl.50"
-
-
-def test_an_unrecorded_country_gets_no_interceptor() -> None:
-    assert aircraft_for("Freedonia", date(2006, 1, 1)) is None

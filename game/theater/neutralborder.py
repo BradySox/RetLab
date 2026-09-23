@@ -60,11 +60,6 @@ from dataclasses import dataclass, field
 from collections.abc import Sequence
 from typing import Any, Optional
 
-#: Air-spawn altitude for a point-spawned alert flight when the campaign does
-#: not say. A standing CAP, not a scramble -- high enough to be a credible
-#: intercept and clear of Afghanistan's terrain.
-DEFAULT_SPAWN_ALT_FT = 20000
-
 #: No coalition airfield inside it: out of the war, and it defends itself.
 NEUTRAL = "neutral"
 #: Hosts BLUE airfields -- a blue host, not a third party.
@@ -175,8 +170,6 @@ class NeutralBorderZone:
     #: Display name. A ``neutral`` zone spawns units, so its name must also be a
     #: pydcs country; an aligned zone spawns nothing and any name works.
     country: str
-    #: pydcs plane id for the alert fighters (vanilla only). Neutral only.
-    aircraft: str | None = None
     #: Altitude below which a crossing trips, or None for any altitude.
     #: **A floor is not a universal rule** (DM call, 2026-08-25): it means "high
     #: transit is tolerated", which is a judgement no fact on the map supports,
@@ -198,8 +191,6 @@ class NeutralBorderZone:
     #: Terrain XY the alert flight air-spawns at, for a neutral with no airfield
     #: on the map. Mutually exclusive with ``airfield``.
     spawn: tuple[float, float] | None = None
-    #: Air-spawn altitude for ``spawn`` (ignored for an airfield zone).
-    spawn_alt_ft: int = DEFAULT_SPAWN_ALT_FT
     #: Author override for the derived alignment, or None to derive it.
     posture_override: str | None = None
     #: Author override for transit consent, or None to derive it from the
@@ -541,7 +532,6 @@ class NeutralBorderZone:
 
             airfield = data.get("airfield")
             spawn_raw = data.get("spawn")
-            aircraft = data.get("aircraft")
             overflight = data.get("overflight")
             if overflight is not None:
                 overflight = bool(overflight)
@@ -567,14 +557,12 @@ class NeutralBorderZone:
 
             return cls(
                 country=country,
-                aircraft=str(aircraft) if aircraft is not None else None,
                 floor_ft=(
                     int(data["floor_ft"]) if data.get("floor_ft") is not None else None
                 ),
                 sam=bool(data.get("sam", True)),
                 airfield=str(airfield) if airfield is not None else None,
                 spawn=spawn,
-                spawn_alt_ft=int(data.get("spawn_alt_ft", DEFAULT_SPAWN_ALT_FT)),
                 posture_override=override,
                 overflight_override=overflight,
                 border=border,

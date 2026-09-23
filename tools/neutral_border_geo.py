@@ -30,12 +30,12 @@ Usage:
 
     # Lebanon: it has a field on the Syria map.
     python tools/neutral_border_geo.py lebanon.json --terrain syria \\
-        --country Lebanon --airfield Rayak --aircraft MiG-29A --sam
+        --country Lebanon --airfield Rayak --sam
 
     # Pakistan: no field on the Afghanistan map, and a corridor cut for the
     # carrier route north.
     python tools/neutral_border_geo.py pakistan.json --terrain afghanistan \\
-        --country Pakistan --aircraft MiG-21Bis --auto-spawn \\
+        --country Pakistan --auto-spawn \\
         --clip 24 36.5 60 72 --corridor-lon 64.3 66.3
 
 GeoJSON coordinates are [lon, lat]; DCS terrain XY is pydcs Point.x/.y = DCS
@@ -326,7 +326,7 @@ def render_zone(
     ]
     if args.overflight:
         # Permits transit: drawn and never enforced, so it spawns nothing and
-        # needs no aircraft, origin, floor or SAM.
+        # needs no origin, floor or SAM.
         lines.append("    overflight: true")
     else:
         if args.airfield:
@@ -334,8 +334,6 @@ def render_zone(
         else:
             assert spawn_xy is not None
             lines.append(f"    spawn: [{spawn_xy[0]:.0f}, {spawn_xy[1]:.0f}]")
-            lines.append(f"    spawn_alt_ft: {args.spawn_alt_ft}")
-        lines.append(f"    aircraft: {args.aircraft}")
         lines.append(f"    floor_ft: {args.floor_ft}")
         lines.append(f"    sam: {'true' if args.sam else 'false'}")
     lines.append("    border:")
@@ -358,10 +356,6 @@ def main() -> None:
         "--auto-spawn",
         action="store_true",
         help="Air-spawn each piece's CAP at its own representative point",
-    )
-    parser.add_argument("--spawn-alt-ft", type=int, default=20000)
-    parser.add_argument(
-        "--aircraft", help='pydcs plane id, e.g. "MiG-21Bis" (not for --overflight)'
     )
     parser.add_argument(
         "--overflight",
@@ -390,15 +384,13 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.overflight:
-        if args.airfield or args.auto_spawn or args.aircraft:
+        if args.airfield or args.auto_spawn:
             raise SystemExit(
-                "--overflight spawns nothing: drop --airfield/--auto-spawn/--aircraft."
+                "--overflight spawns nothing: drop --airfield/--auto-spawn."
             )
     else:
         if bool(args.airfield) == bool(args.auto_spawn):
             raise SystemExit("Pass exactly one of --airfield or --auto-spawn.")
-        if not args.aircraft:
-            raise SystemExit("A neutral that refuses transit needs --aircraft.")
 
     data = json.loads(args.geojson.read_text(encoding="utf-8"))
     geom: Polygon | MultiPolygon = country_polygon(data)

@@ -54,10 +54,6 @@ from neutral_border_geo import (  # noqa: E402
 )
 from shapely.geometry import Point as ShapelyPoint, Polygon, box  # noqa: E402
 
-#: Air-spawn altitude for a country with no airfield inside its own border.
-SPAWN_ALT_FT = 20000
-
-
 #: CLI terrain key -> the name ``landmap_path_for_terrain_name`` matches on.
 #: Without this, Persian Gulf silently ran with NO landmap at all: the lookup
 #: matches directory names by substring and "persiangulf" is not one, so every
@@ -319,7 +315,6 @@ def main() -> None:
         else:
             x, y = spawn_station(terrain, piece, land, name)
             lines.append(f"    spawn: [{x:.0f}, {y:.0f}]")
-            lines.append(f"    spawn_alt_ft: {SPAWN_ALT_FT}")
         lines.extend(border_lines(ring_xy))
         written += 1
 
