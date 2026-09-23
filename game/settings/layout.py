@@ -173,6 +173,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "ownfor_planner_unpredictability",
                     "opfor_planner_unpredictability",
                     "region_priorities",
+                    "hq_priority_targets",
                     "c2_decapitation_effects",
                     "weather_aware_planning",
                     "sead_strike_coordination",
@@ -572,6 +573,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "Auto-planner behavior": [
         "region_priorities",  # §93
+        "hq_priority_targets",  # §103
         "weather_aware_planning",  # §67
         "sead_strike_coordination",  # §69
         "single_sead_escort_flavour",  # §77

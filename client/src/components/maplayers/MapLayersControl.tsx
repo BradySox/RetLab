@@ -17,6 +17,7 @@ import {
 } from "../cullingexclusionzones/CullingExclusionZones";
 import FlightPlansLayer from "../flightplanslayer";
 import FrontLinesLayer from "../frontlineslayer";
+import FrontMovementLayer from "../frontmovementlayer";
 import Iadsnetworklayer from "../iadsnetworklayer";
 import DownedPilotsLayer from "../downedpilotslayer";
 import NavMeshLayer from "../navmesh/NavMeshLayer";
@@ -47,6 +48,7 @@ type LayerId =
   | "downedPilotsBlue"
   | "downedPilotsRed"
   | "frontLines"
+  | "frontMovement"
   | "factories"
   | "ships"
   | "otherGround"
@@ -124,6 +126,10 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     node: <DownedPilotsLayer blue={false} />,
   },
   frontLines: { label: "Front lines", node: <FrontLinesLayer /> },
+  frontMovement: {
+    label: "Front movement last turn",
+    node: <FrontMovementLayer />,
+  },
   factories: { label: "Factories", node: <TgosLayer categories={["factory"]} /> },
   ships: { label: "Ships", node: <TgosLayer categories={["ship"]} /> },
   otherGround: {
@@ -261,6 +267,7 @@ const GROUPS: GroupDef[] = [
       { id: "combat" },
       { id: "downedPilotsBlue" },
       { id: "frontLines" },
+      { id: "frontMovement", sub: true, enabledWhen: "frontLines" },
       { id: "neutralBorders" },
       { id: "factories" },
       { id: "ships" },
@@ -363,6 +370,7 @@ const DEFAULT_ON: LayerId[] = [
   // invisible) unless a campaign authors zones.
   "neutralBorders",
   "frontLines",
+  "frontMovement",
   "downedPilotsBlue",
   "enemySamThreat",
   "emitterHighlight",

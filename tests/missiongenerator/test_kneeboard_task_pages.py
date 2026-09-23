@@ -7,7 +7,8 @@ from unittest.mock import MagicMock
 import pytest
 from dcs.vehicles import AirDefence
 
-import game.missiongenerator.kneeboard as kneeboard
+import game.missiongenerator.kneeboard.briefing as briefing
+import game.missiongenerator.kneeboard.taskpages as taskpages
 
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
@@ -38,9 +39,10 @@ class _DummyPosition:
 @pytest.fixture(autouse=True)
 def _location_as_coordinates(monkeypatch: pytest.MonkeyPatch) -> None:
     """The page prints the fake's name where the coordinates go."""
-    monkeypatch.setattr(
-        kneeboard, "format_dms_suffix", lambda latlng, decimals=0: latlng.location
-    )
+    for module in (briefing, taskpages):
+        monkeypatch.setattr(
+            module, "format_dms_suffix", lambda latlng, decimals=0: latlng.location
+        )
 
 
 def _bullseye() -> Any:

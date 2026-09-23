@@ -142,9 +142,9 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   `retlab-observer-gated-artillery-notes.md` (**scoping only, nothing built** — frontline
   artillery fires once, blind, at a stale spawn point; fire it when a TIC unit sees an
   enemy, reusing TIC's sight results, airfields excluded),
-  `retlab-front-movement-arrows-notes.md` (**scoping only, nothing built** — display-only
-  arrows for last turn's front movement; makes B66 readable, so the §90 gate does not
-  block it)
+  `retlab-front-movement-arrows-notes.md` (**BUILT 2026-09-23, not flown** — display-only
+  arrows for last turn's front movement; makes B66 readable, so the §90 gate did not
+  block it; row B139)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (**§94, adopted 2026-08-24 from
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,
@@ -172,10 +172,10 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   targets never register as killed; the M4 IADS stand-in; the proxy unit that was built and
   reverted, and the position matcher measured to have no input. **The reported failure was never
   reproduced — read §8.1 before building anything here**)
-- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (**scoping only, nothing
-  built** — juanjux's High Command objective rating without its prizes: importance and
-  difficulty per enemy target from our own numbers, a panel line and a blue-only planner
-  weight; the whole system is on "watch, decide later"),
+- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (**§103, BUILT 2026-09-23,
+  not flown** — juanjux's High Command objective rating without its prizes: importance per
+  enemy target from our own numbers, a panel line and a blue-only planner weight; difficulty
+  is not built; the whole High Command is on "watch, decide later"; row B140),
   `retlab-planner-doctrine-mining-notes.md` (**the working
   procedure for teaching the scripted planner, and the queue** — juanjux's LLM played six
   campaigns as red and wrote down what a competent commander must do; we mine that for
@@ -535,7 +535,7 @@ linked design note.
 86. **GPS jamming** — satellite-guided weapons released inside the bubble land long.
 87. **Naval station-keeping racetracks** — anchored ovals so ships hold station under way.
 88. **Angled-deck carrier recovery heading** — the boat steams for 25 kt down the angled deck, not the bow.
-90. **Front-line model** — reinforcement follows the supply lines, attacking costs more than defending, the line's position counts the forces actually present, terrain slows the advance, and the front bulges instead of running straight.
+90. **Front-line model** — reinforcement follows the supply lines, attacking costs more than defending, the line's position counts the forces actually present, terrain slows the advance, and the front bulges instead of running straight. The map arrows last turn's movement on each front.
 91. **Per-flight sortie records** — the mission reports back what each flight did: track, time airborne, fuel, shots and hits, not just which units died.
 92. **What's New** — a toolbar window listing the recent player-visible changes, each with what to look for in the next mission.
 93. **Region priorities** — per-control-point BLUE planning emphasis: emphasized regions rank closer, deprioritized farther, ignored left to manual packages. A weight, never a fence.
@@ -548,6 +548,7 @@ linked design note.
 100. **King on-scene commander** — the player-flown C-130J King finds the survivor by DF cuts on the beacon (two cuts far enough apart make a fix; inside pod range with line of sight it snaps exact), sweeps the ground around the fix for threats reported as a class and a rough position, and passes the picture — text and map marks — to the player-crewed Sandy and helicopter. Cues only: it never lases, and nothing is pushed onto an AI flight.
 101. **Dynamic spawn templates** — a pilot who takes a DCS dynamic slot no longer gets a blank jet: at each base, one player flight of each type is marked as DCS's Dyn.SPAWN Template and the warehouse link written, so the dynamic jet is built from that flight (loadout, properties and livery for certain; route and radio presets are decided in native code and are what row B125 flies). Client flights only, no clone, and the fragged slot still flies as itself. Types with no player flight at the base stay blank. Off with `dynamic_slots`, and its own toggle beneath it.
 102. **My aircraft, saved points and the DTC options** — one window for the seat you are flying: saved points (waypoint, IP, target, hold, orbit) and drawings, the loadout and the data cartridge. Points and drawings reach the Hornet, Viper, F-14B(U), Apache and A-10 where each cockpit has a place, and a kneeboard page with the cockpit's numbers. The DTC tab shows only what the jet's cartridge carries, with load-at-spawn or by-hand, waypoint types to leave out, and SAM rings near the route. Window and points ported from juanjux/dcs-escalation.
+103. **HQ priority targets** — what losing each enemy target costs the enemy, in that kind of target's own measure (income, front-line vehicles, offensive packages, equipment price), ranked within its kind. A Why it matters line on the target panel always; a blue-only planner weight, gentler than §93, when on. No prize. The objective half of juanjux's High Command.
 
 ### Retired, removed or shelved — do not restore
 

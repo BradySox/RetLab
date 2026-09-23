@@ -236,6 +236,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   line bows instead of running straight, showing salients where the ground is good. The line is
   drawn only across ground vehicles can actually drive on, so a front pinched into a pass is
   narrower than the width setting asks for rather than sitting on the ridge beside it.
+  An arrow on the map shows which way each front moved last turn and how far; hover it for the
+  distance and your own stance. Map layer **Front movement last turn**, under Front lines.
 - **Missions report back.** Every flight's track, time airborne, fuel, shots and hits come home
   with the results, not just which aircraft died. The campaign summary says what the day's
   flying actually amounted to. No third-party software required.
@@ -265,6 +267,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   infrastructure, armor, naval and so on — in the Target Priorities window. A weight, not a
   fence: your own packages and rescue flights are never affected, and a target inside an
   ignored base can still be marked back on. Off by default.
+- **HQ priority targets.** An enemy target's panel says why it matters: the income it earns
+  the enemy, the front-line vehicles an ammo depot keeps fielded, how far a command post's
+  loss cuts the enemy's offensive packages, or the price of the equipment on it, and where it
+  ranks among others of its kind. With **HQ priority targets** on, the auto-planner leans
+  toward the top third of each kind, more gently than Target priorities. Off by default.
 - **Smart threat reaction.** One SAM launch no longer sends every jet in the area defensive.
   AI aircraft fly their route and use chaff and flares; only the flight the missile is
   actually guiding on breaks, and only until that missile is gone. The trade is that a flight

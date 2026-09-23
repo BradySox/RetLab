@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-87 rows need a live pass. Full detail is under each `###` heading below —
+89 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -374,6 +374,8 @@ stress it · `✗` fail signature reproduced in-game.
 | B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
 | B137 | A Nevada kneeboard coordinate is the point the F10 map shows | kneeboard coordinates | ☐ |
 | B138 | A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird | §62 | ☐ |
+| B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
+| B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8323,3 +8325,32 @@ numbers in every squadron sequence and re-rolls a random pydcs number that lands
 - **Fail signatures:** a pinned flight on random numbers; two jets sharing a number; the
   first flight still reading 105 after the second took 106; CAG paint on any jet not
   numbered X00.
+
+### B139 — The front movement arrow points the way the line moved, and a held front has none · §90 · ☐ UNTESTED
+
+An arrow at each front shows last turn's movement (2026-09-23). Unit-tested; this row checks
+it against the saves. An app check across turns, not a flight. It is also B66's evidence.
+
+- **Setup:** any campaign with an active front. Pass turn 1 (no arrow yet: nothing to compare).
+  Set one front Aggressive and fly or skip-resolve two more turns. Note where the line sits on
+  the map before each pass.
+- **Pass:** from turn 3 the arrow at each front that moved points from where the line was to
+  where it is, blue for a blue advance and red for a red one; the tooltip distance matches the
+  shift you measured to within a mile; a front that held shows no arrow; a skipped turn clears
+  the arrows. Unticking **Front lines** greys out **Front movement last turn**.
+- **Fail signatures:** an arrow pointing against the line's movement; an arrow on a front that
+  did not move; an arrow still showing after a skipped turn; red's stance in the tooltip.
+### B140 — HQ priority targets: the panel names what a target is worth, and the planner leans to the top third · §103 · ☐ UNTESTED
+
+Built 2026-09-23. Unit-tested; this row checks the app. An app check, not a flight.
+
+- **Setup:** a campaign with several enemy factories or oil sites visible on the map (Red Tide or
+  Anatolian Reach). Open three enemy targets you have engaged and one you have not.
+- **Pass (panel):** an engaged target's **Why it matters** row gives its measure — enemy income a
+  turn, front-line vehicles, the package ceiling, or equipment price — and `#N of M` among its
+  kind; the unengaged one reads "Unknown (not engaged)"; a friendly target has no row.
+- **Pass (planner):** with **HQ priority targets** off, note the auto-planned strike targets.
+  Tick it, re-roll blue's ATO: strikes shift toward top-ranked targets of similar distance, never
+  onto a site hidden on the map, and red's ATO is unchanged.
+- **Fail signatures:** a price shown for an unengaged site; a hidden site in the ATO; red's ATO
+  changing with the setting; a power plant pushed down the list.

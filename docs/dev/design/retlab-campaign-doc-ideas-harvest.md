@@ -125,7 +125,7 @@ generated "Intel Brief" kneeboard page (known threats + MEZ + HAD); v2 = the ful
 > undiscovered sites collapse into per-band "Unidentified MERAD" cards until a TARPS overflight
 > reveals them — and cards pack/paginate down the page. The curated layer lives in
 > `game/data/threat_reference.py`; the page + `build_threat_intel_cards` in
-> `game/missiongenerator/kneeboard.py`. Gated by `generate_threat_intel_kneeboard` (default off);
+> `game/missiongenerator/kneeboard/`. Gated by `generate_threat_intel_kneeboard` (default off);
 > see RetLab features §4. **Photos deferred:** DCS ships only `.dds` model textures (not
 > portraits), so a per-system photo would mean reading + converting the user's DCS install at
 > gen-time — fragile, path-dependent, low value on a 960px page.

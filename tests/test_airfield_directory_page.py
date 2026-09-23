@@ -74,9 +74,7 @@ def test_support_page_renders_airfield_directory_section(tmp_path: Path) -> None
     )
     out = tmp_path / "support.png"
     stub_font = ImageFont.load_default()
-    with patch(
-        "game.missiongenerator.kneeboard.ImageFont.truetype", return_value=stub_font
-    ):
+    with patch("PIL.ImageFont.truetype", return_value=stub_font):
         page.write(out)
     assert out.exists()
     img = Image.open(out)

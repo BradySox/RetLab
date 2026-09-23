@@ -306,6 +306,24 @@ class DoctrineSettings:
             "reads it."
         ),
     )
+    hq_priority_targets: bool = boolean_option(
+        "HQ priority targets (weight by what a loss costs the enemy)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=False,
+        detail=(
+            "Weight the BLUE auto-planner's offensive target selection by what "
+            "losing each target costs the enemy, measured against others of its "
+            "kind: enemy income for a factory, front-line vehicles for an ammo "
+            "depot, the offensive package ceiling for a command post, and the "
+            "equipment's price for everything else. The top third of each kind "
+            "ranks as if at three quarters of its distance and the bottom third "
+            "at one and a quarter, gentler than Region priorities so your own "
+            "emphasis still outranks it. Sites hidden on your map are left "
+            "alone, and the enemy planner never reads it. The target panel's "
+            "Why it matters line shows the measure either way."
+        ),
+    )
     c2_decapitation_effects: bool = boolean_option(
         "Command-center kills degrade enemy planning",
         page=CAMPAIGN_DOCTRINE_PAGE,
