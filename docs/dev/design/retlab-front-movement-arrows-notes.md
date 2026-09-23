@@ -1,13 +1,13 @@
-# Front movement arrows — scoping note (2026-09-23)
+# Front movement arrows — design note (2026-09-23)
 
-Status: **scoping only, nothing built.** Concept from FinCenturion's movement indicators
-(his Discord post 2026-09-15; §12 of
+Status: **BUILT 2026-09-23, not flown** (features doc §90, checklist B139). Concept from
+FinCenturion's movement indicators (his Discord post 2026-09-15; §12 of
 [retlab-fincenturion-dist-notes.md](retlab-fincenturion-dist-notes.md)). His code is not
 read or copied.
 
 ## 1. The idea
 
-Show on the map which way each front moved last turn and how far, and each side's stance.
+Show on the map which way each front moved last turn and how far, and blue's own stance.
 Display only: nothing about how the front moves changes.
 
 ## 2. Why the §90 gate does not block it
@@ -36,10 +36,11 @@ the FinCenturion note).
 
 ## 4. What it needs
 
-1. Persist the previous position on `FrontLine` (one float; migrate in `__setstate__` with
-   "no previous = no arrow").
-2. Add `previous_position`, forward heading and both stances to `FrontLineJs`, and the client
-   type (`_liberationApi.ts:515`).
+1. Persist the previous position on `FrontLine`: `settle_position()` in `finish_turn` stores
+   `previous_progress` / `settled_progress`, read through `getattr` so a pre-feature save has
+   no arrow rather than a migration. `hold_position()` clears it on a skipped turn.
+2. `FrontMovementJs` on `FrontLineJs.movement`, with the arrow's shaft and head computed
+   server-side from `blue_forward_heading`, and the client type (`_liberationApi.ts`).
 3. An arrow at the line's midpoint, pointing the way it moved, scaled by distance; none under a
    threshold. Tooltip: "Advanced 4.2 NM toward X — blue aggressive, red defensive".
 4. A layer row in `MapLayersControl.tsx` in the "Friendly & shared" group with

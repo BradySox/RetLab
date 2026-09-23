@@ -512,9 +512,18 @@ export type Flight = {
   package_target?: string;
   package_tot?: string;
 };
+export type FrontMovement = {
+  advancing_side: string;
+  distance_nm: number;
+  toward: string;
+  blue_stance?: string | null;
+  shaft: LatLng[];
+  head: LatLng[];
+};
 export type FrontLine = {
   id: string;
   extents: LatLng[];
+  movement?: FrontMovement | null;
 };
 export type TacticalReach = {
   polygon: LatLng[][];

@@ -142,9 +142,9 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   `retlab-observer-gated-artillery-notes.md` (**scoping only, nothing built** — frontline
   artillery fires once, blind, at a stale spawn point; fire it when a TIC unit sees an
   enemy, reusing TIC's sight results, airfields excluded),
-  `retlab-front-movement-arrows-notes.md` (**scoping only, nothing built** — display-only
-  arrows for last turn's front movement; makes B66 readable, so the §90 gate does not
-  block it)
+  `retlab-front-movement-arrows-notes.md` (**BUILT 2026-09-23, not flown** — display-only
+  arrows for last turn's front movement; makes B66 readable, so the §90 gate did not
+  block it; row B139)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (**§94, adopted 2026-08-24 from
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,
@@ -535,7 +535,7 @@ linked design note.
 86. **GPS jamming** — satellite-guided weapons released inside the bubble land long.
 87. **Naval station-keeping racetracks** — anchored ovals so ships hold station under way.
 88. **Angled-deck carrier recovery heading** — the boat steams for 25 kt down the angled deck, not the bow.
-90. **Front-line model** — reinforcement follows the supply lines, attacking costs more than defending, the line's position counts the forces actually present, terrain slows the advance, and the front bulges instead of running straight.
+90. **Front-line model** — reinforcement follows the supply lines, attacking costs more than defending, the line's position counts the forces actually present, terrain slows the advance, and the front bulges instead of running straight. The map arrows last turn's movement on each front.
 91. **Per-flight sortie records** — the mission reports back what each flight did: track, time airborne, fuel, shots and hits, not just which units died.
 92. **What's New** — a toolbar window listing the recent player-visible changes, each with what to look for in the next mission.
 93. **Region priorities** — per-control-point BLUE planning emphasis: emphasized regions rank closer, deprioritized farther, ignored left to manual packages. A weight, never a fence.

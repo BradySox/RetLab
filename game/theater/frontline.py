@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import uuid
 from dataclasses import dataclass
-from typing import Any, Iterator, List, TYPE_CHECKING, Tuple
+from typing import Any, Iterator, List, Optional, TYPE_CHECKING, Tuple
 
 from dcs.mapping import Point
 
@@ -106,6 +106,30 @@ class FrontLine(MissionTarget):
 
     def update_position(self) -> None:
         self.position = self._compute_position()
+
+    def settle_position(self) -> None:
+        """Turn boundary: move the line and remember where it was drawn before.
+
+        Stored as distance along the route from blue, so the difference is the
+        movement §90 actually produced. Pre-feature saves have neither field.
+        """
+        self.previous_progress = getattr(self, "settled_progress", None)
+        progress = self._blue_route_progress
+        self.position = self.point_along_route_from_blue(progress)
+        self.settled_progress = progress
+
+    def hold_position(self) -> None:
+        """A skipped turn: nothing moved, so the last movement is not current."""
+        self.previous_progress = getattr(self, "settled_progress", None)
+
+    @property
+    def movement_since_last_turn(self) -> Optional[float]:
+        """Metres the line moved toward red last turn; negative toward blue."""
+        previous = getattr(self, "previous_progress", None)
+        settled = getattr(self, "settled_progress", None)
+        if previous is None or settled is None:
+            return None
+        return settled - previous
 
     def control_point_friendly_to(self, player: Player) -> ControlPoint:
         if player.is_blue:

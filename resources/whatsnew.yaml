@@ -14,6 +14,18 @@
 
 entries:
   - date: 2026-09-23
+    title: The map shows which way each front moved last turn
+    change: >-
+      An arrow at each front points the way the line moved last turn, blue if
+      you advanced and red if they did. Hover it for the distance in NM, the
+      base it moved toward and your own stance. A front that held has no
+      arrow. Map layer Front movement last turn, under Front lines.
+    watch: >-
+      Two turns after starting, set a front Aggressive and pass a turn. The
+      arrow points the way the line actually moved, and a front you left alone
+      shows none.
+    row: B139
+  - date: 2026-09-23
     title: Set a Hornet or Tomcat flight's board number yourself
     change: >-
       On a Hornet or Tomcat flight the Payload tab has a Set board number box. The number you enter is the
