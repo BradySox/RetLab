@@ -401,7 +401,7 @@ AI/physics, so real behavior still needs an in-game pass (see the in-game-pass c
 
 **Finding things in the big files.**
 - `game/settings/`: a field lives in `fields/<page>.py` — `grep -rn "^    <field>:" game/settings/fields`; by UI label `grep -rn -B1 '"<Label>' game/settings/fields` (the label is on the line after the field). Dialog layout is `layout.py`, old-save rewrites `migration.py`.
-- `game/missiongenerator/kneeboard.py`: one class per page — `grep -n "^class .*Page"` first.
+- `game/missiongenerator/kneeboard/` (a package since #1066): one module per page family — `grep -rn "^class .*Page" game/missiongenerator/kneeboard` first.
 
 ---
 
