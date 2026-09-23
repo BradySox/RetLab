@@ -4,12 +4,12 @@ Paste-ready title and description for
 [dcs-retribution#874](https://github.com/dcs-retribution/dcs-retribution/pull/874).
 The PR grew on 2026-09-23 from carrier comms alone to a Navy pass, on the DM's call: the
 fork's §62 board numbers (`afa5d01b`), then the pinned board number and the X00-only CAG
-livery rule (`0e1ccf92`), then the Navy-only scope for both (`c8804d0d`). Updating an existing PR is allowed under
+livery rule (`0e1ccf92`), then the Navy-only scope for both (`c8804d0d`), then the take-over picker (`4b81c578`). Updating an existing PR is allowed under
 the freeze.
 
-Head after the update: `c8804d0d` on `BradySox/dcs-retribution:carrier-comms-curation`, with
+Head after the update: `4b81c578` on `BradySox/dcs-retribution:carrier-comms-curation`, with
 upstream `dev` @ `49e8067f` merged in (`568e5930`) and another session's header rewording
-(`832b7a72`) merged in. Black, `mypy game tests` and pytest (526 passed) green on that head.
+(`832b7a72`) merged in. Black, `mypy game tests` and pytest (529 passed) green on that head.
 
 ## Title
 
@@ -70,7 +70,7 @@ Tests: `tests/missiongenerator/test_modex.py` (8), `tests/missiongenerator/test_
 Flown in our fork: Hornet numbers checked in the F2 view; the Tomcat CAG-first livery order
 checked in the generated miz on three campaigns.
 
-## 3. Pinned board number, and the CAG livery is X00's alone (`0e1ccf92`, `c8804d0d`)
+## 3. Pinned board number, and the CAG livery is X00's alone (`0e1ccf92`, `c8804d0d`, `4b81c578`)
 
 Navy only: both halves apply to the Hornet and Tomcat set that commit 2 numbers. Every other
 aircraft is unchanged, including the random round-robin over its livery set.
@@ -78,8 +78,12 @@ aircraft is unchanged, including the random round-robin over its livery set.
 - Payload tab: **Set board number** pins the lead's number; wingmen follow in order
   (105 → 105, 106, 107, 108). Shown on Hornet and Tomcat flights only. Stored as
   `Flight.board_number`; old saves read None.
-- The tab refuses a run that overlaps another flight of the coalition or passes 999, keeps the
-  previous value, and names the flight that holds the number (`board_number_conflict`).
+- The spinbox stops where the whole run still fits (996 on a four-ship).
+- Taking a number another flight of the coalition has pinned moves that flight to the next
+  free run above its old one (below only if nothing above fits), so it stays in its own
+  hundred block. The tab names the flight and its new number (`take_board_number`).
+- The moved flight keeps a pin and never lands on a third flight. Changing the flight's size
+  re-takes the pin the same way.
 - At generation `ModexAllocator` claims pinned numbers per coalition first. The pinned flight
   wears them; squadron sequences skip them; a random pydcs number that lands on one is
   re-rolled; claims are reserved with each `Country`. So no other package wears a pinned number.
@@ -90,12 +94,12 @@ aircraft is unchanged, including the random round-robin over its livery set.
 - The idle ramp path now stamps the number before painting, so the livery can read it.
 - A Tomcat pin reaches the paint only where a livery with that number exists; the tab says so.
 
-Tests: the pinned cases in `tests/missiongenerator/test_modex.py` (15 in all), and
+Tests: the pinned cases in `tests/missiongenerator/test_modex.py` (18 in all), and
 `tests/missiongenerator/test_livery_allocator.py` (18 cases). Not flown yet.
 
 ## Checks
 
-Black, `mypy game tests`, pytest (526 passed) on current `dev` (`49e8067f`).
+Black, `mypy game tests`, pytest (529 passed) on current `dev` (`49e8067f`).
 ```
 
 ## Notes for whoever pastes it

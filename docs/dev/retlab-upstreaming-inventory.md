@@ -377,7 +377,7 @@ etribution-pr`. **Still gated on pydcs [#39](https://github.com/dcs-retribution/
   and F-14B VF-32 reordered. The fork's QRA and §61 modex hooks are fork-only and stay here.
   pytest 508 passed, Black and mypy clean. A third commit (`0e1ccf92`) carries the pinned
   board number and the X00-only CAG livery rule, scoped Navy-only by `c8804d0d`; head
-  `c8804d0d`, pytest 526. Title and body updated on GitHub 2026-09-23 from
+  `c8804d0d`; the take-over picker is `4b81c578` (head), pytest 529. Title and body updated on GitHub 2026-09-23 from
   [retlab-pr874-body-refresh.md](retlab-pr874-body-refresh.md).
 
 ---

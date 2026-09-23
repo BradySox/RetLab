@@ -8300,16 +8300,17 @@ printed page against the map.
 ### B138 — A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird · §62 · ☐ UNTESTED
 
 The payload tab's **Set board number** pins the lead's modex; the wingmen follow in order.
-The tab refuses a number another flight of the coalition holds, and generation skips pinned
+Taking a number another flight has pinned moves that flight to the next free run, and generation skips pinned
 numbers in every squadron sequence and re-rolls a random pydcs number that lands on one
 (2026-09-23). Unit-tested; this row checks the jets in DCS.
 
 - **Setup:** any carrier campaign with a Hornet squadron. Frag two Hornet packages. On the
-  first flight, tick **Set board number** and enter 105 on a four-ship. On the second, try
-  106: the tab says *Not applied*. Leave the second on automatic. Generate.
-- **Pass:** in the F2 view the first flight's jets read 105, 106, 107, 108, and no other
-  Hornet in the mission reads any of those. The second flight's jets are numbered in the
-  squadron block without a gap other than the pinned four.
+  first flight, tick **Set board number** and enter 105 on a four-ship. On the second
+  (a two-ship), pin 106: the tab says the first flight moved from 105 to 108. Frag a third
+  Hornet flight on automatic. Generate.
+- **Pass:** in the F2 view the second flight reads 106, 107 and the first 108-111. No other
+  Hornet in the mission reads any of those. The automatic flight is numbered in the
+  squadron block, skipping only the pinned numbers.
 - **Livery half (2026-09-23 DM rule):** the Tomcat livery follows the board number, and the
   CAG / hi-vis livery is the X00 jet's alone. Frag a VF-143 F-14B(U) four-ship on automatic:
   jet 100 wears AG100, the other three AG106. Pin 103 on a VF-103 B(U) two-ship: jet 103
@@ -8317,5 +8318,6 @@ numbers in every squadron sequence and re-rolls a random pydcs number that lands
 - **Livery names checked against the install 2026-09-23:** all 17 `livery_set` entries in
   the five F-14B(U) presets and F-14B VF-32 match a `.zip` under `CoreMods\aircraft\F14\Liveries`
   (`f-14bu`, `f-14b`). A jet in default paint is a picker fault, not a missing livery.
-- **Fail signatures:** the pinned flight on random numbers; a second jet wearing 105-108;
-  the tab accepting 106 on the second flight; CAG paint on any jet not numbered X00.
+- **Fail signatures:** a pinned flight on random numbers; two jets sharing a number; the
+  first flight still reading 105 after the second took 106; CAG paint on any jet not
+  numbered X00.

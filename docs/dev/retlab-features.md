@@ -6563,16 +6563,21 @@ The Payload tab's **Set board number** (`BoardNumberSelector` in
 `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py`) stores `Flight.board_number`:
 the lead's number, wingmen following in order. **Navy only** (DM call, 2026-09-23): the box
 shows only for `MODEX_AIRCRAFT_IDS` flights, and a pin on anything else is ignored.
-`board_number_conflict` (in `modex.py`) refuses a run that overlaps another flight of the
-coalition's ATO or runs past 999; the tab then keeps the previous value and says who holds
-the number.
+The spinbox stops where the run still fits (996 on a four-ship). Taking a number another
+flight of the coalition has pinned is allowed: `take_board_number` (in `modex.py`) moves
+that flight to the next free run above its old one (below only if nothing above fits), and
+the tab names the flight and its new number. Upward first keeps a moved flight in its own
+hundred block. The moved flight keeps a pin and never lands on a third flight. Before
+2026-09-23's rework the tab refused the number instead (DM: "there has to be a better way").
 
 At generation `ModexAllocator` claims every pinned number per coalition before stamping
 anything. The pinned flight wears its numbers; squadron sequences skip claimed numbers; a
 random pydcs number that lands on one is re-rolled; the claims are reserved with each
 country. A clash the tab could not see (a flight resized after pinning) goes to the first
-flight in ATO order and the later member falls back to automatic. On the Tomcat the pinned
-number reaches the miz but not the paint (see above), which the tab says.
+flight in ATO order and the later member falls back to automatic; resizing on the flight
+tab re-takes the pin, so that case needs a size change made elsewhere. On the Tomcat the
+pinned number reaches the paint only where the squadron has a livery painted with it,
+which the tab says.
 
 Persisted on the flight (`__setstate__` defaults it to None). Tests: the pinned cases in
 `tests/missiongenerator/test_modex.py`, and `tests/test_board_number_selector.py` (offscreen

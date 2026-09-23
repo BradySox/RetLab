@@ -18,9 +18,10 @@ entries:
     change: >-
       On a Hornet or Tomcat flight the Payload tab has a Set board number box. The number you enter is the
       lead's and the wingmen follow in order, so 105 on a four-ship gives 105,
-      106, 107, 108. A number another flight already holds is refused, and no
-      other package is given one of yours. The Tomcat's painted number is its
-      livery, so on the F-14 this changes the mission file only.
+      106, 107, 108. If another flight had pinned one of those numbers, it moves
+      to the next free numbers and the tab says where. No other package is given
+      one of yours. The Tomcat's painted number is its livery, so an F-14 shows
+      the number only where its squadron has a livery painted with it.
     watch: >-
       Pin 105 on a Hornet four-ship. In the F2 view its jets read 105 to 108
       and no other Hornet in the mission wears those numbers.

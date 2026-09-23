@@ -1,7 +1,7 @@
 """The payload tab's board-number control (§62).
 
-A pinned number is the lead's; the wingmen follow in order. A number another
-flight of the coalition holds is refused, so no two packages share a modex.
+A pinned number is the lead's; the wingmen follow in order. Taking a number
+another flight has pinned moves that flight to the next free run.
 """
 
 from __future__ import annotations
@@ -66,7 +66,7 @@ def test_setting_a_number_pins_the_whole_flight(qapp: Any) -> None:
     assert "105, 106, 107, 108" in selector.summary.text()
 
 
-def test_a_number_held_by_another_package_is_refused(qapp: Any) -> None:
+def test_taking_a_held_number_moves_the_holder(qapp: Any) -> None:
     ato = _ato()
     holder = _flight(ato, 2, 106)
     flight = _flight(ato, 4)
@@ -76,10 +76,32 @@ def test_a_number_held_by_another_package_is_refused(qapp: Any) -> None:
     selector.enabled.setChecked(True)
     selector.number.setValue(105)
 
-    # Ticking the box applied the default 100-103; 105-108 overlaps 106.
+    assert flight.board_number == 105
+    assert holder.board_number == 109
+    assert "moved from 106 to 109" in selector.summary.text()
+
+
+def test_the_spinbox_stops_where_the_run_still_fits(qapp: Any) -> None:
+    ato = _ato()
+    flight = _flight(ato, 4)
+    ato.packages[0].flights.append(flight)
+    selector = _selector(flight)
+
+    assert selector.number.maximum() == 996
+
+
+def test_a_resize_retakes_the_pin(qapp: Any) -> None:
+    ato = _ato()
+    holder = _flight(ato, 2, 102)
+    flight = _flight(ato, 2, 100)
+    ato.packages[0].flights.extend([holder, flight])
+    selector = _selector(flight)
+
+    flight.count = 4
+    selector.apply()
+
     assert flight.board_number == 100
-    assert "Not applied: 106 belongs to" in selector.summary.text()
-    assert "Keeping 100" in selector.summary.text()
+    assert holder.board_number == 104
 
 
 def test_unticking_returns_the_flight_to_automatic(qapp: Any) -> None:
