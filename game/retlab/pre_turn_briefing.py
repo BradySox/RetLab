@@ -107,14 +107,14 @@ def _consequence_items(game: "Game") -> List[BriefingItem]:
     """
     from game.retlab.c2_decapitation import c2_status_line
 
-    line = c2_status_line(game, game.blue.player)
+    line = c2_status_line(game, game.red.player)
     if not line:
         return []
     return [
         BriefingItem(
             kind="consequence",
             text=(
-                f"Enemy C2 degraded (claimed): {line}. Their planning is worse "
+                f"Enemy C2 degraded: {line}. Their planning is worse "
                 f"because of you — keep it that way."
             ),
             urgency=NOTABLE,

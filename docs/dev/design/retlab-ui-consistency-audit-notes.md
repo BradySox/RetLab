@@ -111,7 +111,6 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 | Where | Defect |
 |---|---|
 | Kneeboard coordinates (`kneeboard.py`, `kneeboard_recon/coords.py`, `pages.py`) | pydcs `LatLng.format_dms()` prints a west or south component with a minus sign and the complementary minutes: `(36.2, -115.3)` → `-115°42'00"W`, true 115°18'W. Every Nevada and South Atlantic kneeboard coordinate is wrong |
-| `game/retlab/c2_decapitation.py:58-80` | The C2 chip and SITREP line count every enemy command post, hidden ones included, so "1/3 operational" leaks how many exist |
 | `client/.../maplayers/MapLayersControl.tsx:636` | `<Row>` never receives `enabledWhen`, so the LORAD/MERAD/SHORAD/AAA rows never gray out |
 | `client/.../maplayers/MapLayersControl.tsx:374-395` | "Hide all overlays" leaves control points and front lines on; every preset but Default turns off a display option; SEAD hides the EWRs its IADS lines end at |
 | `client/.../downedpilots/DownedPilot.tsx:62-66` | Enemy downed pilots show a rescue countdown and "Right click to plan a CSAR mission", which opens an empty dialog |

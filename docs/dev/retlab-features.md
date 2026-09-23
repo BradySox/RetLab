@@ -5735,8 +5735,9 @@ coupled to its own command-network health.
 
 `game/retlab/c2_decapitation.py`:
 
-- `_command_centers(coalition, theater)` → `(alive, total)` command-center TGOs on the coalition's own
-  bases (a CC is alive while any of its units is alive — the same test the IADS emitter uses).
+- `_command_centers(coalition, theater, viewer=None)` → `(alive, total)` command-center TGOs on the
+  coalition's own bases (a CC is alive while any of its units is alive — the same test the IADS emitter
+  uses). With a `viewer`, posts hidden from that side's map are skipped; the planner never passes one.
 - `c2_health` → the alive fraction (1.0 when the side fields no command centers — a C2-less campaign is
   unaffected).
 - `unpredictability_bonus(coalition, theater, settings)` → `round((1 − health) × MAX_DECAP_UNPREDICTABILITY)`
@@ -5757,11 +5758,29 @@ just sourced from C2 health instead of a static slider.
 
 ### Legibility
 
-The effect lands on the *enemy's* next turn, so the player is told the strike worked: a SITREP band line
-(`Sitrep.red_c2_status` → "Enemy C2 degraded (claimed): 1/3 command posts operational", built by
-`c2_status_line`). Framed as **claimed** (the player's own BDA) to respect the recon-fog model, and it
-**rides along with the other real news** — it never forces a SITREP onto an otherwise-quiet turn
-(`is_empty` ignores it).
+The effect lands on the *enemy's* next turn, so the player is told the strike worked. `c2_status_line`
+builds "1/3 known command posts operational" for three surfaces: the SITREP band line
+(`Sitrep.red_c2_status` → "Enemy C2 degraded: …"), the map ribbon's C2 chip (`red_c2` in
+`game/server/game/models.py`, rendered by `CampaignStatusBar.tsx`) and the pre-turn brief's
+consequence item. The SITREP line **rides along with the other real news** — it never forces a SITREP
+onto an otherwise-quiet turn (`is_empty` ignores it).
+
+**The line counts only the posts on BLUE's map (2026-09-22).** With `scar_command_post_intel` on, an
+enemy command post is hidden until found, and the old line counted every post over ground truth, so
+the "/3" told the player how many hidden posts existed. `c2_status_line` now passes
+`viewer=Player.BLUE`, and `_command_centers` skips any post `fogofwar.hidden_from` reports — never a
+bare `hidden_on_player_map`, so the reveal overview cannot change the count.
+
+- **A hidden post is left out of both numbers, dead or alive.** A hidden post that died was never on
+  the player's map, so counting it as dead would leak it just as the total did. If the only dead post
+  is a hidden one, the line is None.
+- **`c2_health` stays on ground truth.** The planner effect still counts every post, hidden or not
+  (AI planning always reads truth), so the line can read intact while red's planning is degraded.
+- **"(claimed)" was dropped** from the SITREP line, the brief and the chip's hover text. It referred to
+  the BDA lag, removed 2026-08-18; the count is now exact for every post the player can see.
+- **The pre-turn brief read the wrong side until 2026-09-22.** `_consequence_items` passed
+  `game.blue.player`, so it reported the player's own command posts as "Enemy C2 degraded". It now
+  passes `game.red.player`, and its test pins the argument.
 
 ### Files & tests
 
@@ -5769,9 +5788,9 @@ The effect lands on the *enemy's* next turn, so the player is told the strike wo
 |---|---|
 | Core | `game/retlab/c2_decapitation.py` (`c2_health`, `unpredictability_bonus`, `offensive_package_cap`, `c2_status_line`) |
 | Planner hooks | `game/commander/tasks/targetorder.py` `_unpredictability_for` (adds the bonus, clamps to 100); `game/commander/tasks/compound/nextaction.py` `_offensive_tempo_exhausted` (the A2 throttle gate on the offensive middle) |
-| Legibility | `game/sitrep.py` (`red_c2_status`), `game/sim/missionresultsprocessor.py` `record_sitrep` |
+| Legibility | `game/sitrep.py` (`red_c2_status`), `game/sim/missionresultsprocessor.py` `record_sitrep`, `game/server/game/models.py` (`red_c2`), `client/src/components/campaignstatus/CampaignStatusBar.tsx`, `game/retlab/pre_turn_briefing.py` `_consequence_items` |
 | Setting | `game/settings/settings.py` (`c2_decapitation_effects`, Air Doctrine, default **OFF**) |
-| Tests | `tests/retlab/test_c2_decapitation.py` (health/bonus/status/gates + the A2 cap math and HTN gating); `tests/test_planner_unpredictability.py` (the shuffler coupling + intact/off determinism); `tests/test_sitrep.py` (the band line, rides-along) |
+| Tests | `tests/retlab/test_c2_decapitation.py` (health/bonus/status/gates, hidden posts excluded from the line but counted by `c2_health`, the overview cannot change the line, + the A2 cap math and HTN gating); `tests/test_planner_unpredictability.py` (the shuffler coupling + intact/off determinism); `tests/test_sitrep.py` (the band line, rides-along); `tests/retlab/test_pre_turn_briefing.py` (the brief asks for red's network) |
 
 ### Gotchas / deferred
 

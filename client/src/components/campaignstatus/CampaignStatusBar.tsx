@@ -98,7 +98,7 @@ export default function CampaignStatusBar() {
           <span className="campaign-status-group campaign-status-group-enemy">
             <span
               className="campaign-status-c2"
-              title="Enemy command-network status (claimed) — bombing HQs makes its planning sloppier"
+              title="Enemy command posts on your map still operational — bombing HQs makes its planning sloppier"
             >
               C2 {status.red_c2}
             </span>
