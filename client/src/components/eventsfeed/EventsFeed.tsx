@@ -8,6 +8,13 @@ import { useState } from "react";
 // surfaced on the map instead of living only in the Qt log. Collapsed to a
 // count chip by default; renders nothing when there are no recent events.
 // A plain positioned div, not a Leaflet layer.
+
+// Upstream's "Game Start" and "End of turn #N" carry a rule of 40 hyphens as
+// their body (game/game.py); a body with no letter or digit is decoration.
+export function hasContent(text: string | null | undefined): boolean {
+  return !!text && /[\p{L}\p{N}]/u.test(text);
+}
+
 export default function EventsFeed() {
   const status = useAppSelector(selectCampaignStatus);
   const [open, setOpen] = useState(false);
@@ -28,7 +35,7 @@ export default function EventsFeed() {
                 <span className="events-feed-turn">T{event.turn}</span>
                 {event.title}
               </div>
-              {event.text && (
+              {hasContent(event.text) && (
                 <div className="events-feed-text">{event.text}</div>
               )}
             </div>

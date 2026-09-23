@@ -72,7 +72,10 @@ dark-themed grouped panel.
 - **Grouped, collapsible sections** — Friendly & shared, Logistics, Air defenses, Enemy intel,
   Allied & flight plans, Threat zones, Navmesh & terrain, Display options. Advanced groups start
   collapsed.
-- **Preset views** — **Default**, **SEAD**, **Recon**, **Clean**, plus "Hide all overlays".
+- **Preset views** — **Default**, **SEAD**, **Recon**, **Clean**. Presets change layers only;
+  display options and the fog overview stay as you set them. Neutral airspace and downed
+  pilots stay on in every preset.
+- **Hide all overlays** turns every layer off.
 - **Choices persist** with the campaign and are restored between sessions.
 - **Local chart base maps** — tile sets in `Saved Games/Retribution/MapTiles/` appear as extra
   base-map buttons beside Clarity/Firefly/Topographic, so the map can show a chart of the *DCS*

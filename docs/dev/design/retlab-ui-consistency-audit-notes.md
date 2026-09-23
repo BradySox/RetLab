@@ -87,6 +87,17 @@ nothing draws since §21 (removed with their colors); "it will intercept" for ne
 (SAMs only since 2026-09-07); "nm" → "NM"; the flight tooltip's TOT carried a "Z" but is
 mission-local time.
 
+**Map client behavior (follow-up, same day):**
+
+- The LORAD/MERAD/SHORAD/AAA rows now gray out while "Air defenses" is off; `<Row>` never received `enabledWhen`.
+- "Hide all overlays" turns every layer off. It used to run the Clean preset.
+- Presets no longer touch display options ("Highlight radar emitter on hover") or the fog overview.
+- Every preset keeps "Neutral airspace" and "Downed pilots" on.
+- SEAD shows "Other ground objects", where the EWRs, command centers and power plants the IADS lines end at are drawn.
+- An enemy downed pilot shows the enemy's rescue window, no CSAR hint, and no right-click dialog. `mission_types` offers nothing for a pilot you do not own.
+- The carrier drag tooltip no longer prints "-51.70°S". It shares `controlpoints/destinationFormat.ts` with the ship marker.
+- The events feed hides a body with no letter or digit, such as the 40-hyphen rule on upstream's "Game Start" and "End of turn #N".
+
 **SITREP:** evaders still awaiting pickup were labeled "MIA", the word the CSAR settings use for
 a pilot who was lost. Now "Awaiting rescue:".
 
@@ -112,11 +123,6 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 |---|---|
 | Kneeboard coordinates (`kneeboard.py`, `kneeboard_recon/coords.py`, `pages.py`) | pydcs `LatLng.format_dms()` prints a west or south component with a minus sign and the complementary minutes: `(36.2, -115.3)` → `-115°42'00"W`, true 115°18'W. Every Nevada and South Atlantic kneeboard coordinate is wrong |
 | `game/retlab/c2_decapitation.py:58-80` | The C2 chip and SITREP line count every enemy command post, hidden ones included, so "1/3 operational" leaks how many exist |
-| `client/.../maplayers/MapLayersControl.tsx:636` | `<Row>` never receives `enabledWhen`, so the LORAD/MERAD/SHORAD/AAA rows never gray out |
-| `client/.../maplayers/MapLayersControl.tsx:374-395` | "Hide all overlays" leaves control points and front lines on; every preset but Default turns off a display option; SEAD hides the EWRs its IADS lines end at |
-| `client/.../downedpilots/DownedPilot.tsx:62-66` | Enemy downed pilots show a rescue countdown and "Right click to plan a CSAR mission", which opens an empty dialog |
-| `client/.../controlpoints/MobileControlPoint.tsx:21-27` | Carrier drag tooltip prints "-51.70°S"; `MobileTgo.tsx:32-41` already fixed this |
-| `client/.../eventsfeed/EventsFeed.tsx:31-33` | Shows upstream log bodies of 40 hyphens every turn |
 | `resources/plugins/skynetiads/skynetiads-config.lua:293-296` | "Exclude SA-15" does nothing: an inner `local sams` shadows the list. Same in upstream — a carve candidate |
 | `resources/plugins/MooseAtis/plugin.json:5,8` | "Debug Mode" is read and never used; "Announce Field Name" needs a MOOSE method the bundled build lacks |
 | 8 plugin timer options | No `minimumValue`, so 0 is accepted and the loop runs every scheduler pass |

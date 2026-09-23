@@ -4,6 +4,7 @@ import {
   useClearControlPointDestinationMutation,
   useSetControlPointDestinationMutation,
 } from "../../api/liberationApi";
+import { formatLatLng, metersToNauticalMiles } from "./destinationFormat";
 import { makeLocationMarkerEventHandlers } from "./EventHandlers";
 import { iconForControlPoint } from "./Icons";
 import LocationTooltipText from "./LocationTooltipText";
@@ -13,18 +14,6 @@ import { LatLng, Marker as LMarker, LatLngLiteral } from "leaflet";
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactDOMServer from "react-dom/server";
 import { Marker, Tooltip } from "react-leaflet";
-
-function metersToNauticalMiles(meters: number) {
-  return meters * 0.000539957;
-}
-
-function formatLatLng(latLng: LatLng) {
-  const lat = Math.abs(latLng.lat).toFixed(2);
-  const lng = Math.abs(latLng.lng).toFixed(2);
-  const ns = latLng.lat >= 0 ? "N" : "S";
-  const ew = latLng.lng >= 0 ? "E" : "W";
-  return `${lat}&deg;${ns} ${lng}&deg;${ew}`;
-}
 
 function destinationTooltipText(
   cp: ControlPoint,
