@@ -41,13 +41,17 @@ echo "=== RetLab in-game-pass checklist ==="
 echo "verified $(count VERIFIED) | untested $(count UNTESTED) | partial $(count PARTIAL) | regressed $(count REGRESSED) | closed $(( $(count RETIRED) + $(count REMOVED) + $(count CLOSED) ))"
 echo
 
+# Regressed and partial rows print in full; untested rows print as ids only. The
+# full list runs past the harness's 10 KB hook-output limit, which truncates it to
+# a 2 KB preview and silently drops most of the board.
 outstanding="$(printf '%s\n' "$headings" | awk "$STATUS_FN"'
   {
     st = status($0)
-    if (st == "UNTESTED" || st == "PARTIAL" || st == "REGRESSED") {
-      line = $0; sub(/^#+ +/, "", line); print line
-    }
+    line = $0; sub(/^#+ +/, "", line)
+    if (st == "REGRESSED" || st == "PARTIAL") print line
+    else if (st == "UNTESTED") { split(line, f, " "); ids = ids (ids == "" ? "" : ", ") f[1] }
   }
+  END { if (ids != "") print "Untested: " ids }
 ' || true)"
 if [ -n "$outstanding" ]; then
   echo "Outstanding (needs an in-game pass):"
