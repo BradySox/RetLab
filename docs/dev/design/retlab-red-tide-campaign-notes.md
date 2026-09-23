@@ -764,7 +764,8 @@ edit); guard `tests/retlab/test_campaign_plugin_preseed.py`.
    Hanoi's — er, the GSFG's — HQs makes red *plan* worse, not just lose SAM autonomy. Pure
    turn-model, no plugin, no `.miz` change; the campaign premise ("break him before he can
    consolidate") made mechanical. Reactive defense is untouched (the §17 boundary). A SITREP
-   band line reports "N/M command posts operational (claimed)".
+   band line reports "Enemy C2 degraded: N/M known command posts operational", counting only the
+   posts on blue's map.
 
 2. **Two SS-1C Scud-B batteries added to the `.miz`.** The laydown placed no
    missile-category TGO at all. Added **two red `Scud_B` vehicle markers** to the CJTF Red

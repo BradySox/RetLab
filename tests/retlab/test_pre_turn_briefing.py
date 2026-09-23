@@ -228,14 +228,20 @@ def test_c2_damage_is_framed_as_something_you_caused(
     and already renders it -- one turn late. Here it is attributed."""
     import game.retlab.c2_decapitation as c2
 
-    monkeypatch.setattr(
-        c2, "c2_status_line", lambda g, p: "1/3 command posts operational"
-    )
+    asked_for: list[Any] = []
+
+    def status(g: Any, p: Any) -> str:
+        asked_for.append(p)
+        return "1/3 known command posts operational"
+
+    monkeypatch.setattr(c2, "c2_status_line", status)
     game = FakeGame(c2_decapitation_effects=True)
 
     (item,) = build_pre_turn_briefing(game).by_kind("consequence")  # type: ignore[arg-type]
 
-    assert "1/3 command posts operational" in item.text
+    # The enemy's network, not the player's own.
+    assert asked_for == [RED]
+    assert "1/3 known command posts operational" in item.text
     assert "because of you" in item.text
     assert item.urgency == NOTABLE
 

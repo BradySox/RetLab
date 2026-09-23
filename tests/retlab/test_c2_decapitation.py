@@ -28,9 +28,13 @@ from game.retlab.c2_decapitation import (
 from game.theater import Player
 
 
-def _tgo(category: str, *alive: bool) -> Any:
+def _tgo(category: str, *alive: bool, hidden: bool = False) -> Any:
     units = [SimpleNamespace(alive=a) for a in alive]
-    return SimpleNamespace(category=category, groups=[SimpleNamespace(units=units)])
+    return SimpleNamespace(
+        category=category,
+        groups=[SimpleNamespace(units=units)],
+        hidden_on_player_map=lambda viewer: hidden and viewer is Player.BLUE,
+    )
 
 
 def _coalition(player: Player) -> Any:
@@ -111,7 +115,65 @@ def test_status_line_reports_a_degraded_enemy_network() -> None:
         [_cp(Player.RED, [_tgo("commandcenter", True), _tgo("commandcenter", False)])]
     )
     line = c2_status_line(cast(Any, _game(theater)), Player.RED)
-    assert line == "1/2 command posts operational"
+    assert line == "1/2 known command posts operational"
+
+
+def test_a_hidden_command_post_counts_for_the_planner_not_the_player() -> None:
+    """The player-facing total must not reveal how many posts are hidden. A
+    hidden post that died is left out too: it was never on the player's map."""
+    theater = _theater(
+        [
+            _cp(
+                Player.RED,
+                [
+                    _tgo("commandcenter", True),
+                    _tgo("commandcenter", False),
+                    _tgo("commandcenter", True, hidden=True),
+                    _tgo("commandcenter", False, hidden=True),
+                ],
+            )
+        ]
+    )
+    assert c2_health(cast(Any, RED), cast(Any, theater)) == 2 / 4
+    line = c2_status_line(cast(Any, _game(theater)), Player.RED)
+    assert line == "1/2 known command posts operational"
+
+    # Only the hidden post is dead: the player has nothing to see.
+    only_hidden_dead = _theater(
+        [
+            _cp(
+                Player.RED,
+                [
+                    _tgo("commandcenter", True),
+                    _tgo("commandcenter", False, hidden=True),
+                ],
+            )
+        ]
+    )
+    assert c2_health(cast(Any, RED), cast(Any, only_hidden_dead)) == 1 / 2
+    assert c2_status_line(cast(Any, _game(only_hidden_dead)), Player.RED) is None
+
+
+def test_the_player_facing_count_ignores_the_reveal_overview() -> None:
+    """`hidden_from` forces the real fog, so the overview toggle cannot change
+    what the chip and SITREP report."""
+    from game.theater import fogofwar
+
+    seen: list[bool] = []
+
+    def hidden(viewer: Any) -> bool:
+        seen.append(fogofwar.fog_revealed())
+        return True
+
+    post = _tgo("commandcenter", False)
+    post.hidden_on_player_map = hidden
+    theater = _theater([_cp(Player.RED, [_tgo("commandcenter", True), post])])
+    fogofwar.set_fog_revealed(True)
+    try:
+        assert c2_status_line(cast(Any, _game(theater)), Player.RED) is None
+    finally:
+        fogofwar.set_fog_revealed(False)
+    assert seen == [False]
 
 
 def test_status_line_is_none_when_intact_off_or_c2_less() -> None:

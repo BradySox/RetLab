@@ -128,7 +128,6 @@ Found and verified, not changed here: each is behavior rather than wording, or a
 
 | Where | Defect |
 |---|---|
-| `game/retlab/c2_decapitation.py:58-80` | The C2 chip and SITREP line count every enemy command post, hidden ones included, so "1/3 operational" leaks how many exist |
 | Plugin pages | Not reached by the settings search or "Only changed"; no campaign badge; unticking a plugin does not gray its options |
 | `qt_ui/windows/sp/QSpPilotModeDialog.py:179,220` | Offers "join a package" sorties, then says joining "is not wired up yet" |
 | COIN HVT and IED | Since the will economy went, a kill or a detonation is an announcement only; the features have no consequence |

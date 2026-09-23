@@ -130,8 +130,7 @@ def test_c2_status_renders_but_rides_along_with_real_news() -> None:
         red_c2_status="1/3 command posts operational",
     )
     assert (
-        "Enemy C2 degraded (claimed): 1/3 command posts operational"
-        in sitrep.kneeboard_lines()
+        "Enemy C2 degraded: 1/3 command posts operational" in sitrep.kneeboard_lines()
     )
     # ...but like the will band, it never forces a SITREP on an otherwise-quiet turn.
     quiet = Sitrep(

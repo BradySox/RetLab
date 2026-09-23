@@ -170,7 +170,7 @@ class Sitrep:
         # §52: enemy command-network status when degraded (getattr for old saves).
         red_c2 = getattr(self, "red_c2_status", None)
         if red_c2:
-            lines.append(f"Enemy C2 degraded (claimed): {red_c2}")
+            lines.append(f"Enemy C2 degraded: {red_c2}")
         # §75: the alternate-ending progress digest (getattr for pre-feature
         # pickled sitreps). Already prefixed ("Victory: …" / "Defeat if: …") and
         # capped by the recorder; rides along with real news.
