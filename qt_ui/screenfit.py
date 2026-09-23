@@ -128,8 +128,14 @@ def fit_to_available_screen(
 class ScreenFitFilter(QObject):
     """Application event filter that fits every dialog to its screen on show."""
 
-    def eventFilter(self, watched: object, event: QEvent) -> bool:
-        if isinstance(watched, QDialog) and event.type() == QEvent.Type.Show:
+    def eventFilter(self, watched: object, event: object) -> bool:
+        # PySide6 can hand back a stale wrapper for either argument (a QWidgetItem
+        # has arrived as `event` mid-mission), so type-check both before use.
+        if (
+            isinstance(watched, QDialog)
+            and isinstance(event, QEvent)
+            and event.type() == QEvent.Type.Show
+        ):
             # Fit after Qt has applied the dialog's own sizing, but before it is
             # painted, so there is no visible resize.
             fit_to_available_screen(watched)
