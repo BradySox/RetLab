@@ -348,6 +348,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "ownfor_planner_unpredictability",
                     "opfor_planner_unpredictability",
                     "region_priorities",
+                    "hq_priority_targets",
                     "c2_decapitation_effects",
                     "weather_aware_planning",
                     "sead_strike_coordination",
@@ -747,6 +748,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "Auto-planner behavior": [
         "region_priorities",  # §93
+        "hq_priority_targets",  # §103
         "weather_aware_planning",  # §67
         "sead_strike_coordination",  # §69
         "single_sead_escort_flavour",  # §77
@@ -1285,6 +1287,24 @@ class Settings:
             "A weight on your own planning, never a fence -- manual packages, "
             "ROE and rescue tasking are unaffected, and the enemy planner never "
             "reads it."
+        ),
+    )
+    hq_priority_targets: bool = boolean_option(
+        "HQ priority targets (weight by what a loss costs the enemy)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=False,
+        detail=(
+            "Weight the BLUE auto-planner's offensive target selection by what "
+            "losing each target costs the enemy, measured against others of its "
+            "kind: enemy income for a factory, front-line vehicles for an ammo "
+            "depot, the offensive package ceiling for a command post, and the "
+            "equipment's price for everything else. The top third of each kind "
+            "ranks as if at three quarters of its distance and the bottom third "
+            "at one and a quarter, gentler than Region priorities so your own "
+            "emphasis still outranks it. Sites hidden on your map are left "
+            "alone, and the enemy planner never reads it. The target panel's "
+            "Why it matters line shows the measure either way."
         ),
     )
     c2_decapitation_effects: bool = boolean_option(

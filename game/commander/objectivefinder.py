@@ -20,6 +20,7 @@ from game.theater import (
     NavalControlPoint,
     Player,
 )
+from game.retlab.hq_priorities import HqStandings, planning_enabled
 from game.retlab.region_priorities import planning_factor
 from game.ground_forces.ai_ground_planner import reserve_armor_for
 from game.squadrons.downedpilot import DownedPilot
@@ -50,6 +51,15 @@ class ObjectiveFinder:
     def __init__(self, game: Game, is_player: Player) -> None:
         self.game = game
         self.is_player = is_player
+        self._hq_standings: HqStandings | None = None
+
+    def _hq_factor(self, target: MissionTarget) -> float:
+        """§103: blue-only, off by default; 1.0 for anything HQ does not rank."""
+        if not planning_enabled(self.game, self.is_player.is_blue):
+            return 1.0
+        if self._hq_standings is None:
+            self._hq_standings = HqStandings(self.game)
+        return self._hq_standings.factor(target)
 
     def enemy_air_defenses(self) -> Iterator[IadsGroundObject]:
         """Iterates over all enemy SAM sites."""
@@ -95,7 +105,7 @@ class ObjectiveFinder:
                 )
                 if maybe_factor is None:
                     continue
-                factor = maybe_factor
+                factor = maybe_factor * self._hq_factor(target)
             ranges: list[float] = []
             for cp in self.friendly_control_points():
                 ranges.append(target.distance_to(cp))
@@ -155,6 +165,7 @@ class ObjectiveFinder:
                 )
                 if factor is None:
                     continue
+                factor *= self._hq_factor(ground_object)
                 ranges: list[float] = []
                 for friendly_cp in self.friendly_control_points():
                     ranges.append(ground_object.distance_to(friendly_cp))

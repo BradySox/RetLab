@@ -19,6 +19,7 @@ from dcs import Point
 from game.config import REWARDS
 from game.data.building_data import FORTIFICATION_BUILDINGS
 from game.retlab.cruise_raids import tgo_magazines
+from game.retlab.hq_priorities import why_it_matters
 from game.retlab.region_priorities import RegionPriority, family_of
 from game.server import EventStream
 from game.sim.gameupdateevents import GameUpdateEvents
@@ -437,6 +438,10 @@ class QGroundObjectMenu(QDialog):
             ("Capturable", "Yes" if self.ground_object.capturable else "No"),
             ("Purchasable", "Yes" if self.ground_object.purchasable else "No"),
         ]
+        if self.game is not None:
+            why = why_it_matters(self.ground_object, self.game, self.viewer)
+            if why is not None:
+                rows.append(("Why it matters", why))
         return rows
 
     def update_total_value(self):

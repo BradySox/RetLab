@@ -267,6 +267,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   infrastructure, armor, naval and so on — in the Target Priorities window. A weight, not a
   fence: your own packages and rescue flights are never affected, and a target inside an
   ignored base can still be marked back on. Off by default.
+- **HQ priority targets.** An enemy target's panel says why it matters: the income it earns
+  the enemy, the front-line vehicles an ammo depot keeps fielded, how far a command post's
+  loss cuts the enemy's offensive packages, or the price of the equipment on it, and where it
+  ranks among others of its kind. With **HQ priority targets** on, the auto-planner leans
+  toward the top third of each kind, more gently than Target priorities. Off by default.
 - **Smart threat reaction.** One SAM launch no longer sends every jet in the area defensive.
   AI aircraft fly their route and use chaff and flares; only the flight the missile is
   actually guiding on breaks, and only until that missile is gone. The trade is that a flight

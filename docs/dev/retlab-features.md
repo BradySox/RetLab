@@ -10875,3 +10875,54 @@ orbits and drawings on each jet's page.
 
 - A Tomcat generation run; times on/off; a coordinate-format
   setting; zoom on Show on map.
+
+---
+
+## §103 — HQ priority targets
+
+What losing each enemy target costs the enemy, shown on the target panel and optionally used
+to weight blue's auto-planner. The objective half of juanjux's High Command (his
+`game/highcommand/`, #421–#429), rebuilt from our numbers; no prize, no ticket. Design note:
+`docs/dev/design/retlab-hq-priority-targets-notes.md`. Built 2026-09-23, not flown.
+
+### The measure
+
+Each target is measured in its own kind's unit, from numbers the game already keeps. There is
+no exchange rate between kinds — rule 4, no invented costs.
+
+| Target | Measure | Source |
+|---|---|---|
+| Income building (`REWARDS` categories) | enemy income a turn | `REWARDS` × live buildings × `enemy_income_multiplier` |
+| Ammo depot | front-line vehicles the enemy could no longer field | `deployable_front_line_units_with` with and without it |
+| Motorpool | reserve vehicles | `reserve_armor_for` |
+| Command post | offensive package ceiling before and after | §52's ceiling; unmeasured while §52 is off |
+| Power, comms, bunkers | none | neutral |
+| Everything else | equipment price | `TheaterGroundObject.value` |
+
+### Ranking and the weight
+
+- Ranked within its §93 family only (`family_of`). Unmeasured targets are neutral and not counted.
+- A family with fewer than 3 measured targets, or all equal, is not ranked.
+- Top third: sort key × 0.75. Bottom third: × 1.25. Ties share a tier. §93 uses 0.5 / 2.0, so the
+  player's own emphasis outranks HQ's.
+- Applied beside §93 in `ObjectiveFinder._targets_by_range(weighted=True)` and `strike_targets`:
+  strike targets, threatening ships, motorpools. DEAD and BAI ordering is untouched.
+- Blue only, `hq_priority_targets` on (default off). Red's planner never reads it.
+- Only red targets **not** hidden on blue's map (`fogofwar.hidden_from`) are ranked; a hidden site
+  is neither ranked nor weighted.
+
+### The panel line
+
+`QGroundObjectMenu.target_intel_rows()` adds **Why it matters** for blue looking at a red target,
+whatever the setting: the measure, and `#N of M <family> targets` when ranked. An unengaged site
+reads "Unknown (not engaged)" — its price would give away its composition (§3).
+
+### Tests
+
+`tests/retlab/test_hq_priorities.py` (16).
+
+### Deferred
+
+- Difficulty (route cost through threat rings, fighters, size) — the note's step 3.
+- A top-few "HQ priorities" list.
+- Measures for power, comms and bunkers (what an IADS node's loss switches off).

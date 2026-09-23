@@ -1,6 +1,8 @@
-# HQ priority targets — scoping note (2026-09-23)
+# HQ priority targets — design note (2026-09-23)
 
-Status: **scoping only, nothing built.** The objective half of juanjux's High Command
+Status: **§103, BUILT 2026-09-23, not flown** (checklist B140). Built: §7 steps 1–2, with the
+measure below replacing a single cross-kind score (§8). Not built: difficulty, the top-few list.
+The objective half of juanjux's High Command
 (`juanjux/dcs-escalation` `game/highcommand/`, his #421–#429), without the prizes. Read
 alongside the High Command entry in
 [retlab-juanjux-fork-watch-notes.md](retlab-juanjux-fork-watch-notes.md), which records the
@@ -101,3 +103,17 @@ Reporting: an achieved priority is a SITREP line (`game/sitrep.py`, pattern:
 2. The blue-only planner factor behind a setting, default off; a checklist row that reads
    the ATO before and after.
 3. Difficulty and the top-few list, if 1–2 are kept.
+
+## 8. As built (2026-09-23)
+
+- **No cross-kind score.** Each target is measured in its own kind's unit (enemy income a turn,
+  front-line vehicles, offensive packages, equipment price) and ranked only within its §93 family.
+  Mixing kinds needs an exchange rate — his 4-turn income horizon is one — and rule 4 forbids
+  inventing it. Within a strike list, a top factory and a top command post both rank closer.
+- **Unmeasured is neutral.** Power, comms and bunkers have no measure yet; they are not ranked
+  and not weighted, so a power plant is never pushed down for lacking a price.
+- **Factors 0.75 / 1.25** for the top and bottom third, gentler than §93's 0.5 / 2.0.
+- **Open question 1 answered by construction:** hidden sites are neither ranked nor weighted, so
+  the weight never names one; the auto-planner's existing behaviour toward them is unchanged.
+- The panel line shows whatever the setting, so the measure has a reader even with the planner
+  weight off.
