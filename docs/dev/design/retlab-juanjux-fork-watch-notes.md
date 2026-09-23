@@ -609,6 +609,24 @@ Drift-watch: his capacity numbers and CDU format are measured on his install. If
 changes either, re-read before re-syncing. See
 [retlab-my-aircraft-notes.md](retlab-my-aircraft-notes.md).
 
+### Watching, not decided — the High Command (2026-09-23, DM call)
+
+His `game/highcommand/`: three orders a turn against rated enemy objectives, 2–5 turns
+each, paid on achievement in cash, morale, a free SAM site, a runway repair, a pilot heal
+or a loaned AWACS/tanker/combat squadron. None of it exists here.
+
+| His PRs | What | State on 2026-09-23 |
+|---|---|---|
+| #421–#427, #429 | the engine, prizes, tickets, settings (~8k lines) | merged in his fork the same day |
+| #432–#434, #436, #437 | the window, tickets, loans, base-menu link, history | open, stacked |
+| #435 | map rings (client + server models; touches our §19 `MapLayersControl`) | open |
+
+The UI PRs cannot be taken without the engine. Against it: a reward loop, where §96 is a
+record never a reward, awards went 2026-09-22 and §53 went for the same reason; the free
+SAM and loaned squadrons bypass §68 procurement. Re-assess once his stack has merged
+and he has flown it. The objective half alone (rated targets, no prizes) sits nearer
+§93 region priorities, if it is ever scoped.
+
 ## Running the watch
 
 Cheap pass, a few minutes:
