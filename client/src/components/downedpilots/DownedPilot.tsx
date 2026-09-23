@@ -48,22 +48,36 @@ export default function DownedPilot(props: DownedPilotProps) {
       icon={iconForDownedPilot(pilot)}
       // Keep downed pilots above other markers; they are time-critical.
       zIndexOffset={2000}
-      eventHandlers={{
-        contextmenu: () => {
-          openNewPackageDialog({ pilotId: pilot.id });
-        },
-      }}
+      // Only the owning side can rescue (DownedPilot.mission_types), so an
+      // enemy pilot's package dialog would open empty.
+      eventHandlers={
+        pilot.blue
+          ? {
+              contextmenu: () => {
+                openNewPackageDialog({ pilotId: pilot.id });
+              },
+            }
+          : {}
+      }
     >
       <Tooltip>
         <b>{`Downed pilot: ${pilot.name}`}</b>
         <br />
         {`${pilot.squadron} (${pilot.aircraft})`}
         <br />
-        {turns === 1
-          ? "Last turn to rescue!"
-          : `${turns} turns remaining to rescue`}
-        <br />
-        <i>Right click to plan a CSAR mission</i>
+        {pilot.blue
+          ? turns === 1
+            ? "Last turn to rescue!"
+            : `${turns} turns remaining to rescue`
+          : turns === 1
+          ? "Last turn of the enemy's rescue window"
+          : `Enemy rescue window: ${turns} turns`}
+        {pilot.blue && (
+          <>
+            <br />
+            <i>Right click to plan a CSAR mission</i>
+          </>
+        )}
       </Tooltip>
     </Marker>
   );

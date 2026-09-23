@@ -188,9 +188,27 @@ def _declared_dependencies() -> list[tuple[str, str, Any]]:
 
 def test_the_tree_actually_declares_dependencies() -> None:
     """Guards against the feature being wired up but never used."""
-    # 8 since 2026-09-12: the MANTIS bridge's five went with it (Skynet's own
-    # options declare none).
-    assert len(_declared_dependencies()) >= 8
+    # 20 since 2026-09-22, when Skynet's twelve dependants were declared.
+    assert len(_declared_dependencies()) >= 20
+
+
+def test_skynet_dependants_follow_the_lua_gates() -> None:
+    """skynetiads-config.lua reads each group only inside its master's `if`."""
+    path = next(p for p in PLUGIN_JSONS if p.parent.name == "skynetiads")
+    definition = LuaPluginDefinition.from_json("skynetiads", path)
+    masters = {
+        o.identifier.split(".", 1)[1]: o.enabled_when[0].split(".", 1)[1]
+        for o in definition.options
+        if o.enabled_when is not None
+    }
+    shorad = ["actMobileMaxEmissionTime", "actMobileMinimumScootDistance"]
+    shorad += ["actMobileMaximumScootDistance", "actMobile_exclude_SA15"]
+    expected = {m: "actMobile" for m in shorad}
+    expected |= {f"{m}_merad": "actMobile_merad" for m in shorad[:3]}
+    expected |= {
+        f"adjustGoLiveRange_SA{n}": "adjustGoLiveRange" for n in (5, 10, 17, 20, 23)
+    }
+    assert masters == expected
 
 
 def test_a_master_is_never_itself_a_dependant() -> None:

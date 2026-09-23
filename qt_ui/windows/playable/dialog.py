@@ -1,7 +1,7 @@
 """My aircraft (§102): what the player is flying this turn, and everything set up
-for that seat -- the saved points, the loadout and the §74 data cartridge.
+for that seat -- the saved points, the payload and the §74 data cartridge.
 
-Ported from juanjux/dcs-escalation #360-#363 (LGPL-3.0); the Loadout and DTC tabs are
+Ported from juanjux/dcs-escalation #360-#363 (LGPL-3.0); the Payload and DTC tabs are
 the fork's own Edit Flight tabs, hosted here. See
 docs/dev/design/retlab-my-aircraft-notes.md.
 """
@@ -62,9 +62,10 @@ from qt_ui.windows.playable.rows import (
 )
 
 
-def _label(text: str, css: str) -> QLabel:
+def _label(text: str, css: str, wrap: bool = False) -> QLabel:
     widget = QLabel(text)
     widget.setStyleSheet(f"{css} background: transparent; border: none;")
+    widget.setWordWrap(wrap)
     return widget
 
 
@@ -74,7 +75,7 @@ def _captioned(
     """A caption over a card, with an optional note on the right of the caption.
 
     ``cards.carded`` is the shared version and does not take the right-hand note,
-    which here carries how many slots the aircraft has left.
+    which here carries how much room the aircraft has left.
     """
     label = _label(
         name.upper(),
@@ -141,8 +142,8 @@ class Headline(QWidget):
                 aircraft,
                 "aircraft this turn" if aircraft else "No player seat this turn",
             ),
-            (packages, "packages"),
-            (points, "saved points"),
+            (packages, "package" if packages == 1 else "packages"),
+            (points, "saved point" if points == 1 else "saved points"),
         )
         for number, caption in pairs if aircraft else pairs[:1]:
             value = QLabel(str(number))
@@ -153,10 +154,16 @@ class Headline(QWidget):
                 f"color: {TITLE_INK}; background: transparent; border: none;"
             )
             self.figures.addWidget(value)
+            self.figures.addSpacing(8)
             self.figures.addWidget(
-                _label(f"  {caption}", f"font-size: 12px; color: {QUIET_INK};")
+                _label(caption, f"font-size: 12px; color: {QUIET_INK};")
             )
             self.figures.addSpacing(28)
+
+
+#: The Add a point units choice, as the rest of the window writes them.
+FEET = "ft"
+METERS = "m"
 
 
 class NewPoint(QDialog):
@@ -187,8 +194,8 @@ class NewPoint(QDialog):
         self.altitude = styled_input(QLineEdit(), width=110)
         self.altitude.setPlaceholderText("0")
         self.units = QComboBox()
-        self.units.addItems(["feet", "meters"])
-        styled_input(self.units, width=100)
+        self.units.addItems([FEET, METERS])
+        styled_input(self.units, width=70)
         self.read = _label("", f"font-size: 11px; color: {QUIET_INK};")
         from game.ato.savedpoints import kinds_for
 
@@ -226,11 +233,11 @@ class NewPoint(QDialog):
         self.orbit_row = QWidget()
         orbit = QHBoxLayout()
         orbit.setContentsMargins(0, 0, 0, 0)
-        orbit.addWidget(_label("heading", f"font-size: 11px; color: {QUIET_INK};"))
+        orbit.addWidget(_label("Heading", f"font-size: 11px; color: {QUIET_INK};"))
         orbit.addWidget(self.heading)
-        orbit.addWidget(_label("deg for", f"font-size: 11px; color: {QUIET_INK};"))
+        orbit.addWidget(_label("° for", f"font-size: 11px; color: {QUIET_INK};"))
         orbit.addWidget(self.length)
-        orbit.addWidget(_label("nm", f"font-size: 11px; color: {QUIET_INK};"))
+        orbit.addWidget(_label("NM", f"font-size: 11px; color: {QUIET_INK};"))
         self.orbit_row.setLayout(orbit)
         kind_row.addWidget(self.orbit_row)
         kind_row.addStretch()
@@ -248,14 +255,17 @@ class NewPoint(QDialog):
         height.setSpacing(8)
         height.addWidget(self.altitude)
         height.addWidget(self.units)
-        height.addWidget(
-            _label(
-                "Above sea level. Left empty it is written down as 0.",
-                f"font-size: 11px; color: {QUIET_INK};",
-            )
-        )
         height.addStretch()
         form.addLayout(height)
+        form.addWidget(
+            _label(
+                "Above sea level. The ground height is filled in when the position"
+                " reads, if the elevation lookup answers. Left empty it is written"
+                " down as 0.",
+                f"font-size: 11px; color: {QUIET_INK};",
+                wrap=True,
+            )
+        )
         form.addSpacing(10)
         buttons = QHBoxLayout()
         buttons.addStretch()
@@ -313,7 +323,7 @@ class NewPoint(QDialog):
         feet = elevation_ft(self.latlng.lat, self.latlng.lng)
         if feet is None:
             return
-        self.units.setCurrentText("feet")
+        self.units.setCurrentText(FEET)
         self.altitude.setText(str(feet))
 
     @property
@@ -324,7 +334,7 @@ class NewPoint(QDialog):
             value = float(text) if text else 0.0
         except ValueError:
             return 0
-        if self.units.currentText() == "meters":
+        if self.units.currentText() == METERS:
             value /= 0.3048
         return max(0, round(value))
 
@@ -344,7 +354,7 @@ class NewPoint(QDialog):
             self.read.setText(
                 "Read as "
                 + format_latlng(self.latlng, CoordinateFormat.DD)
-                + "  ·  "
+                + " · "
                 + format_latlng(self.latlng, CoordinateFormat.MGRS)
             )
             colour = QUIET_INK
@@ -384,6 +394,7 @@ class PlayableAircraftDialog(QDialog):
             "Pick a squadron in the Air Wing and convert a pilot to player, or set"
             " client slots on a flight in the ATO.",
             f"font-size: 12px; color: {QUIET_INK};",
+            wrap=True,
         )
 
         self._build()
@@ -468,7 +479,7 @@ class PlayableAircraftDialog(QDialog):
         ):
             bar.addWidget(
                 _label(
-                    f"●  {legend_kind.label.lower()}",
+                    f"● {rows.kind_word(legend_kind)}",
                     f"font-size: 11px; color: {rows.kind_colour(legend_kind)};",
                 )
             )
@@ -505,7 +516,7 @@ class PlayableAircraftDialog(QDialog):
         )
         self.tabs = QTabWidget()
         self.tabs.addTab(self.points_caption, "Saved points")
-        self.loadout_index = self.tabs.addTab(QWidget(), "Loadout")
+        self.payload_index = self.tabs.addTab(QWidget(), "Payload")
         self.dtc_index = self.tabs.addTab(QWidget(), "DTC")
         splitter = QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(left)
@@ -529,10 +540,12 @@ class PlayableAircraftDialog(QDialog):
         layout.addWidget(body, 1)
         layout.addWidget(
             _label(
-                "GPS Points can also be added from the map by clicking on any unit"
-                " or empty spot. They belong to the squadron, so cancelling a"
-                " flight and planning another does not lose them.",
+                "Saved points can also be added from the map: switch on the"
+                " crosshair button at top left, then click any empty spot. They"
+                " belong to the squadron, so canceling a flight and planning another"
+                " does not lose them.",
                 f"font-size: 11px; color: {FAINT_INK}; padding: 6px 12px 10px;",
+                wrap=True,
             )
         )
         self.setLayout(layout)
@@ -578,7 +591,7 @@ class PlayableAircraftDialog(QDialog):
         game = self.game
         if game is not None:
             self.headline.turn.setText(
-                f"Turn {game.turn} · {game.conditions.start_time:%H:%M}Z"
+                f"Turn {game.turn} · {game.conditions.start_time:%H:%M} local"
             )
         flying = bool(aircraft)
         self.splitter.setVisible(flying)
@@ -592,7 +605,7 @@ class PlayableAircraftDialog(QDialog):
         return self.aircraft_model.at(self.aircraft_view.currentIndex())
 
     def show_selected(self) -> None:
-        """The saved points, and the Loadout and DTC tabs for the selected seat."""
+        """The saved points, and the Payload and DTC tabs for the selected seat."""
         self.show_points()
         one = self.selected
         flight = None if one is None else one.flight
@@ -600,7 +613,7 @@ class PlayableAircraftDialog(QDialog):
             return
         self._publish(self.editing)
         self.editing = flight
-        self._replace_tab(self.loadout_index, "Loadout", self._loadout_tab(flight))
+        self._replace_tab(self.payload_index, "Payload", self._payload_tab(flight))
         self._replace_tab(self.dtc_index, "DTC", self._dtc_tab(flight))
 
     def _replace_tab(self, index: int, title: str, widget: QWidget) -> None:
@@ -612,7 +625,7 @@ class PlayableAircraftDialog(QDialog):
         if old is not None:
             old.deleteLater()
 
-    def _loadout_tab(self, flight: Any) -> QWidget:
+    def _payload_tab(self, flight: Any) -> QWidget:
         game = self.game
         if flight is None or game is None:
             return QWidget()
@@ -628,21 +641,33 @@ class PlayableAircraftDialog(QDialog):
             return QWidget()
         from game.missiongenerator.dtc import CARTRIDGE_BUILDERS
 
-        if flight.unit_type.dcs_unit_type.id not in CARTRIDGE_BUILDERS:
+        dcs_id = flight.unit_type.dcs_unit_type.id
+        if dcs_id not in CARTRIDGE_BUILDERS:
+            from game.missiongenerator.a10cdu import AIRCRAFT as A10
+
+            where = (
+                "into the navigation computer and on the kneeboard"
+                if dcs_id in A10
+                else "on the kneeboard"
+            )
             note = _label(
-                "This airframe has no DCS data cartridge. Its saved points go on"
-                " the kneeboard.",
+                f"No data cartridge is built for this airframe. Its saved points go"
+                f" {where}.",
                 f"font-size: 12px; color: {QUIET_INK}; padding: 12px;",
+                wrap=True,
             )
             note.setAlignment(Qt.AlignmentFlag.AlignTop)
             return note
         from qt_ui.windows.mission.flight.QFlightDtcTab import QFlightDtcTab
 
         tab = QFlightDtcTab(flight, game)
-        # The DTC mode and the Route section decide whether points reach the jet.
+        # The DTC mode, the Route section and the waypoints left out decide whether
+        # points reach the jet and what they are numbered.
         tab.mode_selector.currentIndexChanged.connect(lambda _i: self.show_points())
         for box, _attr in tab.section_boxes:
             box.toggled.connect(lambda _on: self.show_points())
+        if tab.waypoint_list is not None:
+            tab.waypoint_list.itemChanged.connect(lambda _item: self.show_points())
         return tab
 
     def _publish(self, flight: Any) -> None:
@@ -666,6 +691,8 @@ class PlayableAircraftDialog(QDialog):
         self._show_drawings(one)
         self._retitle()
         self._restate()
+        # The aircraft row's count follows the same room.
+        self.aircraft_view.viewport().update()
 
     def _show_drawings(self, one: Optional[data.Aircraft]) -> None:
         self.drawings_view.clear()
@@ -677,13 +704,12 @@ class PlayableAircraftDialog(QDialog):
             room = drawing_capacity_for(one.dcs_id)[0]
         where = f"the cockpit takes {room}" if room else "map and kneeboard only"
         self.drawings_caption.setText(
-            f"DRAWINGS  ·  {len(drawings)}  ·  {where}" "  ·  draw them from the map"
+            f"DRAWINGS · {len(drawings)} · {where} · draw them from the map"
         )
         for drawing in drawings:
             shape = "Area" if drawing.closed else "Line"
-            self.drawings_view.addItem(
-                f"{shape}  ·  {drawing.name}  ·  {len(drawing.points)} corners"
-            )
+            corners = data.counted(len(drawing.points), "corner")
+            self.drawings_view.addItem(f"{shape} · {drawing.name} · {corners}")
 
     def show_drawing_on_map(self) -> None:
         one = self.selected
@@ -732,7 +758,6 @@ class PlayableAircraftDialog(QDialog):
         """What this airframe does with the points, said where they are edited."""
         if one is None:
             return ""
-        from game.missiongenerator.a10cdu import AIRCRAFT as A10
         from game.missiongenerator.dtc.apache import APACHE_UNIT_TYPE
         from game.missiongenerator.dtc.hornet import HORNET_UNIT_TYPE
         from game.missiongenerator.dtc.tomcat import TOMCAT_UNIT_TYPE
@@ -749,19 +774,20 @@ class PlayableAircraftDialog(QDialog):
             " lines",
         }.get(one.dcs_id)
         if where is not None:
-            options = one.flight.dtc_options
-            game = self.game
-            enabled = game is not None and options.resolve_enabled(
-                game.settings.dtc_data_cartridges
-            )
-            needs_route = one.dcs_id != TOMCAT_UNIT_TYPE
-            if enabled and options.saved_points and (options.route or not needs_route):
+            if one.in_cartridge:
                 return f"Loaded from the data cartridge, {where}."
-            return (
-                "Kneeboard only: the data cartridge, its Saved points section or its"
-                " Flight plan section is off for this flight (see the DTC tab)."
+            # The Tomcat's points take a plan of their own, so they do not need
+            # the route in the cartridge.
+            sections = (
+                "its Saved points section"
+                if one.dcs_id == TOMCAT_UNIT_TYPE
+                else "its Saved points section or its Flight plan section"
             )
-        if one.dcs_id in A10:
+            return (
+                f"Kneeboard only: the data cartridge or {sections} is off for this"
+                " flight (see the DTC tab)."
+            )
+        if one.in_cdu:
             return (
                 "In the navigation computer from the start, on flight plan EXTRA so"
                 " the mission route is untouched. The aircraft works out the ground"
@@ -785,7 +811,14 @@ class PlayableAircraftDialog(QDialog):
         if one is not None:
             caption = f"SAVED POINTS · {one.title.upper()}"
         self.points_label.setText(caption)
-        self.slots.setText("" if one is None else f"{one.total_room} slots free")
+        if one is None:
+            self.slots.setText("")
+        elif one.reaches_the_jet:
+            self.slots.setText(f"Room for {one.total_room} more in the jet")
+        else:
+            # Add still takes them: they go on the kneeboard.
+            room = one.room(PointKind.WAYPOINT)
+            self.slots.setText(f"Kneeboard only · room for {room} more")
 
     def _restate(self) -> None:
         one = self.selected
@@ -814,7 +847,8 @@ class PlayableAircraftDialog(QDialog):
                 " background: transparent; border: none;"
             )
         else:
-            self.status.setText(f"{held} points from {self.clipboard.source}")
+            points = data.counted(held, "point")
+            self.status.setText(f"{points} from {self.clipboard.source}")
             self.status.setStyleSheet(
                 f"font-size: 11px; color: {QUIET_INK};"
                 " background: transparent; border: none;"

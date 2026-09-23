@@ -9,6 +9,7 @@
 --  * DeadC2 -- a C2 node the campaign already knows is destroyed is registered as
 --    a dead stand-in, so the SAMs behind it stay degraded on later turns.
 --  * AWACS fold -- a ground-starting AWACS is added once it spawns, not skipped.
+--  * Exclude SA-15 works -- upstream's inner `local sams` shadowed the list.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 -- Skynet-IADS plugin - configuration
@@ -293,7 +294,7 @@ if dcsRetribution and SkynetIADS then
     local function initializeMobileSams_shorad(iads)
         local sams = {"SA-8", "SA-9", "SA-13", "SA-15", "SA-19"}
         if actMobile_exclude_SA15 then
-            local sams = {"SA-8", "SA-9", "SA-13", "SA-19"}
+            sams = {"SA-8", "SA-9", "SA-13", "SA-19"}
         end
         for _, sam in ipairs(sams) do
             iads:getSAMSitesByNatoName(sam):setActMobile(true,actMobileMaxEmissionTime,actMobileMinimumScootDistance,actMobileMaximumScootDistance,nil)    --ActMobile SHORAD

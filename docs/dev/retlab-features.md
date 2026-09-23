@@ -3123,7 +3123,11 @@ dark-themed control: `client/src/components/maplayers/MapLayersControl.tsx` (+ `
   `Game.client_map_layers` (`game/game.py`, `__setstate__` defaults it for old saves) and
   carried by the per-turn autosave, so choices survive turns and reopening the app (QtWebEngine
   drops `localStorage` on reload). Server side: `game/server/game/routes.py` (`MapLayersJs`).
-- **Preset views** — Default / SEAD / Recon / Clean, plus a "Hide all overlays" button.
+- **Preset views** — Default / SEAD / Recon / Clean, plus a "Hide all overlays" button that
+  turns every layer off. A preset sets layers only: it leaves the fog overview and the Display
+  options group alone (`PRESET_EXEMPT`), and every preset keeps Neutral airspace and Downed
+  pilots on (`ALWAYS_ON`). SEAD includes Other ground objects, where the EWRs and C2 nodes
+  its IADS lines end at are drawn.
 - **Air-defense class rows are FILTERS, not layers** (reworked 2026-07-29 off a flown report
   that read as a fog bug — "with reveal fog of war on, SAM sites show nothing at the actual
   location, just a blank circle you can only find by hovering"). The row group was five
@@ -10749,7 +10753,7 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/missiongenerator/a10cdu.py` — the A-10's CDU state.
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
-- `client/src/components/coordinatepicker/` — the GPS picker, Save with kinds, the draw
+- `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
   panel (`DrawPanel.tsx`) and the map layer (`SavedPointsLayer.tsx`).
 
 ### What it does
@@ -10759,7 +10763,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Drawings: lines and areas on each jet's free line slots — the note's §3 table.
 - DTC tab: only the sections the jet carries; load at spawn or by hand; waypoint types to
   leave out; SAM sites only near the route.
-- Kneeboard: an "extra points" page with the cockpit's numbers; the route table prints
+- Window: room counted in the jet, after the planned route; points carry the jet's
+  numbers (`point_numbers`, the same function the kneeboard uses).
+- Kneeboard: a "saved points" page with the cockpit's numbers; the route table prints
   `-` on a skipped row.
 
 ### Constraints — do not undo

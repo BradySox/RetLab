@@ -6,6 +6,7 @@
         {
             "nameInUI": "HVT: seconds between patrol legs (re-rolls a new destination)",
             "mnemonic": "hvtPatrolIntervalS",
+            "minimumValue": 10,
             "defaultValue": 90
         },
         {
@@ -27,6 +28,7 @@
         {
             "nameInUI": "VBIED: seconds between re-issuing the drive order (anti-stall)",
             "mnemonic": "vbiedRepathS",
+            "minimumValue": 10,
             "defaultValue": 120
         },
         {
@@ -42,6 +44,7 @@
         {
             "nameInUI": "Field cell: seconds between patrol legs",
             "mnemonic": "cellPatrolIntervalS",
+            "minimumValue": 10,
             "defaultValue": 150
         },
         {
@@ -63,11 +66,13 @@
         {
             "nameInUI": "Infiltrator: seconds between re-issuing the creep order",
             "mnemonic": "infilRepathS",
+            "minimumValue": 10,
             "defaultValue": 180
         },
         {
             "nameInUI": "Indirect fire: mean seconds between barrages on a base",
             "mnemonic": "harassIntervalS",
+            "minimumValue": 20,
             "defaultValue": 300
         },
         {
