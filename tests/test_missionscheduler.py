@@ -64,17 +64,10 @@ class _FakePackage:
 
 
 class _FakeSettings:
-    def __init__(
-        self,
-        overlap: timedelta,
-        max_carrier_simultaneous_barcaps: int = 2,
-        max_simultaneous_recovery_tankers: int = 2,
-    ) -> None:
+    def __init__(self, overlap: timedelta) -> None:
         self.barcap_overlap_time = overlap
         self.desired_barcap_mission_duration = DURATION
         self.desired_tanker_on_station_time = timedelta(minutes=60)
-        self.max_carrier_simultaneous_barcaps = max_carrier_simultaneous_barcaps
-        self.max_simultaneous_recovery_tankers = max_simultaneous_recovery_tankers
 
 
 class _FakeGame:
@@ -178,7 +171,8 @@ def _schedule_carrier_barcaps(
     monkeypatch.setattr(ms, "NavalControlPoint", _NavalTarget)
     target = _NavalTarget()
     packages = [_FakePackage(target) for _ in range(rounds)]
-    settings = _FakeSettings(OVERLAP, max_carrier_simultaneous_barcaps=max_simultaneous)
+    monkeypatch.setattr(ms, "MAX_CARRIER_SIMULTANEOUS_BARCAPS", max_simultaneous)
+    settings = _FakeSettings(OVERLAP)
     coalition = _FakeCoalition(packages, settings)
     ms.MissionScheduler(coalition, timedelta(minutes=120)).schedule_missions(NOW)  # type: ignore[arg-type]
     tots = [p.time_over_target for p in packages]
@@ -190,7 +184,7 @@ def _schedule_carrier_barcaps(
 def test_carrier_barcaps_stack_up_to_the_configured_limit(
     max_simultaneous: int, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # Carriers stack up to `max_carrier_simultaneous_barcaps` waves on-station at the
+    # Carriers stack up to `MAX_CARRIER_SIMULTANEOUS_BARCAPS` waves on-station at the
     # same TOT, then queue the next batch behind them. The handover is pulled
     # `barcap_overlap_time` earlier, as on land: chaining raw station-departure left
     # a coverage hole between every naval round.

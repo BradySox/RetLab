@@ -33,13 +33,12 @@ is legacy only and should not be extended.
   per-scramble variation would need a dispatcher GCI hook (deferred). Lua falls back to 2
   if an old save omits the field. Tests: `tests/squadrons/test_intercept_reserve.py`.
 - Campaign doctrine: `game/settings/settings.py` exposes
-  `ownfor_default_qra_reserve`, `opfor_default_qra_reserve`,
-  `qra_gci_max_radius_nm`, `qra_engagement_range_nm`, and `qra_comms_enabled`.
-  Defaults are a **base-defense** posture (lowered after playtest feedback that QRA
-  screened forward over the FLOT): `qra_gci_max_radius_nm` 100→**60** (scramble only when
-  a raid closes within 60 NM) and `qra_engagement_range_nm` 60→**38** (interceptors chase
-  less far). The Lua fallbacks in `intercept-config.lua` match. These are live doctrine
-  settings, so existing campaigns can re-tune them on the Campaign Doctrine page.
+  `ownfor_default_qra_reserve`, `opfor_default_qra_reserve` and `qra_comms_enabled`.
+  The radii are constants in `interceptluadata.py`, a **base-defense** posture (lowered
+  after playtest feedback that QRA screened forward over the FLOT):
+  `QRA_GCI_MAX_RADIUS_NM` **60** (was 100) and `QRA_ENGAGEMENT_RANGE_NM` **38** (was 60).
+  The Lua fallbacks in `intercept-config.lua` match. They were settings until 2026-09-23;
+  no campaign preseeded them.
 - Mission generation: `game/missiongenerator/aircraft/aircraftgenerator.py`
   `spawn_intercept_templates()` emits late-activated parked template groups and
   appends `mission_data.intercept_entries`.
@@ -154,7 +153,7 @@ compatibility.
 ### QRA forward defense — rear bases answer raids at the front (2026-07-09)
 
 `qra_forward_defense` (Air Doctrine → Air defense & QRA, **default ON**; the kill switch) +
-`qra_defense_depth_nm` (default 60). Checklist **A5**.
+`QRA_DEFENSE_DEPTH_NM` (60, `interceptluadata.py`; a setting until 2026-09-23). Checklist **A5**.
 
 The problem: `SetGciRadius` is **one radius per coalition, measured from every base**
 (`AirbaseDistance <= self.GciRadius`, Moose's GCI loop). At the stock 60 NM a rear field never
@@ -186,7 +185,7 @@ always defended however far back the anchor sits. That margin is the *only* plac
 crosses the line. Emitted per coalition under `dcsRetribution.Intercept.ZONES`; an empty bucket ⇒ the
 Lua skips `SetBorderZone` ⇒ pre-feature behaviour.
 
-Non-regressive by construction: with `depth == qra_gci_max_radius_nm` (both default 60), the set of
+Non-regressive by construction: with `depth == QRA_GCI_MAX_RADIUS_NM` (both 60), the set of
 raids that used to trigger a GCI (within that radius of *some* base) is exactly the union of the
 circles.
 
@@ -3847,7 +3846,7 @@ a declutter pass:
   — which greys a child's **control + label** whenever `settings.<master> != enabled_value`. All ~21
   wired pairs are same-section, so greying is live; the initial pass sets state on open, and
   `update_from_settings` re-applies it after a difficulty preset. Wired: the four `red_intent_*` ←
-  `red_intent`, the `coin_*` family ← `coin_insurgency`, `qra_defense_depth_nm` ← `qra_forward_defense`,
+  `red_intent`, the `coin_*` family ← `coin_insurgency`,
   `motorpool_spawn_cap` ← `motorpool_enabled`, `comms_jam_requires_capture` ← `enemy_comms_jamming`,
   `perf_culling_distance` ← `perf_culling`,
   `perf_smoke_spacing` ← `perf_smoke_gen`, `dynamic_slots_hot` ← `dynamic_slots`,
@@ -9044,8 +9043,9 @@ installations you attack separately. Red Tide is deliberately not a candidate �
 GPS-guided weapons postdate it entirely.
 
 **Settings.** `gps_jamming` (RetLab Features → Electronic & command warfare, default **OFF**,
-preseeded nowhere) + `gps_jamming_default_reach_nm` (15) / `gps_jamming_miss_radius_m` (200)
-(Mission Generation → GPS jamming, `enabled_when=gps_jamming`). Plugin options cover the degrade
+preseeded nowhere). A unit with no reach or miss of its own uses `DEFAULT_REACH` (15 NM) and
+`DEFAULT_MISS_RADIUS` (200 m) in `game/retlab/gps_jamming.py`; both were settings until
+2026-09-23. Plugin options cover the degrade
 chance (85 %), terminal altitude (100 ft AGL), the shooter cue, grace, and the track step. **The
 miss detonates with the store's own warhead** (`desc.warhead.explosiveMass`, scaled by
 `missPowerScalePct`, default 100 %), so a 2000 lb JDAM craters like one and a 500 lb JDAM does

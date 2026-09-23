@@ -353,7 +353,6 @@ def test_dispatcher_skips_recon_for_cap(
         flight=stub_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     # CAP gets no recon pages even if start_type is COLD; departure page is
     # still emitted.
@@ -374,7 +373,6 @@ def test_dispatcher_emits_departure_for_runway_start(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "AirfieldDeparturePage" in classes
@@ -397,7 +395,6 @@ def test_dispatcher_emits_departure_for_all_ground_starts(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "AirfieldDeparturePage" in classes
@@ -414,7 +411,6 @@ def test_dispatcher_skips_departure_for_in_flight_spawn(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "AirfieldDeparturePage" not in classes
@@ -433,7 +429,6 @@ def test_dispatcher_emits_only_departure_when_target_is_none(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert classes == ["AirfieldDeparturePage"]
@@ -448,7 +443,6 @@ def test_dispatcher_returns_airbase_variant_for_controlpoint_target(
         flight=stub_oca_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "AirbaseReconPage" in classes
@@ -470,7 +464,6 @@ def test_dispatcher_skips_airbase_variant_when_cp_has_no_dcs_airport(
         flight=stub_oca_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "AirbaseReconPage" not in classes
@@ -485,7 +478,6 @@ def test_dispatcher_includes_armed_recon(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "OverviewReconPage" in classes
@@ -863,7 +855,6 @@ def test_dispatcher_antiship_emits_detail_page_for_naval_target(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "OverviewReconPage" in classes
@@ -905,7 +896,6 @@ def test_dispatcher_emits_frontline_detail_for_cas_frontline_target(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "OverviewReconPage" in classes
@@ -1092,7 +1082,6 @@ def test_overview_threats_filtered_to_corridor(
     page = OverviewReconPage(
         flight=stub_strike_flight,
         game=stub_game,
-        extra_threat_search_m=0.0,
     )
     page.write(tmp_path / "overview_filter.png")
     # The "FAR" threat label must not appear (filtered out).
@@ -1117,7 +1106,6 @@ def test_dispatcher_emits_recon_for_tarps(
         flight=stub_strike_flight,
         game=stub_game,
         weather=stub_weather,
-        extra_threat_search_m=0.0,
     )
     classes = [p.__class__.__name__ for p in pages]
     assert "OverviewReconPage" in classes
@@ -1168,7 +1156,6 @@ def test_overview_drops_threat_rings_for_unengaged_sites(
     page = OverviewReconPage(
         flight=stub_strike_flight,
         game=stub_game,
-        extra_threat_search_m=0.0,
     )
     target = stub_strike_flight.package.target
 
@@ -1184,11 +1171,11 @@ def test_overview_drops_threat_rings_for_unengaged_sites(
     stub_game.theater.controlpoints = [cp]
 
     threat.known_for = lambda viewer: True
-    known = page._nearby_threats(target, [target.position], 0.0)
+    known = page._nearby_threats(target, [target.position])
     assert [t[3] for t in known] == ["SA-2 Site"]
 
     threat.known_for = lambda viewer: False
-    fogged = page._nearby_threats(target, [target.position], 0.0)
+    fogged = page._nearby_threats(target, [target.position])
     assert fogged == []
 
 

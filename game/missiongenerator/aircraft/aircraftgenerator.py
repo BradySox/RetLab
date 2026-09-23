@@ -27,6 +27,8 @@ from game.ato.package import Package
 from game.ato.starttype import StartType
 from game.missiongenerator.countryassigner import CountryAssigner
 from game.missiongenerator.interceptluadata import (
+    QRA_ENGAGEMENT_RANGE_NM,
+    QRA_GCI_MAX_RADIUS_NM,
     InterceptEntry,
     PlayerAlertEntry,
     dispatcher_tuning,
@@ -248,8 +250,8 @@ class AircraftGenerator:
                     break
 
     def spawn_intercept_templates(self) -> None:
-        setting_engagement_nm = self.game.settings.qra_engagement_range_nm
-        setting_gci_nm = self.game.settings.qra_gci_max_radius_nm
+        setting_engagement_nm = QRA_ENGAGEMENT_RANGE_NM
+        setting_gci_nm = QRA_GCI_MAX_RADIUS_NM
         comms_enabled = self.game.settings.qra_comms_enabled
         forward_defense = self.game.settings.qra_forward_defense
 

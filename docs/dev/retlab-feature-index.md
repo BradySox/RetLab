@@ -97,7 +97,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §83 | SP Pilot Mode | — | `sp_pilot_mode` |
 | §84 | Old-stock loadout attrition _(retired)_ | — | — |
 | §85 | SAM battery support section (refuellers + power) | — | — |
-| §86 | GPS jamming (satellite-guided weapons go long) | `gpsjamming` | `gps_jamming`, `gps_jamming_default_reach_nm`, `gps_jamming_miss_radius_m` |
+| §86 | GPS jamming (satellite-guided weapons go long) | `gpsjamming` | `gps_jamming` |
 | §87 | Naval station-keeping racetracks | — | — |
 | §88 | Angled-deck carrier recovery heading | — | — |
 | §89 | Living battlespace pre-roll _(retired)_ | — | — |

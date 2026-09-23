@@ -15,6 +15,12 @@ if TYPE_CHECKING:
     from game.ato import Package
     from game.theater import ControlPoint
 
+#: Carrier BARCAP waves stacked on station at once; later waves queue behind them.
+MAX_CARRIER_SIMULTANEOUS_BARCAPS = 2
+
+#: Recovery tankers on station over one carrier at once; extras queue.
+MAX_SIMULTANEOUS_RECOVERY_TANKERS = 2
+
 
 def coordinated_strike_tot(
     strike_tot: datetime,
@@ -159,10 +165,7 @@ class MissionScheduler:
 
         previous_aewc_end_time: dict[MissionTarget, datetime] = defaultdict(now.replace)
 
-        settings = self.coalition.game.settings
-        max_simultaneous_recovery_tankers = settings.max_simultaneous_recovery_tankers
         carrier_etas: dict[MissionTarget, list[datetime]] = defaultdict(list)
-        max_carrier_simultaneous_barcaps = settings.max_carrier_simultaneous_barcaps
         carrier_barcaps: dict[MissionTarget, int] = defaultdict(int)
 
         latest_s = int(self.desired_mission_length.total_seconds())
@@ -191,7 +194,7 @@ class MissionScheduler:
                     if departure_time is None:
                         continue
                     count = carrier_barcaps[package.target]
-                    if count >= max_carrier_simultaneous_barcaps - 1:
+                    if count >= MAX_CARRIER_SIMULTANEOUS_BARCAPS - 1:
                         # Hand the next wave over `barcap_overlap` early, as the
                         # land branch below does. Chaining raw station-departure
                         # left a hole between every naval round (measured: carrier
@@ -279,7 +282,7 @@ class MissionScheduler:
             filtered: list[datetime] = []
             for eta in sorted(carrier_etas[cp]):
                 count = len([t for t in filtered if eta < t + duration])
-                if count < max_simultaneous_recovery_tankers:
+                if count < MAX_SIMULTANEOUS_RECOVERY_TANKERS:
                     filtered.append(eta)
             carrier_etas[cp] = filtered
         for package in [

@@ -33,8 +33,8 @@ runtime base defence, instead of having every airframe fragged into the ATO.
   formation.
 - Defaults are a **base-defence posture**: QRA scrambles only when a raid closes within a set
   radius and interceptors chase a limited distance, so QRA does not screen forward over the
-  FLOT. Both are live Campaign Doctrine settings (`qra_gci_max_radius_nm`,
-  `qra_engagement_range_nm`), so you can re-tune them per campaign.
+  FLOT. The radii are fixed: a base scrambles for raids within 60 NM, and interceptors chase
+  38 NM.
 
 The reserve is edited in the air-wing / squadron dialogs; see
 [Squadrons-and-Pilots](Squadrons-and-Pilots). The old ramp-scramble system is retired — QRA

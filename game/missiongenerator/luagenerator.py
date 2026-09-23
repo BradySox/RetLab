@@ -31,6 +31,7 @@ from .aisleepluadata import populate_ai_sleep_lua
 from .briefingluadata import populate_briefing_lua
 from .coinluadata import populate_coin_lua
 from .interceptluadata import (
+    QRA_DEFENSE_DEPTH_NM,
     DefensePolygonEntry,
     DefenseZoneEntry,
     aligned_defense_polygons,
@@ -335,7 +336,7 @@ class LuaGenerator:
         ):
             defense_zones = defense_zone_entries(
                 self.game.theater,
-                nautical_miles(self.game.settings.qra_defense_depth_nm),
+                nautical_miles(QRA_DEFENSE_DEPTH_NM),
             )
 
         # §98: a country hosting a side's airfields is that side's territory, so

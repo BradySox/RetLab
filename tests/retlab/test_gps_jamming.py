@@ -104,8 +104,6 @@ class FakeTheater:
 class FakeSettings:
     def __init__(self, **kwargs: Any) -> None:
         self.gps_jamming = True
-        self.gps_jamming_default_reach_nm = 30.0
-        self.gps_jamming_miss_radius_m = 200.0
         self.__dict__.update(kwargs)
 
 
@@ -148,8 +146,8 @@ def test_a_unit_with_the_yaml_block_is_a_jammer_on_the_campaign_defaults() -> No
     assert len(sites) == 1
     site = sites[0]
     assert site.coalition == "red"
-    assert site.reach == nautical_miles(30)
-    assert site.miss_radius == meters(200)
+    assert site.reach == DEFAULT_REACH
+    assert site.miss_radius == DEFAULT_MISS_RADIUS
     assert len(site.unit_names) == 1 and " | GPS jammer" in site.unit_names[0]
 
 
@@ -192,16 +190,6 @@ def test_a_blue_owned_jammer_is_emitted_as_blue() -> None:
 def test_the_feature_off_emits_nothing() -> None:
     game = _game([_jammer_tgo()], gps_jamming=False)
     assert gps_jammer_sites(game) == []  # type: ignore[arg-type]
-
-
-def test_defaults_apply_when_the_settings_are_absent_entirely() -> None:
-    """An old save predating the knobs must still produce a usable site."""
-    game = _game([_jammer_tgo()])
-    del game.settings.gps_jamming_default_reach_nm
-    del game.settings.gps_jamming_miss_radius_m
-    site = gps_jammer_sites(game)[0]  # type: ignore[arg-type]
-    assert site.reach == DEFAULT_REACH
-    assert site.miss_radius == DEFAULT_MISS_RADIUS
 
 
 # -- the briefing is recon-fogged ---------------------------------------------

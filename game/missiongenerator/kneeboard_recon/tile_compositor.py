@@ -90,8 +90,7 @@ ATTRIBUTION_TEXT = (
     "Imagery © Esri, Maxar, Earthstar Geographics, " "and the GIS User Community"
 )
 
-# Pathological extents (e.g. an overview corridor plus a wide
-# `target_recon_extra_threat_search_nmi`) can balloon the tile range. A
+# Pathological extents (e.g. a very long overview corridor) can balloon the tile range. A
 # canvas of ~16-megapixel tiles is roughly the headroom Pillow handles
 # comfortably; beyond that we'd rather degrade to the legacy basemap than
 # allocate gigabytes for a single page.

@@ -803,22 +803,14 @@ def _footer_panel(
 class OverviewReconPage(_RecordingPage):
     """Overview page: package corridor + target + nearby threats.
 
-    The user's ``extra_threat_search_m`` slider drives ONE knob:
-    ``_nearby_threats`` filters TGOs by
-    ``corridor.expand(extra_threat_search_m + DEFAULT_THREAT_MARGIN_M)``
-    — picking WHICH threats appear on the page. The 20 km default keeps
-    relevant threats visible even when the slider is at 0.
-
-    The rendered bbox (``corridor_extent``) is built from waypoints +
-    already-filtered threats with only a 10 % cosmetic margin; the slider
-    is intentionally NOT plumbed through a second time. Threats forced
-    into the bbox via the ``threats=`` arg keep them visible without
-    extra whitespace padding.
+    ``_nearby_threats`` picks the threats on the page: TGOs inside the
+    corridor grown by ``DEFAULT_THREAT_MARGIN_M``. The rendered bbox
+    (``corridor_extent``) is built from waypoints + those threats with only
+    a 10 % cosmetic margin.
     """
 
     FOOTER_H = 72
-    # Always include threats within this margin of the corridor bbox even when
-    # the user-tunable extra search radius is 0.
+    # Threats within this margin of the corridor bbox appear on the page.
     DEFAULT_THREAT_MARGIN_M = 20_000.0  # ~11 nm
 
     def __init__(
@@ -826,13 +818,11 @@ class OverviewReconPage(_RecordingPage):
         *,
         flight: "FlightData",
         game: "Game",
-        extra_threat_search_m: float = 0.0,
         dark: bool = False,
     ) -> None:
         super().__init__()
         self.flight = flight
         self.game = game
-        self.extra_threat_search_m = extra_threat_search_m
         self.dark = dark
         self._p = _palette(dark)
 
@@ -860,13 +850,10 @@ class OverviewReconPage(_RecordingPage):
             waypoints = [target.position]
 
         # Gather nearby threats as (position, max_range_m, det_range_m, label)
-        threats = self._nearby_threats(target, waypoints, self.extra_threat_search_m)
+        threats = self._nearby_threats(target, waypoints)
 
-        # Compute map extent from corridor + threat positions. Threats are
-        # already passed in via ``threats=`` (which forces the bbox to
-        # include their positions), so ``extra_radius_m=0`` here — the
-        # slider's effect on bbox size is already baked into which threats
-        # show up.
+        # Compute map extent from corridor + threat positions; ``threats=``
+        # forces the bbox to include them, so no extra radius is needed.
         extent = corridor_extent(
             waypoints=waypoints,
             threats=[t[0] for t in threats],
@@ -1001,9 +988,8 @@ class OverviewReconPage(_RecordingPage):
         self,
         target: Any,
         waypoints: List[Any],
-        search_radius_m: float,
     ) -> List[Tuple[Any, ...]]:
-        """Return enemy threats inside the corridor bbox grown by ``search_radius_m``.
+        """Return enemy threats inside the corridor bbox grown by the default margin.
 
         Without this filter, a theater-wide enemy IADS would balloon the
         overview extent to span the entire map.
@@ -1014,7 +1000,7 @@ class OverviewReconPage(_RecordingPage):
             min_y=min(p.y for p in waypoints),
             max_y=max(p.y for p in waypoints),
             terrain=self.game.theater.terrain,
-        ).expand(search_radius_m + self.DEFAULT_THREAT_MARGIN_M)
+        ).expand(self.DEFAULT_THREAT_MARGIN_M)
         threats: List[Tuple[Any, ...]] = []
         for cp in self.game.theater.controlpoints:
             for tgo in cp.ground_objects:
@@ -2006,7 +1992,6 @@ def generate_recon_pages(
     flight: "FlightData",
     game: "Game",
     weather: "Weather",
-    extra_threat_search_m: float,
     dark: bool = False,
 ) -> List[KneeboardPage]:
     # Re-arm the once-per-pass WARNING log for tile-fetch failures so a new
@@ -2036,7 +2021,6 @@ def generate_recon_pages(
         OverviewReconPage(
             flight=flight,
             game=game,
-            extra_threat_search_m=extra_threat_search_m,
             dark=dark,
         )
     )

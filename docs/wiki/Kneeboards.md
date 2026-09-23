@@ -133,7 +133,6 @@ All five live on the **Kneeboards** settings page.
 | `generate_target_recon_kneeboard` | OFF | Recon overview / detail / airfield-departure pages |
 | `generate_all_packages_kneeboard` | OFF | Friendly-packages list + targets map |
 | `generate_dark_kneeboard` | OFF | Dark theme, for night flying |
-| `target_recon_extra_threat_search_nmi` | 0 | Widen the recon page's threat search beyond the target area |
 | Custom kneeboards | — | *Kneeboards* toolbar action — per-campaign images injected into client flights |
 
 ---

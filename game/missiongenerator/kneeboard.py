@@ -3374,15 +3374,11 @@ class KneeboardGenerator(MissionInfoGenerator):
 
         # Recon overview + detail + airfield-departure pages (gated by settings).
         if self.game.settings.generate_target_recon_kneeboard:
-            extra_radius_m = (
-                self.game.settings.target_recon_extra_threat_search_nmi * 1852.0
-            )
             pages.extend(
                 generate_recon_pages(
                     flight=flight,
                     game=self.game,
                     weather=self.game.conditions.weather,
-                    extra_threat_search_m=extra_radius_m,
                     dark=self.dark_kneeboard,
                 )
             )

@@ -85,7 +85,7 @@ GPS_GUIDED_WEAPON_PATTERNS: tuple[str, ...] = (
 DEFAULT_REACH = nautical_miles(15)
 
 #: How far off the aimpoint a fully-jammed weapon lands when the unit definition
-#: and the campaign setting both stay quiet. Far enough to be a clean miss, close
+#: names none. Far enough to be a clean miss, close
 #: enough to read as "the bomb went long", not "the bomb vanished".
 DEFAULT_MISS_RADIUS = meters(200)
 
@@ -131,8 +131,8 @@ def gps_jammer_sites(game: "Game") -> list[GpsJammerSite]:
     """
     if not gps_jamming_enabled(game):
         return []
-    default_reach = _campaign_default_reach(game)
-    default_miss = _campaign_default_miss(game)
+    default_reach = DEFAULT_REACH
+    default_miss = DEFAULT_MISS_RADIUS
     sites: list[GpsJammerSite] = []
     for cp in game.theater.controlpoints:
         for tgo in cp.ground_objects:
@@ -152,8 +152,8 @@ def briefed_jammer_areas(game: "Game", viewer: Any) -> list[GpsJammerSite]:
     """
     briefed: list[GpsJammerSite] = []
     wanted = "blue" if not _is_blue(viewer) else "red"
-    default_reach = _campaign_default_reach(game)
-    default_miss = _campaign_default_miss(game)
+    default_reach = DEFAULT_REACH
+    default_miss = DEFAULT_MISS_RADIUS
     for cp in game.theater.controlpoints:
         for tgo in cp.ground_objects:
             site = _site_for_tgo(tgo, cp, default_reach, default_miss)
@@ -221,20 +221,6 @@ def _live_jammers(group: Any) -> Iterator[tuple[Any, Any]]:
         props = getattr(unit_type, "gps_jamming", None)
         if props is not None:
             yield unit, props
-
-
-def _campaign_default_reach(game: "Game") -> Distance:
-    value = getattr(game.settings, "gps_jamming_default_reach_nm", None)
-    if not value:
-        return DEFAULT_REACH
-    return nautical_miles(float(value))
-
-
-def _campaign_default_miss(game: "Game") -> Distance:
-    value = getattr(game.settings, "gps_jamming_miss_radius_m", None)
-    if not value:
-        return DEFAULT_MISS_RADIUS
-    return meters(float(value))
 
 
 def _is_blue(player: Any) -> bool:

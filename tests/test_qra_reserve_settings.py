@@ -9,16 +9,6 @@ def test_opfor_default_qra_reserve_defaults_to_zero() -> None:
     assert Settings().opfor_default_qra_reserve == 0
 
 
-def test_qra_gci_max_radius_default() -> None:
-    # Base-defense posture: scramble only when a raid closes within 60 NM rather
-    # than screening forward over the front line (playtest feedback).
-    assert Settings().qra_gci_max_radius_nm == 60
-
-
-def test_qra_engagement_range_default() -> None:
-    assert Settings().qra_engagement_range_nm == 38
-
-
 def test_qra_comms_enabled_defaults_to_true() -> None:
     assert Settings().qra_comms_enabled is True
 
@@ -35,6 +25,4 @@ def test_qra_settings_are_user_visible() -> None:
     }
     assert "ownfor_default_qra_reserve" in names
     assert "opfor_default_qra_reserve" in names
-    assert "qra_gci_max_radius_nm" in names
-    assert "qra_engagement_range_nm" in names
     assert "qra_comms_enabled" in names

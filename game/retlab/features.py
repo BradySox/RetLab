@@ -719,11 +719,7 @@ FEATURES: tuple[Feature, ...] = (
         "GPS jamming (satellite-guided weapons go long)",
         86,
         plugin_id="gpsjamming",
-        settings_fields=(
-            "gps_jamming",
-            "gps_jamming_default_reach_nm",
-            "gps_jamming_miss_radius_m",
-        ),
+        settings_fields=("gps_jamming",),
     ),
     Feature(
         # §87 naval station-keeping: a ship TGO with no campaign destination
