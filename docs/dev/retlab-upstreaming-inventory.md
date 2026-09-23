@@ -376,7 +376,8 @@ etribution-pr`. **Still gated on pydcs [#39](https://github.com/dcs-retribution/
   livery-set preset per squadron (upstream's task lists kept, the fork's `TARPS` not carried),
   and F-14B VF-32 reordered. The fork's QRA and §61 modex hooks are fork-only and stay here.
   pytest 508 passed, Black and mypy clean. A third commit (`0e1ccf92`) carries the pinned
-  board number and the X00-only CAG livery rule; head `8b81b516`, pytest 524. Title/body refresh:
+  board number and the X00-only CAG livery rule, scoped Navy-only by `c8804d0d`; head
+  `c8804d0d`, pytest 526. Title/body refresh:
   [retlab-pr874-body-refresh.md](retlab-pr874-body-refresh.md).
 
 ---
