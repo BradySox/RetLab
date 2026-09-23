@@ -8314,5 +8314,8 @@ numbers in every squadron sequence and re-rolls a random pydcs number that lands
   CAG / hi-vis livery is the X00 jet's alone. Frag a VF-143 F-14B(U) four-ship on automatic:
   jet 100 wears AG100, the other three AG106. Pin 103 on a VF-103 B(U) two-ship: jet 103
   wears AA103.
+- **Livery names checked against the install 2026-09-23:** all 17 `livery_set` entries in
+  the five F-14B(U) presets and F-14B VF-32 match a `.zip` under `CoreMods\aircraft\F14\Liveries`
+  (`f-14bu`, `f-14b`). A jet in default paint is a picker fault, not a missing livery.
 - **Fail signatures:** the pinned flight on random numbers; a second jet wearing 105-108;
   the tab accepting 106 on the second flight; CAG paint on any jet not numbered X00.

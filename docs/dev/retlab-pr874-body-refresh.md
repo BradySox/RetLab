@@ -100,7 +100,7 @@ Black, `mypy game tests`, pytest (526 passed) on current `dev` (`49e8067f`).
 
 ## Notes for whoever pastes it
 
-- The title and body can only be edited by someone with upstream API access. This session's
-  request for that access was refused, so the text lives here.
+- **Pasted 2026-09-23** from a local session (`gh pr edit 874`). The text below is what #874
+  now shows; the cloud session that wrote it had no upstream API access.
 - `b65729ac` is the carrier-comms commit's short SHA on the PR branch; confirm it with
   `git log --oneline` on the branch if the history was ever rewritten.
