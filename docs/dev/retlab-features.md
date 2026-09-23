@@ -4210,7 +4210,8 @@ mission/game-plan/laser/freq/weather/fields helpers, and `game/data/brevity_refe
 
 The first **Vietnam Ops suite** feature (suite design note
 [`retlab-vietnam-ops-notes.md`](design/retlab-vietnam-ops-notes.md); the suite lives under a "Vietnam Ops"
-settings page, §28). Retribution's modern engine never modelled the Operation Niagara **Arc Light** B-52
+settings page, §28; the `vietnamops` plugin has no checkbox since 2026-09-23, so those settings are the
+only gate). Retribution's modern engine never modelled the Operation Niagara **Arc Light** B-52
 area strikes; this adds them as an **effect of the existing Strike task** — explicitly **not** a new
 `FlightType` (the user's reframe). When a heavy bomber flies a `STRIKE`, the runtime walks a carpet of
 bombs across the target at the run-in instead of dropping a single aimpoint.

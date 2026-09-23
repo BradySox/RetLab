@@ -12,6 +12,7 @@ def _enabled_plugin(cls: type[LuaPlugin], identifier: str, enabled: bool) -> Lua
     """Build a plugin instance without the Settings-loading __init__."""
     plugin = cls.__new__(cls)
     plugin.identifier = identifier
+    plugin.definition = MagicMock(present_in_ui=True)
     plugin.settings = MagicMock()
     plugin.settings.plugin_option.return_value = enabled
     return plugin

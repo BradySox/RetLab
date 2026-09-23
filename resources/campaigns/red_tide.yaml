@@ -231,15 +231,7 @@ settings:
   # host's static "Flash" name tag via the plugin option below. Spawns are
   # free/untracked event content.
   host_red_scramble: true
-  # The artillery harassment above runs inside the vietnamops PLUGIN's runtime (the
-  # shared standoff-barrage loop). Preseed the plugin ON so a player whose saved
-  # defaults disabled "Vietnam Ops (period mechanics)" -- reasonable on a
-  # conventional-campaign squadron -- doesn't silently lose the feature. Layered
-  # over their defaults like every other recommended setting; still uncheckable
-  # (§50's ambush spring needs no plugin -- it is authored as native DCS
-  # trigger rules at generation.)
   plugins:
-    vietnamops: true
     # advanced_iads (line 33) is this laydown's centerpiece, and skynetiads owns its entire
     # runtime: the plugin is the only consumer of the emitted IADS table. Off, the IADS
     # command unit is skipped at generation AND the auto-planner drops IADS buildings as
