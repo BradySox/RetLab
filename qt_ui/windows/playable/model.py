@@ -26,6 +26,9 @@ class Aircraft:
     """One aircraft with somebody in it, as the list shows it."""
 
     flight: Any
+    #: The campaign's Pre-load DTC data cartridges setting, which the flight's own
+    #: DTC choice can override.
+    dtc_setting: bool = True
 
     @property
     def pilot_name(self) -> str:
@@ -144,6 +147,7 @@ class Aircraft:
         return capacity_for(self.dcs_id).of(kind)
 
     def room(self, kind: PointKind) -> int:
+        """How many more of this kind Add takes, kneeboard-only ones included."""
         return room_for(self.flight, kind)
 
     @property
@@ -151,15 +155,93 @@ class Aircraft:
         return len(self.points)
 
     @property
+    def _dtc_options(self) -> Any:
+        from game.ato.dtcoptions import DtcOptions
+
+        return getattr(self.flight, "dtc_options", None) or DtcOptions()
+
+    @property
+    def _waypoints(self) -> list[Any]:
+        plan = getattr(self.flight, "flight_plan", None)
+        return list(getattr(plan, "waypoints", None) or [])
+
+    @property
+    def in_cartridge(self) -> bool:
+        """Whether the data cartridge carries this aircraft's points."""
+        from game.missiongenerator.dtc.savedpoints import cartridge_takes_points
+
+        return cartridge_takes_points(self.dcs_id, self._dtc_options, self.dtc_setting)
+
+    @property
+    def in_cdu(self) -> bool:
+        from game.missiongenerator.a10cdu import AIRCRAFT as A10
+
+        return self.dcs_id in A10
+
+    @property
+    def reaches_the_jet(self) -> bool:
+        return self.in_cartridge or self.in_cdu
+
+    @property
+    def route_slots(self) -> int:
+        """The cockpit numbers the planned route takes ahead of the points.
+
+        From the plan, not the generated mission: generation only ever drops rows,
+        so this never overstates the room."""
+        from game.missiongenerator.dtc.savedpoints import route_slots
+
+        waypoints = self._waypoints
+        if self.in_cdu:
+            return len(waypoints)
+        options = self._dtc_options
+        skipped = options.skipped_waypoints
+        flown = [w for w in waypoints[1:] if w.waypoint_type.name not in skipped]
+        return route_slots(self.dcs_id, len(flown), options.route)
+
+    @property
+    def numbers(self) -> list[Optional[int]]:
+        """The number the jet and the kneeboard give each point; None for an orbit,
+        a markpoint, or a point past the last cockpit number."""
+        from game.missiongenerator.dtc.savedpoints import point_numbers
+
+        return point_numbers(
+            self.dcs_id,
+            self._waypoints,
+            self._dtc_options,
+            self.points,
+            self.in_cartridge,
+            self.in_cdu,
+        )
+
+    def cockpit_room(self, kind: PointKind) -> int:
+        """How many more of this kind reach the jet itself."""
+        if not self.reaches_the_jet:
+            return 0
+        top = self.maximum(kind)
+        if kind.is_navigation:
+            top = max(top - self.route_slots, 0)
+            held = sum(1 for point in self.points if point.kind.is_navigation)
+        else:
+            held = self.used(kind)
+        return max(top - held, 0)
+
+    @property
     def ceiling(self) -> int:
-        """How many points this aircraft can actually be given: the navigation
-        kinds share one pool, orbits and markpoints have their own."""
+        """How many points reach the jet: the navigation numbers the route leaves,
+        plus the orbit slots. Zero where they only go on the kneeboard."""
+        if not self.reaches_the_jet:
+            return 0
         capacity = capacity_for(self.dcs_id)
-        return capacity.waypoints + capacity.markpoints + capacity.orbits
+        navigation = max(capacity.waypoints - self.route_slots, 0)
+        return navigation + capacity.markpoints + capacity.orbits
 
     @property
     def total_room(self) -> int:
-        return max(self.ceiling - self.total_used, 0)
+        """How many more reach the jet, across the pools."""
+        return sum(
+            self.cockpit_room(kind)
+            for kind in (PointKind.WAYPOINT, PointKind.MARKPOINT, PointKind.ORBIT)
+        )
 
     @property
     def kinds(self) -> list[PointKind]:
@@ -194,6 +276,11 @@ class Aircraft:
 NAME_LENGTH = 24
 
 
+def counted(number: int, one: str, many: Optional[str] = None) -> str:
+    """ "1 package", "2 packages"."""
+    return f"{number} {one if number == 1 else (many or one + 's')}"
+
+
 def aircraft_of(game: Any) -> list[Aircraft]:
     """Every aircraft the player is flying this turn.
 
@@ -202,7 +289,9 @@ def aircraft_of(game: Any) -> list[Aircraft]:
     """
     if game is None:
         return []
-    return [Aircraft(flight) for flight in receivers(game.blue)]
+    settings = getattr(game, "settings", None)
+    setting = bool(getattr(settings, "dtc_data_cartridges", True))
+    return [Aircraft(flight, setting) for flight in receivers(game.blue)]
 
 
 def figures(aircraft: Sequence[Aircraft]) -> tuple[int, int, int]:

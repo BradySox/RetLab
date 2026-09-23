@@ -340,8 +340,8 @@ class AircraftDelegate(QStyledItemDelegate):
         used_font = _mono(15, QFont.Weight.DemiBold)
 
         if ceiling == 0:
-            # Nothing loads a point into this airframe, so there is no ceiling to
-            # count against: what it has is what is written on its kneeboard.
+            # No point reaches this cockpit, so there is no ceiling to count
+            # against: what it has is what is written on its kneeboard.
             _draw(
                 painter,
                 right - QFontMetrics(used_font).horizontalAdvance(str(used)),
@@ -425,7 +425,7 @@ class PointRow:
         point: Optional[Any] = None,
         used: int = 0,
         maximum: int = 0,
-        number: int = 0,
+        number: Optional[int] = 0,
         room: int = 0,
     ) -> None:
         self.kind = kind
@@ -434,7 +434,7 @@ class PointRow:
         self.used = used
         self.maximum = maximum
         self.room = room
-        #: Its place among its own kind, which is what the cockpit shows.
+        #: The number the jet and the kneeboard give it; None past the last one.
         self.number = number
 
     @property
@@ -457,31 +457,27 @@ class PointsModel(QAbstractTableModel):
         self._format = coordinates
         self._rows = []
         if aircraft is not None:
-            # Navigation kinds share one numbering, in the order the cockpit gets
-            # them; orbits and markpoints count on their own.
-            places: dict[int, int] = {}
-            place = 0
-            for index, point in enumerate(aircraft.points):
-                if point.kind.is_navigation:
-                    place += 1
-                    places[index] = place
+            # Navigation kinds take the jet's and the kneeboard's numbers; orbits
+            # and markpoints count on their own.
+            numbers = aircraft.numbers
+            reaches = aircraft.reaches_the_jet
             for kind in aircraft.kinds:
                 held = aircraft.of_kind(kind)
                 self._rows.append(
                     PointRow(
                         kind,
                         used=len(held),
-                        maximum=aircraft.maximum(kind),
-                        room=aircraft.room(kind),
+                        maximum=aircraft.maximum(kind) if reaches else 0,
+                        room=aircraft.cockpit_room(kind),
                     )
                 )
-                for number, (index, point) in enumerate(held, start=1):
+                for place, (index, point) in enumerate(held, start=1):
                     self._rows.append(
                         PointRow(
                             kind,
                             index=index,
                             point=point,
-                            number=places.get(index, number),
+                            number=numbers[index] if kind.is_navigation else place,
                         )
                     )
         self.endResetModel()
@@ -523,11 +519,11 @@ class PointsModel(QAbstractTableModel):
     def _header_text(self, row: PointRow) -> str:
         # A kind the aircraft cannot be given says so rather than reading "2 / 0".
         count = (
-            f"{row.used}  ·  room for {row.room} more"
+            f"{row.used} · room for {row.room} more in the jet"
             if row.maximum
             else f"{row.used} · kneeboard only"
         )
-        return f"{row.kind.label.upper()}S     {count}"
+        return f"{kind_heading(row.kind)}   {count}"
 
     def data(self, index: QModelIndex, role: int = Qt.ItemDataRole.DisplayRole) -> Any:
         row = self.at(index)
@@ -553,12 +549,14 @@ class PointsModel(QAbstractTableModel):
             if column == NAME:
                 if role == Qt.ItemDataRole.EditRole:
                     return row.point.name
-                name = row.point.name or "Unnamed — click to name"
+                name = row.point.name or "Unnamed (double-click to name)"
                 if row.kind is PointKind.ORBIT:
                     name += (
-                        f"   {row.point.heading_deg:03d}° {row.point.length_nm:g} nm"
+                        f"   {row.point.heading_deg:03d}° {row.point.length_nm:g} NM"
                     )
-                return f"{letter}{row.number}   {name}"
+                # As the kneeboard prints it: no number past the last one.
+                number = "-" if row.number is None else f"{letter}{row.number}"
+                return f"{number}   {name}"
             if column == POSITION:
                 return self.coordinates_of(row.point)
             if column == ELEVATION:
@@ -580,9 +578,10 @@ class PointsModel(QAbstractTableModel):
             return QColor(QUIET_INK)
         if role == Qt.ItemDataRole.ToolTipRole and column == ELEVATION:
             return (
-                "Above sea level, and typed in: nothing outside a running mission"
-                " tells the application how high the ground is. A weapon aimed at a"
-                " point from the wrong elevation lands short or long."
+                "Above sea level. Add and the map fill in the ground height from a"
+                " public elevation model when it answers; otherwise it is typed in."
+                " A weapon aimed at a point from the wrong elevation lands short or"
+                " long."
             )
         return None
 
@@ -640,6 +639,18 @@ _KIND_COLOURS = {
 
 def kind_colour(kind: PointKind) -> str:
     return _KIND_COLOURS.get(kind, WAYPOINT)
+
+
+def kind_word(kind: PointKind) -> str:
+    """The kind inside a sentence: "waypoint", but "IP"."""
+    label = kind.label
+    return label if label.isupper() else label.lower()
+
+
+def kind_heading(kind: PointKind) -> str:
+    """A group header: "WAYPOINTS", but "IPs"."""
+    label = kind.label
+    return f"{label}s" if label.isupper() else f"{label}S".upper()
 
 
 class PointDelegate(QStyledItemDelegate):

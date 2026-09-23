@@ -215,9 +215,11 @@ def _render(profile: PilotProfile) -> str:
             )
         parts.append("</table>")
         if len(profile.log) > SHOWN_SORTIES:
+            older = len(profile.log) - SHOWN_SORTIES
+            flights = "flight is" if older == 1 else "flights are"
             parts.append(
-                f"<p><i>{len(profile.log) - SHOWN_SORTIES} older flights are in "
-                "the store but not listed here.</i></p>"
+                f"<p><i>{older} older {flights} in the store but not listed "
+                "here.</i></p>"
             )
     else:
         parts.append("<p>None recorded.</p>")

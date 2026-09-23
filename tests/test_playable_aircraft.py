@@ -278,3 +278,67 @@ def test_the_one_copied_point_is_a_copy_too() -> None:
     clipboard.points[0].name = "CHANGED"
 
     assert source.points[0].name == "SMOKE"
+
+
+# ------------------------------------------- the room the route leaves (§102)
+
+
+def _routed(aircraft: str, legs: int, **options: Any) -> Any:
+    """A flight whose plan is the spawn row and ``legs`` more, one of them a JOIN."""
+    from game.ato.dtcoptions import DtcOptions
+    from game.ato.flightwaypointtype import FlightWaypointType
+
+    flight = _flight(aircraft=aircraft, points=[_point(name=f"P{n}") for n in range(3)])
+    kinds = [FlightWaypointType.TAKEOFF, FlightWaypointType.JOIN]
+    kinds += [FlightWaypointType.NAV] * (legs - 1)
+    flight.flight_plan = SimpleNamespace(
+        tot=None, waypoints=[SimpleNamespace(waypoint_type=k) for k in kinds]
+    )
+    flight.dtc_options = DtcOptions(**options)
+    return flight
+
+
+def test_the_route_takes_its_numbers_out_of_the_room() -> None:
+    """The Viper's points follow a ten-steerpoint route: 14 of its 24 are left."""
+    one = data.Aircraft(_routed("F-16C_50", 10))
+
+    assert one.route_slots == 10
+    assert one.ceiling == 14 + 3
+    assert one.cockpit_room(PointKind.WAYPOINT) == 14 - 3
+    assert one.total_room == 11 + 3
+
+
+def test_points_are_numbered_after_the_route_as_the_kneeboard_numbers_them() -> None:
+    one = data.Aircraft(_routed("F-16C_50", 10, skipped_waypoints=["JOIN"]))
+
+    # The JOIN is left out of the cartridge, so the route takes 9.
+    assert one.numbers == [10, 11, 12]
+
+
+def test_the_tomcat_numbers_its_own_plan_from_one() -> None:
+    one = data.Aircraft(_routed("F-14BU", 10))
+
+    assert one.route_slots == 0
+    assert one.numbers == [1, 2, 3]
+
+
+def test_with_the_cartridge_off_the_points_reach_no_cockpit() -> None:
+    one = data.Aircraft(_routed("F-16C_50", 10, enabled=False))
+
+    assert not one.reaches_the_jet
+    assert one.ceiling == 0
+    assert one.total_room == 0
+    # Numbered after the kneeboard's own route rows, which count from 0.
+    assert one.numbers == [11, 12, 13]
+
+
+def test_a_kneeboard_only_airframe_still_takes_points() -> None:
+    one = data.Aircraft(_flight(aircraft="Ka-50_3", points=[_point()]))
+
+    assert one.room(PointKind.WAYPOINT) == 49
+
+
+def test_counts_read_as_english() -> None:
+    assert data.counted(1, "package") == "1 package"
+    assert data.counted(2, "package") == "2 packages"
+    assert data.counted(0, "corner") == "0 corners"

@@ -121,7 +121,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   the briefed divert first and the enemy field they are working over beside it. A
   per-flight DTC tab controls the cartridge or any single section of it.
 - **My aircraft** (top bar) is one window for the seat you are flying: the points and
-  drawings you saved for it, its loadout and its data cartridge.
+  drawings you saved for it, its payload and its data cartridge.
 - Save a point from the map's crosshair button as a waypoint, IP, target, hold or orbit,
   or draw a line or an area. Each jet gets them where its cartridge has a place: Hornets
   and Vipers after the route on sequence 2, the F-14B(U) on flight plan 3, the Apache on
