@@ -401,7 +401,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B121 | Neutral border: AI intruders are never engaged | §98 | ◐ |
 | B122 | A survivor lands where his own chute came down, not where another crew's did | CSAR (#929 adoption) | ◐ |
 | B123 | An Armed Recon flight engages a gun-defended target instead of overflying the search point | §35 | ◐ |
-| B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ⊘ |
+| B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ✅ |
 | B125 | A dynamic-slot jet spawns with the template's route, radios and loadout | §101 | ☐ |
 | B128 | An escort comes home when its primary never flies | §8 | ◐ |
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
@@ -7166,7 +7166,7 @@ exceeds the doctrine range, so the target always sits inside (`armedrecon.py`,
      wide enough to draw the AI in. Compare losses against the pre-fix 0-shot outcome before
      calling that worse.
 
-### B124 — A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit · New Flight dialog · ⊘ CLOSED (2026-09-23, DM: an era issue; was ✗ REGRESSED)
+### B124 — A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit · New Flight dialog · ✅ CLOSED (2026-09-23, DM: an era issue; was ✗ REGRESSED)
 
 **2026-09-23, DM verdict (session `c2acb521`, reviewing the board after test 39)** — **an era issue, not a dialog bug.** Consistent with the 2026-09-16 audit below: on a 2005 campaign the date gate drops the DEAD preset from the dialog's list, so the combo keeps its first entry. Left open by this close: the same audit found the planner's `default_for_task_and_aircraft` still resolved `Retribution DEAD` for the AV-8B on that campaign, so the dialog and the planner disagree about what the era allows. Reopen as its own row if that matters.
 
