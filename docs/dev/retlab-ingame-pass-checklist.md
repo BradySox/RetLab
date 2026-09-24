@@ -362,7 +362,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+88 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -401,7 +401,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B121 | Neutral border: AI intruders are never engaged | §98 | ◐ |
 | B122 | A survivor lands where his own chute came down, not where another crew's did | CSAR (#929 adoption) | ◐ |
 | B123 | An Armed Recon flight engages a gun-defended target instead of overflying the search point | §35 | ◐ |
-| B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ✗ |
+| B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ⊘ |
 | B125 | A dynamic-slot jet spawns with the template's route, radios and loadout | §101 | ☐ |
 | B128 | An escort comes home when its primary never flies | §8 | ◐ |
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
@@ -421,7 +421,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
-| G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
+| G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ◐ |
 | G42 | Skynet is the engine again: sites dark until cued, HARM defence, no `enableEmission` crash | Skynet return | ◐ |
 | G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ☑ |
 | G33 | Survivor ADF beacon: the pinned 260 kHz drives a real needle | CSAR (upstream #929 + RetLab pin) | ◐ |
@@ -510,7 +510,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B97 | One salvo, and only the targeted flight breaks | §94 | ◐ |
 | B100 | The ramp still holds the squadrons authored against it | DCS 2026-08-26 parking rework | ◐ |
 | B101 | The F-4E's Shrike and gun pod are still on the jet | §71 | ☐ |
-| B102 | A low ingress against an SA-2/SA-3 belt is still flyable | DCS 2026-08-26 SAM guidance | ☐ |
+| B102 | A low ingress against an SA-2/SA-3 belt is still flyable | DCS 2026-08-26 SAM guidance | ☑ |
 | B103 | BMP-3s in a firefight still fire like armour, not infantry | §9 TIC | ☐ |
 | B104 | The Viper's ROE tab declares the campaign's own sides | §74 | ◐ |
 | B105 | The Apache's cartridge loads: route, targets and the front line on the TSD | §74 | ☐ |
@@ -520,7 +520,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B109 | Payload backups leave `UnitPayloads` and the launch error stops | §73 | ☑ |
 | B110 | A SEAD jet's steerpoints are the site's emitters, and the card's STPT numbers match | §5 / §3 | ☐ |
 | B111 | A package's escort holds the striker's pace instead of running ahead | §8 cruise mach | ◐ |
-| B112 | The wind you set is the wind the panel shows, and the box stops at 97 kt | wind override / live weather | ☐ |
+| B112 | The wind you set is the wind the panel shows, and the box stops at 97 kt | wind override / live weather | ☑ |
 | B113 | A pilot's logbook fills in, and the kills are the ones they got | §96 | ◐ |
 | B114 | Your lifetime logbook survives starting a new campaign | §97 | ◐ |
 | B115 | The cockpit front line is one continuous boundary, bowed where the map is bowed | §74 / §90 | ◐ |
@@ -2959,7 +2959,9 @@ EWR covering a site is dead, Skynet runs the site autonomous and live from T0.
 - **Pass:** run 1 — the snatch party spawns and captures despite zero rescue assets (dcs.log shows "capture race only", the MAYDAY reads "no rescue assets available"), the POW + comms jam fire. Run 2 — the debrief spares the pilot (roster shows **MIA**, SITREP shows "MIA: <name> — evading near <CP> (downed this turn)"), the next mission re-spawns the survivor at the same spot with red smoke + the EVADER message, and the on-demand AI rescue (if re-enabled) or a player package can still recover him; a deep evader left alone converts to POW within a turn or two (message "Evader captured"), a near-front one keeps evading.
 - **Fail signature:** dcs.log still shows "no rescue helos/template; skipping" (the old bail; stale plugin) or "dcsRetribution.CombatSAR not present" (the emitter early-return resurfaced); no snatch with force-capture on (G20 regression); the un-rescued pilot dies at debrief with the toggle on (the `_combat_sar_mia_unit_ids` sparing / `combat_sar_survivors` state never written — check state.json); no re-spawn next mission (`persistentSurvivors` missing from the miz's CombatSAR node); the same evader duplicated in the ledger (turn_downed reset); an evader stranded MIA forever after toggling the setting off mid-campaign (the always-resolve contract broke); a capture roll that never fires even 40 NM deep (`resolve_downed_pilots` not hooked in `finish_turn`).
 
-### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ☐ UNTESTED
+### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ◐ PARTIAL (2026-09-23, adjudicated against the tests; was ☐ UNTESTED)
+
+**2026-09-23, adjudicated against the test history (session `c2acb521`, at the DM's request)** — **what the tests settle, and the one link they do not.** Under Skynet a paired PD is also an ordinary network site: it engages aircraft like any other (TURKEY's Tor on test 39), and `pointDefencesGoLive` switches it to its HARM job only when the parent goes dark to evade a HARM (`goDark` with `harmSilenceID` set). A parent that can engage HARMs itself (`shallIgnoreHARMShutdown`) never goes dark, so its PD is never switched. What the evidence covers: only HARM-capable PDs are paired (`test_only_a_harm_capable_point_defence_is_paired`, and test 39's log dropping BLOODHOUND's and TETRA's); a Tor intercepts a HARM under native DCS AI (test 32: five of eight HARMs, terminal 38–95 m); the parent stays live when it can defend itself (test 39, TURKEY's HQ-7B passing 30 m from the HARM). What no test has shown: a paired PD knocking down a HARM aimed at its parent. Test 37's PD could not (guns and IR); test 39's Tor had fired all eight rounds at aircraft first. The pass criterion below is MANTIS-era: under Skynet the PD is not held silent on ingress.
 
 **2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **a HARM at a site whose PD can answer it, and the PD had nothing left.** `FALCON SEAD Escort` fired an AGM-88 at t=2796 that hit an HQ-7 launcher of `0006 | TURKEY (SAM)` at t=2935. Skynet paired `0007 | TURKEY (PD)`: a Tor 9A331 and two Shilkas. The Tor fired all eight of its 9M330s between t=2665 and t=2863, at aircraft (it killed a PORCUPINE DEAD F-16 and a BULLSHARK F-15E); its closest missile passed 11 km from the HARM. The HQ-7 stayed live, as Skynet intends for a site that can engage a HARM itself, and its own HQ-7B passed 30 m from the HARM at t=2909 without killing it. The log also shows the 2026-09-22 guard working: `0080 | BLOODHOUND (PD) cannot engage a HARM; not paired` and the same for `0069 | TETRA (PD)`. Still owed: a HARM at a paired site whose Tor has rounds left.
 
@@ -7144,7 +7146,9 @@ exceeds the doctrine range, so the target always sits inside (`armedrecon.py`,
      wide enough to draw the AI in. Compare losses against the pre-fix 0-shot outcome before
      calling that worse.
 
-### B124 — A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit · New Flight dialog · ✗ REGRESSED (2026-09-16, audit)
+### B124 — A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit · New Flight dialog · ⊘ CLOSED (2026-09-23, DM: an era issue; was ✗ REGRESSED)
+
+**2026-09-23, DM verdict (session `c2acb521`, reviewing the board after test 39)** — **an era issue, not a dialog bug.** Consistent with the 2026-09-16 audit below: on a 2005 campaign the date gate drops the DEAD preset from the dialog's list, so the combo keeps its first entry. Left open by this close: the same audit found the planner's `default_for_task_and_aircraft` still resolved `Retribution DEAD` for the AV-8B on that campaign, so the dialog and the planner disagree about what the era allows. Reopen as its own row if that matters.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **reproduced headless, and the mechanism is wider than the Harrier.** The New Flight dialog was driven offscreen on the DM's Scenic Route save (`CSAR.retribution`, turn 5) against a red SAM site with DEAD pre-selected: the aircraft combo offered the F/A-18C and the loadout combo opened on **`Retribution BARCAP`**. The dialog fills the combo from `Loadout.iter_for_aircraft` and then looks for the task's default names (`Retribution DEAD (XW)`, `Retribution DEAD`, `Liberation DEAD`, `DEAD`, then the BAI and CAS names); on this 2005 campaign none of them is in the Hornet's list (the payload file carries `Retribution DEAD`, so the date gate dropped it), the lookup finds nothing, and the combo stays on its first entry, which `create_flight` writes onto every member. That is the test-30 Harrier shape with a different first entry. The fix is in the dialog: when no default name is listed, fall back to the planner's `default_for_task_and_aircraft` (which resolved `Retribution DEAD` for the AV-8B on the same campaign) instead of index 0. Not built in this audit.
 
@@ -7422,7 +7426,9 @@ files are rebased onto the new stock and re-applied. Fly this row after that reb
 update and is currently unapplied. Re-enabling the July copy reverts ED's AGM-45B and
 SUU-23 work — see the note's §2.4 before turning it back on.
 
-### B102 — A low ingress against an SA-2/SA-3 belt is still flyable · DCS 2026-08-26 SAM guidance · ☐ UNTESTED
+### B102 — A low ingress against an SA-2/SA-3 belt is still flyable · DCS 2026-08-26 SAM guidance · ☑ VERIFIED (2026-09-23, DM; was ☐ UNTESTED)
+
+**2026-09-23, DM verdict (session `c2acb521`, reviewing the board after test 39)** — **good, flown long ago.** The DM's call from earlier flying; no capture is cited.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised;** no capture flew a low ingress against an SA-2/SA-3 belt on the new guidance. Unchanged.
 
@@ -7803,7 +7809,9 @@ commanded ~M0.85.
 
 Design note: [design/retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md).
 
-### B112 — The wind you set is the wind the panel shows, and the box stops at 97 kt · wind override / live weather · ☐ UNTESTED
+### B112 — The wind you set is the wind the panel shows, and the box stops at 97 kt · wind override / live weather · ☑ VERIFIED (2026-09-23, DM; was ☐ UNTESTED)
+
+**2026-09-23, DM verdict (session `c2acb521`, reviewing the board after test 39)** — **good.** The DM's app read; no capture is cited.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **app-side.** Unchanged.
 
@@ -8408,6 +8416,8 @@ numbers in every squadron sequence and re-rolls a random pydcs number that lands
   numbered X00.
 
 ### B139 — The front movement arrow points the way the line moved, and a held front has none · §90 · ☐ UNTESTED
+
+**2026-09-23, test 39 turn 2** (Graveyard of Empires, `asdasd.retribution`, DM screenshots of the app map and the F10 map) — **no arrow, as designed.** The one front (`Camp Bastion/Shindand`) has `settled_progress` 89,864 m and `previous_progress` None: a new game's first settle has nothing to compare, so `movement_since_last_turn` is None and nothing is drawn. The row reads from turn 3.
 
 An arrow at each front shows last turn's movement (2026-09-23). Unit-tested; this row checks
 it against the saves. An app check across turns, not a flight. It is also B66's evidence.
