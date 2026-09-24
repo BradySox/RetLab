@@ -362,7 +362,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-82 rows need a live pass. Full detail is under each `###` heading below —
+83 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -419,6 +419,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ☐ |
 | B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
+| B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ◐ |
@@ -8541,3 +8542,26 @@ Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; 
 - **Apache:** a data-cartridge T-point on a hill-top SAM cues TADS onto the site, not below it.
 - **Fail signatures:** can't transmit on the flight frequency; pod laser 1688; a UHF frequency on
   a Mustang button; no ST/IP; a TADS cue buried in the hillside.
+
+### B145 — A busy field's later departures spawn early enough to make their takeoff · §104 · ☐ UNTESTED
+
+Built 2026-09-23 from test 39: at Kandahar 34 jets spawned inside 10 min and the last got
+off +19 min late; the human waited 12 min for taxi clearance. Always on. Unit-tested;
+checked headless on a turn-2 save.
+
+- **Setup:** a turn with many flights leaving one airfield inside a few minutes (Graveyard of
+  Empires turn 1 at Kandahar, or red airdrome 7 on Syria). Open the flights at that field in
+  the ATO and note their startup times.
+- **Pass (app):** flights later in the departure order start earlier relative to their
+  takeoff than the first one; a flight alone at its field keeps 8 min of ground ops.
+- **Pass (app):** the past-start warning does not fire for a flight that needs to start up to
+  30 min before the turn clock.
+- **Pass (flown):** the mission clock at start is earlier than the turn clock by at most 30
+  min. No group spawns at 0:00:00 unless its planned startup is that time. The lead of each
+  group at the busy field is airborne within about 2 min of its planned takeoff, and
+  packages reach their push points on time.
+- **Fail signatures:** every flight at the busy field still gets 8 min; a group spawning at
+  0:00:00 and flying late while the mission started less than 30 min early; the mission
+  starting more than 30 min early; flights airborne well before their takeoff and holding
+  (45 s per jet is too slow for that field); jets spawned early block the taxiway for flights
+  ahead of them in the queue; next turn's clock or weather jumping by the shift.

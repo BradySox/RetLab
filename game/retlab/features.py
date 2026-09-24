@@ -875,6 +875,14 @@ FEATURES: tuple[Feature, ...] = (
         103,
         settings_fields=("hq_priority_targets",),
     ),
+    Feature(
+        # Always on, no setting (DM call 2026-09-23). FlightPlan.estimate_ground_ops
+        # adds the wait behind earlier departures from the same field
+        # (game/ato/runwayqueue.py); docs/dev/design/retlab-startup-times-notes.md.
+        "runway_queue",
+        "Runway queue at busy fields",
+        104,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

@@ -510,7 +510,7 @@ class AircraftGenerator:
                     and self.game.settings.untasked_opfor_client_slots
                 ):
                     flight.state = WaitingForStart(
-                        flight, self.game.settings, self.game.conditions.start_time
+                        flight, self.game.settings, self.time
                     )
                     group.uncontrolled = False
                     group.units[0].skill = Skill.Client

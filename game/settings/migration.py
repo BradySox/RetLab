@@ -183,6 +183,8 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         # §59 ground AI sleep, REMOVED 2026-09-23 (DM call).
         "perf_ground_ai_sleep",
         "perf_aaa_site_sleep",
+        # §104's gate, on PR #1078 only; the runway queue is always on.
+        "queue_aware_ground_ops",
     ):
         migrated.pop(obsolete_key, None)
 

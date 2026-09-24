@@ -196,6 +196,7 @@ class FlightGroupConfigurator:
             dtc_options=self.flight.dtc_options,
             saved_points=list(self.flight.saved_points),
             saved_drawings=list(self.flight.saved_drawings),
+            mission_start=self.time,
         )
 
         self.register_escort_leash()

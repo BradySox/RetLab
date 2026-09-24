@@ -115,5 +115,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §101 | Dynamic spawn templates | — | `dynamic_slots_templates` |
 | §102 | My aircraft and saved points | — | — |
 | §103 | HQ priority targets | — | `hq_priority_targets` |
+| §104 | Runway queue at busy fields | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

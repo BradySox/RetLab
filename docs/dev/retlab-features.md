@@ -10881,3 +10881,57 @@ reads "Unknown (not engaged)" — its price would give away its composition (§3
 - Difficulty (route cost through threat rings, fighters, size) — the note's step 3.
 - A top-few "HQ priorities" list.
 - Measures for power, comms and bunkers (what an IADS node's loss switches off).
+
+## §104 — Runway queue at busy fields
+
+The ground-ops allowance at an airfield grows with the departures ahead of a flight, so a
+crowded field's later flights spawn early enough to make their takeoff. Design, calibration
+and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue". Built
+2026-09-23, not flown.
+
+**DM call 2026-09-23: always on, long-standing upstream issue at busy fields.** No setting.
+
+- `game/ato/runwayqueue.py`: `runway_queue_wait(flight)` walks the coalition's ATO for
+  parking-start fixed-wing flights leaving the same field, sorted by planned takeoff, each
+  holding the runway `count × 45 s`.
+- `FlightPlan.estimate_ground_ops` = 8 min + the wait. It feeds `startup_time`,
+  `minimum_duration_from_start_to_tot` (TOT estimation) and the sim's `Taxi` state.
+- Not queued: carriers, FOBs, off-map, runway and air starts, helicopters, unscheduled
+  packages (TOT at the `datetime.min` sentinel).
+- Players queue like AI; the wait adds to their startup allowance, never replaces it.
+- 45 s per jet: fitted on 494 flown AI groups; groups more than 2 min late fell from 25 % to
+  10 %.
+- `queue_aware_ground_ops`, the gate on the first draft of PR #1078, is dropped in
+  `migration.py`.
+
+### Early mission start
+
+- `game/sim/missionstart.py`: `mission_start_time(game)` is the turn clock minus the
+  shortfall of the earliest ground-start `startup_time()` in both ATOs, at most
+  `EARLY_START_CAP` (30 min).
+- `MissionSimulation.begin_simulation` starts there; flight states initialise against it, so
+  nobody inside the window is clamped. Past the cap, flights clamp as before.
+- `conditions.start_time`, TOTs and the §47 clock and weather do not move. Only the
+  simulated and generated mission start does.
+- The Take Off past-start warning compares against the earlier start.
+- DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
+- Not §89's pre-roll: nothing is simulated or placed mid-sortie.
+
+### Gotchas
+
+- `takeoff_time` must never read `estimate_ground_ops`; the walk relies on that to avoid
+  recursion.
+- A package with an unscheduled TOT is skipped, not read: its takeoff overflows.
+- `sim.time` before `begin_simulation` is still the turn clock; planning reads it as "now".
+  Only `begin_simulation` moves it.
+
+### Tests
+
+`tests/test_runway_queue.py` (14), `tests/test_early_mission_start.py` (7), and the DTC
+midnight case in `tests/missiongenerator/test_dtc.py`.
+
+### Deferred
+
+- Per-field runway rates; landing traffic.
+
+In-game row **B145**. Upstreaming queue item 42.

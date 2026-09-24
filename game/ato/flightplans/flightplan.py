@@ -18,6 +18,7 @@ from typing import Any, Generic, TYPE_CHECKING, TypeGuard, TypeVar
 from game.typeguard import self_type_guard
 from game.utils import Distance, Speed, meters
 from .planningerror import PlanningError
+from ..runwayqueue import runway_queue_wait
 from ..flightwaypointtype import FlightWaypointType
 from ..starttype import StartType
 from ..traveltime import GroundSpeed
@@ -427,8 +428,7 @@ class FlightPlan(ABC, Generic[LayoutT]):
             return timedelta()
         if self.flight.departure.is_fleet or self.flight.departure.is_fob:
             return timedelta(minutes=2)
-        else:
-            return timedelta(minutes=8)
+        return timedelta(minutes=8) + runway_queue_wait(self.flight)
 
     def estimate_takeoff_time(self) -> timedelta:
         if self.flight.departure.is_offmap:

@@ -195,6 +195,7 @@ def _flight(
         dtc_options=dtc_options if dtc_options is not None else DtcOptions(),
         saved_points=[],
         saved_drawings=[],
+        mission_start=None,
     )
 
 
@@ -325,6 +326,18 @@ def test_eta_keeps_climbing_across_zulu_midnight() -> None:
     assert before == 19 * 3600 + 30 * 60
     assert after == 25 * 3600 + 30 * 60
     assert after > before
+
+
+def test_eta_counts_from_the_mission_day_when_the_start_moves_back_past_midnight() -> (
+    None
+):
+    """§104 can start the mission up to 30 min before the turn clock. A 04:10 local
+    turn (00:10Z) that starts at 03:50 local begins on the previous Zulu day."""
+    game = _game()
+    game.conditions.start_time = datetime(1988, 7, 16, 4, 10)
+    mission_start = datetime(1988, 7, 16, 3, 50)
+    eta = seconds_of_day(game, datetime(1988, 7, 16, 4, 30), mission_start)
+    assert eta == 24 * 3600 + 30 * 60
 
 
 def test_threat_sites_respect_recon_fog() -> None:
