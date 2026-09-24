@@ -8552,8 +8552,14 @@ checked headless on a turn-2 save.
   the ATO and note their startup times.
 - **Pass (app):** flights later in the departure order start earlier relative to their
   takeoff than the first one; a flight alone at its field keeps 8 min of ground ops.
-- **Pass (flown):** the lead of each group at that field is airborne within about 2 min of
-  its planned takeoff, and packages reach their push points on time.
-- **Fail signatures:** every flight at the busy field still gets 8 min; flights airborne well
-  before their takeoff and holding (45 s per jet is too slow for that field); jets spawned
-  early block the taxiway for flights ahead of them in the queue.
+- **Pass (app):** the past-start warning does not fire for a flight that needs to start up to
+  30 min before the turn clock.
+- **Pass (flown):** the mission clock at start is earlier than the turn clock by at most 30
+  min. No group spawns at 0:00:00 unless its planned startup is that time. The lead of each
+  group at the busy field is airborne within about 2 min of its planned takeoff, and
+  packages reach their push points on time.
+- **Fail signatures:** every flight at the busy field still gets 8 min; a group spawning at
+  0:00:00 and flying late while the mission started less than 30 min early; the mission
+  starting more than 30 min early; flights airborne well before their takeoff and holding
+  (45 s per jet is too slow for that field); jets spawned early block the taxiway for flights
+  ahead of them in the queue; next turn's clock or weather jumping by the shift.

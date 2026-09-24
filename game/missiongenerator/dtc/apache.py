@@ -151,7 +151,11 @@ def _build_route(
         speed_kts = leg_speed_kmh(prev_wp, waypoint) / 1.852
         if prev_point is None:
             distance = 0.0
-            eta = float(seconds_of_day(game, waypoint.tot)) if waypoint.tot else 0.0
+            eta = (
+                float(seconds_of_day(game, waypoint.tot, flight.mission_start))
+                if waypoint.tot
+                else 0.0
+            )
         else:
             distance = math.hypot(
                 point["x"] - prev_point["x"], point["y"] - prev_point["y"]

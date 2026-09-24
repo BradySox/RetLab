@@ -13,6 +13,7 @@ from game.settings.settings import FastForwardStopCondition, CombatResolutionMet
 from game.unitmap import UnitMap
 from .aircraftsimulation import AircraftSimulation
 from .missionresultsprocessor import MissionResultsProcessor
+from .missionstart import mission_start_time
 from ..profiling import logged_duration
 
 if TYPE_CHECKING:
@@ -38,8 +39,8 @@ class MissionSimulation:
         self.miz_generated_at: float = 0.0
 
     def begin_simulation(self) -> None:
-        self.time = self.game.conditions.start_time
-        self.aircraft_simulation.begin_simulation()
+        self.time = mission_start_time(self.game)
+        self.aircraft_simulation.begin_simulation(self.time)
 
     def tick(
         self,

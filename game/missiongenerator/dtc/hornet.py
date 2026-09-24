@@ -153,7 +153,7 @@ def _build_wypt(
                 "alt": route_alt_m,
                 "altitudeType": entry["altitudeType"],
                 "speed": leg_speed_kmh(prev_route_wp, waypoint),
-                "ETA": seconds_of_day(game, waypoint.tot),
+                "ETA": seconds_of_day(game, waypoint.tot, flight.mission_start),
                 "FIX_Time": waypoint.tot is not None,
                 # One TGT per sequence (ROUTE_SEQ.lua:1286-1300): the first.
                 "TGT": is_target_waypoint(waypoint) and not target_flagged,

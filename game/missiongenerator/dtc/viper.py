@@ -283,7 +283,7 @@ def _build_nav_pts(
                 altitude_type,
                 on_route,
                 leg_speed_kmh(prev_route_wp if on_route else None, waypoint),
-                seconds_of_day(game, waypoint.tot),
+                seconds_of_day(game, waypoint.tot, flight.mission_start),
                 waypoint.tot is not None,
                 _steerpoint_type(waypoint),
             )

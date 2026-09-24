@@ -73,7 +73,9 @@ def short_callsign(callsign: str) -> str:
     return sanitize_short_name(first)
 
 
-def seconds_of_day(game: Game, when: Optional[datetime]) -> int:
+def seconds_of_day(
+    game: Game, when: Optional[datetime], mission_start: Optional[datetime] = None
+) -> int:
     """Seconds since Zulu midnight of the mission day -- the cartridge's clock.
 
     DCS mission time is theater-local, but cartridge times are Zulu. The ME's
@@ -90,9 +92,9 @@ def seconds_of_day(game: Game, when: Optional[datetime]) -> int:
     """
     if when is None:
         return 0
-    start_zulu = game.conditions.start_time.replace(
-        tzinfo=game.theater.timezone
-    ).astimezone(tz.utc)
+    # The mission can begin before the turn clock (§104), across midnight.
+    start = mission_start or game.conditions.start_time
+    start_zulu = start.replace(tzinfo=game.theater.timezone).astimezone(tz.utc)
     midnight = start_zulu.replace(hour=0, minute=0, second=0, microsecond=0)
     when_zulu = when.replace(tzinfo=game.theater.timezone).astimezone(tz.utc)
     return max(0, int((when_zulu - midnight).total_seconds()))

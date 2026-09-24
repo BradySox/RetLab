@@ -161,6 +161,69 @@ later than the model predicts.
   all 24 flights takes 17 ms. The walk is linear in the ATO, so a full pass is quadratic; at
   test 39's size (~50 blue flights) that is about 0.05 s. Not cached.
 
+### Early mission start
+
+Second DM decision 2026-09-23: start the mission early enough that every flight can make its
+TOT, capped at 30 minutes. Always on, no setting.
+
+**The problem.** A queued flight's startup moves earlier. When it lands before the turn's
+clock it was clamped to mission start and flew late by the difference: test 39's PORCUPINE
+departed at 0:00:00. A hand-set TOT an hour out with an hour's transit makes every flight
+late by its queue wait.
+
+**The rule.**
+- At simulation start, take the earliest `startup_time()` of every ground-start flight (cold,
+  warm or runway) in both coalitions' ATOs. Air starts and unscheduled packages do not count.
+- If it is before `conditions.start_time`, the mission starts that much earlier, at most
+  `EARLY_START_CAP` (30 min).
+- Past the cap nothing changes from before: those flights clamp, and the past-start warning
+  fires for them.
+- Code: `game/sim/missionstart.py`, called from `MissionSimulation.begin_simulation`.
+  Tests: `tests/test_early_mission_start.py`.
+
+**What moves and what does not.**
+- Moves: the simulation's start and the generated mission's `start_time`. Every flight state
+  is initialised against the earlier start, so a flight inside the window is WaitingForStart
+  (or starting on the dot), never pre-activated.
+- Does not move: `conditions.start_time`, TOTs, takeoff times, waypoint and kneeboard times.
+  They are absolute clock times and stay correct.
+- The §47 turn clock and weather keep marching from `conditions.start_time`; the next turn
+  is unaffected. The briefing popup header, the ATIS time and the sun times keep the turn
+  clock.
+- Late activation is unchanged. The delay is startup minus the (earlier) mission start, so
+  a single-player client still materialises at its startup time, and an MP client still
+  spawns at mission start and holds on its startup trigger.
+- The fast-forward (§26) and auto-resolve start ticking from the earlier start. Nothing is
+  airborne in the extra minutes except flights that were already due to start. This is not
+  §89's pre-roll: nothing is simulated or placed mid-sortie.
+- The Take Off past-start check (`QTopPanel.launch_mission`) compares against the earlier
+  start before the sim runs, so only flights past the cap warn.
+- `GameLoop.elapsed_time` reads negative until the turn clock is reached.
+
+**Midnight.** A turn clock in the half hour after Zulu midnight can start the mission on the
+previous day. The DTC ETAs count from the mission day's Zulu midnight, so `seconds_of_day`
+now takes the generated mission's start (`FlightData.mission_start`) instead of the turn
+clock. Tomcat clocks wrap at 24 h and are unaffected.
+
+**Checked.** On `asdasd.retribution` (turn 2, turn clock 00:00:00) the earliest ground start
+is a 4-ship F-15C TARCAP out of Kandahar at -4:43; the mission starts at 23:55:16 the
+previous day. No ground start is clamped.
+
+DM's example, built headless on the same save: 4 F-16 Strike, 4 F/A-18 Strike and 2 F-14
+Escort, cold, all from Camp Bastion (the F-16 squadron moved there for the example). The map's
+longest Bastion strike is ~31 min, so the TOT was set to transit + 1 min, which puts every
+takeoff within 2.5 min of the turn clock — the same geometry as a one-hour TOT with a
+one-hour transit.
+
+| Flight | Takeoff | Needs to spawn: flat 8 / queue | Spawned before | Spawned now |
+|---|---|---|---|---|
+| 4 × F-16 | +2:10 | -8:20 / -11:40 | 0:00, 11:40 late | -11:40, on time |
+| 4 × F/A-18 | +1:00 | -9:30 / -9:30 | 0:00, 9:30 late | -9:30, on time |
+| 2 × F-14 | +1:48 | -8:42 / -10:54 | 0:00, 10:54 late | -10:54, on time |
+
+Mission start 23:48:20, 11:40 before the turn clock. Even the flat 8 minutes made every
+flight 8–10 min late on this geometry; the early start fixes that too.
+
 ### Deferred
 
 - One rate for every field. A per-field rate (runway count, taxi length) needs more data.

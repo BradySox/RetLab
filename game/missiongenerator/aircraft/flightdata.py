@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Optional, TYPE_CHECKING
 
 from dcs.flyingunit import FlyingUnit
@@ -106,6 +106,9 @@ class FlightData:
     #: The player's saved map points; not part of the flight plan.
     saved_points: list[SavedPoint] = field(default_factory=list)
     saved_drawings: list[SavedDrawing] = field(default_factory=list)
+
+    #: The generated mission's start, which can fall before the turn clock (§104).
+    mission_start: Optional[datetime] = None
 
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])

@@ -10983,15 +10983,31 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
 - `queue_aware_ground_ops`, the gate on the first draft of PR #1078, is dropped in
   `migration.py`.
 
+### Early mission start
+
+- `game/sim/missionstart.py`: `mission_start_time(game)` is the turn clock minus the
+  shortfall of the earliest ground-start `startup_time()` in both ATOs, at most
+  `EARLY_START_CAP` (30 min).
+- `MissionSimulation.begin_simulation` starts there; flight states initialise against it, so
+  nobody inside the window is clamped. Past the cap, flights clamp as before.
+- `conditions.start_time`, TOTs and the §47 clock and weather do not move. Only the
+  simulated and generated mission start does.
+- The Take Off past-start warning compares against the earlier start.
+- DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
+- Not §89's pre-roll: nothing is simulated or placed mid-sortie.
+
 ### Gotchas
 
 - `takeoff_time` must never read `estimate_ground_ops`; the walk relies on that to avoid
   recursion.
 - A package with an unscheduled TOT is skipped, not read: its takeoff overflows.
+- `sim.time` before `begin_simulation` is still the turn clock; planning reads it as "now".
+  Only `begin_simulation` moves it.
 
 ### Tests
 
-`tests/test_runway_queue.py` (14).
+`tests/test_runway_queue.py` (14), `tests/test_early_mission_start.py` (7), and the DTC
+midnight case in `tests/missiongenerator/test_dtc.py`.
 
 ### Deferred
 
