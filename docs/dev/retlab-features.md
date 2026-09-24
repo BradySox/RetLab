@@ -3213,6 +3213,17 @@ that matches nothing. Pinned by `tests/lua/test_dcs_retribution_runtime.py`, whi
 the first harness coverage of the base script. In-game pass owed: **B122**. Upstream #929
 carries the same loop; inventory item 38.
 
+### A survivor with no ejection comes down where his jet crashed (2026-09-23)
+
+A loss with no ejection event rolls `csar_ejection_chance`; #929 then scatters the survivor
+round his package's target (`CsarService.fallback_position_for`). On test 39 that put nine
+blue survivors 23–42 km from their jets and fragged a CSAR 41 km from an F-14's crash.
+`dcs_retribution.lua` now writes `crash_positions` (`{unit, x, z}`) on `S_EVENT_CRASH`,
+`StateData` parses it, and `Debriefing.loss_positions` maps each pilot to the crash point,
+else the last §91 track sample (leads and humans only), else nothing — the target scatter
+remains for simulated turns. Tests: `tests/test_csar.py`, `tests/lua/test_dcs_retribution_runtime.py`.
+In-game pass owed: **B142**. Inventory item 41.
+
 ### The King — fixed-wing CSAR (2026-08-26)
 
 The C-130J's yaml `CSAR: 5` made the "King" on-scene commander plannable, and

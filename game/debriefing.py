@@ -176,6 +176,9 @@ class StateData:
     #: recorder is off or the save predates it.
     sortie_records: tuple[SortieRecord, ...] = ()
 
+    #: Maps an aircraft unit name to the (x, z) position DCS reported its crash at.
+    crash_positions: Dict[str, tuple[float, float]] = field(default_factory=dict)
+
     @classmethod
     def from_json(cls, data: Dict[str, Any], unit_map: UnitMap) -> StateData:
         def clean_unit_list(unit_list: List[Any]) -> List[str]:
@@ -259,6 +262,16 @@ class StateData:
             except (KeyError, TypeError, ValueError):
                 logging.warning("Ignoring malformed ejection event: %s", event)
 
+        crash_positions: Dict[str, tuple[float, float]] = {}
+        for event in data.get("crash_positions", []):
+            try:
+                crash_positions[str(event["unit"])] = (
+                    float(event["x"]),
+                    float(event["z"]),
+                )
+            except (KeyError, TypeError, ValueError):
+                logging.warning("Ignoring malformed crash position: %s", event)
+
         return cls(
             mission_ended=data.get("mission_ended", False),
             killed_aircraft=killed_aircraft,
@@ -271,6 +284,7 @@ class StateData:
             ejections=ejections,
             rescued_pilot_ids=[str(x) for x in data.get("csar_rescued", [])],
             sortie_records=parse_sortie_records(data.get("sortie_records")),
+            crash_positions=crash_positions,
         )
 
 
@@ -289,6 +303,7 @@ class Debriefing:
         self.ground_losses = self.dead_ground_units()
         self.base_captures = self.base_capture_events()
         self.ejected_pilot_positions = self._ejected_pilot_positions()
+        self.loss_positions = self._loss_positions()
         #: Downed pilots recovered this mission, keyed by their DownedPilot id so
         #: repeated state.json polls (and the AI-flight fallback added later by
         #: MissionResultsProcessor) can't double-count the same rescue.
@@ -356,6 +371,31 @@ class Debriefing:
         positions: Dict[int, Point] = {}
         terrain = self.game.theater.terrain
         for unit_name, (x, z) in self.state_data.ejections.items():
+            flying_unit = self.unit_map.flight(unit_name)
+            if flying_unit is None or flying_unit.pilot is None:
+                continue
+            positions[id(flying_unit.pilot)] = Point(x, z, terrain)
+        return positions
+
+    def _loss_positions(self) -> Dict[int, "Point"]:
+        """Maps ``id(pilot)`` to where the aircraft he flew was lost.
+
+        The crash point when DCS reported one, else the last §91 track sample
+        (30 s cadence, and only a group's lead and humans are recorded).
+        """
+        from dcs.mapping import Point
+
+        positions: Dict[int, Point] = {}
+        terrain = self.game.theater.terrain
+        for record in self.state_data.sortie_records:
+            if not record.track:
+                continue
+            flying_unit = self.unit_map.flight(record.unit)
+            if flying_unit is None or flying_unit.pilot is None:
+                continue
+            last = record.track[-1]
+            positions[id(flying_unit.pilot)] = Point(last.x, last.y, terrain)
+        for unit_name, (x, z) in self.state_data.crash_positions.items():
             flying_unit = self.unit_map.flight(unit_name)
             if flying_unit is None or flying_unit.pilot is None:
                 continue

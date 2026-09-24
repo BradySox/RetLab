@@ -130,7 +130,7 @@ class CsarService:
 
     def fallback_position_for(self, flight: Flight) -> Point:
         """A scattered position near the flight's target for losses with no
-        DCS-reported position (AI kills, skipped/simulated turns)."""
+        ejection and no §91 track (skipped/simulated turns)."""
         target = flight.package.target
         return target.position.random_point_within(_FALLBACK_SCATTER_METERS)
 
