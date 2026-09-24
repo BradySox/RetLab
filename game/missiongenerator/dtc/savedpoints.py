@@ -67,14 +67,18 @@ def route_numbers(flight: FlightData, settings: Settings) -> list[str]:
     """The number the kneeboard's route table prints on each waypoint row.
 
     The row index normally. When the cartridge carries the route, a skipped row
-    reads "-" and the rest close up, as they do in the jet.
+    reads "-" and the rest close up, as they do in the jet; so does a row past the
+    jet's route slots (the Viper's 20), which the cartridge never writes.
     """
-    if not carries_route(flight, settings) or not flight.dtc_options.skipped_waypoints:
+    if not carries_route(flight, settings):
         return [str(index) for index in range(len(flight.waypoints))]
+    slots = route_slots(
+        flight.aircraft_type.dcs_unit_type.id, len(flight.waypoints), True
+    )
     numbers = ["0"] if flight.waypoints else []
     number = 0
     for waypoint in flight.waypoints[1:]:
-        if is_skipped(flight, waypoint):
+        if is_skipped(flight, waypoint) or number >= slots:
             numbers.append("-")
         else:
             number += 1

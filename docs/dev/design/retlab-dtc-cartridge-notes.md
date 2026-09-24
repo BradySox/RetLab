@@ -282,7 +282,16 @@ F-16C guide p223: with sequencing set to AUTO, "automatic sequencing will only
 be performed from steerpoints 1-20". The nav partition itself runs to 25.
 `MAX_ROUTE_STEERPOINTS = 20` now caps the flown route; support anchors fill
 21-24. A longer route loses its tail rather than shipping steerpoints the jet
-will not advance to.
+will not advance to. The kneeboard route table prints "-" on the rows past 20
+(`route_numbers`, 2026-09-23); until then it went on numbering them, so "21
+LANDING" on the card was an anchor in the jet.
+
+### Apache: target points sit at field elevation
+
+Until 2026-09-23 every T-point was written at 0 m. The Apache manual has the
+TADS slave to an acquisition point "3-dimensional location", so a site on high
+ground cued below itself. T-points now take `nearest_field_elevation`, as the
+Viper's threat points already did.
 
 **STPT 25 is the bullseye and must stay empty.** Guide p325: "The steerpoint
 normally used for Bullseye is steerpoint 25 and is automatically configured as

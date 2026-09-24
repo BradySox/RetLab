@@ -141,3 +141,67 @@ def test_chinook_intra_flight_stays_on_the_fm_radio(chinook: AircraftType) -> No
         assert any(
             rng.minimum.hertz <= freq.hertz < rng.maximum.hertz for rng in radio.ranges
         ), f"{freq} is outside the CH-47F's intra-flight radio"
+
+
+# ---------------------------------------------------------------------------
+# P-51D / P-47D -- the SCR-522 tunes 100-156 MHz (P-51D manual, radio section),
+# so Buttons B and C take the tower's VHF frequency, never its UHF one.
+# ---------------------------------------------------------------------------
+
+
+class _FakeFlight:
+    def __init__(self, aircraft: AircraftType, departure: object, arrival: object):
+        self.aircraft_type = aircraft
+        self.departure = departure
+        self.arrival = arrival
+        self.intra_flight_channel = MHz(124)
+        self.assigned: dict[int, object] = {}
+
+    def assign_channel(self, radio_id: int, channel_id: int, frequency: object) -> None:
+        self.assigned[channel_id] = frequency
+
+
+@pytest.mark.parametrize(
+    "name",
+    ["P-51D-25-NA Mustang", "P-51D-30-NA Mustang", "P-47D-30 Thunderbolt (Late)"],
+)
+def test_scr522_tower_presets_are_vhf(name: str) -> None:
+    from game.radio.channels import SCR522RadioChannelAllocator
+    from game.runways import RunwayData
+    from game.utils import Heading
+
+    aircraft = AircraftType.named(name)
+    home = RunwayData(
+        "Home", Heading(0), "09", atc=MHz(250, 500), atc_vhf=MHz(118, 650)
+    )
+    away = RunwayData("Away", Heading(0), "27", atc=MHz(251))  # no VHF tower
+    flight = _FakeFlight(aircraft, home, away)
+    SCR522RadioChannelAllocator().assign_channels_for_flight(
+        flight, None  # type: ignore[arg-type]
+    )
+    assert flight.assigned[2] == MHz(118, 650)
+    assert 3 not in flight.assigned
+
+
+# ---------------------------------------------------------------------------
+# F-4E -- AUX (radio 2) is receive-only (F-4E manual, radios), so the flight
+# frequency goes on COMM; the Pave Spike code follows the allocated laser code.
+# ---------------------------------------------------------------------------
+
+
+def test_f4e_flight_frequency_is_on_the_transmitting_radio() -> None:
+    phantom = AircraftType.named("F-4E-45MC Phantom II")
+    allocator = phantom.channel_allocator
+    assert isinstance(allocator, CommonRadioChannelAllocator)
+    assert allocator.intra_flight_radio_index == 1
+
+
+def test_f4e_pod_laser_code_is_written_from_the_allocated_code() -> None:
+    phantom = AircraftType.named("F-4E-45MC Phantom II")
+    (config,) = phantom.laser_code_configs
+    assert config.property_dict_for_code(1543) == {
+        "LaserCodeDigit1": 1,
+        "LaserCodeDigit2": 5,
+        "LaserCodeDigit3": 4,
+        "LaserCodeDigit4": 3,
+    }

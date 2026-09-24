@@ -4,7 +4,15 @@ from datetime import datetime
 from typing import Any, Iterable, Union
 
 from dcs import Mission
-from dcs.planes import AJS37, F_14A_135_GR, F_14B, JF_17, F_15ESE
+from dcs.planes import (
+    AJS37,
+    F_14A_135_GR,
+    F_14A_135_GR_Early,
+    F_14A_95_GR,
+    F_14B,
+    JF_17,
+    F_15ESE,
+)
 from dcs.point import MovingPoint, PointAction
 from dcs.task import ControlledTask, OrbitAction, RunScript
 from dcs.unitgroup import FlyingGroup
@@ -23,6 +31,10 @@ TARGET_WAYPOINTS = (
     FlightWaypointType.TARGET_POINT,
     FlightWaypointType.TARGET_SHIP,
 )
+
+# Tomcats that read the ME's ST/IP navigation target points (F-14 manual, special points).
+# The B(U) is left out: its manual section is unwritten and the DTC sets XST/XIP.
+TOMCATS_WITH_NAV_TARGET_POINTS = (F_14A_135_GR, F_14A_135_GR_Early, F_14A_95_GR, F_14B)
 
 # Waypoints whose generated .miz name is matched as a structural identifier downstream --
 # CTLD air-assault split (landingzone.py: name == "DROPOFFZONE"), EW jamming placement and
@@ -211,7 +223,10 @@ class PydcsWaypointBuilder:
         for i, t in enumerate(targets):
             if self.group.units[0].unit_type == JF_17 and i < 4:
                 self.group.add_nav_target_point(t.position, "PP" + str(i + 1))
-            if self.group.units[0].unit_type in [F_14B, F_14A_135_GR] and i == 0:
+            if (
+                self.group.units[0].unit_type in TOMCATS_WITH_NAV_TARGET_POINTS
+                and i == 0
+            ):
                 self.group.add_nav_target_point(t.position, "ST")
             # F-15E CC missions for JDAMs; the manual warns an out-of-range entry can
             # invalidate the mission, so nothing is written past the jet's 40.
@@ -225,6 +240,6 @@ class PydcsWaypointBuilder:
     def register_special_ingress_points(self) -> None:
         # Register Tomcat Initial Point
         if self.flight.client_count and (
-            self.group.units[0].unit_type in (F_14A_135_GR, F_14B)
+            self.group.units[0].unit_type in TOMCATS_WITH_NAV_TARGET_POINTS
         ):
             self.group.add_nav_target_point(self.waypoint.position, "IP")

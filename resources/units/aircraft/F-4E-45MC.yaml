@@ -25,8 +25,19 @@ radios:
   channels:
     type: common
     namer: phantom
-    intra_flight_radio_index: 2
+    # AUX (radio 2) is receive-only (F-4E manual, radios), so the flight talks on COMM.
+    intra_flight_radio_index: 1
     inter_flight_radio_index: 1
+laser_codes:
+  - properties:
+      - id: LaserCodeDigit1
+        digit: 3
+      - id: LaserCodeDigit2
+        digit: 2
+      - id: LaserCodeDigit3
+        digit: 1
+      - id: LaserCodeDigit4
+        digit: 0
 default_overrides:
   INSAlignmentStored: true
   #Quality: 100

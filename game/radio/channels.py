@@ -7,6 +7,24 @@ if TYPE_CHECKING:
     from game.missiongenerator.aircraft.flightdata import FlightData
     from game.missiongenerator.missiondata import MissionData
     from game.radio.radios import RadioFrequency
+    from game.runways import RunwayData
+
+
+def tunable_atc(
+    flight: FlightData, runway: Optional[RunwayData]
+) -> Optional[RadioFrequency]:
+    """The tower frequency the flight's radio can tune, UHF first, else VHF, else None."""
+    if runway is None:
+        return None
+    radio = flight.aircraft_type.intra_flight_radio
+    for freq in (runway.atc, runway.atc_vhf):
+        if freq is None:
+            continue
+        if radio is None or any(
+            r.minimum.hertz <= freq.hertz < r.maximum.hertz for r in radio.ranges
+        ):
+            return freq
+    return None
 
 
 class RadioChannelAllocator:
@@ -221,10 +239,12 @@ class SCR522RadioChannelAllocator(RadioChannelAllocator):
     ) -> None:
         radio_id = 1
         flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
-        if flight.departure.atc is not None:
-            flight.assign_channel(radio_id, 2, flight.departure.atc)
-        if flight.arrival.atc is not None:
-            flight.assign_channel(radio_id, 3, flight.arrival.atc)
+        # The set tunes 100-156 MHz only (P-51D manual, SCR-522), so the tower's
+        # UHF frequency would be a preset it cannot reach.
+        if (departure := tunable_atc(flight, flight.departure)) is not None:
+            flight.assign_channel(radio_id, 2, departure)
+        if (arrival := tunable_atc(flight, flight.arrival)) is not None:
+            flight.assign_channel(radio_id, 3, arrival)
 
         # TODO : Some GCI on Channel 4 ?
 
@@ -292,7 +312,8 @@ class HueyChannelNamer(ChannelNamer):
 
     @staticmethod
     def channel_name(radio_id: int, channel_id: int) -> str:
-        return f"COM3 Ch {channel_id}"
+        # Transmit selector 2 is the ARC-51BX UHF; 3 is VHF (UH-1H manual, 7.1).
+        return f"UHF Ch {channel_id}"
 
     @classmethod
     def name(cls) -> str:

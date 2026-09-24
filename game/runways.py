@@ -26,6 +26,8 @@ class RunwayData:
     runway_heading: Heading
     runway_name: str
     atc: Optional[RadioFrequency] = None
+    #: The tower's VHF AM frequency, for radios that cannot tune ``atc`` (UHF).
+    atc_vhf: Optional[RadioFrequency] = None
     tacan: Optional[TacanChannel] = None
     tacan_callsign: Optional[str] = None
     ils: Optional[RadioFrequency] = None
@@ -46,12 +48,14 @@ class RunwayData:
             runway: The pydcs runway.
         """
         atc: Optional[RadioFrequency] = None
+        atc_vhf: Optional[RadioFrequency] = None
         tacan: Optional[TacanChannel] = None
         tacan_callsign: Optional[str] = None
         ils: Optional[RadioFrequency] = None
         atc_radio = AtcData.from_pydcs(airport)
         if atc_radio is not None:
             atc = atc_radio.uhf
+            atc_vhf = atc_radio.vhf_am
 
         for beacon_data in airport.beacons:
             beacon = cls._get_beacon(beacon_data.id, theater)
@@ -73,6 +77,7 @@ class RunwayData:
             runway_heading=Heading(runway.heading),
             runway_name=runway.name,
             atc=atc,
+            atc_vhf=atc_vhf,
             tacan=tacan,
             tacan_callsign=tacan_callsign,
             ils=ils,

@@ -323,7 +323,7 @@ Evidence recorded without a status change: **B134** (the ATO read before flying:
 
 ## Outstanding rows at a glance
 
-90 rows need a live pass. Full detail is under each `###` heading below —
+91 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -377,6 +377,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B141 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
+| B142 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8370,3 +8371,17 @@ Built 2026-09-23 from the F-15E Manual v1.7 (5.7 radios, 13.4.7.4-5 CC missions)
   carries ATC, AWACS, package and tanker presets.
 - **Fail signatures:** a CC mission that will not transfer or is flagged invalid; two missions
   with the same set/mission number; a kneeboard label pointing at a different aimpoint.
+
+### B142 — Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache · manual pass · ☐ UNTESTED
+
+Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; each is a ramp check.
+
+- **F-4E:** COMM channel 1 is the flight frequency and you can transmit on it; the Pave Spike
+  laser code on the Laser Coder matches the kneeboard code.
+- **P-51D / P-47D:** Button B tunes the departure tower (VHF, e.g. 118.650 at Saint Pierre du
+  Mont) and the tower answers; the kneeboard airfield row shows the same frequency.
+- **F-14A Early / 95-GR:** ST and IP show on the TID for a Strike flight. Any Tomcat
+  ground-spawned at a roadbase starts without a huffer.
+- **Apache:** a data-cartridge T-point on a hill-top SAM cues TADS onto the site, not below it.
+- **Fail signatures:** can't transmit on the flight frequency; pod laser 1688; a UHF frequency on
+  a Mustang button; no ST/IP; a TADS cue buried in the hillside.
