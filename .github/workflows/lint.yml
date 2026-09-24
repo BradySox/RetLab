@@ -59,6 +59,59 @@ jobs:
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
 
+  lua-syntax:
+    name: Lua 5.1 syntax
+    runs-on: ubuntu-latest
+    # DCS runs Lua 5.1, and a plugin that fails to parse dies silently in the
+    # mission. Blocking, so a broken file cannot reach the latest release.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Lua 5.1
+        run: sudo apt-get update && sudo apt-get install -y lua5.1
+      - name: Parse every plugin Lua file (luac5.1 -p)
+        run: |
+          set -uo pipefail
+          status=0
+          count=0
+          while IFS= read -r -d '' f; do
+            count=$((count + 1))
+            if ! out=$(luac5.1 -p "$f" 2>&1); then
+              echo "::error file=$f::$out"
+              status=1
+            fi
+          done < <(find resources/plugins -name '*.lua' -print0)
+          echo "Parsed $count plugin Lua file(s) under Lua 5.1."
+          exit $status
+
+  luacheck:
+    name: luacheck (advisory)
+    runs-on: ubuntu-latest
+    # Every RetLab-authored plugin; .luacheckrc excludes what we did not write.
+    # Always green: the counts go to the Step Summary, never a red check.
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install luacheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lua5.1 luarocks
+          sudo luarocks install luacheck
+      - name: luacheck resources/plugins
+        run: |
+          set +e
+          luacheck resources/plugins > luacheck.txt 2>&1
+          code=$?
+          cat luacheck.txt
+          {
+            echo "### luacheck (advisory), exit $code"
+            echo '```'
+            grep -E "^Total:" luacheck.txt || echo "no total line"
+            echo
+            echo "Files with findings:"
+            grep -E "^Checking .* [0-9]+ (warning|error)" luacheck.txt | sed -E 's/^Checking //' || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 0
+
   mypy:
     name: Type checking
     runs-on: windows-latest

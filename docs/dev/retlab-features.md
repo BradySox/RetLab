@@ -9991,7 +9991,7 @@ have hit the same wall. The file here is the rewritten one.
 
 - `resources/plugins/ai_reaction/` · `resources/plugins/redscramble/redscramble-config.lua` ·
   `resources/plugins/plugins.json` · `game/retlab/features.py`.
-- No Python surface, so no pytest coverage. The `lua-lint.yml` syntax gate covers both files;
+- No Python surface, so no pytest coverage. The `lint.yml` Lua syntax gate covers both files;
   the `tests/lua/` harness does not model `weapon:getTarget()` or controller options, so
   behaviour is an in-game question.
 

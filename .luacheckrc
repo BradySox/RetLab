@@ -1,16 +1,35 @@
 -- luacheck configuration for RetLab DCS Lua plugins.
 --
 -- Target runtime is DCS World's Lua 5.1 (LuaJIT) server sandbox. This config
--- powers the *advisory* luacheck job in .github/workflows/lua-lint.yml. The
--- BLOCKING gate in that workflow is `luac5.1 -p` (pure syntax) over every
--- plugin file; luacheck adds typo / undefined-global detection on top, scoped
--- to the RetLab-authored scripts only (vendored MOOSE/CTLD/Skynet/etc. would
--- drown the signal). Tune the ignore list as real warnings surface — keep it
--- low-noise so the output stays trusted rather than reflexively skipped.
+-- powers the *advisory* luacheck job in .github/workflows/lint.yml, run over all
+-- of resources/plugins. The BLOCKING gate beside it is `luac5.1 -p` (pure
+-- syntax) over every plugin file. luacheck adds typo / undefined-global
+-- detection on top. Files we did not write are excluded below, so a new RetLab
+-- plugin is covered without touching this file.
 
 std = "lua51"
 max_line_length = false
 codes = true
+
+-- Upstream's and third parties' scripts: not ours to restyle, and fixing them
+-- here would conflict with every sync.
+exclude_files = {
+    "resources/plugins/base/Moose.lua",
+    "resources/plugins/base/mist_*.lua",
+    "resources/plugins/base/json.lua",
+    "resources/plugins/base/dcs_retribution.lua",
+    "resources/plugins/base/land_relocate.lua",
+    "resources/plugins/base/water_relocate.lua",
+    "resources/plugins/airboss/*",
+    "resources/plugins/bigeye/*",
+    "resources/plugins/ctld/*",
+    "resources/plugins/lotatc/*",
+    "resources/plugins/MooseMarkerOps/*",
+    "resources/plugins/MooseSoundhandler/*",
+    "resources/plugins/skynetiads/*",
+    "resources/plugins/splashdamage3/*",
+    "resources/plugins/tic/TIC_v1.1.lua",
+}
 
 -- DCS plugin scripts assign module-level globals freely and read a large host
 -- API; don't flag every top-level definition as an accidental global.
@@ -26,12 +45,6 @@ ignore = {
     "311", -- value assigned to a local is never used (overwritten)
     "542", -- empty if branch
     "631", -- line too long (belt-and-suspenders with max_line_length=false)
-}
-
--- Mutable globals shared across plugin scripts at runtime (written, not just
--- read) — e.g. the TARS bridge table the init script appends capture rows to.
-globals = {
-    "tars_recon_captures",
 }
 
 read_globals = {
@@ -50,8 +63,8 @@ read_globals = {
     "SET_UNIT", "SET_STATIC", "SET_CLIENT", "SPAWN", "SCHEDULER", "MESSAGE",
     "MENU_MISSION", "MENU_MISSION_COMMAND", "MENU_COALITION",
     "MENU_COALITION_COMMAND", "MENU_GROUP", "MENU_GROUP_COMMAND", "CLIENT",
-    "DETECTION_AREAS", "FLIGHTCONTROL", "AI_A2A_DISPATCHER", "DESIGNATE",
-    "SETTINGS", "TARS", "Ops", "UTILS", "routines", "mist",
+    "DETECTION_AREAS", "AI_A2A_DISPATCHER", "SETTINGS", "Ops", "UTILS",
+    "routines", "mist",
 
     -- Plugin-defined globals RetLab init scripts probe before using
     "GLSCO", "GLSCO_COMBATANT", "GLSCO_BATTLEFIELD",
