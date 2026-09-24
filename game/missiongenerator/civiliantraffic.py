@@ -543,7 +543,11 @@ class CivilianTrafficGenerator:
             if destination is not None:
                 group.land_at(destination)
 
+            # DCS overwrites start_time with points[0].ETA on load (me_mission.lua
+            # check_mission), so the delay must live on the waypoint too.
             group.start_time = route.start_time_s
+            group.points[0].ETA = route.start_time_s
+            group.points[0].ETA_locked = True
             group.points[0].tasks.append(OptROE(OptROE.Values.WeaponHold))
             group.points[0].tasks.append(SetInvisibleCommand(True))
         except Exception:  # pragma: no cover - defensive; never block generation

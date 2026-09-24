@@ -413,6 +413,22 @@ def test_a_ground_started_transit_climbs_to_its_flight_level() -> None:
     assert group.points[-1].type == "Land"
 
 
+def test_a_staggered_departure_is_written_where_dcs_reads_it() -> None:
+    """DCS sets each group's start_time from its first waypoint's ETA on load, so a
+    delay written only to start_time is erased: on test 40 all seven staggered
+    departures (10 s to 6,129 s) left in the first 81 s."""
+    mission, country, fields = _caucasus()
+    route = _route(fields[:2], An_26B, start_time_s=3_973)
+
+    generator = CivilianTrafficGenerator(mission, None)  # type: ignore[arg-type]
+    assert generator._spawn(country, 0, route) is True
+
+    group = country.plane_group[-1]
+    assert group.start_time == 3_973
+    assert group.points[0].ETA == 3_973
+    assert group.points[0].ETA_locked is True
+
+
 def test_an_air_started_transit_holds_its_level_before_descending() -> None:
     """It spawns at cruise, so it needs the top of descent and nothing else --
     otherwise the only waypoint after the spawn is the landing."""
