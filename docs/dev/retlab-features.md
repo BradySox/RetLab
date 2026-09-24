@@ -7076,6 +7076,22 @@ ranks first (`AirWing.best_squadrons_for`), which also keeps the Hornets and Vip
 deep work. Off, planning is upstream's. `tests/retlab/test_front_line_sead_escort.py`;
 row B134 owns the fly.
 
+**Route around SAMs (2026-09-23, `route_around_sams`, RetLab planner suite).**
+JOIN -> INGRESS and TARGET -> SPLIT are straight lines, and the coalition navmesh merges
+overlapping rings into one blob it crosses in a straight line, so neither routes round a SAM
+inside the blob. Graveyard of Empires turn 1: every deep blue package flew both legs through
+SABERTOOTH, a Buk-M3 that covered none of the targets — 2,349 NM of flight time inside its
+ring across the ATO. With the gate on, `FormationAttackBuilder._sam_detours` rebuilds the
+navmesh without the rings the package must enter anyway (any ring covering the target, or
+more than 5 NM inside at a leg's end point; joins sit on the threat edge) and routes both
+legs through it (`game/flightplan/samdetour.py`). The points land in the layout's
+`ingress_nav` / `egress_nav`, the ingress leg ends at the strike line-up point so every
+flight in the package flies the same detour, and `join_time` / `split_time` sum the detour.
+A detour more than 2× the straight leg, or no less exposed, is dropped. Same replan: 113 NM.
+Not covered: SPLIT -> REFUEL (SKINK DEAD still crosses 23 NM there) and helicopters. Escort
+detour points are player-only; AI escorts fly the Escort task off the join.
+`tests/flightplan/test_samdetour.py`; row B141 owns the fly.
+
 **What it is.** Packages were timed independently — the generic scheduler branch spreads
 each package's TOT randomly across the mission window, so nothing stopped a strike from
 arriving at a defended target half an hour BEFORE the SEAD package tasked against the SAM

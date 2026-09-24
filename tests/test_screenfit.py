@@ -133,6 +133,18 @@ def test_filter_survives_a_non_qobject_watched(qapp: Any) -> None:
     assert ScreenFitFilter().eventFilter(watched, QEvent(QEvent.Type.Show)) is False
 
 
+def test_filter_survives_a_non_qevent_event(qapp: Any) -> None:
+    """The same stale-wrapper mix-up has delivered a QWidgetItem as ``event``,
+    with a real dialog as ``watched`` -- ``event.type()`` then raised
+    AttributeError mid-mission."""
+    from PySide6.QtWidgets import QDialog, QWidget, QWidgetItem
+
+    from qt_ui.screenfit import ScreenFitFilter
+
+    event = QWidgetItem(QWidget())  # exactly the type from the reported traceback
+    assert ScreenFitFilter().eventFilter(QDialog(), event) is False
+
+
 def test_filter_fits_a_dialog_on_show(qapp: Any) -> None:
     from PySide6.QtCore import QEvent
     from PySide6.QtGui import QGuiApplication

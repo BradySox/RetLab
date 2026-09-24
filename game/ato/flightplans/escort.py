@@ -13,6 +13,7 @@ from .formationattack import (
 from .tacticaloverlay import TacticalOverlay, TacticalOverlayDisplay, escort_overlay
 from .waypointbuilder import WaypointBuilder
 from .. import FlightType
+from ..flightwaypoint import FlightWaypoint
 from ..packagewaypoints import PackageWaypoints
 from ...utils import feet
 
@@ -118,6 +119,18 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
 
         refuel = self._build_refuel(builder)
 
+        ingress_nav: list[FlightWaypoint] = []
+        egress_nav: list[FlightWaypoint] = []
+        if not non_formation_escort and not (
+            pf and pf.flight_type in [FlightType.AIR_ASSAULT, FlightType.TRANSPORT]
+        ):
+            ingress_nav, egress_nav = self._sam_detours(
+                builder, builder.get_cruise_altitude, False
+            )
+            # AI escorts fly the Escort task off the join, as with ingress.
+            for waypoint in ingress_nav + egress_nav:
+                waypoint.only_for_player = True
+
         departure = builder.takeoff(self.flight.departure)
         nav_to = builder.nav_path(
             hold.position if hold else departure.position,
@@ -146,6 +159,8 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
             divert=builder.divert(self.flight.divert),
             bullseye=builder.bullseye(),
             custom_waypoints=list(),
+            ingress_nav=ingress_nav,
+            egress_nav=egress_nav,
         )
 
     def build(self, dump_debug_info: bool = False) -> EscortFlightPlan:
