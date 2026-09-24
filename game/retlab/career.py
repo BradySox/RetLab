@@ -246,14 +246,14 @@ def fold_sortie_records(records: Sequence["SortieRecord"], pilot_for: Any) -> No
     ``None`` for a unit the campaign does not own — an AI jet whose flight has
     already been cleaned up, or red's side of the mission.
 
-    Only records that actually flew are folded. A counters-only wingman entry
-    would otherwise add a sortie for a jet that was never position-sampled, and
-    a parked airframe would add one for a jet that never moved (§91's
-    ``MIN_SORTIE_DISTANCE_M``). Their weapons and kills are lost with them; a
-    logbook that overcounts sorties is worse than one that misses a stray shot.
+    Only records that actually flew add a sortie and hours: a parked airframe
+    never moved (§91's ``MIN_SORTIE_DISTANCE_M``). A counters-only AI wingman
+    (no track) adds its shots, hits and kills but no sortie -- on test 39 the
+    wingmen held 9 of blue's 17 air kills.
     """
     for record in records:
-        if not record.flew:
+        counters_only = not record.track
+        if not record.flew and not counters_only:
             continue
         try:
             resolved = pilot_for(record.unit)
@@ -266,10 +266,11 @@ def fold_sortie_records(records: Sequence["SortieRecord"], pilot_for: Any) -> No
         if pilot is None:
             continue
         career = pilot.record
-        career.sorties += 1
-        if is_combat_sortie(flight_type):
-            career.combat_sorties += 1
-        career.flight_seconds += record.duration
+        if not counters_only:
+            career.sorties += 1
+            if is_combat_sortie(flight_type):
+                career.combat_sorties += 1
+            career.flight_seconds += record.duration
         career.shots += record.shots
         career.hits += record.hits
         career.air_kills += record.air_kills
