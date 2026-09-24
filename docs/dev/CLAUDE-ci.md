@@ -1,6 +1,8 @@
 ## CI & Release Pipeline
 
-Every push to `main` runs these workflows:
+Every push to `main` runs these workflows (through `retlab-latest.yml`). A PR runs the
+same lint + test once, through `build.yml`, which triggers on `pull_request` only since
+2026-09-24 (upstream's push + pull_request ran every PR twice, ~20 min each):
 
 1. **`lint.yml`** — Black (`--check .` whole tree) + mypy (`game tests` only) + the
    **published-docs audit** (`python tools/audit_stale_docs.py`, job *Published docs*,
