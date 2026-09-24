@@ -6,10 +6,11 @@ import logging
 import random
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, List, Optional, TYPE_CHECKING
+from typing import Any, List, Mapping, Optional, TYPE_CHECKING
 from uuid import UUID
 
-from game.data.units import UnitClass
+from game.data.radar_db import UNITS_WITH_RADAR
+from game.data.units import ANTI_AIR_UNIT_CLASSES, UnitClass
 from game.dcs.groundunittype import GroundUnitType
 from .frontline_clustering import allocate_largest_remainder
 
@@ -286,6 +287,25 @@ def reserve_armor_for(cp: ControlPoint) -> dict[GroundUnitType, int]:
         if remainder > 0:
             reserve[unit_type] = remainder
     return reserve
+
+
+def has_radar_air_defense(armor: Mapping[GroundUnitType, int]) -> bool:
+    """True when any unit in ``armor`` is an air-defence type that carries radar.
+
+    Radar is read from ``UNITS_WITH_RADAR``, the set the recon kneeboard already
+    uses, so an IR SAM (Strela, Avenger) or an optically laid gun does not count.
+    """
+    return any(
+        count > 0
+        and unit_type.unit_class in ANTI_AIR_UNIT_CLASSES
+        and unit_type.dcs_unit_type in UNITS_WITH_RADAR
+        for unit_type, count in armor.items()
+    )
+
+
+def deploys_radar_air_defense(cp: ControlPoint) -> bool:
+    """True when ``cp`` sends radar air defense to its fronts (§69 SEAD escort)."""
+    return has_radar_air_defense(deployable_armor(cp))
 
 
 class GroundPlanner:

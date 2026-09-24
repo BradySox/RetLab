@@ -365,6 +365,7 @@ def test_radar_sam_threat_requests_the_jammer_escort() -> None:
     stub = SimpleNamespace(
         threat_zones=threat_zones,
         doctrine=SimpleNamespace(always_escort_strikes=False),
+        front_line_sead_escort=False,
     )
     threats = PackageFulfiller.check_needed_escorts(stub, builder)  # type: ignore[arg-type]
     assert threats[EscortType.Sead]

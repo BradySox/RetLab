@@ -390,7 +390,8 @@ class DoctrineSettings:
         default=False,
         detail=(
             "A CAS package on the front line also asks for a SEAD escort that rides "
-            "with the CAS flight when radar SAMs cover its route. Airframes marked "
+            "with the CAS flight when radar SAMs cover its route or the enemy's "
+            "front-line units include radar air defense. Airframes marked "
             "front-line-only for this job (the Sidearm-armed AV-8B) are preferred "
             "for it and no longer escort deep packages, where their missiles cannot "
             "reach the SAMs; deep packages keep the HARM shooters."

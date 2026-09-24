@@ -7087,6 +7087,17 @@ ranks first (`AirWing.best_squadrons_for`), which also keeps the Hornets and Vip
 deep work. Off, planning is upstream's. `tests/retlab/test_front_line_sead_escort.py`;
 row B134 owns the fly.
 
+**Front-line radar air defense triggers the escort (2026-09-23, same gate).**
+- Test 39 (Graveyard of Empires): the CAS package proposed its SEAD Escort and never got one.
+- The need check read only fixed SAM rings over FLOT START → FLOT END. No ring covered them.
+- Red's front-line SA-19s fired seven 9M311s. Front-line units are not TGOs, so `ThreatZones` never sees them.
+- With the gate on, `PackageFulfiller.check_needed_escorts` also marks `EscortType.Sead` needed when the package targets a `FrontLine` and the enemy control point deploys radar air defense to its fronts.
+- "Deploys" is `deployable_armor(cp)`, the same allocation `plan_groundwar` sends forward. It is per control point, not per front.
+- "Radar air defense" is a unit type whose class is in `ANTI_AIR_UNIT_CLASSES` and whose DCS type is in `radar_db.UNITS_WITH_RADAR`. Counts: Tunguska, Osa, Tor, Roland, Shilka, Gepard, Vulcan, Pantsir. Does not count: Strela, Avenger, ZU-23, the CH 2S38 (not in `UNITS_WITH_RADAR`; its unit file lists TV/thermal tracking and a laser rangefinder, no radar, so a Sidearm has nothing to home on).
+- The escort jammer is not added; it stays on the fixed-SAM trigger.
+- Needed means the stock escort contract: if a SEAD-capable wing has no escort free, the CAS package is scrubbed unless the doctrine flies unescorted.
+- Helpers: `has_radar_air_defense` / `deploys_radar_air_defense` in `game/ground_forces/ai_ground_planner.py`.
+
 **Route around SAMs (2026-09-23, `route_around_sams`, RetLab planner suite).**
 JOIN -> INGRESS and TARGET -> SPLIT are straight lines, and the coalition navmesh merges
 overlapping rings into one blob it crosses in a straight line, so neither routes round a SAM

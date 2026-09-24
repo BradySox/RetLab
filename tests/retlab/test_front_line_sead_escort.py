@@ -168,3 +168,116 @@ def test_without_the_gate_the_ranking_is_upstreams(
 ) -> None:
     ranked = _ranked(monkeypatch, _front_line(), setting=False)
     assert ranked[0] == "F/A-18C Hornet (Lot 20)"
+
+
+# Test 39 (2026-09-23, Graveyard of Empires): the CAS package proposed its SEAD
+# escort but never got one. The escort was needed only inside a fixed SAM ring, and
+# red's front-line Tunguskas are not TGOs, so no ring covered FLOT START/END.
+
+
+def _ground(dcs_type: Any) -> Any:
+    from game.dcs.groundunittype import GroundUnitType
+
+    return next(GroundUnitType.for_dcs_type(dcs_type))
+
+
+def test_radar_air_defense_is_read_from_the_unit_data() -> None:
+    from dcs.vehicles import AirDefence, Armor
+
+    from game.ground_forces.ai_ground_planner import has_radar_air_defense
+
+    for radar in (
+        AirDefence.x_2S6_Tunguska,
+        AirDefence.Osa_9A33_ln,
+        AirDefence.ZSU_23_4_Shilka,
+        AirDefence.Gepard,
+    ):
+        assert has_radar_air_defense({_ground(radar): 1}), radar.id
+    for no_radar in (
+        AirDefence.Strela_10M3,
+        AirDefence.M1097_Avenger,
+        AirDefence.Ural_375_ZU_23,
+        Armor.T_72B,
+    ):
+        assert not has_radar_air_defense({_ground(no_radar): 4}), no_radar.id
+    assert not has_radar_air_defense({_ground(AirDefence.x_2S6_Tunguska): 0})
+
+
+class _FakeFrontLine(FrontLine):
+    def __init__(self, enemy_cp: Any) -> None:
+        self.enemy_cp = enemy_cp
+
+    def control_point_hostile_to(self, player: Any) -> Any:
+        return self.enemy_cp
+
+
+def _needed(
+    monkeypatch: pytest.MonkeyPatch, armor: Any, *, setting: bool, front: bool = True
+) -> dict[EscortType, bool]:
+    import game.ground_forces.ai_ground_planner as planner_module
+    from game.commander.packagefulfiller import PackageFulfiller
+
+    monkeypatch.setattr(planner_module, "deployable_armor", lambda cp: armor)
+    cas = SimpleNamespace(
+        flight_type=FlightType.CAS,
+        flight_plan=SimpleNamespace(escorted_waypoints=lambda: iter(())),
+    )
+    target = _FakeFrontLine(SimpleNamespace()) if front else SimpleNamespace()
+    builder = SimpleNamespace(
+        package=SimpleNamespace(flights=[cas], primary_flight=cas, target=target)
+    )
+    no_ring = SimpleNamespace(
+        waypoints_threatened_by_aircraft=lambda waypoints: False,
+        waypoints_threatened_by_radar_sam=lambda waypoints: False,
+    )
+    fulfiller = PackageFulfiller.__new__(PackageFulfiller)
+    fulfiller.coalition = SimpleNamespace(  # type: ignore[assignment]
+        player="blue",
+        doctrine=SimpleNamespace(always_escort_strikes=False),
+        opponent=SimpleNamespace(threat_zone=no_ring),
+    )
+    fulfiller.front_line_sead_escort = setting
+    return PackageFulfiller.check_needed_escorts(fulfiller, builder)  # type: ignore[arg-type]
+
+
+def test_radar_air_defense_at_the_front_needs_the_sead_escort(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dcs.vehicles import AirDefence
+
+    armor = {_ground(AirDefence.x_2S6_Tunguska): 2}
+    needed = _needed(monkeypatch, armor, setting=True)
+    assert needed[EscortType.Sead]
+    # Sead only: the escort jammer stays on the fixed-SAM trigger.
+    assert not needed[EscortType.Jammer]
+
+
+def test_ir_sams_and_guns_at_the_front_do_not(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dcs.vehicles import AirDefence
+
+    armor = {
+        _ground(AirDefence.Strela_10M3): 2,
+        _ground(AirDefence.Ural_375_ZU_23): 2,
+    }
+    assert not _needed(monkeypatch, armor, setting=True)[EscortType.Sead]
+
+
+def test_with_the_gate_off_the_front_does_not_need_sead(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dcs.vehicles import AirDefence
+
+    armor = {_ground(AirDefence.x_2S6_Tunguska): 2}
+    assert not _needed(monkeypatch, armor, setting=False)[EscortType.Sead]
+
+
+def test_a_package_away_from_the_front_is_unchanged(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from dcs.vehicles import AirDefence
+
+    armor = {_ground(AirDefence.x_2S6_Tunguska): 2}
+    needed = _needed(monkeypatch, armor, setting=True, front=False)
+    assert not needed[EscortType.Sead]
