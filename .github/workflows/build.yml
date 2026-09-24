@@ -1,6 +1,11 @@
 name: Build
 
-on: [push, pull_request]
+# Upstream runs this on push AND pull_request, so every PR here ran twice.
+# PRs run it once; main is covered by retlab-latest.yml, which runs the same
+# lint + test before publishing. workflow_dispatch runs it on any branch by hand.
+on:
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   lint:

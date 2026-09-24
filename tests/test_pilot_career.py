@@ -3,10 +3,10 @@
 Two things are pinned here because getting either wrong makes the feature worse
 than not having it:
 
-* Only records that actually FLEW are folded. §91 emits a counters-only entry
-  for every AI wingman that was never position-sampled, and a track-but-no-
-  movement entry for the untasked airframes parked on the ramp. Folding either
-  inflates a career's sortie count by the group size.
+* Only records that actually FLEW add a sortie. §91 emits a counters-only entry
+  for every AI wingman that was never position-sampled (its kills still count),
+  and a track-but-no-movement entry for the untasked airframes parked on the
+  ramp. A sortie for either inflates a career's count by the group size.
 * A rank grade whose requirement names a field that does not exist is REJECTED,
   not dropped -- a dropped requirement is met by everyone on their first sortie.
 """
@@ -96,14 +96,21 @@ def test_a_flown_sortie_is_added_to_the_career() -> None:
     assert career.kills == 5
 
 
-def test_a_counters_only_wingman_is_not_a_sortie() -> None:
-    # §91 emits one of these per AI jet that was never position-sampled. Folding
-    # it would add a sortie for every wingman in the formation.
+def test_a_counters_only_wingman_is_not_a_sortie_but_keeps_his_kills() -> None:
+    # §91 emits one of these per AI jet that was never position-sampled. A sortie
+    # for it would count every wingman in the formation; its kills are real
+    # (test 39: a BARCAP wingman's 3 air kills reached no career).
     pilot = Pilot("Viper")
-    fold_sortie_records([_record(track=(), shots=2)], _pilot_for(pilot))
+    fold_sortie_records(
+        [_record(track=(), shots=4, hits=3, air_kills=3, ground_kills=1)],
+        _pilot_for(pilot),
+    )
 
-    assert pilot.record.sorties == 0
-    assert pilot.record.shots == 0
+    career = pilot.record
+    assert (career.sorties, career.combat_sorties) == (0, 0)
+    assert career.flight_seconds == 0.0
+    assert (career.shots, career.hits) == (4, 3)
+    assert (career.air_kills, career.ground_kills) == (3, 1)
 
 
 def test_a_parked_airframe_is_not_a_sortie() -> None:
