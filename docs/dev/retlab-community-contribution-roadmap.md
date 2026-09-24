@@ -211,7 +211,6 @@ The original five (SCAR/TARS/TIC/QRA/C-130J) plus, from §29–§73:
 | §51 comms jamming / §70 C1–C2 red net | Medium/High | pair them — one comms-war story |
 | §57 air-droppable minefields | High | **Shelved 2026-07-30** — dormant (not preseeded, settings hidden); resume before carving, B9 pass still owed |
 | §58 briefing popup | High | B10 ☑ VERIFIED |
-| §59 ground-AI sleep | **Very high** (MP perf) | B11 pass owed |
 | §61 host red scramble | Medium | host/event tool |
 | §72 carrier deck decorations | Medium/High | B25 pass owed |
 | §21 Combat SAR family (+ §15 Sandy, MIA/POW) | High | the biggest single loop; carve after the G-row queue drains |
@@ -253,7 +252,7 @@ surface first; when someone else owns it, contribute by reviewing their PR.
   see the Tier 1 table note above.) Each its own default-preserving PR, flown first
   where a checklist row exists.
 - **Wave 5: the Lua features.** Cheapest, best-evidenced first (§58 briefing ✓,
-  §49 SCUD ✓, §59 sleep after B11) → the Vietnam Ops suite → §50 → the CSAR family
+  §49 SCUD ✓) → the Vietnam Ops suite → §50 → the CSAR family
   → MANTIS last, with the track record behind it. (§57 minefields dropped from this
   wave's near-term ordering — shelved in the fork since 2026-07-30, dormant until
   resumed.)

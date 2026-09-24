@@ -115,7 +115,7 @@ with a flown failure:
    invents no units. (Cost of learning: §35 and §37 were both reworked off `coalition.addGroup`.)
 2. **Safety is decided in Python as a positive list.** The emitter enumerates exactly what the
    plugin may touch; the plugin cannot widen it. This bounds the blast radius of the
-   least-testable layer with the most-testable one. (§59 is the canonical statement.)
+   least-testable layer with the most-testable one. (First stated by §59, removed 2026-09-23.)
 3. **Movement only.** A mover feature relocates things; the *consequence* stays in the
    turn-boundary force model. A mover that gets shot down just stops being routed.
 4. **One emitter, one entry point.** Each `game/missiongenerator/*luadata.py` exposes exactly
@@ -199,7 +199,7 @@ first, marked "(Recommended)", each with its trade-off.
 | IADS engine | **Skynet** (upstream's), with two bridge additions: dead C2 stand-ins and a deferred AWACS add. The MOOSE MANTIS bridge ran 2026-06-24 to 2026-09-12 and is removed; there is no selector |
 | Framework | **MOOSE** for the fork's plugins; **MIST** is upstream's `mist_4_5_126.lua` again (the compat shim went with the MANTIS bridge) |
 | Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts) · `JAMMING` (C-130J standoff EW) · `ESCORT_JAMMER` · `CSAR` (upstream #929's rescue) |
-| CI gates | `lint.yml` (black whole-tree + mypy game/tests) · `test.yml` (pytest incl. 3 out-of-tree dirs) · `lua-lint.yml` (blocking syntax gate) · `retlab-latest.yml` (rolling pre-release) |
+| CI gates | `lint.yml` (black whole-tree + mypy game/tests) · `test.yml` (pytest incl. 3 out-of-tree dirs) · Lua syntax gate in `lint.yml` (blocking) · `retlab-latest.yml` (rolling pre-release) |
 | Release | rolling `latest` pre-release is *the* release; pinned tags are `v<X.Y.Z>-retlab`. **Never `git push --tags`** |
 | Squadron script stack | separate repo: `tyfoultz/414th-Joint-Fighter-Group`, `bradys-changes` branch |
 

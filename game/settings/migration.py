@@ -180,6 +180,9 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         # and the auto-planned mining sortie are all gone.
         "air_droppable_minefields",
         "auto_plan_minefields",
+        # §59 ground AI sleep, REMOVED 2026-09-23 (DM call).
+        "perf_ground_ai_sleep",
+        "perf_aaa_site_sleep",
     ):
         migrated.pop(obsolete_key, None)
 

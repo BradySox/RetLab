@@ -268,7 +268,6 @@ local unitNames    = {}   -- list of registered unit names
 local groupIDs     = {}   -- name -> groupID
 local rootMenus    = {}   -- name -> root menu handle
 local ewMenus      = {}   -- name -> EW submenu handle
-local isrMenus     = {}   -- name -> ISR submenu handle
 local coordMenus   = {}   -- name -> Crew Coordination submenu handle
 local _staticSlots = {}   -- set of unit names that existed at mission start
 
@@ -1809,7 +1808,6 @@ end
 
 local function buildISRSubMenu(name, root, gid)
     local isrRoot = missionCommands.addSubMenuForGroup(gid, "ISR - Intelligence Surveillance Recon", root)
-    isrMenus[name] = isrRoot
 
     missionCommands.addCommandForGroup(gid, "SIGINT Report", isrRoot, function()
         sigintReport(name)
@@ -1926,7 +1924,6 @@ local function unregisterByName(name)
     for _, mid in ipairs(lockedMarkIDs[name] or {}) do trigger.action.removeMark(mid) end
     rootMenus[name]                  = nil
     ewMenus[name]                    = nil
-    isrMenus[name]                   = nil
     coordMenus[name]                 = nil
     coordMenus[name .. "_brief"]     = nil
     groupIDs[name]                   = nil
@@ -2190,7 +2187,6 @@ end
 -- Auto-register & startup
 -- ---------------------------------------------------------------------------
 
-local _staticSlots_ready = false
 local function recordStaticSlots()
     for _, g in ipairs(coalition.getGroups(coalition.side.BLUE) or {}) do
         if g and g.isExist and g:isExist() then
@@ -2201,7 +2197,6 @@ local function recordStaticSlots()
             end
         end
     end
-    _staticSlots_ready = true
 end
 timer.scheduleFunction(function() recordStaticSlots() end, {}, timer.getTime() + 0.1)
 

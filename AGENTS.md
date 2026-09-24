@@ -327,7 +327,7 @@ into the hard-constraints list or the surviving design note *before* deleting.
 | Mission scripting | **Lua 5.1** sandbox plugins (`resources/plugins/`) — no `os`/`io`, no `goto`, definition order matters |
 | In-mission framework | **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim) — the standard. **MIST is upstream's `mist_4_5_126.lua` again** (2026-09-12): the 2026-07 MIST → MOOSE shim went with the MANTIS bridge, so `base/plugin.json` is upstream's work-order list plus the fork's `sortie_recorder.lua`. Consumers (CTLD, intercept glue, `dcs_retribution.lua`, the relocate scripts, Skynet) call real MIST; a merged upstream Lua file that calls `mist.*` needs no shim work. See `retlab-skynet-return-notes.md`. MOOSE API docs (bookmark): https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html |
 | Units / mission format | pydcs; CurrentHill mod packs in `pydcs_extensions/` |
-| CI gates | Black + mypy + pytest + **Lua syntax gate** (`lua-lint.yml`, blocking) + advisory luacheck |
+| CI gates | Black + mypy + pytest + **Lua syntax gate** (`lint.yml`, blocking, gates the release) + advisory luacheck |
 | Release | PyInstaller → rolling `latest` pre-release on GitHub |
 
 ---
@@ -390,7 +390,7 @@ Other persisted state (e.g. fog) migrates in each class's `__setstate__`. When y
 persisted enum value, add the entry to `_LEGACY_FLIGHT_TYPE_VALUES` only.
 
 **Lua plugin discipline.** Lua 5.1 only, vanilla DCS units only (no HighDigitSAMs etc.),
-define functions before first use. The `lua-lint.yml` CI workflow runs `luac5.1 -p` over
+define functions before first use. The *Lua 5.1 syntax* job in `lint.yml` runs `luac5.1 -p` over
 every `resources/plugins/**/*.lua` as a blocking syntax gate — it catches parse-time errors.
 On top of that, the **headless Lua plugin harness** (`tests/lua/`, design note
 `retlab-lua-plugin-harness-notes.md`) runs the real plugin scripts on Lua 5.1 via `lupa`
@@ -509,7 +509,6 @@ linked design note.
 52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
 56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
 58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
-59. **Ground AI sleep** — the middle tier between keeping and culling, with AAA sites behind two guards.
 60. **SAM guidance-radar redundancy** — two spaced track radars, so one HARM is not a site kill.
 61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
 62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead. The Payload tab can pin a Hornet/Tomcat flight's number (wingmen follow); no other package reuses it.
@@ -577,6 +576,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 54 | Munitions availability | Removed 2026-07-21 |
 | 55 | Red Intent adaptive posture | Removed 2026-07-21 |
 | 57 | Air-droppable minefields | Removed 2026-09-07 — shelved 2026-07-30 and never resumed; the visible-fake problem was never worth fixing |
+| 59 | Ground AI sleep | Removed 2026-09-23 — DM call; never observed doing its job in any flown test |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 — real forces no longer hide behind circles, so a lone circle would obviously be fake |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 — "doesn't add much except in very specific campaigns" |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |

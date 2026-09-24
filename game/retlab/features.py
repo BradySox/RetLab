@@ -362,18 +362,13 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("mission_briefing_popup",),
     ),
     Feature(
-        # §59 ground AI sleep -- the graduated alternative to binary culling.
-        # aisleepluadata.py emits a positive list of rear-area garrison ("armor")
-        # vehicle groups (never air defense / missiles / ships / the concealed
-        # scripted movers); the `aisleep` plugin sleeps each group's controller
-        # (setOnOff false) while no aircraft is inside the wake radius and wakes
-        # it on approach or on a hit. Performance only -- units keep existing,
-        # kills record natively, no gameplay-model change.
+        # REMOVED 2026-09-23 (DM call). Never observed doing its job in a flown
+        # test, and a sleeping group cannot be prosecuted by an AI strike or SEAD
+        # flight (Desert Trident, 2026-08-24). Tombstone only.
         "ground_ai_sleep",
         "Ground AI sleep (graduated culling)",
         59,
-        plugin_id="aisleep",
-        settings_fields=("perf_ground_ai_sleep", "perf_aaa_site_sleep"),
+        retired=True,
     ),
     Feature(
         # §60 SAM guidance-radar redundancy -- every SAM site layout fields TWO

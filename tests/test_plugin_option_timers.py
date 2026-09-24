@@ -37,4 +37,4 @@ def test_every_loop_period_has_a_positive_minimum() -> None:
             if option.min is None or option.min <= 0:
                 offenders.append(option.identifier)
     assert not offenders, f"loop periods that accept 0: {offenders}"
-    assert checked >= 12, "the loop-period pattern no longer matches the tree"
+    assert checked >= 11, "the loop-period pattern no longer matches the tree"
