@@ -180,6 +180,8 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         # and the auto-planned mining sortie are all gone.
         "air_droppable_minefields",
         "auto_plan_minefields",
+        # §104's gate, on PR #1078 only; the runway queue is always on.
+        "queue_aware_ground_ops",
     ):
         migrated.pop(obsolete_key, None)
 

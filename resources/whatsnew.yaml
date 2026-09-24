@@ -17,9 +17,9 @@ entries:
     title: Flights at a busy field spawn early enough to make their takeoff
     change: >-
       Every flight used to get 8 minutes to taxi, however many others left the
-      same field at once. With the RetLab suite on, flights queue for the
-      runway at 30 seconds per jet, and a flight spawns earlier by its wait. A
-      quiet field keeps 8 minutes.
+      same field at once. Flights now queue for the runway at 45 seconds per
+      jet, and a flight spawns earlier by its wait. A quiet field keeps 8
+      minutes.
     watch: >-
       At a field with many departures bunched together, the later flights
       should now be airborne close to their planned takeoff instead of up to

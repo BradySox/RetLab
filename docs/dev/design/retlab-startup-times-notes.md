@@ -22,8 +22,8 @@ setting. That is what this is.
 
 **Taxi is not in it.** That is `estimate_ground_ops` — 2 minutes off a carrier or FOB, 8
 from an airfield — and it varies by field, not by airframe. Putting taxi in both places
-would double-count it. With `queue_aware_ground_ops` on, the airfield figure also grows with
-the traffic ahead of the flight; see **Runway queue** below.
+would double-count it. The airfield figure also grows with the traffic ahead of the
+flight; see **Runway queue** below.
 
 **Alignment means stored heading, not full gyrocompass.** A campaign jet sitting on its own
 ramp between turns has not been moved since its last shutdown, which is exactly the
@@ -90,24 +90,12 @@ can make it.
 
 ## Runway queue (§104)
 
-DM decision 2026-09-23: scale the ground-ops allowance by field traffic. Setting
-`queue_aware_ground_ops`, off by default, on in the RetLab planner suite.
+DM decision 2026-09-23: scale the ground-ops allowance by field traffic.
 
-### What test 39 measured
-
-Afghanistan, Graveyard of Empires turn 1, from the Tacview and the `.miz`:
-
-| Field | Groups / jets | Spawns spread over | Spawn → lead airborne |
-|---|---|---|---|
-| Kandahar | 14 / 32 | 207 s | +4.9 to +25.8 min, median 16.2 (8.5 planned) |
-| Camp Bastion | 14 / 27 | 11 min | median 8.9 |
-| Incirlik (tests 37, 38; light traffic) | — | — | AI median 4.3–4.8 |
-
-- Kandahar's planned takeoffs all fell inside ~3.5 min. The last pairs got off at +20–23 min.
-- Throughput was about 2 jets a minute on the one runway.
-- The human, a cold-start F-15E, waited 12 min for taxi clearance, then taxied 2.
-- Bastion's spawns were spread out, so the flat 8 was about right there. The flat allowance
-  is wrong only when many departures bunch up at one field.
+**DM call 2026-09-23: always on, long-standing upstream issue at busy fields.** No setting,
+which departs from the rule that planner changes ship behind a suite toggle. Upstream
+[#214](https://github.com/dcs-retribution/dcs-retribution/issues/214) raised airport traffic
+in its thread and it was never modelled; upstreaming queue item 42.
 
 ### The model
 
@@ -117,12 +105,14 @@ Afghanistan, Graveyard of Empires turn 1, from the Tacview and the `.miz`:
 - Out of the queue, and no wait: carriers, FOBs, off-map spawns, runway and air starts,
   helicopters.
 - Order: planned takeoff time. Ties go by package order, then flight order in the package.
-- Each flight holds the runway for `count × 30 s` (`RUNWAY_SECONDS_PER_AIRCRAFT`).
+- Each flight holds the runway for `count × 45 s` (`RUNWAY_SECONDS_PER_AIRCRAFT`).
 - A flight's slot opens at its planned takeoff or when the previous slot closes, whichever
   is later. Its wait is slot open minus planned takeoff.
-- `estimate_ground_ops` = 8 min + that wait. `takeoff_time` does not move; `startup_time`
-  moves earlier by the wait, so the flight spawns earlier and still makes its takeoff.
-- Player flights queue the same as AI: the test-39 human waited in the same line.
+- `estimate_ground_ops` = 8 min + that wait. The 30 s `estimate_takeoff_time` is unchanged.
+- `takeoff_time` does not move; `startup_time` moves earlier by the wait, so the flight
+  spawns earlier and still makes its takeoff.
+- **Players queue like AI.** The wait adds to the player's startup allowance
+  (`startup_minutes` or `player_startup_time`); it never replaces it.
 - `takeoff_time` does not read the ground-ops allowance, so the walk has no recursion.
 - The TOT estimator's `minimum_duration_from_start_to_tot` includes ground ops, so an ASAP
   package scheduled after others at a busy field is pushed later by its wait. Packages
@@ -131,30 +121,51 @@ Afghanistan, Graveyard of Empires turn 1, from the Tacview and the `.miz`:
 - Code: `game/ato/runwayqueue.py`, called from `FlightPlan.estimate_ground_ops`. Tests:
   `tests/test_runway_queue.py`.
 
+### Calibration
+
+Every capture with a `.miz` and a Tacview: 35 folders in `Desktop\New test`, 494 AI
+parking-start groups, 125 field-turns. Measure: share of groups airborne more than 2 min
+later than the model predicts.
+
+| Model | All groups late > 2 min | Busy fields late > 2 min |
+|---|---|---|
+| Flat 8 min (before) | 25 % | 35 % |
+| 8 min + 30 s per jet | 15 % | 21 % |
+| **8 min + 45 s per jet (built)** | **10 %** | **12 %** |
+| 5 min + 45 s per jet (best mean-error fit) | 31 % | 32 % |
+
+- Early is cheaper than late: an early AI flight holds, a late one misses its push. So the
+  base stays 8 min and the rate is 45 s, not the mean-error fit.
+- Busy field-turns in the data:
+  - Test 39, Kandahar: 34 jets spawned inside 10 min; the last jets got off +19 min late.
+    Median spawn → airborne 16.2 min against 8.5 planned. The human, a cold-start F-15E,
+    waited 12 min for taxi clearance, then taxied 2.
+  - Tests 35, 36, 37, red airdrome 7 on Syria: 19–22 jets a turn; medians +11 to +20 min late.
+  - Test 36, blue Incirlik (airdrome 16): 26 jets.
+- Quiet fields: Camp Bastion on test 39 spread 27 jets over 11 min of spawns, median 8.9;
+  Incirlik on tests 37 and 38 had AI medians of 4.3–4.8 min.
+
 ### Checked on a real save
 
-`asdasd.retribution` (Graveyard of Empires turn 2, 24 flights), headless, off vs on:
+`asdasd.retribution` (Graveyard of Empires turn 2, 24 flights), headless, flat vs queue:
 
-| Field | Flights in the queue | Allowance off → on |
+| Field | Flights in the queue | Allowance flat → queue (min, takeoff order) |
 |---|---|---|
-| Kandahar (blue) | 5 fixed-wing, 14 jets | 8.0 → 8.0, 9.7, 8.0, 8.4 (player DEAD lead), 10.1 |
-| Camp Bastion (blue) | 8 fixed-wing, 18 jets | 8.0 → 8.0, 8.1, 8.1, 8.0, 8.0, 8.0, 8.9, 8.8 |
-| Herat (red) | 3 | 8.0 → 8.0, 8.9, 8.0 |
-| Shindand, Farah (red) | 1 each | 8.0 → 8.0 |
+| Kandahar (blue) | 5 fixed-wing, 14 jets | 8.0 → 8.0, 10.7, 9.1, 10.0 (player DEAD lead), 12.6 |
+| Camp Bastion (blue) | 8 fixed-wing, 18 jets | 8.0 → 8.0, 8.6, 9.1, 8.3, 8.1, 8.0, 9.4, 9.8 |
+| Herat (red) | 3 | 8.0 → 8.0, 9.4, 8.0 |
+| Shindand, Farah, both heliports | 1–2 each | 8.0 → 8.0 |
 
-- Turn 2 is light. Its takeoffs are spread out, so the waits are small; a turn-1 frag like
-  test 39's Kandahar is the case this is for.
-- Off after on: every allowance and startup time identical to before.
-- Cost: 0.07 ms per `estimate_ground_ops` call off, 0.7 ms on. A full pass over all 24
-  flights takes 17 ms. The walk is linear in the ATO, so a full pass is quadratic; at test
-  39's size (~50 blue flights) that is about 0.05 s. Not cached.
+- Turn 2 is light. A turn-1 frag like test 39's Kandahar is the case this is for.
+- Cost: 0.08 ms per `estimate_ground_ops` call flat, 0.7 ms with the queue. A full pass over
+  all 24 flights takes 17 ms. The walk is linear in the ATO, so a full pass is quadratic; at
+  test 39's size (~50 blue flights) that is about 0.05 s. Not cached.
 
 ### Deferred
 
-- 30 s per jet is one field's measurement. A field-specific rate (runway count, taxi length)
-  would need more flown data.
+- One rate for every field. A per-field rate (runway count, taxi length) needs more data.
 - The model does not move takeoffs. A flight that waits still takes off at its planned time;
-  only its spawn moves. DCS may still sequence differently from the plan.
+  only its spawn moves.
 - Landing traffic on the same runway is not counted.
 
 ### In-game pass

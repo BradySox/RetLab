@@ -1,7 +1,7 @@
 """The departure runway as a queue: how long a flight waits behind the ones ahead.
 
-Gated on ``queue_aware_ground_ops``. See
-docs/dev/design/retlab-startup-times-notes.md, "Runway queue".
+Always on (DM call 2026-09-23). See docs/dev/design/retlab-startup-times-notes.md,
+"Runway queue".
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ from .starttype import StartType
 if TYPE_CHECKING:
     from .flight import Flight
 
-#: Test 39, Kandahar: 32 jets off one runway at about 2 a minute.
-RUNWAY_SECONDS_PER_AIRCRAFT = 30
+#: Fitted on 494 flown AI groups; errs early, since an AI flight that is early holds.
+RUNWAY_SECONDS_PER_AIRCRAFT = 45
 
 #: Runway and air starts never taxi, so they never join the queue.
 _QUEUED_START_TYPES = (StartType.COLD, StartType.WARM)

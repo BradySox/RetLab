@@ -428,9 +428,7 @@ class FlightPlan(ABC, Generic[LayoutT]):
             return timedelta()
         if self.flight.departure.is_fleet or self.flight.departure.is_fob:
             return timedelta(minutes=2)
-        if self.flight.coalition.game.settings.queue_aware_ground_ops:
-            return timedelta(minutes=8) + runway_queue_wait(self.flight)
-        return timedelta(minutes=8)
+        return timedelta(minutes=8) + runway_queue_wait(self.flight)
 
     def estimate_takeoff_time(self) -> timedelta:
         if self.flight.departure.is_offmap:

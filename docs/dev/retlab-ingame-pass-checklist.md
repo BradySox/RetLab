@@ -8543,17 +8543,17 @@ Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; 
 
 ### B145 — A busy field's later departures spawn early enough to make their takeoff · §104 · ☐ UNTESTED
 
-Built 2026-09-23 from test 39: at Kandahar 32 jets spawned inside 207 s and took a median
-16.2 min to get airborne against 8.5 planned; the human waited 12 min for taxi clearance.
-Unit-tested; checked headless on a turn-2 save.
+Built 2026-09-23 from test 39: at Kandahar 34 jets spawned inside 10 min and the last got
+off +19 min late; the human waited 12 min for taxi clearance. Always on. Unit-tested;
+checked headless on a turn-2 save.
 
 - **Setup:** a turn with many flights leaving one airfield inside a few minutes (Graveyard of
-  Empires turn 1 at Kandahar). RetLab planner suite on (or `queue_aware_ground_ops`). Open
-  the flights at that field in the ATO and note their startup times.
+  Empires turn 1 at Kandahar, or red airdrome 7 on Syria). Open the flights at that field in
+  the ATO and note their startup times.
 - **Pass (app):** flights later in the departure order start earlier relative to their
   takeoff than the first one; a flight alone at its field keeps 8 min of ground ops.
-- **Pass (flown):** the lead of each group at that field is airborne within about 3 min of
+- **Pass (flown):** the lead of each group at that field is airborne within about 2 min of
   its planned takeoff, and packages reach their push points on time.
-- **Fail signatures:** every flight at the busy field still gets 8 min; flights now airborne
-  well before their takeoff (the 30 s per jet is too slow for that field); jets spawned
+- **Fail signatures:** every flight at the busy field still gets 8 min; flights airborne well
+  before their takeoff and holding (45 s per jet is too slow for that field); jets spawned
   early block the taxiway for flights ahead of them in the queue.

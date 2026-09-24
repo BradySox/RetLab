@@ -412,23 +412,6 @@ class DoctrineSettings:
             "unaffected."
         ),
     )
-    queue_aware_ground_ops: bool = boolean_option(
-        "Taxi allowance grows with traffic at the field",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        # Stock default: upstream allows a flat 8 minutes at every airfield.
-        # RetLab planner suite turns this on.
-        default=False,
-        detail=(
-            "Every flight gets 8 minutes from an airfield to taxi and take off, "
-            "however many other flights leave the same field at the same time. "
-            "With this on, flights share the runway in takeoff order at 30 seconds "
-            "per aircraft, and a flight's start moves earlier by the time it waits "
-            "behind the flights ahead of it. A quiet field keeps 8 minutes. "
-            "Carriers, FOBs, helicopters and runway or air starts are unaffected. "
-            "Player flights queue the same as AI flights."
-        ),
-    )
     sead_strike_coordination: bool = boolean_option(
         "Strikes push behind their SEAD window",
         page=CAMPAIGN_DOCTRINE_PAGE,

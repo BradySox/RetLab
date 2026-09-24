@@ -1,7 +1,8 @@
 """A busy field's flights share one runway, so later departures get a longer taxi.
 
 Test 39, Kandahar: 32 jets spawned within 207 s and took 16 minutes median to get
-airborne against the flat 8 planned. docs/dev/design/retlab-startup-times-notes.md.
+airborne against the flat 8 planned. Always on (DM call 2026-09-23).
+docs/dev/design/retlab-startup-times-notes.md.
 """
 
 from __future__ import annotations
@@ -13,7 +14,6 @@ from typing import Any, cast
 from game.ato.flightplans.flightplan import FlightPlan
 from game.ato.runwayqueue import RUNWAY_SECONDS_PER_AIRCRAFT
 from game.ato.starttype import StartType
-from game.settings.plannersuite import PLANNER_SUITE_VALUES
 
 T0 = datetime(2026, 9, 23, 12, 0, 0)
 BASE = timedelta(minutes=8)
@@ -28,11 +28,10 @@ def _field(**kind: bool) -> SimpleNamespace:
 
 
 class _World:
-    def __init__(self, queue_aware: bool = True) -> None:
-        self.settings = SimpleNamespace(queue_aware_ground_ops=queue_aware)
+    def __init__(self) -> None:
         self.coalition = SimpleNamespace(
-            game=SimpleNamespace(settings=self.settings),
             ato=SimpleNamespace(packages=[]),
+            game=SimpleNamespace(settings=SimpleNamespace(player_startup_time=10)),
         )
 
     def flight(
@@ -43,6 +42,8 @@ class _World:
         start_type: StartType = StartType.COLD,
         helo: bool = False,
         package: SimpleNamespace | None = None,
+        clients: int = 0,
+        startup_minutes: int | None = None,
     ) -> SimpleNamespace:
         if package is None:
             package = SimpleNamespace(time_over_target=T0, flights=[])
@@ -56,10 +57,17 @@ class _World:
             manual_takeoff_time=None,
             package=package,
             coalition=self.coalition,
+            client_count=clients,
+            unit_type=SimpleNamespace(startup_minutes=startup_minutes),
         )
-        flight.flight_plan = SimpleNamespace(
-            flight=flight, takeoff_time=lambda: takeoff
-        )
+        plan = SimpleNamespace(flight=flight, takeoff_time=lambda: takeoff)
+        for name in (
+            "estimate_startup",
+            "estimate_ground_ops",
+            "estimate_takeoff_time",
+        ):
+            setattr(plan, name, getattr(FlightPlan, name).__get__(plan))
+        flight.flight_plan = plan
         package.flights.append(flight)
         return flight
 
@@ -68,8 +76,9 @@ def _ground_ops(flight: SimpleNamespace) -> timedelta:
     return FlightPlan.estimate_ground_ops(cast(Any, flight.flight_plan))
 
 
-def test_the_planner_suite_turns_it_on_and_stock_leaves_it_off() -> None:
-    assert PLANNER_SUITE_VALUES["queue_aware_ground_ops"] == (False, True)
+def test_a_jet_holds_the_runway_45_seconds() -> None:
+    """Fitted on 494 flown AI groups; 30 s left 21% of busy-field groups late."""
+    assert RUNWAY_SECONDS_PER_AIRCRAFT == 45
 
 
 def test_a_lone_flight_gets_the_base_allowance() -> None:
@@ -111,7 +120,9 @@ def test_the_queue_follows_takeoff_time_not_ato_order() -> None:
     field = _field()
     late = world.flight(field, T0 + timedelta(seconds=30), count=2)
     world.flight(field, T0, count=2)
-    assert _ground_ops(late) == BASE + timedelta(seconds=30)
+    assert _ground_ops(late) == BASE + timedelta(
+        seconds=2 * RUNWAY_SECONDS_PER_AIRCRAFT - 30
+    )
 
 
 def test_different_fields_do_not_interact() -> None:
@@ -172,8 +183,21 @@ def test_a_flight_not_yet_in_the_ato_queues_behind_those_that_are() -> None:
     )
 
 
-def test_off_is_the_flat_allowance() -> None:
-    world = _World(queue_aware=False)
+def test_a_player_flight_waits_in_the_same_queue_on_top_of_his_startup() -> None:
+    """The queue adds to the airframe's startup allowance; it never replaces it."""
+    world = _World()
     field = _field()
-    flights = [world.flight(field, T0, count=4) for _ in range(4)]
-    assert [_ground_ops(f) for f in flights] == [BASE] * 4
+    world.flight(field, T0, count=4)
+    player = world.flight(field, T0, count=2, clients=1, startup_minutes=3)
+    wait = timedelta(seconds=4 * RUNWAY_SECONDS_PER_AIRCRAFT)
+    assert _ground_ops(player) == BASE + wait
+    startup = FlightPlan.startup_time(cast(Any, player.flight_plan))
+    assert startup == T0 - timedelta(minutes=3) - BASE - wait - timedelta(seconds=30)
+
+
+def test_the_obsolete_setting_is_dropped_from_a_save() -> None:
+    from game.settings.migration import migrate_legacy_settings
+
+    assert "queue_aware_ground_ops" not in migrate_legacy_settings(
+        {"queue_aware_ground_ops": True}
+    )
