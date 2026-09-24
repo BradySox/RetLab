@@ -10146,11 +10146,13 @@ record and splits it by the target's `getDesc().category`.
 - **A ground unit that kills a jet never becomes a flight.** The same rule §91's shot handler
   learned in test 7: the AAA that downed you is an initiator too, and these are records of
   *flights*.
-- **Only records that flew are folded.** A counters-only wingman entry would add a sortie for
+- **Only records that flew add a sortie.** A counters-only wingman entry would add one for
   a jet that was never position-sampled — once per member of the formation — and a parked
-  airframe would add one for a jet that never moved (§91's `MIN_SORTIE_DISTANCE_M`). Their
-  weapons and kills are lost with them. Overcounting sorties is worse than missing a stray
-  shot.
+  airframe one for a jet that never moved (§91's `MIN_SORTIE_DISTANCE_M`). A parked record
+  is skipped outright. A counters-only record still folds its shots, hits, kills and
+  ejection (2026-09-23): on test 39 the wingmen held 9 of blue's 17 air kills and 7 of 17
+  ground kills, and until then none reached a career. AI wingmen still get no sortie or
+  hours, so pass item 5 of B113 stays open for them.
 - **`missions_flown` is not `sorties` and must not be merged into it.** The old field counts
   ATO *assignments*, incremented for every roster seat whether or not that jet moved, and
   `Squadron.pilot_skill` reads it. Changing it would move every AI pilot's skill tier.
