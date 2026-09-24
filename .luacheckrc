@@ -43,17 +43,11 @@ ignore = {
     "212", -- unused argument
     "213", -- unused loop variable
     "311", -- value assigned to a local is never used (overwritten)
+    "131", -- unused global: plugins hand globals (dirty_state, the sortie_recorder_*
+           -- hooks, OpsCSAR_BeginHover) to dcs_retribution.lua and Python-emitted
+           -- waypoint actions, which luacheck never sees
     "542", -- empty if branch
     "631", -- line too long (belt-and-suspenders with max_line_length=false)
-}
-
--- Written in one file and read in another (dcs_retribution.lua, which is
--- upstream's and excluded, or a Python-emitted waypoint action).
-globals = {
-    "dirty_state",
-    "sortie_recorder_on_shot", "sortie_recorder_on_hit", "sortie_recorder_on_kill",
-    "sortie_recorder_on_ejection", "sortie_recorder_payload",
-    "OpsCSAR_BeginHover",
 }
 
 read_globals = {
