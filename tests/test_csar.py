@@ -614,6 +614,20 @@ def test_statedata_parses_ejections_and_rescues() -> None:
     assert state.rescued_pilot_ids == ["11111111-1111-1111-1111-111111111111"]
 
 
+def test_statedata_parses_crash_positions() -> None:
+    unit_map = MagicMock()
+    unit_map.flight.return_value = None
+    data = {
+        "crash_positions": [
+            {"unit": "Eagle 1-2", "x": -73158.0, "z": -322203.0},
+            {"x": 1.0, "z": 2.0},  # no unit: skipped
+        ]
+    }
+    state = StateData.from_json(data, unit_map)
+    assert state.crash_positions == {"Eagle 1-2": (-73158.0, -322203.0)}
+    assert StateData.from_json({}, unit_map).crash_positions == {}
+
+
 def test_statedata_defaults_when_keys_absent() -> None:
     unit_map = MagicMock()
     unit_map.flight.return_value = None
@@ -691,6 +705,77 @@ def test_no_ejection_failed_roll_kills() -> None:
     debriefing.ejected_pilot_positions = {}
     processor._process_lost_pilot(loss, debriefing, CsarService(game))
     assert pilot.status is PilotStatus.Dead
+
+
+def _survivor_position(recorded: Optional[Point]) -> Point:
+    from game.theater.player import Player
+
+    game = _make_game(csar_ejection_chance=100)
+    game.settings.invulnerable_player_pilots = False
+    processor = MissionResultsProcessor(game)
+    pilot = Pilot("P", player=False)
+    loss = _loss(pilot, Player.BLUE)
+    debriefing = MagicMock()
+    debriefing.ejected_pilot_positions = {}
+    debriefing.loss_positions = {id(pilot): recorded} if recorded is not None else {}
+    csar = CsarService(game)
+    target = Point(9000.0, 9000.0, _TERRAIN)
+    with patch.object(csar, "fallback_position_for", return_value=target), patch.object(
+        csar, "down_pilot"
+    ) as down:
+        processor._process_lost_pilot(loss, debriefing, csar)
+    return cast(Point, down.call_args.args[3])
+
+
+def test_no_ejection_survivor_is_placed_on_the_recorded_track() -> None:
+    recorded = Point(120.0, 340.0, _TERRAIN)
+    assert _survivor_position(recorded) is recorded
+
+
+def test_no_ejection_and_no_track_falls_back_to_the_target() -> None:
+    assert _survivor_position(None).x == 9000.0
+
+
+def _loss_positions(crashes: dict[str, tuple[float, float]]) -> Any:
+    from game.debriefing import Debriefing
+    from game.sortierecord import TrackSample
+
+    lead, wingman = Pilot("Lead"), Pilot("Wingman")
+    units = {
+        "Jet| Pilot #1": SimpleNamespace(pilot=lead),
+        "Jet| Pilot #2": SimpleNamespace(pilot=wingman),
+        "Parked| Pilot #1": SimpleNamespace(pilot=Pilot("Parked")),
+    }
+    track = (TrackSample(10, 1.0, 2.0, 500, 0.9), TrackSample(40, 7.0, 8.0, 900, 0.8))
+    records = [
+        SimpleNamespace(unit="Jet| Pilot #1", track=track),
+        SimpleNamespace(unit="Parked| Pilot #1", track=()),
+        SimpleNamespace(unit="Unknown| Pilot #1", track=track),
+    ]
+    fake = SimpleNamespace(
+        game=SimpleNamespace(theater=SimpleNamespace(terrain=_TERRAIN)),
+        state_data=SimpleNamespace(sortie_records=records, crash_positions=crashes),
+        unit_map=SimpleNamespace(flight=units.get),
+    )
+    positions = Debriefing._loss_positions(fake)  # type: ignore[arg-type]
+    return {
+        name: (positions[id(u.pilot)].x, positions[id(u.pilot)].y)
+        for name, u in units.items()
+        if id(u.pilot) in positions
+    }
+
+
+def test_loss_position_falls_back_to_the_last_track_sample() -> None:
+    assert _loss_positions({}) == {"Jet| Pilot #1": (7.0, 8.0)}
+
+
+def test_loss_position_prefers_the_crash_point() -> None:
+    # Test 39: only a group's lead is recorded, so the wingman has no track.
+    crashes = {"Jet| Pilot #1": (70.0, 80.0), "Jet| Pilot #2": (90.0, 95.0)}
+    assert _loss_positions(crashes) == {
+        "Jet| Pilot #1": (70.0, 80.0),
+        "Jet| Pilot #2": (90.0, 95.0),
+    }
 
 
 def test_csar_disabled_kills() -> None:

@@ -65,7 +65,8 @@ auto-planner never adds one.
 
 1. A pilot goes down in the operating area. Real in-mission ejections always produce a survivor;
    losses where DCS reported no ejection (AI kills, simulated turns) roll against
-   `csar_ejection_chance` (**40%**).
+   `csar_ejection_chance` (**40%**). A survivor from that roll comes down where his aircraft
+   crashed; only a simulated turn, which has no crash to read, places him near the target.
 2. **Distance to the nearest base decides whether it is a mission at all.** Inside
    `csar_control_point_radius` (**15 nm**) there is no rescue flight: on friendly ground the
    pilot walks back and goes into recovery, on enemy ground they are captured. Only pilots

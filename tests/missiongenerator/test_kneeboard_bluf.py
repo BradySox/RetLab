@@ -106,6 +106,36 @@ def test_bluf_lines_carry_task_threats_and_sar() -> None:
     assert "squawk 7700" in lines[-1]
 
 
+def _fighter(name: str, priority: int, barcap: bool = True) -> Any:
+    return SimpleNamespace(
+        variant_id=name,
+        capable_of=lambda task: barcap and task is FlightType.BARCAP,
+        task_priority=lambda task: priority,
+    )
+
+
+def test_air_threat_line_names_only_squadrons_the_enemy_owns() -> None:
+    su33 = _fighter("Su-33 Flanker-D", 510)
+    squadrons = [
+        SimpleNamespace(aircraft=_fighter("Su-27 Flanker-B", 480), owned_aircraft=6),
+        SimpleNamespace(aircraft=_fighter("J-11A Flanker-L", 500), owned_aircraft=0),
+        SimpleNamespace(aircraft=_fighter("MiG-29A Fulcrum", 470), owned_aircraft=10),
+        SimpleNamespace(aircraft=_fighter("Su-24M", 900, False), owned_aircraft=16),
+    ]
+    opponent = SimpleNamespace(
+        faction=SimpleNamespace(aircraft=[su33] + [s.aircraft for s in squadrons]),
+        air_wing=SimpleNamespace(iter_squadrons=lambda: iter(squadrons)),
+    )
+    game = SimpleNamespace(
+        settings=SimpleNamespace(generate_dark_kneeboard=False),
+        coalition_for=lambda friendly: SimpleNamespace(opponent=opponent),
+    )
+    mission = SimpleNamespace(start_time=SimpleNamespace(hour=12))
+    gen = KneeboardGenerator(mission, game)  # type: ignore[arg-type]
+    line = gen._brief_air_threats(_flight())
+    assert line == "Su-27 Flanker-B / MiG-29A Fulcrum CAP likely near the front."
+
+
 def test_bluf_has_no_top_threat_line() -> None:
     # The verbose TOP THREAT prose was dropped in the back-to-upstream rework;
     # the SAM picture is the condensed "system MEZnm" line instead.

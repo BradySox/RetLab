@@ -321,9 +321,48 @@ Rows moved: **B130** ◐ → ☑ (the DED read). New row **G43** (◐): a crashe
 
 Evidence recorded without a status change: **B134** (the ATO read before flying: the deep half passes), **B77** (+12:53 against +12 briefed, as on test 37), **B132** (Lua cleared in the window; the slow stretch follows the human and does not lift on F10), **B70** (the vacated-seat fix holds), **B113** (flight time counted the ramp; fixed).
 
+## Test 39 — what it reached, and what it could not (2026-09-23)
+
+Afghanistan — Graveyard of Empires turn 1 (new game), 89 min of sim, one human (Flash) in the PIG Strike F-15E (Suite 4+) lead out of Kandahar, cold start, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069). The `.miz` was written at 19:14; #1070 (§69 SAM routing) merged at 19:48 and is not in it. TIC and the profiler were off. Artifacts in `Desktop\New test\39`; the turn-2 save is `asdasd.retribution` (20:29).
+
+Objectives destroyed (`Objective destroyed` in `dcs.log`): the Herat Motor Pool's four buildings (MONKFISH's two F-14s, eight GBU-31s, t=2889–2912), the Malan Bridge (QUAGGA) and Gazar-gahe Sharif's four (HORNBILL). Hashemi Bridge, PIG's target, was never attacked — both PIG jets were down before the IP.
+
+The fight: blue lost 36 aircraft — 26 to ground fire, 4 air-to-air, 6 crashes with no weapon near. Red lost 19 — 17 air-to-air, 2 Ka-52 crashes. One S-350, `0012 | PORCUPINE (SAM)`, killed 10 blue aircraft between t=2317 and t=2672. `PORCUPINE DEAD` killed its three radars with AGM-65G at t=2716–2761, 51–96 s before the DEAD's own TOT. Flash was one of the 10: a 9M96D launched at t=2512 hit him at t=2622, 56.5 NM from the site, on the NAV → INGRESS leg, 7 min before PIG's TOT. His wingman went down 50 s later. SABERTOOTH (Buk-M3), whose ring covers none of the targets, killed four F-15C escorts 40–47 km from the site — the B141 case, one build before its fix.
+
+Rows moved: **G43** ◐ → ☑ (56 crash events, no Skynet error, the guard is in the flown file); **B76** ◐ → ☑ (the negative case: probe receivers, boom tankers only, one KC-135 on turn 1 and turn 2); **B128** ☐ → ◐ (PIG's and HORNBILL's strikers were shot down on ingress; their escorts turned home within 40 s and recovered at their own fields).
+
+Evidence recorded without a status change: **G30** (the first HARM at a site paired with a HARM-capable Tor; the Tor had fired all eight rounds at aircraft before the HARM arrived), **B122** (18 of 18 ejections landed; each is exactly where the next turn puts its survivor), **B70** (kill totals match the recording on both sides), **B113**, **B114** (the second-campaign half, in the store), **B77** (the F-15E: first move +12:20, airborne +14:26, against +11:29 briefed), **B97** (attrition), **B129**, **B126**, **B141** (the pre-fix baseline), **S3**, **S5**, **G33**, **H14**, **H16**, **B138**, **G42**.
+
+Found, not rows:
+
+1. **The BLUF's air-threat line names aircraft red does not own.** Page 1 reads `Su-33 Flanker-D / J-11A Flanker-L CAP likely near the front`. `_brief_air_threats` (`game/missiongenerator/kneeboard/generator.py`) ranks the enemy faction's whole type list by BARCAP priority. Red's air wing here is Su-27 (6), MiG-29A (10) and JF-17 (4) — the types that actually flew. **Fixed the same day:** the line ranks the squadrons the enemy owns (`test_air_threat_line_names_only_squadrons_the_enemy_owns`).
+2. **A survivor with no ejection record is placed near his package's target, not where his jet fell.** `missionresultsprocessor.py` rolls the survival chance and calls `csar.fallback_position_for(flight)`; its comment calls that "the only position we have for AI/simulated losses". A flown loss now has a §91 track. Nine of the 21 blue survivors in the turn-2 save took that path and sit 23–42 km from the nearest loss of their type. Turn 2 fragged a UH-60 CSAR at one of them (Andrew Clay, F-14, 41 km off). The §91 track alone would not cover it: only a group's lead and humans are recorded, and 15 of the 36 blue losses were wingmen with no record. **Fixed the same day:** `dcs_retribution.lua` writes `crash_positions` on `S_EVENT_CRASH`, and a survivor with no ejection is placed at his aircraft's crash point, else its last track sample, else the target as before. Unflown; row **B142**.
+3. **§69 orders TOTs at the target; the S-350 reaches the strikes earlier.** PORCUPINE's TOT led the Herat strikes by 2–4 min. Eight blue flights were inside 60 NM of the S-350 between t=2449 and t=2599, before the DEAD's first radar kill at t=2716. Not a defect in §69 as written; a question for the DM.
+4. Six blue aircraft crashed with no weapon within 1.5 km in their last 6 s, four of them into terrain at speed (HORNBILL Strike, QUAGGA Strike, BULLSHARK Strike #2, FALCON Escort #2). All are in `crash_events`. Two were strikers that had just delivered: QUAGGA's F-14 released four GBU-31s at t=2982 and hit terrain at t=3026, and its bombs dropped the Malan Bridge at t=3041 (4–11 m off); HORNBILL's surviving F-15E released two GBU-31(V)3Bs on Gazar-gahe Sharif at t=3031 and hit terrain at t=3065.
+5. The civil-traffic spawner overfilled four fields (`No parking place` at Chaghcharan, Bamyan, Nimroz and one more), as at Wujah Al Hajar on test 37.
+
+| Row | Why test 39 could not answer it |
+|---|---|
+| B108, B103 | TIC was off (`tic` is not in the `.miz`) |
+| B132 | The profiler was off |
+| B141 | The build is one merge before #1070; this flight is the baseline, recorded under the heading |
+| B120, B121 | 8 border zones drawn, 7 defended; nobody crossed, no hail, no neutral unit fired |
+| B125 | The human took the fragged slot; PIG Strike carried the template flag |
+| B126 | The one DEAD was the reactive tier (the S-350 covering the Herat strikes); no opportunistic DEAD on turn 1 or turn 2 |
+| S3 | The blue column was still 23.5 km from `Convoy ambush 1` at mission end |
+| H16 | No Afghanistan raster ships, so the flat fill is correct |
+| H10 | One client flight |
+| B138 | No pinned numbers; the one F-14 squadron has a single livery, so there is no CAG bird to misapply |
+| B19 | Clear sky, 7+ SM; nothing for the planner to react to |
+| B61, B85, B111 | Not examined this pass |
+| B11, B45, B32, B39, G41, G19, G40 | Setting off / GPS jamming inert (no site) / landlocked / no power station struck / no TARPS |
+| B17, B100, B96, B101, B102, B118, B104, B105, B110, B115, B135, B136, B137 | Wrong campaign or airframe, or a cockpit read on a jet without a DTC |
+| L-rows, M6, P-rows | Vietnam and COIN rows; `coin` is not in the `.miz` |
+| B6, B20, B29, B54, B65, B66, B80, B92, B94, B95, B112, B124, B139, B140, O1 | App-side or multi-turn |
+
 ## Outstanding rows at a glance
 
-90 rows need a live pass. Full detail is under each `###` heading below —
+89 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -364,7 +403,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B123 | An Armed Recon flight engages a gun-defended target instead of overflying the search point | §35 | ◐ |
 | B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ✗ |
 | B125 | A dynamic-slot jet spawns with the template's route, radios and loadout | §101 | ☐ |
-| B128 | An escort comes home when its primary never flies | §8 | ☐ |
+| B128 | An escort comes home when its primary never flies | §8 | ◐ |
 | B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
 | B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
 | B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
@@ -377,11 +416,12 @@ stress it · `✗` fail signature reproduced in-game.
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
+| B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
 | G42 | Skynet is the engine again: sites dark until cued, HARM defence, no `enableEmission` crash | Skynet return | ◐ |
-| G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ◐ |
+| G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ☑ |
 | G33 | Survivor ADF beacon: the pinned 260 kHz drives a real needle | CSAR (upstream #929 + RetLab pin) | ◐ |
 | G34 | AI landing pickup: touchdown, embark, and the rescue reported back | CSAR | ☑ |
 | G35 | AI hover hoist completes and releases the flight, including over water | CSAR | ☑ |
@@ -446,7 +486,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B69 | The front bulges instead of running straight | §90 rung E | ☑ |
 | B70 | Sortie records reach the campaign | §91 | ◐ |
 | B75 | The ATO stops spending its escorts on the wrong packages | planner shape | ☑ |
-| B76 | A mixed boom/probe wing gets a tanker of each | U15 reinstated | ◐ |
+| B76 | A mixed boom/probe wing gets a tanker of each | U15 reinstated | ☑ |
 | B77 | A player's ramp allowance matches the airframe | #214 startup times | ◐ |
 | B78 | The escorts let go of a package the player is leading | planner shape | ☑ |
 | B79 | Ground-level waypoints read the field's elevation | §8 | ☑ |
@@ -2784,6 +2824,8 @@ target is actually enough reach in a real laydown, and whether the message lands
 
 ### B126 — An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after · doctrine row 8 · ☐ UNTESTED
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **not the tier this row tests.** The one turn-1 DEAD, `PORCUPINE DEAD` (4× F-16C), was fragged at the S-350 covering the Herat strikes — the reactive tier. It fired: AGM-65Gs killed the 96L6 and both 50N6s at t=2716–2761, 51–96 s before its TOT, for two of its four jets (one to the S-350, one to TURKEY's Tor). No opportunistic DEAD on turn 1 or turn 2 (turn 2: DEAD at SKINK and PORCUPINE again), so the EWR ordering was not exercised.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **not the EWR ordering, but the same doctrine seam.** The SA-11 `0126 | MAVERICK (SAM)` was live when `Kharab Ishk Armed Recon` (TOT 05:46Z) transited, and killed six aircraft of that package. What eventually killed it was unplanned against it: `FERRET SEAD Escort` (2× F/A-18C, escorting a BAI) fired four AGM-88 at it from 70–75 km at t=2419–2437, 21 s after the site opened fire; all four fell 2.2–2.4 km short at t=2563–2572. The same flight's GBU-38s then killed the four TELARs and two ZU-23s at t=2710–2715. `RAVEN SEAD Escort` GBU-38s killed the Strelas and a tanker truck at t=3272–3276. The site's own DEAD, `MAVERICK DEAD` (TOT 06:07Z), arrived to a dead site; its JSOW submunitions most likely took the search radar at t=3849 (no single weapon within 150 m). The fragged suppression for that site came 21 min after the package that had to cross it.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged: no turn in the captures follows an EWR kill.** Test 32's WEKA shot at LEOPARD is the closest thing seen (a lit site, lit because the SEAD escort ahead of it drew fire), which is the row's second fail signature working as intended, not the ordering. Needs the turn after an EWR dies.
@@ -2917,6 +2959,8 @@ EWR covering a site is dead, Skynet runs the site autonomous and live from T0.
 
 ### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ☐ UNTESTED
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **a HARM at a site whose PD can answer it, and the PD had nothing left.** `FALCON SEAD Escort` fired an AGM-88 at t=2796 that hit an HQ-7 launcher of `0006 | TURKEY (SAM)` at t=2935. Skynet paired `0007 | TURKEY (PD)`: a Tor 9A331 and two Shilkas. The Tor fired all eight of its 9M330s between t=2665 and t=2863, at aircraft (it killed a PORCUPINE DEAD F-16 and a BULLSHARK F-15E); its closest missile passed 11 km from the HARM. The HQ-7 stayed live, as Skynet intends for a site that can engage a HARM itself, and its own HQ-7B passed 30 m from the HARM at t=2909 without killing it. The log also shows the 2026-09-22 guard working: `0080 | BLOODHOUND (PD) cannot engage a HARM; not paired` and the same for `0069 | TETRA (PD)`. Still owed: a HARM at a paired site whose Tor has rounds left.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **a HARM at a paired site, and the pairing could not answer.** `FERRET SEAD Escort` fired four AGM-88 at `0126 | MAVERICK (SAM)` (SA-11) at t=2419–2437, from 70–75 km. Skynet had paired it with `0127 | MAVERICK (PD)`: two ZU-23 and two Strela-1 — guns and an IR missile, nothing that can engage a HARM. The PD fired nothing; the HARMs fell 2.2–2.4 km short at t=2563–2572. The row's pass needs a radar SHORAD (Tor, Tunguska, Pantsir) as the PD; this pairing is the fail-by-construction case, and worth checking in the Skynet config that IR-only groups are not being paired as point defence. **Checked and fixed 2026-09-22:** they were, and Skynet then held the parent SAM live on the PD's ammo count alone (`shallIgnoreHARMShutdown` never asks whether a PD can engage a HARM). Only 1 of test 37's 5 red PDs (SPARROW's Tor) could. The bridge now pairs only a PD Skynet rates HARM-capable; see `retlab-skynet-return-notes.md` §5. Unflown.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised through Skynet in any capture.** Test 32 is the only Skynet mission with HARM shots (8), and none was fired at a site with a paired point defence (POODLE never woke). The MANTIS-era test 14 evidence is now irrelevant. Needs a deliberate HARM at a site whose `(PD)` group Skynet holds dark.
@@ -2964,6 +3008,8 @@ either way — the row needs a shot deliberately taken at a site that has point 
 ---
 
 ### G33 — Survivor ADF beacon: the pinned 260 kHz drives a real needle · CSAR (upstream #929 + RetLab pin) · ◐ PARTIAL
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — 18 `Added Radio Beacon 260000 Hertz` lines, red and blue. No human was down to tune an ADF, so the needle is still owed.
 
 **2026-09-16, test 35** (Syria — Long Road to H3 turn 1, 78 min, no player, `Tacview-20260916-215945`, DCS 2.9.29.27468) — three blue beacons, three on 260 kHz, all in-mission ejections (no survivor was pre-placed). Six of six across tests 34 and 35 now.
 
@@ -3231,6 +3277,8 @@ either way — the row needs a shot deliberately taken at a site that has point 
 
 ### H14 — The kneeboard SAR line is accurate, and the rescue crew gets a usable card · CSAR · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the striker line again.** The F-15E's page 1 carries the four-line `SAR 260 kHz ADF` block, no overflow. Turn 2's ATO frags two UH-60L CSAR flights (`Downed pilot: Curtis Thomas`, `Downed pilot: Andrew Clay`), so the rescue crew's card is reachable on the next turn.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the striker-card half.** Page 1 carries `SAR 260 kHz ADF — If down: your beacon keys automatically — squawk 7700, voice on GUARD …`, four lines, no overflow, and every survivor this mission keyed that channel: 28 `Added Radio Beacon 260000 Hertz` lines in `dcs.log`. No CSAR flight was fragged, so the crew's card is still owed.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised.** Test 33's Viper kneeboard (eight pages, read off the miz) carries no SAR line because no survivor was on the map at generation; no capture had a CSAR package with a kneeboard to read. Unchanged.
@@ -3254,6 +3302,8 @@ either way — the row needs a shot deliberately taken at a site that has point 
 - **Fail signature:** imagery that is a vertical smear of one pixel row (the raster was georeferenced by `terrain.bounds` again); markers floating tens of km off the coastline they should follow (the coverage rect drifted — re-run `test_gif_georef.py`); a Cyprus page showing open water under an airbase (the `unrendered` hole stopped being consulted); a blank or crashed page where the landmap fallback should have drawn (the refusal path returned None all the way up instead of falling through).
 
 ### H16 — Package Targets Map: terrain behind the packages, and it lines up · §22 · ☐ UNTESTED
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **not reachable on this map.** The page drew the flat fill with a grid and every package placed (PIG, BULLSHARK, HORNBILL, PORCUPINE, MONKFISH, QUAGGA, FALCON, the front, FOB Delaram II). No Afghanistan raster ships in `resources/`, so the fill is the correct behaviour.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the page renders on a real turn; the terrain backdrop is not there.** Test 33's Package Targets Map (page 7 of the Viper deck) shows every package and field on a flat tan landmap with the coastline and grid, correctly placed (Akrotiri, CVN-62, Ramat David, MAVERICK, the front), with no imagery behind it. Syria is inside the shipped raster's coverage per the row's own history, so either the padded extent fell outside `COVERAGE` or the raster path was not taken; the row's fail signature ("a flat tan fill where the raster should have reached") is what is on the page. Not adjudicated further; check the extent before calling it.
 
@@ -4559,6 +4609,8 @@ engaged. The rest of the campaign check stands.
 
 ### S3 — Friendly convoy ambush (a chance, never telegraphed) · §50 · ◐ PARTIAL
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **not reached.** The trigger was armed (`Convoy ambush 1`, radius 6 km, on `Convoy 001`, blue), and the team (`0093 | KANGAROO`, Tigr-M and AK infantry) stood 69 m from the zone centre. The column drove 51 km and was still 23.5 km from the zone at mission end.
+
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the native triggers are authored and the spring is still blocked by S5.** `Convoy ambush N` zones exist in four captures (test 8: 3, test 17: 4, tests 19 and 20: 1 each). On test 17 both blue columns the teams were keyed to never moved (S5), so nothing could enter a zone. Unchanged until S5 is fixed.
 
 **History:** 2026-07-06 flown Inherent Resolve session `jovial-gates-574c9c`: the whole chain up to the spring VERIFIED — but the spring itself was blocked by the S5 parked-blue-convoy bug
@@ -4608,6 +4660,8 @@ save drop stays, because that pop IS the cleanup for old saves.
 - **Fail signature:** jamming before any capture with the intel gate on (`captureOnly` flag not emitted/read); no jamming ever after a confirmed capture (the `combat_sar_captures` global name/shape drifted between the combatsar and commsjam plugins — check both, and that a CombatSAR node was emitted at all: no blue rescue helo = no capture race); the POW leg opens clean (`pending_pow_recoveries` not read — check `plan_comms_jam`); no static ever plays on a jammed channel (sound file missing from the miz — check `commsjam-noise.wav` landed in `l10n/DEFAULT`, or radioTransmission Hz/modulation wrong); static on GUARD/ATC/the backup (the Python positive-list broken); continuous unbroken noise on every channel at once (duty cycle/rotation broken — check `burstSec`/`intervalSec`/`maxFreqsPerBurst` plugin options); jamming continues after the node is confirmed destroyed (death detection — the static `" object"` suffix or the `dead_events` ledger path); a `COMMSJAM|: setup error` in dcs.log; bursts before the startup grace.
 
 ### S5 — Ambient supply convoys: both sides' roads have randomized traffic · §50 · ◐ PARTIAL (2026-09-21, test 37; was ✗ REGRESSED (2026-09-16, audit))
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **both columns drove.** `Convoy 001` (blue: HIMARS, Stryker ATGM, MaxxPro) 51 km; `Convoy 002` (red: Tunguska, BTR-80, BMD-4, Smerch) 49.5 km, one vehicle lost to a HARM at t=2934. TIC was off.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **all four columns drove.** Off the recording: red `Convoy 001` 23–24 km, `Convoy 002` 22 km, `Convoy 004` 27 km; blue `Convoy 003` (VAB Mephisto, MLRS, MCV-80, HMMWV) 35 km. No column parked. TIC was off this flight, so this is the stock mover path. The parked-column signature from tests 17, 28 and 31 did not reproduce on this map; those captures stand, so the row goes to PARTIAL, not VERIFIED.
 
@@ -5676,6 +5730,8 @@ actually are.
 > weighting. That row needs a lopsided pair.
 ### B70 — Sortie records reach the campaign · §91 · ◐ PARTIAL
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the kill counts are right.** 136 records, 115 with a track. Blue's records credit 17 air kills and the recording shows 17 (8 Su-27, 5 JF-17, 2 Mi-8, 2 Mi-24), matching per shooter: Camp Bastion BARCAP 4, BULLSHARK Escort 4, the TARCAP 5, PORCUPINE Escort 2, QUAGGA SEAD Escort 1, FALCON Strike 1. Red's records credit 4 and the recording shows 4. The human's record (`PIG Strike … Pilot #1`, Flash) runs first_airborne 870 to 2610, 0 shots, `player_left` 2640 — he was shot down at t=2622. The wingman's record starts at 2640, when he took the group's anchor, as designed.
+
 **2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **the vacated-seat fix holds.** The human went to spectator at t=1903 (`relinquished`). The record (`SPARROW SEAD|2|30|… Pilot #1`, Flash) stops at `last_seen` 1890 with `player_left` 1920, 49 samples; the AI that flew the jet on is not credited. Pilot #2 took the group's anchor at t=1920, as designed. The two-humans-in-one-group re-fly is still owed.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **270 records, one defect.** The human's record (`Aleppo OCA/Runway|2|30|… Pilot #1`, Flash) has 114 samples, 2 shots, 2 hits, and runs to t=3900 — but the seat was vacated at t≈2601 (`Player 'Flash' left`, spectator slot taken) and the jet flew on under AI to 0 fuel at 494 m near Aleppo. The recorder kept sampling it as an anchor with `player` still true, so §96 credits ~65 min for ~43 flown. **Fixed the same day:** the sweep now freezes a `player` record whose unit is neither named by `getPlayerName` nor listed by `coalition.getPlayers` (`player_left`), counts nothing for it, and resumes on a reconnect; harness-pinned, unflown. 42 records carry an empty track (parked airframes, by design).
@@ -5997,6 +6053,8 @@ Play a turn on a **front-less** campaign whose AWACS is not at the field nearest
 
 ### G42 — Skynet is the engine again · Skynet return · ◐ PARTIAL
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the network fought as one.** Red and blue IADS built (`creating red IADS` / `creating blue IADS`, the E-3A added to blue); two SHORAD groups Skynet cannot handle were logged and left standalone (`0060 | TORTOISE`, `0066 | PRONGHORN`). No Skynet error in 89 minutes with 56 crashes. Engagement shape: the S-350 opened at t=1728 and fired 36 rounds; SABERTOOTH 16 Buk-M3 rounds.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **consistent with the HARM defence, not proof of it.** The SA-11 `MAVERICK` fired its last missile at t=2470; four HARMs launched at it t=2419–2437 fell 2.2–2.4 km off the site 90 s later. A site that goes dark on HARM detection produces exactly that miss, but the recording carries no emission state, so it cannot be told apart from the HARMs losing the radar for another reason.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **three of the four pass clauses seen; the HARM clause was measured and did not happen.** Loads and runs to full length with no `enableEmission` fault on tests 30, 32 and 33 (25 min, 2 h 14 min, 93 min). Sites dark until cued (KIWI's SA-11 held fire until the DEAD four-ship was inside 30 km). Unhandled sites named (OKAPI, WATERBUCK). The one site that took HARMs, LEOPARD (SA-11, test 32), did **not** go dark: WEKA fired two AGM-88 at t=4157 and t=4165, LEOPARD launched at t=4165, 4170, 4177 and 4197 while the HARMs were in the air, lost two launchers at t=4250 and t=4256, and launched again at t=4294 and t=4305. Skynet's HARM defence is a per-site detection roll, so one site is not a verdict, but on the only measurable case the site fought through the shot rather than shutting down. Recorded, not tuned; the HARM clause stays open.
@@ -6032,7 +6090,9 @@ profiles from HFXLegion's fork compiled in.
   `enableEmission` concern from the C-130 line — record the log and stop, do not tune around it);
   a modded site named as unhandled (add its profile to the compiled build).
 
-### G43 — A crash in a radar's view never stalls a Skynet network · Skynet return · ◐ PARTIAL
+### G43 — A crash in a radar's view never stalls a Skynet network · Skynet return · ☑ VERIFIED (2026-09-23, test 39; was ◐ PARTIAL)
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the pass criterion holds on a crash-heavy flight.** `state.json` carries 56 `crash_events`, many inside red Skynet coverage (the S-350, Buk and Kub sites around Shindand and Herat), and `dcs.log` has zero `doesn't exist` lines. The flown `skynet-iads-compiled.lua` carries the guard (`if target.object and target.object:isExist() then`).
 
 **2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **found from the log; fixed and harness-tested the same day.** A red Mi-24P crashed at t=347. From t=349 to mission end `dcs.log` carries `MIST|doScheduledFunctions … skynet-iads-compiled.lua:2770: Static doesn't exist` 174 times, about every 10 s. A blue radar kept reporting the wreck. Skynet's `getDetectedTargets` skips a nil `target.object`, but the wreck is non-nil and gone, so `getTypeName` raised and aborted `SkynetIADS.evaluateContacts` part-way through every cycle. For 31 minutes no early-warning radar on that side cued a SAM site, and no site ran its end-of-cycle go-dark. Upstream Skynet (`walder/Skynet-IADS`, master and develop) has the same line.
 
@@ -6241,7 +6301,9 @@ turn on a wing with a small dedicated-jammer squadron and read the ATO before fl
   4. **SEAD cover feels thin.** Same trade as B52 — the answer is to reinstate the sweep for
      specific callers, not to ungate the trim.
 
-### B76 — A mixed boom/probe wing gets a tanker of each · U15 reinstated · ◐ PARTIAL (2026-09-21, test 37; was ✗ REGRESSED (2026-09-17, headless))
+### B76 — A mixed boom/probe wing gets a tanker of each · U15 reinstated · ☑ VERIFIED (2026-09-23, test 39; was ◐ PARTIAL)
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the negative case passes.** Blue owns two KC-135 squadrons (boom only) and flies probe receivers (VMFA-251 Hornets, the F-14B(U) squadron, IV (AC) Squadron Harriers) beside boom ones. Turn 1 fragged exactly one tanker (`Camp Bastion Refueling`, KC-135), the package intact; the turn-2 save's ATO has the same single KC-135, and no probe flight on either turn carries a REFUEL leg. With test 37's positive case (one tanker per method, 31 km apart), both halves are observed.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **the positive case held.** The one `Incirlik Refueling` support package carried two flights, `|2|1|` KC-135 MPRS (probe) and `|2|2|` KC-135 (boom), on separate racetracks: orbit centres 37.58N 35.22E and 37.85N 35.11E off the recording, 31 km apart, both north of Incirlik and clear of the belt. Texaco 3 and Arco 3 on the kneeboard, one TACAN each. The negative case (a single-method wing still gets exactly one) is not exercised, so the row moves off REGRESSED to PARTIAL rather than VERIFIED.
 
@@ -6267,6 +6329,8 @@ row re-run in-game to go back to VERIFIED.
 - **Fail signature:** two tankers of the *same* method, which means a proposal went out without its method or the constraint is not reaching `best_squadron_for` (before 2026-09-17 the unconstrained first flight did exactly this). Or a second tanker launching far from the station while one of its method sits there, which means it is being ranked from the first tanker's field. Or two tankers stacked on one racetrack, which means the orbit slot is not being applied. Or the package gone entirely in the negative case, which means the extra flight is not actually optional.
 
 ### B77 — A player's ramp allowance matches the airframe · #214 startup times · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the F-15E half, a measurement.** Authored `startup_minutes: 3`. The card briefed Takeoff 18:11:30 against an 18:00:01 start (+11:29). The human lead first moved at t=740 (+12:20) and was airborne at t=866 (+14:26); the AI wingman moved at +8:40 and was airborne at +14:56. Whether the start was unhurried is the DM's to say.
 
 **2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **the same answer as test 37.** The card briefed Takeoff 14:13L against a 14:01 start (+12 min); the human was airborne at +12:53 (`takeoff` at t=773). Test 37 read +13.0 against +12. Time acceleration ran on the ramp (18–25 wall seconds per 30 s of model time between t=330 and t=570), so the start's own wall-clock length is not measured. The F-4E and Hornet halves are still unflown.
 
@@ -6669,6 +6733,8 @@ mission-generation question.
   that is enough to contest the pass, and whether Kobuleti's transit leaves useful fuel.
 ### B97 — One salvo, and only the targeted flight breaks · §94 · ◐ PARTIAL
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **another falsifier number.** Blue lost 36 aircraft: 26 to ground fire (10 to one S-350, 5 to Buk-M3s, 5 to 2S38 AAA, 3 to Tors, 2 to a Kub, 1 to a Strela-10), 4 air-to-air, 6 crashes with no weapon near. DEBUG was off. The S-350 killed from 30 to 60+ NM, where a turn away is not a defence, so this flight says little about reaction discipline either way.
+
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`; corrected 2026-09-22 from full-resolution tracks) — **the pre-registered falsifier has its first number.** No DEBUG line: the toggle worked in this build (#1038 moved the script to a config work order) and was simply off, so the pass criterion is unread. Attrition: 15 blue aircraft lost in combat, 8 to SAMs — six to one SA-11 (`0126 | MAVERICK (SAM)`), which fired 13 9M38M1 from t=2399 to t=2470 and killed both `Kharab Ishk Escort` F-14As, both `Kharab Ishk Armed Recon` F-15Es and both `Kharab Ishk SEAD Escort` AV-8Bs between t=2431 and t=2475 (terminals 206–750 m from each victim, each removed within 0.1 s); one M-2000C to an SA-5 (5V28) at 13,500 m; one F-15E to a Tunguska. Six to air-to-air (four to MiG-25 R-40s, two to MiG-29s), one Apache to a tank ATGM. Whether Evade Fire would have saved the Kharab Ishk six is unknowable from one flight; a package lost whole to one MERAD is the shape the design note's falsifier names. A decision for the DM, not a tuning.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** no capture since test 32 had `DEBUG` on. The population metric is the same shape on test 33 (no red SAM salvo turned more than a handful of jets).
@@ -7008,6 +7074,8 @@ standing patrol; see the design note.
 
 
 ### B122 — A survivor lands where his own chute came down, not where another crew's did · CSAR (#929 adoption) · ◐ PARTIAL
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **both halves hold for every ejection.** 18 `ejection_events`, all `landed`, 0.3–14.7 km from where the aircraft's track ended; one two-seat F-15E among them. In the turn-2 save every survivor from an ejection sits on his landing point (0–750 m). Separate from this row: nine blue survivors had no ejection record and were placed by the survival roll near their package's target, 23–42 km from the nearest loss of their type — see the test 39 summary.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the per-crew match is still not built and no capture since test 33 exists.
 
@@ -7770,6 +7838,8 @@ is lying and this row fails.
 
 ### B113 — A pilot's logbook fills in, and the kills are the ones they got · §96 · ◐ PARTIAL
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the pilot's career is right for what he did.** The turn-2 save's 334th FS player seat reads sorties 1, combat sorties 1, 1,740 s airborne (t=870–2610), 0 shots, 0 kills, 0 ejections. He was shot down without ejecting; `invulnerable_player_pilots` keeps him Active. No kill to check, so the kill half stays open.
+
 **2026-09-22, test 38** (Syria — Long Road to H3 turn 2, 37 min, one human in the SPARROW SEAD Viper lead from Incirlik, `Tacview-20260922-195428`, DCS 2.9.29.27468, main `a9c756b2f` (#1048), `Desktop\New test\38`) — **item 2 fails on the ramp; fixed the same day.** Terry Fleming (the seat Flash flew) reads 1 sortie, 31.0 min, 3 shots, 1 hit, 0 kills. Airborne was t=773–1903, 18.8 min. `SortieRecord.duration` was `last_seen − first_seen`, and the first sample is at t=30 on the ramp, so a cold start logged its start-up and taxi. Test 37's 64.5 min carried the same 13 min. The recorder now keeps `first_airborne` / `last_airborne` (`unit:inAir()` at each sample) and flight time is that span; a `state.json` without them keeps the old figure. The SITREP's hours airborne and §97's minutes read the same property. Item 3 holds: the human's AIM-120B hit the MiG-29A at t=1653.6, Pilot #2's 1.1 s later, and DCS's `kill` event names #2. The next flown mission re-checks item 2.
 
 **2026-09-22 — awards removed** (DM call). Item 4 checked a rank and awards; it checks the rank alone now. The `first_sortie` and `first_blood` in the test-33 entry below no longer exist. Status unchanged.
@@ -7816,6 +7886,8 @@ destroy something on the ground, land, accept results, then reopen the same pilo
   failure — pre-§96 saves have no records to fold and the page says so.
 
 ### B114 — Your lifetime logbook survives starting a new campaign · §97 · ◐ PARTIAL
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the second-campaign half passes in the store.** `pilot_profiles.json` (20:28) holds Flash across five campaigns, now including Afghanistan — Graveyard of Empires: 8 sorties, with the new entry `F-15ESE Strike, 29.0 min` and the F-15ESE row added to the per-aircraft table beside the F-16C and the Hornet. 8 sorties against 8 logged missions: one per mission, not one per jet in the flight. Not read: the Pilot Logbook window with no campaign loaded.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the second-campaign half is still owed.
 
@@ -8098,7 +8170,9 @@ than waiting on a hangar deck that never clears, and client flights are never mo
   deck that never taxi, which means 16 is still too many for that mix and the F-14
   footprint rule needs modelling after all.
 
-### B128 — An escort comes home when its primary never flies · §8 · ☐ UNTESTED
+### B128 — An escort comes home when its primary never flies · §8 · ◐ PARTIAL (2026-09-23, test 39; was ☐ UNTESTED)
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the shot-down half passes.** Both PIG Strike F-15Es were down by t=2672 and both HORNBILL Strike F-15Es by t=3065, well before their planned SPLITs (t=4085, t=4058). The generated `Split-` trigger releases the escorts on the primary group's death as well as on the flag. PIG SEAD Escort (Hornets) turned at t=2700–2711 and landed at Camp Bastion; PIG Escort (F-15Cs) turned by t=2909 and landed at Kandahar; HORNBILL Escort turned at t=3089 and was 3 NM from Kandahar at mission end, and the surviving HORNBILL SEAD Escort Hornet landed at Camp Bastion. No escort held its anchor. The never-spawned case (the time backstop, test 36's shape) was not exercised.
 
 - **Setup:** any package whose primary is AI and can be prevented from reaching SPLIT —
   easiest is a carrier primary on a full deck, or shoot it down yourself on the ingress.
@@ -8108,6 +8182,8 @@ than waiting on a hangar deck that never clears, and client flights are never mo
   (test 36: five flights, four of them 168–310 km inside red airspace).
 
 ### B129 — A flight with fuel to spare has no tanker leg · §46-adjacent · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the gate held its line.** PIG Strike (F-15E, Kandahar → Hashemi Bridge) kept its REFUEL leg with `RTB margin +3720 lb` on the card: positive, but under the 2× reserve bar the drop needs. It never reached the tanker. The turn-2 save keeps REFUEL on the Kandahar boom flights (DEAD F-16s, escort F-15Cs) and none on the Camp Bastion probe flights.
 
 **2026-09-21, test 37** (Syria — Long Road to H3 turn 1 (new game), 65 min, one human in the Pontiac 5 OCA/Runway Viper from Incirlik, `Tacview-20260921-194148`, DCS 2.9.29.27468, build `5a11efa13` (main at #1038), `Desktop\New test\37`) — **one airframe, both halves.** Pontiac 5 (F-16C, Incirlik → Aleppo → Incirlik, 250 nm round trip) carries no Refuel row, RTB margin +6,111 lb, route Hold → Join → Ingress → Strike → Split → Land. The miz still holds 37 `REFUEL` waypoints on other flights, so the drop is per-flight, not global. Whether every flight that kept a leg genuinely needed it is not measured.
 
@@ -8304,6 +8380,8 @@ printed page against the map.
 
 ### B138 — A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird · §62 · ☐ UNTESTED
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the automatic half, and no livery choice to make.** The F-14B(U) squadron numbered 100–110 in sequence across six groups, the Hornets 200–211; no two jets shared a number. All eleven Tomcats wear `nawcwd 2000 buno 163223`, the squadron's only livery, including 100. No numbers were pinned, and a single-livery squadron has no CAG bird to misapply, so neither half the row names was tested.
+
 The payload tab's **Set board number** pins the lead's modex; the wingmen follow in order.
 Taking a number another flight has pinned moves that flight to the next free run, and generation skips pinned
 numbers in every squadron sequence and re-rolls a random pydcs number that lands on one
@@ -8358,6 +8436,8 @@ Built 2026-09-23. Unit-tested; this row checks the app. An app check, not a flig
 
 ### B141 — Packages route around a SAM ring that covers none of their targets · §69 · ☐ UNTESTED
 
+**2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **the baseline, one build before the fix.** SABERTOOTH (Buk-M3, x=-115276 y=-298152) killed three `PORCUPINE Escort` F-15Cs at t=2199, 40–43 km from the site on ingress, and one `MONKFISH Escort` F-15C at t=3454, 47 km out at 10,900 m on egress. A re-fly on #1070 or later should show those legs bent round the ring. PIG, the human's package, is not this case: its target (Hashemi Bridge) is 14 NM from the S-350, so that ring covers the target and the package must enter it.
+
 Built 2026-09-23 from Graveyard of Empires turn 1, where every deep package flew straight
 through SABERTOOTH (Buk-M3, 38 NM) on the join-to-ingress and target-to-split legs. Replanned
 headlessly: 2,349 NM inside the ring before, 113 NM after.
@@ -8372,3 +8452,19 @@ headlessly: 2,349 NM inside the ring before, 113 NM after.
   package reaches the IP late (the detour time is not in `join_time`); escorts and strikers
   split up at the detour (they should share the package's points); a detour through a
   neighboring country (the navmesh ignores borders).
+
+### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ☐ UNTESTED
+
+Built 2026-09-23 from test 39. A loss with no ejection event rolls `csar_ejection_chance`, and the
+survivor used to be scattered round his package's target: nine blue survivors sat 23–42 km from
+their jets, and turn 2 fragged a CSAR helicopter 41 km from an F-14's crash. `dcs_retribution.lua`
+now writes `crash_positions` on `S_EVENT_CRASH`; the survivor is placed there, else at the last §91
+track sample, else at the target as before. Harness- and unit-tested.
+- **Setup:** any AI-heavy turn that loses several jets without ejections (a SAM belt does it).
+  Keep the turn's `state.json`, accept results, open the next turn's map.
+- **Pass:** `state.json` has a `crash_positions` entry for every name in `crash_events`; every
+  new survivor on the map sits within a few km of a crash point, none on a package's target.
+- **Fail signatures:** `crash_positions` absent or empty with crashes present (the handler's
+  `getPoint` failing — check `dcs.log`); a survivor still on a target (the unit-map lookup
+  missing the crashed unit's name); a survivor for a player who despawned to spectator (the
+  despawn guard is shared with `crash_events`, so this would be a new bug).
