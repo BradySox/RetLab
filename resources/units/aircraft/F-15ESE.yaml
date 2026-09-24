@@ -15,14 +15,11 @@ variants:
   F-15E Strike Eagle (Suite 4+): {}
   F-15I Ra'am: {}
 radios:
-  intra_flight: AN/ARC-210
-  inter_flight: AN/ARC-164
+  # Radio 1 is the UHF-only AN/ARC-164, Radio 2 the V/UHF AN/ARC-210 (manual 5.7).
+  intra_flight: AN/ARC-164
+  inter_flight: AN/ARC-210
   channels:
     type: common
-    # Radio 1 is the UHF AN/ARC-164, and Radio 2 is the V/UHF AN/ARC-210. We
-    # only ever allocate UHF for inter-flight, so we'd prefer to use radio 2 for
-    # intra-flight, but as is often the case the flight's frequency will be
-    # assigned to radio 1 channel 1 no matter what we do.
     intra_flight_radio_index: 1
     inter_flight_radio_index: 2
 tasks:

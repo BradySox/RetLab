@@ -373,8 +373,12 @@ class BriefingPage(KneeboardPage):
             return [row_title, "", "", "", "", ""]
 
         atc = ""
-        if runway.atc is not None:
-            atc = self.format_frequency(runway.atc)
+        # A VHF-only set is preset to the tower's VHF frequency; show the one it has.
+        tower = runway.atc
+        if runway.atc_vhf is not None and self.flight.channels_for(runway.atc_vhf):
+            tower = runway.atc_vhf
+        if tower is not None:
+            atc = self.format_frequency(tower)
         if runway.tacan is None:
             tacan = ""
         else:

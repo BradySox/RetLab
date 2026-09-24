@@ -4,7 +4,15 @@ from datetime import datetime
 from typing import Any, Iterable, Union
 
 from dcs import Mission
-from dcs.planes import AJS37, F_14A_135_GR, F_14B, JF_17, F_15ESE
+from dcs.planes import (
+    AJS37,
+    F_14A_135_GR,
+    F_14A_135_GR_Early,
+    F_14A_95_GR,
+    F_14B,
+    JF_17,
+    F_15ESE,
+)
 from dcs.point import MovingPoint, PointAction
 from dcs.task import ControlledTask, OrbitAction, RunScript
 from dcs.unitgroup import FlyingGroup
@@ -13,6 +21,7 @@ from game.ato import Flight, FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
 from game.ato.traveltime import GroundSpeed
+from game.missiongenerator import f15ecc
 from game.missiongenerator.missiondata import MissionData
 from game.theater import MissionTarget, TheaterUnit, OffMapSpawn
 from ._helper import create_stop_orbit_trigger
@@ -22,6 +31,10 @@ TARGET_WAYPOINTS = (
     FlightWaypointType.TARGET_POINT,
     FlightWaypointType.TARGET_SHIP,
 )
+
+# Tomcats that read the ME's ST/IP navigation target points (F-14 manual, special points).
+# The B(U) is left out: its manual section is unwritten and the DTC sets XST/XIP.
+TOMCATS_WITH_NAV_TARGET_POINTS = (F_14A_135_GR, F_14A_135_GR_Early, F_14A_95_GR, F_14B)
 
 # Waypoints whose generated .miz name is matched as a structural identifier downstream --
 # CTLD air-assault split (landingzone.py: name == "DROPOFFZONE"), EW jamming placement and
@@ -204,23 +217,29 @@ class PydcsWaypointBuilder:
     def register_special_strike_points(
         self,
         targets: Iterable[Union[MissionTarget, TheaterUnit]],
-        start: int = 1,
+        first_mission: int = 0,
     ) -> None:
         """Create special strike  waypoints for various aircraft"""
         for i, t in enumerate(targets):
             if self.group.units[0].unit_type == JF_17 and i < 4:
                 self.group.add_nav_target_point(t.position, "PP" + str(i + 1))
-            if self.group.units[0].unit_type in [F_14B, F_14A_135_GR] and i == 0:
+            if (
+                self.group.units[0].unit_type in TOMCATS_WITH_NAV_TARGET_POINTS
+                and i == 0
+            ):
                 self.group.add_nav_target_point(t.position, "ST")
-            # Add F-15E mission target points as mission 1 (for JDAM for instance)
+            # F-15E CC missions for JDAMs; the manual warns an out-of-range entry can
+            # invalidate the mission, so nothing is written past the jet's 40.
             if self.group.units[0].unit_type == F_15ESE:
-                self.group.add_nav_target_point(
-                    t.position, f"M{(i//8)+start}.{i%8+1}\nH-1\nA0\nV0"
-                )
+                slot = f15ecc.cc_mission(first_mission + i)
+                if slot is not None:
+                    self.group.add_nav_target_point(
+                        t.position, f"M{slot[0]}.{slot[1]}\nH-1\nA0\nV0"
+                    )
 
     def register_special_ingress_points(self) -> None:
         # Register Tomcat Initial Point
         if self.flight.client_count and (
-            self.group.units[0].unit_type in (F_14A_135_GR, F_14B)
+            self.group.units[0].unit_type in TOMCATS_WITH_NAV_TARGET_POINTS
         ):
             self.group.add_nav_target_point(self.waypoint.position, "IP")

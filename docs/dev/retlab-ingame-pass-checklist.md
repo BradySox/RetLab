@@ -362,7 +362,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-89 rows need a live pass. Full detail is under each `###` heading below —
+91 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -417,6 +417,8 @@ stress it · `✗` fail signature reproduced in-game.
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
 | B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ☐ |
+| B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
+| B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8468,3 +8470,32 @@ track sample, else at the target as before. Harness- and unit-tested.
   `getPoint` failing — check `dcs.log`); a survivor still on a target (the unit-map lookup
   missing the crashed unit's name); a survivor for a player who despawned to spectator (the
   despawn guard is shared with `crash_events`, so this would be a new bug).
+
+### B143 — A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio · F-15E manual pass · ☐ UNTESTED
+
+Built 2026-09-23 from the F-15E Manual v1.7 (5.7 radios, 13.4.7.4-5 CC missions). Unit-tested.
+
+- **Setup:** a player F-15E Strike flight carrying GBU-38/31 against a target with more than 8
+  aimpoints (a factory or oil complex), plus one waypoint added by hand in the flight plan.
+  Air start or cold start. ~15 min.
+- **Pass (CC):** on the Smart Weapons page, CC MEM, NEXT SET / NEXT MSN step through set 1 and
+  set 2 as the planned targets; each matches the kneeboard Strike page's `(CC set/mission)`
+  label. The hand-added waypoint is the first mission of the next set, not a duplicate of set 2.
+- **Pass (radio):** UFC radio 1 (ARC-164) channel 1 is the flight frequency; radio 2 (ARC-210)
+  carries ATC, AWACS, package and tanker presets.
+- **Fail signatures:** a CC mission that will not transfer or is flagged invalid; two missions
+  with the same set/mission number; a kneeboard label pointing at a different aimpoint.
+
+### B144 — Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache · manual pass · ☐ UNTESTED
+
+Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; each is a ramp check.
+
+- **F-4E:** COMM channel 1 is the flight frequency and you can transmit on it; the Pave Spike
+  laser code on the Laser Coder matches the kneeboard code.
+- **P-51D / P-47D:** Button B tunes the departure tower (VHF, e.g. 118.650 at Saint Pierre du
+  Mont) and the tower answers; the kneeboard airfield row shows the same frequency.
+- **F-14A Early / 95-GR:** ST and IP show on the TID for a Strike flight. Any Tomcat
+  ground-spawned at a roadbase starts without a huffer.
+- **Apache:** a data-cartridge T-point on a hill-top SAM cues TADS onto the site, not below it.
+- **Fail signatures:** can't transmit on the flight frequency; pod laser 1688; a UHF frequency on
+  a Mustang button; no ST/IP; a TADS cue buried in the hillside.

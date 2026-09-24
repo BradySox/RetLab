@@ -9,7 +9,10 @@ from dcs.mission import StartType as DcsStartType
 from dcs.planes import (
     F_14A,
     F_14A_135_GR,
+    F_14A_135_GR_Early,
+    F_14A_95_GR,
     F_14B,
+    F_14BU,
     F_5E_3,
     F_86F_Sabre,
     C_101CC,
@@ -600,7 +603,10 @@ class FlightGroupSpawner:
                     F_86F_Sabre,
                     MiG_15bis,
                     F_14A_135_GR,
+                    F_14A_135_GR_Early,
+                    F_14A_95_GR,
                     F_14B,
+                    F_14BU,
                     C_101CC,
                 ]
             )

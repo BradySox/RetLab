@@ -2181,6 +2181,20 @@ def test_apache_cartridge_shape() -> None:
     ]
 
 
+def test_apache_target_points_sit_on_the_ground_not_at_sea_level(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The TADS slaves to a point in 3D; a T-point at 0 m cues under a hilltop SAM."""
+    import game.missiongenerator.dtc.apache as apache
+
+    monkeypatch.setattr(apache, "nearest_field_elevation", lambda g, x, y: 512.0)
+    flight, mission_data, game = _apache_fixture()
+    targets = json.loads(
+        build_apache_cartridge(flight, mission_data, game, "Chalk").to_json()
+    )["data"]["NAV"]["Mission_1"]["Points"]["TGT"]["POINTS"]
+    assert targets[0]["alt"] == 512
+
+
 def test_apache_sections_omitted_when_off() -> None:
     flight, mission_data, game = _apache_fixture()
     flight.dtc_options = DtcOptions(
@@ -2633,6 +2647,23 @@ def test_a_skipped_waypoint_kind_closes_up_the_jet_and_the_kneeboard() -> None:
     ]
     assert route_numbers(flight, game.settings) == ["0", "-", "1"]
     assert kneeboard_numbers(flight, game.settings) == [2]
+
+
+def test_viper_rows_past_steerpoint_20_read_dash_on_the_kneeboard() -> None:
+    """The cartridge writes 20 route steerpoints (EA guide: auto-sequencing is
+    1-20); a longer route must not print numbers the jet gives to other points."""
+    from game.missiongenerator.dtc.savedpoints import route_numbers
+
+    waypoints = [_waypoint("TAKEOFF", FlightWaypointType.TAKEOFF, 0, 0, 0, None)] + [
+        _waypoint(f"T{i}", FlightWaypointType.TARGET_POINT, 1000 * i, 0, 0, None)
+        for i in range(1, 23)
+    ]
+    flight = _flight(dcs_id="F-16C_50", waypoints=waypoints)
+    game = _game()
+    numbers = route_numbers(flight, game.settings)
+    assert numbers[:3] == ["0", "1", "2"]
+    assert numbers[20] == "20"
+    assert numbers[21:] == ["-", "-"]
 
 
 def test_skips_leave_the_kneeboard_alone_without_a_cartridge_route() -> None:
