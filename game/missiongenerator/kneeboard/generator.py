@@ -460,13 +460,15 @@ class KneeboardGenerator(MissionInfoGenerator):
         )
 
     def _brief_air_threats(self, flight: FlightData) -> str:
-        """Loose, faction-derived air-threat line (the enemy's likely CAP fighters)."""
+        """The enemy's likely CAP fighters, from the squadrons it owns."""
         try:
             opponent = self.game.coalition_for(flight.friendly).opponent
+            # The faction list names types no squadron flies (test 39: Su-33 and
+            # J-11A briefed against a wing of Su-27s, MiG-29s and JF-17s).
             fighters = [
-                ac
-                for ac in opponent.faction.aircraft
-                if ac.capable_of(FlightType.BARCAP)
+                sq.aircraft
+                for sq in opponent.air_wing.iter_squadrons()
+                if sq.owned_aircraft > 0 and sq.aircraft.capable_of(FlightType.BARCAP)
             ]
             fighters.sort(
                 key=lambda ac: ac.task_priority(FlightType.BARCAP), reverse=True

@@ -149,3 +149,24 @@ def test_an_ejection_without_a_position_never_claims_a_landing() -> None:
     assert "x" not in events["Blind-1"]
     assert "landed" not in events["Blind-1"]
     assert events["Hornet-1"]["landed"] is True
+
+
+def _crash(harness: DcsPluginHarness, unit: str, x: float, z: float) -> None:
+    initiator = harness.lua.eval(
+        "function(n, x, z) return {"
+        "  getName = function(self) return n end,"
+        "  getPoint = function(self) return { x = x, y = 0, z = z } end,"
+        "} end"
+    )(unit, x, z)
+    harness.fire_event({"id": 5, "initiator": initiator})
+    harness.assert_no_lua_errors()
+
+
+def test_a_crash_records_where_the_aircraft_came_down() -> None:
+    # A survivor with no ejection is placed here, not at his package's target
+    # (test 39: nine survivors 23-42 km from their jets).
+    harness = _load()
+    _crash(harness, "Eagle 1-2", -73158.0, -322203.0)
+    raw = harness.to_python(harness.lua.eval("crash_positions"))
+    assert raw == [{"unit": "Eagle 1-2", "x": -73158.0, "z": -322203.0}]
+    assert harness.to_python(harness.lua.eval("crash_events")) == ["Eagle 1-2"]

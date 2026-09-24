@@ -298,13 +298,17 @@ class MissionResultsProcessor:
             return
 
         # A real in-mission ejection always produces a downed pilot at the recorded
-        # landing position. Otherwise roll the survival chance and scatter near the
-        # flight's target (the only position we have for AI/simulated losses).
+        # landing position. Otherwise roll the survival chance and place him where
+        # the §91 track last saw his aircraft; only a loss with no track (a
+        # simulated turn) scatters near the target -- 23-42 km off on test 39.
         ejection_pos = debriefing.ejected_pilot_positions.get(id(pilot))
         if ejection_pos is not None:
             position = ejection_pos
         elif random.randint(1, 100) <= self.game.settings.csar_ejection_chance:
-            position = csar.fallback_position_for(flight)
+            recorded = debriefing.loss_positions.get(id(pilot))
+            position = (
+                recorded if recorded is not None else csar.fallback_position_for(flight)
+            )
         else:
             pilot.kill()
             return

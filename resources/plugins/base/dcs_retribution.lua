@@ -13,6 +13,7 @@ destroyed_objects_positions = {} -- will be added via S_EVENT_DEAD event
 cruise_missiles_state = {} -- §63 cruisemissiles plugin appends/updates {group=, fired=} per ship group that launched cruise missiles this mission; Python debits the persisted campaign magazine at debrief
 naval_magazines_state = {} -- §81 navalmagazines plugin appends/updates {group=, fired=} per naval group that fired ANTI-SHIP missiles this mission (a disjoint weapon set from cruise_missiles_state); Python debits the persisted campaign magazine at debrief
 ejection_events = {} -- {unit=<aircraft unit name>, x=, z=} added via S_EVENT_EJECTION
+crash_positions = {} -- {unit=, x=, z=} added via S_EVENT_CRASH; places a survivor with no ejection
 csar_rescued = {} -- UUID strings of downed pilots rescued by Ops.CSAR (see OpsCSAR.lua)
 mission_ended = false
 dirty_state = false -- Track if state has changed and needs writing
@@ -127,6 +128,7 @@ function write_state()
         ["cruise_missiles_state"] = cruise_missiles_state or {},
         ["naval_magazines_state"] = naval_magazines_state or {},
         ["ejection_events"] = ejection_events,
+        ["crash_positions"] = crash_positions,
         ["csar_rescued"] = csar_rescued,
         -- Tracks ride only on the final write: this file is rewritten every 15 s
         -- and a 60v60 track set is ~1 MB to encode. See sortie_recorder.lua.
@@ -322,6 +324,10 @@ local function onEvent(event)
         local name = event.initiator.getName(event.initiator)
         if not is_player_despawn(name) then
             crash_events[#crash_events + 1] = name
+            local ok, point = pcall(function() return event.initiator:getPoint() end)
+            if ok and point then
+                crash_positions[#crash_positions + 1] = { unit = name, x = point.x, z = point.z }
+            end
             dirty_state = true
         end
     end

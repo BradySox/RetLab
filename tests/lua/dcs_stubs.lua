@@ -494,6 +494,7 @@ world = {
     event = {
         S_EVENT_SHOT = 1,
         S_EVENT_HIT = 2,
+        S_EVENT_CRASH = 5,
         S_EVENT_DEAD = 8,
         S_EVENT_BIRTH = 15,
         S_EVENT_EJECTION = 6,
