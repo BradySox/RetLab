@@ -362,7 +362,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-92 rows need a live pass. Full detail is under each `###` heading below —
+91 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -416,8 +416,9 @@ stress it · `✗` fail signature reproduced in-game.
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
-| B142 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
-| B143 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
+| B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ☐ |
+| B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
+| B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☐ |
@@ -8454,7 +8455,23 @@ headlessly: 2,349 NM inside the ring before, 113 NM after.
   split up at the detour (they should share the package's points); a detour through a
   neighboring country (the navmesh ignores borders).
 
-### B142 — A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio · F-15E manual pass · ☐ UNTESTED
+### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ☐ UNTESTED
+
+Built 2026-09-23 from test 39. A loss with no ejection event rolls `csar_ejection_chance`, and the
+survivor used to be scattered round his package's target: nine blue survivors sat 23–42 km from
+their jets, and turn 2 fragged a CSAR helicopter 41 km from an F-14's crash. `dcs_retribution.lua`
+now writes `crash_positions` on `S_EVENT_CRASH`; the survivor is placed there, else at the last §91
+track sample, else at the target as before. Harness- and unit-tested.
+- **Setup:** any AI-heavy turn that loses several jets without ejections (a SAM belt does it).
+  Keep the turn's `state.json`, accept results, open the next turn's map.
+- **Pass:** `state.json` has a `crash_positions` entry for every name in `crash_events`; every
+  new survivor on the map sits within a few km of a crash point, none on a package's target.
+- **Fail signatures:** `crash_positions` absent or empty with crashes present (the handler's
+  `getPoint` failing — check `dcs.log`); a survivor still on a target (the unit-map lookup
+  missing the crashed unit's name); a survivor for a player who despawned to spectator (the
+  despawn guard is shared with `crash_events`, so this would be a new bug).
+
+### B143 — A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio · F-15E manual pass · ☐ UNTESTED
 
 Built 2026-09-23 from the F-15E Manual v1.7 (5.7 radios, 13.4.7.4-5 CC missions). Unit-tested.
 
@@ -8469,7 +8486,7 @@ Built 2026-09-23 from the F-15E Manual v1.7 (5.7 radios, 13.4.7.4-5 CC missions)
 - **Fail signatures:** a CC mission that will not transfer or is flagged invalid; two missions
   with the same set/mission number; a kneeboard label pointing at a different aimpoint.
 
-### B143 — Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache · manual pass · ☐ UNTESTED
+### B144 — Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache · manual pass · ☐ UNTESTED
 
 Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; each is a ramp check.
 
