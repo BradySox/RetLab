@@ -23,20 +23,17 @@ watch pointing at RETIRED `B42`.)*
 - **Fail:** every airframe gets the same number.
 - **Why it's here:** pulled from the parking lot 2026-09-16 when `B48` closed on the DM's call.
 
-### 2 · The day's flying is reported back, and the numbers are believable — `B70`
+### 2 · A HARM shot at a Skynet site: does the site go dark or fight through — `G42`
 
-**Where:** the next turn's SITREP, after any mission with several AI packages up. **~1 min.**
+**Where:** any SEAD flight with the RWR open, or the recording afterwards. **~5 min.**
 
-- **Pass:** the sortie count is close to the number of packages that **flew**, hits never
-  exceed shots, and `state.json` is a few hundred KB.
-- **Fail:** a sortie count near the theatre's whole aircraft inventory (idle ramp jets counted
-  as flights), hits above shots, or a `state.json` over a megabyte.
-- **Why it's here:** both defects were fixed on 2026-08-20 against test 12's own save and the
-  fix has not been seen on a fresh mission. This is the cheapest row on the board — it closes
-  from a mission you already flew.
-- **Test 32 (2026-09-15, Persian Gulf, no player):** 92 records, 28 claimed air kills against
-  27 in the recording (Shahed drones count), hits never above shots, `state.json` 672 KB. The
-  file side passes; the SITREP itself was not opened.
+- **Pass:** a site that cannot engage a HARM goes quiet when one is fired at it; a site that
+  can (HQ-7, Tor, Pantsir, S-300 and up) stays live and fights through.
+- **Fail:** a Kub, SA-2 or SA-3 still radiating as the HARM arrives, or a site that goes dark
+  and never comes back.
+- **Why it's here:** pulled from the parking lot 2026-09-23 when `B70` closed on the test 39
+  re-read. LEOPARD fought through on test 32; test 40's ARAPAIMA Kub survived seven HARMs
+  because its paired Tor killed them all, so whether the Kub itself went dark is still open.
 
 ### 3 · The planner behaviour bar actually switches the suite — `B54`
 
@@ -76,7 +73,6 @@ striker and each escort. **~5 min**, on a flight you were flying anyway.
 |---|---|---|
 | `B121` | An AI flight visibly inside a shaded neutral border, and nothing happens | F10 map on any campaign with `neutral_border_defense` on; no stray in three missions so far |
 | `B103` | A BMP-3 group in a front fight firing single aimed shots, slower than the BTRs beside it | Iron Gate and Caucasus 2026 field them on the front; the rate is not in a recording |
-| `G42` | A HARM shot at a Skynet site, and whether the site goes dark or fights through | Any SEAD fly with the RWR open; LEOPARD fought through on test 32 |
 
 Closed and dropped items, with the reasoning: [`ARCHIVE.md`](ARCHIVE.md).
 Contrived-condition tests live on [`LOCAL.md`](LOCAL.md).
