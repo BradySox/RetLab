@@ -66,9 +66,10 @@ Plugins must follow strict rules:
 - **Vanilla DCS units only** — no HighDigitSAMs or other mod units in plugin scripts.
 - **Definition order matters** — define a function before it is first used.
 
-The blocking **`lua-lint.yml`** CI workflow runs `luac5.1 -p` over every
-`resources/plugins/**/*.lua` as a syntax gate; an advisory luacheck pass (scoped to
-RetLab-authored scripts via `.luacheckrc`) reports counts but does not block. The syntax
+The blocking **Lua 5.1 syntax** job in `lint.yml` runs `luac5.1 -p` over every
+`resources/plugins/**/*.lua`, and a broken file blocks the `latest` release. An advisory
+luacheck pass (every RetLab-authored script; `.luacheckrc` excludes upstream and third-party
+files) reports counts but does not block. The syntax
 gate catches parse-time errors only — **runtime behavior still needs an in-game pass**
 (tracked in `docs/dev/retlab-ingame-pass-checklist.md`).
 
