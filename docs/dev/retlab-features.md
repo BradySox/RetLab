@@ -10960,3 +10960,37 @@ reads "Unknown (not engaged)" — its price would give away its composition (§3
 - Difficulty (route cost through threat rings, fighters, size) — the note's step 3.
 - A top-few "HQ priorities" list.
 - Measures for power, comms and bunkers (what an IADS node's loss switches off).
+
+## §104 — Runway queue at busy fields
+
+The ground-ops allowance at an airfield grows with the departures ahead of a flight, so a
+crowded field's later flights spawn early enough to make their takeoff. DM decision
+2026-09-23 from test 39. Design and measurements: `docs/dev/design/retlab-startup-times-notes.md`,
+"Runway queue". Built 2026-09-23, not flown.
+
+- Setting `queue_aware_ground_ops` (Campaign Doctrine → General; RetLab Features page). Off by
+  default, on in the RetLab planner suite. Off is the flat 8 minutes, unchanged.
+- `game/ato/runwayqueue.py`: `runway_queue_wait(flight)` walks the coalition's ATO for
+  parking-start fixed-wing flights leaving the same field, sorted by planned takeoff, each
+  holding the runway `count × 30 s`.
+- `FlightPlan.estimate_ground_ops` adds the wait to the 8 minutes. It feeds `startup_time`,
+  `minimum_duration_from_start_to_tot` (TOT estimation) and the sim's `Taxi` state.
+- Not queued: carriers, FOBs, off-map, runway and air starts, helicopters, unscheduled
+  packages (TOT at the `datetime.min` sentinel).
+- Players queue like AI.
+
+### Gotchas
+
+- `takeoff_time` must never read `estimate_ground_ops`; the walk relies on that to avoid
+  recursion.
+- A package with an unscheduled TOT is skipped, not read: its takeoff overflows.
+
+### Tests
+
+`tests/test_runway_queue.py` (13).
+
+### Deferred
+
+- Per-field runway rates; landing traffic.
+
+In-game row **B145**.

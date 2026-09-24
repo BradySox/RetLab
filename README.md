@@ -166,6 +166,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Packages route around SAM rings they do not need to enter on the way from the join to the
   target and back to the split, instead of flying straight through. Part of the RetLab planner
   suite.
+- At a busy airfield, flights queue for the runway at 30 seconds per jet, and each flight
+  spawns early by its wait. A quiet field keeps the flat 8 minutes. Part of the RetLab planner
+  suite.
 - Also: overlapping jittered BARCAP waves, weighted off-mission combat resolution, per-side
   planner unpredictability.
 
