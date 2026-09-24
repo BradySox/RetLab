@@ -14,11 +14,12 @@ from game.commander.missionproposals import EscortType, ProposedFlight, Proposed
 from game.commander.packagebuilder import PackageBuilder
 from game.data.doctrine import Doctrine
 from game.db import Database
+from game.ground_forces.ai_ground_planner import deploys_radar_air_defense
 from game.procurement import AircraftProcurementRequest
 from game.profiling import MultiEventTracer
 from game.settings import Settings
 from game.squadrons import AirWing
-from game.theater import ConflictTheater
+from game.theater import ConflictTheater, FrontLine
 from game.theater.theatergroundobject import TheaterGroundObject
 from game.threatzones import ThreatZones
 
@@ -64,6 +65,7 @@ class PackageFulfiller:
         self.auto_add_tarps_recon = settings.auto_add_tarps_recon
         self.max_escort_jammers = settings.max_escort_jammers
         self.single_sead_escort_flavour = settings.single_sead_escort_flavour
+        self.front_line_sead_escort = settings.front_line_sead_escort
 
     @property
     def is_player(self) -> bool:
@@ -249,6 +251,12 @@ class PackageFulfiller:
                 # (Growler): same trigger as SEAD, pruned independently when no
                 # ESCORT_JAMMER-capable squadron exists.
                 threats[EscortType.Jammer] = True
+        # §69: front-line units are not TGOs, so ThreatZones never sees their
+        # Tunguskas; test 39's CAS flew without the escort it had proposed.
+        if self.front_line_sead_escort and self.front_line_has_radar_air_defense(
+            builder
+        ):
+            threats[EscortType.Sead] = True
         # RetLab: under doctrines that always escort strikes (Vietnam), a STRIKE-led
         # package pulls a fighter escort even when no air threat is detected on the
         # route -- the sparse, unpredictable MiG presence still warrants cover and the
@@ -259,6 +267,13 @@ class PackageFulfiller:
             if primary is not None and primary.flight_type is FlightType.STRIKE:
                 threats[EscortType.AirToAir] = True
         return threats
+
+    def front_line_has_radar_air_defense(self, builder: PackageBuilder) -> bool:
+        target = builder.package.target
+        if not isinstance(target, FrontLine):
+            return False
+        enemy_cp = target.control_point_hostile_to(self.coalition.player)
+        return deploys_radar_air_defense(enemy_cp)
 
     def escort_reserve_withholds(
         self, builder: PackageBuilder, escort: ProposedFlight

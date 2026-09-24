@@ -27,7 +27,6 @@ from game.theater.theatergroup import SceneryUnit
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.utils import escape_string_for_lua, nautical_miles
 from .csarbeacon import sar_beacon_hz
-from .aisleepluadata import populate_ai_sleep_lua
 from .briefingluadata import populate_briefing_lua
 from .coinluadata import populate_coin_lua
 from .interceptluadata import (
@@ -450,12 +449,6 @@ class LuaGenerator:
         # bubble and puts it down off the aimpoint. Real ordnance from a real
         # jet: no spawns, and killing the jammer restores accuracy at once.
         populate_gps_jamming_lua(lua_data, self.game, self.mission_data)
-
-        # Ground AI sleep (§59) -- emits dcsRetribution.aiSleep only when
-        # perf_ground_ai_sleep is on and an eligible garrison group exists; the
-        # aisleep plugin sleeps each group's controller until an aircraft closes
-        # inside the wake radius (performance only -- no gameplay-model change).
-        populate_ai_sleep_lua(lua_data, self.game, self.mission_data)
 
         # Ship cruise missile strikes (§63) -- emits dcsRetribution.cruiseMissiles only
         # when cruise_missile_strikes is on and a live land-attack-capable ship group
