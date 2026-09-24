@@ -28,10 +28,11 @@ same lint + test once, through `build.yml`, which triggers on `pull_request` onl
    activated on codecov.io and the upload switched from deprecated tokenless
    `@v3` to `@v5` + OIDC). Upstream PRs need none of this — carve PRs get coverage
    comments from upstream's own Codecov registration automatically.
-3. **`lua-lint.yml`** — Lua syntax gate (blocking): `luac5.1 -p` over every
-   `resources/plugins/**/*.lua`. Advisory luacheck (scoped to RetLab-authored scripts via
-   `.luacheckrc`) runs continue-on-error and reports counts to Step Summary. Decoupled from
-   `retlab-latest.yml` so it can never block the rolling release.
+3. **Lua, inside `lint.yml`** (was `lua-lint.yml` until 2026-09-24) — *Lua 5.1 syntax*
+   (blocking): `luac5.1 -p` over every `resources/plugins/**/*.lua`, so it now also gates
+   the rolling release. *luacheck (advisory)*: all of `resources/plugins` minus the
+   upstream/third-party files `.luacheckrc` excludes; always green, counts in the Step
+   Summary.
 4. **`retlab-latest.yml`** (needs lint + test) — PyInstaller build on `windows-latest`, then
    upserts a rolling pre-release tagged `latest`.
 
@@ -62,7 +63,7 @@ Notes learned the hard way:
 - The Lua plugins CAN now be exercised headlessly: `tests/lua/` runs the real plugin
   scripts on Lua 5.1 via `lupa` against a faked DCS sandbox (`dcs_stubs.lua`), inside the
   normal pytest run — see `docs/dev/design/retlab-lua-plugin-harness-notes.md` for scope and
-  how to extend it. The `lua-lint.yml` syntax gate still catches parse-time errors; the
+  how to extend it. The `lint.yml` Lua syntax gate still catches parse-time errors; the
   harness catches "script errors at runtime and the feature silently never starts"; actual
   DCS behavior (AI, physics, feel) still needs an in-game pass. See
   `docs/dev/retlab-ingame-pass-checklist.md` for the tracker. When touching a plugin that

@@ -3,7 +3,7 @@
 Runs the real ``resources/plugins/intercept/intercept-config.lua`` against the
 harness with a recording fake of the MOOSE surface it touches (the bundled
 Moose.lua models real DCS AI and cannot run headless). Pins the FilterPrefixes
-gotcha the lua-lint syntax gate cannot:
+gotcha the Lua syntax gate cannot:
 
 * Moose ``SET_GROUP:FilterPrefixes`` matches names with Lua-pattern semantics
   (``string.find``, only ``-`` pre-escaped), so a raw parenthesized Retribution

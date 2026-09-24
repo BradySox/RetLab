@@ -5,7 +5,7 @@
 ## The gap
 
 The Lua plugins are the runtime half of every RetLab feature, but CI could only prove they
-*parse* (`lua-lint.yml`, `luac5.1 -p`). Whether a script actually *runs* — arms its timers,
+*parse* (`luac5.1 -p`, now the *Lua 5.1 syntax* job in `lint.yml`). Whether a script actually *runs* — arms its timers,
 survives its config table, fires its effects — was only ever proven by an in-game pass, which
 is why the checklist (`retlab-ingame-pass-checklist.md`) accumulates UNTESTED rows and why
 several past regressions (the Sandy divert no-op, the combat SAR dispatch crash) shipped
@@ -68,5 +68,5 @@ Good next targets: `combatsar`'s divert/release routing (G23's regression shape)
 
 No workflow change: `test.yml` installs `requirements.txt` (lupa is pinned there) and runs
 `pytest tests`, which picks the suite up. The whole vietnamops suite runs in ~0.1 s.
-`lua-lint.yml` still owns syntax; `.luacheckrc` scope is untouched (tests/lua is not a
+The `lint.yml` syntax job still owns syntax; `.luacheckrc` scope is untouched (tests/lua is not a
 mission script).
