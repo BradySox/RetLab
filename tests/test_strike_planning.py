@@ -95,6 +95,7 @@ def test_always_escort_strikes_forces_a2a_escort() -> None:
 
     def needed(doctrine: Doctrine) -> dict[EscortType, bool]:
         ff = PackageFulfiller.__new__(PackageFulfiller)
+        ff.front_line_sead_escort = False
         ff.coalition = cast(
             Any,
             SimpleNamespace(
