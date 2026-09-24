@@ -17,6 +17,7 @@ pin exactly those:
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 from typing import Any
 
 import dcs
@@ -427,6 +428,17 @@ def test_a_staggered_departure_is_written_where_dcs_reads_it() -> None:
     assert group.start_time == 3_973
     assert group.points[0].ETA == 3_973
     assert group.points[0].ETA_locked is True
+
+
+def test_an_il76_never_ground_starts_from_a_high_field() -> None:
+    """Test 40: an IL-76 out of Bamyan (2,565 m) hit the valley 88 s after takeoff."""
+    high = _Field("High", _pt(0, 0), elevation_m=2_565)
+    low = _Field("Low", _pt(400_000, 0), elevation_m=500)
+    region = replace(REGIONS["Caucasus"], fleet=(IL_76MD,))
+    for seed in range(40):
+        for route in plan_airways([high, low], region, (3, 3), random.Random(seed)):
+            if route.chain[0] is high:
+                assert route.air_start
 
 
 def test_an_air_started_transit_holds_its_level_before_descending() -> None:

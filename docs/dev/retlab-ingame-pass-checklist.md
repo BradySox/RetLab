@@ -376,11 +376,11 @@ Evidence recorded without a status change: **B111** (no Hornet striker; the esco
 
 Found, not rows:
 
-1. **A TARCAP reaches the target 17 minutes before its package.** `TarCapFlightPlan.patrol_start_time` is the package's `escort_start_time` (the JOIN TOT) minus 2 min, but the racetrack is on the target. SARDINE's racetrack end sat 5 NM from SLUG, the target of its own SEAD. The F-15Cs arrived at t≈1650; the SEAD sweep's TOT was t=2771. Upstream's rule, unchanged; `retlab-mission-planning-wiki-rework.md` already calls TARCAP a poor choice near SAMs. A DM call.
+1. **A TARCAP reaches the target 17 minutes before its package.** **Fixed the same day** behind `tarcap_behind_sead` (DM call); row **B146**. `TarCapFlightPlan.patrol_start_time` is the package's `escort_start_time` (the JOIN TOT) minus 2 min, but the racetrack is on the target. SARDINE's racetrack end sat 5 NM from SLUG, the target of its own SEAD. The F-15Cs arrived at t≈1650; the SEAD sweep's TOT was t=2771. Upstream's rule, unchanged; `retlab-mission-planning-wiki-rework.md` already calls TARCAP a poor choice near SAMs. A DM call.
 2. **FOB Delaram II's BARCAP orbits inside SABERTOOTH.** The racetrack end is 56 km from the Buk-M3; both F-14s died there (t=1615, 1806). On test 39 the same site killed four F-15C escorts. B141 routes package legs only, not CAP orbits.
 3. **Red captured FOB Delaram II with one SA-19.** `unit|81|24|SA-19 Grison (2K22 Tunguska)|` sat inside the 3 km capture zone at t=1197–1640 with no blue ground unit there; `base_capture_events` carries `…||1||FOB Delaram II`. Its front-line attack leg (`flotgenerator.find_offensive_point`) passes 2.6 km from the FOB centre. Upstream's capture rule. Watch whether turn 3 flips the FOB.
 4. **Every delayed civil departure left in the first 81 s** (seven, delays 10–6,129 s). DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote only `start_time`. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once too, and crashed at 66 s. **Fixed the same day**; row **B145**.
-5. **A civil IL-76 out of Bamyan flew into terrain at 88 s.** `ARIANA 131` left the ~2,590 m field, climbed ~10 m and hit the valley. Second civil IL-76 lost in the first 90 s (test 37). Not fixed: heavy departures from high fields need a call.
+5. **A civil IL-76 out of Bamyan flew into terrain at 88 s.** `ARIANA 131` left the ~2,590 m field, climbed ~10 m and hit the valley. Second civil IL-76 lost in the first 90 s (test 37). **Fixed the same day** (DM call): an IL-76 whose departure field is above 2,000 m air-starts en route instead (Ghazni, Sharana, Chaghcharan, Gardez, Bamyan on this map; Kabul and Bagram still ground-start). Rides row B145.
 6. **OpsCSAR took the red Ka-52 flying CAS for a rescue helicopter.** It passed low near its downed wingman from turn 1: red smoke popped (t≈2101) and `still reports as present 420s` fired (t≈2527). `rescue_helo_near` matches any same-side helicopter under `PICKUP_MAX_AGL`. Cosmetic; no false rescue.
 7. Both blue CSAR hoists completed (Curtis Thomas t≈2091, Andrew Clay t≈2181) and both are in `csar_rescued`. Thomas's UH-60 crashed at t=3068 on the way home, no weapon near; the rescue had already been credited.
 
@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-84 rows need a live pass. Full detail is under each `###` heading below —
+85 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -452,6 +452,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B145 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
+| B146 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8593,3 +8594,19 @@ Unit-tested (`test_a_staggered_departure_is_written_where_dcs_reads_it`).
 - **Fail signatures:** every civil ground start present at t=0 again (the ETA not written);
   a delayed group that never appears (DCS rejecting a runway start with an ETA — search
   `dcs.log` for the group name).
+- **Also:** no civil IL-76 takes off from a field above 2,000 m (on Afghanistan: Bamyan,
+  Gardez, Chaghcharan, Sharana, Ghazni); any IL-76 routed there appears airborne en route.
+
+### B146 — A TARCAP reaches the target with its package's SEAD, not ahead of it · §69 · ☐ UNTESTED
+
+Built 2026-09-23 from test 40, on the DM's call. Upstream starts TARCAP 2 min before the
+package's join, over the target; SARDINE's four F-15Cs sat 5 NM from an SA-11 for 17 minutes
+before their SEAD and all died. With `tarcap_behind_sead` on (RetLab planner suite) the orbit
+starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT. Unit-tested.
+- **Setup:** RetLab planner suite on; any turn where the planner frags a package with both a
+  TARCAP and a SEAD flight (common against a SAM target). Read the ATO; a spectator run shows it.
+- **Pass:** the TARCAP's patrol start time is at or after the SEAD flight's TOT; in the
+  recording the TARCAP arrives over the target with or after the SEAD, not alone.
+- **Fail signatures:** the TARCAP still starts before the join (the gate off, or the setting
+  missing from the suite); a TARCAP that takes off so late it never reaches station before the
+  package splits.

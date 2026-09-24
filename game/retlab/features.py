@@ -529,6 +529,7 @@ FEATURES: tuple[Feature, ...] = (
             "sead_strike_coordination",
             "front_line_sead_escort",
             "route_around_sams",
+            "tarcap_behind_sead",
         ),
     ),
     Feature(

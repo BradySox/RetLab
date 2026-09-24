@@ -166,6 +166,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Packages route around SAM rings they do not need to enter on the way from the join to the
   target and back to the split, instead of flying straight through. Part of the RetLab planner
   suite.
+- A TARCAP in a package with SEAD or DEAD arrives with the suppression, not up to 20 minutes
+  ahead of it over the target's SAMs. Part of the RetLab planner suite.
 - Also: overlapping jittered BARCAP waves, weighted off-mission combat resolution, per-side
   planner unpredictability.
 
