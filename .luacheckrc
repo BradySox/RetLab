@@ -47,6 +47,15 @@ ignore = {
     "631", -- line too long (belt-and-suspenders with max_line_length=false)
 }
 
+-- Written in one file and read in another (dcs_retribution.lua, which is
+-- upstream's and excluded, or a Python-emitted waypoint action).
+globals = {
+    "dirty_state",
+    "sortie_recorder_on_shot", "sortie_recorder_on_hit", "sortie_recorder_on_kill",
+    "sortie_recorder_on_ejection", "sortie_recorder_payload",
+    "OpsCSAR_BeginHover",
+}
+
 read_globals = {
     -- DCS World scripting API (server-side sandbox; no os/io/lfs)
     "env", "timer", "trigger", "coalition", "country", "world", "land",
@@ -64,8 +73,22 @@ read_globals = {
     "MENU_MISSION", "MENU_MISSION_COMMAND", "MENU_COALITION",
     "MENU_COALITION_COMMAND", "MENU_GROUP", "MENU_GROUP_COMMAND", "CLIENT",
     "DETECTION_AREAS", "AI_A2A_DISPATCHER", "SETTINGS", "Ops", "UTILS",
-    "routines", "mist",
+    "routines", "mist", "ATIS", "AICSAR", "CSAR", "PROFILER",
+
+    -- Bundled json.lua, and lfs where the host has not sanitized it (both guarded)
+    "json", "lfs",
 
     -- Plugin-defined globals RetLab init scripts probe before using
     "GLSCO", "GLSCO_COMBATANT", "GLSCO_BATTLEFIELD",
+}
+
+-- Deliberate writes to otherwise read-only globals, scoped to the one file.
+files["resources/plugins/intercept/intercept-config.lua"] = {
+    globals = { "BASE", "DETECTION_MANAGER" }, -- MOOSE takeoff-event and detection patches
+}
+files["resources/plugins/redscramble/redscramble-config.lua"] = {
+    globals = { "dcsRetribution" }, -- aiReactionExempt, the §94 protocol
+}
+files["resources/plugins/tic/tic_retlab_init.lua"] = {
+    globals = { "GLSCO_COMBATANT" }, -- simulate override
 }
