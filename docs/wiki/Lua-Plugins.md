@@ -133,7 +133,6 @@ setting off costs nothing at runtime.
 | `redscramble` | on | Host tool: an F10 menu to scramble red interceptors. Inert unless the setting is on. |
 | `briefing` | on | The mission-start briefing card each pilot sees when they slot in. |
 | `splashdamage3` | on | The squadron's locked, softened Splash Damage 3.4.2 build. No user-adjustable options by design. |
-| `aisleep` | on | Ground AI sleep — distant garrisons stop thinking and wake on approach. Inert unless the performance setting is on. |
 | `ai_reaction` | on | Smart threat reaction — only the flight a missile is actually guiding on goes defensive; everything else holds formation and uses countermeasures. |
 | `profiler` | off | Lua profiler — a diagnostic that times plugin work and writes `MooseProfiler.txt`. Slows the mission while it runs. |
 

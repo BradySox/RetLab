@@ -449,8 +449,6 @@ Preseeded feature set, and why each earns its place:
   multi-hull convoys that attrit proportionally, past Silkworm batteries that actually engage.
 - **§50 `ambient_supply_convoys` + `convoy_ambush`** on Guam's two blue road corridors.
 - **§70 `comint_collection` + `red_comms_net`** — the PLA net is audible and homeable.
-- **§59 `perf_ground_ai_sleep` + `perf_aaa_site_sleep`** — a three-carrier PLAN order of
-  battle plus island garrisons is a heavy maritime laydown.
 - **§77 escort jamming** rides along free: VAQ-136's Growlers are authored SEAD, and
   `SquadronConfig.auto_assignable` offers the Escort Jammer role to every capable squadron,
   so they fly in front of the strike packages without a per-campaign edit.
@@ -556,7 +554,7 @@ registration from the mod and break the export-verification invariant.
 - Do Andersen's heavy squadrons (B-1B, KC-135, E-3A) fit their stands dimensionally? The
   parking-fit test counts slots, not the slot_version-2 dimensions the DS91 audit needed.
 - Does the AI actually fly Air Assault captures across water at these ranges?
-- Frame rate with three PLAN carrier groups plus garrisons, with §59 sleep on.
+- Frame rate with three PLAN carrier groups plus garrisons.
 
 ## Deliberately not done
 

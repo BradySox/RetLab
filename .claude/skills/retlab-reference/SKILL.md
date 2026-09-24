@@ -115,7 +115,7 @@ with a flown failure:
    invents no units. (Cost of learning: §35 and §37 were both reworked off `coalition.addGroup`.)
 2. **Safety is decided in Python as a positive list.** The emitter enumerates exactly what the
    plugin may touch; the plugin cannot widen it. This bounds the blast radius of the
-   least-testable layer with the most-testable one. (§59 is the canonical statement.)
+   least-testable layer with the most-testable one. (First stated by §59, removed 2026-09-23.)
 3. **Movement only.** A mover feature relocates things; the *consequence* stays in the
    turn-boundary force model. A mover that gets shot down just stops being routed.
 4. **One emitter, one entry point.** Each `game/missiongenerator/*luadata.py` exposes exactly

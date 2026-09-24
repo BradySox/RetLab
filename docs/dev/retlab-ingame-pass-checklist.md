@@ -250,9 +250,9 @@ under each row with a `2026-09-16, line-by-line audit` paragraph. What moved:
 | S5 | ✗ REGRESSED | three of fifteen columns parked for the whole mission (tests 17, 28, 31) |
 
 Every other open row carries a paragraph saying what was checked and why the captures cannot
-move it. Three plugins log nothing when they work (`aisleep` on a wake, `gpsjamming` on a
-degraded weapon, `neutralborder` on an AI stray by design), which is why B11, B45 and B121 have
-no evidence either way after 33 missions.
+move it. Two plugins log nothing when they work (`gpsjamming` on a degraded weapon,
+`neutralborder` on an AI stray by design), which is why B45 and B121 have no evidence either
+way after 33 missions.
 
 ## Test 37 — what it reached, and what it could not (2026-09-21)
 
@@ -362,14 +362,14 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-83 rows need a live pass. Full detail is under each `###` heading below —
+82 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
 | Row | What it checks | Feature | |
 |---|---|---|---|
 | B6 | Command-center decapitation degrades enemy planning | §52 | ☐ |
-| B11 | Ground AI sleep: distant garrisons stop thinking, wake on approach | §59 | ☐ |
+| B11 | Ground AI sleep: distant garrisons stop thinking, wake on approach | §59 | ⊘ |
 | B15 | Squadron-sequenced board numbers: the Tomcat's livery is its modex | §62 | ☑ |
 | B17 | Carrier deck spawn policy (six-pack last resort + MP slot timing) | §64 | ✗ |
 | B19 | Weather-aware auto-planning | §67 | ☐ |
@@ -891,7 +891,9 @@ already-engaged defender when its target leaves the zone, and whether a 150 NM t
 - **Pass:** ~5 s after slot-in (not instantly) the briefing card appears for ~12 s (campaign name, `Mission N` matching the kneeboard's turn number, date + time, your callsign / aircraft / task / departure field) with a **short beep**; ~12 s later the taxi card flashes with your callsign + `Contact ground @ 249.50` (and its own beep); each shows once (no double-print), and a re-slot after the debounce re-shows them. (The beep is `briefing-beep.wav`, played by `outSoundForGroup` — if it's silent, the sound resource didn't resolve by basename; try the `l10n/DEFAULT/` path.)
 - **Fail signature:** no card appears (the node wasn't emitted, or the birth handler + sweep both missed the slotting); the card double-prints on a single slot-in (the debounce broke); the taxi card never follows (the scheduleFunction broke) or shows the wrong freq; the mission number is turn+1 again (mismatches the kneeboard); an AI-only flight's pilot slot shows a card for a flight that isn't theirs (the group match broke).
 
-### B11 — Ground AI sleep: distant garrisons stop thinking, wake on approach · §59 · ☐ UNTESTED
+### B11 — Ground AI sleep: distant garrisons stop thinking, wake on approach · §59 · ⊘ RETIRED (removed 2026-09-23, DM: killed)
+
+**2026-09-23 — REMOVED on the DM's call.** The plugin, the emitter and both settings are deleted, so this row can never be run again.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not dropped, and never observed doing its job.** The `aisleep` plugin and `perf_ground_ai_sleep` are both still in the tree. The plugin armed in every mission of tests 1–16 (Vectron's Claw, Caucasus 1995, Desert Trident, Sinai, Noisy Cricket; `AISLEEP|: managing N garrison group(s)`, up to 8 loads in test 7) because the DM's August campaigns carried the setting on (`test 1`, `brady` and the 13th-test saves all read `perf_ground_ai_sleep = True`); it has not armed since test 17 because the September campaigns carry it off (the `91526`, `CSAR` and `Maybe 414` saves all read False). The plugin logs only at arming and on a poll error, so a wake has never been visible in any log and never will be until a wake line exists. Nothing in 33 captures can move this row; to close it, turn the setting on in the current campaign and add a `AISLEEP|: woke <group>` line first, or the flight proves nothing either way.
 
@@ -5523,7 +5525,7 @@ stay in the area ~10 minutes.
      target actually a red TGO on the blue ATO?) vs `armed` present but no launch (the
      death-event name match — unit names vs the emitted list).
   2. **A reaction from an unlisted group, or over an unlisted point** — the positive list
-     leaked (this is the §59-class safety invariant; treat as a stop-ship).
+     leaked (the positive-list safety invariant; treat as a stop-ship).
   3. **The alert flight launches at mission start** — its parked TOT/late-activation broke
      (check the 8 h TOT and the activation trigger time in the miz).
   4. **A wedged takeoff** — the orbit push hit a taxiing flight (the airborne poll gate
