@@ -164,7 +164,7 @@ local function run()
   end
   fh:write(payload)
   fh:close()
-  log(string.format("wrote %d airbases, %d columns -> %s", #airbases, #columns, path))
+  log(string.format("wrote %d airbases -> %s", #airbases, path))
 end
 
 local ok, err = pcall(run)
