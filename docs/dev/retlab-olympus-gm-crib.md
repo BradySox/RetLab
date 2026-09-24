@@ -39,8 +39,7 @@ Blue/Red Commander roles are sensor-fogged.
 - **Spawn names are fixed `Olympus-<n>`** (units `Olympus-<n>-<i>`; not user-choosable —
   sourced from `OlympusCommand.lua`'s unit counter). Three consequences, all now
   source-level facts: no `|` in the name ⇒ the AI QRA reserve can never classify the
-  raid; no match against MANTIS's exact-name prefixes ⇒ the lone-wolf GM SAM; and never
-  in the §59 Python-emitted sleep lists ⇒ **GM spawns are always awake**.
+  raid; and no match against MANTIS's exact-name prefixes ⇒ the lone-wolf GM SAM.
 - **The AI QRA reserve will NOT scramble against a GM raid.** The react filter classifies
   raids by the Retribution `{target} {task}|…` group-name format; a name with no `|` is
   non-ATO air and is *never* reacted to (`intercept-config.lua` `qra_group_reacts`,
@@ -82,10 +81,6 @@ deliberately accept the fight:
   replicas, each side's extras survive. This is the pass card's **step-1 proof burden**:
   a fork mover must still route AND an Olympus spawn must accept a waypoint, in the same
   mission. (Yes: installing Olympus un-retires MIST in the mission env.)
-- **§59 AI sleep**: rear garrison groups have their controller OFF until an aircraft
-  closes ~15 NM or they take a hit — an Olympus order to a slept group does nothing
-  until then. For GM-heavy events, either leave `perf_ground_ai_sleep` off or wake
-  groups by flying something near them.
 - **Anti-grief guarantees bound the automation, not you.** the COIN insurgent fire can never
   shell a player ramp; *you* can. Know that you're outside the guardrails.
 - **Mod units**: Olympus spawns vanilla + whatever mods it's configured for; the fork's
@@ -102,7 +97,7 @@ deliberately accept the fight:
 ## Part B — Tier-0 compatibility pass card
 
 Run **once on the private-session server** before Olympus touches a squadron event.
-Fly it twice: once on a **heavy laydown** (Red Tide, or 1968 Yankee Station — the §59
+Fly it twice: once on a **heavy laydown** (Red Tide, or 1968 Yankee Station — the
 measured stress case) and once on a **COIN campaign** (Enduring/Inherent Resolve — the
 mover-dense case). Record results in the box at the bottom; fold `[verify]` answers back
 into this doc and the exploration note.
@@ -116,7 +111,7 @@ into this doc and the exploration note.
 | 5 | Spawn junk; exercise **both delete flavors** (plain vs with-explosion). Then plain-delete ONE tracked rear red AI unit deliberately; end mission. | Per source: the plain AI delete is a silent `destroy()` — the unit is NOT a loss and survives next turn ("erase"); a delete-with-explosion (and any player-unit delete) records a **real kill** at debrief. | The silently-deleted unit recorded as killed, or the explosive delete missing from the debrief (either changes the crib's ledger rules). |
 | 6 | Kill one tracked red unit with a GM spawn or effect. | Debrief shows the loss; next-turn campaign state reflects it. | The kill missing from the debrief. |
 | 7 | Watch a §49 battery or COIN mover with the Olympus map; optionally re-task one. | The script re-asserts on its next cadence (evidence for the hands-off rule). | The mover permanently hijacked (would mean the cadence re-push broke). |
-| 8 | Heavy laydown, `perf_ground_ai_sleep` ON: order a slept garrison group; then fly near it and re-order. | Nothing happens while slept; wakes on approach; then obeys. | A slept group obeying (sleep broken) or never waking. |
+| 8 | Dropped: §59 ground AI sleep was removed 2026-09-23. | — | — |
 | 9 | Perf: note server FPS/frametime with Olympus idle vs GM map active, heavy laydown. | No meaningful delta; no ANTIFREEZE log events that don't occur without Olympus. | ANTIFREEZE onset correlated with Olympus. |
 | 10 | (If HTTPS configured) transmit on a §70 red-net frequency. | Players tuned there hear the GM. | — (feature simply unavailable without HTTPS). |
 | 11 | Full turn close-out. | Debrief/`state.json` parse clean; §66 mission archive intact; next turn processes normally. | Debrief poll errors; archive missing. |

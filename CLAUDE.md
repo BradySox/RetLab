@@ -509,7 +509,6 @@ linked design note.
 52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
 56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
 58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
-59. **Ground AI sleep** — the middle tier between keeping and culling, with AAA sites behind two guards.
 60. **SAM guidance-radar redundancy** — two spaced track radars, so one HARM is not a site kill.
 61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
 62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead. The Payload tab can pin a Hornet/Tomcat flight's number (wingmen follow); no other package reuses it.
@@ -577,6 +576,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 54 | Munitions availability | Removed 2026-07-21 |
 | 55 | Red Intent adaptive posture | Removed 2026-07-21 |
 | 57 | Air-droppable minefields | Removed 2026-09-07 — shelved 2026-07-30 and never resumed; the visible-fake problem was never worth fixing |
+| 59 | Ground AI sleep | Removed 2026-09-23 — DM call; never observed doing its job in any flown test |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 — real forces no longer hide behind circles, so a lone circle would obviously be fake |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 — "doesn't add much except in very specific campaigns" |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |

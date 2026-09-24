@@ -93,7 +93,7 @@ time limit. Four endings — Victory, Stalemate, Timeout, Defeat.
 | BMS mechanism | Fork state |
 |---|---|
 | Continuous war, mission = window | Turn-based by design. §89 fakes the window's *feel* (mid-cycle starts, pre-rolled packages, follow-on waves); §47 marches one clock. **Seam 5's audit stands: the fork's gap is reporting, not simulation** — 39 between-turn operations already run; the player just isn't told. `turnless.md` (the inherited make-it-BMS plan) is superseded — do not re-litigate |
-| Aggregation bubble | **Impossible and not wanted** — DCS owns the 3D world and cannot aggregate. The fork's culling + §59 ground-AI sleep + §26 abstract resolution is the DCS-shaped equivalent: instantiate near the player, resolve abstractly far away. Same idea, different boundary |
+| Aggregation bubble | **Impossible and not wanted** — DCS owns the 3D world and cannot aggregate. The fork's culling + §26 abstract resolution is the DCS-shaped equivalent (§59 ground-AI sleep was a third tier, removed 2026-09-23): instantiate near the player, resolve abstractly far away. Same idea, different boundary |
 | Request → priority → frag pipeline | Upstream's HTN commander plans from theater state; not request-driven but same job. The **small random component** BMS bakes in is exactly §17 (opt-in reordering) — independent convergence |
 | Escort/SEAD sizing by threat | Upstream sizes escorts; §69 retimes strikes behind their SEAD; B75/B78 track the remaining escort-spend defects |
 | Cancel-if-too-hot | Partially present (threat-aware routing upstream; §67 weather demotions; B51 wants the rescue version). BMS's per-mission-type acceptable-threat ceiling is the concrete missing shape |

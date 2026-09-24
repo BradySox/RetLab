@@ -227,7 +227,7 @@ function UnitFake:getPlayerName()
     return self.playerName
 end
 
--- Group-level controller: records setOnOff (the ground AI sleep lever). Extend with
+-- Group-level controller: records setOnOff. Extend with
 -- setOption/setTask recording if a plugin under test needs them.
 local ControllerFake = {}
 ControllerFake.__index = ControllerFake

@@ -28,7 +28,7 @@ So it fires once, blind, at a stale point.
 **The group names already reach Lua**, unused: `luagenerator.py:359` emits
 `dcsRetribution.artilleryGroups.groundArtillery[].groupName`. That list also carries
 theater-object artillery and has no coalition field, so it needs filtering to frontline
-groups (a §59-sleeping site must not be tasked).
+groups.
 
 ## 3. Mechanism
 
