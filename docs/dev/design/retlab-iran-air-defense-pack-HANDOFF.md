@@ -55,12 +55,12 @@ Make `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` with an `entry.lua` 
 
 | Type id | Borrow the model of | Borrow the behaviour of | Missile (Phase A) |
 |---|---|---|---|
-| `IRAD_Bashir_SR` | Buk 9S18M1 SR | 9S18M1, detection 200 km | — |
-| `IRAD_3Khordad_TELAR` | Buk 9A310M1 TELAR | 9A310M1, radar 90 km, 3 missiles | vanilla Buk missile |
+| `IRAD_Bashir_SR` | Buk 9S18M1 SR | 9S18M1, detection 108 NM | — |
+| `IRAD_3Khordad_TELAR` | Buk 9A310M1 TELAR | 9A310M1, radar 49 NM, 3 missiles | vanilla Buk missile |
 | `IRAD_AlamAlHoda_TEL` | Buk loader-launcher, or the TELAR | launcher with no radar, 3 missiles | vanilla Buk missile |
-| `IRAD_Meraj4_SR` | S-300PS 64H6E | detection 250 km | — |
-| `IRAD_Hafez_SR` | S-300PS 40B6MD | detection 200 km | — |
-| `IRAD_Bavar373_STR` | S-300PS 40B6M (30N6) | tracking 200 km, 6 targets | — |
+| `IRAD_Meraj4_SR` | S-300PS 64H6E | detection 135 NM | — |
+| `IRAD_Hafez_SR` | S-300PS 40B6MD | detection 108 NM | — |
+| `IRAD_Bavar373_STR` | S-300PS 40B6M (30N6) | tracking 108 NM, 6 targets | — |
 | `IRAD_Bavar373_CP` | S-300PS 54K6 | command post | — |
 | `IRAD_Bavar373_LN` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
 | `IRAD_Bavar373_LN_4B` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
@@ -95,11 +95,12 @@ design note §3 best estimates:
 
 | Missile | Based on | Range | Max alt | Speed | Guidance | Warhead |
 |---|---|---|---|---|---|---|
-| Taer-2B | Buk 9M317 | 50 km | 25 km | Mach 3–3.5 | command + SARH | 50 kg |
-| Sayyad-4 | 48N6 / 5V55 family | 150 km | 27 km | Mach 5 | TVM-style | 180 kg |
-| Sayyad-4B | the same, active terminal | 200 km | 30 km | Mach 5 | active terminal | 180 kg |
+| Taer-2B | Buk 9M317 | 27 NM | 82,000 ft | Mach 3–3.5 | command + SARH | 110 lb |
+| Sayyad-4 | 48N6 / 5V55 family | 81 NM | 88,600 ft | Mach 5 | TVM-style | 400 lb |
+| Sayyad-4B | the same, active terminal | 108 NM | 98,400 ft | Mach 5 | active terminal | 400 lb |
 
-Min range and altitude: 3 km / 20 m (Taer-2B) and 5 km / 25 m (Sayyad). Point each launcher at
+Min range and altitude: 1.6 NM / 65 ft (Taer-2B) and 2.7 NM / 82 ft (Sayyad). DCS weapon
+files take meters: multiply NM by 1,852 and feet by 0.3048. Point each launcher at
 its missile.
 
 **If Phase B is too hard,** stop after Phase A. Record the real Phase A ranges in design note

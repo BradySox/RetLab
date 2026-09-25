@@ -14,18 +14,20 @@ boats, but no SAM.
 The type ids are the contract between the mod's `Database` lua and this repo. **Do not rename
 one on either side alone.** The pydcs ranges are the best estimates in §3; the mod's own
 missile and radar numbers must match them, or this table is updated to what the mod does.
+Ranges are in nautical miles, altitudes and sizes in feet; the pydcs file holds the same
+values in meters because pydcs requires it.
 
 | Type id | Display name | Class | Detection | Threat |
 |---|---|---|---|---|
-| `IRAD_Bashir_SR` | `[IRAD] 3rd Khordad Bashir SR` | SearchRadar | 200 km | — |
-| `IRAD_3Khordad_TELAR` | `[IRAD] 3rd Khordad TELAR` | TELAR | 90 km | 50 km |
-| `IRAD_AlamAlHoda_TEL` | `[IRAD] 3rd Khordad Alam al-Hoda TEL` | Launcher | — | 50 km |
-| `IRAD_Meraj4_SR` | `[IRAD] Bavar-373 Meraj-4 SR` | SearchRadar | 250 km | — |
-| `IRAD_Hafez_SR` | `[IRAD] Bavar-373 Hafez AR` | SearchRadar | 200 km | — |
-| `IRAD_Bavar373_STR` | `[IRAD] Bavar-373 STR` | TrackRadar | 200 km | — |
+| `IRAD_Bashir_SR` | `[IRAD] 3rd Khordad Bashir SR` | SearchRadar | 108 NM | — |
+| `IRAD_3Khordad_TELAR` | `[IRAD] 3rd Khordad TELAR` | TELAR | 49 NM | 27 NM |
+| `IRAD_AlamAlHoda_TEL` | `[IRAD] 3rd Khordad Alam al-Hoda TEL` | Launcher | — | 27 NM |
+| `IRAD_Meraj4_SR` | `[IRAD] Bavar-373 Meraj-4 SR` | SearchRadar | 135 NM | — |
+| `IRAD_Hafez_SR` | `[IRAD] Bavar-373 Hafez AR` | SearchRadar | 108 NM | — |
+| `IRAD_Bavar373_STR` | `[IRAD] Bavar-373 STR` | TrackRadar | 108 NM | — |
 | `IRAD_Bavar373_CP` | `[IRAD] Bavar-373 CP` | CommandPost | — | — |
-| `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 150 km |
-| `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 200 km |
+| `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 81 NM |
+| `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 108 NM |
 
 `IRAD_` is the pack's prefix; `[IRAD]` marks the display names the way `[CH]` marks
 CurrentHill's.
@@ -68,16 +70,16 @@ listed pages; re-check before treating any as settled.
 | Item | Sources | Best estimate |
 |---|---|---|
 | TELAR | 6x6 truck, 3 Taer-2B on an inclined trainable launcher, flat X-band phased array on the same vehicle; engages alone (IR/W) | as sourced |
-| Engagement radar | tracks 100, engages 4, 2 missiles per target (IR); no range published | **90 km detection** (INF: must outreach the missile) |
-| Search radar | Bashir 3-D S-band, one per battalion, 350 km (IR) | **200 km** |
+| Engagement radar | tracks 100, engages 4, 2 missiles per target (IR); no range published | **49 NM detection** (INF: must outreach the missile) |
+| Search radar | Bashir 3-D S-band, one per battalion, 189 NM (IR) | **108 NM** |
 | Extra launchers | 2 Alam al-Hoda TELs per TELAR, electro-optical tracker, no fire-control radar (IR) | 2 per TELAR |
-| Taer-2B range | 50 km; 2B claimed 75–105 km (IR) | **50 km** — the 105 km is unproven, 50 km fits the 9M317 lineage |
-| Altitude | 25–30 km (IR) | **25 km** |
-| Min range / altitude | not published | **3 km / 20 m** (INF, 9M317) |
+| Taer-2B range | 27 NM; 2B claimed 40–57 NM (IR) | **27 NM** — the 57 NM is unproven, 27 NM fits the 9M317 lineage |
+| Altitude | 82,000–98,000 ft (IR) | **82,000 ft** |
+| Min range / altitude | not published | **1.6 NM / 65 ft** (INF, 9M317) |
 | Speed | Mach 4 (IR) | **Mach 3–3.5** (INF) |
 | Guidance | "active radar homing" (IR) | **command + SARH, Buk-style** (INF: TELAR illuminator architecture) |
-| Warhead | 40–50 kg frag (IR/W) | **50 kg** |
-| Missile size | not found | **5.5 m, 0.4 m, ~700 kg** (INF, 9M317) |
+| Warhead | 90–110 lb frag (IR/W) | **110 lb** |
+| Missile size | not found | **18 ft long, 16 in wide, ~1,540 lb** (INF, 9M317) |
 | Reaction / setup | not found | **~22 s / ~5 min** (INF, Buk) |
 | DCS analogue | — | **SA-11 Buk**: same TELAR-plus-loaders-plus-3D-SR concept; analysts tie Raad to Buk-M2E |
 
@@ -86,18 +88,18 @@ listed pages; re-check before treating any as settled.
 | Item | Sources | Best estimate |
 |---|---|---|
 | TEL | Zoljanah 10x10, 4 vertical cold-launch canisters; up to 6 TELs per battery (IR/W) | **4 canisters, 6 TELs** |
-| Meraj-4 search | S-band rotating AESA, 350 km, later 450 km claimed (IR) | **250 km** |
-| Hafez acquisition | S-band AESA, 300 km, 100 targets, Zafar 8x8 (IR) | **200 km** |
-| Engagement radar | X-band AESA on a mast, 320 km, engages 6 targets with 12 missiles (IR) | **200 km detection, 6 targets** |
+| Meraj-4 search | S-band rotating AESA, 189 NM, later 243 NM claimed (IR) | **135 NM** |
+| Hafez acquisition | S-band AESA, 162 NM, 100 targets, Zafar 8x8 (IR) | **108 NM** |
+| Engagement radar | X-band AESA on a mast, 173 NM, engages 6 targets with 12 missiles (IR) | **108 NM detection, 6 targets** |
 | Command post | Zafar 8x8 (IR) | as sourced |
-| Sayyad-4 range | 200 km (IR) | **150 km** — the S-300PS-class missile it resembles is well under that |
-| Sayyad-4B range | 300 km, some say 400 km (IR) | **200 km** |
-| Altitude | Sayyad-4 27 km; 4B 32 km (IR) | **27 / 30 km** |
-| Min range / altitude | not published | **5 km / 25 m** (INF, S-300PS) |
+| Sayyad-4 range | 108 NM (IR) | **81 NM** — the S-300PS-class missile it resembles is well under that |
+| Sayyad-4B range | 162 NM, some say 216 NM (IR) | **108 NM** |
+| Altitude | Sayyad-4 88,600 ft; 4B 105,000 ft (IR) | **88,600 / 98,400 ft** |
+| Min range / altitude | not published | **2.7 NM / 82 ft** (INF, S-300PS) |
 | Speed | Mach 5; 6–8 claimed (IR) | **Mach 5** |
 | Guidance | inertial + datalink midcourse, SARH/TVM terminal; 4B active seeker (IR/W) | Sayyad-4 **TVM-style**; 4B **active terminal** |
-| Warhead | 180 kg (IR/W) | **180 kg** |
-| Missile size | 7.5 m, 515 mm, 2,050 kg (IR/W) | as sourced, both missiles |
+| Warhead | 400 lb (IR/W) | **400 lb** |
+| Missile size | 24.6 ft long, 20 in wide, 4,520 lb (IR/W) | as sourced, both missiles |
 | Reaction / setup | Meraj-4 emplaced in 30 min (IR) | **~12 s / ~5–30 min** (INF, S-300PS) |
 | DCS analogue | — | **SA-10 S-300PS**: 4 vertical canisters, mast-mounted X-band STR, rotating 3-D SR, 6-TEL battery with a command vehicle |
 
@@ -127,7 +129,7 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
 
-- **15th Khordad** (Sayyad-3, 120 km, S-300PS-lite). The third system; not in v0.1.
+- **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
 - **Textures and far-view LODs** for the models.
 - **An Iran 2026 faction.** `[CH] Iran 2020` stands in.
 - **Iran's own short-range kit** (Majid, Herz-9). MANPADS-class threat is already covered by

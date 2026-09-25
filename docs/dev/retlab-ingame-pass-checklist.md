@@ -8645,7 +8645,7 @@ Repo side built 2026-09-25; the mod itself is built on the DM's machine from the
 - **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
   and the pack's toggle ticked. Buy or find one of each site. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
-  and a `Bavar-373` site; each engages inside its range (50 km and 150 km, 200 km for a
+  and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
   Sayyad-4B launcher); a HARM on one TELAR or one STR leaves the site still able to fire.
 - **Fail signatures:** a vehicle missing from the site (a type id that does not match the
   mod); `dcs.log` naming an `IRAD_` type as unknown; a site that never goes live (Skynet
