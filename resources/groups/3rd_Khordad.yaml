@@ -1,0 +1,19 @@
+name: 3rd Khordad
+tasks:
+  - MERAD
+hide_on_mfd: true
+units:
+  - "[IRAD] 3rd Khordad Bashir SR"
+  - "[IRAD] 3rd Khordad TELAR"
+  - "[IRAD] 3rd Khordad Alam al-Hoda TEL"
+  # RetLab: battery support section
+  - Truck GAZ-66
+  - Truck Ural-375
+  - Truck KAMAZ 43101
+  - Refueler ATZ-5
+  - Refueler ATZ-60 (MAZ-7410)
+  - Refueler TZ-22 (KrAZ-258B1)
+  - Refueler ATMZ-5
+  - Refueler ATZ-10
+layouts:
+  - 3rd Khordad Battery

@@ -690,7 +690,7 @@ def test_western_factions_reach_their_c2_kit() -> None:
 
 @pytest.mark.parametrize(
     "layout_name",
-    ["S-300 Site", "S-300 Site (Single Radar)", "HQ-22 Battery"],
+    ["S-300 Site", "S-300 Site (Single Radar)", "HQ-22 Battery", "Bavar-373 Battery"],
 )
 def test_textbook_configuration_is_the_only_configuration(layout_name: str) -> None:
     """DM call 2026-08-04: the textbook SA-10 site IS the configuration -- the

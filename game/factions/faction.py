@@ -940,6 +940,19 @@ class Faction:
             self.remove_vehicle("CH_Shahed136")
             self.remove_ship("IranFAC_MG")
             self.remove_ship("IranFAC_MG_AShM")
+        # RetLab Iran Air Defense Pack
+        if not mod_settings.iranairdefensepack:
+            self.remove_vehicle("IRAD_Bashir_SR")
+            self.remove_vehicle("IRAD_3Khordad_TELAR")
+            self.remove_vehicle("IRAD_AlamAlHoda_TEL")
+            self.remove_vehicle("IRAD_Meraj4_SR")
+            self.remove_vehicle("IRAD_Hafez_SR")
+            self.remove_vehicle("IRAD_Bavar373_STR")
+            self.remove_vehicle("IRAD_Bavar373_CP")
+            self.remove_vehicle("IRAD_Bavar373_LN")
+            self.remove_vehicle("IRAD_Bavar373_LN_4B")
+            self.remove_preset("3rd Khordad")
+            self.remove_preset("Bavar-373")
         # Russian Military Assets Pack
         if not mod_settings.russianmilitaryassetspack:
             self.remove_vehicle("CH_2S35")

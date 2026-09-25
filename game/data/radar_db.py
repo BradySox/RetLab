@@ -27,12 +27,14 @@ from pydcs_extensions import highdigitsams as hds
 from pydcs_extensions import vietnamwarvessels as vwv
 from pydcs_extensions import chinesemilitaryassetspack as cmap
 from pydcs_extensions import iranmilitaryassetspack as imap
+from pydcs_extensions import iranairdefensepack as irad
 from pydcs_extensions import russianmilitaryassetspack as rmap
 from pydcs_extensions import swedishmilitaryassetspack as smap
 from pydcs_extensions import ukmilitaryassetspack as ukmap
 from pydcs_extensions import usamilitaryassetspack as usamap
 
 TELARS = {
+    irad.IRAD_3Khordad_TELAR,
     AirDefence.x_2S6_Tunguska,
     AirDefence.SA_11_Buk_LN_9A310M1,
     AirDefence.Osa_9A33_ln,
@@ -74,6 +76,7 @@ TRACK_RADARS = {
     hds.SAMPT_GF300_STR,
     hds.ERO_SA2_SNR75,
     cmap.CH_HQ22_STR,
+    irad.IRAD_Bavar373_STR,
     rmap.CH_BukM3_9S36M,
     rmap.CH_S350_50N6,
     smap.LvS_103_PM103,
@@ -151,6 +154,9 @@ LAUNCHER_TRACKER_PAIRS = {
         hds.SAMPT_GF300_STR,
     ),
     cmap.CH_HQ22_LN: (cmap.CH_HQ22_STR,),
+    irad.IRAD_AlamAlHoda_TEL: (irad.IRAD_3Khordad_TELAR,),
+    irad.IRAD_Bavar373_LN: (irad.IRAD_Bavar373_STR,),
+    irad.IRAD_Bavar373_LN_4B: (irad.IRAD_Bavar373_STR,),
     rmap.CH_BukM3_9A317M: (rmap.CH_BukM3_9S36M,),
     rmap.CH_BukM3_9A317MA: (rmap.CH_BukM3_9S36M,),
     rmap.CH_S350_50P6_9M96D: (rmap.CH_S350_50N6,),
@@ -252,6 +258,11 @@ UNITS_WITH_RADAR = {
     cmap.CH_PGZ09,
     cmap.CH_HQ22_SR,
     cmap.CH_HQ22_STR,
+    irad.IRAD_Bashir_SR,
+    irad.IRAD_3Khordad_TELAR,
+    irad.IRAD_Meraj4_SR,
+    irad.IRAD_Hafez_SR,
+    irad.IRAD_Bavar373_STR,
     cmap.CH_LD3000,
     cmap.CH_LD3000_stationary,
     cmap.CH_PGZ95,

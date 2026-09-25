@@ -149,6 +149,9 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,
   and the pre-registered falsifier if AI attrition rises)
+- **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id
+  contract, the research and best-estimate numbers; **the mod is not built yet** — the local
+  build is `retlab-iran-air-defense-pack-HANDOFF.md`)
 - **Neutral factions** — `retlab-neutral-border-defense-notes.md` (**§98** — the engine
   verdict on why a true neutral cannot fire, the opposing-coalition clone mechanism, the
   DM-locked rules incl. derived alignment (airfield-hosting decides the side), the
@@ -549,6 +552,7 @@ linked design note.
 102. **My aircraft, saved points and the DTC options** — one window for the seat you are flying: saved points (waypoint, IP, target, hold, orbit) and drawings, the loadout and the data cartridge. Points and drawings reach the Hornet, Viper, F-14B(U), Apache and A-10 where each cockpit has a place, and a kneeboard page with the cockpit's numbers. The DTC tab shows only what the jet's cartridge carries, with load-at-spawn or by-hand, waypoint types to leave out, and SAM rings near the route. Window and points ported from juanjux/dcs-escalation.
 103. **HQ priority targets** — what losing each enemy target costs the enemy, in that kind of target's own measure (income, front-line vehicles, offensive packages, equipment price), ranked within its kind. A Why it matters line on the target panel always; a blue-only planner weight, gentler than §93, when on. No prize. The objective half of juanjux's High Command.
 104. **Runway queue at busy fields** — the taxi allowance at an airfield grows with the departures ahead of a flight, at 45 seconds per jet, so a crowded field's later flights spawn early enough to make their takeoff. A quiet field keeps the flat 8 minutes. The mission starts up to 30 minutes early when a flight needs it; TOTs and the campaign clock stay put. Always on, no setting (DM call).
+105. **RetLab Iran Air Defense Pack** — Retribution support for a RetLab-authored mod carrying 3rd Khordad (MERAD, Buk-like) and Bavar-373 (LORAD, S-300-like), with Skynet entries and `[CH] Iran 2020` presets. The mod itself is built locally from the handoff note; nothing flown yet.
 
 ### Retired, removed or shelved — do not restore
 

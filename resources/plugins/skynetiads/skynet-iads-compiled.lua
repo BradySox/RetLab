@@ -1639,6 +1639,55 @@ samTypesDB['LD-3000_stationery'] = {
 	
 }
 
+-- RetLab Iran Air Defense Pack. The TELAR carries its own radar, as the Buk's does.
+samTypesDB['3rd Khordad'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['IRAD_Bashir_SR'] = {
+		},
+	},
+	['launchers'] = {
+		['IRAD_3Khordad_TELAR'] = {
+		},
+		['IRAD_AlamAlHoda_TEL'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = '3rd Khordad'
+	},
+	['harm_detection_chance'] = 70
+}
+
+samTypesDB['Bavar-373'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['IRAD_Meraj4_SR'] = {
+		},
+		['IRAD_Hafez_SR'] = {
+		},
+	},
+	['trackingRadar'] = {
+		['IRAD_Bavar373_STR'] = {
+		},
+	},
+	['misc'] = {
+		['IRAD_Bavar373_CP'] = {
+			['required'] = true,
+		},
+	},
+	['launchers'] = {
+		['IRAD_Bavar373_LN'] = {
+		},
+		['IRAD_Bavar373_LN_4B'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'Bavar-373'
+	},
+	['harm_detection_chance'] = 90,
+	['can_engage_harm'] = true
+}
+
 samTypesDB['HQ-22'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {

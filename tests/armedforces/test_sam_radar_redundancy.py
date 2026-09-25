@@ -50,6 +50,8 @@ GUIDANCE_RADAR_SLOTS = [
     ("SA-5 Legacy Site (Semicircle)", "Track Radar"),
     ("S-300 Site", "S-300 Site TR"),
     ("HQ-22 Battery", "S-300 Site TR"),
+    ("Bavar-373 Battery", "S-300 Site TR"),
+    ("3rd Khordad Battery", "Track Radar"),
     ("SA-2/SA-3 Mixed Site", "S-300 Site TR"),
     ("SA-2/SA-3 Mixed Site", "S-300 Site CP"),
     ("SA-6 Reinforced Site (Circle)", "Search Radar"),

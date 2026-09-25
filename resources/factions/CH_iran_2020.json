@@ -72,6 +72,8 @@
     "SA-11",
     "Rapier",
     "SA-17",
+    "3rd Khordad",
+    "Bavar-373",
     "KS-19/SON-9",
     "Silkworm"
   ],
@@ -96,7 +98,8 @@
   ],
   "helicopter_carrier_names": [],
   "requirements": {
-    "CurrentHill Iran Asset Pack": "https://www.currenthill.com/iran"
+    "CurrentHill Iran Asset Pack": "https://www.currenthill.com/iran",
+    "RetLab Iran Air Defense Pack": "https://github.com/BradySox/RetLab/blob/main/docs/dev/design/retlab-iran-air-defense-pack-notes.md"
   },
   "carrier_names": [],
   "has_jtac": true,
