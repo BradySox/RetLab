@@ -95,3 +95,13 @@ class IRAD_Bavar373_LN_4B(unittype.VehicleType):
     threat_range = 200000
     air_weapon_dist = 200000
     eplrs = True
+
+
+@vehiclemod
+class IRAD_Bavar373_TELAR(unittype.VehicleType):
+    id = "IRAD_Bavar373_TELAR"
+    name = "[IRAD] Bavar-373-II TELAR"
+    detection_range = 120000
+    threat_range = 200000
+    air_weapon_dist = 200000
+    eplrs = True

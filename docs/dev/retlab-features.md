@@ -10955,8 +10955,10 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   contract with the mod's `Database` lua.
 - Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
   `Faction.apply_mod_settings` strips all nine and both presets when it is off.
-- Presets `3rd Khordad` (MERAD) and `Bavar-373` (LORAD). `[CH] Iran 2020` fields both;
-  `Iran 2015` fields 3rd Khordad only.
+- Presets `3rd Khordad` (MERAD), `Bavar-373` and `Bavar-373-II` (LORAD). `[CH] Iran 2020` fields
+  all three; `Iran 2015` fields 3rd Khordad only.
+- `Bavar-373-II Battery (Single Radar)`: six TELARs with their own radars and one STR; the
+  TELARs are the redundancy, so the STR is not doubled.
 - `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60
   pair, and never zero), 4 radar-less TELs.
 - `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, with the §85 support section.

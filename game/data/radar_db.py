@@ -35,6 +35,7 @@ from pydcs_extensions import usamilitaryassetspack as usamap
 
 TELARS = {
     irad.IRAD_3Khordad_TELAR,
+    irad.IRAD_Bavar373_TELAR,
     AirDefence.x_2S6_Tunguska,
     AirDefence.SA_11_Buk_LN_9A310M1,
     AirDefence.Osa_9A33_ln,
@@ -263,6 +264,7 @@ UNITS_WITH_RADAR = {
     irad.IRAD_Meraj4_SR,
     irad.IRAD_Hafez_SR,
     irad.IRAD_Bavar373_STR,
+    irad.IRAD_Bavar373_TELAR,
     cmap.CH_LD3000,
     cmap.CH_LD3000_stationary,
     cmap.CH_PGZ95,

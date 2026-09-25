@@ -28,6 +28,7 @@ values in meters because pydcs requires it.
 | `IRAD_Bavar373_CP` | `[IRAD] Bavar-373 CP` | CommandPost | — | — |
 | `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 81 NM |
 | `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 108 NM |
+| `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | TELAR | 65 NM | 108 NM |
 
 `IRAD_` is the pack's prefix; `[IRAD]` marks the display names the way `[CH]` marks
 CurrentHill's.
@@ -40,11 +41,11 @@ CurrentHill's.
 | New Game toggle `iranairdefensepack` | `game/theater/start_generator.py`, `qt_ui/windows/newgame/` |
 | Strip when off | `game/factions/faction.py` |
 | Unit data | `resources/units/ground_units/IRAD_*.yaml` |
-| Presets | `resources/groups/3rd_Khordad.yaml`, `resources/groups/Bavar-373.yaml` |
-| Layouts | `resources/layouts/anti_air/3rd_Khordad_Battery.yaml`, `Bavar-373_Battery.yaml` |
+| Presets | `resources/groups/3rd_Khordad.yaml`, `Bavar-373.yaml`, `Bavar-373-II.yaml` |
+| Layouts | `resources/layouts/anti_air/3rd_Khordad_Battery.yaml`, `Bavar-373_Battery.yaml`, `Bavar-373-II_Battery_Single_Radar.yaml` |
 | Radar db | `game/data/radar_db.py` |
 | Skynet | `samTypesDB['3rd Khordad']`, `samTypesDB['Bavar-373']` in `skynet-iads-compiled.lua` |
-| Factions | `[CH] Iran 2020` gets both; `Iran 2015` gets 3rd Khordad only (Bavar-373 is 2019) |
+| Factions | `[CH] Iran 2020` gets all three presets; `Iran 2015` gets 3rd Khordad only (Bavar-373 is 2019) |
 | Tests | `tests/retlab/test_iran_air_defense_pack.py`, plus the two layouts in the redundancy and support-section tests |
 
 ### Layout choices
@@ -55,6 +56,10 @@ CurrentHill's.
 - **Bavar-373 Battery** — `S-300_Site.miz`, the HQ-22 pattern: Meraj-4 and Hafez in SR1/SR2,
   CP, 2 STRs, LN1 = 3 Sayyad-4, LN2 = 3 of either Sayyad-4B or Sayyad-4. Full §85 support
   section, Soviet kit.
+- **Bavar-373-II Battery (Single Radar)** — the same template with six TELARs and **one** STR. Each
+  TELAR carries its own radar, so the TELARs are the guidance redundancy; a second STR would
+  double-count (the §60 guardrail). `Single Radar` in the name is the redundancy test's marker
+  for a deliberate single engagement radar.
 - Bavar-373 is a strategic system; the §60 two-STR layout is used rather than a regiment
   layout. **Record the switch here if a campaign ever authors it regiment-style.**
 
@@ -103,6 +108,19 @@ listed pages; re-check before treating any as settled.
 | Reaction / setup | Meraj-4 emplaced in 30 min (IR) | **~12 s / ~5–30 min** (INF, S-300PS) |
 | DCS analogue | — | **SA-10 S-300PS**: 4 vertical canisters, mast-mounted X-band STR, rotating 3-D SR, 6-TEL battery with a command vehicle |
 
+### Bavar-373-II — shown February 2025
+
+| Item | Sources | Best estimate |
+|---|---|---|
+| Launchers | each TELAR carries its own radar and can detect, track and engage alone (IR) | **TELAR** |
+| Battalion | 6 TELARs, an acquisition radar, a fire-control radar, a command post (IR) | as sourced |
+| Missiles per launcher | "24 ready-to-launch missiles" (IR, one outlet) | **4** — every photograph shows four canisters |
+| TELAR radar | a dish on a tall mast (photograph); no range published | **65 NM detection** (INF: short of the missile, cued by the battery radars beyond it) |
+| Missile | extended range claimed (IR) | **Sayyad-4B, 108 NM** |
+| DCS analogue | — | **SA-12's 9A83**: a launcher with its own fire-control radar. Not the SA-20, whose launchers have none |
+
+Sources: armyrecognition.com (2025, Bavar 373-II), nna-leb.gov.lb (2025).
+
 ### In the 2026 war
 
 - **Neither system is confirmed as the weapon in a US loss.**
@@ -144,9 +162,9 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
 
-- **The newer Bavar-373 TEL with its own radar mast** (photograph supplied 2026-09-25): a dish on a
-  tall mast on the launcher truck, an hourglass erector with one ram, deck railings. The built
-  TEL matches the earlier configuration; this would be a second launcher model.
+- **The Bavar-373-II TELAR's 3D model.** The unit, preset and layout are built (DM call 2026-09-25:
+  a second version alongside the original, dated 2025). The photograph shows a dish on a tall
+  mast on the launcher truck, an hourglass erector with one ram, and deck railings.
 
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
 - **Far-view LODs** for the models.

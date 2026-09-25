@@ -59,8 +59,8 @@ def _irad_units(faction: Faction) -> set[str]:
     }
 
 
-def test_the_contract_has_nine_units() -> None:
-    assert len(IRAD_IDS) == 9
+def test_the_contract_has_ten_units() -> None:
+    assert len(IRAD_IDS) == 10
 
 
 @pytest.mark.parametrize("unit_id", sorted(IRAD_IDS))
@@ -71,7 +71,7 @@ def test_every_unit_has_unit_data(unit_id: str) -> None:
 def test_modern_iran_fields_both_systems() -> None:
     faction = _load("CH_iran_2020.json", pack=True)
     presets = {group.name for group in faction.preset_groups}
-    assert {"3rd Khordad", "Bavar-373"} <= presets
+    assert {"3rd Khordad", "Bavar-373", "Bavar-373-II"} <= presets
     assert _irad_units(faction) == IRAD_IDS
 
 
@@ -81,6 +81,7 @@ def test_iran_2015_gets_3rd_khordad_only() -> None:
     presets = {group.name for group in faction.preset_groups}
     assert "3rd Khordad" in presets
     assert "Bavar-373" not in presets
+    assert "Bavar-373-II" not in presets
     assert not any(
         "Bavar" in unit or "Meraj" in unit or "Hafez" in unit
         for unit in _irad_units(faction)
@@ -105,3 +106,13 @@ def test_skynet_knows_every_unit() -> None:
     source = SKYNET.read_text(encoding="utf-8")
     missing = sorted(uid for uid in IRAD_IDS if f"['{uid}']" not in source)
     assert missing == []
+
+
+def test_bavar_ii_launchers_are_the_telars() -> None:
+    """Every Bavar-373-II launcher slot is a TELAR, and the one STR is not doubled:
+    the TELARs are the guidance redundancy."""
+    layout = LAYOUTS.by_name("Bavar-373-II Battery (Single Radar)")
+    groups = {ug.name: ug for ug in layout.all_unit_groups}
+    for slot in ("S-300 Site LN1", "S-300 Site LN2"):
+        assert groups[slot].unit_types == [irad.IRAD_Bavar373_TELAR]
+    assert groups["S-300 Site TR"].unit_count == [1]

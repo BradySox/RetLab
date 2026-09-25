@@ -8643,7 +8643,7 @@ starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT.
 Repo side built 2026-09-25; the mod itself is built on the DM's machine from the handoff in
 `docs/dev/design/retlab-iran-air-defense-pack-notes.md`. Unit-tested on the Python side only.
 - **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
-  and the pack's toggle ticked. Buy or find one of each site. Fly a Viper or Hornet with HARMs.
+  and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
   and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
   Sayyad-4B launcher); a HARM on one TELAR or one STR leaves the site still able to fire.
