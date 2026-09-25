@@ -1,7 +1,7 @@
 """Shared Blender building blocks for the IRAD models. Metres, +Y forward, Z up.
 
-Proportions are matched to reference renders of the Zafar 8x8 and Zoljanah 10x10
-(flat-fronted Iranian heavy-truck cab) and the Bavar-373 complex.
+Proportions are matched to a Tasnim photograph of the Bavar-373 TEL (an 8x8) and to
+reference renders of the complex supplied by the DM.
 """
 
 import math
@@ -27,10 +27,11 @@ def mat(name, rgb, rough=0.8, metal=0.0):
 
 
 def camo():
-    """Iranian three-tone desert camouflage: cream base, tan and brown blotches.
+    """Bavar-373 camouflage as photographed: sand base, soft orange clouds and small
+    black three-bladed splinter marks.
 
-    Procedural on world position so blotches run across part seams; the DCS export
-    needs it baked to a UV texture.
+    Procedural on world position so the pattern runs across part seams; the DCS
+    export needs it baked to a UV texture.
     """
     m = bpy.data.materials.get("irad_camo")
     if m:
@@ -38,25 +39,71 @@ def camo():
     m = bpy.data.materials.new("irad_camo")
     m.use_nodes = True
     nt = m.node_tree
-    bsdf = nt.nodes["Principled BSDF"]
-    bsdf.inputs["Roughness"].default_value = 0.75
-    geo = nt.nodes.new("ShaderNodeNewGeometry")
-    noise = nt.nodes.new("ShaderNodeTexNoise")
-    noise.inputs["Scale"].default_value = 0.85
-    noise.inputs["Detail"].default_value = 3.0
-    noise.inputs["Roughness"].default_value = 0.55
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.interpolation = "CONSTANT"
-    els = ramp.color_ramp.elements
-    els[0].position = 0.0
-    els[0].color = (0.70, 0.62, 0.42, 1)  # cream
-    els[1].position = 0.56
-    els[1].color = (0.45, 0.30, 0.14, 1)  # tan
-    brown = els.new(0.64)
-    brown.color = (0.17, 0.09, 0.04, 1)  # brown
-    nt.links.new(geo.outputs["Position"], noise.inputs["Vector"])
-    nt.links.new(noise.outputs["Fac"], ramp.inputs["Fac"])
-    nt.links.new(ramp.outputs["Color"], bsdf.inputs["Base Color"])
+    N, L = nt.nodes, nt.links
+    bsdf = N["Principled BSDF"]
+    bsdf.inputs["Roughness"].default_value = 0.72
+
+    def math(op, a=None, b=None, va=0.0, vb=0.0):
+        n = N.new("ShaderNodeMath")
+        n.operation = op
+        n.inputs[0].default_value = va
+        n.inputs[1].default_value = vb
+        if a is not None:
+            L.new(a, n.inputs[0])
+        if b is not None:
+            L.new(b, n.inputs[1])
+        return n.outputs[0]
+
+    geo = N.new("ShaderNodeNewGeometry")
+    # soft orange clouds
+    cloud = N.new("ShaderNodeTexNoise")
+    cloud.inputs["Scale"].default_value = 0.6
+    cloud.inputs["Detail"].default_value = 2.0
+    L.new(geo.outputs["Position"], cloud.inputs["Vector"])
+    cramp = N.new("ShaderNodeValToRGB")
+    cramp.color_ramp.elements[0].position = 0.56
+    cramp.color_ramp.elements[1].position = 0.63
+    L.new(cloud.outputs["Fac"], cramp.inputs["Fac"])
+    base = N.new("ShaderNodeMix")
+    base.data_type = "RGBA"
+    base.inputs[6].default_value = (0.62, 0.50, 0.32, 1)  # sand
+    base.inputs[7].default_value = (0.66, 0.33, 0.13, 1)  # orange
+    L.new(cramp.outputs["Color"], base.inputs[0])
+    # splinter marks: a three-lobed shape around each Voronoi feature point
+    SCALE = 1.0
+    scaled = N.new("ShaderNodeVectorMath")
+    scaled.operation = "SCALE"
+    scaled.inputs[3].default_value = SCALE
+    L.new(geo.outputs["Position"], scaled.inputs[0])
+    vor = N.new("ShaderNodeTexVoronoi")
+    vor.inputs["Scale"].default_value = 1.0
+    L.new(scaled.outputs[0], vor.inputs["Vector"])
+    local = N.new("ShaderNodeVectorMath")
+    local.operation = "SUBTRACT"
+    L.new(scaled.outputs[0], local.inputs[0])
+    L.new(vor.outputs["Position"], local.inputs[1])
+    sep = N.new("ShaderNodeSeparateXYZ")
+    L.new(local.outputs[0], sep.inputs[0])
+    u = math("ADD", sep.outputs["X"], sep.outputs["Y"])
+    v = sep.outputs["Z"]
+    r = math("SQRT", math("ADD", math("MULTIPLY", u, u), math("MULTIPLY", v, v)))
+    cseps = N.new("ShaderNodeSeparateColor")
+    L.new(vor.outputs["Color"], cseps.inputs[0])
+    theta = math("ARCTAN2", v, u)
+    phase = math("MULTIPLY", cseps.outputs[0], vb=6.283)
+    lobe = math("COSINE", math("ADD", math("MULTIPLY", theta, vb=3.0), phase))
+    radius = math(
+        "MULTIPLY", math("ADD", math("MULTIPLY", lobe, vb=0.5), vb=0.5), vb=0.3
+    )
+    inside = math("LESS_THAN", r, radius)
+    keep = math("GREATER_THAN", cseps.outputs[1], vb=0.3)
+    mark = math("MULTIPLY", inside, keep)
+    final = N.new("ShaderNodeMix")
+    final.data_type = "RGBA"
+    final.inputs[7].default_value = (0.03, 0.03, 0.03, 1)
+    L.new(mark, final.inputs[0])
+    L.new(base.outputs[2], final.inputs[6])
+    L.new(final.outputs[2], bsdf.inputs["Base Color"])
     return m
 
 
@@ -206,11 +253,11 @@ def wheel(name, loc, r=0.62, w=0.45, parent=None):
     rx = loc[0] + side * (w / 2)
     cyl(
         name + "_rim",
-        r * 0.6,
+        r * 0.58,
         0.06,
         (rx, loc[1], loc[2]),
         (0, math.pi / 2, 0),
-        TRIM(),
+        mat("irad_rim", (0.09, 0.09, 0.08), 0.6),
         parent,
         32,
     )
@@ -243,11 +290,33 @@ def wheel(name, loc, r=0.62, w=0.45, parent=None):
     return t
 
 
+def fan(name, loc, facing, r, parent):
+    """A round fan grille on a face; facing is the outward axis, "x" or "y", signed."""
+    axis, sign = facing[1], (1 if facing[0] == "+" else -1)
+    rot = (0, math.pi / 2, 0) if axis == "x" else (math.pi / 2, 0, 0)
+    off = lambda d: (
+        (loc[0] + sign * d, loc[1], loc[2])
+        if axis == "x"
+        else (loc[0], loc[1] + sign * d, loc[2])
+    )
+    cyl(name + "_ring", r, 0.05, off(0.02), rot, METAL(), parent, 28)
+    cyl(name + "_well", r * 0.92, 0.05, off(0.035), rot, DARK(), parent, 28)
+    cyl(name + "_hub", r * 0.22, 0.06, off(0.05), rot, METAL(), parent, 14)
+    for k in range(4):
+        a = k * math.pi / 4
+        if axis == "x":
+            size, bar_rot = (0.02, 2 * r * 0.9, 0.025), (a, 0, 0)
+        else:
+            size, bar_rot = (2 * r * 0.9, 0.02, 0.025), (0, a, 0)
+        box(name + f"_guard{k}", size, off(0.06), METAL(), parent, 0, bar_rot)
+
+
 def iran_cab(prefix, root, front, width, cab_len, frame_h):
-    """The flat-fronted Zafar/Zoljanah cab: vertical two-pane windscreen, flat
-    overhanging roof, low slotted grille, full-width steel bumper."""
-    bottom = frame_h - 0.25
-    height = 2.35
+    """The Bavar-373 TEL cab as photographed: rounded front corners, two-pane
+    windscreen set high, body-coloured lower front with round lamps and a mesh
+    grille, two red beacons, fold-down steps."""
+    bottom = frame_h - 0.2
+    height = 2.3
     top = bottom + height
     cy = front - cab_len / 2
     box(
@@ -256,45 +325,52 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
         (0, cy, bottom + height / 2),
         PAINT(),
         root,
-        0.05,
+        0.16,
     )
     box(
         prefix + "_roof",
-        (width + 0.08, cab_len + 0.08, 0.1),
-        (0, cy + 0.02, top + 0.03),
+        (width - 0.1, cab_len - 0.1, 0.06),
+        (0, cy, top + 0.02),
         PAINT(),
         root,
         0.03,
     )
-    # windscreen: two near-vertical panes and a centre pillar
+    # windscreen high on the face, two panes with rounded corners, wipers parked on top
     wz = bottom + 1.72
-    tilt = math.radians(6)
     for s in (-1, 1):
         box(
             prefix + f"_windscreen{s}",
-            (width * 0.455, 0.03, 1.08),
-            (s * width * 0.24, front + 0.005, wz),
+            (width * 0.41, 0.04, 0.72),
+            (s * width * 0.225, front + 0.005, wz),
             GLASS(),
             root,
-            0,
-            (tilt, 0, 0),
+            0.06,
         )
         box(
             prefix + f"_sidewin{s}",
-            (0.03, cab_len * 0.42, 0.9),
-            (s * (width / 2 + 0.005), front - cab_len * 0.27, wz + 0.05),
+            (0.04, cab_len * 0.36, 0.72),
+            (s * (width / 2 + 0.005), front - cab_len * 0.28, wz),
             GLASS(),
             root,
-            0,
+            0.04,
         )
-        box(
-            prefix + f"_door{s}",
-            (0.02, cab_len * 0.5, 1.9),
-            (s * (width / 2 + 0.012), front - cab_len * 0.3, bottom + 1.05),
-            TRIM(),
-            root,
-            0,
-        )
+        dy, dz, dh, dw = front - cab_len * 0.3, bottom + 1.1, 1.7, cab_len * 0.48
+        for k, (sz, off) in enumerate(
+            (
+                ((0.02, dw, 0.02), (0, 0, dh / 2)),
+                ((0.02, dw, 0.02), (0, 0, -dh / 2)),
+                ((0.02, 0.02, dh), (0, dw / 2, 0)),
+                ((0.02, 0.02, dh), (0, -dw / 2, 0)),
+            )
+        ):
+            box(
+                prefix + f"_doorseam{s}{k}",
+                sz,
+                (s * (width / 2 + 0.008), dy + off[1], dz + off[2]),
+                DARK(),
+                root,
+                0,
+            )
         box(
             prefix + f"_handle{s}",
             (0.06, 0.2, 0.04),
@@ -303,161 +379,137 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
             root,
             0,
         )
-        # fold-down ladder under the door
-        for rail in (-1, 1):
+        for k in range(2):
             box(
-                prefix + f"_ladrail{s}{rail}",
-                (0.04, 0.04, 0.95),
-                (
-                    s * (width / 2 - 0.05),
-                    front - cab_len * 0.3 + rail * 0.22,
-                    bottom - 0.45,
-                ),
-                METAL(),
+                prefix + f"_wiper{s}{k}",
+                (0.45, 0.02, 0.025),
+                (s * (0.28 + k * 0.5), front + 0.035, wz + 0.2),
+                DARK(),
                 root,
                 0,
-            )
-        for k in range(3):
-            box(
-                prefix + f"_ladrung{s}{k}",
-                (0.1, 0.46, 0.035),
-                (
-                    s * (width / 2 - 0.05),
-                    front - cab_len * 0.3,
-                    bottom - 0.85 + k * 0.33,
-                ),
-                METAL(),
-                root,
-                0,
+                (0, 0, 0.35),
             )
         box(
             prefix + f"_mirrorarm{s}",
-            (0.42, 0.035, 0.035),
-            (s * (width / 2 + 0.2), front - 0.15, wz + 0.35),
+            (0.36, 0.035, 0.035),
+            (s * (width / 2 + 0.17), front - 0.12, wz + 0.25),
             DARK(),
             root,
             0,
         )
         box(
             prefix + f"_mirror{s}",
-            (0.06, 0.16, 0.42),
-            (s * (width / 2 + 0.42), front - 0.15, wz + 0.2),
+            (0.07, 0.18, 0.5),
+            (s * (width / 2 + 0.36), front - 0.12, wz + 0.05),
             DARK(),
             root,
-            0.02,
+            0.03,
         )
         cyl(
-            prefix + f"_light{s}",
+            prefix + f"_beacon{s}",
+            0.07,
+            0.14,
+            (s * 0.35, front - 0.3, top + 0.1),
+            (0, 0, 0),
+            RED(),
+            root,
+            14,
+        )
+        cyl(
+            prefix + f"_lamp{s}",
             0.1,
             0.06,
-            (s * (width / 2 - 0.2), front + 0.2, frame_h - 0.3),
+            (s * (width / 2 - 0.25), front + 0.2, bottom + 0.2),
             (math.pi / 2, 0, 0),
             GLASS(),
             root,
             20,
         )
         cyl(
-            prefix + f"_blinker{s}",
-            0.045,
-            0.06,
-            (s * (width / 2 - 0.42), front + 0.2, frame_h - 0.3),
+            prefix + f"_marker{s}",
+            0.05,
+            0.05,
+            (s * 0.35, front + 0.015, bottom + 1.2),
             (math.pi / 2, 0, 0),
-            AMBER(),
+            DARK(),
             root,
             12,
         )
-    box(prefix + "_pillar", (0.07, 0.05, 1.1), (0, front + 0.01, wz), PAINT(), root, 0)
-    for s in (-1, 1):
+        # fold-down step at the front corner and ladder under the door
         box(
-            prefix + f"_wiper{s}",
-            (0.55, 0.02, 0.03),
-            (s * 0.55, front + 0.03, wz - 0.5),
-            DARK(),
+            prefix + f"_cornerstep{s}",
+            (0.35, 0.25, 0.04),
+            (s * (width / 2 - 0.2), front + 0.05, bottom - 0.55),
+            METAL(),
             root,
             0,
-            (0, 0, s * 0.25),
         )
-    # grille: a recessed panel with horizontal slots and a badge
-    gz = bottom + 0.55
+        for k in range(3):
+            box(
+                prefix + f"_ladrung{s}{k}",
+                (0.1, 0.46, 0.035),
+                (s * (width / 2 - 0.05), front - cab_len * 0.3, bottom - 0.8 + k * 0.3),
+                METAL(),
+                root,
+                0,
+            )
+    box(prefix + "_pillar", (0.09, 0.05, 0.75), (0, front + 0.01, wz), PAINT(), root, 0)
+    box(
+        prefix + "_plate",
+        (0.5, 0.03, 0.11),
+        (0, front + 0.02, wz - 0.48),
+        mat("irad_plate", (0.8, 0.8, 0.8), 0.4),
+        root,
+        0,
+    )
+    # lower front: a protruding body-coloured nose with a mesh grille and tow hooks
+    box(
+        prefix + "_nose",
+        (width, 0.26, 0.55),
+        (0, front + 0.1, bottom + 0.2),
+        PAINT(),
+        root,
+        0.08,
+    )
     box(
         prefix + "_grille",
-        (width * 0.46, 0.04, 0.5),
-        (0, front + 0.01, gz),
-        TRIM(),
+        (width * 0.34, 0.04, 0.25),
+        (0, front + 0.24, bottom + 0.25),
+        DARK(),
         root,
         0.01,
     )
     for i in range(5):
         box(
-            prefix + f"_grilleslot{i}",
-            (width * 0.4, 0.05, 0.035),
-            (0, front + 0.02, gz - 0.18 + i * 0.09),
-            DARK(),
+            prefix + f"_grillebar{i}",
+            (width * 0.34, 0.05, 0.02),
+            (0, front + 0.25, bottom + 0.15 + i * 0.05),
+            METAL(),
             root,
             0,
         )
-    box(
-        prefix + "_badge",
-        (0.18, 0.05, 0.08),
-        (0, front + 0.035, gz + 0.3),
-        METAL(),
-        root,
-        0.01,
-    )
-    # bumper and tow eyes
+    for s in (-1, 1):
+        box(
+            prefix + f"_towhook{s}",
+            (0.18, 0.1, 0.12),
+            (s * 0.55, front + 0.26, bottom + 0.25),
+            DARK(),
+            root,
+            0.01,
+        )
     box(
         prefix + "_bumper",
-        (width + 0.05, 0.3, 0.38),
-        (0, front + 0.18, frame_h - 0.3),
+        (width + 0.02, 0.24, 0.22),
+        (0, front + 0.12, bottom - 0.18),
         DARK(),
         root,
         0.03,
-    )
-    for s in (-1, 1):
-        cyl(
-            prefix + f"_toweye{s}",
-            0.08,
-            0.06,
-            (s * 0.55, front + 0.35, frame_h - 0.3),
-            (math.pi / 2, 0, 0),
-            METAL(),
-            root,
-            12,
-        )
-    # roof: hatch, beacon, horn
-    box(
-        prefix + "_hatch",
-        (0.65, 0.65, 0.05),
-        (0.35, cy - 0.2, top + 0.1),
-        DARK(),
-        root,
-        0.02,
-    )
-    cyl(
-        prefix + "_beacon",
-        0.09,
-        0.14,
-        (-0.55, front - 0.35, top + 0.14),
-        (0, 0, 0),
-        AMBER(),
-        root,
-        14,
-    )
-    cyl(
-        prefix + "_horn",
-        0.05,
-        0.3,
-        (0.7, front - 0.3, top + 0.12),
-        (math.pi / 2, 0, 0),
-        METAL(),
-        root,
-        10,
     )
     return top
 
 
 def iran_truck(
-    prefix, axle_ys, length, width=2.55, cab_len=2.4, frame_h=1.3, wheel_r=0.66
+    prefix, axle_ys, length, width=2.55, cab_len=2.4, frame_h=1.4, wheel_r=0.72
 ):
     """Heavy truck on the given axle stations. Returns (root, deck_z, rear_y, cab_back_y)."""
     root = empty(prefix, (0, 0, 0))

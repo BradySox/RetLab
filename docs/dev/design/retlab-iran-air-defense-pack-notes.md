@@ -87,7 +87,7 @@ listed pages; re-check before treating any as settled.
 
 | Item | Sources | Best estimate |
 |---|---|---|
-| TEL | Zoljanah 10x10, 4 vertical cold-launch canisters; up to 6 TELs per battery (IR/W) | **4 canisters, 6 TELs** |
+| TEL | 8x8 truck (Tasnim photograph); press infographics say Zoljanah 10x10. 4 vertical cold-launch canisters in two towers; up to 6 TELs per battery (IR/W) | **8x8, 4 canisters, 6 TELs** — the photograph wins |
 | Meraj-4 search | S-band rotating AESA, 189 NM, later 243 NM claimed (IR) | **135 NM** |
 | Hafez acquisition | S-band AESA, 162 NM, 100 targets, Zafar 8x8 (IR) | **108 NM** |
 | Engagement radar | X-band AESA on a mast, 173 NM, engages 6 targets with 12 missiles (IR) | **108 NM detection, 6 targets** |
@@ -117,22 +117,26 @@ listed pages; re-check before treating any as settled.
 ## 4. 3D models
 
 Built by script in Blender 5.0, in `mods/iran_air_defense/models/` (DM call 2026-09-25: our own
-models, committed to the branch). Proportions are matched to two reference renders the DM
-supplied (a sim-model render of the Zafar 8x8 radar truck and an Iranian press infographic of
-the Bavar-373 complex); the cloud network policy blocks every photo source tried.
+models, committed to the branch). Proportions are matched to a Tasnim photograph of the TEL
+and to reference renders the DM supplied; the photograph wins where they disagree. The cloud
+network policy blocks every photo source tried, so all references came from the DM.
 
 What the references settled, against the first spec-only draft:
 - The launcher carries **two separate canister towers**, two canisters deep, with a gap
   between them, not one 2x2 block. Dense horizontal ribbing; square ports on the
   truck-facing face near the top.
-- The erector is a **lattice truss with X-bracing** and **one** steep central ram from near
-  the tail; the model uses a 3-stage telescopic ram to reach that geometry.
-- The Zafar and Zoljanah share a **flat-fronted cab** with a vertical two-pane windscreen.
-- Paint is three-tone desert camouflage: cream, tan, brown.
+- The TEL is an **8x8**, not the infographic's 10x10.
+- The erector is a **grid frame**, solid in its lower half, raised by **two rams** from
+  mid-deck at a shallow angle.
+- An **AC platform** over the cab carries four large round fans; tall cabinets with a ladder
+  sit behind the cab, and two fan boxes mid-deck.
+- The cab has rounded corners, a high two-pane windscreen and two red beacons.
+- Paint: sand base, soft orange clouds, dense black three-bladed splinter marks.
+- Towers measured off the photograph: about 0.6 of the truck's length, 4.4 ft deep.
 
 | Model | Status |
 |---|---|
-| Bavar-373 TEL | Built, ~32k triangles, animated erector, matched to the references; renders in `renders/` |
+| Bavar-373 TEL | Built, ~31.5k triangles, animated erector, matched to the photograph; renders in `renders/` |
 | The other six | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
