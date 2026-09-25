@@ -7,7 +7,8 @@ and every change is reviewable as text.
 |---|---|
 | `irad_kit.py` | Shared parts: the heavy-truck chassis, wheels, hoses, stencils, materials |
 | `bavar_ln.py` | Bavar-373 TEL (`IRAD_Bavar373_LN`, also used for `IRAD_Bavar373_LN_4B`): an 8x8 with an AC platform over the cab, two ribbed canister towers, a grid erector and two rams |
-| `IRAD_Bavar373_LN.blend` | The built model, ~31.5k triangles |
+| `IRAD_Bavar373_LN.blend` | The built model, ~30.5k triangles, textured |
+| `textures/IRAD_Bavar373_LN_camo.png` | The camouflage baked to one 4096x4096 texture shared by every painted part |
 | `compare_views.py` | Renders the three views used to check the model against the references |
 | `renders/` | Preview images |
 
@@ -41,5 +42,7 @@ Or with the `bpy` 5.0 wheel on Python 3.11: `python bavar_ln.py <this folder>`.
 | `LAUNCH_1` … `LAUNCH_4` | Missile launch points; each empty's local +Z points out of the muzzle |
 | `collision_shell` | Hit box; not rendered |
 
-Paint is `irad_camo`: sand, soft orange clouds and black three-bladed splinter marks, procedural on world position; it must be
-baked to a UV texture for DCS. Other materials are flat colours (`irad_*`). No far-view LODs yet.
+Paint: sand, soft orange clouds and black three-bladed splinter marks. The build script bakes it
+to `textures/IRAD_Bavar373_LN_camo.png` on smart-UV-projected parts (about 18 minutes on CPU);
+the `.blend` reads it by a relative path. DCS takes PNG; convert to DDS if you want mipmaps.
+Other materials are flat colours (`irad_*`). No far-view LODs yet.

@@ -81,6 +81,8 @@ The other six are in progress.
 1. Find out whether this PC has a DCS EDM exporter for Blender or 3ds Max. **If it has
    neither, stop here and tell the DM** — nothing else in this step can happen without one.
 2. Open `IRAD_Bavar373_LN.blend` and export it to `.edm` into the mod's `Shapes` folder.
+   Copy `textures/IRAD_Bavar373_LN_camo.png` into the mod's `Textures` folder; the painted
+   parts already use it through their UVs.
 3. Bind `arg_launcher_elevation` and both rams to the launcher-elevation argument the vanilla
    S-300PS 5P85 uses (read it from the vanilla definition you found in step 2).
 4. Point `IRAD_Bavar373_LN` and `IRAD_Bavar373_LN_4B` at the new shape instead of the

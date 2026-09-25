@@ -324,14 +324,14 @@ def build():
                 18,
             )
 
-    PZ = dz + 0.5
+    PZ = dz + 1.1
     P = (0, rear + 0.25, PZ)
     pivot = empty("arg_launcher_elevation", P, root)
     for s in (-1, 1):
         box(
             f"ln_hinge{s}",
-            (0.28, 0.6, 0.7),
-            (s * 1.12, P[1], dz + 0.25),
+            (0.28, 0.6, 1.3),
+            (s * 1.12, P[1], dz + 0.55),
             PAINT(),
             root,
             0.02,
@@ -518,6 +518,8 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     build()
     finalize("IRAD_Bavar373_LN")
+    bpy.context.scene.frame_set(0)
+    bake_camo(out, "IRAD_Bavar373_LN")
     bpy.ops.wm.save_as_mainfile(filepath=f"{out}/IRAD_Bavar373_LN.blend")
     scn = bpy.context.scene
     views = (

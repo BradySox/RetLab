@@ -136,7 +136,7 @@ What the references settled, against the first spec-only draft:
 
 | Model | Status |
 |---|---|
-| Bavar-373 TEL | Built, ~31.5k triangles, animated erector, matched to the photograph; renders in `renders/` |
+| Bavar-373 TEL | Built, ~30.5k triangles, animated erector, matched to the photograph, camo baked to a 4096 texture; renders in `renders/` |
 | The other six | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
@@ -144,7 +144,7 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 ## 5. Deferred
 
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
-- **Textures and far-view LODs** for the models.
+- **Far-view LODs** for the models.
 - **An Iran 2026 faction.** `[CH] Iran 2020` stands in.
 - **Iran's own short-range kit** (Majid, Herz-9). MANPADS-class threat is already covered by
   vanilla units.

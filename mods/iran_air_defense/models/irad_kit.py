@@ -91,10 +91,10 @@ def camo():
     L.new(vor.outputs["Color"], cseps.inputs[0])
     theta = math("ARCTAN2", v, u)
     phase = math("MULTIPLY", cseps.outputs[0], vb=6.283)
+    # thin pointed blades: a clamped cosine raised to a power narrows each lobe
     lobe = math("COSINE", math("ADD", math("MULTIPLY", theta, vb=3.0), phase))
-    radius = math(
-        "MULTIPLY", math("ADD", math("MULTIPLY", lobe, vb=0.5), vb=0.5), vb=0.3
-    )
+    blade = math("POWER", math("MAXIMUM", lobe, vb=0.0), vb=4.0)
+    radius = math("MULTIPLY", math("ADD", blade, vb=0.06), vb=0.3)
     inside = math("LESS_THAN", r, radius)
     keep = math("GREATER_THAN", cseps.outputs[1], vb=0.3)
     mark = math("MULTIPLY", inside, keep)
@@ -239,17 +239,26 @@ def wheel(name, loc, r=0.62, w=0.45, parent=None):
     m = t.modifiers.new("bevel", "BEVEL")
     m.width = 0.08
     m.segments = 3
-    for k in range(-1, 2):
-        cyl(
-            name + f"_tread{k}",
-            r + 0.012,
-            0.05,
-            (loc[0] + k * w * 0.3, loc[1], loc[2]),
-            (0, math.pi / 2, 0),
-            TYRE(),
-            parent,
-            40,
-        )
+    # off-road tread: staggered lugs around the crown
+    lugs = 28
+    for k in range(lugs):
+        a = 2 * math.pi * k / lugs
+        for side in (-1, 1):
+            if (k + (side > 0)) % 2:
+                continue
+            box(
+                name + f"_lug_t{k}{side}",
+                (w * 0.44, 0.13, 0.05),
+                (
+                    loc[0] + side * w * 0.2,
+                    loc[1] + r * math.sin(a),
+                    loc[2] + r * math.cos(a),
+                ),
+                TYRE(),
+                parent,
+                0,
+                (-a, 0, 0),
+            )
     rx = loc[0] + side * (w / 2)
     cyl(
         name + "_rim",
@@ -257,7 +266,7 @@ def wheel(name, loc, r=0.62, w=0.45, parent=None):
         0.06,
         (rx, loc[1], loc[2]),
         (0, math.pi / 2, 0),
-        mat("irad_rim", (0.09, 0.09, 0.08), 0.6),
+        mat("irad_rim", (0.17, 0.17, 0.16), 0.55),
         parent,
         32,
     )
@@ -651,3 +660,52 @@ def render(path, target=(0, 0, 2), dist=22, elev=18, az=35, res=(1100, 700)):
     bpy.ops.render.render(write_still=True)
     for o in (g, sun, cam, t):
         bpy.data.objects.remove(o)
+
+
+def bake_camo(out, name, size=4096):
+    """Bake the procedural camouflage into one UV texture shared by every painted part,
+    and swap the parts onto an image material, so the model exports to DCS as is.
+
+    Bakes at the current frame; call it with the model in its travel pose.
+    """
+    src = bpy.data.materials.get("irad_camo")
+    objs = [
+        o for o in bpy.data.objects if o.type == "MESH" and src.name in o.data.materials
+    ]
+    bpy.ops.object.select_all(action="DESELECT")
+    for o in objs:
+        o.select_set(True)
+    bpy.context.view_layer.objects.active = objs[0]
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.002)
+    bpy.ops.object.mode_set(mode="OBJECT")
+    img = bpy.data.images.new(f"{name}_camo", size, size, alpha=False)
+    node = src.node_tree.nodes.new("ShaderNodeTexImage")
+    node.image = img
+    src.node_tree.nodes.active = node
+    scn = bpy.context.scene
+    scn.render.engine = "CYCLES"
+    scn.cycles.device = "CPU"
+    scn.cycles.samples = 1
+    scn.render.bake.use_pass_direct = False
+    scn.render.bake.use_pass_indirect = False
+    scn.render.bake.margin = 4
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"})
+    img.filepath_raw = f"{out}/textures/{name}_camo.png"
+    img.file_format = "PNG"
+    img.save()
+    img.filepath = f"//textures/{name}_camo.png"  # relative, so the .blend travels
+    tex = bpy.data.materials.new(f"{name}_camo")
+    tex.use_nodes = True
+    bsdf = tex.node_tree.nodes["Principled BSDF"]
+    bsdf.inputs["Roughness"].default_value = 0.72
+    tnode = tex.node_tree.nodes.new("ShaderNodeTexImage")
+    tnode.image = img
+    tex.node_tree.links.new(tnode.outputs["Color"], bsdf.inputs["Base Color"])
+    for o in objs:
+        for i, m in enumerate(o.data.materials):
+            if m == src:
+                o.data.materials[i] = tex
+    bpy.data.materials.remove(src)
+    print(f"BAKED {len(objs)} parts into {img.filepath_raw}")
