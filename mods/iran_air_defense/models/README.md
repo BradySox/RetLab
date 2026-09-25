@@ -44,7 +44,7 @@ shape check in about a minute).
 | `arg_launcher_elevation` (TEL) | Empty; X rotation 0° travel to 90° erect over frames 0–100. Bind it to the launcher-elevation argument |
 | `ln_ram_barrel_pivot±1`, `ln_ram_rod_slide±1` (TEL) | The two erector rams, keyed on the same 0–100 frames. Bind them to the same argument |
 | `LAUNCH_1` … `LAUNCH_4` (TEL) | Missile launch points; each empty's local +Z points out of the muzzle |
-| `arg_antenna_fold` (STR) | Empty; frames 0–100 fold the array from stowed flat over the shelter to erect, 20° back |
+| `arg_antenna_fold` (STR) | Empty; frames 0–100 raise the array from stowed face-down over the cab to erect, 25° back |
 | `arg_antenna_azimuth` (STR) | Empty; frames 0–100 are one full turn of the turret. Bind it to the radar's search/track rotation argument |
 | `collision_shell` | Hit box; not rendered |
 

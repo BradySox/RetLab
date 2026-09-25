@@ -2,7 +2,7 @@
 renders: an 8x8 with a thick tilted planar array on a turntable over a cabinet
 stack, and an equipment shelter aft.
 
-arg_antenna_fold: frames 0-100, stowed flat over the shelter to erect, 20 deg back.
+arg_antenna_fold: frames 0-100, stowed face-down over the cab to erect, 25 deg back.
 arg_antenna_azimuth: frames 0-100, one full turn of the turret (bind to the search arg).
 """
 
@@ -14,8 +14,8 @@ import bpy
 sys.path.insert(0, sys.argv[-1])
 from irad_kit import *  # noqa: E402,F403
 
-PW, PH, PD = 3.0, 3.4, 0.55  # panel width, height, depth
-TILT = math.radians(20)
+PW, PH, PD = 3.2, 3.8, 0.9  # panel width, height, depth
+TILT = math.radians(25)
 STEPS = 11
 
 
@@ -141,7 +141,7 @@ def build():
         box(
             f"str_sidecab{s}",
             (0.45, 1.3, 0.85),
-            (s * 1.0, ty - 0.1, dz + 1.5),
+            (s * 1.0, ty + 0.1, dz + 1.5),
             PAINT(),
             root,
             0.03,
@@ -149,7 +149,7 @@ def build():
         box(
             f"str_sidecabseam{s}",
             (0.02, 0.9, 0.6),
-            (s * 1.23, ty - 0.1, dz + 1.5),
+            (s * 1.23, ty + 0.1, dz + 1.5),
             DARK(),
             root,
             0,
@@ -166,7 +166,7 @@ def build():
     az = empty("arg_antenna_azimuth", (0, ty, dz + 1.3), root)
     box("str_head", (1.5, 1.4, 0.9), (0, 0, 0.45), PAINT(), az, 0.04)
     box("str_headdoor", (0.02, 0.9, 0.6), (0.76, 0, 0.45), DARK(), az, 0)
-    hinge_y, hinge_z = -0.45, 1.25
+    hinge_y, hinge_z = 0.55, 1.25
     for s in (-1, 1):
         # yoke cheeks carrying the hinge, with an A-frame brace as photographed
         box(
@@ -199,7 +199,7 @@ def build():
     panel(fold)
 
     # equipment shelter aft: doors, AC grilles on the rear face, ladder, roof rail
-    sy0, sy1, sh = -0.95, rear + 0.35, 1.75
+    sy0, sy1, sh = -0.3, rear + 0.35, 2.3
     scy = (sy0 + sy1) / 2
     box(
         "str_shelter",
@@ -345,11 +345,11 @@ def build():
     for i in range(STEPS):
         f = i * 100 // (STEPS - 1)
         t = i / (STEPS - 1)
-        fold.rotation_euler = (math.radians(90) + (TILT - math.radians(90)) * t, 0, 0)
+        fold.rotation_euler = (math.radians(-90) + (TILT + math.radians(90)) * t, 0, 0)
         fold.keyframe_insert("rotation_euler", frame=f)
         az.rotation_euler = (0, 0, 2 * math.pi * t)
         az.keyframe_insert("rotation_euler", frame=f)
-    shell = box("collision_shell", (2.7, 11.6, 3.4), (0, -0.2, 1.7), DARK(), root, 0)
+    shell = box("collision_shell", (2.7, 11.6, 3.9), (0, -0.2, 1.95), DARK(), root, 0)
     shell.hide_render = True
     return az
 
@@ -367,9 +367,9 @@ if __name__ == "__main__":
     az.animation_data_clear()
     az.rotation_euler = (0, 0, 0)
     views = (
-        (0, "stowed", dict(target=(0, 0.0, 2.2), dist=15, az=-55, elev=10)),
-        (100, "erect", dict(target=(0, 0.5, 3.0), dist=16, az=-50, elev=8)),
-        (100, "photoside", dict(target=(0, 0.3, 3.0), dist=16, az=-95, elev=4)),
+        (0, "stowed", dict(target=(0, 1.0, 2.4), dist=15, az=-55, elev=10)),
+        (100, "erect", dict(target=(0, 0.5, 3.4), dist=17, az=-50, elev=8)),
+        (100, "photoside", dict(target=(0, 0.3, 3.4), dist=17, az=-95, elev=4)),
         (50, "folding", dict(target=(0, 0.0, 3.0), dist=15, az=-80, elev=6)),
     )
     for frame, name, kw in views:
