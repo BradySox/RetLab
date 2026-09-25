@@ -641,6 +641,10 @@ def render(path, target=(0, 0, 2), dist=22, elev=18, az=35, res=(1100, 700)):
     bpy.context.collection.objects.link(sun)
     sun.data.energy = 4
     sun.rotation_euler = (math.radians(45), 0, math.radians(30))
+    fill = bpy.data.objects.new("fill", bpy.data.lights.new("fill", "SUN"))
+    bpy.context.collection.objects.link(fill)
+    fill.data.energy = 1.2
+    fill.rotation_euler = (math.radians(60), 0, math.radians(210))
     cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
     bpy.context.collection.objects.link(cam)
     scn.camera = cam
@@ -658,7 +662,7 @@ def render(path, target=(0, 0, 2), dist=22, elev=18, az=35, res=(1100, 700)):
     cam.data.lens = 40
     scn.render.filepath = path
     bpy.ops.render.render(write_still=True)
-    for o in (g, sun, cam, t):
+    for o in (g, sun, fill, cam, t):
         bpy.data.objects.remove(o)
 
 

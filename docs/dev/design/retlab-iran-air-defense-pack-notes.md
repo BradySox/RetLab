@@ -137,11 +137,16 @@ What the references settled, against the first spec-only draft:
 | Model | Status |
 |---|---|
 | Bavar-373 TEL | Built, ~30.5k triangles, animated erector, matched to the photograph, camo baked to a 4096 texture; renders in `renders/` |
-| The other six | Not yet |
+| Bavar-373 STR | Built, ~19.7k triangles, fold and azimuth animations, matched to a photograph and two renders |
+| The other five | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
+
+- **The newer Bavar-373 TEL with its own radar mast** (photograph supplied 2026-09-25): a dish on a
+  tall mast on the launcher truck, an hourglass erector with one ram, deck railings. The built
+  TEL matches the earlier configuration; this would be a second launcher model.
 
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
 - **Far-view LODs** for the models.
