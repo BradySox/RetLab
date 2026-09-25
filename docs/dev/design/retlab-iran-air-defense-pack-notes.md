@@ -112,11 +112,23 @@ listed pages; re-check before treating any as settled.
   defense batteries hit. On 10 March Gen. Caine said Iran's higher-end SAMs were "not
   factors". Iran claims its Bavar-373 units survived.
 
-## 4. Deferred
+## 4. 3D models
+
+Built by script in Blender 5.0, in `mods/iran_air_defense/models/` (DM call 2026-09-25: our own
+models, committed to the branch). Shapes are from published dimensions; no photos were
+reachable (the cloud network policy blocks Wikipedia and Commons).
+
+| Model | Status |
+|---|---|
+| Bavar-373 TEL | Built, ~30k triangles, animated erector; renders in `renders/` |
+| The other six | Not yet |
+
+The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
+
+## 5. Deferred
 
 - **15th Khordad** (Sayyad-3, 120 km, S-300PS-lite). The third system; not in v0.1.
-- **Own 3D models.** v0.1 borrows vanilla shapes, so the sites fight right and look like
-  their stand-ins.
+- **Textures and far-view LODs** for the models.
 - **An Iran 2026 faction.** `[CH] Iran 2020` stands in.
 - **Iran's own short-range kit** (Majid, Herz-9). MANPADS-class threat is already covered by
   vanilla units.

@@ -10976,6 +10976,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 
 ### Deferred
 
-- 15th Khordad; own 3D models; an Iran 2026 faction.
+- 15th Khordad; an Iran 2026 faction; textures and far-view LODs for the models.
+- 3D models: our own, built by script in `mods/iran_air_defense/models/` (the Bavar-373 TEL
+  first; the other six to follow). The `.edm` export is local.
 
 In-game row **B148**.

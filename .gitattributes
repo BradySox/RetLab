@@ -14,3 +14,4 @@
 *.pyo    binary export-ignore
 *.pyd    binary
 unshipped_data/arcgis_maps/ filter=lfs diff=lfs merge=lfs -text
+*.blend  binary

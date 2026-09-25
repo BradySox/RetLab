@@ -72,6 +72,22 @@ and `dcs.log` has no error naming `IRAD_`. Then place a 3rd Khordad site (SR + T
 and a Bavar-373 site (both SRs, CP, STR, 2 LNs), put an AI F-16 on a path through each, and run
 it. Each site should engage.
 
+### 3b. Our own 3D models (1 h per model once the exporter works)
+
+The cloud session is building the models in Blender, by script:
+`mods/iran_air_defense/models/` (read its `README.md`). **Done so far: the Bavar-373 TEL.**
+The other six are in progress.
+
+1. Find out whether this PC has a DCS EDM exporter for Blender or 3ds Max. **If it has
+   neither, stop here and tell the DM** — nothing else in this step can happen without one.
+2. Open `IRAD_Bavar373_LN.blend` and export it to `.edm` into the mod's `Shapes` folder.
+3. Bind `arg_launcher_elevation` and both rams to the launcher-elevation argument the vanilla
+   S-300PS 5P85 uses (read it from the vanilla definition you found in step 2).
+4. Point `IRAD_Bavar373_LN` and `IRAD_Bavar373_LN_4B` at the new shape instead of the
+   borrowed 5P85D. Keep the borrowed shape for any model not built yet.
+5. Check in the Model Viewer: the canisters rise on the argument, the rams follow without
+   clipping, and a missile leaves each `LAUNCH_n` point.
+
 ### 4. Build Phase B: the real missiles (2–4 h)
 
 Define three missiles, starting from the nearest missile definition you can read, with the
@@ -92,10 +108,10 @@ its missile.
 
 ### 5. Prove the ids and numbers match (20 min)
 
-1. Run the pydcs export with the mod installed (`docs/wiki/Modded-Unit-Support.md`, Step 1).
-2. Find the nine `IRAD_` classes in the exported `vehicles.py`.
-3. Compare each `id`, `name`, `detection_range` and `threat_range` with the repo's
-   `pydcs_extensions/iranairdefensepack/iranairdefensepack.py`. Fix the side that is wrong.
+1. Run the pydcs export with the mod installed. The runbook is the header of
+   `tools/verify_mod_export.py`; read its heavy-mod gotcha before launching DCS.
+2. `python tools\verify_mod_export.py <export folder> --extension iranairdefensepack --markdown`
+3. It compares all nine `IRAD_` units field for field. Fix the side that is wrong.
 
 ### 6. Retribution check (30 min)
 
@@ -128,4 +144,4 @@ fail signatures. If a launcher model faces backwards, add `reversed_heading: tru
 
 ## Not in scope
 
-15th Khordad, custom 3D models, an Iran 2026 faction. They are listed in design note §4.
+15th Khordad and an Iran 2026 faction. They are listed in design note §5.
