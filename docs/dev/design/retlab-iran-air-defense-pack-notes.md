@@ -117,12 +117,22 @@ listed pages; re-check before treating any as settled.
 ## 4. 3D models
 
 Built by script in Blender 5.0, in `mods/iran_air_defense/models/` (DM call 2026-09-25: our own
-models, committed to the branch). Shapes are from published dimensions; no photos were
-reachable (the cloud network policy blocks Wikipedia and Commons).
+models, committed to the branch). Proportions are matched to two reference renders the DM
+supplied (a sim-model render of the Zafar 8x8 radar truck and an Iranian press infographic of
+the Bavar-373 complex); the cloud network policy blocks every photo source tried.
+
+What the references settled, against the first spec-only draft:
+- The launcher carries **two separate canister towers**, two canisters deep, with a gap
+  between them, not one 2x2 block. Dense horizontal ribbing; square ports on the
+  truck-facing face near the top.
+- The erector is a **lattice truss with X-bracing** and **one** steep central ram from near
+  the tail; the model uses a 3-stage telescopic ram to reach that geometry.
+- The Zafar and Zoljanah share a **flat-fronted cab** with a vertical two-pane windscreen.
+- Paint is three-tone desert camouflage: cream, tan, brown.
 
 | Model | Status |
 |---|---|
-| Bavar-373 TEL | Built, ~30k triangles, animated erector; renders in `renders/` |
+| Bavar-373 TEL | Built, ~32k triangles, animated erector, matched to the references; renders in `renders/` |
 | The other six | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
