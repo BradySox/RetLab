@@ -366,6 +366,13 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "no longer", "historical", "abandoned"),
     ),
     Removed(
+        # S59. The setting label and plugin id are unique to the feature.
+        "ground AI sleep (S59)",
+        "2026-09-23",
+        r"perf_ground_ai_sleep|perf_aaa_site_sleep|`aisleep`|\bAISLEEP\b"
+        r"|Distant ground AI sleeps|Ground AI sleep\*\*|Ground AI sleep \*\(fork",
+    ),
+    Removed(
         "Flight Control ATC (S13)",
         "2026-06-26",
         r"Flight Control ATC|`flightcontrol`",

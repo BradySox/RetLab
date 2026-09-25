@@ -523,8 +523,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 [
                     "perf_disable_untasked_blufor_aircraft",
                     "perf_disable_untasked_opfor_aircraft",
-                    "perf_ground_ai_sleep",
-                    "perf_aaa_site_sleep",
                     "perf_culling",
                     "perf_culling_distance",
                     "perf_do_not_cull_threatening_iads",
@@ -614,10 +612,6 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     "Host & event tools": [
         "host_red_scramble",  # §61
         "dynamic_slots_templates",  # §101
-    ],
-    "Performance": [
-        "perf_ground_ai_sleep",  # §59
-        "perf_aaa_site_sleep",  # §59
     ],
 }
 

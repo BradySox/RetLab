@@ -42,20 +42,11 @@ game state.
 
 Large campaigns can stress CPU and GPU. These options trade detail for framerate:
 
-- **Ground AI sleep** *(fork feature)*. **"Distant ground AI sleeps until aircraft approach"**
-  (RetLab Features → Performance) is the middle ground culling never had: rear-area
-  garrisons keep existing — visible, strikeable, kills count normally — but their AI is
-  switched off while no aircraft is within ~15 NM, cutting the cost of hundreds of thinking
-  ground units without deleting anything. SAM sites, the front line, convoys and every
-  scripted mover are never touched. Off by default: an AI strike or SEAD flight cannot hit a
-  sleeping group, so turn it on only when nothing is fragged against the garrisons it puts
-  to sleep.
 - **Distant unit culling.** Removes ground units and buildings beyond a set distance from
   exclusion zones (front lines, airfields, mission targets). Air units are never culled. Set
   it too large and culling does little; too small and the experience suffers. Note the
   exclusion zones include **every mission target from both sides' ATOs**, so on a busy turn
-  most of the map is exempt — if enabling it seems to change nothing, that is why. Prefer
-  Ground AI sleep first; keep culling for what you never want to exist at all.
+  most of the map is exempt — if enabling it seems to change nothing, that is why.
 - **Budget / aircraft counts.** Lower budgets and income reduce how many aircraft can be
   bought. Keeping the maximum under roughly **150 aircraft per side** helps performance.
 - **Front-line smoke.** Front-line smoke can hurt GPU framerate, especially during CAS.
@@ -85,7 +76,6 @@ client. So the levers, in order of payoff:
 | Setting | Where | Event night | What it buys |
 |---|---|---|---|
 | Maximum ground units deployed per frontline | Performance → World detail | **60 → 30** | The single biggest lever — halves the FLOT vehicles, their infantry escorts, and the TIC battle script's workload (which scales super-linearly with combatants) |
-| Distant ground AI sleeps until aircraft approach | RetLab Features → Performance | Off, unless nothing is fragged at the rear garrisons | Rear garrisons stop running AI until someone actually flies there; an AI strike or SEAD flight cannot hit a sleeping group |
 | Generate infantry squads alongside vehicles | Performance → World detail | Off | Removes ~5 infantry per armor group (MANPAD coverage partially remains) |
 | Ambient suppressive fire | Lua Plugin Options → Troops In Contact | Off | Stops the constant scripted tracer fire on the FLOT — every burst is a network event in MP |
 | Front-line smoke effects | Performance → World detail | Off (or spacing 6000+) | Smoke columns are pure client-side GPU cost, worst exactly where CAS flies |

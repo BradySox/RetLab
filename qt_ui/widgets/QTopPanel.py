@@ -18,6 +18,7 @@ from game.ato.package import Package
 from game.ato.traveltime import TotEstimator
 from game.profiling import logged_duration
 from game.settings.settings import FastForwardStopCondition
+from game.sim.missionstart import mission_start_time
 from game.utils import meters
 from qt_ui.models import GameModel
 from qt_ui.simcontroller import SimController
@@ -388,7 +389,11 @@ class QTopPanel(QFrame):
         if self.check_no_missing_pilots():
             return
 
-        now = self.sim_controller.current_time_in_sim
+        if self.sim_controller.started:
+            now = self.sim_controller.current_time_in_sim
+        else:
+            # The mission begins up to 30 min early so ground starts fit (§104).
+            now = mission_start_time(self.game)
         negative_starts = self.negative_start_packages(now)
         if negative_starts:
             if not self.confirm_negative_start_time(negative_starts, now):

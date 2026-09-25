@@ -24,9 +24,9 @@ class AircraftSimulation:
         self.combats: list[FrozenCombat] = []
         self.results = SimulationResults()
 
-    def begin_simulation(self) -> None:
+    def begin_simulation(self, start: datetime) -> None:
         self.reset()
-        self.set_initial_flight_states()
+        self.set_initial_flight_states(start)
 
     def on_game_tick(
         self,
@@ -107,8 +107,7 @@ class AircraftSimulation:
         ):
             events.complete_simulation()
 
-    def set_initial_flight_states(self) -> None:
-        now = self.game.conditions.start_time
+    def set_initial_flight_states(self, now: datetime) -> None:
         for flight in self.iter_flights():
             flight.state.reinitialize(now)
 

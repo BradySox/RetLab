@@ -509,7 +509,6 @@ linked design note.
 52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
 56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
 58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
-59. **Ground AI sleep** — the middle tier between keeping and culling, with AAA sites behind two guards.
 60. **SAM guidance-radar redundancy** — two spaced track radars, so one HARM is not a site kill.
 61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
 62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead. The Payload tab can pin a Hornet/Tomcat flight's number (wingmen follow); no other package reuses it.
@@ -549,6 +548,7 @@ linked design note.
 101. **Dynamic spawn templates** — a pilot who takes a DCS dynamic slot no longer gets a blank jet: at each base, one player flight of each type is marked as DCS's Dyn.SPAWN Template and the warehouse link written, so the dynamic jet is built from that flight (loadout, properties and livery for certain; route and radio presets are decided in native code and are what row B125 flies). Client flights only, no clone, and the fragged slot still flies as itself. Types with no player flight at the base stay blank. Off with `dynamic_slots`, and its own toggle beneath it.
 102. **My aircraft, saved points and the DTC options** — one window for the seat you are flying: saved points (waypoint, IP, target, hold, orbit) and drawings, the loadout and the data cartridge. Points and drawings reach the Hornet, Viper, F-14B(U), Apache and A-10 where each cockpit has a place, and a kneeboard page with the cockpit's numbers. The DTC tab shows only what the jet's cartridge carries, with load-at-spawn or by-hand, waypoint types to leave out, and SAM rings near the route. Window and points ported from juanjux/dcs-escalation.
 103. **HQ priority targets** — what losing each enemy target costs the enemy, in that kind of target's own measure (income, front-line vehicles, offensive packages, equipment price), ranked within its kind. A Why it matters line on the target panel always; a blue-only planner weight, gentler than §93, when on. No prize. The objective half of juanjux's High Command.
+104. **Runway queue at busy fields** — the taxi allowance at an airfield grows with the departures ahead of a flight, at 45 seconds per jet, so a crowded field's later flights spawn early enough to make their takeoff. A quiet field keeps the flat 8 minutes. The mission starts up to 30 minutes early when a flight needs it; TOTs and the campaign clock stay put. Always on, no setting (DM call).
 
 ### Retired, removed or shelved — do not restore
 
@@ -577,6 +577,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 54 | Munitions availability | Removed 2026-07-21 |
 | 55 | Red Intent adaptive posture | Removed 2026-07-21 |
 | 57 | Air-droppable minefields | Removed 2026-09-07 — shelved 2026-07-30 and never resumed; the visible-fake problem was never worth fixing |
+| 59 | Ground AI sleep | Removed 2026-09-23 — DM call; never observed doing its job in any flown test |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 — real forces no longer hide behind circles, so a lone circle would obviously be fake |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 — "doesn't add much except in very specific campaigns" |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |

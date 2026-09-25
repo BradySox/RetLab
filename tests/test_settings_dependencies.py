@@ -63,7 +63,7 @@ def test_enabled_when_masters_are_real_settings() -> None:
         assert master != name, f"{name}: cannot depend on itself"
         wired += 1
     # Guard against a mass-unwiring regression (we wired ~21 dependencies).
-    assert wired >= 20
+    assert wired >= 19
 
 
 def test_normalize_enabled_when() -> None:

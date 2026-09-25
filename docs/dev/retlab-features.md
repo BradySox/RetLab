@@ -6034,7 +6034,7 @@ The #859 branch kept moving after the fork's adoption; the drift was ported back
 - **Spawn-cap ceiling ADAPTED, not verbatim** (from upstream `f09e03f86`) — upstream raised the
   default 10 → 25 AND lowered the spinner max 50 → 25; the fork adopts **only the max 50 → 25** and
   **deliberately keeps default=10** (the MP performance posture — the TIC dense-siege framerate
-  history; §59 exists for the same reason). The migrator backfill stays at 10.
+  history; §59, removed 2026-09-23, existed for the same reason). The migrator backfill stays at 10.
 - **The autoplanner landed after all** — upstream `2697cd0f` (the HTN strikes enemy motorpool
   reserves) was deferred here while it collided with the §40 phase / §55 red-intent
   offensive-emphasis machinery; both were removed 2026-07-21, and the 2026-07-19 sync brought the
@@ -6199,124 +6199,34 @@ B10 row records the verdict.
 
 ---
 
-## §59 — Ground AI sleep (graduated culling)
+## §59 — Ground AI sleep (graduated culling) — REMOVED (2026-09-23)
 
-The answer to "the cull settings feel all or nothing" (2026-07-12 squadron performance complaint).
-Stock culling is **binary per unit** — inside any exclusion zone a unit fully exists with full AI,
-outside all zones it is never generated — and the zone list (front line + front CPs + carriers +
-**every offensive package target from both ATOs**, each with the full cull radius) unions to most of
-the map on a busy turn, so the toggle does nearly nothing until the distance is shrunk, at which
-point whole rear areas blink out of existence. This adds the missing middle tier: **the unit keeps
-existing, it just stops thinking while nobody is near.**
+Built 2026-07-12, removed 2026-09-23 on the DM's call. The `aisleep` plugin,
+`game/missiongenerator/aisleepluadata.py`, both settings (`perf_ground_ai_sleep`,
+`perf_aaa_site_sleep`) and their tests are deleted. Checklist row B11 is closed as removed.
 
-**The mechanism.** A ground group's DCS controller can be switched off at runtime
-(`Controller:setOnOff(false)` — the primitive under MOOSE's `GROUP:SetAIOnOff`): the units still
-render, still occupy the battlefield, can still be found and killed (death events fire normally →
-the debrief/UnitMap kill accounting is untouched), but they run no sensors and no targeting — which
-is where the sim cost of hundreds of rear-area garrison units actually goes. Sleep is fully
-reversible, so unlike culling it can follow the fight around the map for the whole mission.
+What it did: switched a rear-area garrison group's DCS controller off (`Controller:setOnOff(false)`)
+while no aircraft was within 15 NM, and back on on approach or on a hit. The `perf_aaa_site_sleep`
+extension added short-range gun sites under a detection-range guard.
 
-**The Python/Lua split (safety is decided in Python).** The emitter
-`game/missiongenerator/aisleepluadata.py` (`populate_ai_sleep_lua`, wired into `luagenerator.py`
-next to the other bridges) emits `dcsRetribution.aiSleep = { groups = { ... } }` — a **positive
-list** of sleepable group names; the plugin never guesses eligibility. Eligible = `armor`-category
-TGO groups (`VehicleGroupGroundObject` — base garrisons, FOB garrisons, deployed vehicle groups)
-holding at least one alive vehicle, minus any `concealed` / `map_hidden` TGO — that set is exactly
-the COIN / convoy-ambush **scripted movers** (cells, HVT convoys, VBIEDs, ambush teams), whose
-`mist.goRoute` routes a sleeping controller would silently kill. Excluded by construction: the
-air-defense network (`aa`/`ewr` — the IADS engine owns it, and toggling SAM state at runtime has crash
-history), theater/coastal `missile` sites (the §49 movers), ships, `motorpool` (already inert), and
-building TGOs. FLOT units, convoys and Combat-SAR spawns are not TGOs, so the TGO walk can never
-touch them. No node is emitted when the setting is off or nothing is eligible, so such missions
-no-op the plugin.
+Why it went: it armed in tests 1–16 and was never once observed waking or saving frame time, and
+no campaign carried it after test 16.
 
-**The runtime** (`resources/plugins/aisleep/aisleep-config.lua`): after a startup grace (60 s),
-every poll (30 s) it collects **all airborne aircraft positions — either side, human or AI** (a
-sleeping garrison must wake for an inbound AI strike exactly as for a player) and, per managed
-group: an aircraft inside the **wake radius** (15 NM, floored at 10 NM) wakes it; nearest aircraft
-beyond **1.25× the radius** puts it back to sleep (hysteresis, so an orbit riding the boundary
-doesn't flap the controller). Everything starts awake (the DCS default) and the first pass sleeps
-whatever has an empty sky. An `S_EVENT_HIT` on a managed group **wakes it immediately** whatever
-the range, so a standoff shot never lands on a group that cannot react. Dead groups drop out of the
-managed set; when all are dead the poll stops. pcall-guarded throughout.
+Constraints kept out of the deleted section:
 
-**Why the wake radius floors at 10 NM:** an armor garrison may carry **embedded SHORAD/MANPAD
-escorts** (the §7 auto-hide feature exists precisely because they do). Their reach is ≤ ~8 NM, so a
-≥ 10 NM wake (15 default) has the group thinking again well before anything enters its envelope —
-the sleep is invisible to gameplay.
+- **An AI strike or SEAD flight cannot prosecute a group whose controller is off.** Its attack task
+  finds no target from the ingress point and the flight returns loaded. Measured on Desert Trident
+  turn 1, 2026-08-24 (#986): 12 of 13 air-to-ground packages fired nothing with it on; the same
+  turn with it off released 31 Mk-82 and 6 HARM.
+- **A gun site with its controller off stops radiating**, so an anti-radiation shooter has nothing
+  to home on.
+- **The 1968 Yankee Station laydown is the measured sim-load outlier** (2026-07-19, turn-1 miz
+  against the §66 archive): 738 ground vehicles, 367 AAA, 1,085 statics and 1,328 groups, 2–4× every
+  other campaign and 4–12× on AAA. A player on an empty ramp there still hit `ANTIFREEZE`, so the
+  cost is global sim load, not local scenery.
 
-**Composes with culling**, which stays untouched as the far tier: sleep what you keep, cull only
-what you never want to exist. Recon/BDA, threat rings, concealment circles and the turn-boundary
-force model are all unaffected — the map and the debrief cannot tell a sleeping group from an awake
-one.
-
-**Harness.** The headless Lua harness gained a group-level `ControllerFake` recording `setOnOff`
-(`aiOnOff` records) and a `Harness.fireHit(groupName)` helper (Python `fire_hit`). Tests
-`tests/lua/test_aisleep_runtime.py` (sleeps after the grace, wakes on approach, a parked aircraft
-never wakes anything, the hysteresis band never flaps, a hit wakes a sleeper immediately, dead
-groups stop the poll, no node = clean no-op) + `tests/missiongenerator/test_aisleepluadata.py` (the
-positive list: garrisons in, AD/missiles/ships/buildings/concealed movers/dead groups out, gated
-off).
-
-Gated `perf_ground_ai_sleep` (RetLab Features → Performance, default **OFF**: an AI strike or SEAD
-flight cannot prosecute a sleeping group, measured on Desert Trident 2026-08-24, #986; the
-`aisleep` plugin's own `defaultValue` is ON so the setting is the only gate — the §36
-saved-default-off lesson). Wake radius, poll cadence and grace are plugin options. **Not preseeded
-in Red Tide**; enable it only when nothing is fragged against the garrisons it puts to sleep. **Needs an in-game pass**
-(checklist B11): that a slept garrison actually costs less (server frame/CPU on a dense mission),
-wakes seamlessly on approach, and that the IADS/TIC/convoys/movers are visibly untouched.
-
-### AAA gun sites (`perf_aaa_site_sleep`, added 2026-07-19)
-
-The `armor`-only rule left the sleep **missing the actual sink on an AAA-doctrine campaign**. Off a
-"10 fps on the ground" report, the flown 1968 Yankee Station turn-1 miz was measured against the §66
-archive of every other campaign the squadron flies:
-
-| campaign | ground vehicles | AAA | statics | groups |
-|---|---|---|---|---|
-| **1968 Yankee Station** | **738** | **367** | **1085** | **1328** |
-| Scenic Route merged t3 | 448 | 65 | 429 | 604 |
-| Sinai Bright Star | 446 | 95 | 93 | 366 |
-| Red Tide | 185 | 29 | 133 | 433 |
-
-2–4× every other campaign, with AAA at 4–12× — and the emitter was managing **16 of 121** vehicle
-groups, because the mass is `aa`-category. (The density is deliberate: Vietnam doctrine is
-"the real threat is AAA", and `VIETNAM_GROUND_PROCUREMENT` is AAA-heavy. Nobody had measured its
-cost.) The diagnosis that ruled out everything else: the player spawn had **13 objects within
-25 km**, and `ModelTimeQuantizer: ANTIFREEZE ENABLED` began ~1 min in while cold-starting on that
-empty ramp — so neither local scenery density nor the GPU, but global sim load.
-
-`perf_aaa_site_sleep` (RetLab Features → Performance, default **OFF**,
-`enabled_when=perf_ground_ai_sleep`) adds `aa`-category gun sites to the positive list, behind
-**two independent guards** in `_air_defense_group_may_sleep`:
-
-* **Sensor reach.** Every alive unit's DCS `detection_range` must be ≤ `AAA_SLEEP_MAX_DETECTION`
-  (10 km) — comfortably inside the plugin's 10 NM (18 520 m) wake-radius *floor*, which is the
-  minimum the option allows. So an eligible site is always switched back on **before anything
-  reaches the edge of its own sensor envelope**: what it contributes to the IADS picture, and the
-  moment it opens fire, are unchanged; only the frame time moves. Vietnam-era guns report 5 km
-  (KS-19 reports 0); a Gepard (15 km), a Tor (25 km) and every search/track radar (35–300 km) sit
-  above the line and keep thinking. An unmeasurable unit fails safe — assumed to see, kept awake.
-* **Engine ownership.** The IADS engine *writes* to `IADS_MANAGED_ROLES` (`SAM`, `SAM_AS_EWR`,
-  `POINT_DEFENSE` — alarm state, emissions, point defence), so a switched-off controller would
-  fight the IADS engine; those never sleep however short-sighted their guns. It only *reads*
-  detection from the rest, which is why an **EWR-role** gun site is eligible — and that is the case
-  carrying the win, since `GroupTask.AAA` maps to `IadsRole.EWR`.
-
-Dedicated `ewr` sites stay ineligible outright (the long-range search radar *is* the site), and the
-category gate still excludes the §49 `missile`/`coastal` scoot movers — which matters, because their
-launchers report a detection range of 0 and would otherwise pass the sensor guard. Measured effect on
-the Yankee Station laydown: every one of the 74 AAA-bearing groups clears the sensor guard, so the
-sleep set grows from 26 groups to the ~54 that also clear the role guard (the `(PD)` point defenses
-and the SAM sites stay awake) — roughly 400 units that stop thinking. On Red Tide the same rule
-correctly keeps the Tor and Gepard groups awake and sleeps the short-range guns.
-
-Tests: the `TestAaaSiteSleep` class in `tests/missiongenerator/test_aisleepluadata.py` (threshold
-boundary either side, one far-seeing member vetoing its group, unknown range failing safe, `ewr`
-never eligible, each engine-driven role refused, EWR-role sites accepted, concealed still skipped,
-both toggles, and the §49 category regression guard). **Needs an in-game pass** (checklist B11, AAA
-bullet): that a Vietnam mission's frame time actually recovers, and that the flak belts still open
-up on the same pass they always did.
+The old saves' settings keys and `aisleep` plugin options are dropped on load
+(`game/settings/migration.py`, `Settings.__setstate__`).
 
 ---
 
@@ -7087,6 +6997,17 @@ ranks first (`AirWing.best_squadrons_for`), which also keeps the Hornets and Vip
 deep work. Off, planning is upstream's. `tests/retlab/test_front_line_sead_escort.py`;
 row B134 owns the fly.
 
+**Front-line radar air defense triggers the escort (2026-09-23, same gate).**
+- Test 39 (Graveyard of Empires): the CAS package proposed its SEAD Escort and never got one.
+- The need check read only fixed SAM rings over FLOT START → FLOT END. No ring covered them.
+- Red's front-line SA-19s fired seven 9M311s. Front-line units are not TGOs, so `ThreatZones` never sees them.
+- With the gate on, `PackageFulfiller.check_needed_escorts` also marks `EscortType.Sead` needed when the package targets a `FrontLine` and the enemy control point deploys radar air defense to its fronts.
+- "Deploys" is `deployable_armor(cp)`, the same allocation `plan_groundwar` sends forward. It is per control point, not per front.
+- "Radar air defense" is a unit type whose class is in `ANTI_AIR_UNIT_CLASSES` and whose DCS type is in `radar_db.UNITS_WITH_RADAR`. Counts: Tunguska, Osa, Tor, Roland, Shilka, Gepard, Vulcan, Pantsir. Does not count: Strela, Avenger, ZU-23, the CH 2S38 (not in `UNITS_WITH_RADAR`; its unit file lists TV/thermal tracking and a laser rangefinder, no radar, so a Sidearm has nothing to home on).
+- The escort jammer is not added; it stays on the fixed-SAM trigger.
+- Needed means the stock escort contract: if a SEAD-capable wing has no escort free, the CAS package is scrubbed unless the doctrine flies unescorted.
+- Helpers: `has_radar_air_defense` / `deploys_radar_air_defense` in `game/ground_forces/ai_ground_planner.py`.
+
 **Route around SAMs (2026-09-23, `route_around_sams`, RetLab planner suite).**
 JOIN -> INGRESS and TARGET -> SPLIT are straight lines, and the coalition navmesh merges
 overlapping rings into one blob it crosses in a straight line, so neither routes round a SAM
@@ -7109,7 +7030,7 @@ racetrack is on the target. Test 40: SARDINE's F-15C TARCAP reached a racetrack 
 SLUG (SA-11), the target of its own SEAD, at t≈1650; the SEAD sweep's TOT was t=2771. All four
 died in 11 s. With the gate on, `TarCapFlightPlan.patrol_start_time` is no earlier than the
 earliest TOT of a SEAD, SEAD Sweep, SEAD Escort or DEAD flight in the package. Packages with
-none are unchanged. `tests/ato/flightplans/test_tarcap_behind_sead.py`; row B146 owns the fly.
+none are unchanged. `tests/ato/flightplans/test_tarcap_behind_sead.py`; row B147 owns the fly.
 
 **What it is.** Packages were timed independently — the generic scheduler branch spreads
 each package's TOT randomly across the mission window, so nothing stopped a strike from
@@ -10968,3 +10889,57 @@ reads "Unknown (not engaged)" — its price would give away its composition (§3
 - Difficulty (route cost through threat rings, fighters, size) — the note's step 3.
 - A top-few "HQ priorities" list.
 - Measures for power, comms and bunkers (what an IADS node's loss switches off).
+
+## §104 — Runway queue at busy fields
+
+The ground-ops allowance at an airfield grows with the departures ahead of a flight, so a
+crowded field's later flights spawn early enough to make their takeoff. Design, calibration
+and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue". Built
+2026-09-23, not flown.
+
+**DM call 2026-09-23: always on, long-standing upstream issue at busy fields.** No setting.
+
+- `game/ato/runwayqueue.py`: `runway_queue_wait(flight)` walks the coalition's ATO for
+  parking-start fixed-wing flights leaving the same field, sorted by planned takeoff, each
+  holding the runway `count × 45 s`.
+- `FlightPlan.estimate_ground_ops` = 8 min + the wait. It feeds `startup_time`,
+  `minimum_duration_from_start_to_tot` (TOT estimation) and the sim's `Taxi` state.
+- Not queued: carriers, FOBs, off-map, runway and air starts, helicopters, unscheduled
+  packages (TOT at the `datetime.min` sentinel).
+- Players queue like AI; the wait adds to their startup allowance, never replaces it.
+- 45 s per jet: fitted on 494 flown AI groups; groups more than 2 min late fell from 25 % to
+  10 %.
+- `queue_aware_ground_ops`, the gate on the first draft of PR #1078, is dropped in
+  `migration.py`.
+
+### Early mission start
+
+- `game/sim/missionstart.py`: `mission_start_time(game)` is the turn clock minus the
+  shortfall of the earliest ground-start `startup_time()` in both ATOs, at most
+  `EARLY_START_CAP` (30 min).
+- `MissionSimulation.begin_simulation` starts there; flight states initialise against it, so
+  nobody inside the window is clamped. Past the cap, flights clamp as before.
+- `conditions.start_time`, TOTs and the §47 clock and weather do not move. Only the
+  simulated and generated mission start does.
+- The Take Off past-start warning compares against the earlier start.
+- DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
+- Not §89's pre-roll: nothing is simulated or placed mid-sortie.
+
+### Gotchas
+
+- `takeoff_time` must never read `estimate_ground_ops`; the walk relies on that to avoid
+  recursion.
+- A package with an unscheduled TOT is skipped, not read: its takeoff overflows.
+- `sim.time` before `begin_simulation` is still the turn clock; planning reads it as "now".
+  Only `begin_simulation` moves it.
+
+### Tests
+
+`tests/test_runway_queue.py` (14), `tests/test_early_mission_start.py` (7), and the DTC
+midnight case in `tests/missiongenerator/test_dtc.py`.
+
+### Deferred
+
+- Per-field runway rates; landing traffic.
+
+In-game row **B145**. Upstreaming queue item 42.

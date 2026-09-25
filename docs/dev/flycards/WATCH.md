@@ -23,17 +23,17 @@ watch pointing at RETIRED `B42`.)*
 - **Fail:** every airframe gets the same number.
 - **Why it's here:** pulled from the parking lot 2026-09-16 when `B48` closed on the DM's call.
 
-### 2 · A HARM shot at a Skynet site: does the site go dark or fight through — `G42`
+### 2 · A HARM at a Skynet site: does it go dark, or fight through — `G42`
 
-**Where:** any SEAD flight with the RWR open, or the recording afterwards. **~5 min.**
+**Where:** any SEAD fly with the RWR open, or the recording afterwards. **~5 min.**
 
-- **Pass:** a site that cannot engage a HARM goes quiet when one is fired at it; a site that
-  can (HQ-7, Tor, Pantsir, S-300 and up) stays live and fights through.
-- **Fail:** a Kub, SA-2 or SA-3 still radiating as the HARM arrives, or a site that goes dark
-  and never comes back.
+- **Pass:** a site that cannot shoot a HARM goes dark when one is inbound; a site that can
+  (an HQ-7, a Tor) stays up and fires at it.
+- **Fail:** a site with no HARM defence keeps radiating until the HARM lands.
 - **Why it's here:** pulled from the parking lot 2026-09-23 when `B70` closed on the test 39
-  re-read. LEOPARD fought through on test 32; test 40's ARAPAIMA Kub survived seven HARMs
-  because its paired Tor killed them all, so whether the Kub itself went dark is still open.
+  re-read. Test 39's one HARM at a Skynet site went at an HQ-7, which stays live by design. Test 40's
+  ARAPAIMA Kub survived seven HARMs because its paired Tor killed them all, so whether the
+  Kub itself went dark is still open.
 
 ### 3 · The planner behaviour bar actually switches the suite — `B54`
 

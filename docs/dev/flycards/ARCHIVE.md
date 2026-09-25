@@ -12,7 +12,7 @@ The live card stays short. This is where its history lives.
 
 | Closed | Item | Row(s) | Verdict |
 |---|---|---|---|
-| 2026-09-23 | The day's flying is reported back, and the numbers are believable | `B70` | ☑ **VERIFIED** on the test 39 re-read (#1074): the SITREP line and exact kill counts. Test 40 agreed: blue air kills 12 in the sortie records against 13 in the recording. |
+| 2026-09-23 | The day's flying is reported back, and the numbers are believable | `B70` | ☑ **VERIFIED** on the test 39 re-read: the SITREP line `53 sorties, 34.9 hours airborne, 100 shots for 54 hits`, kill counts equal to the recording on both sides, `state.json` 632 KB after 89 minutes. |
 | 2026-09-16 | A ground-level waypoint sits at the field's elevation | `B79` | ☑ **VERIFIED** on the audit: every routed flight in six generated missions carries the field elevation, and the DED reads it (B90). |
 | 2026-09-16 | `_retribution_backups` is gone and the launch error with it | `B109` | ☑ **VERIFIED** on the audit: nine launches without the line, the folder migrated on the DM's install. |
 | 2026-09-16 | AI packages arrive inside the mission | `B99` | ☑ **VERIFIED** on the audit: the row's own tool on the two live saves, 0 of 59 late. |

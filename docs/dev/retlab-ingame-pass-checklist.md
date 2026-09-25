@@ -250,9 +250,9 @@ under each row with a `2026-09-16, line-by-line audit` paragraph. What moved:
 | S5 | ✗ REGRESSED | three of fifteen columns parked for the whole mission (tests 17, 28, 31) |
 
 Every other open row carries a paragraph saying what was checked and why the captures cannot
-move it. Three plugins log nothing when they work (`aisleep` on a wake, `gpsjamming` on a
-degraded weapon, `neutralborder` on an AI stray by design), which is why B11, B45 and B121 have
-no evidence either way after 33 missions.
+move it. Two plugins log nothing when they work (`gpsjamming` on a degraded weapon,
+`neutralborder` on an AI stray by design), which is why B45 and B121 have no evidence either
+way after 33 missions.
 
 ## Test 37 — what it reached, and what it could not (2026-09-21)
 
@@ -370,17 +370,17 @@ Objectives destroyed: five at the bridge target (`Tobj Bridge …`, t≈2743), b
 
 The fight: blue lost 18 aircraft — 13 to SAMs, 4 air-to-air, 1 UH-60 with no weapon near. Red lost 13, all air-to-air. One SA-11, `0030 | SLUG (SAM)`, killed 8: the whole SARDINE TARCAP F-15C four-ship at t=1659–1670, SARDINE Strike's lead at t=2487, and three A-10Cs at t=2795–2835. SARDINE destroyed SLUG at t=2669–2979 (three HARMs, two GBU-38s, six AGM-65Ds and a GBU-38). `0040 | SABERTOOTH (SAM)` (Buk-M3) killed both FOB Delaram II BARCAP F-14s. `0029 | ARAPAIMA (PD)`'s Tor killed an F-16 and a Hornet, and ARAPAIMA's Kub a second Hornet.
 
-Rows moved: **G30** ◐ → ☑ (a paired Tor killed seven HARMs aimed at its Kub parent); **B142** ☐ → ◐ (32 of 32 crashes recorded where the jets fell; placement needs turn 3); **I2** ☑ → ◐ (the departure stagger never worked; fixed, new row **B145**).
+Rows moved: **G30** ◐ → ☑ (a paired Tor killed seven HARMs aimed at its Kub parent); **B142** ☐ → ◐ (32 of 32 crashes recorded where the jets fell; placement needs turn 3); **I2** ☑ → ◐ (the departure stagger never worked; fixed, new row **B146**).
 
 Evidence recorded without a status change: **B111** (no Hornet striker; the escort lagged, then caught up), **B70** (blue air kills in the sortie records: 12; in the recording: 13 — the FOB Delaram II F-14s show 3 of their 4 AIM-54 kills).
 
 Found, not rows:
 
-1. **A TARCAP reaches the target 17 minutes before its package.** **Fixed the same day** behind `tarcap_behind_sead` (DM call); row **B146**. `TarCapFlightPlan.patrol_start_time` is the package's `escort_start_time` (the JOIN TOT) minus 2 min, but the racetrack is on the target. SARDINE's racetrack end sat 5 NM from SLUG, the target of its own SEAD. The F-15Cs arrived at t≈1650; the SEAD sweep's TOT was t=2771. Upstream's rule, unchanged; `retlab-mission-planning-wiki-rework.md` already calls TARCAP a poor choice near SAMs. A DM call.
+1. **A TARCAP reaches the target 17 minutes before its package.** **Fixed the same day** behind `tarcap_behind_sead` (DM call); row **B147**. `TarCapFlightPlan.patrol_start_time` is the package's `escort_start_time` (the JOIN TOT) minus 2 min, but the racetrack is on the target. SARDINE's racetrack end sat 5 NM from SLUG, the target of its own SEAD. The F-15Cs arrived at t≈1650; the SEAD sweep's TOT was t=2771. Upstream's rule, unchanged; `retlab-mission-planning-wiki-rework.md` already calls TARCAP a poor choice near SAMs. A DM call.
 2. **FOB Delaram II's BARCAP orbits inside SABERTOOTH.** The racetrack end is 56 km from the Buk-M3; both F-14s died there (t=1615, 1806). On test 39 the same site killed four F-15C escorts. B141 routes package legs only, not CAP orbits.
 3. **Red captured FOB Delaram II with one SA-19.** `unit|81|24|SA-19 Grison (2K22 Tunguska)|` sat inside the 3 km capture zone at t=1197–1640 with no blue ground unit there; `base_capture_events` carries `…||1||FOB Delaram II`. Its front-line attack leg (`flotgenerator.find_offensive_point`) passes 2.6 km from the FOB centre. Upstream's capture rule. Watch whether turn 3 flips the FOB.
-4. **Every delayed civil departure left in the first 81 s** (seven, delays 10–6,129 s). DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote only `start_time`. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once too, and crashed at 66 s. **Fixed the same day**; row **B145**.
-5. **A civil IL-76 out of Bamyan flew into terrain at 88 s.** `ARIANA 131` left the ~2,590 m field, climbed ~10 m and hit the valley. Second civil IL-76 lost in the first 90 s (test 37). **Fixed the same day** (DM call): an IL-76 whose departure field is above 2,000 m air-starts en route instead (Ghazni, Sharana, Chaghcharan, Gardez, Bamyan on this map; Kabul and Bagram still ground-start). Rides row B145.
+4. **Every delayed civil departure left in the first 81 s** (seven, delays 10–6,129 s). DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote only `start_time`. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once too, and crashed at 66 s. **Fixed the same day**; row **B146**.
+5. **A civil IL-76 out of Bamyan flew into terrain at 88 s.** `ARIANA 131` left the ~2,590 m field, climbed ~10 m and hit the valley. Second civil IL-76 lost in the first 90 s (test 37). **Fixed the same day** (DM call): an IL-76 whose departure field is above 2,000 m air-starts en route instead (Ghazni, Sharana, Chaghcharan, Gardez, Bamyan on this map; Kabul and Bagram still ground-start). Rides row B146.
 6. **OpsCSAR took the red Ka-52 flying CAS for a rescue helicopter.** It passed low near its downed wingman from turn 1: red smoke popped (t≈2101) and `still reports as present 420s` fired (t≈2527). `rescue_helo_near` matches any same-side helicopter under `PICKUP_MAX_AGL`. Cosmetic; no false rescue.
 7. Both blue CSAR hoists completed (Curtis Thomas t≈2091, Andrew Clay t≈2181) and both are in `csar_rescued`. Thomas's UH-60 crashed at t=3068 on the way home, no weapon near; the rescue had already been credited.
 
@@ -401,7 +401,7 @@ stress it · `✗` fail signature reproduced in-game.
 | Row | What it checks | Feature | |
 |---|---|---|---|
 | B6 | Command-center decapitation degrades enemy planning | §52 | ☐ |
-| B11 | Ground AI sleep: distant garrisons stop thinking, wake on approach | §59 | ☐ |
+| B11 | Ground AI sleep: distant garrisons stop thinking, wake on approach | §59 | ⊘ |
 | B15 | Squadron-sequenced board numbers: the Tomcat's livery is its modex | §62 | ☑ |
 | B17 | Carrier deck spawn policy (six-pack last resort + MP slot timing) | §64 | ✗ |
 | B19 | Weather-aware auto-planning | §67 | ☐ |
@@ -451,8 +451,9 @@ stress it · `✗` fail signature reproduced in-game.
 | B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ◐ |
 | B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
-| B145 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
-| B146 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
+| B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
+| B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
+| B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -925,7 +926,9 @@ already-engaged defender when its target leaves the zone, and whether a 150 NM t
 - **Pass:** ~5 s after slot-in (not instantly) the briefing card appears for ~12 s (campaign name, `Mission N` matching the kneeboard's turn number, date + time, your callsign / aircraft / task / departure field) with a **short beep**; ~12 s later the taxi card flashes with your callsign + `Contact ground @ 249.50` (and its own beep); each shows once (no double-print), and a re-slot after the debounce re-shows them. (The beep is `briefing-beep.wav`, played by `outSoundForGroup` — if it's silent, the sound resource didn't resolve by basename; try the `l10n/DEFAULT/` path.)
 - **Fail signature:** no card appears (the node wasn't emitted, or the birth handler + sweep both missed the slotting); the card double-prints on a single slot-in (the debounce broke); the taxi card never follows (the scheduleFunction broke) or shows the wrong freq; the mission number is turn+1 again (mismatches the kneeboard); an AI-only flight's pilot slot shows a card for a flight that isn't theirs (the group match broke).
 
-### B11 — Ground AI sleep: distant garrisons stop thinking, wake on approach · §59 · ☐ UNTESTED
+### B11 — Ground AI sleep: distant garrisons stop thinking, wake on approach · §59 · ⊘ RETIRED (removed 2026-09-23, DM: killed)
+
+**2026-09-23 — REMOVED on the DM's call.** The plugin, the emitter and both settings are deleted, so this row can never be run again.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not dropped, and never observed doing its job.** The `aisleep` plugin and `perf_ground_ai_sleep` are both still in the tree. The plugin armed in every mission of tests 1–16 (Vectron's Claw, Caucasus 1995, Desert Trident, Sinai, Noisy Cricket; `AISLEEP|: managing N garrison group(s)`, up to 8 loads in test 7) because the DM's August campaigns carried the setting on (`test 1`, `brady` and the 13th-test saves all read `perf_ground_ai_sleep = True`); it has not armed since test 17 because the September campaigns carry it off (the `91526`, `CSAR` and `Maybe 414` saves all read False). The plugin logs only at arming and on a poll error, so a wake has never been visible in any log and never will be until a wake line exists. Nothing in 33 captures can move this row; to close it, turn the setting on in the current campaign and add a `AISLEEP|: woke <group>` line first, or the flight proves nothing either way.
 
@@ -3389,7 +3392,7 @@ either way — the row needs a shot deliberately taken at a site that has point 
 
 ### I2 — Civilian background air traffic (region fleets + airways) · ◐ PARTIAL (2026-09-23, test 40; was ☑ VERIFIED)
 
-**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, no player, `Desktop\New test\40`) — **the departure stagger never worked, and two IL-76s have crashed at the start.** Every ground-started civil flight with a delay (seven, 10–6,129 s) was on its runway at t=0 and airborne by t=81 s. DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote the delay to `start_time` only. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once and crashed at 66 s. Here `ARIANA 131`, an IL-76 out of Bamyan (~2,590 m), climbed ~10 m and hit terrain at 88 s. **The delay is fixed the same day** (row B145). The high-field IL-76 is not.
+**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, no player, `Desktop\New test\40`) — **the departure stagger never worked, and two IL-76s have crashed at the start.** Every ground-started civil flight with a delay (seven, 10–6,129 s) was on its runway at t=0 and airborne by t=81 s. DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote the delay to `start_time` only. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once and crashed at 66 s. Here `ARIANA 131`, an IL-76 out of Bamyan (~2,590 m), climbed ~10 m and hit terrain at 88 s. **The delay is fixed the same day** (row B146). The high-field IL-76 is not.
 
 **2026-08-17 — CLOSED FROM TACVIEW, no flight required.** The DM asked whether the re-look could
 be settled from a recording instead of the cockpit. It can, across all six recordings on disk —
@@ -5561,7 +5564,7 @@ stay in the area ~10 minutes.
      target actually a red TGO on the blue ATO?) vs `armed` present but no launch (the
      death-event name match — unit names vs the emitted list).
   2. **A reaction from an unlisted group, or over an unlisted point** — the positive list
-     leaked (this is the §59-class safety invariant; treat as a stop-ship).
+     leaked (the positive-list safety invariant; treat as a stop-ship).
   3. **The alert flight launches at mission start** — its parked TOT/late-activation broke
      (check the 8 h TOT and the activation trigger time in the miz).
   4. **A wedged takeoff** — the orbit push hit a taxiing flight (the airborne poll gate
@@ -8392,7 +8395,7 @@ range, on New Game and on loading an older save.
 
 ### B134 — Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package · §69 · ◐ PARTIAL (2026-09-22, test 38 ATO read; was ☐ UNTESTED)
 
-**2026-09-23, test 39 re-read (session `c2acb521`, at the DM's request)** — **CAS under a radar SAM with no SEAD escort, reproduced headless.** Turn 1's front-line CAS (2× A-10C) flew with a TARCAP and no SEAD escort; turn 2's is A-10s only, and a blue re-roll on the save gives the same. `front_line_sead_escort` is on, the Harrier squadron had 4 aircraft and 12 pilots free at Camp Bastion, and `threatened_by_radar_sam` is True for the CAS flight. The trigger is `check_needed_escorts`, which tests only the escorted waypoints — `FLOT START` and `FLOT END` — and no fixed SAM ring covers them; the leg out does. The front's own radar SHORAD (Tunguskas in the front-line groups, which fired seven 9M311s at t=1520–1855) are not ground objects, so the threat zone cannot see them. Under this rule a CAS SEAD escort appears only where a fixed ring covers the front itself. A DM question, not changed.
+**2026-09-23, trigger widened — needs a re-read.** Test 39 (Graveyard of Empires, `asdasd.retribution` turn 2) repeated test 38's miss: the CAS package proposed its SEAD Escort, no fixed SAM ring covered FLOT START → FLOT END, and it flew A-10s only while red's front-line SA-19s fired seven 9M311s. The escort is now also needed when the enemy control point deploys radar air defense to the front (a unit type in `UNITS_WITH_RADAR` with an anti-air class: Tunguska, Osa, Tor, Shilka, Gepard and the like; not Strela, Avenger, ZU-23 or 2S38). Re-planned headlessly on that save: the CAS package carries 2 AV-8B SEAD Escorts; no BAI, strike, OCA, DEAD or Armed Recon package carries a Harrier SEAD escort. The front half of **Pass** now reads "whose route is covered by a radar SAM, or whose enemy front carries radar air defense". Re-read the ATO on the next turn with the planner suite on, then fly it.
 
 **2026-09-22, test 38 ATO read** (Long Road to H3 turn 2, `brady.retribution` saved 18:40, main `983ba7a52`, RetLab planner suite on) — **the deep half passes; the front half was not reached, correctly.** DM's read: looks good. From the save: all seven deep SEAD Escorts are Vipers (480th FS) or Hornets (VFA-192, VFA-37) — MOCKINGBIRD and CICADA BAI, the Kharab Ishk Armed Recon, IBIS and FANGTOOTH strikes, SPARROW and QUAGGA DEAD — and no Harrier flies anywhere; VMA-231 sits on LHA-1 with 8 of 8 untasked. The one CAS package (2 Apaches, Gaziantep/Kharab Ishk) proposes the SEAD Escort, but the planner's need check reads only the escorted leg, FLOT START → FLOT END, and no radar SAM covers it: the nearest radar-SAM zone is 10.3 km off and no red radar-SAM site is within 30 km of the front. Re-planned headlessly three times with the same result. VMA-231 is eligible for that package (196 NM, inside the 250 NM mission range). The front half needs a turn with a radar SAM over the FLOT.
 
@@ -8582,7 +8585,30 @@ Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; 
 - **Fail signatures:** can't transmit on the flight frequency; pod laser 1688; a UHF frequency on
   a Mustang button; no ST/IP; a TADS cue buried in the hillside.
 
-### B145 — Civil departures spread across the mission instead of all leaving at the start · I2 civilian traffic · ☐ UNTESTED
+### B145 — A busy field's later departures spawn early enough to make their takeoff · §104 · ☐ UNTESTED
+
+Built 2026-09-23 from test 39: at Kandahar 34 jets spawned inside 10 min and the last got
+off +19 min late; the human waited 12 min for taxi clearance. Always on. Unit-tested;
+checked headless on a turn-2 save.
+
+- **Setup:** a turn with many flights leaving one airfield inside a few minutes (Graveyard of
+  Empires turn 1 at Kandahar, or red airdrome 7 on Syria). Open the flights at that field in
+  the ATO and note their startup times.
+- **Pass (app):** flights later in the departure order start earlier relative to their
+  takeoff than the first one; a flight alone at its field keeps 8 min of ground ops.
+- **Pass (app):** the past-start warning does not fire for a flight that needs to start up to
+  30 min before the turn clock.
+- **Pass (flown):** the mission clock at start is earlier than the turn clock by at most 30
+  min. No group spawns at 0:00:00 unless its planned startup is that time. The lead of each
+  group at the busy field is airborne within about 2 min of its planned takeoff, and
+  packages reach their push points on time.
+- **Fail signatures:** every flight at the busy field still gets 8 min; a group spawning at
+  0:00:00 and flying late while the mission started less than 30 min early; the mission
+  starting more than 30 min early; flights airborne well before their takeoff and holding
+  (45 s per jet is too slow for that field); jets spawned early block the taxiway for flights
+  ahead of them in the queue; next turn's clock or weather jumping by the shift.
+
+### B146 — Civil departures spread across the mission instead of all leaving at the start · I2 civilian traffic · ☐ UNTESTED
 
 Built 2026-09-23 from test 40. A ground-started civil flight draws a delay of 0–6,600 s. It was
 written to the group's `start_time`, which DCS overwrites from the first waypoint's ETA on load,
@@ -8597,7 +8623,7 @@ Unit-tested (`test_a_staggered_departure_is_written_where_dcs_reads_it`).
 - **Also:** no civil IL-76 takes off from a field above 2,000 m (on Afghanistan: Bamyan,
   Gardez, Chaghcharan, Sharana, Ghazni); any IL-76 routed there appears airborne en route.
 
-### B146 — A TARCAP reaches the target with its package's SEAD, not ahead of it · §69 · ☐ UNTESTED
+### B147 — A TARCAP reaches the target with its package's SEAD, not ahead of it · §69 · ☐ UNTESTED
 
 Built 2026-09-23 from test 40, on the DM's call. Upstream starts TARCAP 2 min before the
 package's join, over the target; SARDINE's four F-15Cs sat 5 NM from an SA-11 for 17 minutes
