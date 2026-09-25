@@ -31,7 +31,9 @@ watch pointing at RETIRED `B42`.)*
   (an HQ-7, a Tor) stays up and fires at it.
 - **Fail:** a site with no HARM defence keeps radiating until the HARM lands.
 - **Why it's here:** pulled from the parking lot 2026-09-23 when `B70` closed on the test 39
-  re-read. Test 39's one HARM at a Skynet site went at an HQ-7, which stays live by design.
+  re-read. Test 39's one HARM at a Skynet site went at an HQ-7, which stays live by design. Test 40's
+  ARAPAIMA Kub survived seven HARMs because its paired Tor killed them all, so whether the
+  Kub itself went dark is still open.
 
 ### 3 · The planner behaviour bar actually switches the suite — `B54`
 

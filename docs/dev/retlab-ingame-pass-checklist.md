@@ -360,9 +360,41 @@ Found, not rows:
 | L-rows, M6, P-rows | Vietnam and COIN rows; `coin` is not in the `.miz` |
 | B6, B20, B29, B54, B65, B66, B80, B92, B94, B95, B112, B124, B139, B140, O1 | App-side or multi-turn |
 
+## Test 40 — what it reached, and what it could not (2026-09-23)
+
+Afghanistan — Graveyard of Empires turn 2, 55 min, no player (spectator), `Tacview-20260923-212225`, DCS 2.9.29.27468. The `.miz` was written at 21:21 and carries #1073's `dcs_retribution.lua` (`crash_positions`). TIC and the profiler were off. Artifacts in `Desktop\New test\40`.
+
+The sim ran 3,264 s of mission in 3,314 s of wall time (98.5 %) with nobody in a jet.
+
+Objectives destroyed: five at the bridge target (`Tobj Bridge …`, t≈2743), by SARDINE Strike's second F-14B(U) with four GBU-31s. Its lead was lost to SLUG at t=2487.
+
+The fight: blue lost 18 aircraft — 13 to SAMs, 4 air-to-air, 1 UH-60 with no weapon near. Red lost 13, all air-to-air. One SA-11, `0030 | SLUG (SAM)`, killed 8: the whole SARDINE TARCAP F-15C four-ship at t=1659–1670, SARDINE Strike's lead at t=2487, and three A-10Cs at t=2795–2835. SARDINE destroyed SLUG at t=2669–2979 (three HARMs, two GBU-38s, six AGM-65Ds and a GBU-38). `0040 | SABERTOOTH (SAM)` (Buk-M3) killed both FOB Delaram II BARCAP F-14s. `0029 | ARAPAIMA (PD)`'s Tor killed an F-16 and a Hornet, and ARAPAIMA's Kub a second Hornet.
+
+Rows moved: **G30** ◐ → ☑ (a paired Tor killed seven HARMs aimed at its Kub parent); **B142** ☐ → ◐ (32 of 32 crashes recorded where the jets fell; placement needs turn 3); **I2** ☑ → ◐ (the departure stagger never worked; fixed, new row **B146**).
+
+Evidence recorded without a status change: **B111** (no Hornet striker; the escort lagged, then caught up), **B70** (blue air kills in the sortie records: 12; in the recording: 13 — the FOB Delaram II F-14s show 3 of their 4 AIM-54 kills).
+
+Found, not rows:
+
+1. **A TARCAP reaches the target 17 minutes before its package.** **Fixed the same day** behind `tarcap_behind_sead` (DM call); row **B147**. `TarCapFlightPlan.patrol_start_time` is the package's `escort_start_time` (the JOIN TOT) minus 2 min, but the racetrack is on the target. SARDINE's racetrack end sat 5 NM from SLUG, the target of its own SEAD. The F-15Cs arrived at t≈1650; the SEAD sweep's TOT was t=2771. Upstream's rule, unchanged; `retlab-mission-planning-wiki-rework.md` already calls TARCAP a poor choice near SAMs. A DM call.
+2. **FOB Delaram II's BARCAP orbits inside SABERTOOTH.** The racetrack end is 56 km from the Buk-M3; both F-14s died there (t=1615, 1806). On test 39 the same site killed four F-15C escorts. B141 routes package legs only, not CAP orbits.
+3. **Red captured FOB Delaram II with one SA-19.** `unit|81|24|SA-19 Grison (2K22 Tunguska)|` sat inside the 3 km capture zone at t=1197–1640 with no blue ground unit there; `base_capture_events` carries `…||1||FOB Delaram II`. Its front-line attack leg (`flotgenerator.find_offensive_point`) passes 2.6 km from the FOB centre. Upstream's capture rule. Watch whether turn 3 flips the FOB.
+4. **Every delayed civil departure left in the first 81 s** (seven, delays 10–6,129 s). DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote only `start_time`. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once too, and crashed at 66 s. **Fixed the same day**; row **B146**.
+5. **A civil IL-76 out of Bamyan flew into terrain at 88 s.** `ARIANA 131` left the ~2,590 m field, climbed ~10 m and hit the valley. Second civil IL-76 lost in the first 90 s (test 37). **Fixed the same day** (DM call): an IL-76 whose departure field is above 2,000 m air-starts en route instead (Ghazni, Sharana, Chaghcharan, Gardez, Bamyan on this map; Kabul and Bagram still ground-start). Rides row B146.
+6. **OpsCSAR took the red Ka-52 flying CAS for a rescue helicopter.** It passed low near its downed wingman from turn 1: red smoke popped (t≈2101) and `still reports as present 420s` fired (t≈2527). `rescue_helo_near` matches any same-side helicopter under `PICKUP_MAX_AGL`. Cosmetic; no false rescue.
+7. Both blue CSAR hoists completed (Curtis Thomas t≈2091, Andrew Clay t≈2181) and both are in `csar_rescued`. Thomas's UH-60 crashed at t=3068 on the way home, no weapon near; the rescue had already been credited.
+
+| Row | Why test 40 could not answer it |
+|---|---|
+| B77, B135, B136, B143, B144, B125 | No player |
+| B108, B132 | TIC and the profiler were off |
+| B141 | No package leg needed a detour: SARDINE's JOIN → INGRESS passed 87 km from SABERTOOTH, and SLUG was its own target |
+| B128 | Every primary flew |
+| B6, B20, B29, B54, B65, B66, B80, B139, B140 | App-side or multi-turn |
+
 ## Outstanding rows at a glance
 
-83 rows need a live pass. Full detail is under each `###` heading below —
+85 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -416,13 +448,15 @@ stress it · `✗` fail signature reproduced in-game.
 | B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
 | B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
 | B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
-| B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ☐ |
+| B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ◐ |
 | B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
+| B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
+| B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
-| G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ◐ |
+| G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
 | G42 | Skynet is the engine again: sites dark until cued, HARM defence, no `enableEmission` crash | Skynet return | ◐ |
 | G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ☑ |
 | G33 | Survivor ADF beacon: the pinned 260 kHz drives a real needle | CSAR (upstream #929 + RetLab pin) | ◐ |
@@ -436,7 +470,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B73 | Taking a base frees the prisoners held there | CSAR (#929 Phase 5) | ☐ |
 | B74 | The briefed hover follows the player hover-height setting | CSAR (#929 Phase 5) | ☑ |
 | H14 | The kneeboard SAR line is accurate, and the rescue crew gets a usable card | CSAR | ◐ |
-| I2 | Civilian background air traffic (region fleets + airways) |  | ☑ |
+| I2 | Civilian background air traffic (region fleets + airways) |  | ◐ |
 | H10 | Shared-airframe kneeboard index | §27 | ☐ |
 | H15 | Offline recon pages: imagery under the symbology, or none at all | §22 | ☐ |
 | H16 | Package Targets Map: terrain behind the packages, and it lines up | §22 | ☐ |
@@ -2964,7 +2998,9 @@ EWR covering a site is dead, Skynet runs the site autonomous and live from T0.
 - **Pass:** run 1 — the snatch party spawns and captures despite zero rescue assets (dcs.log shows "capture race only", the MAYDAY reads "no rescue assets available"), the POW + comms jam fire. Run 2 — the debrief spares the pilot (roster shows **MIA**, SITREP shows "MIA: <name> — evading near <CP> (downed this turn)"), the next mission re-spawns the survivor at the same spot with red smoke + the EVADER message, and the on-demand AI rescue (if re-enabled) or a player package can still recover him; a deep evader left alone converts to POW within a turn or two (message "Evader captured"), a near-front one keeps evading.
 - **Fail signature:** dcs.log still shows "no rescue helos/template; skipping" (the old bail; stale plugin) or "dcsRetribution.CombatSAR not present" (the emitter early-return resurfaced); no snatch with force-capture on (G20 regression); the un-rescued pilot dies at debrief with the toggle on (the `_combat_sar_mia_unit_ids` sparing / `combat_sar_survivors` state never written — check state.json); no re-spawn next mission (`persistentSurvivors` missing from the miz's CombatSAR node); the same evader duplicated in the ledger (turn_downed reset); an evader stranded MIA forever after toggling the setting off mid-campaign (the always-resolve contract broke); a capture roll that never fires even 40 NM deep (`resolve_downed_pilots` not hooked in `finish_turn`).
 
-### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ◐ PARTIAL (2026-09-23, adjudicated against the tests; was ☐ UNTESTED)
+### G30 — Skynet point defence: the paired SHORAD answers the HARM shot · Skynet return · ☑ VERIFIED (2026-09-23, test 40; was ◐ PARTIAL)
+
+**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, 55 min, no player, `Tacview-20260923-212225`, `Desktop\New test\40`) — **the missing link: a paired PD knocks down HARMs aimed at its parent.** `0028 | ARAPAIMA (SAM)` is a Kub (SA-6), which cannot engage a HARM; Skynet paired `0029 | ARAPAIMA (PD)`, a Tor-M2 and a 2S38. SARDINE SEAD Sweep's Hornets fired six AGM-88s at ARAPAIMA from 28–53 km (t=2532–2743), SARDINE SEAD Escort one from 80 km (t=2491). The Tor killed all seven, 2.3–11 km short of the site, each within 10–41 m of a 9M338K in the same second (t=2640–2786). It also killed an AGM-65D and three GBU-38s aimed at the site. ARAPAIMA survived and killed a Hornet at t=3123. Contrast: SLUG (SA-11) had only a 2S38 gun as PD; the three HARMs at it hit, and its first launcher died at t=2669.
 
 **2026-09-23, adjudicated against the test history (session `c2acb521`, at the DM's request)** — **what the tests settle, and the one link they do not.** Under Skynet a paired PD is also an ordinary network site: it engages aircraft like any other (TURKEY's Tor on test 39), and `pointDefencesGoLive` switches it to its HARM job only when the parent goes dark to evade a HARM (`goDark` with `harmSilenceID` set). A parent that can engage HARMs itself (`shallIgnoreHARMShutdown`) never goes dark, so its PD is never switched. What the evidence covers: only HARM-capable PDs are paired (`test_only_a_harm_capable_point_defence_is_paired`, and test 39's log dropping BLOODHOUND's and TETRA's); a Tor intercepts a HARM under native DCS AI (test 32: five of eight HARMs, terminal 38–95 m); the parent stays live when it can defend itself (test 39, TURKEY's HQ-7B passing 30 m from the HARM). What no test has shown: a paired PD knocking down a HARM aimed at its parent. Test 37's PD could not (guns and IR); test 39's Tor had fired all eight rounds at aircraft first. The pass criterion below is MANTIS-era: under Skynet the PD is not held silent on ingress.
 
@@ -3354,7 +3390,9 @@ either way — the row needs a shot deliberately taken at a site that has point 
   missing from the saved mission (canonical-instance discipline broken — a duplicate `Country`
   instance was passed at spawn vs. registered on the coalition).
 
-### I2 — Civilian background air traffic (region fleets + airways) · ☑ VERIFIED
+### I2 — Civilian background air traffic (region fleets + airways) · ◐ PARTIAL (2026-09-23, test 40; was ☑ VERIFIED)
+
+**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, no player, `Desktop\New test\40`) — **the departure stagger never worked, and two IL-76s have crashed at the start.** Every ground-started civil flight with a delay (seven, 10–6,129 s) was on its runway at t=0 and airborne by t=81 s. DCS rewrites each group's `start_time` from its first waypoint's ETA when it loads a mission (`MissionEditor/modules/me_mission.lua`, `check_mission`); the spawner wrote the delay to `start_time` only. Test 37's `CEDAR AIR 673` (delay 1,605 s) left at once and crashed at 66 s. Here `ARIANA 131`, an IL-76 out of Bamyan (~2,590 m), climbed ~10 m and hit terrain at 88 s. **The delay is fixed the same day** (row B146). The high-field IL-76 is not.
 
 **2026-08-17 — CLOSED FROM TACVIEW, no flight required.** The DM asked whether the re-look could
 be settled from a recording instead of the cockpit. It can, across all six recordings on disk —
@@ -7791,6 +7829,8 @@ on that emitter.
   would show up as a planning error rather than a quiet miss.
 ### B111 — A package's escort holds the striker's pace instead of running ahead · §8 cruise mach · ◐ PARTIAL
 
+**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, no player, `Desktop\New test\40`) — **no Hornet striker; the escort lagged, then caught up.** SARDINE: an F-14B(U) striker with an F/A-18C SEAD escort. The striker reached JOIN at t=2053 (planned 2024), the escort at t=2146. They were 14–20 km apart until t=2200; the escort closed at 550–570 kt and was 0.3 km off at t=2320. From t=2380 the striker ran at 527 kt while the escort slowed to 217–302 kt firing HARMs; 11.8 km apart at t=2440. The escort did not run ahead.
+
 **2026-09-23, test 39 re-read (session `c2acb521`, at the DM's request)** — **a measurement: the F-15C escorts run ahead.** Join → ingress ground speed, lead jets: F-14B(U) strikers 455–460 kt; their F/A-18C SEAD escorts 464, 504, 520 kt; their F-15C escorts 576–636 kt (FALCON: striker 458, escort 622). The F-15E packages: strikers 563–664 kt, F-15Cs 600–644. Only the Hornet is authored (M0.78). Authoring the F-15C is the lever if the DM wants the escorts on the strikers.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the authored value demonstrably reaches the jet; the row cannot pass until more airframes carry one.** Test 32's three Hornet-escort legs read 20–50 kt slower than their Viper strikers at the same altitude, which is M0.78 against M0.85 and exactly what one authored airframe among unauthored ones produces. Test 33's package (Viper striker, Eagle and Hornet escorts) has the same shape. The pass criterion (escort within ~15 kt of the striker) is reachable only once the F-16C, F-15C and the rest have `cruise_mach:` values; the measurements are the input to that authoring, which is why this row now sits on the WATCH card as a reading, not a verdict.
@@ -8498,7 +8538,9 @@ headlessly: 2,349 NM inside the ring before, 113 NM after.
   split up at the detour (they should share the package's points); a detour through a
   neighboring country (the navmesh ignores borders).
 
-### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ☐ UNTESTED
+### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ◐ PARTIAL (2026-09-23, test 40; was ☐ UNTESTED)
+
+**2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, 55 min, no player, `Desktop\New test\40`) — **the recording half passes; the placement half needs turn 3.** `state.json` carries 32 `crash_positions` for 32 `crash_events`, the same names. Each sits 0–5.1 km from where Tacview shows that group's aircraft hit; the gap is the fall. The survivors on this turn's map were placed by the turn-2 debrief, which ran on the build before #1073, so they still sit where test 39 left them (six F-15E crew 21–27 km from the nearest recorded loss). Open turn 3's map to finish the row.
 
 Built 2026-09-23 from test 39. A loss with no ejection event rolls `csar_ejection_chance`, and the
 survivor used to be scattered round his package's target: nine blue survivors sat 23–42 km from
@@ -8565,3 +8607,32 @@ checked headless on a turn-2 save.
   starting more than 30 min early; flights airborne well before their takeoff and holding
   (45 s per jet is too slow for that field); jets spawned early block the taxiway for flights
   ahead of them in the queue; next turn's clock or weather jumping by the shift.
+
+### B146 — Civil departures spread across the mission instead of all leaving at the start · I2 civilian traffic · ☐ UNTESTED
+
+Built 2026-09-23 from test 40. A ground-started civil flight draws a delay of 0–6,600 s. It was
+written to the group's `start_time`, which DCS overwrites from the first waypoint's ETA on load,
+so every departure left in the first minute. The delay is now the first waypoint's ETA as well.
+Unit-tested (`test_a_staggered_departure_is_written_where_dcs_reads_it`).
+- **Setup:** any campaign with civilian traffic, a turn of 30 min or more. Spectator is fine.
+- **Pass:** civil ground departures appear through the mission, each at its group's first-waypoint
+  ETA; only zero-delay civil flights are on a runway at t=0.
+- **Fail signatures:** every civil ground start present at t=0 again (the ETA not written);
+  a delayed group that never appears (DCS rejecting a runway start with an ETA — search
+  `dcs.log` for the group name).
+- **Also:** no civil IL-76 takes off from a field above 2,000 m (on Afghanistan: Bamyan,
+  Gardez, Chaghcharan, Sharana, Ghazni); any IL-76 routed there appears airborne en route.
+
+### B147 — A TARCAP reaches the target with its package's SEAD, not ahead of it · §69 · ☐ UNTESTED
+
+Built 2026-09-23 from test 40, on the DM's call. Upstream starts TARCAP 2 min before the
+package's join, over the target; SARDINE's four F-15Cs sat 5 NM from an SA-11 for 17 minutes
+before their SEAD and all died. With `tarcap_behind_sead` on (RetLab planner suite) the orbit
+starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT. Unit-tested.
+- **Setup:** RetLab planner suite on; any turn where the planner frags a package with both a
+  TARCAP and a SEAD flight (common against a SAM target). Read the ATO; a spectator run shows it.
+- **Pass:** the TARCAP's patrol start time is at or after the SEAD flight's TOT; in the
+  recording the TARCAP arrives over the target with or after the SEAD, not alone.
+- **Fail signatures:** the TARCAP still starts before the join (the gate off, or the setting
+  missing from the suite); a TARCAP that takes off so late it never reaches station before the
+  package splits.

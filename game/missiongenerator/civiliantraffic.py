@@ -75,6 +75,7 @@ from typing import TYPE_CHECKING, Optional, Sequence, Type
 
 from dcs.mapping import Point
 from dcs.mission import StartType
+from dcs.planes import IL_76MD
 from dcs.task import OptROE, SetInvisibleCommand
 from dcs.unittype import FlyingType, ShipType
 
@@ -87,6 +88,9 @@ from pydcs_extensions.vietnamwarvessels.vietnamwarvessels import (
     vwv_sampan_open_box,
 )
 
+from game.missiongenerator.kneeboard_recon.airport_imagery import (
+    field_elevation_for_airport,
+)
 from game.utils import mps
 
 from .civilianfleet import CRUISE_PROFILE, CivilRegion, region_for
@@ -129,6 +133,11 @@ AIR_START_FRAC_RANGE = (0.15, 0.85)
 CRUISE_ENTRY_FRAC = 0.25
 CRUISE_EXIT_FRAC = 0.9
 
+#: A heavy that ground-starts above this field elevation cannot out-climb the valley:
+#: an IL-76 out of Bamyan (2,565 m) hit terrain 88 s after takeoff on test 40.
+HIGH_FIELD_M = 2_000
+HIGH_FIELD_AIR_START_TYPES: frozenset[Type[FlyingType]] = frozenset({IL_76MD})
+
 FLEET_DENSITY = (1, 3)  # per fixed-wing type, scaled by pool size
 HELO_DENSITY = (1, 2)
 HELO_LEGS = 2  # a short local hop, not a meander
@@ -140,6 +149,7 @@ class _Field:
 
     name: str
     point: Point
+    elevation_m: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -243,6 +253,14 @@ def airway_pairs(pool: Sequence[_Field], min_transit_m: float) -> list[tuple[int
     ]
 
 
+def _high_field_heavy(aircraft_type: Type[FlyingType], field: _Field) -> bool:
+    return (
+        aircraft_type in HIGH_FIELD_AIR_START_TYPES
+        and field.elevation_m is not None
+        and field.elevation_m > HIGH_FIELD_M
+    )
+
+
 def _flight_number(rng: random.Random) -> int:
     return rng.randint(100, 999)
 
@@ -289,6 +307,8 @@ def plan_airways(
                 start, end = end, start
 
             air = air_eligible and rng.random() < AIR_START_FRACTION
+            if air_eligible and _high_field_heavy(aircraft_type, start):
+                air = True
             air_point: Optional[Point] = None
             start_time = 0
             if air:
@@ -441,7 +461,11 @@ class CivilianTrafficGenerator:
         for name, airport in self.mission.terrain.airports.items():
             if not admit_field(airport.position, fronts, self.rng):
                 continue
-            field = _Field(name=name, point=airport.position)
+            field = _Field(
+                name=name,
+                point=airport.position,
+                elevation_m=field_elevation_for_airport(self.mission.terrain, airport),
+            )
             every.append(field)
             if name not in controlled:
                 neutral.append(field)
@@ -543,7 +567,11 @@ class CivilianTrafficGenerator:
             if destination is not None:
                 group.land_at(destination)
 
+            # DCS overwrites start_time with points[0].ETA on load (me_mission.lua
+            # check_mission), so the delay must live on the waypoint too.
             group.start_time = route.start_time_s
+            group.points[0].ETA = route.start_time_s
+            group.points[0].ETA_locked = True
             group.points[0].tasks.append(OptROE(OptROE.Values.WeaponHold))
             group.points[0].tasks.append(SetInvisibleCommand(True))
         except Exception:  # pragma: no cover - defensive; never block generation

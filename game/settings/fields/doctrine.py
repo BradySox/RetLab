@@ -413,6 +413,22 @@ class DoctrineSettings:
             "unaffected."
         ),
     )
+    tarcap_behind_sead: bool = boolean_option(
+        "TARCAP arrives with the package's SEAD, not before it",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        # Stock default: upstream starts TARCAP 2 min before the package's join.
+        # RetLab planner suite turns this on.
+        default=False,
+        detail=(
+            "A TARCAP orbits over the target and normally starts 2 minutes before the "
+            "package reaches its join point, which can put it over the target's SAMs "
+            "long before anyone suppresses them. With this on, a TARCAP in a package "
+            "that has a SEAD, SEAD Sweep, SEAD Escort or DEAD flight starts its orbit "
+            "no earlier than the first of those flights' time over target. Packages "
+            "without one are unchanged."
+        ),
+    )
     sead_strike_coordination: bool = boolean_option(
         "Strikes push behind their SEAD window",
         page=CAMPAIGN_DOCTRINE_PAGE,

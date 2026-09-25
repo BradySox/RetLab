@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Type
 
+from game.ato.flighttype import FlightType
 from game.utils import Distance, Speed
 from .capbuilder import CapBuilder
 from .patrolling import PatrollingFlightPlan, PatrollingLayout
@@ -14,6 +15,10 @@ from game.ato.tankeravailability import serviceable_tanker_planned
 
 if TYPE_CHECKING:
     from ..flightwaypoint import FlightWaypoint
+
+SUPPRESSION_TYPES = frozenset(
+    {FlightType.SEAD, FlightType.SEAD_SWEEP, FlightType.SEAD_ESCORT, FlightType.DEAD}
+)
 
 
 @dataclass
@@ -84,9 +89,26 @@ class TarCapFlightPlan(PatrollingFlightPlan[TarCapLayout], TacticalOverlayDispla
     @property
     def patrol_start_time(self) -> datetime:
         start = self.package.escort_start_time
-        if start is not None:
-            return start + self.tot_offset
-        return self.tot
+        patrol_start = self.tot if start is None else start + self.tot_offset
+        suppression = self._suppression_tot()
+        if suppression is not None and suppression > patrol_start:
+            return suppression
+        return patrol_start
+
+    def _suppression_tot(self) -> datetime | None:
+        """Earliest SEAD/DEAD TOT in the package, when tarcap_behind_sead is on.
+
+        The orbit is on the target; arriving before the suppression parked four
+        F-15Cs over an SA-11 for 17 minutes on test 40.
+        """
+        if not self.flight.coalition.game.settings.tarcap_behind_sead:
+            return None
+        tots = [
+            flight.flight_plan.tot
+            for flight in self.package.flights
+            if flight.flight_type in SUPPRESSION_TYPES
+        ]
+        return min(tots, default=None)
 
     @property
     def patrol_end_time(self) -> datetime:

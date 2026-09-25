@@ -17,6 +17,7 @@ pin exactly those:
 from __future__ import annotations
 
 import random
+from dataclasses import replace
 from typing import Any
 
 import dcs
@@ -411,6 +412,33 @@ def test_a_ground_started_transit_climbs_to_its_flight_level() -> None:
         assert waypoint.alt == route.altitude_m
         assert waypoint.speed == pytest.approx(route.speed_ms)
     assert group.points[-1].type == "Land"
+
+
+def test_a_staggered_departure_is_written_where_dcs_reads_it() -> None:
+    """DCS sets each group's start_time from its first waypoint's ETA on load, so a
+    delay written only to start_time is erased: on test 40 all seven staggered
+    departures (10 s to 6,129 s) left in the first 81 s."""
+    mission, country, fields = _caucasus()
+    route = _route(fields[:2], An_26B, start_time_s=3_973)
+
+    generator = CivilianTrafficGenerator(mission, None)  # type: ignore[arg-type]
+    assert generator._spawn(country, 0, route) is True
+
+    group = country.plane_group[-1]
+    assert group.start_time == 3_973
+    assert group.points[0].ETA == 3_973
+    assert group.points[0].ETA_locked is True
+
+
+def test_an_il76_never_ground_starts_from_a_high_field() -> None:
+    """Test 40: an IL-76 out of Bamyan (2,565 m) hit the valley 88 s after takeoff."""
+    high = _Field("High", _pt(0, 0), elevation_m=2_565)
+    low = _Field("Low", _pt(400_000, 0), elevation_m=500)
+    region = replace(REGIONS["Caucasus"], fleet=(IL_76MD,))
+    for seed in range(40):
+        for route in plan_airways([high, low], region, (3, 3), random.Random(seed)):
+            if route.chain[0] is high:
+                assert route.air_start
 
 
 def test_an_air_started_transit_holds_its_level_before_descending() -> None:

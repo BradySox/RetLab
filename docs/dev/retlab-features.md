@@ -7024,6 +7024,14 @@ Not covered: SPLIT -> REFUEL (SKINK DEAD still crosses 23 NM there) and helicopt
 detour points are player-only; AI escorts fly the Escort task off the join.
 `tests/flightplan/test_samdetour.py`; row B141 owns the fly.
 
+**TARCAP behind SEAD (2026-09-23, `tarcap_behind_sead`, RetLab planner suite).** Upstream starts a
+TARCAP's orbit 2 min before the package's JOIN TOT (`Package.escort_start_time`), but the
+racetrack is on the target. Test 40: SARDINE's F-15C TARCAP reached a racetrack 5 NM from
+SLUG (SA-11), the target of its own SEAD, at t≈1650; the SEAD sweep's TOT was t=2771. All four
+died in 11 s. With the gate on, `TarCapFlightPlan.patrol_start_time` is no earlier than the
+earliest TOT of a SEAD, SEAD Sweep, SEAD Escort or DEAD flight in the package. Packages with
+none are unchanged. `tests/ato/flightplans/test_tarcap_behind_sead.py`; row B147 owns the fly.
+
 **What it is.** Packages were timed independently — the generic scheduler branch spreads
 each package's TOT randomly across the mission window, so nothing stopped a strike from
 arriving at a defended target half an hour BEFORE the SEAD package tasked against the SAM
