@@ -1,7 +1,9 @@
 # RetLab Iran Air Defense Pack — 3rd Khordad and Bavar-373 (§105)
 
-**Status (2026-09-25):** repo side BUILT, unit-tested; the DCS mod itself NOT BUILT. It is
-built on the DM's machine from
+**Status (2026-09-25):** repo side BUILT, unit-tested. The DCS mod v0.1 is BUILT but not yet
+loaded in DCS: all twelve units and all eleven exported models, in the separate private repo
+`BradySox/RetLab-Iran-Air-Defense` (DM call: its own pack, like HDS and CurrentHill; not public
+yet). Remaining steps are in
 [`retlab-iran-air-defense-pack-HANDOFF.md`](retlab-iran-air-defense-pack-HANDOFF.md).
 Row **B148** owns the flight.
 
@@ -148,8 +150,10 @@ faction access-gating keeps it off every other nation.
 
 ## 4. 3D models
 
-Built by script in Blender 5.0, in `mods/iran_air_defense/models/` (DM call 2026-09-25: our own
-models, committed to the branch). Proportions are matched to a Tasnim photograph of the TEL
+Built by script, now in the pack repo's `Source/models/` (they were in this repo until the
+2026-09-25 DM call made the mod its own pack). Written for Blender 5.0; rebuilt, baked and
+exported in 5.1.2, because ED's EDM exporter supports 4.2, 4.5 and 5.1 LTS only. The pack's
+model README has the export steps and the argument table. Proportions are matched to a Tasnim photograph of the TEL
 and to reference renders the DM supplied; the photograph wins where they disagree. The cloud
 network policy blocks every photo source tried, so all references came from the DM.
 

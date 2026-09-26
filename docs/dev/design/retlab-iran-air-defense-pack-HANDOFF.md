@@ -12,11 +12,26 @@ fly-check it.
 | Thing | Where it lives | Done? |
 |---|---|---|
 | Retribution side (unit types, layouts, Skynet, factions, toggle, tests) | the RetLab repo, branch `claude/iran-dcs-asset-priority-4w0920` (PR #1083) | **Done** |
-| 3D models (Blender scripts; 4 baked) | the same branch, `mods/iran_air_defense/models/` | **Built; bake locally** (step 3b) |
-| The DCS mod (vehicles, radars, missiles, exported shapes) | `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` on the DM's PC | **Your job** |
+| 3D models (Blender scripts, all 11 baked) | private repo `BradySox/RetLab-Iran-Air-Defense`, `Source/models/` | **Done 2026-09-25** (step 3b) |
+| The DCS mod (vehicles, radars, sensors, exported shapes) | the same private repo; its working copy is `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` | **v0.1 built, not yet loaded in DCS** |
 | Research numbers | design note §3 | Done |
 
 The DCS install is `E:\DCS World`. The mod goes under **Saved Games**, not the install.
+
+**The mod is its own pack (DM call 2026-09-25),** like HDS and CurrentHill, in a private repo;
+it is not publicly downloadable. Mod files never go in this repo, which answers step 8's
+question. Only the type-id contract crosses between the two.
+
+### Done in the 2026-09-25 local session
+
+- Step 3b: the PC had no exporter. ED's Blender exporter supports Blender 4.2, 4.5 and
+  5.1 LTS, not 5.0, so all eleven models were rebuilt and baked in 5.1.2 and exported with
+  the pack's `Source/models/export_edm.py`. It converts materials, marks connectors and binds
+  arguments; the exporter reads frame F as argument F/100 - 1, so the scripts' 0-100 frames are
+  resampled at export. The argument table is in the pack's model README.
+- Step 3, written but not yet run in DCS: all twelve units, own radar sensors at the §1
+  ranges, vanilla 5V55 and 9M38M1 missiles, vanilla wrecks, encyclopedia entries.
+- Not done: the Phase A check in DCS (start at step 3's *Phase A check*), step 4, steps 5-7.
 
 ## Hard rules
 
@@ -94,7 +109,7 @@ it. Each site should engage.
    The `.blend` files are Blender 5.0. **Check which Blender versions the exporter supports.**
    If it needs an older Blender, a 5.0 file may not open there: rebuild the model in that
    version from its `.py` (the model README has the command), or tell the DM.
-2. **Rebuild all eleven models** with the loop in `mods/iran_air_defense/models/README.md`,
+2. **Rebuild all eleven models** with the loop in the pack's `Source/models/README.md`,
    section *Rebuild* (a few minutes each). Only four are baked in the repo, and only the
    command post has the wheel animations. Check each preview PNG against the renders in
    `renders/`.
