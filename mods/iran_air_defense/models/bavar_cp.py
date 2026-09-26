@@ -280,6 +280,7 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     build()
     finalize("IRAD_Bavar373_CP")
+    animate_wheels()
     if "--bake" in sys.argv:
         bake_camo(out, "IRAD_Bavar373_CP")
     bpy.ops.wm.save_as_mainfile(filepath=f"{out}/IRAD_Bavar373_CP.blend")

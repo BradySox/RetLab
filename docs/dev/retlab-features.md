@@ -10982,8 +10982,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 ### Deferred
 
 - 15th Khordad; an Iran 2026 faction; far-view LODs for the models.
-- 3D models: our own, built by script in `mods/iran_air_defense/models/`, textured. Nine of
-  eleven are built; the Bashir SR and Alam al-Hoda TEL wait on reference photographs. The
-  `.edm` export is local (handoff step 3b).
+- 3D models: our own, all eleven built by script in `mods/iran_air_defense/models/`, with
+  wheel spin and steering. Four are baked in the repo; the rest bake locally, and the `.edm`
+  export is local (handoff step 3b). v1 borrows the vanilla wreck shapes.
 
 In-game row **B148**.

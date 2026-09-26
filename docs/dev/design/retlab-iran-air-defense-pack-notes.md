@@ -177,7 +177,8 @@ What the references settled, against the first spec-only draft:
 | Matla ul-Fajr EWR | Built, ~28.8k triangles; Yagi boom on a telescopic mast, long shelter and a separate generator box on a semi-trailer, woodland camouflage |
 | Rasool comms shelter | Built, ~18.3k triangles; white-cab 4x4, pale sage framed shelter with the door open on its racks, telescopic rear mast |
 | 3rd Khordad TELAR | Built, ~30.5k triangles; a 6x6 with a raked wedge cab, a turret carrying the wedge radar over the cab and three Taer-2 on an elevating cradle, turret and elevation animations, band camouflage; matched to two photographs (parade and exhibition) |
-| Alam al-Hoda TEL and Bashir SR | Not yet |
+| Alam al-Hoda TEL | Built, ~29.8k triangles; the 3rd Khordad truck with no radar, three Taer-2 lying on a truss launcher over one long housing, turret and elevation animations, grey band camouflage; matched to a parade photograph |
+| Bashir SR | Built, ~21.9k triangles; a green 6x6 with a shelter and whip mast, a lattice tower at the rear carrying a planar array of thirty element rows, azimuth animation; deployed only (§5); matched to two photographs and a render |
 
 Every model after the TEL had a second and third pass (DM call 2026-09-26: they read lower
 quality than the TEL). Each pass compared the model against its reference and added what was
@@ -187,15 +188,21 @@ from a shared kit, then the model's own details. The passes also corrected three
 - the command post's shelter was too low and sat against the cab;
 - the Matla ul-Fajr's shelter ran over the generator box on the trailer neck.
 
+Every wheel spins and the front axles steer (`wheel_spin_*` and `wheel_steer_*` empties;
+both front axles on the 8x8s). None of the models has a destroyed shape yet: v1 borrows the
+vanilla unit's wreck (§5).
+
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
 
+- **Our own wreck models.** DM call 2026-09-26: v1 points each unit's destroyed shape at the
+  vanilla unit it borrows from; a burnt wreck of each of our models comes after v1 works.
 - **The Meraj-4's towed travel fit.** A parade photograph shows the array turned lengthwise and folded
   flat on the trailer behind a tractor. The model is deployed only: SAM sites do not move in
   Retribution, and a fold without the real mechanism would read wrong.
-
-
+- **The Bashir's travel fit.** The same reason: no reference shows how the 17 ft array stows
+  on an 8 ft wide truck, so the tower stands erect.
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
 - **Far-view LODs** for the models.
 - **An Iran 2026 faction.** `[CH] Iran 2020` stands in.

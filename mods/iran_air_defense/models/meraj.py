@@ -463,6 +463,7 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     az = build()
     finalize("IRAD_Meraj4_SR")
+    animate_wheels()
     bpy.context.scene.frame_set(0)
     bpy.ops.wm.save_as_mainfile(filepath=f"{out}/IRAD_Meraj4_SR.blend")
     az.animation_data_clear()

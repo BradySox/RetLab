@@ -1173,3 +1173,61 @@ def bake_camo(out, name, size=4096):
                 o.data.materials[i] = tex
     bpy.data.materials.remove(src)
     print(f"BAKED {len(objs)} parts into {img.filepath_raw}")
+
+
+def animate_wheels(steer_deg=30):
+    """Wheel spin and steering empties for DCS. Each wheel's parts go under a
+    wheel_spin_<n> empty (frames 0-100: one forward turn); truck front axles also get a
+    wheel_steer_<n> empty (frames 0-100: full left to full right, 50 straight ahead).
+    Trailer wheels (mj_, mf_) spin only. Safe to call twice."""
+    if any(o.name.startswith("wheel_spin_") for o in bpy.data.objects):
+        return 0
+    scn = bpy.context.scene
+    scn.frame_set(0)
+    bpy.context.preferences.edit.keyframe_new_interpolation_type = "LINEAR"
+    named = [o for o in bpy.data.objects if "_wheel_" in o.name]
+    names = {o.name for o in named}
+    bases = [
+        o
+        for o in named
+        if not any(o.name.startswith(n + "_") for n in names if n != o.name)
+    ]
+    truck = [o for o in bases if not o.name.startswith(("mj_", "mf_"))]
+    axles = sorted({int(o.name.rsplit("_wheel_", 1)[1].split("_")[0]) for o in truck})
+    steer_axles = {0: 1.0, 1: 0.7} if len(axles) >= 4 else {0: 1.0}
+    for o in bases:
+        parts = [
+            p
+            for p in bpy.data.objects
+            if p.name == o.name or p.name.startswith(o.name + "_")
+        ]
+        centre = o.matrix_world.translation.copy()
+        parent = o.parent
+        tag = o.name.rsplit("_wheel_", 1)[1]
+        holder = parent
+        axle = int(tag.split("_")[0]) if o in truck else -1
+        steer = None
+        if axle in steer_axles:
+            steer = empty(f"wheel_steer_{tag}", tuple(centre), parent)
+            holder, centre = steer, (0, 0, 0)
+        spin = empty(f"wheel_spin_{tag}", tuple(centre), holder)
+        # reparent at rest, before any key moves the empties
+        bpy.context.view_layer.update()
+        for p in parts:
+            mw = p.matrix_world.copy()
+            p.parent = spin
+            p.matrix_world = mw
+        if steer is not None:
+            for f, a in ((0, -1), (50, 0), (100, 1)):
+                steer.rotation_euler = (
+                    0,
+                    0,
+                    math.radians(a * steer_deg * steer_axles[axle]),
+                )
+                steer.keyframe_insert("rotation_euler", frame=f)
+        for f, a in ((0, 0.0), (50, -math.pi), (100, -2 * math.pi)):
+            spin.rotation_euler = (a, 0, 0)
+            spin.keyframe_insert("rotation_euler", frame=f)
+    scn.frame_set(0)
+    print(f"WHEELS {len(bases)} spin, steer axles {sorted(steer_axles)}")
+    return len(bases)

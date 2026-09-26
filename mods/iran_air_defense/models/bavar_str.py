@@ -534,6 +534,7 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     az = build()
     finalize(NAME)
+    animate_wheels()
     bpy.context.scene.frame_set(0)
     if "--bake" in sys.argv:
         bake_camo(out, NAME)

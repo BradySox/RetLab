@@ -343,6 +343,7 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     build()
     finalize("IRAD_Rasool_Comms")
+    animate_wheels()
     bpy.context.scene.frame_set(100)
     bpy.ops.wm.save_as_mainfile(filepath=f"{out}/IRAD_Rasool_Comms.blend")
     for name, kw in (

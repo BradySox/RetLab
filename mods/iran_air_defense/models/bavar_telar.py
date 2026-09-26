@@ -874,6 +874,7 @@ if __name__ == "__main__":
     out = sys.argv[-1]
     head = build()
     finalize("IRAD_Bavar373_TELAR")
+    animate_wheels()
     bpy.context.scene.frame_set(0)
     if "--bake" in sys.argv:
         bake_camo(out, "IRAD_Bavar373_TELAR")

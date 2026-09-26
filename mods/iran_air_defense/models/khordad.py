@@ -19,6 +19,15 @@ from irad_kit import _flat, _on_face  # noqa: E402,F401
 
 STEPS = 11
 EL0, EL1 = 15, 65
+NAME = "IRAD_3Khordad_TELAR"
+BAND_SCALE = (0.55, 0.3, 0.9)  # bands run long, as painted
+RADAR = True  # False builds the Alam al-Hoda: the same truck, launcher only
+PALETTE = dict(
+    base=(0.55, 0.44, 0.27),
+    brown=(0.17, 0.09, 0.04),
+    olive=(0.11, 0.12, 0.05),
+    black=(0.02, 0.02, 0.02),
+)
 WHITE = lambda: mat("irad_nose", (0.8, 0.8, 0.78), 0.4)  # noqa: E731
 BODY = lambda: mat("irad_msl", (0.1, 0.12, 0.07), 0.55)  # noqa: E731
 FACE = lambda: mat("irad_radome", (0.5, 0.5, 0.47), 0.6)  # noqa: E731
@@ -34,7 +43,7 @@ def band_camo():
     bsdf.inputs["Roughness"].default_value = 0.72
     geo = N.new("ShaderNodeNewGeometry")
     mp = N.new("ShaderNodeMapping")
-    mp.inputs["Scale"].default_value = (0.55, 0.3, 0.9)  # bands run long, as painted
+    mp.inputs["Scale"].default_value = BAND_SCALE
     L.new(geo.outputs["Position"], mp.inputs["Vector"])
 
     def noise(seed_offset):
@@ -59,10 +68,7 @@ def band_camo():
         return r.outputs["Color"]
 
     sand, brown, olive, black = (
-        (0.55, 0.44, 0.27),
-        (0.17, 0.09, 0.04),
-        (0.11, 0.12, 0.05),
-        (0.02, 0.02, 0.02),
+        PALETTE[k] for k in ("base", "brown", "olive", "black")
     )
     n1, n2 = noise(0.0), noise(7.3)
     edge = ramp(
@@ -482,14 +488,7 @@ def build():
     band_camo()
     axles = [2.9, -1.55, -2.95]
     root, dz, rear, cab_back = iran_truck(
-        "IRAD_3Khordad_TELAR",
-        axles,
-        9.0,
-        width=2.5,
-        cab_len=2.3,
-        frame_h=1.05,
-        wheel_r=0.62,
-        cab=False,
+        NAME, axles, 9.0, width=2.5, cab_len=2.3, frame_h=1.05, wheel_r=0.62, cab=False
     )
     khordad_cab(root, 4.5, 2.5, 2.3, dz - 0.2)
     # equipment body behind the cab, as photographed: doors, a panel window, louvers
@@ -604,9 +603,70 @@ def build():
     box("kh_platform", (2.45, 3.9, 0.28), (0, 0.15, 0.14), PAINT(), tur, 0.03)
     for s in (-1, 1):
         box(f"kh_skirt{s}", (0.05, 3.9, 0.12), (s * 1.24, 0.15, 0.02), PAINT(), tur, 0)
-    rz = radar(tur, 0.28)
-    # turret housing behind the radar: the big square AC fan on its left, doors
-    hy0, hy1, hh = -0.6, -1.75, 0.95
+    if RADAR:
+        rz = radar(tur, 0.28)
+        hy0, hy1, hh = -0.6, -1.75, 0.95
+    else:
+        # the Alam al-Hoda: one long housing, the launcher truss standing on it
+        hy0, hy1, hh = 2.05, -1.75, 0.6
+        rz = 0.28 + hh + 0.55
+        for s in (-1, 1):
+            grille(
+                f"kh_housingside{s}",
+                (s * 1.225, 1.2, 0.28 + hh / 2),
+                "x",
+                s,
+                0.8,
+                0.35,
+                tur,
+                5,
+            )
+        box(
+            "kh_trussbase",
+            (1.8, 1.0, 0.1),
+            (0, -1.2, 0.28 + hh + 0.05),
+            PAINT(),
+            tur,
+            0.01,
+        )
+        for s in (-1, 1):
+            for yy in (-1.65, -0.75):
+                strut(
+                    f"kh_trusspost{s}{yy}",
+                    (s * 0.85, yy, 0.28 + hh),
+                    (s * 0.85, yy, rz - 0.1),
+                    0.04,
+                    PAINT(),
+                    tur,
+                    6,
+                )
+            strut(
+                f"kh_trussx{s}a",
+                (s * 0.85, -1.65, 0.28 + hh),
+                (s * 0.85, -0.75, rz - 0.1),
+                0.03,
+                PAINT(),
+                tur,
+                6,
+            )
+            strut(
+                f"kh_trussx{s}b",
+                (s * 0.85, -0.75, 0.28 + hh),
+                (s * 0.85, -1.65, rz - 0.1),
+                0.03,
+                PAINT(),
+                tur,
+                6,
+            )
+            box(
+                f"kh_rest{s}",
+                (0.2, 0.3, 0.12),
+                (s * 0.7, 1.7, 0.28 + hh + 0.06),
+                DARK(),
+                tur,
+                0.01,
+            )
+    # turret housing: the big square AC fan on its left, doors
     box(
         "kh_housing",
         (2.45, hy0 - hy1, hh),
@@ -615,26 +675,27 @@ def build():
         tur,
         0.03,
     )
+    ay = -1.175 if RADAR else -0.2
     box(
         "kh_acframe",
-        (0.06, 0.85, 0.8),
-        (-1.24, (hy0 + hy1) / 2, 0.28 + hh / 2),
+        (0.06, 0.85, min(0.8, hh - 0.1)),
+        (-1.24, ay, 0.28 + hh / 2),
         METAL(),
         tur,
         0.01,
     )
-    fan("kh_acfan", (-1.25, (hy0 + hy1) / 2, 0.28 + hh / 2), "-x", 0.33, tur)
-    door(
-        "kh_housingdoor",
-        (1.225, (hy0 + hy1) / 2, 0.28 + hh / 2),
-        "x",
-        1,
-        0.8,
-        0.75,
+    fan("kh_acfan", (-1.25, ay, 0.28 + hh / 2), "-x", min(0.33, hh / 2 - 0.08), tur)
+    door("kh_housingdoor", (1.225, ay, 0.28 + hh / 2), "x", 1, 0.8, hh - 0.2, tur)
+    grille(
+        "kh_housinggrille",
+        (0, hy1, 0.28 + hh / 2),
+        "y",
+        -1,
+        1.2,
+        min(0.5, hh - 0.15),
         tur,
+        6,
     )
-    grille("kh_housinggrille", (0, hy1, 0.28 + hh / 2), "y", -1, 1.2, 0.5, tur, 6)
-    # cradle: two side cheeks up to the trunnion, a cross tube; launcher on the pivot
     PY, PZ = -1.7, rz - 0.15
     for s in (-1, 1):
         box(
@@ -674,8 +735,8 @@ def build():
     for k, x in enumerate((-0.68, 0.0, 0.68)):
         missile(k, x, piv)
     # elevation ram from the platform to the launcher spine
-    A = (1.2, -0.12)  # on the spine, pivot frame (y, z)
-    B = (PY + 1.9, 0.35)  # on the platform, turret frame
+    A = (1.2, -0.12) if RADAR else (0.6, -0.3)  # on the spine, pivot frame (y, z)
+    B = (PY + 1.9, 0.35) if RADAR else (PY + 2.4, 0.28 + hh)  # turret frame
 
     def a_tur(th):
         return (
@@ -721,11 +782,12 @@ def build():
 if __name__ == "__main__":
     out = sys.argv[-1]
     tur, piv = build()
-    finalize("IRAD_3Khordad_TELAR")
+    finalize(NAME)
+    animate_wheels()
     bpy.context.scene.frame_set(0)
     if "--bake" in sys.argv:
-        bake_camo(out, "IRAD_3Khordad_TELAR")
-    bpy.ops.wm.save_as_mainfile(filepath=f"{out}/IRAD_3Khordad_TELAR.blend")
+        bake_camo(out, NAME)
+    bpy.ops.wm.save_as_mainfile(filepath=f"{out}/{NAME}.blend")
     tur.animation_data_clear()
     tur.rotation_euler = (0, 0, 0)
     scn = bpy.context.scene
@@ -744,4 +806,4 @@ if __name__ == "__main__":
     )
     for frame, name, kw in views:
         scn.frame_set(frame)
-        render(f"{out}/IRAD_3Khordad_TELAR_{name}.png", **kw)
+        render(f"{out}/{NAME}_{name}.png", **kw)

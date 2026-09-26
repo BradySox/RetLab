@@ -2,7 +2,8 @@
 
 **For:** a local agent on the DM's Windows PC, with DCS installed and the mod folders readable.
 **From:** a cloud session (2026-09-25/26) that had no DCS. It built the Retribution side and
-nine of the eleven 3D models. You build the DCS mod, export the models, and fly-check it.
+all eleven 3D models as scripts. You bake and export the models, build the DCS mod, and
+fly-check it.
 **Read first:** [`retlab-iran-air-defense-pack-notes.md`](retlab-iran-air-defense-pack-notes.md)
 — the unit contract (§1), the research and best-estimate numbers (§3), the models (§4).
 
@@ -11,7 +12,7 @@ nine of the eleven 3D models. You build the DCS mod, export the models, and fly-
 | Thing | Where it lives | Done? |
 |---|---|---|
 | Retribution side (unit types, layouts, Skynet, factions, toggle, tests) | the RetLab repo, branch `claude/iran-dcs-asset-priority-4w0920` (PR #1083) | **Done** |
-| 3D models (Blender source, textures) | the same branch, `mods/iran_air_defense/models/` | **9 of 11 built** |
+| 3D models (Blender scripts; 4 baked) | the same branch, `mods/iran_air_defense/models/` | **Built; bake locally** (step 3b) |
 | The DCS mod (vehicles, radars, missiles, exported shapes) | `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` on the DM's PC | **Your job** |
 | Research numbers | design note §3 | Done |
 
@@ -79,7 +80,7 @@ The Matla ul-Fajr and Rasool take a truck's (the 1L13 is a static site with no e
 sounds come with the missile definition.
 
 **Wrecks:** the models have no destroyed shape. Point each unit's destroyed shape at the
-vanilla unit it borrows from.
+vanilla unit it borrows from. Our own wrecks come after v1 works (DM call 2026-09-26).
 
 **Phase A check:** in the Mission Editor, place one of each under Iran. Every unit appears,
 and `dcs.log` has no error naming `IRAD_`. Then place a 3rd Khordad site (SR + TELAR + 2 TELs)
@@ -93,9 +94,13 @@ it. Each site should engage.
    The `.blend` files are Blender 5.0. **Check which Blender versions the exporter supports.**
    If it needs an older Blender, a 5.0 file may not open there: rebuild the model in that
    version from its `.py` (the model README has the command), or tell the DM.
-2. Read `mods/iran_air_defense/models/README.md`, section *What the exporter needs to know*.
-   It names every animated empty and what it means.
-3. For each row below: open the `.blend`, export it to `.edm` into the mod's `Shapes`
+2. **Rebuild all eleven models** with the loop in `mods/iran_air_defense/models/README.md`,
+   section *Rebuild* (a few minutes each). Only four are baked in the repo, and only the
+   command post has the wheel animations. Check each preview PNG against the renders in
+   `renders/`.
+3. Read the same README, section *What the exporter needs to know*. It names every
+   animated empty and what it means.
+4. For each row below: open the `.blend`, export it to `.edm` into the mod's `Shapes`
    folder, copy its texture (if any) into the mod's `Textures` folder, bind the empties to the
    argument numbers you wrote down in step 2, and point the unit's `Database` lua at the new
    shape instead of the borrowed one.
@@ -111,13 +116,17 @@ it. Each site should engage.
 | `IRAD_MatlaUlFajr_EWR.blend` | `IRAD_MatlaUlFajr_EWR` | `IRAD_MatlaUlFajr_EWR_camo.png` | `arg_mast_extend`; `arg_antenna_azimuth` (1L13 rotation) |
 | `IRAD_Rasool_Comms.blend` | `IRAD_Rasool_Comms` | none (flat paint) | `arg_mast_extend` |
 | `IRAD_3Khordad_TELAR.blend` | `IRAD_3Khordad_TELAR` | `IRAD_3Khordad_TELAR_camo.png` | `arg_turret_azimuth` (9A310 turret); `arg_launcher_elevation` + ram (9A310 elevation) |
+| `IRAD_AlamAlHoda_TEL.blend` | `IRAD_AlamAlHoda_TEL` | `IRAD_AlamAlHoda_TEL_camo.png` | `arg_turret_azimuth`; `arg_launcher_elevation` + ram (the Buk launcher's) |
+| `IRAD_Bashir_SR.blend` | `IRAD_Bashir_SR` | `IRAD_Bashir_SR_camo.png` | `arg_antenna_azimuth` (9S18M1 rotation) |
 
-Every animation runs over frames 0–100. `LAUNCH_n` empties are the missile launch points
-(local +Z out of the muzzle); `collision_shell` is the hit box and is not rendered.
-**Not built:** `IRAD_Bashir_SR` and `IRAD_AlamAlHoda_TEL` keep their borrowed shapes.
+Every model also has `wheel_spin_<n>` empties (bind to the vanilla truck's wheel-rotation
+argument) and `wheel_steer_<n>` on the front axles (its steering argument). Every animation
+runs over frames 0–100. `LAUNCH_n` empties are the missile launch points (local +Z out of
+the muzzle); `collision_shell` is the hit box and is not rendered.
 
 **Model check,** per model, in the Model Viewer: every argument moves the right part without
-clipping; launchers fire from each `LAUNCH_n`; the texture shows (not pink or white).
+clipping; the wheels turn and the front axles steer; launchers fire from each `LAUNCH_n`;
+the texture shows (not pink or white).
 
 ### 4. Build Phase B: the real missiles (2–4 h)
 
@@ -177,5 +186,5 @@ fail signatures. If a launcher model faces backwards, add `reversed_heading: tru
 
 ## Not in scope
 
-15th Khordad, an Iran 2026 faction, far-view LODs, and the Bashir SR and Alam al-Hoda TEL
-models (no reference photographs yet). See design note §4 and §5.
+15th Khordad, an Iran 2026 faction, far-view LODs, and our own wreck models (after v1). See
+design note §5.
