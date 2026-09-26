@@ -105,3 +105,23 @@ class IRAD_Bavar373_TELAR(unittype.VehicleType):
     threat_range = 200000
     air_weapon_dist = 200000
     eplrs = True
+
+
+@vehiclemod
+class IRAD_MatlaUlFajr_EWR(unittype.VehicleType):
+    id = "IRAD_MatlaUlFajr_EWR"
+    name = "[IRAD] Matla ul-Fajr EWR"
+    detection_range = 250000
+    threat_range = 0
+    air_weapon_dist = 0
+    eplrs = True
+
+
+@vehiclemod
+class IRAD_Rasool_Comms(unittype.VehicleType):
+    id = "IRAD_Rasool_Comms"
+    name = "[IRAD] Rasool Comms Shelter"
+    detection_range = 0
+    threat_range = 0
+    air_weapon_dist = 0
+    eplrs = True

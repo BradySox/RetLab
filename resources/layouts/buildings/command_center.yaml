@@ -29,6 +29,7 @@ groups:
         - ZIL-131 KUNG
         - fire_control
         - Predator GCS
+        - IRAD_Rasool_Comms
     - name: CommandCenter Power
       optional: true
       unit_count:

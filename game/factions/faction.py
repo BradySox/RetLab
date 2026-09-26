@@ -952,6 +952,8 @@ class Faction:
             self.remove_vehicle("IRAD_Bavar373_LN")
             self.remove_vehicle("IRAD_Bavar373_LN_4B")
             self.remove_vehicle("IRAD_Bavar373_TELAR")
+            self.remove_vehicle("IRAD_MatlaUlFajr_EWR")
+            self.remove_vehicle("IRAD_Rasool_Comms")
             self.remove_preset("3rd Khordad")
             self.remove_preset("Bavar-373")
             self.remove_preset("Bavar-373-II")

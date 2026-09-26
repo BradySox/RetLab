@@ -1,0 +1,9 @@
+class: CommandPost
+description: "The Rasool communications shelter links Iranian radars, SAM batteries and fighters by microwave, fiber and VHF/UHF radio; the Fakour command system is built from the same sections."
+introduced: 2014
+manufacturer: Iran Electronics Industries
+origin: Iran
+price: 8
+role: Command / Communications Shelter
+variants:
+  "[IRAD] Rasool Comms Shelter": {}

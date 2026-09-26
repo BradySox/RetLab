@@ -27,7 +27,7 @@ and every change is reviewable as text.
 | Hafez AR | 2026-09-26, matched to an Iranian infographic render | ~19.8k |
 | Bavar-373-II TELAR | 2026-09-26, matched to a photograph | ~26.4k |
 | Bavar-373 CP | 2026-09-26, matched to a parade photograph | ~13.3k |
-| 3rd Khordad TELAR, Alam al-Hoda TEL, Bashir SR | Not yet | |
+| 3rd Khordad TELAR, Alam al-Hoda TEL, Bashir SR, Matla ul-Fajr EWR, Rasool comms shelter | Not yet | |
 
 Proportions are matched to photographs and reference renders the DM supplied. A photograph
 wins where they disagree. None are stored here (third-party images).

@@ -449,6 +449,15 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},
+	-- RetLab Iran Air Defense Pack
+	['Matla ul-Fajr'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['IRAD_MatlaUlFajr_EWR'] = {
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
 	['Dog Ear'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {

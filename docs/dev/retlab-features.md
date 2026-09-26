@@ -10963,7 +10963,10 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   pair, and never zero), 4 radar-less TELs.
 - `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, with the §85 support section.
 - Skynet: `samTypesDB['3rd Khordad']` and `samTypesDB['Bavar-373']`; the Bavar-373 CP is
-  `required`, as the S-300's is.
+  `required`, as the S-300's is. `['Matla ul-Fajr']` is an `ewr` entry.
+- `IRAD_MatlaUlFajr_EWR` and `IRAD_Rasool_Comms` join the Iran factions' air-defense units. The
+  Rasool is whitelisted in the C2 van slot of the comms, command-center and EWR layouts, so an
+  Iranian Skynet connection node or command center fields one.
 
 ### Gotchas
 

@@ -27,6 +27,7 @@ groups:
         - ZIL-131 KUNG
         - Ural-375 PBU
         - FPS-117 ECS
+        - IRAD_Rasool_Comms
     - name: Early-Warning Radar Power
       optional: true
       unit_count:

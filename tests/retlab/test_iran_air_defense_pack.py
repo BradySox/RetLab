@@ -59,8 +59,8 @@ def _irad_units(faction: Faction) -> set[str]:
     }
 
 
-def test_the_contract_has_ten_units() -> None:
-    assert len(IRAD_IDS) == 10
+def test_the_contract_has_twelve_units() -> None:
+    assert len(IRAD_IDS) == 12
 
 
 @pytest.mark.parametrize("unit_id", sorted(IRAD_IDS))
@@ -104,7 +104,9 @@ def test_3rd_khordad_battery_always_has_a_telar() -> None:
 
 def test_skynet_knows_every_unit() -> None:
     source = SKYNET.read_text(encoding="utf-8")
-    missing = sorted(uid for uid in IRAD_IDS if f"['{uid}']" not in source)
+    # The comms shelter is a Skynet connection node by group, not a SAM type.
+    radars = IRAD_IDS - {"IRAD_Rasool_Comms"}
+    missing = sorted(uid for uid in radars if f"['{uid}']" not in source)
     assert missing == []
 
 
@@ -116,3 +118,19 @@ def test_bavar_ii_launchers_are_the_telars() -> None:
     for slot in ("S-300 Site LN1", "S-300 Site LN2"):
         assert groups[slot].unit_types == [irad.IRAD_Bavar373_TELAR]
     assert groups["S-300 Site TR"].unit_count == [1]
+
+
+@pytest.mark.parametrize(
+    "layout_name,slot",
+    [
+        ("comms", "comms1 C2"),
+        ("command_center", "CommandCenter C2"),
+        ("Early-Warning Radar", "Early-Warning Radar C2"),
+    ],
+)
+def test_rasool_is_an_iranian_c2_van(layout_name: str, slot: str) -> None:
+    """The Rasool shelter fills the C2 van slot at comms, command and EWR sites, so a
+    Skynet connection node or command center in an Iranian network is a Rasool."""
+    layout = LAYOUTS.by_name(layout_name)
+    groups = {ug.name: ug for ug in layout.all_unit_groups}
+    assert irad.IRAD_Rasool_Comms in groups[slot].unit_types

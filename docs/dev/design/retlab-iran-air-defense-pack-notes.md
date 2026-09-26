@@ -29,6 +29,8 @@ values in meters because pydcs requires it.
 | `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 81 NM |
 | `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 108 NM |
 | `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | TELAR | 65 NM | 108 NM |
+| `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
+| `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
 
 `IRAD_` is the pack's prefix; `[IRAD]` marks the display names the way `[CH]` marks
 CurrentHill's.
@@ -120,6 +122,18 @@ listed pages; re-check before treating any as settled.
 | DCS analogue | — | **SA-12's 9A83**: a launcher with its own fire-control radar. Not the SA-20, whose launchers have none |
 
 Sources: armyrecognition.com (2025, Bavar 373-II), nna-leb.gov.lb (2025).
+
+### Matla ul-Fajr and the Rasool/Fakour network — added 2026-09-26 (DM call)
+
+| Item | Sources | Best estimate |
+|---|---|---|
+| Matla ul-Fajr | VHF early-warning radar: a Yagi array on a mast over a shelter truck; one deployed beside Fordow with two HAWK batteries at about 2 and 5 NM (satellite imagery, 2012) | **135 NM detection**, same band as the 1L13 |
+| Rasool | communications shelter linking radars, SAM batteries and fighters by microwave relay, fiber and VHF/UHF (Iranian press diagram) | a **Skynet connection node**: the C2 van at a comms site |
+| Fakour | command system built from operations, communications and relay sections (Iranian press diagram) | the same shelter, in the command-center van slot |
+
+Both join the factions' `air_defense_units`. The Rasool fills the existing C2 van whitelists
+at comms, command-center and EWR sites, so a network node in an Iranian IADS is one; the
+faction access-gating keeps it off every other nation.
 
 ### In the 2026 war
 

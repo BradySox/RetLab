@@ -265,6 +265,7 @@ UNITS_WITH_RADAR = {
     irad.IRAD_Hafez_SR,
     irad.IRAD_Bavar373_STR,
     irad.IRAD_Bavar373_TELAR,
+    irad.IRAD_MatlaUlFajr_EWR,
     cmap.CH_LD3000,
     cmap.CH_LD3000_stationary,
     cmap.CH_PGZ95,
