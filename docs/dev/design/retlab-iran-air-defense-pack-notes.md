@@ -157,7 +157,8 @@ What the references settled, against the first spec-only draft:
 | Bavar-373 TEL | Built, ~30.5k triangles, animated erector, matched to the photograph, camo baked to a 4096 texture; renders in `renders/` |
 | Bavar-373 STR | Built, ~19.7k triangles, fold and azimuth animations, matched to a photograph and two renders |
 | Meraj-4 SR | Built, ~23.2k triangles, azimuth animation, plain khaki; a trailer radar deployed on four jacks |
-| The other five | Not yet |
+| Hafez AR | Built, ~19.8k triangles, fold and azimuth animations; a tall panel spinning on a drum turret, the Pantsir search-radar layout at truck scale, from the DEFA infographic |
+| The other four | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
