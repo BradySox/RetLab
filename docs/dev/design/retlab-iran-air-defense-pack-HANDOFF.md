@@ -83,7 +83,9 @@ it. Each site should engage.
 
 1. Find out whether this PC has a DCS EDM exporter for Blender or 3ds Max. **If it has
    neither, stop here and tell the DM** — nothing else in this step can happen without one.
-   The `.blend` files are Blender 5.0.
+   The `.blend` files are Blender 5.0. **Check which Blender versions the exporter supports.**
+   If it needs an older Blender, a 5.0 file may not open there: rebuild the model in that
+   version from its `.py` (the model README has the command), or tell the DM.
 2. Read `mods/iran_air_defense/models/README.md`, section *What the exporter needs to know*.
    It names every animated empty and what it means.
 3. For each row below: open the `.blend`, export it to `.edm` into the mod's `Shapes`
