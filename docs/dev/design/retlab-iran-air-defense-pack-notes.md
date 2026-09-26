@@ -174,6 +174,8 @@ What the references settled, against the first spec-only draft:
 | Hafez AR | Built, ~19.8k triangles, fold and azimuth animations; a tall panel spinning on a drum turret, the Pantsir search-radar layout at truck scale, from the DEFA infographic |
 | Bavar-373-II TELAR | Built, ~26.4k triangles; telescopic mast with a dish, hourglass erector, one ram; matched to a photograph |
 | Bavar-373 CP | Built, ~13.3k triangles; a 6x6 with one long shelter; matched to a parade photograph |
+| Matla ul-Fajr EWR | Built, ~16.8k triangles; Yagi boom on a telescopic mast, long shelter on a semi-trailer, woodland camouflage |
+| Rasool comms shelter | Built, ~10.1k triangles; white-cab 4x4, olive shelter, telescopic rear mast |
 | The 3rd Khordad TELAR, Alam al-Hoda TEL and Bashir SR | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.

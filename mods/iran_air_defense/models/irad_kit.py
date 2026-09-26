@@ -26,6 +26,15 @@ def mat(name, rgb, rough=0.8, metal=0.0):
     return m
 
 
+# The camouflage palette: a model script may replace it before building (the Matla ul-Fajr
+# is woodland). Linear RGB.
+CAMO = {
+    "base": (0.62, 0.50, 0.32),
+    "cloud": (0.66, 0.33, 0.13),
+    "mark": (0.03, 0.03, 0.03),
+}
+
+
 def camo():
     """Bavar-373 camouflage as photographed: sand base, soft orange clouds and small
     black three-bladed splinter marks.
@@ -66,8 +75,8 @@ def camo():
     L.new(cloud.outputs["Fac"], cramp.inputs["Fac"])
     base = N.new("ShaderNodeMix")
     base.data_type = "RGBA"
-    base.inputs[6].default_value = (0.62, 0.50, 0.32, 1)  # sand
-    base.inputs[7].default_value = (0.66, 0.33, 0.13, 1)  # orange
+    base.inputs[6].default_value = (*CAMO["base"], 1)
+    base.inputs[7].default_value = (*CAMO["cloud"], 1)
     L.new(cramp.outputs["Color"], base.inputs[0])
     # splinter marks: a three-lobed shape around each Voronoi feature point
     SCALE = 1.0
@@ -100,7 +109,7 @@ def camo():
     mark = math("MULTIPLY", inside, keep)
     final = N.new("ShaderNodeMix")
     final.data_type = "RGBA"
-    final.inputs[7].default_value = (0.03, 0.03, 0.03, 1)
+    final.inputs[7].default_value = (*CAMO["mark"], 1)
     L.new(mark, final.inputs[0])
     L.new(base.outputs[2], final.inputs[6])
     L.new(final.outputs[2], bsdf.inputs["Base Color"])
