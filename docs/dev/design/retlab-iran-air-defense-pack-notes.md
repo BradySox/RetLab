@@ -30,10 +30,12 @@ values in meters because pydcs requires it.
 | `IRAD_Bavar373_STR` | `[IRAD] Bavar-373 STR` | TrackRadar | 108 NM | — |
 | `IRAD_Bavar373_CP` | `[IRAD] Bavar-373 CP` | CommandPost | — | — |
 | `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 81 NM |
-| `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 108 NM |
-| `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | TELAR | 65 NM | 108 NM |
+| `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 86 NM |
+| `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | TELAR | 65 NM | 51 NM |
 | `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
 | `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
+
+A launcher's threat is the range it fires at, capped inside the lock range (85 % of detection) of the radar that guides it: fired from the radar's edge, every Sayyad flew unguided (tests 42 and 44, 2026-09-26). So the Bavar-373-II TELAR, guided by its own 65 NM radar, threatens 51 NM; the 4B TEL, guided by the STR, 86 NM; the missile's 108 NM stays its flight limit.
 
 `IRAD_` is the pack's prefix; `[IRAD]` marks the display names the way `[CH]` marks
 CurrentHill's.

@@ -8687,3 +8687,10 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   straight up (~90,000 ft at 20 s, 1.5-7 NM downrange) to ~328,000 ft: no guidance command at all.
   The 4B is now **command-guided** in the pack, like the Sayyad-4 and ED's S-300 (DM call);
   unflown. A Sayyad that climbs vertically without turning = no guidance, not too much motor.
+- **Test 44 (2026-09-26, Tacview):** command-guided, the 4B failed the same way: 24 launches, each
+  dead in 6-26 s. Root cause, measured: every Sayyad salvo in tests 42 and 44 began with the target
+  at **118 km**, the TELAR radar's 120 km edge and beyond its ~102 km lock, so no missile was ever
+  guided. Fixed: firing range capped inside the guiding radar's lock (TELAR 95 km, 4B TEL 160 km);
+  RetLab's pydcs threat ranges lowered to match (51 / 86 NM). Unflown.
+- **Fail signature:** a salvo that starts right at a radar's detection edge, one missile every few
+  seconds, each dying early = the launcher fires beyond what its radar can lock.
