@@ -1,0 +1,8 @@
+class: Launcher
+description: "Bavar-373 is Iran's domestic long-range SAM system, firing the Sayyad-4 and Sayyad-4B missiles from vertical canisters. It fills the role of the S-300PS."
+introduced: 2019
+manufacturer: Iran Aerospace Industries Organization
+origin: Iran
+price: 20
+variants:
+  "[IRAD] Bavar-373 TEL (Sayyad-4)": {}

@@ -480,6 +480,7 @@ def test_ewr_c2_slot_is_a_whitelist_not_a_class() -> None:
         "ZIL-131 KUNG",
         "Ural-375 PBU",
         "FPS-117 ECS",
+        "IRAD_Rasool_Comms",
     }
 
 
@@ -493,6 +494,8 @@ EWR_KIT_BY_FACTION = {
     "Blufor Late Cold War (80s)": ({"FPS-117 ECS"}, {"ZIL-131 KUNG", "generator_5i57"}),
     "NATO Desert Storm": ({"FPS-117 ECS"}, {"ZIL-131 KUNG", "generator_5i57"}),
     "USA 2020": ({"FPS-117 ECS"}, {"ZIL-131 KUNG", "generator_5i57"}),
+    # Iran: the Rasool shelter (Iran Air Defense Pack), never the FPS-117 shelter.
+    "[CH] Iran 2020": ({"IRAD_Rasool_Comms"}, {"FPS-117 ECS"}),
 }
 
 
@@ -690,7 +693,7 @@ def test_western_factions_reach_their_c2_kit() -> None:
 
 @pytest.mark.parametrize(
     "layout_name",
-    ["S-300 Site", "S-300 Site (Single Radar)", "HQ-22 Battery"],
+    ["S-300 Site", "S-300 Site (Single Radar)", "HQ-22 Battery", "Bavar-373 Battery"],
 )
 def test_textbook_configuration_is_the_only_configuration(layout_name: str) -> None:
     """DM call 2026-08-04: the textbook SA-10 site IS the configuration -- the

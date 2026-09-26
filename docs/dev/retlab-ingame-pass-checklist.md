@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-85 rows need a live pass. Full detail is under each `###` heading below —
+86 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -454,6 +454,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
 | B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
+| B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8636,3 +8637,17 @@ starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT.
 - **Fail signatures:** the TARCAP still starts before the join (the gate off, or the setting
   missing from the suite); a TARCAP that takes off so late it never reaches station before the
   package splits.
+
+### B148 — A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage · §105 · ☐ UNTESTED
+
+Repo side built 2026-09-25; the mod itself is built on the DM's machine from the handoff in
+`docs/dev/design/retlab-iran-air-defense-pack-notes.md`. Unit-tested on the Python side only.
+- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
+  and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
+- **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
+  and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
+  Sayyad-4B launcher); a HARM on one TELAR or one STR leaves the site still able to fire.
+- **Fail signatures:** a vehicle missing from the site (a type id that does not match the
+  mod); `dcs.log` naming an `IRAD_` type as unknown; a site that never goes live (Skynet
+  entry not matched); Alam al-Hoda TELs that never fire while the TELAR is alive; a launcher
+  model facing backwards (needs `reversed_heading`).

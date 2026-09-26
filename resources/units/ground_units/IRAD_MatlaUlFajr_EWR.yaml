@@ -1,0 +1,8 @@
+class: EarlyWarningRadar
+description: "Matla ul-Fajr is an Iranian VHF early-warning radar: a Yagi array on a mast over a shelter truck, feeding the national air-defense network."
+introduced: 2008
+manufacturer: Iran Electronics Industries
+origin: Iran
+price: 30
+variants:
+  "[IRAD] Matla ul-Fajr EWR": {}

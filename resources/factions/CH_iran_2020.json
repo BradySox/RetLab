@@ -72,6 +72,9 @@
     "SA-11",
     "Rapier",
     "SA-17",
+    "3rd Khordad",
+    "Bavar-373",
+    "Bavar-373-II",
     "KS-19/SON-9",
     "Silkworm"
   ],
@@ -86,6 +89,8 @@
   "air_defense_units": [
     "EWR 1L13",
     "EWR 55G6",
+    "[IRAD] Matla ul-Fajr EWR",
+    "[IRAD] Rasool Comms Shelter",
     "SAM P19 \"Flat Face\" SR (SA-2/3)",
     "SAM Hawk SR (AN/MPQ-50)",
     "SA-15 Tor",
@@ -96,7 +101,8 @@
   ],
   "helicopter_carrier_names": [],
   "requirements": {
-    "CurrentHill Iran Asset Pack": "https://www.currenthill.com/iran"
+    "CurrentHill Iran Asset Pack": "https://www.currenthill.com/iran",
+    "RetLab Iran Air Defense Pack": "https://github.com/BradySox/RetLab/blob/main/docs/dev/design/retlab-iran-air-defense-pack-notes.md"
   },
   "carrier_names": [],
   "has_jtac": true,

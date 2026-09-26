@@ -884,6 +884,14 @@ FEATURES: tuple[Feature, ...] = (
         "Runway queue at busy fields",
         104,
     ),
+    Feature(
+        # Gated by the ModSettings/New Game `iranairdefensepack` toggle (a wizard
+        # field, not a Settings field). The mod itself is built outside the repo;
+        # docs/dev/design/retlab-iran-air-defense-pack-notes.md holds the contract.
+        "iran_air_defense_pack",
+        "RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373)",
+        105,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

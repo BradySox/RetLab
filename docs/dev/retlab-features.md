@@ -10943,3 +10943,49 @@ midnight case in `tests/missiongenerator/test_dtc.py`.
 - Per-field runway rates; landing traffic.
 
 In-game row **B145**. Upstreaming queue item 42.
+
+## §105 — RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373)
+
+Retribution support for a RetLab-authored DCS mod carrying Iran's two SAM systems. The repo
+side is built; the mod is built on the DM's machine. Design, the unit contract and the research:
+`docs/dev/design/retlab-iran-air-defense-pack-notes.md`. The build instructions for the mod:
+`docs/dev/design/retlab-iran-air-defense-pack-HANDOFF.md`. Built 2026-09-25, not flown.
+
+- `pydcs_extensions/iranairdefensepack/`: nine `IRAD_` vehicle types. Their ids are the
+  contract with the mod's `Database` lua.
+- Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
+  `Faction.apply_mod_settings` strips all nine and both presets when it is off.
+- Presets `3rd Khordad` (MERAD), `Bavar-373` and `Bavar-373-II` (LORAD). `[CH] Iran 2020` fields
+  all three; `Iran 2015` fields 3rd Khordad only.
+- `Bavar-373-II Battery (Single Radar)`: six TELARs with their own radars and one STR; the
+  TELARs are the redundancy, so the STR is not doubled.
+- `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60
+  pair, and never zero), 4 radar-less TELs.
+- `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, with the §85 support section.
+- Skynet: `samTypesDB['3rd Khordad']` and `samTypesDB['Bavar-373']`; the Bavar-373 CP is
+  `required`, as the S-300's is. `['Matla ul-Fajr']` is an `ewr` entry.
+- `IRAD_MatlaUlFajr_EWR` and `IRAD_Rasool_Comms` join the Iran factions' air-defense units. The
+  Rasool is whitelisted in the C2 van slot of the comms, command-center and EWR layouts, so an
+  Iranian Skynet connection node or command center fields one.
+
+### Gotchas
+
+- Ranges are conservative best estimates, well under Iranian claims. If the mod's missiles
+  do something else, update the pydcs values to match the mod.
+- A launcher model's facing is unknown until flown; `reversed_heading` may be needed.
+
+### Tests
+
+`tests/retlab/test_iran_air_defense_pack.py` (16), plus both layouts in
+`tests/armedforces/test_sam_radar_redundancy.py` and `test_sam_support_vehicles.py`.
+
+### Deferred
+
+- 15th Khordad; an Iran 2026 faction; far-view LODs for the models.
+- The DCS mod and its 3D models are a separate pack, like HDS and CurrentHill, in the
+  private repo `BradySox/RetLab-Iran-Air-Defense` (DM call 2026-09-25; not public yet). All
+  eleven models are built there by script, baked in Blender 5.1 and exported, each with
+  its own wreck; the Taer-2B, Sayyad-4 and Sayyad-4B are defined at the §3 numbers.
+  This repo carries only the Retribution side.
+
+In-game row **B148**.

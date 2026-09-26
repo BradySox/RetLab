@@ -1,0 +1,22 @@
+name: Bavar-373
+tasks:
+  - LORAD
+units:
+  - "[IRAD] Bavar-373 Meraj-4 SR"
+  - "[IRAD] Bavar-373 Hafez AR"
+  - "[IRAD] Bavar-373 STR"
+  - "[IRAD] Bavar-373 CP"
+  - "[IRAD] Bavar-373 TEL (Sayyad-4)"
+  - "[IRAD] Bavar-373 TEL (Sayyad-4B)"
+  # RetLab: battery support section
+  - Truck GAZ-66
+  - Truck Ural-375
+  - Truck KAMAZ 43101
+  - Refueler ATZ-5
+  - Refueler ATZ-60 (MAZ-7410)
+  - Refueler TZ-22 (KrAZ-258B1)
+  - Refueler ATMZ-5
+  - Refueler ATZ-10
+  - Diesel Power Station 5I57A
+layouts:
+  - Bavar-373 Battery
