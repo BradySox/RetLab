@@ -8668,4 +8668,10 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   the Matla ul-Fajrs as EWRs; zero errors name the pack. DCS screenshots then caught two pack
   bugs, both fixed in the pack the same day: the Meraj-4's array hit box exported as a black
   slab, and both Buk-family turrets spawned facing aft (a copied vanilla `reference_angle_Y`).
-  Still owed: an engagement at range, and the HARM-on-one-radar check.
+- **Test 41 (2026-09-26, Tacview):** the 3rd Khordad site **engaged and killed**: 11 Taer-2B
+  at F-14B BARCAPs, 5 kills (each missile ending ~500 m from an F-14 in the second it died);
+  the 4 earliest shots, near the 27 NM limit, flew 22-26 NM and fell short, as they should. No
+  pack unit died; no pack error in `dcs.log`. The Bavar-373-II fired nothing: no blue aircraft
+  came closer than 95 NM (inside the Sayyad-4B's 108 NM only at altitude; 43 NM low), so it is
+  **untested, not failed**.
+  Still owed: a Bavar-373 engagement (fly at it inside ~60 NM) and the HARM-on-one-radar check.
