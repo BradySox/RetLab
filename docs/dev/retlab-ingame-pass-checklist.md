@@ -8674,4 +8674,23 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   pack unit died; no pack error in `dcs.log`. The Bavar-373-II fired nothing: no blue aircraft
   came closer than 95 NM (inside the Sayyad-4B's 108 NM only at altitude; 43 NM low), so it is
   **untested, not failed**.
-  Still owed: a Bavar-373 engagement (fly at it inside ~60 NM) and the HARM-on-one-radar check.
+- **Test 42 (2026-09-26, Tacview):** three 3rd Khordad batteries fired 19 Taer-2B, about 4
+  kills. The Bavar-373-II **engaged but failed**: 26 Sayyad-4B, one every 3 s, each dead within
+  6-14 s and 2.2 NM (the 14 s ones at motor burnout); the DEAD package then destroyed the site.
+  Cause: the 4B was declared a plain SAM with an active seeker and no lock range. Fixed in the
+  pack the same day (active-seeker fields, as HDS's working 40N6); **unflown**. No pack error in
+  `dcs.log`.
+  Still owed: a Bavar-373 engagement that reaches its target, and the HARM-on-one-radar check.
+- **Fail signature:** Sayyad missiles dying within ~15 s of launch, one after another = the
+  missile definition in the pack's `Database/irad_missiles.lua`, not the site.
+- **Test 43 (2026-09-26, Tacview):** with active-seeker fields and a loft, all 24 Sayyad-4B flew
+  straight up (~90,000 ft at 20 s, 1.5-7 NM downrange) to ~328,000 ft: no guidance command at all.
+  The 4B is now **command-guided** in the pack, like the Sayyad-4 and ED's S-300 (DM call);
+  unflown. A Sayyad that climbs vertically without turning = no guidance, not too much motor.
+- **Test 44 (2026-09-26, Tacview):** command-guided, the 4B failed the same way: 24 launches, each
+  dead in 6-26 s. Root cause, measured: every Sayyad salvo in tests 42 and 44 began with the target
+  at **118 km**, the TELAR radar's 120 km edge and beyond its ~102 km lock, so no missile was ever
+  guided. Fixed: firing range capped inside the guiding radar's lock (TELAR 95 km, 4B TEL 160 km);
+  RetLab's pydcs threat ranges lowered to match (51 / 86 NM). Unflown.
+- **Fail signature:** a salvo that starts right at a radar's detection edge, one missile every few
+  seconds, each dying early = the launcher fires beyond what its radar can lock.
