@@ -74,6 +74,13 @@ Make `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` with an `entry.lua` 
 
 Display names come from design note §1, exactly.
 
+**Sounds:** copy each unit's sound entries from the same vanilla unit in the behaviour column.
+The Matla ul-Fajr and Rasool take a truck's (the 1L13 is a static site with no engine). Launch
+sounds come with the missile definition.
+
+**Wrecks:** the models have no destroyed shape. Point each unit's destroyed shape at the
+vanilla unit it borrows from.
+
 **Phase A check:** in the Mission Editor, place one of each under Iran. Every unit appears,
 and `dcs.log` has no error naming `IRAD_`. Then place a 3rd Khordad site (SR + TELAR + 2 TELs)
 and a Bavar-373 site (both SRs, CP, STR, 2 LNs), put an AI F-16 on a path through each, and run
