@@ -35,7 +35,7 @@ values in meters because pydcs requires it.
 | `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
 | `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
 
-A launcher's threat is the range it fires at, capped inside the lock range (85 % of detection) of the radar that guides it: fired from the radar's edge, every Sayyad flew unguided (tests 42 and 44, 2026-09-26). So the Bavar-373-II TELAR, guided by its own 65 NM radar, threatens 51 NM; the 4B TEL, guided by the STR, 86 NM; the missile's 108 NM stays its flight limit.
+A launcher's threat is the range it fires at, capped inside the lock range (85 % of detection) of the radar that guides it. The cap did not change where DCS launches (test 45: still 118 km against a closing target); the Sayyad failures in tests 42-45 were the TELAR radar having one target channel where ED's S-300 TR has six. So the Bavar-373-II TELAR, guided by its own 65 NM radar, threatens 51 NM; the 4B TEL, guided by the STR, 86 NM; the missile's 108 NM stays its flight limit.
 
 `IRAD_` is the pack's prefix; `[IRAD]` marks the display names the way `[CH]` marks
 CurrentHill's.

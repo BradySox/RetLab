@@ -8692,5 +8692,15 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   at **118 km**, the TELAR radar's 120 km edge and beyond its ~102 km lock, so no missile was ever
   guided. Fixed: firing range capped inside the guiding radar's lock (TELAR 95 km, 4B TEL 160 km);
   RetLab's pydcs threat ranges lowered to match (51 / 86 NM). Unflown.
-- **Fail signature:** a salvo that starts right at a radar's detection edge, one missile every few
-  seconds, each dying early = the launcher fires beyond what its radar can lock.
+- **Test 45 (2026-09-26, Tacview):** the range cap loaded (DCS started after the pack commit) and
+  changed nothing: the first salvo still began at 118 km, against an F-16 closing at ~800 km/h. So
+  test 44's cause was wrong. 24 Sayyad-4B from the TELARs; 18 died within 6-22 s, most at 6 s
+  while still vertical (~5,000 ft, 0 NM downrange); never more than ~2-3 alive at once. The 6 that
+  flew on went 54-65 NM and passed 7-18 km from F-16s; no hits. The 3rd Khordad sites fired 16
+  Taer-2B from 56 km inward and killed an F-16 of the DEAD flight.
+  Cause, found by diffing against ED's S-300 TR: the TELAR's mast radar had **one** target
+  channel (two missile slots); ED's has six. Fixed in the pack (five inherited tracker channels,
+  as the STR already had); unflown. The range cap stays.
+- **Fail signature:** a Sayyad salvo where missiles die ~6 s after launch, still vertical, with
+  only ~2 ever alive at once = the guiding radar is out of target channels
+  (`max_number_of_missiles_channels` and its tracker `WS` entries), not the missile or the range.
