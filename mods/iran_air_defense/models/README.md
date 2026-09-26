@@ -13,6 +13,7 @@ and every change is reviewable as text.
 | `bavar_cp.py` | Bavar-373 command post (`IRAD_Bavar373_CP`): a 6x6 with one long shelter, a door forward, an AC unit and rolled net aft; no moving parts |
 | `matla.py` | Matla ul-Fajr EWR (`IRAD_MatlaUlFajr_EWR`): a boom of eight Yagi pairs on a telescopic mast at the rear of a long corrugated shelter on a semi-trailer, a generator box on the neck; woodland camouflage |
 | `rasool.py` | Rasool comms shelter (`IRAD_Rasool_Comms`): a white-cab 4x4 with a pale sage shelter, roof omni antennas and a telescopic rear mast; flat paint |
+| `khordad.py` | 3rd Khordad TELAR (`IRAD_3Khordad_TELAR`): a 6x6 with a raked wedge cab and an equipment body, a turret with a wedge radar over the cab and three Taer-2 missiles on an elevating cradle; band camouflage |
 | `bavar_str.py` | Bavar-373 engagement radar (`IRAD_Bavar373_STR`): an 8x8 with a tilted planar array on a turntable and an equipment shelter aft |
 | `IRAD_*.blend` | The built models, textured |
 | `textures/IRAD_*_camo.png` | Each model's camouflage baked to one 4096x4096 texture shared by its painted parts |
@@ -31,7 +32,8 @@ and every change is reviewable as text.
 | Bavar-373 CP | 2026-09-26, matched to a parade photograph | ~22.0k |
 | Matla ul-Fajr EWR | 2026-09-26, matched to a photograph | ~28.8k |
 | Rasool comms shelter | 2026-09-26, matched to a photograph | ~18.3k |
-| 3rd Khordad TELAR, Alam al-Hoda TEL, Bashir SR | Not yet | |
+| 3rd Khordad TELAR | 2026-09-26, matched to two photographs | ~30.5k |
+| Alam al-Hoda TEL, Bashir SR | Not yet | |
 
 Proportions are matched to photographs and reference renders the DM supplied. A photograph
 wins where they disagree. None are stored here (third-party images).
@@ -54,14 +56,16 @@ shape check in about a minute).
 | Blender object | Meaning in DCS |
 |---|---|
 | `arg_launcher_elevation` (TEL, TELAR) | Empty; X rotation 0° travel to 90° erect over frames 0–100. Bind it to the launcher-elevation argument |
+| `arg_launcher_elevation` (3rd Khordad) | Empty; X rotation 15° travel rest to 65° over frames 0–100, the ram keyed with it |
+| `arg_turret_azimuth` (3rd Khordad) | Empty; frames 0–100 are one full turn of the turret, radar and launcher together |
 | `ln_ram_barrel_pivot±1`, `ln_ram_rod_slide±1` (TEL) | The two erector rams, keyed on the same 0–100 frames. Bind them to the same argument |
 | `arg_mast_extend` (TELAR, Matla ul-Fajr, Rasool) | `mast_sec0_slide` and up (three sections; four on the Rasool): frames 0–100 raise the mast from nested to full height, 24–26 ft of travel. Bind to a deploy argument |
-| `LAUNCH_1` … `LAUNCH_4` (TEL, TELAR) | Missile launch points; each empty's local +Z points out of the muzzle |
+| `LAUNCH_1` … `LAUNCH_4` (TEL, TELAR; `LAUNCH_1`–`3` on the 3rd Khordad) | Missile launch points; each empty's local +Z points out of the muzzle |
 | `arg_antenna_fold` (STR, Hafez) | Empty; frames 0–100 raise the array from stowed face-down over the cab to erect, 25° back |
 | `arg_antenna_azimuth` (STR, Hafez, Meraj-4, TELAR dish head, Matla ul-Fajr boom) | Empty; frames 0–100 are one full turn of the turret. Bind it to the radar's search/track rotation argument |
 | `collision_shell` | Hit box; not rendered |
 
-Paint: sand, soft orange clouds and black three-bladed splinter marks, baked on
+Paint: sand, soft orange clouds and black three-bladed splinter marks (the 3rd Khordad: sand with brown and olive bands), baked on
 smart-UV-projected parts (about 15–18 minutes on CPU per model). Each `.blend` reads its
 texture by a relative path. DCS takes PNG; convert to DDS if you want mipmaps. Other
 materials are flat colours (`irad_*`); the Meraj-4 is plain khaki throughout, so it needs no bake. No

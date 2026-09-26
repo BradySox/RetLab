@@ -594,12 +594,12 @@ def handrail(prefix, points, parent, height=1.0):
             )
 
 
-def iran_cab(prefix, root, front, width, cab_len, frame_h):
+def iran_cab(prefix, root, front, width, cab_len, frame_h, height=2.3):
     """The Bavar-373 TEL cab as photographed: rounded front corners, two-pane
     windscreen set high, body-coloured lower front with round lamps and a mesh
     grille, two red beacons, fold-down steps."""
     bottom = frame_h - 0.2
-    height = 2.3
+    k_h = height / 2.3
     top = bottom + height
     cy = front - cab_len / 2
     box(
@@ -619,7 +619,7 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
         0.03,
     )
     # windscreen high on the face, two panes with rounded corners, wipers parked on top
-    wz = bottom + 1.72
+    wz = bottom + height - 0.58
     for s in (-1, 1):
         box(
             prefix + f"_windscreen{s}",
@@ -637,7 +637,12 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
             root,
             0.04,
         )
-        dy, dz, dh, dw = front - cab_len * 0.3, bottom + 1.1, 1.7, cab_len * 0.48
+        dy, dz, dh, dw = (
+            front - cab_len * 0.3,
+            bottom + 1.1 * k_h,
+            1.7 * k_h,
+            cab_len * 0.48,
+        )
         for k, (sz, off) in enumerate(
             (
                 ((0.02, dw, 0.02), (0, 0, dh / 2)),
@@ -856,7 +861,15 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
 
 
 def iran_truck(
-    prefix, axle_ys, length, width=2.55, cab_len=2.4, frame_h=1.4, wheel_r=0.72
+    prefix,
+    axle_ys,
+    length,
+    width=2.55,
+    cab_len=2.4,
+    frame_h=1.4,
+    wheel_r=0.72,
+    cab_h=2.3,
+    cab=True,
 ):
     """Heavy truck on the given axle stations. Returns (root, deck_z, rear_y, cab_back_y)."""
     root = empty(prefix, (0, 0, 0))
@@ -870,7 +883,8 @@ def iran_truck(
         root,
         0.01,
     )
-    iran_cab(prefix, root, front, width, cab_len, frame_h)
+    if cab:
+        iran_cab(prefix, root, front, width, cab_len, frame_h, cab_h)
     for i, y in enumerate(axle_ys):
         box(
             prefix + f"_axle{i}",

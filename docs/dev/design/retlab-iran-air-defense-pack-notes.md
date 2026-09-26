@@ -176,7 +176,8 @@ What the references settled, against the first spec-only draft:
 | Bavar-373 CP | Built, ~22.0k triangles; a 6x6 with one tall shelter set back from the cab, the net rolled upright at the rear; matched to a parade photograph |
 | Matla ul-Fajr EWR | Built, ~28.8k triangles; Yagi boom on a telescopic mast, long shelter and a separate generator box on a semi-trailer, woodland camouflage |
 | Rasool comms shelter | Built, ~18.3k triangles; white-cab 4x4, pale sage framed shelter with the door open on its racks, telescopic rear mast |
-| The 3rd Khordad TELAR, Alam al-Hoda TEL and Bashir SR | Not yet |
+| 3rd Khordad TELAR | Built, ~30.5k triangles; a 6x6 with a raked wedge cab, a turret carrying the wedge radar over the cab and three Taer-2 on an elevating cradle, turret and elevation animations, band camouflage; matched to two photographs (parade and exhibition) |
+| Alam al-Hoda TEL and Bashir SR | Not yet |
 
 Every model after the TEL had a second and third pass (DM call 2026-09-26: they read lower
 quality than the TEL). Each pass compared the model against its reference and added what was
