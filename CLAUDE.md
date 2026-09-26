@@ -150,7 +150,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,
   and the pre-registered falsifier if AI attrition rises)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id
-  contract, the research and best-estimate numbers; **the mod is not built yet** — the local
+  contract, the research and best-estimate numbers; **the mod is its own private pack**, built but not yet loaded in DCS — the local
   build is `retlab-iran-air-defense-pack-HANDOFF.md`)
 - **Neutral factions** — `retlab-neutral-border-defense-notes.md` (**§98** — the engine
   verdict on why a true neutral cannot fire, the opposing-coalition clone mechanism, the
