@@ -10,6 +10,7 @@ and every change is reviewable as text.
 | `meraj.py` | Meraj-4 search radar (`IRAD_Meraj4_SR`): a slatted planar array with an IFF column on a tri-axle semi-trailer, deployed on four jacks; plain khaki |
 | `hafez.py` | Hafez search radar (`IRAD_Hafez_SR`): a tall flat panel spinning on a drum turret, on the engagement radar's 8x8 and shelter |
 | `bavar_telar.py` | Bavar-373-II TELAR (`IRAD_Bavar373_TELAR`): the TEL's 8x8 and towers plus a telescopic radar mast with a dish, an hourglass erector with one ram, a railed walkway |
+| `bavar_cp.py` | Bavar-373 command post (`IRAD_Bavar373_CP`): a 6x6 with one long shelter, a door forward, an AC unit and rolled net aft; no moving parts |
 | `bavar_str.py` | Bavar-373 engagement radar (`IRAD_Bavar373_STR`): an 8x8 with a tilted planar array on a turntable and an equipment shelter aft |
 | `IRAD_*.blend` | The built models, textured |
 | `textures/IRAD_*_camo.png` | Each model's camouflage baked to one 4096x4096 texture shared by its painted parts |
@@ -25,7 +26,8 @@ and every change is reviewable as text.
 | Meraj-4 SR | 2026-09-26, matched to two photographs and a render | ~23.2k |
 | Hafez AR | 2026-09-26, matched to an Iranian infographic render | ~19.8k |
 | Bavar-373-II TELAR | 2026-09-26, matched to a photograph | ~26.4k |
-| 3rd Khordad TELAR, Alam al-Hoda TEL, Bashir SR, Bavar-373 CP | Not yet | |
+| Bavar-373 CP | 2026-09-26, matched to a parade photograph | ~13.3k |
+| 3rd Khordad TELAR, Alam al-Hoda TEL, Bashir SR | Not yet | |
 
 Proportions are matched to photographs and reference renders the DM supplied. A photograph
 wins where they disagree. None are stored here (third-party images).

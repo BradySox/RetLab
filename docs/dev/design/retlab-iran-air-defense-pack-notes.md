@@ -159,7 +159,8 @@ What the references settled, against the first spec-only draft:
 | Meraj-4 SR | Built, ~23.2k triangles, azimuth animation, plain khaki; a trailer radar deployed on four jacks |
 | Hafez AR | Built, ~19.8k triangles, fold and azimuth animations; a tall panel spinning on a drum turret, the Pantsir search-radar layout at truck scale, from the DEFA infographic |
 | Bavar-373-II TELAR | Built, ~26.4k triangles; telescopic mast with a dish, hourglass erector, one ram; matched to a photograph |
-| The other four | Not yet |
+| Bavar-373 CP | Built, ~13.3k triangles; a 6x6 with one long shelter; matched to a parade photograph |
+| The 3rd Khordad TELAR, Alam al-Hoda TEL and Bashir SR | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
