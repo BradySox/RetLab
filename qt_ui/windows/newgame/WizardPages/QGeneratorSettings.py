@@ -169,9 +169,16 @@ class GeneratorOptions(QtWidgets.QWizardPage):
             "https://github.com/dcs-sams/HighDigitSAMs-Ultimate-Compilation"
         )
         self.registerField("high_digit_sams", self.high_digit_sams)
+        self.iranairdefensepack = QtWidgets.QCheckBox()
+        self.iranairdefensepack.setToolTip(
+            "Requires the RetLab Iran Air Defense Pack (3rd Khordad and "
+            "Bavar-373), v0.1 or newer."
+        )
+        self.registerField("iranairdefensepack", self.iranairdefensepack)
 
         ad_pairs = [
             ("High Digit SAMs — Ultimate Compilation (v1.4.3+)", self.high_digit_sams),
+            ("RetLab Iran Air Defense Pack (v0.1+)", self.iranairdefensepack),
         ]
 
         def group(title: str, pairs) -> QtWidgets.QGroupBox:
@@ -238,6 +245,7 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.f4e_expanded_weapons.setChecked(s.get("f4e_expanded_weapons", False))
         self.ea6b_prowler.setChecked(s.get("ea6b_prowler", False))
         self.high_digit_sams.setChecked(s.get("high_digit_sams", False))
+        self.iranairdefensepack.setChecked(s.get("iranairdefensepack", False))
         self.oh_6_vietnamassetpack.setChecked(s.get("oh_6_vietnamassetpack", False))
         self.ov10a_bronco.setChecked(s.get("ov10a_bronco", False))
         self.vietnamwarvessels.setChecked(s.get("vietnamwarvessels", False))

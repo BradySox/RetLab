@@ -1,0 +1,88 @@
+name: Bavar-373 Battery
+tasks:
+  - LORAD
+groups:
+  - S-300:
+    - name: S-300 Site SR1
+      unit_count:
+        - 1
+      unit_types:
+        - IRAD_Meraj4_SR
+    - name: S-300 Site SR2
+      unit_count:
+        - 1
+      unit_types:
+        - IRAD_Hafez_SR
+    - name: S-300 Site CP
+      unit_count:
+        - 1
+      unit_types:
+        - IRAD_Bavar373_CP
+    - name: S-300 Site TR
+      unit_count:
+        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+      unit_types:
+        - IRAD_Bavar373_STR
+    - name: S-300 Site LN1
+      unit_count:
+        - 3
+      unit_types:
+        - IRAD_Bavar373_LN
+    - name: S-300 Site LN2
+      unit_count:
+        - 3
+      unit_types:
+        - IRAD_Bavar373_LN_4B
+        - IRAD_Bavar373_LN
+    # RetLab: the battery support section -- the S-300 template's groups (§85),
+    # the same Soviet kit whitelist as the S-300 family.
+    - name: S-300 Site Logistics
+      optional: true
+      unit_count:
+        # RetLab: the textbook configuration is THE configuration (DM call
+        # 2026-08-04) -- fixed count, no bare-site roll
+        - 2
+      unit_types:
+        - GAZ-66
+        - KAMAZ Truck
+        - Ural-375
+    - name: S-300 Site Fuel
+      optional: true
+      fill: false
+      unit_count:
+        # RetLab: the textbook configuration is THE configuration (DM call
+        # 2026-08-04) -- fixed count, no bare-site roll
+        - 2
+      unit_types:
+        - ATZ-5
+        - ATZ-10
+        - ATMZ-5
+        - ATZ-60_Maz
+        - TZ-22_KrAZ
+    - name: S-300 Site Power
+      optional: true
+      fill: false
+      unit_count:
+        # RetLab: the textbook configuration is THE configuration (DM call
+        # 2026-08-04) -- fixed count, no bare-site roll
+        - 2
+      unit_types:
+        - generator_5i57
+  - PD:
+    - name: S-300 Site SHORAD1
+      optional: true
+      sub_task: PointDefense
+      unit_count:
+        - 0
+        - 2
+      unit_classes:
+        - SHORAD
+    - name: S-300 Site AAA
+      sub_task: AAA
+      optional: true
+      unit_count:
+        - 1
+        - 2
+      unit_classes:
+        - AAA
+layout_file: resources/layouts/anti_air/S-300_Site.miz

@@ -27,6 +27,7 @@ groups:
         - ZIL-131 KUNG
         - Ural-375 PBU
         - Predator TrojanSpirit
+        - IRAD_Rasool_Comms
     - name: comms1 Power
       optional: true
       unit_count:

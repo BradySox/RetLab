@@ -1,0 +1,8 @@
+class: TELAR
+description: "Bavar-373-II launcher, shown in 2025: the Bavar-373 TEL with its own radar on a mast, so each launcher can detect, track and engage without the battery's engagement radar."
+introduced: 2025
+manufacturer: Iran Aerospace Industries Organization
+origin: Iran
+price: 35
+variants:
+  "[IRAD] Bavar-373-II TELAR": {}

@@ -1,0 +1,14 @@
+class: SearchRadar
+description: "Bavar-373 is Iran's domestic long-range SAM system, firing the Sayyad-4 and Sayyad-4B missiles from vertical canisters. It fills the role of the S-300PS."
+introduced: 2019
+manufacturer: Iran Electronics Industries
+origin: Iran
+price: 30
+variants:
+  "[IRAD] Bavar-373 Hafez AR": {}
+skynet_properties:
+  can_engage_harm: true
+  go_live_range_in_percent: 100
+  harm_detection_chance: 90
+  engagement_zone: SkynetIADSAbstractRadarElement.GO_LIVE_WHEN_IN_KILL_ZONE
+  autonomous_behaviour: SkynetIADSAbstractRadarElement.AUTONOMOUS_STATE_DCS_AI

@@ -1,0 +1,8 @@
+class: SearchRadar
+description: "3rd Khordad (Sevom Khordad) is an Iranian medium-range SAM system of the Raad family, firing the Taer-2 missile. The TELAR carries its own fire-control radar and can engage alone."
+introduced: 2014
+manufacturer: Iran Electronics Industries
+origin: Iran
+price: 28
+variants:
+  "[IRAD] 3rd Khordad Bashir SR": {}

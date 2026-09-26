@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-85 rows need a live pass. Full detail is under each `###` heading below —
+86 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -454,6 +454,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
 | B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
+| B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8636,3 +8637,28 @@ starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT.
 - **Fail signatures:** the TARCAP still starts before the join (the gate off, or the setting
   missing from the suite); a TARCAP that takes off so late it never reaches station before the
   package splits.
+
+### B148 — A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage · §105 · ☐ UNTESTED
+
+Repo side built 2026-09-25. The mod is its own private pack (`BradySox/RetLab-Iran-Air-Defense`),
+built 2026-09-26: 12 units, 11 models with own wrecks, the three missiles. Never loaded in DCS;
+its `tools/check_entry.py` runs the Lua against stubs only.
+- **First load, before any flight (~10 min):** Mission Editor, place one of each `[IRAD]` unit.
+  Each shows its painted model (not pink or white) in the editor and the encyclopedia; set
+  one to red alert and watch the launcher erect, arrays raise, masts extend and radars turn;
+  drive a truck and watch the wheels turn forward and the front axle steer; destroy one and
+  get its burnt wreck, not a vanilla S-300 or Buk.
+- **First-load fail signatures and where the fix is:** a part moving backwards or the wrong
+  distance (the argument range in the pack's `Source/models/export_edm.py`); a Sayyad leaving
+  its canister sideways (the `LAUNCH_n` connector axis, same file); a pink or white model (a
+  texture missing from the pack's `Textures`); see-through or shadowless panels (the
+  material setting the exporter logged errors on).
+- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
+  and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
+- **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
+  and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
+  Sayyad-4B launcher); a HARM on one TELAR or one STR leaves the site still able to fire.
+- **Fail signatures:** a vehicle missing from the site (a type id that does not match the
+  mod); `dcs.log` naming an `IRAD_` type as unknown; a site that never goes live (Skynet
+  entry not matched); Alam al-Hoda TELs that never fire while the TELAR is alive; a launcher
+  model facing backwards (needs `reversed_heading`).

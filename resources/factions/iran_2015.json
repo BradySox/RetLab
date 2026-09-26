@@ -66,6 +66,7 @@
     "SA-11",
     "Rapier",
     "SA-17",
+    "3rd Khordad",
     "KS-19/SON-9",
     "Silkworm"
   ],
@@ -77,6 +78,8 @@
   ],
   "air_defense_units": [
     "EWR 1L13",
+    "[IRAD] Matla ul-Fajr EWR",
+    "[IRAD] Rasool Comms Shelter",
     "SA-15 Tor",
     "ZSU-57-2 'Sparka'",
     "ZU-23 on Ural-375",
@@ -84,7 +87,9 @@
     "ZSU-23-4 Shilka"
   ],
   "helicopter_carrier_names": [],
-  "requirements": {},
+  "requirements": {
+    "RetLab Iran Air Defense Pack": "https://github.com/BradySox/RetLab/blob/main/docs/dev/design/retlab-iran-air-defense-pack-notes.md"
+  },
   "carrier_names": [],
   "missiles": [
     "SSM SS-1C Scud-B"
