@@ -156,11 +156,16 @@ What the references settled, against the first spec-only draft:
 |---|---|
 | Bavar-373 TEL | Built, ~30.5k triangles, animated erector, matched to the photograph, camo baked to a 4096 texture; renders in `renders/` |
 | Bavar-373 STR | Built, ~19.7k triangles, fold and azimuth animations, matched to a photograph and two renders |
+| Meraj-4 SR | Built, ~23.2k triangles, azimuth animation, plain khaki; a trailer radar deployed on four jacks |
 | The other five | Not yet |
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
+
+- **The Meraj-4's towed travel fit.** A parade photograph shows the array turned lengthwise and folded
+  flat on the trailer behind a tractor. The model is deployed only: SAM sites do not move in
+  Retribution, and a fold without the real mechanism would read wrong.
 
 - **The Bavar-373-II TELAR's 3D model.** The unit, preset and layout are built (DM call 2026-09-25:
   a second version alongside the original, dated 2025). The photograph shows a dish on a tall
