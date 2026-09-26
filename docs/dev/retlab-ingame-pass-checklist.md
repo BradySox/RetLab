@@ -8638,7 +8638,7 @@ starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT.
   missing from the suite); a TARCAP that takes off so late it never reaches station before the
   package splits.
 
-### B148 — A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage · §105 · ☐ UNTESTED
+### B148 — A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage · §105 · ◐ PARTIAL (2026-09-26, dcs.log; was ☐ UNTESTED)
 
 Repo side built 2026-09-25. The mod is its own private pack (`BradySox/RetLab-Iran-Air-Defense`),
 built 2026-09-26: 12 units, 11 models with own wrecks, the three missiles. Never loaded in DCS;
@@ -8661,4 +8661,11 @@ its `tools/check_entry.py` runs the Lua against stubs only.
 - **Fail signatures:** a vehicle missing from the site (a type id that does not match the
   mod); `dcs.log` naming an `IRAD_` type as unknown; a site that never goes live (Skynet
   entry not matched); Alam al-Hoda TELs that never fire while the TELAR is alive; a launcher
-  model facing backwards (needs `reversed_heading`).
+  turret facing backwards (the pack's `reference_angle_Y`, not Retribution's `reversed_heading`).
+- **Result 2026-09-26 (partial, from a Retribution mission's `dcs.log`):** every unit spawned (a
+  3rd Khordad battery, a Bavar-373-II battery, 3 Matla ul-Fajr, 12 Rasool); Skynet took the
+  3rd Khordad as a SAM site, the Bavar-373-II as SAM-as-EWR (the S-300/Patriot treatment) and
+  the Matla ul-Fajrs as EWRs; zero errors name the pack. DCS screenshots then caught two pack
+  bugs, both fixed in the pack the same day: the Meraj-4's array hit box exported as a black
+  slab, and both Buk-family turrets spawned facing aft (a copied vanilla `reference_angle_Y`).
+  Still owed: an engagement at range, and the HARM-on-one-radar check.
