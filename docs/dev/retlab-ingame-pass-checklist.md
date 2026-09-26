@@ -8640,8 +8640,19 @@ starts no earlier than the package's first SEAD/SEAD Sweep/SEAD Escort/DEAD TOT.
 
 ### B148 — A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage · §105 · ☐ UNTESTED
 
-Repo side built 2026-09-25; the mod itself is built on the DM's machine from the handoff in
-`docs/dev/design/retlab-iran-air-defense-pack-notes.md`. Unit-tested on the Python side only.
+Repo side built 2026-09-25. The mod is its own private pack (`BradySox/RetLab-Iran-Air-Defense`),
+built 2026-09-26: 12 units, 11 models with own wrecks, the three missiles. Never loaded in DCS;
+its `tools/check_entry.py` runs the Lua against stubs only.
+- **First load, before any flight (~10 min):** Mission Editor, place one of each `[IRAD]` unit.
+  Each shows its painted model (not pink or white) in the editor and the encyclopedia; set
+  one to red alert and watch the launcher erect, arrays raise, masts extend and radars turn;
+  drive a truck and watch the wheels turn forward and the front axle steer; destroy one and
+  get its burnt wreck, not a vanilla S-300 or Buk.
+- **First-load fail signatures and where the fix is:** a part moving backwards or the wrong
+  distance (the argument range in the pack's `Source/models/export_edm.py`); a Sayyad leaving
+  its canister sideways (the `LAUNCH_n` connector axis, same file); a pink or white model (a
+  texture missing from the pack's `Textures`); see-through or shadowless panels (the
+  material setting the exporter logged errors on).
 - **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
   and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
