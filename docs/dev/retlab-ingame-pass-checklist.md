@@ -8683,3 +8683,7 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   Still owed: a Bavar-373 engagement that reaches its target, and the HARM-on-one-radar check.
 - **Fail signature:** Sayyad missiles dying within ~15 s of launch, one after another = the
   missile definition in the pack's `Database/irad_missiles.lua`, not the site.
+- **Test 43 (2026-09-26, Tacview):** with active-seeker fields and a loft, all 24 Sayyad-4B flew
+  straight up (~90,000 ft at 20 s, 1.5-7 NM downrange) to ~328,000 ft: no guidance command at all.
+  The 4B is now **command-guided** in the pack, like the Sayyad-4 and ED's S-300 (DM call);
+  unflown. A Sayyad that climbs vertically without turning = no guidance, not too much motor.

@@ -107,7 +107,7 @@ listed pages; re-check before treating any as settled.
 | Altitude | Sayyad-4 88,600 ft; 4B 105,000 ft (IR) | **88,600 / 98,400 ft** |
 | Min range / altitude | not published | **2.7 NM / 82 ft** (INF, S-300PS) |
 | Speed | Mach 5; 6–8 claimed (IR) | **Mach 5** |
-| Guidance | inertial + datalink midcourse, SARH/TVM terminal; 4B active seeker (IR/W) | Sayyad-4 **TVM-style**; 4B **active terminal** |
+| Guidance | inertial + datalink midcourse, SARH/TVM terminal; 4B active seeker (IR/W) | Sayyad-4 **TVM-style**; 4B active terminal in intent, **command-guided in the mod**: as an active seeker on the S-300-style vertical launcher it never took a guidance command (tests 42-43, 2026-09-26; DM call) |
 | Warhead | 400 lb (IR/W) | **400 lb** |
 | Missile size | 24.6 ft long, 20 in wide, 4,520 lb (IR/W) | as sourced, both missiles |
 | Reaction / setup | Meraj-4 emplaced in 30 min (IR) | **~12 s / ~5–30 min** (INF, S-300PS) |
