@@ -10984,7 +10984,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 - 15th Khordad; an Iran 2026 faction; far-view LODs for the models.
 - The DCS mod and its 3D models are a separate pack, like HDS and CurrentHill, in the
   private repo `BradySox/RetLab-Iran-Air-Defense` (DM call 2026-09-25; not public yet). All
-  eleven models are built there by script, baked in Blender 5.1 and exported. v1 borrows
-  the vanilla wreck shapes and missiles. This repo carries only the Retribution side.
+  eleven models are built there by script, baked in Blender 5.1 and exported, each with
+  its own wreck; the Taer-2B, Sayyad-4 and Sayyad-4B are defined at the §3 numbers.
+  This repo carries only the Retribution side.
 
 In-game row **B148**.

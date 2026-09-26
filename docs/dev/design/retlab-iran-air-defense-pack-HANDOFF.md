@@ -30,8 +30,12 @@ question. Only the type-id contract crosses between the two.
   arguments; the exporter reads frame F as argument F/100 - 1, so the scripts' 0-100 frames are
   resampled at export. The argument table is in the pack's model README.
 - Step 3, written but not yet run in DCS: all twelve units, own radar sensors at the §1
-  ranges, vanilla 5V55 and 9M38M1 missiles, vanilla wrecks, encyclopedia entries.
-- Not done: the Phase A check in DCS (start at step 3's *Phase A check*), step 4, steps 5-7.
+  ranges, encyclopedia entries.
+- Step 4, written but not yet flown: Taer-2B, Sayyad-4 and Sayyad-4B at the §3 numbers, on
+  ED's 9M38M1 and 48N6 flight models; each launcher fires its own.
+- Models: no tyre clips on any of the eleven, wheel arches cut, a weathered bake (contact
+  shadow, road dust, grime), and the pack's own wreck for every unit (not vanilla).
+- Not done: the Phase A check in DCS (start at step 3's *Phase A check*), steps 5-7.
 
 ## Hard rules
 

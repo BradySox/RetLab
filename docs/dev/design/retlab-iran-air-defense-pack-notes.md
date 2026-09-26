@@ -1,7 +1,8 @@
 # RetLab Iran Air Defense Pack — 3rd Khordad and Bavar-373 (§105)
 
-**Status (2026-09-25):** repo side BUILT, unit-tested. The DCS mod v0.1 is BUILT but not yet
-loaded in DCS: all twelve units and all eleven exported models, in the separate private repo
+**Status (2026-09-26):** repo side BUILT, unit-tested. The DCS mod v0.1 is BUILT but not yet
+loaded in DCS: all twelve units, all eleven models with their own wrecks, and the three
+missiles at the §3 numbers, in the separate private repo
 `BradySox/RetLab-Iran-Air-Defense` (DM call: its own pack, like HDS and CurrentHill; not public
 yet). Remaining steps are in
 [`retlab-iran-air-defense-pack-HANDOFF.md`](retlab-iran-air-defense-pack-HANDOFF.md).
@@ -193,8 +194,8 @@ from a shared kit, then the model's own details. The passes also corrected three
 - the Matla ul-Fajr's shelter ran over the generator box on the trailer neck.
 
 Every wheel spins and the front axles steer (`wheel_spin_*` and `wheel_steer_*` empties;
-both front axles on the 8x8s). None of the models has a destroyed shape yet: v1 borrows the
-vanilla unit's wreck (§5).
+both front axles on the 8x8s). Each model has its own wreck, exported from the same build:
+the travel pose burnt, moving parts frozen mid-move, fittings blown off.
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
