@@ -1,24 +1,25 @@
 # HANDOFF — build the RetLab Iran Air Defense Pack (3rd Khordad + Bavar-373)
 
 **For:** a local agent on the DM's Windows PC, with DCS installed and the mod folders readable.
-**From:** a cloud session (2026-09-25) that had no DCS. It built the Retribution side; you
-build the DCS mod and fly-check it.
+**From:** a cloud session (2026-09-25/26) that had no DCS. It built the Retribution side and
+nine of the eleven 3D models. You build the DCS mod, export the models, and fly-check it.
 **Read first:** [`retlab-iran-air-defense-pack-notes.md`](retlab-iran-air-defense-pack-notes.md)
-— the unit contract (§1), the research and best-estimate numbers (§3).
+— the unit contract (§1), the research and best-estimate numbers (§3), the models (§4).
 
 ## Who has what
 
 | Thing | Where it lives | Done? |
 |---|---|---|
-| Retribution side (unit types, layouts, Skynet, factions, toggle, tests) | the RetLab repo, branch `claude/iran-dcs-asset-priority-4w0920` | **Done** |
-| The DCS mod (vehicles, radars, missiles) | `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` on the DM's PC | **Your job** |
+| Retribution side (unit types, layouts, Skynet, factions, toggle, tests) | the RetLab repo, branch `claude/iran-dcs-asset-priority-4w0920` (PR #1083) | **Done** |
+| 3D models (Blender source, textures) | the same branch, `mods/iran_air_defense/models/` | **9 of 11 built** |
+| The DCS mod (vehicles, radars, missiles, exported shapes) | `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` on the DM's PC | **Your job** |
 | Research numbers | design note §3 | Done |
 
 The DCS install is `E:\DCS World`. The mod goes under **Saved Games**, not the install.
 
 ## Hard rules
 
-1. **The nine type ids in design note §1 are fixed.** Your `Database` lua must use them
+1. **The twelve type ids in design note §1 are fixed.** Your `Database` lua must use them
    character for character. If one must change, change it in the repo in the same commit
    (the pydcs extension, the unit yaml filename, the layouts, Skynet, `faction.py`, the test).
 2. **Never call `enableEmission`** in anything you write (a hard constraint in `CLAUDE.md`).
@@ -26,7 +27,9 @@ The DCS install is `E:\DCS World`. The mod goes under **Saved Games**, not the i
 4. **Licence check before copying.** Read the licence of any mod you use as a template (High
    Digit SAMs Ultimate Compilation, CurrentHill). Copying structure is fine; copying files is
    fine only if its licence allows it. If unclear, write the file fresh and say so.
-5. Commit messages and docs: plain style, no paid-campaign names (see `CLAUDE.md`).
+5. **Never hand-edit a `.blend` the scripts own.** Change the `.py` and rebuild (the model
+   README has the command). A hand edit is lost on the next rebuild.
+6. Commit messages and docs: plain style, no paid-campaign names (see `CLAUDE.md`).
 
 ## Steps
 
@@ -42,11 +45,12 @@ git pull
 
 1. In the DCS install, find the vanilla Buk and S-300PS definitions: search `E:\DCS World`
    for `SA-11 Buk LN 9A310M1` and `S-300PS 5P85D ln`. Note the files, the shape (3D model)
-   names, and the weapon names each launcher fires.
+   names, the weapon names each launcher fires, and the **animation argument numbers** for
+   launcher elevation, turret or antenna rotation, and mast deploy. Step 3b needs them.
 2. In `<Saved Games>\DCS\Mods\tech\`, open the High Digit SAMs Ultimate Compilation folder.
    Its `entry.lua` and `Database\*.lua` are the working example of a SAM mod that defines
    its own vehicles **and** its own missiles. Read its licence (rule 4).
-3. Write down the shape names you will borrow (step 3 table). v0.1 borrows vanilla models.
+3. Write down the shape names you will borrow (step 3 table) until a model is exported.
 
 ### 3. Build Phase A: sites that spawn and fight (1–2 h)
 
@@ -64,9 +68,9 @@ Make `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` with an `entry.lua` 
 | `IRAD_Bavar373_CP` | S-300PS 54K6 | command post | — |
 | `IRAD_Bavar373_LN` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
 | `IRAD_Bavar373_LN_4B` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
-| `IRAD_Bavar373_TELAR` | S-300PS 5P85D (our model later) | 4 vertical canisters **and** its own radar, 65 NM, like the S-300V 9A83 | vanilla 5V55 |
-| `IRAD_MatlaUlFajr_EWR` | vanilla 1L13 (our model later) | early-warning radar, 135 NM | — |
-| `IRAD_Rasool_Comms` | vanilla ZIL-131 KUNG (our model later) | no weapons, no radar; a comms van | — |
+| `IRAD_Bavar373_TELAR` | S-300PS 5P85D | 4 vertical canisters **and** its own radar, 65 NM, like the S-300V 9A83 | vanilla 5V55 |
+| `IRAD_MatlaUlFajr_EWR` | vanilla 1L13 | early-warning radar, 135 NM | — |
+| `IRAD_Rasool_Comms` | vanilla ZIL-131 KUNG | no weapons, no radar; a comms van | — |
 
 Display names come from design note §1, exactly.
 
@@ -75,25 +79,36 @@ and `dcs.log` has no error naming `IRAD_`. Then place a 3rd Khordad site (SR + T
 and a Bavar-373 site (both SRs, CP, STR, 2 LNs), put an AI F-16 on a path through each, and run
 it. Each site should engage.
 
-### 3b. Our own 3D models (1 h per model once the exporter works)
-
-The cloud session is building the models in Blender, by script:
-`mods/iran_air_defense/models/` (read its `README.md`). **Nine are built:** the TEL, STR,
-Meraj-4, Hafez, TELAR, command post, Matla ul-Fajr, Rasool and 3rd Khordad TELAR. The Alam al-Hoda
-TEL and Bashir SR are not.
-Export each the same way.
+### 3b. Export our own 3D models (30 min per model once the exporter works)
 
 1. Find out whether this PC has a DCS EDM exporter for Blender or 3ds Max. **If it has
    neither, stop here and tell the DM** — nothing else in this step can happen without one.
-2. Open `IRAD_Bavar373_LN.blend` and export it to `.edm` into the mod's `Shapes` folder.
-   Copy `textures/IRAD_Bavar373_LN_camo.png` into the mod's `Textures` folder; the painted
-   parts already use it through their UVs.
-3. Bind `arg_launcher_elevation` and both rams to the launcher-elevation argument the vanilla
-   S-300PS 5P85 uses (read it from the vanilla definition you found in step 2).
-4. Point `IRAD_Bavar373_LN` and `IRAD_Bavar373_LN_4B` at the new shape instead of the
-   borrowed 5P85D. Keep the borrowed shape for any model not built yet.
-5. Check in the Model Viewer: the canisters rise on the argument, the rams follow without
-   clipping, and a missile leaves each `LAUNCH_n` point.
+   The `.blend` files are Blender 5.0.
+2. Read `mods/iran_air_defense/models/README.md`, section *What the exporter needs to know*.
+   It names every animated empty and what it means.
+3. For each row below: open the `.blend`, export it to `.edm` into the mod's `Shapes`
+   folder, copy its texture (if any) into the mod's `Textures` folder, bind the empties to the
+   argument numbers you wrote down in step 2, and point the unit's `Database` lua at the new
+   shape instead of the borrowed one.
+
+| Model file | Unit(s) | Texture | Empties to bind (vanilla argument to copy) |
+|---|---|---|---|
+| `IRAD_Bavar373_LN.blend` | `IRAD_Bavar373_LN`, `IRAD_Bavar373_LN_4B` | `IRAD_Bavar373_LN_camo.png` | `arg_launcher_elevation` + both rams (5P85 elevation) |
+| `IRAD_Bavar373_TELAR.blend` | `IRAD_Bavar373_TELAR` | `IRAD_Bavar373_TELAR_camo.png` | `arg_launcher_elevation` + ram (5P85 elevation); `arg_mast_extend` (a deploy argument); `arg_antenna_azimuth` (radar rotation) |
+| `IRAD_Bavar373_STR.blend` | `IRAD_Bavar373_STR` | `IRAD_Bavar373_STR_camo.png` | `arg_antenna_fold` (40B6M deploy); `arg_antenna_azimuth` (40B6M rotation) |
+| `IRAD_Hafez_SR.blend` | `IRAD_Hafez_SR` | `IRAD_Hafez_SR_camo.png` | `arg_antenna_fold`; `arg_antenna_azimuth` (40B6MD rotation) |
+| `IRAD_Meraj4_SR.blend` | `IRAD_Meraj4_SR` | none (flat khaki) | `arg_antenna_azimuth` (64H6E rotation) |
+| `IRAD_Bavar373_CP.blend` | `IRAD_Bavar373_CP` | `IRAD_Bavar373_CP_camo.png` | none |
+| `IRAD_MatlaUlFajr_EWR.blend` | `IRAD_MatlaUlFajr_EWR` | `IRAD_MatlaUlFajr_EWR_camo.png` | `arg_mast_extend`; `arg_antenna_azimuth` (1L13 rotation) |
+| `IRAD_Rasool_Comms.blend` | `IRAD_Rasool_Comms` | none (flat paint) | `arg_mast_extend` |
+| `IRAD_3Khordad_TELAR.blend` | `IRAD_3Khordad_TELAR` | `IRAD_3Khordad_TELAR_camo.png` | `arg_turret_azimuth` (9A310 turret); `arg_launcher_elevation` + ram (9A310 elevation) |
+
+Every animation runs over frames 0–100. `LAUNCH_n` empties are the missile launch points
+(local +Z out of the muzzle); `collision_shell` is the hit box and is not rendered.
+**Not built:** `IRAD_Bashir_SR` and `IRAD_AlamAlHoda_TEL` keep their borrowed shapes.
+
+**Model check,** per model, in the Model Viewer: every argument moves the right part without
+clipping; launchers fire from each `LAUNCH_n`; the texture shows (not pink or white).
 
 ### 4. Build Phase B: the real missiles (2–4 h)
 
@@ -119,7 +134,7 @@ its missile.
 1. Run the pydcs export with the mod installed. The runbook is the header of
    `tools/verify_mod_export.py`; read its heavy-mod gotcha before launching DCS.
 2. `python tools\verify_mod_export.py <export folder> --extension iranairdefensepack --markdown`
-3. It compares all nine `IRAD_` units field for field. Fix the side that is wrong.
+3. It compares all twelve `IRAD_` units field for field. Fix the side that is wrong.
 
 ### 6. Retribution check (30 min)
 
@@ -143,13 +158,15 @@ fail signatures. If a launcher model faces backwards, add `reversed_heading: tru
   Update design note §1 and the status line of both notes.
 - The mod files: **ask the DM before committing them to the repo.** The question is whether
   they go in a `mods/` folder here (only if rule 4 is clean) or stay on the PC.
-- Report back to the DM in five lines or fewer:
+- Report back to the DM in six lines or fewer:
   1. Phase A done or not
-  2. Phase B done or not
-  3. Any id or number you changed, and why
-  4. The B148 result: pass, partial or fail
-  5. The one thing still broken, if any
+  2. Models exported: which, and any that failed
+  3. Phase B done or not
+  4. Any id or number you changed, and why
+  5. The B148 result: pass, partial or fail
+  6. The one thing still broken, if any
 
 ## Not in scope
 
-15th Khordad and an Iran 2026 faction. They are listed in design note §5.
+15th Khordad, an Iran 2026 faction, far-view LODs, and the Bashir SR and Alam al-Hoda TEL
+models (no reference photographs yet). See design note §4 and §5.
