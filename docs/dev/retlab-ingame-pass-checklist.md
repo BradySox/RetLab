@@ -454,7 +454,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
 | B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
-| B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ☐ |
+| B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ◐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
