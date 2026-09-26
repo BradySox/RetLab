@@ -78,8 +78,9 @@ it. Each site should engage.
 ### 3b. Our own 3D models (1 h per model once the exporter works)
 
 The cloud session is building the models in Blender, by script:
-`mods/iran_air_defense/models/` (read its `README.md`). **Done so far: the Bavar-373 TEL and
-the Bavar-373 engagement radar (STR).** The other five are in progress. Export each the same way.
+`mods/iran_air_defense/models/` (read its `README.md`). **Eight are built:** the TEL, STR,
+Meraj-4, Hafez, TELAR, command post, Matla ul-Fajr and Rasool. The 3rd Khordad units are not.
+Export each the same way.
 
 1. Find out whether this PC has a DCS EDM exporter for Blender or 3ds Max. **If it has
    neither, stop here and tell the DM** — nothing else in this step can happen without one.

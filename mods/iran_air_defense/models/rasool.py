@@ -1,5 +1,5 @@
 """Rasool communications shelter (IRAD_Rasool_Comms), matched to a photograph: a
-white-cab 4x4 carrying an olive shelter with an open equipment door, an AC unit, a
+white-cab 4x4 carrying a pale sage shelter with an open equipment door, an AC unit, a
 roof rail with two omni antennas, and a tall telescopic mast at the rear. Flat paint,
 so no bake.
 
@@ -13,9 +13,10 @@ import bpy
 sys.path.insert(0, sys.argv[-1])
 import irad_kit  # noqa: E402
 from irad_kit import *  # noqa: E402,F403
+from irad_kit import _flat, _on_face  # noqa: E402,F401
 
 WHITE = lambda: mat("irad_cabwhite", (0.75, 0.76, 0.74), 0.5)  # noqa: E731
-OLIVE = lambda: mat("irad_olive", (0.17, 0.19, 0.12), 0.7)  # noqa: E731
+OLIVE = lambda: mat("irad_olive", (0.33, 0.34, 0.24), 0.7)  # noqa: E731
 STEPS = 11
 
 
@@ -40,84 +41,198 @@ def build():
     box("rs_shelter", (2.45, slen, sh), (0, scy, dz + 0.2 + sh / 2), OLIVE(), root, 0.1)
     top = dz + 0.2 + sh
     s = -1  # the photographed side
-    # open door with racks, AC unit, access panels
-    box(
-        "rs_dooropening", (0.03, 0.8, 1.6), (s * 1.228, scy, dz + 1.25), DARK(), root, 0
-    )
+    # raised frame round every face and rounded corner posts, as photographed
+    for sx in (-1, 1):
+        for zz in (dz + 0.28, top - 0.06):
+            box(
+                f"rs_rimh{sx}{zz:.0f}",
+                (0.06, slen, 0.1),
+                (sx * 1.245, scy, zz),
+                OLIVE(),
+                root,
+                0.02,
+            )
+        for yy in (sy0, sy1):
+            cyl(
+                f"rs_corner{sx}{yy:.0f}",
+                0.08,
+                sh,
+                (sx * 1.19, yy - (0.04 if yy == sy0 else -0.04), dz + 0.2 + sh / 2),
+                (0, 0, 0),
+                OLIVE(),
+                root,
+                12,
+            )
+    for yy in (sy0, sy1):
+        for zz in (dz + 0.28, top - 0.06):
+            box(
+                f"rs_rimend{yy:.0f}{zz:.0f}",
+                (2.4, 0.06, 0.1),
+                (0, yy, zz),
+                OLIVE(),
+                root,
+                0.02,
+            )
+    # open door: dark opening, frame, equipment racks inside, the leaf swung out on hinges
+    dy = scy + 0.35
+    box("rs_dooropening", (0.01, 0.8, 1.7), (s * 1.226, dy, dz + 1.25), DARK(), root, 0)
+    for k, (dw, dh, oy, oz) in enumerate(
+        (
+            (0.9, 0.05, 0, 0.87),
+            (0.9, 0.05, 0, -0.87),
+            (0.05, 1.8, 0.45, 0),
+            (0.05, 1.8, -0.45, 0),
+        )
+    ):
+        box(
+            f"rs_doorframe{k}",
+            (0.06, dw, dh),
+            (s * 1.24, dy + oy, dz + 1.25 + oz),
+            OLIVE(),
+            root,
+            0.005,
+        )
     rack = mat("irad_rack", (0.35, 0.36, 0.38), 0.4, 0.5)
-    for k in range(5):
+    screen = mat("irad_screen", (0.05, 0.12, 0.18), 0.2)
+    for k in range(6):
         box(
             f"rs_rack{k}",
             (0.03, 0.6, 0.22),
-            (s * 1.232, scy, dz + 0.65 + k * 0.28),
+            (s * 1.245, dy, dz + 0.6 + k * 0.27),
             rack,
             root,
             0,
         )
-    box(
-        "rs_door",
-        (0.8, 0.04, 1.6),
-        (s * 1.62, scy + 0.42, dz + 1.25),
-        OLIVE(),
-        root,
-        0.01,
-    )
-    box("rs_ac", (0.3, 0.75, 0.6), (s * 1.34, sy0 - 0.7, dz + 1.3), OLIVE(), root, 0.03)
-    louvers("rs_aclouver", (s * 1.49, sy0 - 0.7, dz + 1.25), 0.55, 0.4, 5, s, root)
-    for k, (y, z, w, h) in enumerate(
-        ((sy1 + 0.8, dz + 1.9, 0.5, 0.35), (sy1 + 0.8, dz + 0.9, 0.6, 0.55))
-    ):
-        box(f"rs_panel{k}", (0.02, w, h), (s * 1.228, y, z), DARK(), root, 0)
-    box("rs_frontvent", (0.35, 0.05, 0.6), (0.7, sy0 + 0.02, dz + 1.7), DARK(), root, 0)
-    # ladder up the rear corner, roof rail, roof box
-    for rail in (-1, 1):
-        box(
-            f"rs_ladrail{rail}",
-            (0.04, 0.04, sh + 0.9),
-            (s * 1.3, sy1 + 0.25 + rail * 0.2, dz + (sh + 0.9) / 2),
-            METAL(),
-            root,
-            0,
-        )
-    for k in range(8):
-        box(
-            f"rs_ladrung{k}",
-            (0.04, 0.4, 0.03),
-            (s * 1.3, sy1 + 0.25, dz + 0.3 + k * 0.3),
-            METAL(),
-            root,
-            0,
-        )
-    for x in (-1.15, 1.15):
-        strut(
-            f"rs_railside{x}",
-            (x, sy1 + 0.1, top + 0.3),
-            (x, sy0 - 0.1, top + 0.3),
-            0.025,
-            METAL(),
-            root,
-            6,
-        )
-    for y in (sy1 + 0.1, sy0 - 0.1):
-        strut(
-            f"rs_railend{y}",
-            (-1.15, y, top + 0.3),
-            (1.15, y, top + 0.3),
-            0.025,
-            METAL(),
-            root,
-            6,
-        )
-    for x in (-1.15, 1.15):
-        for k in range(4):
+        for j in range(3):
             box(
-                f"rs_railpost{x}{k}",
-                (0.04, 0.04, 0.3),
-                (x, sy1 + 0.1 + k * (slen - 0.2) / 3, top + 0.15),
+                f"rs_rackknob{k}{j}",
+                (0.02, 0.05, 0.05),
+                (s * 1.265, dy - 0.2 + j * 0.2, dz + 0.6 + k * 0.27),
                 METAL(),
                 root,
                 0,
             )
+    box("rs_rackscreen", (0.02, 0.4, 0.25), (s * 1.265, dy, dz + 1.75), screen, root, 0)
+    box(
+        "rs_door",
+        (0.85, 0.05, 1.7),
+        (s * 1.66, dy + 0.45, dz + 1.25),
+        OLIVE(),
+        root,
+        0.01,
+    )
+    for k in range(3):
+        cyl(
+            f"rs_doorhinge{k}",
+            0.03,
+            0.14,
+            (s * 1.25, dy + 0.45, dz + 0.6 + k * 0.65),
+            (0, 0, 0),
+            METAL(),
+            root,
+            8,
+        )
+    box(
+        "rs_doorhandle",
+        (0.2, 0.05, 0.05),
+        (s * 1.95, dy + 0.49, dz + 1.25),
+        METAL(),
+        root,
+        0,
+    )
+    box(
+        "rs_doorstay",
+        (0.5, 0.03, 0.03),
+        (s * 1.45, dy + 0.4, dz + 2.0),
+        METAL(),
+        root,
+        0,
+    )
+    # AC unit toward the front, with its rain hood and a grille
+    ay = sy0 - 0.7
+    box("rs_ac", (0.3, 0.75, 0.62), (s * 1.34, ay, dz + 1.3), OLIVE(), root, 0.03)
+    grille("rs_acgrille", (s * 1.49, ay, dz + 1.22), "x", s, 0.6, 0.38, root, 6)
+    box(
+        "rs_achood",
+        (0.42, 0.85, 0.04),
+        (s * 1.4, ay, dz + 1.66),
+        OLIVE(),
+        root,
+        0.01,
+        (0, s * 0.35, 0),
+    )
+    # hatches and a vent box on the rear half, as photographed
+    door(
+        "rs_hatch", (s * 1.22, sy1 + 0.75, dz + 0.9), "x", s, 0.65, 0.55, root, OLIVE()
+    )
+    box(
+        "rs_ventbox",
+        (0.12, 0.5, 0.35),
+        (s * 1.28, sy1 + 0.75, dz + 1.95),
+        OLIVE(),
+        root,
+        0.02,
+    )
+    grille(
+        "rs_ventgrille", (s * 1.34, sy1 + 0.75, dz + 1.95), "x", s, 0.4, 0.25, root, 4
+    )
+    for k in range(3):
+        box(
+            f"rs_latch{k}",
+            (0.04, 0.06, 0.1),
+            (s * 1.26, sy0 - 1.5 + k * 0.4, top - 0.3),
+            METAL(),
+            root,
+            0,
+        )
+    # the right side: a plain door, a cable entry panel
+    door("rs_doorr", (1.22, scy, dz + 1.25), "x", 1, 0.85, 1.7, root, OLIVE())
+    box(
+        "rs_cablepanel",
+        (0.05, 0.6, 0.4),
+        (1.25, sy1 + 0.7, dz + 0.6),
+        OLIVE(),
+        root,
+        0.01,
+    )
+    for k in range(4):
+        cyl(
+            f"rs_connector{k}",
+            0.04,
+            0.07,
+            (1.3, sy1 + 0.5 + k * 0.13, dz + 0.6),
+            (0, 1.5708, 0),
+            METAL(),
+            root,
+            10,
+        )
+    # louvered box high on the front face
+    box(
+        "rs_frontbox",
+        (0.8, 0.35, 0.7),
+        (0.6, sy0 + 0.17, top - 0.5),
+        OLIVE(),
+        root,
+        0.02,
+    )
+    grille("rs_frontgrille", (0.6, sy0 + 0.35, top - 0.5), "y", 1, 0.65, 0.55, root, 7)
+    # full-height ladder at the rear corner, roof rail on posts, roof box
+    ladder(
+        "rs_ladder",
+        (s * 1.32, sy1 + 0.3, top + 0.6),
+        (s * 1.32, sy1 + 0.3, 0.35),
+        0.4,
+        11,
+        root,
+    )
+    pts = [
+        (-1.15, sy1 + 0.1, top),
+        (-1.15, sy0 - 0.1, top),
+        (1.15, sy0 - 0.1, top),
+        (1.15, sy1 + 0.1, top),
+        (-0.8, sy1 + 0.1, top),
+    ]
+    handrail("rs_roofrail", pts, root, 0.35)
     box(
         "rs_roofbox",
         (1.2, 0.8, 0.45),
@@ -126,20 +241,45 @@ def build():
         root,
         0.03,
     )
-    # two omni antennas on short masts
-    for k, (x, y, h) in enumerate(((0.9, sy0 - 0.3, 1.3), (-0.9, scy - 0.3, 1.0))):
+    grille("rs_roofboxg", (0.8, scy + 0.3, top + 0.22), "x", 1, 0.6, 0.3, root, 4)
+    # two omni antennas on tall poles: stacked radome sections as photographed
+    radome = mat("irad_radome", (0.7, 0.7, 0.68), 0.5)
+    for k, (x, y, h) in enumerate(((0.9, sy0 - 0.3, 1.5), (-0.9, scy - 0.3, 1.2))):
+        cyl(
+            f"rs_omnibase{k}",
+            0.1,
+            0.12,
+            (x, y, top + 0.06),
+            (0, 0, 0),
+            METAL(),
+            root,
+            12,
+        )
         cyl(
             f"rs_omnipole{k}", 0.04, h, (x, y, top + h / 2), (0, 0, 0), METAL(), root, 8
         )
+        for j, (r, ln) in enumerate(
+            ((0.07, 0.25), (0.1, 0.18), (0.08, 0.25), (0.12, 0.22))
+        ):
+            cyl(
+                f"rs_omni{k}_{j}",
+                r,
+                ln,
+                (x, y, top + h + 0.12 + j * 0.23),
+                (0, 0, 0),
+                radome,
+                root,
+                14,
+            )
         cyl(
-            f"rs_omni{k}",
-            0.1,
-            0.55,
-            (x, y, top + h + 0.25),
+            f"rs_omnicap{k}",
+            0.13,
+            0.04,
+            (x, y, top + h + 1.03),
             (0, 0, 0),
-            mat("irad_radome", (0.7, 0.7, 0.68), 0.5),
+            radome,
             root,
-            12,
+            14,
         )
     # the tall telescopic mast at the rear corner
     mx, my = s * 0.95, sy1 - 0.15
@@ -172,26 +312,29 @@ def build():
         for sec in sections:
             sec.keyframe_insert("location", frame=f)
     for s2 in (-1, 1):
-        cyl(
-            f"rs_jack{s2}",
-            0.08,
-            0.9,
-            (s2 * 1.15, rear + 0.35, 0.5),
-            (0, 0, 0),
+        for jy in (rear + 0.35, 1.2):
+            screw_jack(f"rs_jack{s2}{jy:.0f}", s2 * 1.2, jy, dz - 0.15, root)
+    # mast guy clamps and a cable to the shelter
+    for k in range(3):
+        box(
+            f"rs_mastclamp{k}",
+            (0.16, 0.16, 0.06),
+            (mx, my, dz + 0.5 + k * 0.6),
             METAL(),
             root,
-            12,
+            0,
         )
-        cyl(
-            f"rs_jackpad{s2}",
-            0.2,
-            0.05,
-            (s2 * 1.15, rear + 0.35, 0.03),
-            (0, 0, 0),
-            DARK(),
-            root,
-            14,
-        )
+    hose(
+        "rs_mastcable",
+        [
+            (mx, my + 0.1, dz + 1.3),
+            (mx + 0.2, my + 0.35, dz + 0.9),
+            (mx + 0.25, sy1 + 0.2, dz + 0.5),
+        ],
+        0.02,
+        DARK(),
+        root,
+    )
     shell = box("collision_shell", (2.6, 8.2, 3.6), (0, 0, 1.8), DARK(), root, 0)
     shell.hide_render = True
 

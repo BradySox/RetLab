@@ -275,7 +275,7 @@ def wheel(name, loc, r=0.62, w=0.45, parent=None):
         0.06,
         (rx, loc[1], loc[2]),
         (0, math.pi / 2, 0),
-        mat("irad_rim", (0.17, 0.17, 0.16), 0.55),
+        mat("irad_rim", (0.26, 0.26, 0.24), 0.5),
         parent,
         32,
     )
@@ -327,6 +327,271 @@ def fan(name, loc, facing, r, parent):
         else:
             size, bar_rot = (2 * r * 0.9, 0.02, 0.025), (0, a, 0)
         box(name + f"_guard{k}", size, off(0.06), METAL(), parent, 0, bar_rot)
+
+
+# ---- detail helpers (pass 2) ----------------------------------------------------------
+
+
+def _on_face(center, axis, sign, depth):
+    """A point pushed `depth` out of a face whose outward normal is sign * axis."""
+    x, y, z = center
+    return (x + sign * depth, y, z) if axis == "x" else (x, y + sign * depth, z)
+
+
+def _flat(axis, w, h, t):
+    """Size of a flat plate lying on a face: t thick along the normal, w along the face."""
+    return (t, w, h) if axis == "x" else (w, t, h)
+
+
+def door(prefix, center, axis, sign, w, h, parent, material=None, hinge_side=-1):
+    """A shelter door: proud panel, seam frame, three hinges, lever handle, data plate."""
+    material = material or PAINT()
+    box(
+        prefix + "_panel",
+        _flat(axis, w, h, 0.02),
+        _on_face(center, axis, sign, 0.01),
+        material,
+        parent,
+        0.005,
+    )
+    x, y, z = center
+    for k, (dw, dh, oa, oz) in enumerate(
+        (
+            (w, 0.025, 0, h / 2),
+            (w, 0.025, 0, -h / 2),
+            (0.025, h, w / 2, 0),
+            (0.025, h, -w / 2, 0),
+        )
+    ):
+        c = (x, y + oa, z + oz) if axis == "x" else (x + oa, y, z + oz)
+        box(
+            f"{prefix}_seam{k}",
+            _flat(axis, dw, dh, 0.03),
+            _on_face(c, axis, sign, 0.012),
+            DARK(),
+            parent,
+            0,
+        )
+    along = hinge_side * (w / 2 - 0.04)
+    for k, dz in enumerate((-h * 0.38, 0, h * 0.38)):
+        c = (x, y + along, z + dz) if axis == "x" else (x + along, y, z + dz)
+        cyl(
+            f"{prefix}_hinge{k}",
+            0.025,
+            0.14,
+            _on_face(c, axis, sign, 0.03),
+            (0, 0, 0),
+            METAL(),
+            parent,
+            8,
+        )
+    hc = (x, y - along * 0.85, z) if axis == "x" else (x - along * 0.85, y, z)
+    box(
+        prefix + "_handle",
+        _flat(axis, 0.05, 0.22, 0.05),
+        _on_face(hc, axis, sign, 0.04),
+        METAL(),
+        parent,
+        0.01,
+    )
+    pc = (x, y, z + h * 0.3) if axis == "x" else (x, y, z + h * 0.3)
+    box(
+        prefix + "_plate",
+        _flat(axis, 0.18, 0.1, 0.01),
+        _on_face(pc, axis, sign, 0.025),
+        METAL(),
+        parent,
+        0,
+    )
+
+
+def grille(prefix, center, axis, sign, w, h, parent, slats=8):
+    """A framed vent grille with angled slats over a dark backing."""
+    box(
+        prefix + "_back",
+        _flat(axis, w, h, 0.02),
+        _on_face(center, axis, sign, 0.005),
+        DARK(),
+        parent,
+        0,
+    )
+    x, y, z = center
+    for k, (dw, dh, oa, oz) in enumerate(
+        (
+            (w + 0.06, 0.05, 0, h / 2),
+            (w + 0.06, 0.05, 0, -h / 2),
+            (0.05, h, w / 2, 0),
+            (0.05, h, -w / 2, 0),
+        )
+    ):
+        c = (x, y + oa, z + oz) if axis == "x" else (x + oa, y, z + oz)
+        box(
+            f"{prefix}_frame{k}",
+            _flat(axis, dw, dh, 0.05),
+            _on_face(c, axis, sign, 0.025),
+            PAINT(),
+            parent,
+            0.005,
+        )
+    for k in range(slats):
+        c = (x, y, z - h / 2 + (k + 0.5) * h / slats)
+        rot = (0, 0.5 * sign, 0) if axis == "x" else (-0.5 * sign, 0, 0)
+        box(
+            f"{prefix}_slat{k}",
+            _flat(axis, w, 0.012, 0.06),
+            _on_face(c, axis, sign, 0.03),
+            PAINT(),
+            parent,
+            0,
+            rot,
+        )
+
+
+def ladder(prefix, top, bottom, width, rungs, parent, axis="x"):
+    """A ladder from top to bottom point: two rails, rungs, top hooks."""
+    for rail in (-1, 1):
+        off = (0, rail * width / 2, 0) if axis == "x" else (rail * width / 2, 0, 0)
+        a = tuple(t + o for t, o in zip(top, off))
+        b = tuple(t + o for t, o in zip(bottom, off))
+        strut(f"{prefix}_rail{rail}", a, b, 0.025, METAL(), parent, 6)
+        cyl(
+            f"{prefix}_hook{rail}",
+            0.03,
+            0.12,
+            (a[0], a[1], a[2] + 0.06),
+            (0, 0, 0),
+            METAL(),
+            parent,
+            6,
+        )
+    for k in range(rungs):
+        t = (k + 0.5) / rungs
+        c = tuple(tb + (bb - tb) * t for tb, bb in zip(top, bottom))
+        a = (
+            (c[0], c[1] - width / 2, c[2])
+            if axis == "x"
+            else (c[0] - width / 2, c[1], c[2])
+        )
+        b = (
+            (c[0], c[1] + width / 2, c[2])
+            if axis == "x"
+            else (c[0] + width / 2, c[1], c[2])
+        )
+        strut(f"{prefix}_rung{k}", a, b, 0.018, METAL(), parent, 6)
+
+
+def screw_jack(prefix, x, y, top_z, parent):
+    """An outrigger jack: housing, screw, crank, ribbed pad."""
+    cyl(
+        prefix + "_housing",
+        0.12,
+        0.7,
+        (x, y, top_z - 0.35),
+        (0, 0, 0),
+        PAINT(),
+        parent,
+        16,
+    )
+    cyl(
+        prefix + "_collar",
+        0.15,
+        0.08,
+        (x, y, top_z - 0.02),
+        (0, 0, 0),
+        METAL(),
+        parent,
+        16,
+    )
+    cyl(
+        prefix + "_screw",
+        0.07,
+        top_z - 0.65,
+        (x, y, (top_z - 0.65) / 2 + 0.06),
+        (0, 0, 0),
+        CHROME(),
+        parent,
+        12,
+    )
+    box(
+        prefix + "_crank",
+        (0.3, 0.03, 0.03),
+        (x + 0.15, y, top_z + 0.08),
+        METAL(),
+        parent,
+        0,
+    )
+    cyl(prefix + "_pad", 0.26, 0.06, (x, y, 0.03), (0, 0, 0), DARK(), parent, 18)
+    for k in range(4):
+        box(
+            f"{prefix}_padrib{k}",
+            (0.4, 0.03, 0.06),
+            (x, y, 0.08),
+            DARK(),
+            parent,
+            0,
+            (0, 0, k * math.pi / 4),
+        )
+
+
+def cable_reel(prefix, loc, parent, r=0.28, w=0.3):
+    """A cable drum lying across the vehicle: flanges, wound cable, frame."""
+    x, y, z = loc
+    for s in (-1, 1):
+        cyl(
+            f"{prefix}_flange{s}",
+            r,
+            0.03,
+            (x + s * w / 2, y, z),
+            (0, math.pi / 2, 0),
+            METAL(),
+            parent,
+            20,
+        )
+    cyl(
+        prefix + "_cable",
+        r * 0.8,
+        w - 0.04,
+        (x, y, z),
+        (0, math.pi / 2, 0),
+        DARK(),
+        parent,
+        20,
+    )
+    for s in (-1, 1):
+        strut(
+            f"{prefix}_leg{s}",
+            (x + s * (w / 2 + 0.04), y, z),
+            (x + s * (w / 2 + 0.04), y, z - r - 0.05),
+            0.02,
+            METAL(),
+            parent,
+            6,
+        )
+
+
+def handrail(prefix, points, parent, height=1.0):
+    """Posts at each point and two rails joining them."""
+    for k, p in enumerate(points):
+        box(
+            f"{prefix}_post{k}",
+            (0.04, 0.04, height),
+            (p[0], p[1], p[2] + height / 2),
+            METAL(),
+            parent,
+            0,
+        )
+    for k in range(len(points) - 1):
+        a, b = points[k], points[k + 1]
+        for h in (0.5, 1.0):
+            strut(
+                f"{prefix}_rail{k}{h}",
+                (a[0], a[1], a[2] + height * h),
+                (b[0], b[1], b[2] + height * h),
+                0.022,
+                METAL(),
+                parent,
+                6,
+            )
 
 
 def iran_cab(prefix, root, front, width, cab_len, frame_h):
@@ -523,6 +788,70 @@ def iran_cab(prefix, root, front, width, cab_len, frame_h):
         root,
         0.03,
     )
+    # pass 3: sun visor, grab handles, marker lights, lamp guards, shackles, roof lights
+    box(
+        prefix + "_visor",
+        (width * 0.92, 0.35, 0.05),
+        (0, front + 0.15, wz + 0.45),
+        PAINT(),
+        root,
+        0.01,
+        (math.radians(-8), 0, 0),
+    )
+    for s in (-1, 1):
+        cyl(
+            f"{prefix}_grab{s}",
+            0.02,
+            0.9,
+            (s * (width / 2 + 0.04), front - cab_len * 0.58, bottom + 1.1),
+            (0, 0, 0),
+            METAL(),
+            root,
+            6,
+        )
+        box(
+            f"{prefix}_sidemarker{s}",
+            (0.03, 0.12, 0.06),
+            (s * (width / 2 + 0.01), front - 0.2, bottom + 0.35),
+            AMBER(),
+            root,
+            0,
+        )
+        for k in range(3):
+            box(
+                f"{prefix}_lampguard{s}{k}",
+                (0.24, 0.02, 0.015),
+                (s * (width / 2 - 0.25), front + 0.26, bottom + 0.14 + k * 0.06),
+                METAL(),
+                root,
+                0,
+            )
+        cyl(
+            f"{prefix}_shackle{s}",
+            0.05,
+            0.04,
+            (s * 0.8, front + 0.26, bottom - 0.18),
+            (0, math.pi / 2, 0),
+            METAL(),
+            root,
+            10,
+        )
+        box(
+            f"{prefix}_roofmarker{s}",
+            (0.1, 0.05, 0.05),
+            (s * 0.95, front - 0.05, top + 0.05),
+            AMBER(),
+            root,
+            0,
+        )
+    box(
+        prefix + "_rearwindow",
+        (width * 0.5, 0.03, 0.35),
+        (0, front - cab_len - 0.005, wz + 0.1),
+        GLASS(),
+        root,
+        0,
+    )
     return top
 
 
@@ -588,23 +917,131 @@ def iran_truck(
     gaps = [(axle_ys[i] - axle_ys[i + 1], i) for i in range(len(axle_ys) - 1)]
     _, gi = max(gaps)
     gy = (axle_ys[gi] + axle_ys[gi + 1]) / 2
+    gl = min(1.5, max(axle_ys[gi] - axle_ys[gi + 1] - 1.6, 0.6))
     cyl(
         prefix + "_fueltank",
         0.32,
-        1.4,
+        gl,
         (-width / 2 + 0.35, gy, frame_h - 0.45),
         (math.pi / 2, 0, 0),
         METAL(),
         root,
         20,
     )
+    cyl(
+        prefix + "_fuelcap",
+        0.07,
+        0.06,
+        (-width / 2 + 0.35, gy + gl * 0.3, frame_h - 0.12),
+        (0, 0, 0),
+        DARK(),
+        root,
+        10,
+    )
+    for k in (-1, 1):
+        cyl(
+            f"{prefix}_fuelstrap{k}",
+            0.335,
+            0.05,
+            (-width / 2 + 0.35, gy + k * gl * 0.33, frame_h - 0.45),
+            (math.pi / 2, 0, 0),
+            DARK(),
+            root,
+            20,
+        )
     box(
         prefix + "_toolbox",
-        (0.45, 1.3, 0.5),
+        (0.45, gl, 0.5),
         (width / 2 - 0.3, gy, frame_h - 0.45),
         TRIM(),
         root,
         0.03,
+    )
+    box(
+        prefix + "_toolboxlid",
+        (0.02, gl * 0.9, 0.4),
+        (width / 2 - 0.07, gy, frame_h - 0.45),
+        DARK(),
+        root,
+        0,
+    )
+    for k in (-1, 1):
+        box(
+            f"{prefix}_toolboxlatch{k}",
+            (0.03, 0.06, 0.1),
+            (width / 2 - 0.05, gy + k * gl * 0.3, frame_h - 0.3),
+            METAL(),
+            root,
+            0,
+        )
+    # air tanks and battery box under the frame, side guards between axle groups
+    for k, dy in enumerate((-0.35, 0.35)):
+        cyl(
+            f"{prefix}_airtank{k}",
+            0.12,
+            0.8,
+            (-0.35, gy + dy, frame_h - 0.55),
+            (0, math.pi / 2, 0),
+            METAL(),
+            root,
+            14,
+        )
+    box(
+        prefix + "_battery",
+        (0.55, 0.5, 0.45),
+        (0.45, gy - gl / 2 - 0.1, frame_h - 0.5),
+        DARK(),
+        root,
+        0.02,
+    )
+    for s in (-1, 1):
+        y0, y1 = axle_ys[gi] - wheel_r - 0.15, axle_ys[gi + 1] + wheel_r + 0.15
+        if y0 > y1 + 0.4:
+            for k, z in enumerate((frame_h - 0.75, frame_h - 0.95)):
+                box(
+                    f"{prefix}_guard{s}{k}",
+                    (0.04, y0 - y1, 0.08),
+                    (s * (width / 2 - 0.03), (y0 + y1) / 2, z),
+                    METAL(),
+                    root,
+                    0,
+                )
+    # front fenders over the steering axles
+    for i in range(min(2, len(axle_ys))):
+        if axle_ys[i] < front - cab_len - 0.3:
+            continue
+        for s in (-1, 1):
+            for k, a in enumerate((-0.9, -0.3, 0.3, 0.9)):
+                box(
+                    f"{prefix}_fender{i}{s}{k}",
+                    (0.52, 0.42, 0.05),
+                    (
+                        s * (width / 2 - 0.22),
+                        axle_ys[i] + math.sin(a) * (wheel_r + 0.1),
+                        wheel_r + math.cos(a) * (wheel_r + 0.1),
+                    ),
+                    DARK(),
+                    root,
+                    0,
+                    (-a, 0, 0),
+                )
+    # rear lights cluster, reflectors, plate
+    for s in (-1, 1):
+        box(
+            f"{prefix}_reflector{s}",
+            (0.1, 0.03, 0.1),
+            (s * (width / 2 - 0.5), rear - 0.03, frame_h - 0.45),
+            AMBER(),
+            root,
+            0,
+        )
+    box(
+        prefix + "_rearplate",
+        (0.45, 0.02, 0.12),
+        (0, rear - 0.08, frame_h - 0.45),
+        mat("irad_plate", (0.8, 0.8, 0.8), 0.4),
+        root,
+        0,
     )
     return root, frame_h, rear, front - cab_len
 

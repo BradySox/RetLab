@@ -169,14 +169,22 @@ What the references settled, against the first spec-only draft:
 | Model | Status |
 |---|---|
 | Bavar-373 TEL | Built, ~30.5k triangles, animated erector, matched to the photograph, camo baked to a 4096 texture; renders in `renders/` |
-| Bavar-373 STR | Built, ~19.7k triangles, fold and azimuth animations, matched to a photograph and two renders |
-| Meraj-4 SR | Built, ~23.2k triangles, azimuth animation, plain khaki; a trailer radar deployed on four jacks |
-| Hafez AR | Built, ~19.8k triangles, fold and azimuth animations; a tall panel spinning on a drum turret, the Pantsir search-radar layout at truck scale, from the DEFA infographic |
-| Bavar-373-II TELAR | Built, ~26.4k triangles; telescopic mast with a dish, hourglass erector, one ram; matched to a photograph |
-| Bavar-373 CP | Built, ~13.3k triangles; a 6x6 with one long shelter; matched to a parade photograph |
-| Matla ul-Fajr EWR | Built, ~16.8k triangles; Yagi boom on a telescopic mast, long shelter on a semi-trailer, woodland camouflage |
-| Rasool comms shelter | Built, ~10.1k triangles; white-cab 4x4, olive shelter, telescopic rear mast |
+| Bavar-373 STR | Built, ~33.7k triangles, fold and azimuth animations, matched to a photograph and two renders |
+| Meraj-4 SR | Built, ~29.8k triangles, azimuth animation, plain khaki; a trailer radar deployed on four jacks |
+| Hafez AR | Built, ~31.8k triangles, fold and azimuth animations; a tall panel spinning on a drum turret, the Pantsir search-radar layout at truck scale, from the DEFA infographic |
+| Bavar-373-II TELAR | Built, ~46.5k triangles; telescopic mast with a dish (raised to the photograph's height, about 46 ft to the dish), hourglass erector, one ram; matched to a photograph |
+| Bavar-373 CP | Built, ~22.0k triangles; a 6x6 with one tall shelter set back from the cab, the net rolled upright at the rear; matched to a parade photograph |
+| Matla ul-Fajr EWR | Built, ~28.8k triangles; Yagi boom on a telescopic mast, long shelter and a separate generator box on a semi-trailer, woodland camouflage |
+| Rasool comms shelter | Built, ~18.3k triangles; white-cab 4x4, pale sage framed shelter with the door open on its racks, telescopic rear mast |
 | The 3rd Khordad TELAR, Alam al-Hoda TEL and Bashir SR | Not yet |
+
+Every model after the TEL had a second and third pass (DM call 2026-09-26: they read lower
+quality than the TEL). Each pass compared the model against its reference and added what was
+missing: doors, grilles, ladders, handrails, screw jacks, cable reels and chassis clutter
+from a shared kit, then the model's own details. The passes also corrected three proportions:
+- the TELAR mast was about 10 ft short of the photograph;
+- the command post's shelter was too low and sat against the cab;
+- the Matla ul-Fajr's shelter ran over the generator box on the trailer neck.
 
 The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
