@@ -18,8 +18,8 @@ groups:
         - 1
       unit_types:
         - IRAD_Bavar373_CP
-    # One STR: every TELAR carries its own radar, so the site is never one HARM from blind
-    # (the section 60 pair would double-count guidance radars).
+    # One STR guides every TELAR: their mast radars are decorative in the mod (DM call
+    # 2026-09-27), so a HARM on this STR silences the site.
     - name: S-300 Site TR
       unit_count:
         - 1

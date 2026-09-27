@@ -88,7 +88,7 @@ Make `<Saved Games>\DCS\Mods\tech\RetLab Iran Air Defense\` with an `entry.lua` 
 | `IRAD_Bavar373_CP` | S-300PS 54K6 | command post | — |
 | `IRAD_Bavar373_LN` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
 | `IRAD_Bavar373_LN_4B` | S-300PS 5P85D | 4 vertical canisters | vanilla 5V55 |
-| `IRAD_Bavar373_TELAR` | S-300PS 5P85D | 4 vertical canisters **and** its own radar, 65 NM, like the S-300V 9A83 | vanilla 5V55 |
+| `IRAD_Bavar373_TELAR` | S-300PS 5P85D | 4 vertical canisters and a mast radar that is decorative (DM call 2026-09-27); the STR guides it | vanilla 5V55 |
 | `IRAD_MatlaUlFajr_EWR` | vanilla 1L13 | early-warning radar, 135 NM | — |
 | `IRAD_Rasool_Comms` | vanilla ZIL-131 KUNG | no weapons, no radar; a comms van | — |
 
