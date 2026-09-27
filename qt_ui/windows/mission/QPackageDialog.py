@@ -226,7 +226,13 @@ class QPackageDialog(QDialog):
         self.update_tot()
 
     def update_tot(self) -> None:
-        self.tot_spinner.setTime(self.tot_qtime())
+        # Showing the package's TOT is not the player choosing one. Let through,
+        # timeChanged re-saved it, re-ran ASAP and came back here: RecursionError.
+        self.tot_spinner.blockSignals(True)
+        try:
+            self.tot_spinner.setTime(self.tot_qtime())
+        finally:
+            self.tot_spinner.blockSignals(False)
 
     def on_selection_changed(
         self, selected: QItemSelection, _deselected: QItemSelection

@@ -201,3 +201,81 @@ def test_the_obsolete_setting_is_dropped_from_a_save() -> None:
     assert "queue_aware_ground_ops" not in migrate_legacy_settings(
         {"queue_aware_ground_ops": True}
     )
+
+
+TRAVEL = timedelta(minutes=30)
+#: An AI cold start: 2 min startup, the 8 min base taxi and the 30 s roll.
+AI_COLD_OVERHEAD = timedelta(minutes=10, seconds=30)
+
+
+def _scheduled_package(world: _World) -> SimpleNamespace:
+    package = SimpleNamespace(time_over_target=T0, flights=[])
+    world.coalition.ato.packages.append(package)
+    return package
+
+
+def _asap_flight(
+    world: _World, field: SimpleNamespace, package: SimpleNamespace
+) -> SimpleNamespace:
+    """A flight whose takeoff follows its package's TOT, as a real plan's does."""
+    flight = world.flight(field, T0, package=package)
+    plan = flight.flight_plan
+    plan.takeoff_time = lambda: package.time_over_target - TRAVEL
+    plan.tot_waypoint = None
+    plan._travel_time_to_waypoint = lambda _destination: TRAVEL
+    for name in ("minimum_duration_from_start_to_tot", "startup_time"):
+        setattr(plan, name, getattr(FlightPlan, name).__get__(plan))
+    return flight
+
+
+def _asap(package: SimpleNamespace) -> datetime:
+    from game.ato.package import Package
+
+    Package.set_tot_asap(cast(Any, package), T0)
+    return package.time_over_target
+
+
+def test_asap_on_a_quiet_field_is_the_flight_time() -> None:
+    world = _World()
+    package = _scheduled_package(world)
+    _asap_flight(world, _field(), package)
+    assert _asap(package) == T0 + TRAVEL + AI_COLD_OVERHEAD
+
+
+def test_asap_gives_the_same_tot_every_time_it_is_asked() -> None:
+    """The queue reads each takeoff from the TOT being set, so a one-shot estimate
+    flipped between two times. The package dialog saved each one back and recursed
+    until Python ran out of stack (RecursionError, 2026-09-27)."""
+    world = _World()
+    field = _field()
+    # Another package takes the runway at the moment this one first could.
+    world.flight(field, T0 + AI_COLD_OVERHEAD, count=4)
+    package = _scheduled_package(world)
+    _asap_flight(world, field, package)
+    first = _asap(package)
+    assert [_asap(package) for _ in range(3)] == [first] * 3
+
+
+def test_asap_leaves_the_flight_time_to_wait_for_the_runway() -> None:
+    world = _World()
+    field = _field()
+    world.flight(field, T0 + AI_COLD_OVERHEAD, count=4)
+    package = _scheduled_package(world)
+    flight = _asap_flight(world, field, package)
+    _asap(package)
+    assert flight.flight_plan.startup_time() >= T0
+
+
+def test_estimating_asap_leaves_the_package_tot_alone() -> None:
+    """The scheduler asks for the estimate and decides for itself whether to use it."""
+    from game.ato.traveltime import TotEstimator
+
+    world = _World()
+    field = _field()
+    world.flight(field, T0 + AI_COLD_OVERHEAD, count=4)
+    package = _scheduled_package(world)
+    _asap_flight(world, field, package)
+    scheduled = T0 + timedelta(hours=2)
+    package.time_over_target = scheduled
+    TotEstimator(cast(Any, package)).earliest_tot(T0)
+    assert package.time_over_target == scheduled
