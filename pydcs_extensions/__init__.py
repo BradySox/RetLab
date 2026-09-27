@@ -41,6 +41,7 @@ from .su57 import *
 from .swedishmilitaryassetspack import *
 from .iranmilitaryassetspack import *
 from .iranairdefensepack import *
+from .iranmissilemods import *
 from .coldwarassets import *
 from .uh60l import *
 from .vietnamwarvessels import *

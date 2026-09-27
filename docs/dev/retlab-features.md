@@ -10968,6 +10968,12 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 - `IRAD_MatlaUlFajr_EWR` and `IRAD_Rasool_Comms` join the Iran factions' air-defense units. The
   Rasool is whitelisted in the C2 van slot of the comms, command-center and EWR layouts, so an
   Iranian Skynet connection node or command center fields one.
+- Third-party Iranian missile launchers, until the pack carries its own (DM call
+  2026-09-27): `pydcs_extensions/iranmissilemods/` holds the PG Iran IRBM Pack's Sejjil-2,
+  Emad and Fattah-2 TELs, the PG Iran Air Defense Pack's Shahed-238 launcher and the Kheibar
+  TEL, behind the `iranmissilemods` toggle (Mods page, Asset packs). `[CH] Iran 2020` fields
+  all five as missile sites; `Iran 2015` the Sejjil-2. Deployment research for laying Iran
+  out in a campaign: `docs/dev/design/retlab-iran-iads-deployment-notes.md`.
 
 ### Gotchas
 
@@ -10977,7 +10983,7 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 
 ### Tests
 
-`tests/retlab/test_iran_air_defense_pack.py` (16), plus both layouts in
+`tests/retlab/test_iran_air_defense_pack.py` and `test_iran_missile_mods.py`, plus both layouts in
 `tests/armedforces/test_sam_radar_redundancy.py` and `test_sam_support_vehicles.py`.
 
 ### Deferred

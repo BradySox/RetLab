@@ -38,6 +38,7 @@ version: "10.7"
 settings:
   #Mods to be used
   uh_60l: false
+  iranmissilemods: true
 squadrons:
   Blue CV-1:
     - primary: SEAD

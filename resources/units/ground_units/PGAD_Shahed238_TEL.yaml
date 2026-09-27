@@ -1,0 +1,9 @@
+class: Missile
+description: "Shahed 238 is the jet-powered development of the Shahed 136 one-way attack drone, unveiled in November 2023."
+introduced: 2023
+manufacturer: Shahed Aviation Industries
+origin: Iran
+price: 35
+role: Long-Range Land-Attack Missile
+variants:
+  "Shahed 238 LM [PG AD]": {}

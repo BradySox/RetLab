@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-86 rows need a live pass. Full detail is under each `###` heading below —
+87 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -455,6 +455,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ◐ |
+| B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8719,3 +8720,20 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   100,000+ ft = no thrust vectoring (the pack's ModelData[13]), not the radar or the range. A
   salvo dying together a few seconds after its last launch, with no HARM in the air, is most
   likely the same fault.
+
+### B149 — Iranian missile sites spawn and fire (third-party missile mods) · §105 · ☐ UNTESTED
+
+Built 2026-09-27 on the DM's call, until the RetLab pack carries its own launchers: the PG Iran
+IRBM Pack's Sejjil-2, Emad and Fattah-2 TELs, the PG Iran Air Defense Pack's Shahed-238 launcher
+and the Kheibar TEL, behind the `iranmissilemods` toggle. `[CH] Iran 2020` fields all five as
+missile sites, `Iran 2015` the Sejjil-2. Unit-tested; never loaded in DCS through RetLab.
+- **Setup:** the three mods installed; New Game with `[CH] Iran 2020` as red on a campaign with
+  red missile-site markers, Iranian missile mods ticked on the Mods page, and missile-site fire
+  tasks on (Settings, Performance).
+- **Pass:** red missile sites spawn with these launchers, and each fires once at a blue base;
+  Tacview shows the missile and its impact near a blue field.
+- **Fail signatures:** a missile site with no vehicles (a type id that does not match the mod;
+  `dcs.log` names it); `Couldn't setup missile site to fire` in the Retribution log (no blue base
+  inside the launcher's `threat_range`); a launcher that deploys but never fires (the mod's own
+  fire logic, not RetLab's); a crash to desktop when a TEL moves (the Kheibar author fixed a
+  chassis `trace_width` crash in theirs; the PG IRBM TELs are not known to carry that fix).

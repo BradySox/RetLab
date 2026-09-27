@@ -116,7 +116,10 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   `retlab-air-defense-planning-notes.md`, `retlab-qra-player-manning-notes.md`,
   `retlab-sam-magazines-notes.md` (**scoping only, nothing built** — cross-turn SAM missile
   stock on the §81 architecture; the IADS/ROE seam is verified clean and the off-mission
-  drain hook found, so it is buildable on a decision)
+  drain hook found, so it is buildable on a decision),
+  `retlab-iran-iads-deployment-notes.md` (**research, for laying Iran out in a campaign** —
+  three sources on where Iran's SAMs sit, which DCS map carries which part, the campaign-by-
+  campaign changes, and the temporary third-party missile-mod support)
 - **EW / ISR / comms** — `retlab-c130-ew-isr-notes.md`,
   `retlab-gps-jamming-notes.md`,
   `retlab-iads-c2-consequences-notes.md`

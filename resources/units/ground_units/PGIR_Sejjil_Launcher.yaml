@@ -1,0 +1,9 @@
+class: Missile
+description: "Sejjil-2 is Iran's two-stage, solid-fuel medium-range ballistic missile, first flown in 2008. Range about 2,000 km."
+introduced: 2009
+manufacturer: Aerospace Industries Organization
+origin: Iran
+price: 90
+role: Medium-Range Ballistic Missile
+variants:
+  "Sejjil-2 MRBM TEL [PG IR]": {}
