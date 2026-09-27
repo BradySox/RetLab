@@ -124,6 +124,7 @@ class ModSettings:
     chinesemilitaryassetspack: bool = False
     iranmilitaryassetspack: bool = False
     iranairdefensepack: bool = False
+    iranmissilemods: bool = False
     russianmilitaryassetspack: bool = False
     usamilitaryassetspack: bool = False
     ukmilitaryassetspack: bool = False

@@ -1,0 +1,9 @@
+class: Missile
+description: "Emad is a liquid-fuel medium-range ballistic missile with a maneuvering reentry vehicle, a precision development of the Shahab-3 first tested in 2015. Range about 1,700 km."
+introduced: 2016
+manufacturer: Aerospace Industries Organization
+origin: Iran
+price: 80
+role: Medium-Range Ballistic Missile
+variants:
+  "Emad MRBM TEL [PG IR]": {}

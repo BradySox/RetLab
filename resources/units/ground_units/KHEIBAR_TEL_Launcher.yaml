@@ -1,0 +1,9 @@
+class: Missile
+description: "Kheibar (Khorramshahr-4) is Iran's heaviest liquid-fuel medium-range ballistic missile, unveiled in May 2023, with a 1,500 kg warhead. Range about 2,000 km."
+introduced: 2023
+manufacturer: Aerospace Industries Organization
+origin: Iran
+price: 100
+role: Medium-Range Ballistic Missile
+variants:
+  "Kheibar (Khorramshahr-4) TEL": {}

@@ -1,0 +1,9 @@
+class: Missile
+description: "Fattah-2 is an IRGC ballistic missile carrying a hypersonic glide vehicle, unveiled in November 2023. Range about 1,400 km."
+introduced: 2023
+manufacturer: IRGC Aerospace Force
+origin: Iran
+price: 100
+role: Medium-Range Ballistic Missile
+variants:
+  "Fattah-2 HGV TEL [PG IR]": {}

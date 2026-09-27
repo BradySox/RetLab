@@ -957,6 +957,13 @@ class Faction:
             self.remove_preset("3rd Khordad")
             self.remove_preset("Bavar-373")
             self.remove_preset("Bavar-373-II")
+        # Iranian missile mods (third-party; until the RetLab pack carries its own)
+        if not mod_settings.iranmissilemods:
+            self.remove_vehicle("PGIR_Sejjil_Launcher")
+            self.remove_vehicle("PGIR_Emad_Launcher")
+            self.remove_vehicle("PGIR_Fattah2_Launcher")
+            self.remove_vehicle("PGAD_Shahed238_TEL")
+            self.remove_vehicle("KHEIBAR_TEL_Launcher")
         # Russian Military Assets Pack
         if not mod_settings.russianmilitaryassetspack:
             self.remove_vehicle("CH_2S35")
