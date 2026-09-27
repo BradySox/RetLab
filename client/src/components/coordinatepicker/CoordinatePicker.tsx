@@ -9,7 +9,9 @@
 //
 // Clicks that land on something -- a route, an objective, a base -- belong to that thing
 // and are left alone. Leaflet marks those elements `leaflet-interactive` and still
-// bubbles the click up to the map, so the target is what tells the two apart.
+// bubbles the click up to the map, so the target is what tells the two apart. An area
+// that is interactive only for its hover tooltip (`map-area`: a country's airspace) is
+// map: §98 draws every country, so honouring it left the picker working only at sea.
 //
 // The ruler is the other claim on a bare click: while it is measuring, every click is a
 // vertex of the line being drawn, and a popup on each one is in the way. It marks its
@@ -43,9 +45,11 @@ const CROSSHAIR = L.divIcon({
 });
 
 export function landedOnSomething(target: EventTarget | null): boolean {
-  return (
-    target instanceof Element && target.closest(".leaflet-interactive") !== null
-  );
+  if (!(target instanceof Element)) {
+    return false;
+  }
+  const hit = target.closest(".leaflet-interactive");
+  return hit !== null && !hit.classList.contains("map-area");
 }
 
 // leaflet-ruler puts this class on its control while it is measuring, and takes it off
