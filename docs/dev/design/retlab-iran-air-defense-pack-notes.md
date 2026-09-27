@@ -125,7 +125,7 @@ listed pages; re-check before treating any as settled.
 |---|---|---|
 | Launchers | each TELAR carries its own radar and can detect, track and engage alone (IR) | **Launcher**, guided by the STR: the mast radar is decorative (DM call 2026-09-27) |
 | Battalion | 6 TELARs, an acquisition radar, a fire-control radar, a command post (IR) | as sourced |
-| Missiles per launcher | "24 ready-to-launch missiles" (IR, one outlet); "two or four vertical-launch containers, each housing a single Sayyad-4 or Sayyad-4B" (W, armyrecognition.com), with no source tying the count to the missile; the overhead photograph of an erect launcher shows one nose cap per tower | **4** — the towers are two canisters deep |
+| Missiles per launcher | "24 ready-to-launch missiles" (IR, one outlet); "up to six launchers with four rounds in separate canisters", any of Sayyad-2/3/4/4B (W, Washington Institute table, 2023, before the -II); "two or four vertical-launch containers, each housing a single Sayyad-4 or Sayyad-4B" (W, armyrecognition.com), with no source tying a count to a missile; the overhead photograph of an erect launcher shows one nose cap per tower | **4** on every Bavar launcher — the towers are two canisters deep |
 | TELAR radar | a dish on a tall mast (photograph); no range published | **not modelled** (DM call 2026-09-27); was 65 NM through test 46 |
 | Missile | extended range claimed (IR) | **Sayyad-4B, 108 NM** |
 | DCS analogue | — | **SA-10's 5P85**: a launcher the battery's STR guides (DM call 2026-09-27; was the SA-12's 9A83, a launcher with its own fire-control radar) |
@@ -241,4 +241,4 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 - https://www.theweek.in/news/defence/2026/04/05/how-did-iran-strike-the-us-f-15-meet-the-irgcs-third-khordad-air-defence-missile-system.html
 - https://time.com/article/2026/04/04/f-15-shot-down-iran-search/
 - https://defence-blog.com/israel-over-70-iranian-air-defense-systems-knocked-out/
-- https://www.washingtoninstitute.org/sites/default/files/pdf/2023-iran-airdefense-systems-table-POL3813-printable.pdf (not read; worth reading for a cleaner W table)
+- https://www.washingtoninstitute.org/sites/default/files/pdf/2023-iran-airdefense-systems-table-POL3813.pdf (read 2026-09-27: Bavar-373 launchers carry four rounds; fire-control radar 320 km detection, 260 km tracking; 27 km engagement altitude. Every best estimate here stays under it)
