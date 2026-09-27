@@ -17,6 +17,7 @@ from dcs.unittype import VehicleType
 
 from game import persistency
 from game.factions.faction import Faction
+from game.data.radar_db import LAUNCHER_TRACKER_PAIRS, TELARS, UNITS_WITH_RADAR
 from game.layout import LAYOUTS
 from game.theater.start_generator import ModSettings
 from pydcs_extensions import iranairdefensepack as irad
@@ -111,13 +112,20 @@ def test_skynet_knows_every_unit() -> None:
 
 
 def test_bavar_ii_launchers_are_the_telars() -> None:
-    """Every Bavar-373-II launcher slot is a TELAR, and the one STR is not doubled:
-    the TELARs are the guidance redundancy."""
+    """Every Bavar-373-II launcher slot is a TELAR, all guided by the one STR."""
     layout = LAYOUTS.by_name("Bavar-373-II Battery (Single Radar)")
     groups = {ug.name: ug for ug in layout.all_unit_groups}
     for slot in ("S-300 Site LN1", "S-300 Site LN2"):
         assert groups[slot].unit_types == [irad.IRAD_Bavar373_TELAR]
     assert groups["S-300 Site TR"].unit_count == [1]
+
+
+def test_bavar_ii_telar_is_a_launcher_the_str_guides() -> None:
+    """The TELAR's mast radar is decorative in the mod (DM call 2026-09-27), so its
+    threat ring lives and dies with the STR, as the Bavar-373 TEL's does."""
+    assert irad.IRAD_Bavar373_TELAR not in TELARS
+    assert irad.IRAD_Bavar373_TELAR not in UNITS_WITH_RADAR
+    assert LAUNCHER_TRACKER_PAIRS[irad.IRAD_Bavar373_TELAR] == (irad.IRAD_Bavar373_STR,)
 
 
 @pytest.mark.parametrize(

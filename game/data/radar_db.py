@@ -35,7 +35,6 @@ from pydcs_extensions import usamilitaryassetspack as usamap
 
 TELARS = {
     irad.IRAD_3Khordad_TELAR,
-    irad.IRAD_Bavar373_TELAR,
     AirDefence.x_2S6_Tunguska,
     AirDefence.SA_11_Buk_LN_9A310M1,
     AirDefence.Osa_9A33_ln,
@@ -158,6 +157,7 @@ LAUNCHER_TRACKER_PAIRS = {
     irad.IRAD_AlamAlHoda_TEL: (irad.IRAD_3Khordad_TELAR,),
     irad.IRAD_Bavar373_LN: (irad.IRAD_Bavar373_STR,),
     irad.IRAD_Bavar373_LN_4B: (irad.IRAD_Bavar373_STR,),
+    irad.IRAD_Bavar373_TELAR: (irad.IRAD_Bavar373_STR,),
     rmap.CH_BukM3_9A317M: (rmap.CH_BukM3_9S36M,),
     rmap.CH_BukM3_9A317MA: (rmap.CH_BukM3_9S36M,),
     rmap.CH_S350_50P6_9M96D: (rmap.CH_S350_50N6,),
@@ -264,7 +264,6 @@ UNITS_WITH_RADAR = {
     irad.IRAD_Meraj4_SR,
     irad.IRAD_Hafez_SR,
     irad.IRAD_Bavar373_STR,
-    irad.IRAD_Bavar373_TELAR,
     irad.IRAD_MatlaUlFajr_EWR,
     cmap.CH_LD3000,
     cmap.CH_LD3000_stationary,
