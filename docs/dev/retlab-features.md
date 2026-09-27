@@ -10949,16 +10949,17 @@ In-game row **B145**. Upstreaming queue item 42.
 Retribution support for a RetLab-authored DCS mod carrying Iran's two SAM systems. The repo
 side is built; the mod is built on the DM's machine. Design, the unit contract and the research:
 `docs/dev/design/retlab-iran-air-defense-pack-notes.md`. The build instructions for the mod:
-`docs/dev/design/retlab-iran-air-defense-pack-HANDOFF.md`. Built 2026-09-25, not flown.
+`docs/dev/design/retlab-iran-air-defense-pack-HANDOFF.md`. Built 2026-09-25; flown in tests
+41-46 (row B148).
 
-- `pydcs_extensions/iranairdefensepack/`: nine `IRAD_` vehicle types. Their ids are the
+- `pydcs_extensions/iranairdefensepack/`: twelve `IRAD_` vehicle types. Their ids are the
   contract with the mod's `Database` lua.
 - Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
-  `Faction.apply_mod_settings` strips all nine and both presets when it is off.
+  `Faction.apply_mod_settings` strips all twelve and the three presets when it is off.
 - Presets `3rd Khordad` (MERAD), `Bavar-373` and `Bavar-373-II` (LORAD). `[CH] Iran 2020` fields
   all three; `Iran 2015` fields 3rd Khordad only.
-- `Bavar-373-II Battery (Single Radar)`: six TELARs with their own radars and one STR; the
-  TELARs are the redundancy, so the STR is not doubled.
+- `Bavar-373-II Battery (Single Radar)`: six TELARs and one STR. The TELARs' mast radars are
+  decorative (DM call 2026-09-27): the STR guides every TELAR, as on an S-300 site.
 - `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60
   pair, and never zero), 4 radar-less TELs.
 - `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, with the §85 support section.

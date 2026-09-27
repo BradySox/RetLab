@@ -8657,7 +8657,9 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
   and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
-  Sayyad-4B launcher); a HARM on one TELAR or one STR leaves the site still able to fire.
+  Sayyad-4B launcher); a HARM on one STR leaves a Bavar-373 site (two STRs) still able to fire.
+  The Bavar-373-II has one STR guiding all six TELARs (DM call 2026-09-27), so a HARM on it
+  silences that site.
 - **Fail signatures:** a vehicle missing from the site (a type id that does not match the
   mod); `dcs.log` naming an `IRAD_` type as unknown; a site that never goes live (Skynet
   entry not matched); Alam al-Hoda TELs that never fire while the TELAR is alive; a launcher
@@ -8692,5 +8694,28 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   at **118 km**, the TELAR radar's 120 km edge and beyond its ~102 km lock, so no missile was ever
   guided. Fixed: firing range capped inside the guiding radar's lock (TELAR 95 km, 4B TEL 160 km);
   RetLab's pydcs threat ranges lowered to match (51 / 86 NM). Unflown.
-- **Fail signature:** a salvo that starts right at a radar's detection edge, one missile every few
-  seconds, each dying early = the launcher fires beyond what its radar can lock.
+- **Test 45 (2026-09-26, Tacview):** the range cap loaded (DCS started after the pack commit) and
+  changed nothing: the first salvo still began at 118 km, against an F-16 closing at ~800 km/h. So
+  test 44's cause was wrong. 24 Sayyad-4B from the TELARs; 18 died within 6-22 s, most at 6 s
+  while still vertical (~5,000 ft, 0 NM downrange); never more than ~2-3 alive at once. The 6 that
+  flew on went 54-65 NM and passed 7-18 km from F-16s; no hits. The 3rd Khordad sites fired 16
+  Taer-2B from 56 km inward and killed an F-16 of the DEAD flight.
+  Cause, found by diffing against ED's S-300 TR: the TELAR's mast radar had **one** target
+  channel (two missile slots); ED's has six. Fixed in the pack (five inherited tracker channels,
+  as the STR already had); unflown. The range cap stays.
+- **Test 46 (2026-09-27, Tacview):** DCS started after the six-channel commit, and the TELARs
+  failed the same way, so test 45's cause was wrong too. 24 Sayyad-4B: 19 died at 6, 10 or 14 s,
+  each salvo together about 6 s after its last launch, youngest first, with no HARM in the air.
+  The 5 that flew on left the canister vertically, were still climbing at ~60° at burnout (14 s,
+  ~40,000 ft) and coasted to 101,000-128,000 ft. Each crossed an F-16's ground track 0.6-0.8 km
+  away at ~100,000 ft and ended 3-46 km from any aircraft; no hits.
+  Cause, found by diffing against ED's 48N6 (`TechWeaponPack`, `s300_s400_family.lua`):
+  ModelData[13], the angle of attack available by thrust vectoring, is 1.0 there and was 0 on
+  ours, so a cold-launched Sayyad could not turn over until it had airspeed. Fixed in the pack;
+  the salvo deaths should go with it (the fire control abandoning missiles that cannot reach),
+  to be confirmed. Also from 2026-09-27: the TELAR is a launcher the STR guides (DM call), so the
+  channel fix went with its radar. Unflown.
+- **Fail signature:** a Sayyad still climbing at ~60° at motor burnout (~14 s) and coasting to
+  100,000+ ft = no thrust vectoring (the pack's ModelData[13]), not the radar or the range. A
+  salvo dying together a few seconds after its last launch, with no HARM in the air, is most
+  likely the same fault.

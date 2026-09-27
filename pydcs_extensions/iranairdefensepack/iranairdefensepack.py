@@ -101,9 +101,9 @@ class IRAD_Bavar373_LN_4B(unittype.VehicleType):
 class IRAD_Bavar373_TELAR(unittype.VehicleType):
     id = "IRAD_Bavar373_TELAR"
     name = "[IRAD] Bavar-373-II TELAR"
-    detection_range = 120000
-    threat_range = 95000
-    air_weapon_dist = 95000
+    detection_range = 0
+    threat_range = 160000
+    air_weapon_dist = 160000
     eplrs = True
 
 
