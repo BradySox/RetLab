@@ -69,8 +69,9 @@ CurrentHill's.
   section, Soviet kit.
 - **Bavar-373-II Battery (Single Radar)** — the same template with six TELARs and **one** STR. The
   TELARs' mast radars are decorative (DM call 2026-09-27), so the STR guides every TELAR and a
-  HARM on it silences the site. `Single Radar` in the name is the redundancy test's marker for
-  a deliberate single engagement radar.
+  HARM on it silences the site. The single STR is kept on purpose (DM call 2026-09-27: not
+  doubled). `Single Radar` in the name is the redundancy test's marker for a deliberate single
+  engagement radar.
 - Bavar-373 is a strategic system; the §60 two-STR layout is used rather than a regiment
   layout. **Record the switch here if a campaign ever authors it regiment-style.**
 
@@ -125,7 +126,7 @@ listed pages; re-check before treating any as settled.
 |---|---|---|
 | Launchers | each TELAR carries its own radar and can detect, track and engage alone (IR) | **Launcher**, guided by the STR: the mast radar is decorative (DM call 2026-09-27) |
 | Battalion | 6 TELARs, an acquisition radar, a fire-control radar, a command post (IR) | as sourced |
-| Missiles per launcher | "24 ready-to-launch missiles" (IR, one outlet); "up to six launchers with four rounds in separate canisters", any of Sayyad-2/3/4/4B (W, Washington Institute table, 2023, before the -II); "two or four vertical-launch containers, each housing a single Sayyad-4 or Sayyad-4B" (W, armyrecognition.com), with no source tying a count to a missile; the overhead photograph of an erect launcher shows one nose cap per tower | **4** on every Bavar launcher — the towers are two canisters deep |
+| Missiles per launcher | "24 ready-to-launch missiles" (IR, one outlet); "up to six launchers with four rounds in separate canisters", any of Sayyad-2/3/4/4B (W, Washington Institute table, 2023, before the -II); "two or four vertical-launch containers, each housing a single Sayyad-4 or Sayyad-4B" (W, armyrecognition.com), with no source tying a count to a missile; the overhead photograph of an erect launcher shows one nose cap per tower | **4** on every Bavar launcher (DM call 2026-09-27) — the towers are two canisters deep |
 | TELAR radar | a dish on a tall mast (photograph); no range published | **not modelled** (DM call 2026-09-27); was 65 NM through test 46 |
 | Missile | extended range claimed (IR) | **Sayyad-4B, 108 NM** |
 | DCS analogue | — | **SA-10's 5P85**: a launcher the battery's STR guides (DM call 2026-09-27; was the SA-12's 9A83, a launcher with its own fire-control radar) |

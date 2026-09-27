@@ -19,7 +19,7 @@ groups:
       unit_types:
         - IRAD_Bavar373_CP
     # One STR guides every TELAR: their mast radars are decorative in the mod (DM call
-    # 2026-09-27), so a HARM on this STR silences the site.
+    # 2026-09-27), so a HARM on this STR silences the site. Kept single on purpose (DM call).
     - name: S-300 Site TR
       unit_count:
         - 1
