@@ -494,7 +494,7 @@ Build candidates, fork-first. Nothing here is a carve today.
 
 | Issue | Fork state |
 |---|---|
-| ✔ [#869](https://github.com/dcs-retribution/dcs-retribution/issues/869) UI-configurable tanker speed | **Built 2026-09-28**: `tanker_orbit_speed_set` + `tanker_orbit_speed_kias` (200-350 KIAS, converted to TAS at track altitude). Carve candidate under the issue-ledger exception; row B152 owed |
+| ✔ [#869](https://github.com/dcs-retribution/dcs-retribution/issues/869) UI-configurable tanker speed | **Built 2026-09-28**: `tanker_orbit_speed_set` + `tanker_orbit_speed_kias` (200-350 KIAS, converted to TAS at track altitude). Carve candidate under the issue-ledger exception. **DM 2026-09-28: carve only after B152 is flown**, speed setting only (the tanker box stays fork-side while experimental) |
 | ✔ [#586](https://github.com/dcs-retribution/dcs-retribution/issues/586) Restrict frontline non-AD units from engaging air | Fork has the `manpads` setting only |
 | ✔ [#244](https://github.com/dcs-retribution/dcs-retribution/issues/244) Customizable savegame folders | §66 archives generated missions; it does not make `layouts` / `groups` / `scripts` user-overridable |
 | · [#734](https://github.com/dcs-retribution/dcs-retribution/issues/734) Aircraft spawn on occupied ramp slots | **Check this first.** A crash-on-spawn bug, and whether the fork carries it is unverified. §64 covers carrier decks only |
