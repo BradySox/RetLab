@@ -140,9 +140,9 @@ flight getting the point; only the app and a flight show the map, the timing and
 escorts staying with the strikers. Note:
 [`retlab-package-route-notes.md`](../design/retlab-package-route-notes.md).
 
-**Try:** a Strike package with an Escort and a SEAD Escort. Package window → **Package
-route** → select Join → **Insert NAV point**. Select the Strike on the map and drag the new
-point well off the straight line. Check each flight's Waypoints tab, then fly or watch in
+**Try:** a Strike package with an Escort and a SEAD Escort. Select any of its flights, then
+on the map **double-click** its route between the join and the IP and **drag** the new point
+well off the straight line. Check each flight's Waypoints tab, then fly or watch in
 Tacview. **~15 min.**
 
 - **Record:** whether all three flights have the point; whether they reach the join

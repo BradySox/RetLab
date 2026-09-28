@@ -1,6 +1,7 @@
 # Package route and Insert NAV point (§106)
 
-**Built 2026-09-27, not flown.** Rows B150 (Insert NAV), B151 (package route).
+**Built 2026-09-27, not flown; map editing added 2026-09-28.** Rows B150 (Insert NAV),
+B151 (package route and the map).
 
 Two reports from the DM on 2026-09-27, with screenshots:
 
@@ -83,13 +84,13 @@ positions per leg.
 - A new point is flown at each flight's own height: the higher of its neighbours in that
   flight's route. An escort's is `only_for_player`, as the escort builder makes them.
 
-**Three ways in:**
+**Three ways in; the map is the main one** (section 9):
 
 | Where | What |
 |---|---|
-| Package window → **Package route** | The route as a table: join, way in, IP, target, way out, split. Insert NAV point (after the selected row; the IP and split take it on the leg before), Delete, Move Up / Down, Reset to planned route. |
+| The map | With any flight of the package selected: **drag** a point to move it for every flight, **double-click** the route to add a NAV point there, **right-click** a point to delete it. |
+| Package window → **Package route** | An overview: join, way in, IP, target, way out, split. Insert NAV point (after the selected row; the IP and split take it on the leg before), Delete, Move Up / Down, Reset to planned route. |
 | A flight's Waypoints tab | Insert NAV point or Delete on the way in or out asks **Whole package / This flight only / Cancel**, when more than one flight flies the route. |
-| The map | Dragging a way-in or way-out point on the **primary** flight moves it for every flight. |
 
 Each edit redraws the package's flights on the map and re-runs ASAP for the package.
 
@@ -99,12 +100,12 @@ Each edit redraws the package's flights on the map and re-runs ASAP for the pack
    column with no tabs; a separate window keeps it that way.
 2. **The window is not modal**, so the map stays usable to drag points; it re-reads the
    package when it is next active.
-3. **Map drags move the package from the primary flight only.** That is upstream's rule for
-   the join, IP, split and refuel; an escort's point dragged alone moves the escort alone.
+3. ~~Map drags move the package from the primary flight only.~~ **Changed 2026-09-28:**
+   a drag on any flight that flies the package route moves the package (section 9).
 4. **The flight tab asks every time** rather than picking a default. A point on one flight's
    shared leg is sometimes wanted (a player flight's own IP run-in) and usually not.
-5. **Positions are edited on the map, not typed.** The window shows coordinates in the
-   campaign's format.
+5. **Positions are edited on the map, not typed.** Confirmed by the DM 2026-09-28: "I will
+   never type in cords for points, I wanna move the points on the map."
 
 ## 5. Gotchas
 
@@ -139,16 +140,48 @@ Each edit redraws the package's flights on the map and re-runs ASAP for the pack
   plan, both zigzags, identity, move.
 - `tests/ato/test_package_route.py` — who flies the route, insert / delete / move / drag /
   reset on every flight, seeding from the primary, rebuilding a flight out of step, index
-  mapping, the planner reading the package's points, the map-drag hook, an old save.
+  mapping, the planner reading the package's points, the map-drag hook from the primary
+  and from an escort, a helicopter's drag, an old save.
+- `tests/ato/test_route_edit.py` — the map: a click on each kind of leg, the attack run
+  refused, deleting a package point and a flight's own, a fixed point refused, the flags
+  the map is sent.
 - `tests/test_package_route_dialog.py` — the window, offscreen.
+- Client: `FlightPlansLayer.test.tsx` (double-click on the selected route, and on one that
+  is not), `waypointmarker/notice.test.ts`.
 
 ## 8. Deferred
 
-- Inserting from the map (alt-click on a leg, a right-click waypoint menu): juanjux's #235
-  and #238 did this for single flights. Not adopted here.
-- Typed coordinates for a point.
+- Typed coordinates for a point (the DM does not want them).
 - Keeping a flight's own point across a package edit.
-- Moving the join, IP or split from the window (they move by dragging on the map today).
+- Reordering on the map (Move Up / Down stays in the window and the flight tab).
+
+## 9. Map editing (2026-09-28)
+
+The DM on the Package route window, with a screenshot of every button greyed: "This menu
+is impossible to edit the points, I will never type in cords for points I wanna move the
+points on the map."
+
+- The window opened with no row selected, so every button was disabled; it now opens on
+  the first row. Its hint describes the map controls below.
+- **Drag** (`game/server/waypoints/routes.py`, `update_package_waypoints`): a drag of the
+  join, IP, split, refuel or a way-in / way-out point moves it for the package from
+  **any flight on the package route**, not only the primary. `packageroute.moves_package`
+  is the one rule; the marker's tooltip reads it ("Moves for the whole package").
+- **Double-click** the selected flight's route (`POST /waypoints/{flight}/insert`,
+  `routeedit.insert_nav_at`): the server takes the drawn leg nearest the click and puts a
+  NAV point at the click, if the plan has a slot on that leg (`nav_insert_on_leg`: right
+  after the leg's start, else right before its end, never the far side of either). On
+  the way in or out it lands on every flight, without asking: on the map the package
+  route is the package's. Elsewhere it changes that flight only.
+- **Right-click** a point (`DELETE /waypoints/{flight}/{idx}`, `routeedit.delete_nav`): a
+  NAV or custom point is deleted (from every flight, when it is a package point); a fixed
+  point says to drag it instead.
+- A refusal (the attack run, a fixed point) comes back as a 409 with the reason, and the
+  map shows it in a popup where it was tried (`waypointmarker/notice.ts`).
+- Only the **selected** route takes a double-click, so an unselected route still zooms.
+  While the ruler is measuring, a double-click is the ruler's.
+- An escort in a package whose primary flies its own way (an air assault) is not on a
+  package route (`on_package_route`), so its edits are its own.
 
 Everything here is upstreamable. The insert rule is a clean upstream bug fix (the two
 zigzags are upstream's); the package route is a feature and waits for the freeze to lift.

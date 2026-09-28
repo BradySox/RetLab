@@ -11011,9 +11011,11 @@ In-game row **B148**.
 ## §106 — Package route and Insert NAV point
 
 A package's way in (join to IP) and way out (target to split) are flown by every formation
-flight together, so a NAV point on them belongs to the package. The Package route window
-edits them once for every flight; Insert NAV point in a flight's Waypoints tab now finds a
-leg beside any waypoint. Built 2026-09-27 from two DM reports, not flown. Design note:
+flight together, so a NAV point on them belongs to the package. They are edited on the
+map, from any flight of the package: drag a point, double-click the route to add one,
+right-click a point to delete it. The Package route window is the overview; Insert NAV
+point in a flight's Waypoints tab finds a leg beside any waypoint. Built 2026-09-27, map
+editing 2026-09-28, not flown. Design note:
 [`retlab-package-route-notes.md`](design/retlab-package-route-notes.md).
 
 ### Files
@@ -11030,8 +11032,17 @@ leg beside any waypoint. Built 2026-09-27 from two DM reports, not flown. Design
   edits a leg.
 - `game/ato/flightplans/formationattack.py` — `package_route_points`: the package's points
   when set, else the planner's SAM detour. `_sam_detours` builds every flight's legs from it.
-- `game/server/waypoints/routes.py` — a drag of the primary flight's way-in or way-out
-  point moves it for every flight.
+- `game/ato/routeedit.py` — the map's edits: `insert_nav_at` (the drawn leg nearest the
+  click), `delete_nav`, `is_deletable`; a refusal is `RouteEditRefused` with the reason.
+- `game/server/waypoints/routes.py` — `POST /waypoints/{flight}/insert`,
+  `DELETE /waypoints/{flight}/{idx}` (409 with the reason when refused), and
+  `update_package_waypoints`: a drag of a package point on any flight of the route moves
+  it for all (`packageroute.moves_package`).
+- `game/server/waypoints/models.py` — each waypoint tells the map `deletable` and
+  `package_point`.
+- `client/src/components/flightplan/FlightPlan.tsx` — double-click on the selected route;
+  `waypointmarker/WaypointMarker.tsx` — the right-click menu; `waypointmarker/notice.ts` —
+  a refusal said on the map.
 - `qt_ui/windows/mission/QPackageRouteDialog.py` — the window; **Package route** button on
   the package dialog.
 - `qt_ui/windows/mission/flight/waypoints/QFlightWaypointTab.py` — Insert NAV point and
@@ -11052,20 +11063,23 @@ leg beside any waypoint. Built 2026-09-27 from two DM reports, not flown. Design
   the next package edit; its own point is dropped.
 - The strike line-up is per flight and not on the package route.
 - Helicopters and air assault fly no package route; a package whose primary does not has
-  none, and the button is disabled.
+  none, and the button is disabled. An escort in such a package edits only itself.
+- Only the selected route takes a double-click, so the others still zoom the map; while
+  the ruler measures, a double-click is the ruler's.
 
 ### Tests
 
-`tests/ato/flightplans/test_nav_insert.py` (18), `tests/ato/test_package_route.py` (27),
-`tests/test_package_route_dialog.py` (5).
+`tests/ato/flightplans/test_nav_insert.py` (18), `tests/ato/test_package_route.py` (28),
+`tests/ato/test_route_edit.py` (9), `tests/test_package_route_dialog.py` (6), and the
+client's `FlightPlansLayer.test.tsx` and `waypointmarker/notice.test.ts`.
 
 ### Needs an in-game pass — B150, B151
 
 B150: Insert NAV point beside the join, the line-up, the last target and the split, and
-the refusals. B151: the package route window, the flight tab's question, the map drag and
-a flown package on an edited route.
+the refusals. B151: the map (drag from any flight, double-click to add, right-click to
+delete), the window, the flight tab's question, and a flown package on an edited route.
 
 ### Deferred
 
-- Inserting from the map (juanjux #235/#238 do it per flight); typed coordinates; keeping
-  a flight's own point across a package edit.
+- Typed coordinates (the DM does not want them); keeping a flight's own point across a
+  package edit; reordering on the map.

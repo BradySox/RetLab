@@ -166,9 +166,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Packages route around SAM rings they do not need to enter on the way from the join to the
   target and back to the split, instead of flying straight through. Part of the RetLab planner
   suite.
-- **Package route** (package window) edits the way in and out that every flight in a package
-  flies together. A NAV point added there goes into every flight's route, so the package
-  still meets at the join. Drag a point on the primary flight's route to move it for all.
+- Edit a route on the map. With a flight selected, drag a point to move it, double-click
+  the route to add a point there, and right-click a point to delete it.
+- The way in and out of a package (join to IP, target to split) is flown by every flight
+  together, so a point moved, added or deleted there changes every flight in the package.
+  The package window's **Package route** button lists it.
 - Insert NAV point in a flight's Waypoints tab adds a point beside any waypoint with a leg
   next to it. On the package route it asks whether the point is for the whole package.
 - A TARCAP in a package with SEAD or DEAD arrives with the suppression, not up to 20 minutes

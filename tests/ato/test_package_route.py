@@ -86,7 +86,12 @@ def _package(ingress_nav: int = 0, egress_nav: int = 0) -> _Package:
         _point(20), _point(50), _point(52), _point(80), _point(90)
     )
     target = SimpleNamespace(position=_point(60), name="AARDWOLF")
-    return _Package(flights=[strike, escort, helo], waypoints=waypoints, target=target)
+    package = _Package(
+        flights=[strike, escort, helo], waypoints=waypoints, target=target
+    )
+    for flight in package.flights:
+        flight.package = package
+    return package
 
 
 def _navs(package: _Package, leg: Leg) -> list[list[FlightWaypoint]]:
@@ -290,42 +295,45 @@ class _Events:
 
 
 def test_dragging_the_primarys_point_on_the_map_moves_the_package() -> None:
-    from game.server.waypoints.routes import (
-        update_package_waypoints_if_primary_flight,
-    )
+    from game.server.waypoints.routes import update_package_waypoints
 
     package = _package(ingress_nav=1)
     strike, escort, _ = package.flights
-    for flight in package.flights:
-        flight.package = package
     dragged = packageroute.sequence(strike, Leg.IN)[0]
     dragged.position = _point(34, 7)
     events = _Events()
-    update_package_waypoints_if_primary_flight(
-        dragged, cast(Any, strike), cast(Any, events)
-    )
+    update_package_waypoints(dragged, cast(Any, strike), cast(Any, events))
     assert packageroute.sequence(escort, Leg.IN)[0].position == _point(34, 7)
     assert package.waypoints.ingress_nav == [_point(34, 7)]
     assert events.updated == [escort]
 
 
-def test_dragging_an_escorts_point_moves_only_the_escort() -> None:
-    """The map's existing rule: only the primary's route speaks for the package."""
-    from game.server.waypoints.routes import (
-        update_package_waypoints_if_primary_flight,
-    )
+def test_dragging_an_escorts_point_moves_the_package_too() -> None:
+    """Upstream let only the primary move the package; the map works from any flight."""
+    from game.server.waypoints.routes import update_package_waypoints
 
     package = _package(ingress_nav=1)
     strike, escort, _ = package.flights
-    for flight in package.flights:
-        flight.package = package
     dragged = packageroute.sequence(escort, Leg.IN)[0]
     dragged.position = _point(34, 7)
-    update_package_waypoints_if_primary_flight(
-        dragged, cast(Any, escort), cast(Any, _Events())
-    )
-    assert packageroute.sequence(strike, Leg.IN)[0].position == _point(30)
-    assert package.waypoints.ingress_nav is None
+    events = _Events()
+    update_package_waypoints(dragged, cast(Any, escort), cast(Any, events))
+    assert packageroute.sequence(strike, Leg.IN)[0].position == _point(34, 7)
+    assert package.waypoints.ingress_nav == [_point(34, 7)]
+    assert events.updated == [strike]
+
+
+def test_a_helicopters_point_is_its_own() -> None:
+    """A helicopter flies no package route, so its drag moves nothing else."""
+    from game.server.waypoints.routes import update_package_waypoints
+
+    package = _package(ingress_nav=1)
+    strike, _, helo = package.flights
+    join = helo.flight_plan.layout.join
+    join.position = _point(22, 9)
+    update_package_waypoints(join, cast(Any, helo), cast(Any, _Events()))
+    assert package.waypoints.join == _point(20)
+    assert strike.flight_plan.layout.join.position == _point(20)
 
 
 def test_a_flights_own_point_does_not_count_along_the_package_leg() -> None:
@@ -396,21 +404,15 @@ def test_the_split_takes_its_point_on_the_leg_before_it() -> None:
 
 
 def test_a_point_the_primary_carries_alone_moves_alone() -> None:
-    from game.server.waypoints.routes import (
-        update_package_waypoints_if_primary_flight,
-    )
+    from game.server.waypoints.routes import update_package_waypoints
 
     package = _package(ingress_nav=1)
     strike, escort, _ = package.flights
-    for flight in package.flights:
-        flight.package = package
     packageroute.insert(cast(Any, package), Leg.IN, 1, _point(32))
     private = _wp("PRIVATE", T.NAV, 33, 25000)
     packageroute.sequence(strike, Leg.IN).append(private)
     private.position = _point(34, 7)
-    update_package_waypoints_if_primary_flight(
-        private, cast(Any, strike), cast(Any, _Events())
-    )
+    update_package_waypoints(private, cast(Any, strike), cast(Any, _Events()))
     assert package.waypoints.ingress_nav == [_point(30), _point(32)]
     assert [w.position for w in packageroute.sequence(escort, Leg.IN)] == [
         _point(30),

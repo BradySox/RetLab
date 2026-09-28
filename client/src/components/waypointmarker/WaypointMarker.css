@@ -1,0 +1,13 @@
+/* The right-click menu on a waypoint, and the reason a route edit was refused. */
+.route-menu-title {
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.route-menu button {
+  cursor: pointer;
+}
+
+.route-notice {
+  max-width: 260px;
+}

@@ -1,8 +1,8 @@
 """The package route window: the way in and out every flight in a package flies.
 
 A view over game/ato/packageroute.py, which does the work and is where the rules are.
-Not modal, so the map stays usable: a point is moved by dragging it on the primary
-flight's route, and the table reads the package again when the window is next active.
+Points are moved on the map, from any flight of the package (game/ato/routeedit.py),
+so the window is not modal and reads the package again when it is next active.
 """
 
 from __future__ import annotations
@@ -113,7 +113,8 @@ class QPackageRouteDialog(QDialog):
         layout.addLayout(close_row)
 
         self.rows: list[RoutePoint] = []
-        self.refresh()
+        # A row selected from the start, or every button opens greyed out.
+        self.refresh(select=0)
 
     def changeEvent(self, event: QEvent) -> None:
         # A drag on the map moved a point while this window was in the background.
@@ -161,9 +162,9 @@ class QPackageRouteDialog(QDialog):
             )
         else:
             self.move_hint.setText(
-                "To move a point, select the primary flight "
-                f"({package.primary_flight}) and drag the point on the map. The rest "
-                "of the package follows."
+                "On the map, with any flight of this package selected: drag a point "
+                "to move it for the whole package, double-click the route to add a "
+                "point there, and right-click a point to delete it."
             )
         lines = [f"Flown by: {', '.join(str(f) for f in flying) or 'none'}"]
         if own_way:

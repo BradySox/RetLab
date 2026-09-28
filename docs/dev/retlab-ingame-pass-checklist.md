@@ -8773,24 +8773,35 @@ lands next to the selected waypoint. Unit-tested (`test_nav_insert.py`).
 ### B151 — The package route moves every flight in the package · §106 · ☐ UNTESTED
 
 Built 2026-09-27 from the DM's ask: "there should be a package waypoint edit". The package
-owns its join-to-IP and target-to-split NAV points; the window, the flight tab and a drag on
-the primary flight edit them for every flight. Unit-tested (`test_package_route.py`,
-`test_package_route_dialog.py`); never used in the app or flown.
+owns its join-to-IP and target-to-split NAV points. **2026-09-28:** the DM found the window
+could not move a point ("I wanna move the points on the map"); routes are now edited on the
+map from any flight of the package. Unit-tested (`test_package_route.py`,
+`test_route_edit.py`, `test_package_route_dialog.py`, the client's `FlightPlansLayer.test`);
+never used in the app or flown.
 
-- **Setup:** a Strike package with an Escort and a SEAD Escort (all fixed-wing). Package
-  window → Package route.
+- **Setup:** a Strike package with an Escort and a SEAD Escort (all fixed-wing). Select the
+  **escort** in the ATO so its route is the one on the map.
+- **Pass (map):** double-click the route between the join and the IP: a NAV point appears
+  there on all three routes. Drag it off the line: all three follow. Right-click it →
+  **Delete it from every flight**: gone from all three.
+- **Pass (map):** double-click a transit leg (hold to join): the point is on that flight only.
+  Double-click between the IP and the target: a popup says the plan flies that leg straight.
+  Right-click the Join: it says to drag it instead.
+- **Pass (map):** drag the escort's Join: every flight's join moves with it.
+- **Pass (app):** Package window → Package route opens on the first row with Insert enabled.
 - **Pass (app):** the table reads Join, the way-in NAVs, Ingress (IP), Target, the way-out
   NAVs, Split, and Flown by names the three flights. Insert NAV point after Join: every
   flight's Waypoints tab shows the new NAV between its Join and its IP, and the map draws it
   on all three routes. Delete and Move act on all three. Reset to planned route puts back the
   planner's detours.
-- **Pass (app):** select the Strike on the map and drag its new NAV: the escorts' NAVs move
-  with it, and the window shows the new coordinates when you click back into it. Dragging the
-  escort's NAV moves the escort's only.
+- **Pass (app):** drag a NAV on the map and click back into the Package route window: it
+  shows the new coordinates.
 - **Pass (app):** with ASAP on, the TOT updates once after each edit and stays put.
 - **Pass (app):** add a flight to the package after the edit: its route has the same NAV.
 - **Pass (flown):** the package flies the edited route and meets at the join together; the
   escorts stay with the strikers through the added point.
 - **Fail signatures:** one flight without the point (it was not counted as flying the route);
   the escorts reaching the join minutes before or after the strikers (join times out of step);
-  a new flight flying the planner's detour instead of the edited route; the TOT flipping.
+  a new flight flying the planner's detour instead of the edited route; the TOT flipping; a
+  double-click that zooms the map instead of adding a point; the browser's own menu on a
+  right-click.

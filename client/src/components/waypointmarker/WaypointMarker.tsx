@@ -1,9 +1,12 @@
 import {
   Flight,
   Waypoint,
+  useDeleteWaypointMutation,
   useSetWaypointPositionMutation,
 } from "../../api/liberationApi";
-import { Icon } from "leaflet";
+import "./WaypointMarker.css";
+import { refusal, showNotice } from "./notice";
+import L, { Icon } from "leaflet";
 import { Marker as LMarker } from "leaflet";
 import icon from "leaflet/dist/images/marker-icon.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
@@ -39,6 +42,7 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
   const marker: MutableRefObject<LMarker | undefined> = useRef();
 
   const [putDestination] = useSetWaypointPositionMutation();
+  const [deleteWaypoint] = useDeleteWaypointMutation();
 
   const rebindTooltip = useCallback(() => {
     if (marker.current === undefined) {
@@ -62,11 +66,45 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
     marker.current?.setTooltipContent(
       `${props.number-1} ${waypoint.name}<br />` +
         `${waypoint.altitude_ft.toFixed()} ft ${waypoint.altitude_reference}<br />` +
-        waypoint.timing
+        waypoint.timing +
+        (waypoint.package_point ? "<br />Moves for the whole package" : "") +
+        (waypoint.deletable ? "<br />Right-click: delete" : ""),
     );
   });
 
   const waypoint = props.waypoint;
+
+  // Right-click: delete a NAV point, or say why a fixed one cannot go.
+  const openMenu = () => {
+    const box = L.DomUtil.create("div", "route-menu");
+    const title = L.DomUtil.create("div", "route-menu-title", box);
+    title.textContent = waypoint.name;
+    if (waypoint.deletable) {
+      const button = L.DomUtil.create("button", "", box);
+      button.textContent = waypoint.package_point
+        ? "Delete it from every flight"
+        : "Delete this point";
+      L.DomEvent.on(button, "click", async (event: Event) => {
+        L.DomEvent.stop(event);
+        map.closePopup();
+        try {
+          await deleteWaypoint({
+            flightId: props.flight.id,
+            waypointIdx: props.number,
+          }).unwrap();
+        } catch (error) {
+          showNotice(map, waypoint.position, refusal(error, "Could not delete it"));
+        }
+      });
+    } else {
+      const note = L.DomUtil.create("div", "", box);
+      note.textContent = "A fixed point of the plan: drag it to move it.";
+    }
+    L.popup({ autoPan: false })
+      .setLatLng(waypoint.position)
+      .setContent(box)
+      .openOn(map);
+  };
   return (
     <Marker
       position={waypoint.position}
@@ -76,6 +114,10 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
         dragstart: (e) => {
           const m: LMarker = e.target;
           m.setTooltipContent("Waiting to recompute TOT...");
+        },
+        contextmenu: (e) => {
+          L.DomEvent.stopPropagation(e);
+          openMenu();
         },
         dragend: async (e) => {
           const m: LMarker = e.target;
