@@ -125,7 +125,10 @@ Each edit redraws the package's flights on the map and re-runs ASAP for the pack
   polygon, interactive for its hover tooltip, and the picker leaves any click on an
   interactive shape to that shape. With neutral border defense on it answered only over the
   sea. The border polygons now carry `map-area` (hover only), which the picker treats as
-  bare map.
+  bare map. The class first went in `pathOptions` and never reached the DOM: react-leaflet
+  applies those through `setStyle`, and Leaflet reads `className` only when it creates the
+  path. Reported still broken 2026-09-28; `CasedShapes` now passes it as a creation prop,
+  and `CasedShapes.test.tsx` checks it reaches the constructor.
 - **ASAP recursion (§104).** The runway queue reads each takeoff from the package TOT, so
   one ASAP estimate depended on the TOT it was taken at and flipped between two times. The
   package dialog saved each redraw back through `timeChanged`, which re-ran ASAP:
