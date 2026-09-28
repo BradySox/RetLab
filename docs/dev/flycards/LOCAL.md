@@ -152,14 +152,13 @@ Tacview. **~15 min.**
 
 ### 7 · A tanker flies its box at the speed you set — `B152`, `B153`
 
-**Why this is a card.** Both settings are off by default, so nothing flies them unless
-someone ticks them. Tests and a headless generation pin the route, the loop and the speeds;
+**Why this is a card.** Both are off by default, so nothing flies them unless someone
+sets them. Tests and a headless generation pin the route, the loop and the speeds;
 only DCS shows whether the AI tanks through the corners and leaves on time. Note:
 [`retlab-tanker-box-notes.md`](../design/retlab-tanker-box-notes.md).
 
-**Try:** any campaign with a KC-135 theater tanker. Air Doctrine → tick **Set tanker orbit
-speed**, set **270**, tick **Theater tankers fly a four-point box (experimental)**, pass a
-turn, fly a jet that can take the boom. Join the tanker, then stay near it for a lap. **~20 min.**
+**Try:** any campaign with a KC-135 theater tanker. Open the tanker flight → **Payload** →
+tick **Fly a box (experimental)** and **Set orbit speed**, set **270**. Fly a jet that can take the boom. Join the tanker, then stay near it for a lap. **~20 min.**
 
 - **Record:** the tanker's KIAS on a straight leg; whether it flies all four corners and
   goes round again; whether you can stay in contact through a corner; when it leaves.

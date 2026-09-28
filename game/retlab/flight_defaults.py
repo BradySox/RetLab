@@ -94,11 +94,21 @@ def has_defaults_for(aircraft_id: str) -> bool:
 
 
 def save_defaults_for(
-    aircraft_id: str, fuel: float, properties: dict[str, Any]
+    aircraft_id: str,
+    fuel: float,
+    properties: dict[str, Any],
+    orbit_speed_kias: Optional[int] = None,
+    tanker_box: bool = False,
 ) -> None:
-    """Persist ``fuel`` (kg) + ``properties`` as the default for ``aircraft_id``."""
+    """Persist ``fuel`` (kg) + ``properties`` (+ a tanker's orbit speed) as the
+    default for ``aircraft_id``."""
     data = dict(_load())
-    data[aircraft_id] = {"fuel": float(fuel), "properties": dict(properties)}
+    entry: dict[str, Any] = {"fuel": float(fuel), "properties": dict(properties)}
+    if orbit_speed_kias is not None:
+        entry["orbit_speed_kias"] = int(orbit_speed_kias)
+    if tanker_box:
+        entry["tanker_box"] = True
+    data[aircraft_id] = entry
     _write(data)
 
 
@@ -133,5 +143,11 @@ def apply_flight_defaults(flight: "Flight") -> None:
         if isinstance(properties, dict):
             for member in flight.roster.members:
                 member.properties.update(properties)
+
+        orbit_speed = entry.get("orbit_speed_kias")
+        if isinstance(orbit_speed, int) and not isinstance(orbit_speed, bool):
+            flight.orbit_speed_kias = orbit_speed
+        if entry.get("tanker_box") is True:
+            flight.tanker_box = True
     except Exception:
         logging.debug("Could not apply flight defaults", exc_info=True)

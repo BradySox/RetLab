@@ -1,19 +1,24 @@
 # Tanker box and tanker orbit speed
 
-**Status:** BUILT 2026-09-28, not flown. Both are settings on Air Doctrine → CAP & support
-timing, off by default. The box is **experimental** (DM 2026-09-28: "a temporary setting, no
+**Status:** BUILT 2026-09-28, not flown. Both are per flight, on a tanker flight's Payload tab,
+and saved per airframe by **Save as default**. Both off by default. Neither is a campaign
+setting (DM 2026-09-28). The box is **experimental** (DM 2026-09-28: "a temporary setting, no
 overwriting behavior yet"). Rows B152 (speed) and B153 (box).
 
 ## Tanker orbit speed (upstream #869)
 
-- `tanker_orbit_speed_set` + `tanker_orbit_speed_kias` (200-350, default 280).
+- **Per flight, never a campaign setting** (DM 2026-09-28: "never a theatre option. Per
+  airframe in the waypoint/loadout setting menu"). `Flight.orbit_speed_kias`, None = the
+  aircraft's own speed. Set on the tanker flight's Payload tab (`TankerOrbitSpeedEditor`,
+  100-350 KIAS). **Save as default** stores it per airframe in §43's store
+  (`orbit_speed_kias`), so every new flight of that type starts with it.
 - The KIAS is converted to true airspeed at the track altitude: `Speed.from_calibrated`,
   ISA atmosphere with the compressible pitot relation. DCS waypoint and orbit speeds are TAS.
 - Applies to theater and package tankers (`RefuelingFlightPlan.patrol_speed`).
 - **Not** the carrier recovery tanker: its speed comes from the `RecoveryTanker` task
-  (`honors_orbit_speed_setting = False`).
-- **Not** a tanker whose own speed is below 200 KIAS at its altitude. That is the KC-130J
-  (125 KIAS, a helicopter tanker); a fast-jet speed would make it useless to its receivers.
+  (`honors_orbit_speed = False`).
+- No helicopter-tanker floor: the first cut skipped anything under 200 KIAS, but a
+  per-airframe choice is the user's, and 120-130 KIAS is how a KC-130J serves helicopters.
 - Capped at the airframe's pydcs `max_speed`. The legacy KC-130 tops out at 335 KTAS, which is
   under 270 KIAS at 20,000 ft, so it flies at its top speed.
 
@@ -23,7 +28,10 @@ DCS's Orbit task has two patterns, Circle and Race-Track. A box is therefore a *
 an orbit: the tanker flies its corners with the Tanker task active and a `SwitchWaypoint`
 loops the lap.
 
-- `tanker_box_orbit`. Theater tankers only (`TheaterRefuelingFlightPlan`).
+- `Flight.tanker_box`, the Payload tab's **Fly a box (experimental)**. Shown for theater
+  tankers only (`TheaterRefuelingFlightPlan`); ticking it replans the flight
+  (`TankerTrackEditor`). **Save as default** stores it per airframe (§43,
+  `tanker_box`).
 - **Package tankers keep the racetrack.** Their station time is 5 min + (4 × jets + 1) per
   receiver flight, often shorter than one 120 NM lap.
 - **Geometry.** The front leg is where the racetrack would be (40 NM, across the threat axis).
@@ -38,6 +46,9 @@ loops the lap.
   15-18 min) after `patrol_end_time`. That overlaps the relief rather than leaving a gap.
 - **Speed.** BOX 2 to BOX END carry the patrol speed. A DCS waypoint speed is the speed flown
   toward that point.
+- **Moving it.** Dragging any of the five box points on the app map moves the whole box
+  by the same offset (`move_box`, called from the map's `set_position` endpoint; DM
+  2026-09-28). The package TOT is recomputed as for any drag.
 - **Unlimited fuel.** `BOX END` does not re-enable it, because the loop passes BOX END every lap.
   With `ai_unlimited_fuel` on, a box tanker flies home on its own fuel.
 

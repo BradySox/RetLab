@@ -144,6 +144,10 @@ class Flight(
             self.tcn_name = callsign_tcn
 
         self.initialize_fuel()
+        # A tanker's track speed, set on the payload tab; None flies the aircraft's own.
+        self.orbit_speed_kias: Optional[int] = None
+        # A theater tanker flies a four-point box instead of a racetrack (payload tab).
+        self.tanker_box = False
         # RetLab (§43): seed a genuinely fresh player-side flight's fuel + cockpit
         # properties (condition/wear/spawn/...) from the per-aircraft "save as
         # default" store. Only when roster is None -- a brand-new flight, never a
@@ -331,6 +335,10 @@ class Flight(
             state["dtc_options"] = DtcOptions()
         if "board_number" not in state:
             state["board_number"] = None
+        if "orbit_speed_kias" not in state:
+            state["orbit_speed_kias"] = None
+        if "tanker_box" not in state:
+            state["tanker_box"] = False
         self.__dict__.update(state)
         if isinstance(self.roster, FlightRoster):
             self.roster = FlightMembers.from_roster(self, self.roster)

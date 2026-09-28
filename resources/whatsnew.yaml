@@ -16,21 +16,22 @@ entries:
   - date: 2026-09-28
     title: Set the tanker's speed in KIAS
     change: >-
-      Air Doctrine has Set tanker orbit speed and Tanker orbit speed (KIAS),
-      200-350. Theater and package tankers fly that indicated speed on their
-      track, to suit your main receiver. Carrier recovery tankers and the KC-130J
-      keep their own speed; a tanker that cannot reach it flies at its top speed.
+      A tanker flight's Payload tab has Set orbit speed: the indicated speed it
+      flies on its track, 100-350 KIAS, to suit its receivers. Save as default
+      keeps it for every new flight of that airframe. A carrier recovery tanker
+      ignores it; a tanker that cannot reach it flies at its top speed.
     watch: >-
       Set 270 and join a KC-135: it reads 265-275 KIAS on the straight legs.
     row: B152
   - date: 2026-09-28
     title: Theater tankers can fly a box (experimental)
     change: >-
-      Tick Theater tankers fly a four-point box (experimental) on Air Doctrine
-      and newly planned theater tankers fly a 40 x 20 NM box instead of a
-      two-point racetrack, looping it until their time on station is up. The
-      front leg is where the racetrack would be. Package and recovery tankers
-      keep the racetrack.
+      A theater tanker flight's Payload tab has Fly a box (experimental): the
+      tanker flies a 40 x 20 NM box instead of a two-point racetrack, looping
+      it until its time on station is up. Save as default keeps it for that
+      airframe. The front leg is where the racetrack would be. Drag any of its points on the
+      map to move the whole box. Package and recovery tankers keep the
+      racetrack.
     watch: >-
       The tanker flies all four corners, goes round more than once, keeps
       refueling through the corners, and leaves for home when its time is up.

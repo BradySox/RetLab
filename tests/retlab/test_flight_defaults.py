@@ -109,3 +109,30 @@ def test_missing_persistency_is_silent(monkeypatch: pytest.MonkeyPatch) -> None:
     flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
     assert flight.fuel == 4900.0
     flight_defaults.invalidate_cache()
+
+
+def test_a_tanker_orbit_speed_is_saved_per_airframe(store: Path) -> None:
+    flight_defaults.save_defaults_for("KC-135", 30000.0, {}, orbit_speed_kias=270)
+    flight_defaults.invalidate_cache()
+    flight = _fake_flight(aircraft_id="KC-135", fuel_max=90000.0)
+    flight.orbit_speed_kias = None
+    flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
+    assert flight.orbit_speed_kias == 270
+
+
+def test_no_saved_orbit_speed_leaves_the_aircraft_speed(store: Path) -> None:
+    flight_defaults.save_defaults_for("KC-135", 30000.0, {})
+    flight = _fake_flight(aircraft_id="KC-135", fuel_max=90000.0)
+    flight.orbit_speed_kias = None
+    flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
+    assert flight.orbit_speed_kias is None
+
+
+def test_a_tanker_box_is_saved_per_airframe(store: Path) -> None:
+    flight_defaults.save_defaults_for("KC-135", 30000.0, {}, tanker_box=True)
+    flight_defaults.invalidate_cache()
+    flight = _fake_flight(aircraft_id="KC-135", fuel_max=90000.0)
+    flight.orbit_speed_kias = None
+    flight.tanker_box = False
+    flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
+    assert flight.tanker_box is True

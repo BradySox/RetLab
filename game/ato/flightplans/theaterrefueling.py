@@ -45,6 +45,15 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
                 index += 1
         return 0
 
+    def _package_flies_a_box(self) -> bool:
+        # One box among the package's tankers spaces them all, or a racetrack
+        # behind a box would sit inside its back leg.
+        return any(
+            getattr(flight, "tanker_box", False)
+            for flight in self.package.flights
+            if flight.flight_type is FlightType.REFUELING
+        )
+
     def layout(self) -> PatrollingLayout:
         racetrack_half_distance = nautical_miles(20).meters
 
@@ -73,8 +82,10 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         # rather than forwards so an extra tanker can never be pushed into the
         # threat zone the buffer above just cleared -- which for a threatened
         # anchor means further past the edge, not back toward it.
-        box = self.coalition.game.settings.tanker_box_orbit
-        spacing = TANKER_ORBIT_SPACING + (TANKER_BOX_DEPTH if box else meters(0))
+        box = self.flight.tanker_box
+        spacing = TANKER_ORBIT_SPACING + (
+            TANKER_BOX_DEPTH if self._package_flies_a_box() else meters(0)
+        )
         orbit_distance = step_back_from_threat(
             orbit_distance,
             threatened=threatened,

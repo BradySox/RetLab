@@ -1,10 +1,11 @@
-"""The experimental four-point tanker box (``tanker_box_orbit``)."""
+"""The experimental four-point tanker box (``Flight.tanker_box``)."""
 
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from dcs import Point
@@ -13,7 +14,11 @@ from dcs.drawing.drawings import StandardLayer
 from dcs.terrain import Caucasus
 
 from game.ato.flighttype import FlightType
-from game.ato.flightplans.refuelingflightplan import TankerBoxLayout, orbit_leg_end
+from game.ato.flightplans.refuelingflightplan import (
+    TankerBoxLayout,
+    move_box,
+    orbit_leg_end,
+)
 from game.ato.flightplans.theaterrefueling import (
     TANKER_BOX_DEPTH,
     Builder,
@@ -102,12 +107,12 @@ def test_the_route_runs_start_corners_end() -> None:
 def _plan(box: TankerBoxLayout) -> TheaterRefuelingFlightPlan:
     settings = SimpleNamespace(
         desired_tanker_on_station_time=timedelta(minutes=60),
-        tanker_orbit_speed_set=False,
     )
     plan = TheaterRefuelingFlightPlan.__new__(TheaterRefuelingFlightPlan)
     plan.flight = SimpleNamespace(  # type: ignore[assignment]
         coalition=SimpleNamespace(game=SimpleNamespace(settings=settings)),
         unit_type=SimpleNamespace(patrol_speed=knots(420)),
+        orbit_speed_kias=None,
     )
     plan.layout = box
     plan.tot_offset = timedelta()
@@ -196,3 +201,80 @@ def test_the_f10_marker_draws_the_box() -> None:
     # Encloses every corner, not a circle at the start.
     assert min(xs) < -TANKER_BOX_DEPTH.meters < 0 < max(xs)
     assert min(ys) < 0 < nautical_miles(40).meters < max(ys)
+
+
+@pytest.mark.parametrize("dragged", range(5))
+def test_dragging_any_box_point_moves_the_whole_box(dragged: int) -> None:
+    box = _box()
+    points = [box.patrol_start, *box.box_corners, box.patrol_end]
+    before = [(p.position.x, p.position.y) for p in points]
+    target = points[dragged]
+    to = _p(target.position.x + 5000, target.position.y - 3000)
+
+    assert move_box(box, target, to)
+
+    after = [(p.position.x, p.position.y) for p in points]
+    assert after == pytest.approx([(x + 5000, y - 3000) for x, y in before])
+
+
+def test_a_point_outside_the_box_is_not_moved_with_it() -> None:
+    box = _box()
+    stray = _wp("NAV", FlightWaypointType.NAV)
+    assert not move_box(box, stray, _p(1, 1))
+    assert not move_box(SimpleNamespace(), box.patrol_start, _p(1, 1))
+    assert (box.patrol_start.position.x, box.patrol_start.position.y) == (0, 0)
+
+
+def test_the_map_drag_endpoint_moves_the_whole_box(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from game.server.leaflet import LeafletPoint
+    from game.server.waypoints import routes
+
+    box = _box()
+    points = [box.patrol_start, *box.box_corners, box.patrol_end]
+    flight = SimpleNamespace(flight_plan=SimpleNamespace(layout=box, waypoints=points))
+    game = SimpleNamespace(
+        db=SimpleNamespace(flights=SimpleNamespace(get=lambda _: flight)),
+        theater=SimpleNamespace(terrain=TERRAIN),
+    )
+    tot_updates: list[bool] = []
+    published: list[Any] = []
+    monkeypatch.setattr(
+        routes,
+        "_package_model",
+        lambda _: SimpleNamespace(update_tot=lambda: tot_updates.append(True)),
+    )
+    monkeypatch.setattr(routes, "_publish", published.append)
+    to = _p(box.box_corners[1].position.x + 4000, box.box_corners[1].position.y)
+    lat_lng = to.latlng()
+
+    routes.set_position(
+        uuid4(),
+        3,  # BOX 3, the second corner
+        LeafletPoint(lat=lat_lng.lat, lng=lat_lng.lng),
+        game,  # type: ignore[arg-type]
+    )
+
+    assert box.patrol_start.position.x == pytest.approx(4000, abs=1)
+    assert box.patrol_end.position.x == pytest.approx(4000, abs=1)
+    assert tot_updates == [True]
+    assert published == [[flight]]
+
+
+def _tanker(box: bool) -> Any:
+    return SimpleNamespace(flight_type=FlightType.REFUELING, tanker_box=box)
+
+
+def test_one_box_among_a_packages_tankers_spaces_them_all() -> None:
+    builder = Builder.__new__(Builder)
+    escort = SimpleNamespace(flight_type=FlightType.ESCORT, tanker_box=True)
+    for flights, expected in (
+        ([_tanker(False), _tanker(False)], False),
+        ([_tanker(True), _tanker(False)], True),
+        ([_tanker(False), escort], False),
+    ):
+        builder.flight = SimpleNamespace(  # type: ignore[assignment]
+            package=SimpleNamespace(flights=flights)
+        )
+        assert builder._package_flies_a_box() is expected
