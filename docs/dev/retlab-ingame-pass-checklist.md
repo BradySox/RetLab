@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-87 rows need a live pass. Full detail is under each `###` heading below —
+88 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -458,6 +458,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
 | B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
 | B151 | The package route moves every flight in the package | §106 | ☐ |
+| B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8805,3 +8806,18 @@ never used in the app or flown.
   a new flight flying the planner's detour instead of the edited route; the TOT flipping; a
   double-click that zooms the map instead of adding a point; the browser's own menu on a
   right-click.
+
+### B152 — A tanker flies its track at the set orbit speed · upstream #869 · ☐ UNTESTED
+
+Built 2026-09-28 from upstream issue #869. **Set tanker orbit speed** and **Tanker orbit
+speed (KIAS)** (Air Doctrine) replace a theater or package tanker's own track speed with
+the chosen KIAS, converted to true airspeed at the track altitude. Carrier recovery tankers
+and tankers slower than 200 KIAS (the KC-130J) keep their own speed; a tanker is capped at
+its top speed. Unit-tested (`test_tanker_orbit_speed.py`); never flown.
+
+- **Setup:** any campaign with a KC-135 or KC-135 MPRS theater tanker. Tick the setting,
+  set 270 KIAS, generate the turn.
+- **Pass:** join the tanker; its indicated airspeed on the straight legs reads 265-275 KIAS.
+- **Fail signatures:** the tanker at its old ~300 KIAS (setting not reaching the waypoint);
+  a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a KC-130J at
+  fast-jet speed.

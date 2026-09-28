@@ -307,6 +307,24 @@ class Speed:
         c_sound = math.sqrt(heat_capacity_ratio * gas_constant * temperature_k)
         return mps(c_sound) * value
 
+    @classmethod
+    def from_calibrated(cls, value: Speed, altitude: Distance) -> Speed:
+        """True airspeed for a calibrated airspeed at a pressure altitude (ISA).
+
+        Subsonic compressible pitot relation; DCS waypoint speeds are true airspeed.
+        """
+        h = altitude.meters
+        if h <= 11000:
+            temperature_k = 288.15 - 0.0065 * h
+            pressure = 101325 * (temperature_k / 288.15) ** 5.25588
+        else:
+            temperature_k = 216.65
+            pressure = 22632.06 * math.exp(-(h - 11000) / 6341.62)
+        a0 = 340.294
+        impact = 101325 * ((1 + 0.2 * (value.meters_per_second / a0) ** 2) ** 3.5 - 1)
+        mach_number = math.sqrt(5 * ((impact / pressure + 1) ** (2 / 7) - 1))
+        return mps(mach_number * math.sqrt(1.4 * 287.053 * temperature_k))
+
     def __add__(self, other: Speed) -> Speed:
         return kph(self.kph + other.kph)
 
