@@ -148,6 +148,9 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   `retlab-front-movement-arrows-notes.md` (**BUILT 2026-09-23, not flown** — display-only
   arrows for last turn's front movement; makes B66 readable, so the §90 gate did not
   block it; row B139)
+- **Tankers** — `retlab-tanker-box-notes.md` (**BUILT 2026-09-28, not flown** — the
+  KIAS orbit-speed setting for upstream #869, and the experimental four-point theater tanker
+  box: a looped route, since DCS orbits only circle or race-track; rows B152/B153)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (**§94, adopted 2026-08-24 from
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,

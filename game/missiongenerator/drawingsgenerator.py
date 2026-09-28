@@ -6,6 +6,7 @@ from dcs import Point
 from dcs.drawing import LineStyle, Rgba
 from dcs.drawing.drawings import StandardLayer
 from dcs.mission import Mission
+from shapely.geometry import Polygon as ShapelyPolygon
 
 from game import Game
 from game.ato.flighttype import FlightType
@@ -161,6 +162,20 @@ class DrawingsGenerator:
         return start, end
 
     @staticmethod
+    def _box_corners(flight: "FlightData") -> Optional[list[Point]]:
+        """A tanker box's corners (PATROL_TRACK through the last one before PATROL),
+        or None for a two-point racetrack."""
+        corners: list[Point] = []
+        for waypoint in flight.waypoints:
+            if waypoint.waypoint_type == FlightWaypointType.PATROL_TRACK:
+                corners = [waypoint.position]
+            elif waypoint.waypoint_type == FlightWaypointType.PATROL:
+                break
+            elif corners:
+                corners.append(waypoint.position)
+        return corners if len(corners) >= 3 else None
+
+    @staticmethod
     def _support_orbit_radius(flight: "FlightData") -> float:
         """Half-width of the drawn capsule, from the flight's own orbit speed."""
         from game.ato.flightplans.tacticaloverlay import orbit_radius
@@ -210,7 +225,21 @@ class DrawingsGenerator:
             if start is None or end is None:
                 continue
             radius = self._support_orbit_radius(flight)
-            if start.distance_to_point(end) < 1.0:
+            box = self._box_corners(flight)
+            if box is not None:
+                outline = ShapelyPolygon([(p.x, p.y) for p in box]).buffer(radius)
+                shape = self.player_layer.add_freeform_polygon(
+                    start,
+                    [
+                        start.new_in_same_map(x - start.x, y - start.y)
+                        for x, y in list(outline.exterior.coords)[:-1]
+                    ],
+                    line_thickness=6,
+                    color=SUPPORT_ORBIT_LINE,
+                    fill=SUPPORT_ORBIT_FILL,
+                    line_style=LineStyle.Dash,
+                )
+            elif start.distance_to_point(end) < 1.0:
                 shape = self.player_layer.add_circle(
                     start,
                     radius,

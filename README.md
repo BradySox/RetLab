@@ -140,6 +140,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   orbits. A wing that only needs one method still gets one tanker.
 - **Set tanker orbit speed** (Air Doctrine) flies theater and package tankers at a KIAS you
   pick, 200-350, to suit your main receiver. Recovery and helicopter tankers keep their own.
+- **Theater tankers fly a four-point box** (Air Doctrine, experimental) replaces a theater
+  tanker's two-point racetrack with a 40 x 20 NM box it loops until its station time is up.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
   campaign-wide setting.

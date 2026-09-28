@@ -155,6 +155,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "desired_tanker_on_station_time",
                     "tanker_orbit_speed_set",
                     "tanker_orbit_speed_kias",
+                    "tanker_box_orbit",
                     "aircraft_per_recovery_tanker",
                 ],
             ),
