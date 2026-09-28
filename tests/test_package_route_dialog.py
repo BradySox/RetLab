@@ -117,3 +117,13 @@ def test_a_package_with_no_route_says_so(
     assert dialog.table.rowCount() == 0
     assert not dialog.insert_button.isEnabled()
     assert "no shared route" in dialog.move_hint.text()
+
+
+def test_the_window_opens_ready_to_insert(
+    qapp: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Every button opened greyed out until a row was clicked (2026-09-28)."""
+    dialog, _ = _dialog(_package(), monkeypatch)
+    assert dialog.selected_row() == 0
+    assert dialog.insert_button.isEnabled()
+    assert "double-click the route" in dialog.move_hint.text()

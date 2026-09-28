@@ -20,6 +20,8 @@ from .waypointbuilder import WaypointBuilder
 from ..flightwaypointtype import FlightWaypointType
 
 if TYPE_CHECKING:
+    from dcs import Point
+
     from .flightplan import Layout
     from ..flightwaypoint import FlightWaypoint
 
@@ -82,6 +84,32 @@ def nav_insert_next_to(layout: Layout, anchor: FlightWaypoint) -> Optional[NavIn
         )
         if _lands_beside(layout, slot, anchor, -1):
             return slot
+    return None
+
+
+def nav_insert_on_leg(
+    layout: Layout, start: FlightWaypoint, end: FlightWaypoint, position: Point
+) -> Optional[NavInsert]:
+    """A nav point at ``position`` on the leg from ``start`` to ``end``: a map click.
+
+    Tries the slots right after ``start``, then right before ``end``, never the far
+    side of either, so the point lands on the leg that was clicked or not at all.
+    """
+    if start.waypoint_type in NOT_ON_ROUTE or end.waypoint_type in NOT_ON_ROUTE:
+        return None
+    waypoint = WaypointBuilder.nav(
+        position.new_in_same_map(position.x, position.y), max(start.alt, end.alt)
+    )
+    for anchor, side in ((start, 1), (end, -1)):
+        for sequence in layout.nav_sequences():
+            own = identity_index(sequence, anchor)
+            if side == 1:
+                index = 0 if own is None else own + 1
+            else:
+                index = len(sequence) if own is None else own
+            slot = NavInsert(sequence, index, waypoint)
+            if _lands_beside(layout, slot, anchor, side):
+                return slot
     return None
 
 

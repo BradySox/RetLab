@@ -179,11 +179,12 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   reverted, and the position matcher measured to have no input. **The reported failure was never
   reproduced — read §8.1 before building anything here**)
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (**§106, BUILT
-  2026-09-27, not flown** — the join-to-IP and target-to-split legs belong to the package:
-  the Package route window, the flight tab's Whole package / This flight only question and
-  the primary flight's map drag edit them for every flight. Also the Insert NAV point rule
-  (a slot counts only if the point lands next to the selected waypoint; lookups by identity);
-  five calls made without the DM are listed in §4 for review; rows B150/B151)
+  2026-09-27, not flown** — the join-to-IP and target-to-split legs belong to the package.
+  **Edited on the map** (DM 2026-09-28: never typed coordinates): drag from any flight of
+  the package, double-click the selected route to add, right-click to delete; the Package
+  route window is an overview and the flight tab asks Whole package / This flight only.
+  Also the Insert NAV point rule (a slot counts only if the point lands next to the
+  selected waypoint; lookups by identity); rows B150/B151)
 - **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (**§103, BUILT 2026-09-23,
   not flown** — juanjux's High Command objective rating without its prizes: importance per
   enemy target from our own numbers, a panel line and a blue-only planner weight; difficulty
@@ -562,7 +563,7 @@ linked design note.
 103. **HQ priority targets** — what losing each enemy target costs the enemy, in that kind of target's own measure (income, front-line vehicles, offensive packages, equipment price), ranked within its kind. A Why it matters line on the target panel always; a blue-only planner weight, gentler than §93, when on. No prize. The objective half of juanjux's High Command.
 104. **Runway queue at busy fields** — the taxi allowance at an airfield grows with the departures ahead of a flight, at 45 seconds per jet, so a crowded field's later flights spawn early enough to make their takeoff. A quiet field keeps the flat 8 minutes. The mission starts up to 30 minutes early when a flight needs it; TOTs and the campaign clock stay put. Always on, no setting (DM call).
 105. **RetLab Iran Air Defense Pack** — Retribution support for a RetLab-authored mod carrying 3rd Khordad (MERAD, Buk-like) and Bavar-373 (LORAD, S-300-like) plus its 2025 Bavar-373-II (TELARs whose mast radars are decorative; the STR guides every launcher, as on an S-300 site), the Matla ul-Fajr EWR and the Rasool comms shelter as the Iranian IADS network node, with Skynet entries and `[CH] Iran 2020` presets. The mod is its own private pack, flown in tests 41-46; the 3rd Khordad kills, the Sayyads have not yet reached a target.
-106. **Package route** — the join-to-IP and target-to-split legs every formation flight in a package flies together, edited once for all of them: the package window's Package route button adds, deletes and reorders NAV points on them, dragging one on the primary flight's route moves it for everyone, and a flight added later flies the same route. Insert NAV point in a flight's Waypoints tab finds a leg beside any waypoint, and on the package route asks whether the point is for the whole package.
+106. **Package route and map route editing** — routes are edited on the map: drag a point, double-click the selected route to add one, right-click to delete. The join-to-IP and target-to-split legs every formation flight in a package flies together are the package's, so an edit there lands on every flight (from any flight of the package), and a flight added later flies the same route; the package window's Package route button lists it. Insert NAV point in a flight's Waypoints tab finds a leg beside any waypoint, and on the package route asks whether the point is for the whole package.
 
 ### Retired, removed or shelved — do not restore
 

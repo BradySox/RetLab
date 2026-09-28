@@ -1,12 +1,21 @@
 import { Flight } from "../../api/liberationApi";
 import {
   useGetTacticalOverlayForFlightQuery,
+  useInsertWaypointMutation,
   useSelectFlightMutation,
 } from "../../api/liberationApi";
+import { measuring } from "../coordinatepicker/CoordinatePicker";
 import WaypointMarker from "../waypointmarker";
-import { Polyline as LPolyline } from "leaflet";
+import { refusal, showNotice } from "../waypointmarker/notice";
+import L, { LeafletMouseEvent, Polyline as LPolyline } from "leaflet";
 import { ReactElement, useEffect, useRef } from "react";
-import { CircleMarker, Polygon, Polyline, Tooltip } from "react-leaflet";
+import {
+  CircleMarker,
+  Polygon,
+  Polyline,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
 
 const BLUE_PATH = "#0084ff";
 const RED_PATH = "#c85050";
@@ -31,7 +40,13 @@ const pathColor = (props: FlightPlanProps) => {
 // Hover summary of a package's intent: callsign / composition, task, target and
 // time-over-target. Fields are optional so it degrades gracefully if the server
 // hasn't supplied them (older data); the live server always populates them.
-function FlightTooltip({ flight }: { flight: Flight }) {
+function FlightTooltip({
+  flight,
+  selected,
+}: {
+  flight: Flight;
+  selected: boolean;
+}) {
   const composition =
     flight.aircraft != null
       ? `${flight.num_aircraft ?? "?"}x ${flight.aircraft}`
@@ -50,7 +65,13 @@ function FlightTooltip({ flight }: { flight: Flight }) {
       {/* The §28 advertise-the-interaction convention: TGOs and supply routes
           state their click contract; blue flight paths were the one clickable
           overlay that never said so (2026-07-18 UI audit). */}
-      {flight.blue ? <div>Left-click: select this flight</div> : null}
+      {flight.blue ? (
+        <div>
+          {selected
+            ? "Double-click: add a point here"
+            : "Left-click: select this flight"}
+        </div>
+      ) : null}
     </Tooltip>
   );
 }
@@ -59,6 +80,8 @@ function FlightPlanPath(props: FlightPlanProps) {
   const color = pathColor(props);
   const waypoints = props.flight.waypoints;
   const [selectFlight] = useSelectFlightMutation();
+  const [insertWaypoint] = useInsertWaypointMutation();
+  const map = useMap();
 
   const polylineRef = useRef<LPolyline | null>(null);
 
@@ -137,9 +160,27 @@ function FlightPlanPath(props: FlightPlanProps) {
           click: () => {
             selectFlight({ flightId: props.flight.id });
           },
+          // A NAV point where the selected route is double-clicked. The server
+          // picks the leg; on the package's way in or out it lands on every flight.
+          dblclick: (event: LeafletMouseEvent) => {
+            if (!props.selected || measuring()) {
+              return;
+            }
+            // Otherwise the map zooms in as well.
+            L.DomEvent.stopPropagation(event);
+            const at = event.latlng;
+            insertWaypoint({
+              flightId: props.flight.id,
+              leafletPoint: { lat: at.lat, lng: at.lng },
+            })
+              .unwrap()
+              .catch((error: unknown) =>
+                showNotice(map, at, refusal(error, "Could not add a point here")),
+              );
+          },
         }}
       >
-        <FlightTooltip flight={props.flight} />
+        <FlightTooltip flight={props.flight} selected={props.selected} />
       </Polyline>
     </>
   );

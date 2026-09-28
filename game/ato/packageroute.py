@@ -31,6 +31,7 @@ from .flightplans.formationattack import (
 )
 from .flightplans.navinsert import identity_index
 from .flightplans.waypointbuilder import WaypointBuilder
+from .flightwaypointtype import FlightWaypointType
 
 if TYPE_CHECKING:
     from .flight import Flight
@@ -42,6 +43,13 @@ if TYPE_CHECKING:
 class Leg(Enum):
     IN = "Way in"
     OUT = "Way out"
+
+
+#: The package's own points besides the NAVs and the IP (any INGRESS type): a drag
+#: of one moves it for every flight (game/server/waypoints/routes.py).
+PACKAGE_POINT_TYPES = frozenset(
+    {FlightWaypointType.JOIN, FlightWaypointType.SPLIT, FlightWaypointType.REFUEL}
+)
 
 
 class Kind(Enum):
@@ -85,6 +93,33 @@ def route_flights(package: Package) -> list[Flight]:
     return [flight for flight in package.flights if flies_package_route(flight)]
 
 
+def on_package_route(flight: Flight) -> bool:
+    """Whether ``flight`` flies its package's route: an escort in a package whose
+    primary flies its own way (an air assault) has no package route to share."""
+    return any(other is flight for other in route_flights(flight.package))
+
+
+def speaks_for_package(flight: Flight) -> bool:
+    """Whether a drag of this flight's join, IP, split or refuel moves the package's.
+
+    Upstream let only the primary do it. Any flight on the package route may, so the
+    map works whichever flight of the package is selected.
+    """
+    return flight is flight.package.primary_flight or on_package_route(flight)
+
+
+def moves_package(flight: Flight, waypoint: FlightWaypoint) -> bool:
+    """Whether dragging ``waypoint`` on the map moves it for every flight."""
+    package = flight.package
+    if package.waypoints is None or not speaks_for_package(flight):
+        return False
+    found = find(flight, waypoint)
+    if found is not None:
+        return in_step(package, flight, found[0])
+    kind = waypoint.waypoint_type
+    return kind in PACKAGE_POINT_TYPES or "INGRESS" in kind.name
+
+
 def sequence(flight: Flight, leg: Leg) -> list[FlightWaypoint]:
     """The flight's own nav points on ``leg``."""
     layout = flight.flight_plan.layout
@@ -94,7 +129,7 @@ def sequence(flight: Flight, leg: Leg) -> list[FlightWaypoint]:
 
 def leg_of(flight: Flight, nav_list: list[FlightWaypoint]) -> Optional[Leg]:
     """Which package leg ``nav_list`` is in ``flight``'s plan, if it is one."""
-    if not flies_package_route(flight):
+    if not on_package_route(flight):
         return None
     for leg in Leg:
         if sequence(flight, leg) is nav_list:
@@ -104,7 +139,7 @@ def leg_of(flight: Flight, nav_list: list[FlightWaypoint]) -> Optional[Leg]:
 
 def find(flight: Flight, waypoint: FlightWaypoint) -> Optional[tuple[Leg, int]]:
     """The leg and index of ``waypoint`` on ``flight``'s package route, if it is on it."""
-    if not flies_package_route(flight):
+    if not on_package_route(flight):
         return None
     for leg in Leg:
         index = identity_index(sequence(flight, leg), waypoint)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from game.ato import Flight, FlightWaypoint
+from game.ato import Flight, FlightWaypoint, packageroute, routeedit
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.server.leaflet import LeafletPoint
 
@@ -31,6 +31,10 @@ class FlightWaypointJs(BaseModel):
     should_mark: bool
     include_in_path: bool
     timing: str
+    #: A NAV or custom point, which the map can delete.
+    deletable: bool = False
+    #: Dragging it moves it for every flight in the package.
+    package_point: bool = False
 
     class Config:
         title = "Waypoint"
@@ -89,4 +93,6 @@ class FlightWaypointJs(BaseModel):
             should_mark=should_mark,
             include_in_path=include_in_path,
             timing=timing_info(flight, waypoint_idx),
+            deletable=routeedit.is_deletable(flight, waypoint),
+            package_point=packageroute.moves_package(flight, waypoint),
         )

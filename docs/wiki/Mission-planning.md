@@ -99,10 +99,17 @@ toward the target.
 
 A **split point** follows egress, allowing flights to separate for return-to-base procedures.
 
+Routes are edited on the map, with the flight selected:
+
+- **Drag** a point to move it.
+- **Double-click** the route to add a NAV point there.
+- **Right-click** a point to delete it. The plan's fixed points (takeoff, join, IP, targets,
+  split, landing) cannot be deleted; drag them instead.
+
 The join-to-IP and target-to-split legs are the **package route**: every flight in the package
-flies them together. The package window's **Package route** button edits them for every flight
-at once. A NAV point added there goes into each flight's route, so the package still meets at
-the join. To move a point, select the primary flight and drag the point on the map.
+flies them together. A point moved, added or deleted on them changes every flight in the
+package, so the package still meets at the join. The package window's **Package route**
+button lists the route and can reset it to the planner's.
 
 In a flight's Waypoints tab, **Insert NAV point** adds a point halfway along the leg beside the
 selected waypoint. On the package route it asks whether the point is for the whole package or

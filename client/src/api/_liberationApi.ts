@@ -257,6 +257,25 @@ const injectedRtkApi = api.injectEndpoints({
         body: queryArg.leafletPoint,
       }),
     }),
+    insertWaypoint: build.mutation<
+      InsertWaypointApiResponse,
+      InsertWaypointApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/waypoints/${queryArg.flightId}/insert`,
+        method: "POST",
+        body: queryArg.leafletPoint,
+      }),
+    }),
+    deleteWaypoint: build.mutation<
+      DeleteWaypointApiResponse,
+      DeleteWaypointApiArg
+    >({
+      query: (queryArg) => ({
+        url: `/waypoints/${queryArg.flightId}/${queryArg.waypointIdx}`,
+        method: "DELETE",
+      }),
+    }),
     getIadsNetwork: build.query<
       GetIadsNetworkApiResponse,
       GetIadsNetworkApiArg
@@ -437,6 +456,18 @@ export type SetWaypointPositionApiArg = {
   waypointIdx: number;
   leafletPoint: LatLng;
 };
+export type InsertWaypointApiResponse =
+  /** status 204 Successful Response */ undefined;
+export type InsertWaypointApiArg = {
+  flightId: string;
+  leafletPoint: LatLng;
+};
+export type DeleteWaypointApiResponse =
+  /** status 204 Successful Response */ undefined;
+export type DeleteWaypointApiArg = {
+  flightId: string;
+  waypointIdx: number;
+};
 export type GetIadsNetworkApiResponse =
   /** status 200 Successful Response */ IadsNetwork;
 export type GetIadsNetworkApiArg = void;
@@ -498,6 +529,8 @@ export type Waypoint = {
   should_mark: boolean;
   include_in_path: boolean;
   timing: string;
+  deletable?: boolean;
+  package_point?: boolean;
 };
 export type Flight = {
   id: string;
@@ -703,6 +736,8 @@ export const {
   useClearTgoDestinationMutation,
   useListAllWaypointsForFlightQuery,
   useSetWaypointPositionMutation,
+  useInsertWaypointMutation,
+  useDeleteWaypointMutation,
   useGetIadsNetworkQuery,
   useGetIadsConnectionsForTgoQuery,
 } = injectedRtkApi;
