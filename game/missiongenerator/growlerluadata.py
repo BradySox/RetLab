@@ -8,7 +8,7 @@ effects at runtime (the Timberwolf/Matador escort-geometry family the C-130 §2
 systems descend from): a missile-spoof bubble over the package **plus** offensive
 ROE ``WEAPON_HOLD`` pulses on radar SAMs.
 
-ROE only -- the plugin never touches ``enableEmission`` (the C-130 crash lesson)
+ROE only -- the plugin never touches ``enableEmission`` (the IADS engine owns it)
 and owns no kills. A player-crewed jammer is emitted with ``isPlayer`` so the
 plugin offers the F10 jamming menu instead of the AI auto-policy; an AI jammer
 (Growler *or* Prowler -- the plugin is airframe-agnostic, it drives any emitted

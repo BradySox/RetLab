@@ -179,10 +179,11 @@ Three ideas here are genuinely absent from our MANTIS bridge:
    MANTIS gives us, but explicit and inspectable, and it writes `iads_list.lua` / `iadTargets.lua`
    for debugging.
 
-**Corroboration of a hard constraint.** `script_iads_dev.lua` calls `enableEmission` **zero**
-times. It manages radar state entirely through ROE and tasking, exactly as our constraint
-requires (§51, §63, §77, the C-130 script). The most experienced IADS scripter in DCS reached
-the same conclusion independently. Do not re-litigate that constraint.
+**Radar state by ROE.** `script_iads_dev.lua` calls `enableEmission` **zero** times. It
+manages radar state entirely through ROE and tasking, as our §63 and §77 plugins do. This was
+once read as corroborating a hard constraint against `enableEmission`; that constraint was
+lifted 2026-09-28 (Skynet calls it every mission without a fault), so it is a design
+precedent, not proof of a crash.
 
 **Not an engine replacement.** (Written when MANTIS was the engine; Skynet is, since 2026-09-12.) MANTIS is bundled in MOOSE, was the sole engine here by decision
 (the MANTIS handoff note, deleted 2026-09-12), and our bridge already carries point defence, SEAD-evasion

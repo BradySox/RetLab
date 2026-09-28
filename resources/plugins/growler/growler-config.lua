@@ -3,8 +3,8 @@
 --
 -- The load-bearing parts:
 --
---  * ROE only. Radar emissions are NEVER toggled -- enableEmission crashed DCS in
---    the C-130 line, and MANTIS owns alarm/EMCON state.
+--  * ROE only. Radar emissions are never toggled -- the IADS engine owns
+--    alarm/emissions state.
 --  * Effectiveness RISES as the jammer closes (penetration escort). The C-130's
 --    standoff burn-through weakens with range. Never unify the two.
 --  * Airframe-agnostic: no EA-18G-specific path. Whatever group the emitter names

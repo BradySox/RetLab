@@ -337,9 +337,9 @@ settings are purged on load in `game/settings/migration.py`. **In-game pass ☑ 
 2026-06-25** (G5): no generic Jammer F10 menu on fighters, no `ewrj`/`EWJamming`/`startEWjamm`/
 `startIAdefjamming` in the generated mission.
 
-**C-130 EW hard constraints (carried over from the standalone ME script):** do NOT toggle
-SAM radar emissions (`enableEmission(false)` crashed DCS - suppression is ROE WEAPON_HOLD
-only); the burn-through model intentionally RAISES jam probability with distance; spot
+**C-130 EW hard constraints (carried over from the standalone ME script):** suppression is
+ROE WEAPON_HOLD, not emissions (the old "`enableEmission` crashes DCS" rule was lifted
+2026-09-28, see `retlab-skynet-return-notes.md` §6; changing this is its own call); the burn-through model intentionally RAISES jam probability with distance; spot
 jamming has flat altitude-independent range; the missile-spoof curve is intentionally steep
 at close range. Don't "fix" these.
 
@@ -6554,8 +6554,7 @@ spawns. The "enemy point defense gets to intercept" half is carried by the **def
 launch wake** (built 2026-07-16 after the flown test showed no defender in the stack
 ever wakes for a cruise raid on its own — see the B16 observed gap below): every launch
 sets the opposing side's ground AD groups within `defenderWakeRadiusNm` (8 NM) of the
-aimpoint to alarm-state RED (alarm state only — `enableEmission` untouched, the
-crash-history constraint) for ~the missile flight time + `defenderWakeExtraS` (300 s),
+aimpoint to alarm-state RED (alarm state only — `enableEmission` untouched) for ~the missile flight time + `defenderWakeExtraS` (300 s),
 then restores AUTO; an engine-managed site keeps its own emissions loop. Unflown — the B16
 re-fly is the arbiter of whether an awake SA-15 then actually kills Tomahawks.
 
@@ -8143,8 +8142,7 @@ orders preference (Growler 800 > Prowler 790). Loadout resolves "Retribution Esc
 first, falling back to the SEAD Escort fit. Blue-only.
 
 **Runtime effects (`resources/plugins/growler/growler-config.lua`) — ROE only.** Radar
-emissions are never toggled; `enableEmission` crashed DCS in the C-130 line, and the IADS engine owns
-alarm/emissions state.
+emissions are never toggled; the IADS engine owns alarm/emissions state.
 
 - **Defensive bubble.** A radar-guided missile closing on the jammer or any protected package
   member rolls once per second against a **distance-banded spoof chance centred on the
@@ -8198,7 +8196,7 @@ flight (group name, side, player flag) and the package group names it protects
 Growler and an AI Prowler are emitted identically and the plugin drives whatever group it names
 by name + geometry, with no EA-18G-specific code path (the "make it work with AI Prowlers" ask
 was already true once a Prowler is emitted). The plugin drives the scripted effects **ROE only**
-(emissions are NEVER toggled — the C-130 crash lesson; the engine's alarm/emissions state untouched): a
+(emissions are never toggled; the engine's alarm/emissions state untouched): a
 **defensive missile-spoof bubble** (Matador bands 500 m/85% → 7 km/15% × the global
 `defensivePower` option, per-second roll, min-travel guard so a spoof can't kill the launcher,
 friendly missiles never touched, silent `weapon:destroy()`) covering the jammer *and* every
@@ -10465,7 +10463,7 @@ because amber is already SUSPECTED on the planner map.
   no navmesh hazard (do not reopen the §6 revert).
 - In-mission only: nothing persists past the debrief. Spawns are free, untracked event
   content (the §61 precedent).
-- Escalation is ROE + tasking only. Never `enableEmission` (hard constraint).
+- Escalation is ROE + tasking only; emissions are not touched.
 
 ### Reference implementations
 

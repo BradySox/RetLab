@@ -138,7 +138,7 @@ true, then the dated sections for why.
 | Who trips it | **Everyone.** Players get the full ladder. **AI intruders are shadowed only — never escalated on.** The planner stays blind (no navmesh hazard; do not reopen the §6 revert). |
 | Consequences | **In-mission only for v1.** Nothing persists past the debrief. Escalating posture / joining the war are explicitly future work. |
 | Unit tracking | Spawned alert units are **free, untracked event content** — the §61 precedent, called out explicitly against the no-phantom-units constraint. Valid while v1 is in-mission-only. |
-| Ground layer | **SAM belt at the neutral field**, red-flagged, ROE weapons-hold, flipped weapons-free by the plugin on player escalation only. ROE-only suppression/release — the §51/§63/§77 mechanism. Never `enableEmission` (hard constraint). |
+| Ground layer | **SAM belt at the neutral field**, red-flagged, ROE weapons-hold, flipped weapons-free by the plugin on player escalation only. ROE-only suppression/release — the §51/§63/§77 mechanism. Emissions are not touched. |
 
 ## Accepted risk (DM call, reaffirmed after the caveat was raised)
 
