@@ -2678,7 +2678,8 @@ the knob is airframe-wide with no per-loadout axis, so BARCAP and TARCAP Hornets
 the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
 `game/ato/traveltime.py`, `game/ato/flightplans/formationattack.py`; tests
 `tests/ato/flightplans/test_package_cruise_speed.py`; design note
-[retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md); checklist B111.)
+[retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md); checklist B111, verified
+2026-09-27 on the DM's call.)
 
 ## 9. TIC — Troops In Contact frontline battle sim (plugin, default ON)
 

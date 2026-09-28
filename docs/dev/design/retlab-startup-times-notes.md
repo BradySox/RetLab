@@ -86,7 +86,8 @@ blocks: a documented procedure plus partial real data beats invented coverage.
 
 Row **B77**. What CI cannot check is whether the shorter allowance actually leaves the player
 enough time on the ramp — the test proves the number reaches the schedule, not that a human
-can make it.
+can make it. **Verified 2026-09-27 on the DM's call** ("b77 is good"), the first start flown
+with the runway queue in the build.
 
 ## Runway queue (§104)
 

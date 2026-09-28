@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-89 rows need a live pass. Full detail is under each `###` heading below —
+87 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -528,7 +528,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B70 | Sortie records reach the campaign | §91 | ☑ |
 | B75 | The ATO stops spending its escorts on the wrong packages | planner shape | ☑ |
 | B76 | A mixed boom/probe wing gets a tanker of each | U15 reinstated | ☑ |
-| B77 | A player's ramp allowance matches the airframe | #214 startup times | ◐ |
+| B77 | A player's ramp allowance matches the airframe | #214 startup times | ☑ |
 | B78 | The escorts let go of a package the player is leading | planner shape | ☑ |
 | B79 | Ground-level waypoints read the field's elevation | §8 | ☑ |
 | B80 | String plugin options can actually be edited | §14 | ☐ |
@@ -558,7 +558,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B108 | A stuck TIC unit names itself, and the retries are spread not concentrated | §9 TIC | ◐ |
 | B109 | Payload backups leave `UnitPayloads` and the launch error stops | §73 | ☑ |
 | B110 | A SEAD jet's steerpoints are the site's emitters, and the card's STPT numbers match | §5 / §3 | ☐ |
-| B111 | A package's escort holds the striker's pace instead of running ahead | §8 cruise mach | ◐ |
+| B111 | A package's escort holds the striker's pace instead of running ahead | §8 cruise mach | ☑ |
 | B112 | The wind you set is the wind the panel shows, and the box stops at 97 kt | wind override / live weather | ☑ |
 | B113 | A pilot's logbook fills in, and the kills are the ones they got | §96 | ◐ |
 | B114 | Your lifetime logbook survives starting a new campaign | §97 | ☑ |
@@ -6391,7 +6391,9 @@ row re-run in-game to go back to VERIFIED.
 - **Pass:** two `Refueling` flights in the one support package, one serving each method, on visibly separate racetracks both outside the threat rings. In the negative case, still exactly one tanker and the package intact.
 - **Fail signature:** two tankers of the *same* method, which means a proposal went out without its method or the constraint is not reaching `best_squadron_for` (before 2026-09-17 the unconstrained first flight did exactly this). Or a second tanker launching far from the station while one of its method sits there, which means it is being ranked from the first tanker's field. Or two tankers stacked on one racetrack, which means the orbit slot is not being applied. Or the package gone entirely in the negative case, which means the extra flight is not actually optional.
 
-### B77 — A player's ramp allowance matches the airframe · #214 startup times · ◐ PARTIAL (2026-09-21, test 37; was ☐ UNTESTED)
+### B77 — A player's ramp allowance matches the airframe · #214 startup times · ☑ VERIFIED (2026-09-27, DM)
+
+**2026-09-27, DM verdict in chat, while flying (session `519de343`)** — **VERIFIED.** "b77 is good": the ramp time given matched the airframe started. The airframe was not named and the capture folder was not made yet; the §104 runway queue (2026-09-23) was in the build, so this is the first start with the taxi-clearance wait modelled. Closed on the DM's call; off the WATCH card.
 
 **2026-09-23, test 39 re-read (session `c2acb521`, at the DM's request)** — **three human starts now, all late.** F-16C (`startup_minutes: 4`): airborne +13.0 against +12 briefed (test 37), +12:53 against +12 (test 38). F-15E (`startup_minutes: 3`): first moved at +12:20, airborne +14:26, against +11:29 (test 39). The row says a stopwatch figure replaces the arithmetic; whether these starts were unhurried is the DM's to say. **DM, same day: the wait was for taxi clearance.** So the late minutes are the ATC queue, not the start: at Kandahar the AI queued the same way (32 jets spawned inside 3.5 min, median 16.2 min spawn → airborne against 8.5 planned, the last pair at +22.8). `startup_minutes` stays; the queue is being modelled in the ground-ops allowance instead.
 
@@ -7831,7 +7833,9 @@ on that emitter.
 - **A site with no emitters gets no steerpoints at all** — the `sead_targets` fallback to
   the full roster failed; `targets[0]` anchors the flight plan's timing math, so this
   would show up as a planning error rather than a quiet miss.
-### B111 — A package's escort holds the striker's pace instead of running ahead · §8 cruise mach · ◐ PARTIAL
+### B111 — A package's escort holds the striker's pace instead of running ahead · §8 cruise mach · ☑ VERIFIED (2026-09-27, DM)
+
+**2026-09-27, DM verdict in chat, while flying (session `519de343`)** — **VERIFIED.** "b111 is good": the escort held the striker's pace after the join. The package and airframes were not named and the capture folder was not made yet. Closed on the DM's call; off the WATCH card. The test 39 F-15C measurement below stands as the lever if an unauthored escort runs ahead again.
 
 **2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, no player, `Desktop\New test\40`) — **no Hornet striker; the escort lagged, then caught up.** SARDINE: an F-14B(U) striker with an F/A-18C SEAD escort. The striker reached JOIN at t=2053 (planned 2024), the escort at t=2146. They were 14–20 km apart until t=2200; the escort closed at 550–570 kt and was 0.3 km off at t=2320. From t=2380 the striker ran at 527 kt while the escort slowed to 217–302 kt firing HARMs; 11.8 km apart at t=2440. The escort did not run ahead.
 
