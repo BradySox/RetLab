@@ -11055,7 +11055,7 @@ leg beside any waypoint. Built 2026-09-27 from two DM reports, not flown. Design
 
 ### Tests
 
-`tests/ato/flightplans/test_nav_insert.py` (18), `tests/ato/test_package_route.py` (26),
+`tests/ato/flightplans/test_nav_insert.py` (18), `tests/ato/test_package_route.py` (27),
 `tests/test_package_route_dialog.py` (5).
 
 ### Needs an in-game pass — B150, B151
