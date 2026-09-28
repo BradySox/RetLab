@@ -140,8 +140,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   orbits. A wing that only needs one method still gets one tanker.
 - A tanker flight's **Payload** tab has **Set orbit speed**: the KIAS it flies on its track,
   to suit its receivers. **Save as default** keeps it for every new flight of that airframe.
-- **Theater tankers fly a four-point box** (Air Doctrine, experimental) replaces a theater
-  tanker's two-point racetrack with a 40 x 20 NM box it loops until its station time is up.
+- The same tab has **Fly a box (experimental)** for a theater tanker: a 40 x 20 NM box it
+  loops until its station time is up, in place of the two-point racetrack.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
   campaign-wide setting.

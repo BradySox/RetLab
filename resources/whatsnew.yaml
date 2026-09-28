@@ -26,10 +26,10 @@ entries:
   - date: 2026-09-28
     title: Theater tankers can fly a box (experimental)
     change: >-
-      Tick Theater tankers fly a four-point box (experimental) on Air Doctrine
-      and newly planned theater tankers fly a 40 x 20 NM box instead of a
-      two-point racetrack, looping it until their time on station is up. The
-      front leg is where the racetrack would be. Drag any of its points on the
+      A theater tanker flight's Payload tab has Fly a box (experimental): the
+      tanker flies a 40 x 20 NM box instead of a two-point racetrack, looping
+      it until its time on station is up. Save as default keeps it for that
+      airframe. The front leg is where the racetrack would be. Drag any of its points on the
       map to move the whole box. Package and recovery tankers keep the
       racetrack.
     watch: >-

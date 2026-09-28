@@ -1,4 +1,4 @@
-"""The experimental four-point tanker box (``tanker_box_orbit``)."""
+"""The experimental four-point tanker box (``Flight.tanker_box``)."""
 
 from __future__ import annotations
 
@@ -260,3 +260,21 @@ def test_the_map_drag_endpoint_moves_the_whole_box(
     assert box.patrol_end.position.x == pytest.approx(4000, abs=1)
     assert tot_updates == [True]
     assert published == [[flight]]
+
+
+def _tanker(box: bool) -> Any:
+    return SimpleNamespace(flight_type=FlightType.REFUELING, tanker_box=box)
+
+
+def test_one_box_among_a_packages_tankers_spaces_them_all() -> None:
+    builder = Builder.__new__(Builder)
+    escort = SimpleNamespace(flight_type=FlightType.ESCORT, tanker_box=True)
+    for flights, expected in (
+        ([_tanker(False), _tanker(False)], False),
+        ([_tanker(True), _tanker(False)], True),
+        ([_tanker(False), escort], False),
+    ):
+        builder.flight = SimpleNamespace(  # type: ignore[assignment]
+            package=SimpleNamespace(flights=flights)
+        )
+        assert builder._package_flies_a_box() is expected

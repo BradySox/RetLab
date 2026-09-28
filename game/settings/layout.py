@@ -153,7 +153,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "barcap_overlap_time",
                     "desired_awacs_mission_duration",
                     "desired_tanker_on_station_time",
-                    "tanker_box_orbit",
                     "aircraft_per_recovery_tanker",
                 ],
             ),

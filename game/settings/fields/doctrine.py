@@ -120,21 +120,6 @@ class DoctrineSettings:
             "divided by desired on-station time."
         ),
     )
-    tanker_box_orbit: bool = boolean_option(
-        "Theater tankers fly a four-point box (experimental)",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=False,
-        detail=(
-            "If checked, newly planned theater tankers fly a 40 x 20 NM box "
-            "instead of a two-point racetrack: the front leg is where the "
-            "racetrack would be and the box extends away from the threat. The "
-            "tanker loops the four corners until its on-station time is up. "
-            "Package and carrier "
-            "recovery tankers keep the racetrack. Existing flight plans keep "
-            "their shape until replanned."
-        ),
-    )
     autoplan_tankers_for_strike: bool = boolean_option(
         "Auto-planner plans refueling flights for Strike packages",
         page=CAMPAIGN_DOCTRINE_PAGE,

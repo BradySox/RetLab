@@ -1,4 +1,6 @@
-from PySide6.QtCore import Qt
+import logging
+
+from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QShowEvent
 from PySide6.QtWidgets import (
     QAbstractScrollArea,
@@ -21,6 +23,8 @@ from PySide6.QtWidgets import (
 from game import Game
 from game.ato.flight import Flight
 from game.ato.flightmember import FlightMember
+from game.ato.flightplans.planningerror import PlanningError
+from game.ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
 from game.ato.flighttype import FlightType
 from game.ato.loadouts import Loadout
 from game.missiongenerator.aircraft.modex import (
@@ -229,16 +233,34 @@ class DcsFuelSelector(QHBoxLayout):
         return round(value / KG_TO_LBS)
 
 
-class TankerOrbitSpeedEditor(QWidget):
-    """A tanker flight's track speed in KIAS, or the aircraft's own when unticked."""
+class TankerTrackEditor(QWidget):
+    """A tanker flight's track: its speed in KIAS, and a box instead of a racetrack."""
 
     DEFAULT_KIAS = 280
+    #: The flight plan was rebuilt (the box was ticked or unticked).
+    plan_changed = Signal()
 
     def __init__(self, flight: Flight) -> None:
         super().__init__()
         self.flight = flight
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
+
+        # Only a theater tanker can fly a box; see retlab-tanker-box-notes.md.
+        theater = isinstance(flight.flight_plan, TheaterRefuelingFlightPlan)
+        self.box = QCheckBox("Fly a box (experimental)")
+        self.box.setChecked(flight.tanker_box)
+        self.box.setVisible(theater)
+        layout.addWidget(self.box)
+        box_description = QLabel(
+            "A 40 x 20 NM box instead of a two-point racetrack. The front leg is "
+            "where the racetrack would be and the box extends away from the threat. "
+            "Changing it replans this tanker."
+        )
+        _wrap_without_widening(box_description)
+        box_description.setVisible(theater)
+        layout.addWidget(box_description)
+        self.box.toggled.connect(self._on_box)
 
         row = QHBoxLayout()
         self.enabled = QCheckBox("Set orbit speed")
@@ -271,6 +293,19 @@ class TankerOrbitSpeedEditor(QWidget):
         self.kias.setEnabled(on)
         self.flight.orbit_speed_kias = self.kias.value() if on else None
 
+    def _on_box(self, checked: bool) -> None:
+        self.flight.tanker_box = checked
+        try:
+            self.flight.recreate_flight_plan()
+        except PlanningError as ex:
+            logging.exception("Could not replan the tanker")
+            self.flight.tanker_box = not checked
+            with block_signals(self.box):
+                self.box.setChecked(not checked)
+            QMessageBox.critical(self, "Could not replan the tanker", str(ex))
+            return
+        self.plan_changed.emit()
+
 
 def _wrap_without_widening(label: QLabel) -> None:
     """Let ``label`` wrap into its column instead of demanding one long line.
@@ -297,6 +332,9 @@ class QFlightPayloadTab(QFrame):
     #: future airframe with a very long property list making the column the tall
     #: one again -- the busiest today (the F-4E, 23 properties) fits inside it.
     PROPERTY_LIST_MAX_HEIGHT = 560
+
+    #: The tanker track editor rebuilt the flight plan.
+    flight_plan_changed = Signal()
 
     def __init__(self, flight: Flight, game: Game):
         super(QFlightPayloadTab, self).__init__()
@@ -437,7 +475,9 @@ class QFlightPayloadTab(QFrame):
         aircraft_layout.addLayout(self.fuel_selector)
 
         if flight.flight_type is FlightType.REFUELING:
-            aircraft_layout.addWidget(TankerOrbitSpeedEditor(flight))
+            self.tanker_track = TankerTrackEditor(flight)
+            self.tanker_track.plan_changed.connect(self.flight_plan_changed)
+            aircraft_layout.addWidget(self.tanker_track)
 
         # RetLab (§46): the live fuel-plan readout -- the planner's own sortie
         # numbers (burn vs carried, tanker passes, RTB margin) recomputed as the
@@ -678,7 +718,7 @@ class QFlightPayloadTab(QFrame):
         self.save_defaults_btn = QPushButton("Save as default")
         self.save_defaults_btn.setToolTip(
             "Remember the current internal fuel, aircraft settings (condition, "
-            "wear & tear, spawn type, etc.) and a tanker's orbit speed as the "
+            "wear & tear, spawn type, etc.) and a tanker's orbit speed and box as the "
             "default for every new "
             f"{self.flight.unit_type.display_name} flight."
         )
@@ -705,6 +745,7 @@ class QFlightPayloadTab(QFrame):
             self.flight.fuel,
             self.member_selector.selected_member.properties,
             self.flight.orbit_speed_kias,
+            self.flight.tanker_box,
         )
         self.clear_defaults_btn.setEnabled(True)
         QMessageBox.information(

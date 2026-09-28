@@ -1,7 +1,8 @@
 # Tanker box and tanker orbit speed
 
-**Status:** BUILT 2026-09-28, not flown. The speed is per flight on the Payload tab; the box
-is a setting on Air Doctrine → CAP & support timing. Both off by default. The box is **experimental** (DM 2026-09-28: "a temporary setting, no
+**Status:** BUILT 2026-09-28, not flown. Both are per flight, on a tanker flight's Payload tab,
+and saved per airframe by **Save as default**. Both off by default. Neither is a campaign
+setting (DM 2026-09-28). The box is **experimental** (DM 2026-09-28: "a temporary setting, no
 overwriting behavior yet"). Rows B152 (speed) and B153 (box).
 
 ## Tanker orbit speed (upstream #869)
@@ -27,7 +28,10 @@ DCS's Orbit task has two patterns, Circle and Race-Track. A box is therefore a *
 an orbit: the tanker flies its corners with the Tanker task active and a `SwitchWaypoint`
 loops the lap.
 
-- `tanker_box_orbit`. Theater tankers only (`TheaterRefuelingFlightPlan`).
+- `Flight.tanker_box`, the Payload tab's **Fly a box (experimental)**. Shown for theater
+  tankers only (`TheaterRefuelingFlightPlan`); ticking it replans the flight
+  (`TankerTrackEditor`). **Save as default** stores it per airframe (§43,
+  `tanker_box`).
 - **Package tankers keep the racetrack.** Their station time is 5 min + (4 × jets + 1) per
   receiver flight, often shorter than one 120 NM lap.
 - **Geometry.** The front leg is where the racetrack would be (40 NM, across the threat axis).
