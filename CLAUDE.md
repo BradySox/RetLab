@@ -437,10 +437,6 @@ source of truth is the registry `game/retlab/features.py` (regenerate with
 These cost a mission or a crash to learn. Each is recorded in full in the features doc or the
 linked design note.
 
-- **Never toggle SAM radar emissions from a plugin.** `enableEmission(false)` caused crashes in
-  the C-130 line. Suppression is ROE `WEAPON_HOLD` only. Applies to §51, §63, §77 and the
-  C-130 script. Skynet's own go-live/go-dark is that same call, made by the engine on its
-  own cadence; upstream has flown it for years. Row G42 watches for a recurrence.
 - **Never restore the per-base backstop EWR** (§1). DCS has no non-colliding ground unit — the
   mast sat on taxiways and broke AI taxi routing. Detection is the IADS network alone; a side
   with no EWR losing GCI is by design. Second instance 2026-09-16 (test 35, Long Road to H3):
@@ -696,8 +692,7 @@ this repo, PR metadata or commit messages; the DM holds the link.
   disagree (64H6E sr high 33 %, 40B6MD sr low 50 %, Patriot str low 38 %) and need `getSensors()`
   run on our own install to settle; they are vanilla values faithfully mirroring the database, so
   changing them is a data divergence needing its own call, not a bug fix.
-- **Corroborated, do not re-litigate:** his IADS calls `enableEmission` **zero** times — same
-  conclusion as our hard constraint. And measured Dog Ear detection is 23.4 km against 1L13's
+- **Corroborated, do not re-litigate:** measured Dog Ear detection is 23.4 km against 1L13's
   200.6 km, which confirms Ramius007's objection that closed #887.
 
 Full assessment, including the SAM-magazine and radar-sweep ideas Skynet lacks, is in
@@ -768,8 +763,9 @@ percent options map through upstream `sd3-config`'s `/100`: `overall_scaling` 60
 80→0.8, dynamic blast 100→1), and the value drift is the documented tuning. Two
 upstream-authored blocks are absent from our copy, both **deliberately dropped** by the
 bake-in commit `6f3fc284b` (2026-06-11), which names them: **`shipRadarDamageEnable`**
-(HARM → ship radar), which stays out — it works by `obj:enableEmission(false)`, the call the
-C-130 constraint records as a crash cause — and **`oca_aircraft_damage_boost`** (3000×,
+(HARM → ship radar), dropped because it works by `obj:enableEmission(false)`, then held to be
+a crash cause (that rule was lifted 2026-09-28; restoring the block is its own call) — and
+**`oca_aircraft_damage_boost`** (3000×,
 parked aircraft, "so OCA/Aircraft missions are viable"), **RESTORED 2026-08-06 on the DM's
 call**. The two were one contiguous region of the same function, so the OCA half reads as
 collateral to the crash-risk removal; restoring it costs OCA/Aircraft strikes nothing and

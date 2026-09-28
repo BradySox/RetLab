@@ -64,8 +64,9 @@ Osa 6…) are DCS facts we re-derive from our own export path, not values we cop
    cargo trucks inside our S-300-family sites. So in a long mission a launcher beside its §85
    trucks may physically reload. The clamp makes this harmless: fired-count is compared against
    the *campaign* stock, so a physical reload past the ledger just meets the ROE hold sooner.
-4. **The clamp must be ROE, never emissions.** Hard constraint (the `enableEmission` crash);
-   that script independently reaches the same conclusion (zero `enableEmission` calls).
+4. **The clamp should be ROE, not emissions.** A dark radar under Skynet competes with the
+   engine's own emissions control; ROE does not. (The old `enableEmission` hard constraint was
+   lifted 2026-09-28.) That script also manages radars by ROE (zero `enableEmission` calls).
 
 ## 4. The MANTIS seam — verified clean
 

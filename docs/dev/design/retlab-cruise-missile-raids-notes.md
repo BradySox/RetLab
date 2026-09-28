@@ -121,7 +121,7 @@ wake):** `fireCruise` now ends every launch (raid and call-for-fire share it) wi
 `wakeDefenders`: sweep the opposing side's ground groups, keep those with an alive
 `"Air Defence"`-attributed unit within `defenderWakeRadiusNm` (default 8 NM) of the
 **aimpoint**, and set each **alarm state RED** via `Controller:setOption` — alarm
-state ONLY, `enableEmission` stays untouched (the crash-history constraint). The hold
+state ONLY, `enableEmission` stays untouched. The hold
 lasts an estimated flight time (`dist/200 m/s`, a low speed estimate so the window is
 generous) + `defenderWakeExtraS` (default 300 s); `standDownDefender` then restores
 ALARM AUTO, with per-group `wakeUntil` bookkeeping so overlapping launches extend
