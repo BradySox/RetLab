@@ -107,9 +107,15 @@ These cost missions to learn and still hold, or hold in a changed form:
 - **`enableEmission` is what Skynet uses to go live and dark** (three calls in the compiled
   file). The hard constraint that `enableEmission(false)` crashed DCS came from the C-130 line,
   where the script toggled it on player-driven events; upstream has flown Skynet on it for years
-  and this fork did until June without a recorded crash. Row G42 watches for it. The C-130,
-  growler and cruise-missile plugins still never touch emissions; they hold sites with ROE
-  `WEAPON_HOLD`, and Skynet re-asserts ROE itself, so those writes are self-healing under it.
+  and this fork did until June without a recorded crash. Row G42 watches for it.
+- **The "never call `enableEmission`" hard constraint was LIFTED 2026-09-28 (DM call).** Skynet
+  has called it in every mission since 2026-09-12, and tests 30, 32 and 33 (25 min to 2 h 14 min)
+  ran with no fault. The one recorded crash was the C-130 script's. The C-130, growler and
+  cruise-missile plugins still hold sites with ROE `WEAPON_HOLD` and do not touch emissions;
+  that is now their design, not a rule, and moving any of them to emissions is its own change
+  with its own flown test. Skynet re-asserts ROE itself, so the plugins' ROE writes are
+  self-healing under it; Skynet also sets emissions itself, so a plugin that darkens a radar
+  would be competing with the engine.
 - **A campaign still needs early warning.** Under Skynet an uncovered SAM fights autonomously
   rather than staying blind, so the failure is softer, but a network with no EWR and no AWACS is
   a set of isolated sites, not an IADS. The `fallback_classes` on the EWR layout stays

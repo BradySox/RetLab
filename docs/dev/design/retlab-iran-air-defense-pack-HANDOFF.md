@@ -42,7 +42,7 @@ question. Only the type-id contract crosses between the two.
 1. **The twelve type ids in design note §1 are fixed.** Your `Database` lua must use them
    character for character. If one must change, change it in the repo in the same commit
    (the pydcs extension, the unit yaml filename, the layouts, Skynet, `faction.py`, the test).
-2. **Never call `enableEmission`** in anything you write (a hard constraint in `CLAUDE.md`).
+2. ~~Never call `enableEmission`~~ — lifted 2026-09-28 (DM call; see `retlab-skynet-return-notes.md` §6).
 3. **No Retribution Lua plugin may name an `IRAD_` unit.** Mod awareness stays in Python.
 4. **Licence check before copying.** Read the licence of any mod you use as a template (High
    Digit SAMs Ultimate Compilation, CurrentHill). Copying structure is fine; copying files is

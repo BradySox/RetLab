@@ -124,7 +124,7 @@ end
 -- every launch (raid or call-for-fire), the opposing side's ground air-defense groups
 -- near the AIMPOINT are set alarm state RED (radars up: the LAUNCH WARNING doing its
 -- job) and stood back down to AUTO once the salvo has long arrived. Alarm state ONLY --
--- emission toggling stays untouched (the enableEmission crash history), and a
+-- emission toggling stays untouched, and a
 -- MANTIS-managed site keeps its own EMCON loop (MANTIS may re-dark it; that is
 -- MANTIS's call to make).
 local wakeUntil = {} -- AD group name -> sim time to hold RED until

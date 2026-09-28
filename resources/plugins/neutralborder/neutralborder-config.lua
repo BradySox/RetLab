@@ -14,7 +14,7 @@
 --   * The batteries are LIVE and neutral from t=0, not late-activated: the border has to have
 --     something in it before you cross. sam_groups may still be empty for a zone that could
 --     not be built, so guard it.
---   * Escalation is ROE + tasking only. Never enableEmission (hard constraint).
+--   * Escalation is ROE + tasking only; emissions are not touched.
 --   * Spawns are free, untracked event content (the §61 precedent).
 -- Values arrive as Lua strings (LuaItem contract) -- tonumber() everything numeric here.
 -- Border verts are terrain XY: vert.x = DCS x (north), vert.y = DCS z (east).
