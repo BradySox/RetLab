@@ -42,6 +42,9 @@ loops the lap.
   15-18 min) after `patrol_end_time`. That overlaps the relief rather than leaving a gap.
 - **Speed.** BOX 2 to BOX END carry the patrol speed. A DCS waypoint speed is the speed flown
   toward that point.
+- **Moving it.** Dragging any of the five box points on the app map moves the whole box
+  by the same offset (`move_box`, called from the map's `set_position` endpoint; DM
+  2026-09-28). The package TOT is recomputed as for any drag.
 - **Unlimited fuel.** `BOX END` does not re-enable it, because the loop passes BOX END every lap.
   With `ai_unlimited_fuel` on, a box tanker flies home on its own fuel.
 

@@ -9,6 +9,7 @@ from starlette.responses import Response
 
 from game import Game
 from game.ato import Flight, packageroute, routeedit
+from game.ato.flightplans.refuelingflightplan import move_box
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.server import GameContext
@@ -71,9 +72,12 @@ def set_position(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     waypoint = flight.flight_plan.waypoints[waypoint_idx - 1]
-    waypoint.position = Point.from_latlng(
-        LatLng(position.lat, position.lng), game.theater.terrain
-    )
+    to = Point.from_latlng(LatLng(position.lat, position.lng), game.theater.terrain)
+    if move_box(flight.flight_plan.layout, waypoint, to):
+        _package_model(flight).update_tot()
+        _publish([flight])
+        return
+    waypoint.position = to
     package_model = (
         GameContext.get_model()
         .ato_model_for(flight.blue)
