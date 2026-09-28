@@ -150,6 +150,22 @@ Tacview. **~15 min.**
 - **Pass criterion:** every flight has the point where it was dragged, and the package
   forms up at the join and flies it as one.
 
+### 7 · A tanker flies its box at the speed you set — `B152`, `B153`
+
+**Why this is a card.** Both settings are off by default, so nothing flies them unless
+someone ticks them. Tests and a headless generation pin the route, the loop and the speeds;
+only DCS shows whether the AI tanks through the corners and leaves on time. Note:
+[`retlab-tanker-box-notes.md`](../design/retlab-tanker-box-notes.md).
+
+**Try:** any campaign with a KC-135 theater tanker. Air Doctrine → tick **Set tanker orbit
+speed**, set **270**, tick **Theater tankers fly a four-point box (experimental)**, pass a
+turn, fly a jet that can take the boom. Join the tanker, then stay near it for a lap. **~20 min.**
+
+- **Record:** the tanker's KIAS on a straight leg; whether it flies all four corners and
+  goes round again; whether you can stay in contact through a corner; when it leaves.
+- **Pass criterion:** 265-275 KIAS, four corners flown more than once, refueling works on
+  the box, and it goes home within one lap of its on-station end.
+
 ## Done
 
 ### 2 · A target you destroyed stays destroyed next turn — `B63` — **CLOSED 2026-09-16**

@@ -44,8 +44,11 @@ def _layout() -> PatrollingLayout:
 
 
 def _plan(unit_type: object) -> _Refueling:
+    settings = SimpleNamespace(tanker_orbit_speed_set=False)
     flight = SimpleNamespace(
-        unit_type=unit_type, package=SimpleNamespace(time_over_target=T0)
+        unit_type=unit_type,
+        package=SimpleNamespace(time_over_target=T0),
+        coalition=SimpleNamespace(game=SimpleNamespace(settings=settings)),
     )
     return _Refueling(flight, _layout())  # type: ignore[arg-type]
 

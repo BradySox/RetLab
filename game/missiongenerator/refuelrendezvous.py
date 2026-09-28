@@ -55,6 +55,7 @@ def planned_tankers(flight: "Flight") -> Optional[list[PlannedTanker]]:
     treat as "leave the planned point alone".
     """
     from game.ato.flighttype import FlightType
+    from game.ato.flightplans.refuelingflightplan import orbit_leg_end
     from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
 
     ato = getattr(getattr(flight, "coalition", None), "ato", None)
@@ -68,7 +69,7 @@ def planned_tankers(flight: "Flight") -> Optional[list[PlannedTanker]]:
             plan = getattr(candidate, "flight_plan", None)
             layout = getattr(plan, "layout", None)
             start = getattr(layout, "patrol_start", None)
-            end = getattr(layout, "patrol_end", None)
+            end = orbit_leg_end(layout)
             tankers.append(
                 PlannedTanker(
                     blue=candidate.blue,

@@ -44,6 +44,13 @@ class RaceTrack(InFlight):
         return self.estimate_fuel_at_current_waypoint()
 
     def travel_time_between_waypoints(self) -> timedelta:
+        from game.ato.flightplans.refuelingflightplan import TankerBoxLayout
+
+        # A box's corners after the first leg are flown as ordinary legs.
+        if isinstance(self.flight.flight_plan.layout, TankerBoxLayout):
+            return self.flight.flight_plan.total_time_between_waypoints(
+                self.current_waypoint, self.next_waypoint
+            )
         return self.patrol_duration
 
     def a2a_commit_region(self) -> Optional[ThreatPoly]:
@@ -53,4 +60,4 @@ class RaceTrack(InFlight):
 
     @property
     def description(self) -> str:
-        return f"Patrolling for {self.patrol_duration - self.elapsed_time}"
+        return f"Patrolling for {self.total_time_to_next_waypoint - self.elapsed_time}"

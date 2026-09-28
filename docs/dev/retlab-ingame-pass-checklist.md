@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-87 rows need a live pass. Full detail is under each `###` heading below —
+89 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -458,6 +458,8 @@ stress it · `✗` fail signature reproduced in-game.
 | B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
 | B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
 | B151 | The package route moves every flight in the package | §106 | ☐ |
+| B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
+| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8805,3 +8807,36 @@ never used in the app or flown.
   a new flight flying the planner's detour instead of the edited route; the TOT flipping; a
   double-click that zooms the map instead of adding a point; the browser's own menu on a
   right-click.
+
+### B152 — A tanker flies its track at the set orbit speed · upstream #869 · ☐ UNTESTED
+
+Built 2026-09-28 from upstream issue #869. **Set tanker orbit speed** and **Tanker orbit
+speed (KIAS)** (Air Doctrine) replace a theater or package tanker's own track speed with
+the chosen KIAS, converted to true airspeed at the track altitude. Carrier recovery tankers
+and tankers slower than 200 KIAS (the KC-130J) keep their own speed; a tanker is capped at
+its top speed. Unit-tested (`test_tanker_orbit_speed.py`); never flown.
+
+- **Setup:** any campaign with a KC-135 or KC-135 MPRS theater tanker. Tick the setting,
+  set 270 KIAS, generate the turn.
+- **Pass:** join the tanker; its indicated airspeed on the straight legs reads 265-275 KIAS.
+- **Fail signatures:** the tanker at its old ~300 KIAS (setting not reaching the waypoint);
+  a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a KC-130J at
+  fast-jet speed.
+
+### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ☐ UNTESTED
+
+Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
+experimental setting. The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
+on, and a SwitchWaypoint at BOX END loops it to BOX 2 while mission time is under its
+on-station end. Unit-tested (`test_tanker_box.py`) and headless-generated; never flown.
+Design: `docs/dev/design/retlab-tanker-box-notes.md`.
+
+- **Setup:** any campaign with a KC-135 theater tanker. Tick **Theater tankers fly a
+  four-point box (experimental)**, then replan the tanker (or pass a turn) and generate.
+- **Pass (map):** the tanker's route on the app map and its F10 marker are the box.
+- **Pass (flight):** the tanker flies all four corners, not a racetrack. You can tank on a
+  straight leg and through a corner. It goes round more than once. After its on-station
+  time (plus at most one lap) it leaves for home instead of starting another lap.
+- **Fail signatures:** the tanker orbits at BOX 1 or flies BOX 1-END once and goes home (loop
+  not firing); it never leaves (condition never false); it refuses contacts after BOX 1 (the
+  Tanker task did not persist along the route); it races back toward BOX 1 at top speed.

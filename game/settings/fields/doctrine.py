@@ -120,6 +120,48 @@ class DoctrineSettings:
             "divided by desired on-station time."
         ),
     )
+    tanker_orbit_speed_set: bool = boolean_option(
+        "Set tanker orbit speed",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=False,
+        detail=(
+            "If checked, theater and package tankers fly their track at Tanker "
+            "orbit speed (KIAS) instead of each aircraft's own speed. Carrier "
+            "recovery tankers and helicopter tankers such as the KC-130J keep "
+            "their own speed."
+        ),
+    )
+    tanker_box_orbit: bool = boolean_option(
+        "Theater tankers fly a four-point box (experimental)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=False,
+        detail=(
+            "If checked, newly planned theater tankers fly a 40 x 20 NM box "
+            "instead of a two-point racetrack: the front leg is where the "
+            "racetrack would be and the box extends away from the threat. The "
+            "tanker loops the four corners until its on-station time is up. "
+            "Package and carrier "
+            "recovery tankers keep the racetrack. Existing flight plans keep "
+            "their shape until replanned."
+        ),
+    )
+    tanker_orbit_speed_kias: int = bounded_int_option(
+        "Tanker orbit speed (KIAS)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=280,
+        min=200,
+        max=350,
+        enabled_when="tanker_orbit_speed_set",
+        detail=(
+            "Indicated airspeed on the track, converted to true airspeed at the "
+            "track altitude. Match it to your main receiver: 275-285 for the "
+            "Hornet, 275 for the Harrier. A tanker that cannot reach it flies at "
+            "its top speed."
+        ),
+    )
     autoplan_tankers_for_strike: bool = boolean_option(
         "Auto-planner plans refueling flights for Strike packages",
         page=CAMPAIGN_DOCTRINE_PAGE,
