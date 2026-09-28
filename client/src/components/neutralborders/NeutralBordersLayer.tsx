@@ -71,6 +71,8 @@ export default function NeutralBordersLayer() {
             signature={stroke}
             fillColor={color}
             fillOpacity={fillOpacity}
+            // Hover-only: a click inside a country is a click on the map.
+            className="map-area"
           >
             <Tooltip sticky>
               <b>{border.country} airspace</b>

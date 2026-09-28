@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from game.utils import Distance, SPEED_OF_SOUND_AT_SEA_LEVEL, Speed, mach
+from .runwayqueue import runway_queue_wait
 
 if TYPE_CHECKING:
     from .flight import Flight
@@ -14,6 +15,10 @@ if TYPE_CHECKING:
 #: airframe flew this before ``cruise_mach:`` existed, so an unauthored yaml is
 #: unchanged.
 DEFAULT_CRUISE_MACH = 0.85
+
+#: Each pass moves the TOT past at least one runway slot, so a real field settles in
+#: two or three; the cap only bounds a pathological queue.
+ASAP_PASSES = 32
 
 
 class GroundSpeed:
@@ -62,7 +67,25 @@ class TotEstimator:
         candidates = [f for f in self.package.flights if not f.manually_timed]
         if not candidates:
             candidates = list(self.package.flights)
-        return max(self.earliest_tot_for_flight(f, now) for f in candidates)
+
+        # The runway queue (§104) reads each takeoff from the package TOT, so a single
+        # estimate depends on the TOT it was taken at and flipped between two times.
+        # Climb from the no-queue floor until the TOT covers its own queue instead.
+        scheduled = self.package.time_over_target
+        try:
+            tot = max(
+                self.earliest_tot_for_flight(f, now) - runway_queue_wait(f)
+                for f in candidates
+            )
+            for _ in range(ASAP_PASSES):
+                self.package.time_over_target = tot
+                needed = max(self.earliest_tot_for_flight(f, now) for f in candidates)
+                if needed <= tot:
+                    break
+                tot = needed
+            return tot
+        finally:
+            self.package.time_over_target = scheduled
 
     @staticmethod
     def earliest_tot_for_flight(flight: Flight, now: datetime) -> datetime:

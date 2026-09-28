@@ -20,6 +20,13 @@ code {
   cursor: pointer;
 }
 
+/* An area interactive only for its hover tooltip (a country's airspace). It has
+   no click, so it keeps the map's own cursor, and the coordinate picker treats a
+   click on it as bare map. */
+.leaflet-interactive.map-area {
+  cursor: inherit;
+}
+
 /* Wide, invisible hover target for SAM threat/detection rings. pointer-events:
    stroke lets the transparent stroke catch the mouse along the perimeter even
    though it is not painted, so the ring is easy to hover when zoomed out. */

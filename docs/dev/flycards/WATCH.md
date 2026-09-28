@@ -15,13 +15,17 @@ next from the parking lot.
 cleared — both entries named rows that had already closed, `Q3` VERIFIED and the loadout
 watch pointing at RETIRED `B42`.)*
 
-### 1 · The ramp time you are given matches the airframe you are starting — `B77`
+### 1 · An AI flight inside a shaded neutral border, and nothing happens — `B121`
 
-**Where:** the mission-start briefing card and the kneeboard, any flight. **~1 min.** App-side.
+**Where:** the F10 map, any campaign with neutral border defense on. **~2 min**, whenever an AI
+flight is near a shaded (hostile-neutral) border.
 
-- **Pass:** a Tomcat and a Viper starting cold get different allowances, each the airframe's own.
-- **Fail:** every airframe gets the same number.
-- **Why it's here:** pulled from the parking lot 2026-09-16 when `B48` closed on the DM's call.
+- **Pass:** an AI flight visibly inside the shading draws no hail, no warning and no fire, and
+  the country's batteries stay neutral.
+- **Fail:** a neutral battery fires at, or the country turns hostile over, an AI aircraft with
+  the `engageAi` option off.
+- **Why it's here:** pulled from the parking lot 2026-09-27 when `B77` closed on the DM's call.
+  No AI stray has crossed a border in three recorded missions, so it closes on the first one.
 
 ### 2 · A HARM at a Skynet site: does it go dark, or fight through — `G42`
 
@@ -44,16 +48,15 @@ watch pointing at RETIRED `B42`.)*
 - **Fail:** the bar moves and nothing beneath it changes.
 - **Why it's here:** pulled from the parking lot 2026-09-16 when `B78` closed on the DM's call.
 
-### 4 · A striker and its escort hold one pace after the join — `B111`
+### 4 · BMP-3s in a front fight fire single aimed shots — `B103`
 
-**Where:** F10 after the join, before the ingress: ground speed **and altitude** for the
-striker and each escort. **~5 min**, on a flight you were flying anyway.
+**Where:** any front with BMP-3 groups and TIC on (Iron Gate, Caucasus 2026, Red Tide), from
+the cockpit or the F10 map. **~2 min** of watching one firefight.
 
-- **Pass:** the escort reads within ~15 kt of its striker at the same altitude.
-- **Fail:** a 20–50 kt gap, which is what test 32 measured and what one authored airframe
-  (the Hornet at M0.78) among unauthored ones produces. Record the loadout with each number;
-  the readings are what unblocks `cruise_mach:` for the other airframes.
-- **Why it's here:** pulled from the parking lot 2026-09-16 when `B79` closed on the audit.
+- **Pass:** a BMP-3 group fires single aimed shots, visibly slower than the BTRs beside it.
+- **Fail:** BMP-3s fire at the infantry salvo rate, as fast as the BTRs.
+- **Why it's here:** pulled from the parking lot 2026-09-27 when `B111` closed on the DM's call.
+  A recording does not carry per-round gunfire, so this needs eyes.
 
 ### 5 · A stuck TIC unit names itself, and the retries are spread — `B108`
 
@@ -71,8 +74,7 @@ striker and each escort. **~5 min**, on a flight you were flying anyway.
 
 | Row | Watch for | Note |
 |---|---|---|
-| `B121` | An AI flight visibly inside a shaded neutral border, and nothing happens | F10 map on any campaign with `neutral_border_defense` on; no stray in three missions so far |
-| `B103` | A BMP-3 group in a front fight firing single aimed shots, slower than the BTRs beside it | Iron Gate and Caucasus 2026 field them on the front; the rate is not in a recording |
+| *(empty since 2026-09-27: `B121` and `B103` were pulled into slots 1 and 4)* | | |
 
 Closed and dropped items, with the reasoning: [`ARCHIVE.md`](ARCHIVE.md).
 Contrived-condition tests live on [`LOCAL.md`](LOCAL.md).

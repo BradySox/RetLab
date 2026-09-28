@@ -2678,7 +2678,8 @@ the knob is airframe-wide with no per-loadout axis, so BARCAP and TARCAP Hornets
 the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
 `game/ato/traveltime.py`, `game/ato/flightplans/formationattack.py`; tests
 `tests/ato/flightplans/test_package_cruise_speed.py`; design note
-[retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md); checklist B111.)
+[retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md); checklist B111, verified
+2026-09-27 on the DM's call.)
 
 ## 9. TIC — Troops In Contact frontline battle sim (plugin, default ON)
 
@@ -10809,6 +10810,10 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Hornet/Viper/Apache points need the Flight plan section (those cartridges replace the
   whole navigation set).
 - Skips are waypoint-type names, never indices.
+- The picker leaves a click on an interactive shape to that shape, except a `map-area`
+  one (hover-only: §98's country polygons). Without the exception, neutral border
+  defense's borders cover every country and the picker answered only at sea (fixed
+  2026-09-27).
 
 ### §74 schema fixes (2026-09-22)
 
@@ -10929,14 +10934,20 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
 
 - `takeoff_time` must never read `estimate_ground_ops`; the walk relies on that to avoid
   recursion.
+- The wait depends on the package TOT, so one ASAP estimate depends on the TOT it was
+  taken at. `TotEstimator.earliest_tot` climbs from the no-queue floor until the TOT covers
+  its own queue, then restores the TOT it borrowed. A single estimate flipped between two
+  times, and the package dialog re-saved each redraw: `RecursionError` from `save_tot`
+  (fixed 2026-09-27; the dialog now blocks the spinner's signals while it redraws).
 - A package with an unscheduled TOT is skipped, not read: its takeoff overflows.
 - `sim.time` before `begin_simulation` is still the turn clock; planning reads it as "now".
   Only `begin_simulation` moves it.
 
 ### Tests
 
-`tests/test_runway_queue.py` (14), `tests/test_early_mission_start.py` (7), and the DTC
-midnight case in `tests/missiongenerator/test_dtc.py`.
+`tests/test_runway_queue.py` (18), `tests/test_early_mission_start.py` (7),
+`tests/test_package_dialog_tot.py` (2), and the DTC midnight case in
+`tests/missiongenerator/test_dtc.py`.
 
 ### Deferred
 
@@ -10996,3 +11007,65 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   This repo carries only the Retribution side.
 
 In-game row **B148**.
+
+## §106 — Package route and Insert NAV point
+
+A package's way in (join to IP) and way out (target to split) are flown by every formation
+flight together, so a NAV point on them belongs to the package. The Package route window
+edits them once for every flight; Insert NAV point in a flight's Waypoints tab now finds a
+leg beside any waypoint. Built 2026-09-27 from two DM reports, not flown. Design note:
+[`retlab-package-route-notes.md`](design/retlab-package-route-notes.md).
+
+### Files
+
+- `game/ato/flightplans/navinsert.py` — `nav_insert_next_to(layout, anchor)`: tries each of
+  the layout's `nav_sequences()` after the anchor, then before it, and keeps a slot only if
+  the point lands next to the anchor in the route.
+- `game/ato/flightplans/flightplan.py` — `Layout.nav_sequences()`; one generic
+  `Layout.move_waypoint` over those lists (the standard, custom and airlift overrides are
+  gone, and with them `add_waypoint`).
+- `game/ato/packageroute.py` — who flies the route, the route rows, insert / delete / move
+  / set position / reset for every flight.
+- `game/ato/packagewaypoints.py` — `ingress_nav` / `egress_nav`, `None` until the player
+  edits a leg.
+- `game/ato/flightplans/formationattack.py` — `package_route_points`: the package's points
+  when set, else the planner's SAM detour. `_sam_detours` builds every flight's legs from it.
+- `game/server/waypoints/routes.py` — a drag of the primary flight's way-in or way-out
+  point moves it for every flight.
+- `qt_ui/windows/mission/QPackageRouteDialog.py` — the window; **Package route** button on
+  the package dialog.
+- `qt_ui/windows/mission/flight/waypoints/QFlightWaypointTab.py` — Insert NAV point and
+  Delete ask Whole package / This flight only on a shared leg.
+
+### Constraints — do not undo
+
+- Lookups are by identity: `FlightWaypoint` compares by value.
+- A NAV slot counts only if the point lands next to the anchor. The type-based table this
+  replaced put the point after the hold (takeoff) and after the tanker (split), halfway
+  back: a zigzag.
+- The package's points are the source once set; the planner reads them for a flight added
+  or recreated later.
+
+### Gotchas
+
+- A flight carrying its own point on a shared leg is rebuilt from the package's points on
+  the next package edit; its own point is dropped.
+- The strike line-up is per flight and not on the package route.
+- Helicopters and air assault fly no package route; a package whose primary does not has
+  none, and the button is disabled.
+
+### Tests
+
+`tests/ato/flightplans/test_nav_insert.py` (18), `tests/ato/test_package_route.py` (27),
+`tests/test_package_route_dialog.py` (5).
+
+### Needs an in-game pass — B150, B151
+
+B150: Insert NAV point beside the join, the line-up, the last target and the split, and
+the refusals. B151: the package route window, the flight tab's question, the map drag and
+a flown package on an edited route.
+
+### Deferred
+
+- Inserting from the map (juanjux #235/#238 do it per flight); typed coordinates; keeping
+  a flight's own point across a package edit.

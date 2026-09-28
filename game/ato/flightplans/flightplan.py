@@ -71,12 +71,28 @@ class Layout(ABC):
     def delete_waypoint(self, waypoint: FlightWaypoint) -> bool:
         return False
 
-    def move_waypoint(self, waypoint: FlightWaypoint, direction: int) -> bool:
-        """Move ``waypoint`` one slot. ``direction`` is -1 (up) or +1 (down).
+    def nav_sequences(self) -> list[list[FlightWaypoint]]:
+        """The lists a new nav point may go in. See navinsert.py for how one is picked."""
+        return [self.custom_waypoints]
 
-        Returns True if the move happened. The base layout cannot reorder anything, so it
-        returns False; subclasses override for their mutable waypoint lists.
+    def move_waypoint(self, waypoint: FlightWaypoint, direction: int) -> bool:
+        """Move ``waypoint`` one slot within its list. ``direction`` is -1 or +1.
+
+        False at the edge of its list: going further would cross a fixed waypoint, which
+        only a custom plan can do (the UI offers the conversion). By identity, since
+        waypoints compare by value.
         """
+        for sequence in self.nav_sequences():
+            for index, candidate in enumerate(sequence):
+                if candidate is waypoint:
+                    target = index + direction
+                    if not 0 <= target < len(sequence):
+                        return False
+                    sequence[index], sequence[target] = (
+                        sequence[target],
+                        sequence[index],
+                    )
+                    return True
         return False
 
     def iter_waypoints(self) -> Iterator[FlightWaypoint]:

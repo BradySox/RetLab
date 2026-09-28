@@ -22,6 +22,7 @@ class QFlightPlanner(QTabWidget):
 
         self.waypoint_tab = QFlightWaypointTab(gm.game, package_model.package, flight)
         self.waypoint_tab.loadout_changed.connect(self.payload_tab.reload_from_flight)
+        self.waypoint_tab.package_route_changed.connect(package_model.update_tot)
 
         self.general_settings_tab = QGeneralFlightSettingsTab(
             gm,

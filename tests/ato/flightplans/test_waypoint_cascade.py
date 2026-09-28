@@ -9,6 +9,7 @@ from game.ato.flightplans.custom import CustomFlightPlan, CustomLayout
 from game.ato.flightplans.flightplan import cascade_waypoint_times
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
+from game.ato.starttype import StartType
 from game.ato.traveltime import TotEstimator
 
 T0 = datetime(2020, 1, 1, 12, 0, 0)
@@ -211,9 +212,12 @@ def test_custom_tot_waypoint_finds_cas_flot() -> None:
 
 
 def test_earliest_tot_skips_manually_timed_flights() -> None:
-    auto = SimpleNamespace(manually_timed=False)
+    # An air start never queues for the runway, so the estimate is the fake's alone.
+    auto = SimpleNamespace(
+        manually_timed=False, start_type=StartType.IN_FLIGHT, departure=None
+    )
     manual = SimpleNamespace(manually_timed=True)
-    package = SimpleNamespace(flights=[auto, manual])
+    package = SimpleNamespace(flights=[auto, manual], time_over_target=T0)
     estimator = TotEstimator(package)  # type: ignore[arg-type]
 
     seen = []

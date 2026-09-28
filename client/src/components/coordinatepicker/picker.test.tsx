@@ -24,6 +24,15 @@ it("leaves a click that landed inside an icon alone", () => {
   expect(landedOnSomething(icon.querySelector("img"))).toBe(true);
 });
 
+it("answers a click inside a country's airspace", () => {
+  // §98 draws every country on the map, so leaving these alone left the picker
+  // working only over the sea.
+  const border = element(
+    '<svg><path class="map-area leaflet-interactive"></path></svg>',
+  );
+  expect(landedOnSomething(border.querySelector("path"))).toBe(false);
+});
+
 it("answers a click on the map itself", () => {
   const tile = element('<div class="leaflet-tile-container"><img></div>');
   expect(landedOnSomething(tile.querySelector("img"))).toBe(false);

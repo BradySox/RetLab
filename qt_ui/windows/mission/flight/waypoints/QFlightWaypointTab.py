@@ -1,7 +1,7 @@
 import logging
 from typing import Iterable, List, Optional
 
-from PySide6.QtCore import Signal, Qt, QModelIndex, QItemSelectionModel
+from PySide6.QtCore import Signal, Qt, QItemSelectionModel
 from PySide6.QtWidgets import (
     QFrame,
     QGridLayout,
@@ -15,9 +15,11 @@ from PySide6.QtWidgets import (
 )
 
 from game import Game
+from game.ato import packageroute
 from game.ato.flight import Flight
 from game.ato.flightplans.custom import CustomFlightPlan
 from game.ato.flightplans.formationattack import FormationAttackFlightPlan
+from game.ato.flightplans.navinsert import identity_index, nav_insert_next_to
 from game.ato.flightplans.planningerror import PlanningError
 from game.ato.flightplans.waypointbuilder import AGL_TRANSITION_ALT, WaypointBuilder
 from game.ato.flighttype import FlightType
@@ -26,6 +28,8 @@ from game.ato.flightwaypointtype import FlightWaypointType
 from game.utils import Distance, feet
 from game.ato.loadouts import Loadout
 from game.ato.package import Package
+from game.server import EventStream
+from game.sim import GameUpdateEvents
 from game.theater import OffMapSpawn, Player
 from qt_ui.windows.mission.flight.waypoints.QFlightWaypointList import (
     QFlightWaypointList,
@@ -101,6 +105,8 @@ def bulk_alt_type(altitude: Distance, is_helo: bool) -> AltitudeReference:
 
 class QFlightWaypointTab(QFrame):
     loadout_changed = Signal()
+    #: A package route edit moved the package's other flights too.
+    package_route_changed = Signal()
 
     def __init__(self, game: Game, package: Package, flight: Flight):
         super(QFlightWaypointTab, self).__init__()
@@ -225,39 +231,131 @@ class QFlightWaypointTab(QFrame):
         self.refresh_manual_tot_widgets()
         self.refresh_plan_type()
 
-    def on_add_nav(self):
+    def on_add_nav(self) -> None:
         selected = self.flight_waypoint_list.selectedIndexes()
         if not selected:
             return
-        index: QModelIndex = selected[0]
-        self.flight_waypoint_list.setCurrentIndex(index)
-        wpt: FlightWaypoint = self.flight_waypoint_list.model.data(
-            index, Qt.ItemDataRole.UserRole
+        anchor: FlightWaypoint = self.flight_waypoint_list.model.data(
+            selected[0].siblingAtColumn(0), Qt.ItemDataRole.UserRole
         )
-        next_wpt: Optional[FlightWaypoint] = None
-        if index.row() + 1 < self.flight_waypoint_list.model.rowCount():
-            next_wpt = self.flight_waypoint_list.model.data(
-                index.siblingAtRow(index.row() + 1), Qt.ItemDataRole.UserRole
+        slot = nav_insert_next_to(self.flight.flight_plan.layout, anchor)
+        if slot is None:
+            QMessageBox.information(
+                self,
+                "No room for a NAV point",
+                f"The plan flies straight through {anchor.display_name} on both "
+                "sides: the attack run from the IP, or a leg pinned to the "
+                "waypoint beside it. Select a waypoint on a transit leg, the join "
+                "or the split instead.",
             )
-        if not self.flight.flight_plan.layout.add_waypoint(wpt, next_wpt):
-            QMessageBox.critical(
-                QWidget(),
-                "Failed to add NAV waypoint",
-                "Could not insert a new waypoint given the currently selected waypoint.\n"
-                "Please select a different waypoint to insert the new NAV waypoint.",
-            )
-        else:
-            self.flight_waypoint_list.model.insertRow(
-                self.flight_waypoint_list.model.rowCount()
-            )
-            self.on_change()
+            return
+        leg = packageroute.leg_of(self.flight, slot.sequence)
+        if leg is not None and self.shares_package_route():
+            whole_package = self.ask_whole_package("Add this NAV point to", leg)
+            if whole_package is None:
+                return
+            if whole_package:
+                where = slot.waypoint.position
+                packageroute.insert(
+                    self.package,
+                    leg,
+                    packageroute.package_index(
+                        self.package, self.flight, leg, slot.index
+                    ),
+                    where,
+                )
+                self.on_package_route_change()
+                for waypoint in packageroute.sequence(self.flight, leg):
+                    if waypoint.position == where:
+                        self.select_waypoint(waypoint)
+                return
+        slot.apply()
+        self.on_change()
+        self.select_waypoint(slot.waypoint)
 
-    def on_delete_waypoint(self):
-        waypoints = []
-        selection = self.flight_waypoint_list.selectionModel()
-        for selected_row in selection.selectedIndexes():
-            if selected_row.row() > 0:
-                waypoints.append(self.flight.flight_plan.waypoints[selected_row.row()])
+    def shares_package_route(self) -> bool:
+        return len(packageroute.route_flights(self.package)) > 1
+
+    def ask_whole_package(self, action: str, leg: packageroute.Leg) -> Optional[bool]:
+        """True for the whole package, False for this flight alone, None to cancel."""
+        where = (
+            "the join to the IP"
+            if leg is packageroute.Leg.IN
+            else "the target to the split"
+        )
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setWindowTitle("Package route")
+        box.setText(
+            f"From {where}, every flight in the package flies one route together. "
+            f"{action} the whole package?"
+        )
+        box.setInformativeText(
+            "On this flight alone, its leg is longer or shorter than the others', "
+            "so it reaches the join or leaves the target at a different time."
+        )
+        package_button = box.addButton(
+            "Whole package", QMessageBox.ButtonRole.AcceptRole
+        )
+        flight_button = box.addButton(
+            "This flight only", QMessageBox.ButtonRole.ActionRole
+        )
+        box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(package_button)
+        box.exec()
+        clicked = box.clickedButton()
+        if clicked is package_button:
+            return True
+        if clicked is flight_button:
+            return False
+        return None
+
+    def select_waypoint(self, waypoint: FlightWaypoint) -> None:
+        row = identity_index(self.flight.flight_plan.waypoints, waypoint)
+        if row is None:
+            return
+        self.flight_waypoint_list.selectionModel().setCurrentIndex(
+            self.flight_waypoint_list.model.index(row, 0),
+            QItemSelectionModel.SelectionFlag.ClearAndSelect,
+        )
+
+    def on_package_route_change(self) -> None:
+        """Another flight moved with this one: redraw them and re-time the package."""
+        EventStream.put_nowait(
+            GameUpdateEvents().update_flights_in_package(self.package)
+        )
+        self.package_route_changed.emit()
+        self.on_change()
+
+    def on_delete_waypoint(self) -> None:
+        # One index per selected cell; a whole-row selection names each row 4 times.
+        rows = sorted(
+            {index.row() for index in self.flight_waypoint_list.selectedIndexes()}
+        )
+        waypoints = [self.flight.flight_plan.waypoints[row] for row in rows if row > 0]
+        on_route = [
+            (waypoint, found)
+            for waypoint in waypoints
+            if (
+                found := packageroute.find_on_package(
+                    self.package, self.flight, waypoint
+                )
+            )
+            is not None
+        ]
+        if on_route and self.shares_package_route():
+            whole_package = self.ask_whole_package(
+                "Delete the selected NAV point from", on_route[0][1][0]
+            )
+            if whole_package is None:
+                return
+            if whole_package:
+                # Highest index first, so the earlier deletions do not shift the rest.
+                for _, (leg, index) in sorted(on_route, key=lambda p: -p[1][1]):
+                    packageroute.delete(self.package, leg, index)
+                shared = {id(waypoint) for waypoint, _ in on_route}
+                waypoints = [w for w in waypoints if id(w) not in shared]
+                self.on_package_route_change()
         for waypoint in waypoints:
             self.delete_waypoint(waypoint)
         self.on_change()

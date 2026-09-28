@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 
+from game.ato import packageroute
 from game.ato.flight import Flight
 from game.ato.flighttype import FlightType
 from game.ato.flightplans.planningerror import PlanningError
@@ -32,6 +33,7 @@ from qt_ui.widgets.QFrequencyWidget import QFrequencyWidget
 from qt_ui.widgets.ato import QFlightList
 from qt_ui.windows.QRadioFrequencyDialog import QRadioFrequencyDialog
 from qt_ui.windows.mission.QAutoCreateDialog import QAutoCreateDialog
+from qt_ui.windows.mission.QPackageRouteDialog import QPackageRouteDialog
 from qt_ui.windows.mission.flight.QFlightCreator import QFlightCreator
 
 
@@ -172,6 +174,16 @@ class QPackageDialog(QDialog):
         self.auto_create_button.clicked.connect(self.on_auto_create)
         self.button_layout.addWidget(self.auto_create_button)
 
+        self.route_dialog: Optional[QPackageRouteDialog] = None
+        self.route_button = QPushButton("Package route")
+        self.route_button.setToolTip(
+            "The way in and out that every flight in this package flies together: "
+            "add, delete or reorder its NAV points for all of them at once."
+        )
+        self.route_button.clicked.connect(self.on_package_route)
+        self.button_layout.addWidget(self.route_button)
+        self.update_route_button()
+
         self.button_layout.addStretch()
 
         self.freq_widget = QFrequencyWidget(self.package_model.package, game_model)
@@ -226,7 +238,13 @@ class QPackageDialog(QDialog):
         self.update_tot()
 
     def update_tot(self) -> None:
-        self.tot_spinner.setTime(self.tot_qtime())
+        # Showing the package's TOT is not the player choosing one. Let through,
+        # timeChanged re-saved it, re-ran ASAP and came back here: RecursionError.
+        self.tot_spinner.blockSignals(True)
+        try:
+            self.tot_spinner.setTime(self.tot_qtime())
+        finally:
+            self.tot_spinner.blockSignals(False)
 
     def on_selection_changed(
         self, selected: QItemSelection, _deselected: QItemSelection
@@ -309,6 +327,19 @@ class QPackageDialog(QDialog):
         self.package_type_text.setText(self.package_model.description)
         self.freq_widget.check_freq()
         self.update_package_context()
+        self.update_route_button()
+
+    def update_route_button(self) -> None:
+        self.route_button.setEnabled(
+            bool(packageroute.route_flights(self.package_model.package))
+        )
+
+    def on_package_route(self) -> None:
+        if self.route_dialog is None or not self.route_dialog.isVisible():
+            self.route_dialog = QPackageRouteDialog(self.package_model, parent=self)
+        self.route_dialog.show()
+        self.route_dialog.raise_()
+        self.route_dialog.activateWindow()
 
     def update_package_context(self) -> None:
         package = self.package_model.package
