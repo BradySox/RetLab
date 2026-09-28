@@ -11,7 +11,7 @@ from ...utils import knots
 
 
 class RecoveryTankerFlightPlan(RefuelingFlightPlan):
-    honors_orbit_speed_setting = False
+    honors_orbit_speed = False
 
     @staticmethod
     def builder_type() -> Type[Builder]:

@@ -102,12 +102,12 @@ def test_the_route_runs_start_corners_end() -> None:
 def _plan(box: TankerBoxLayout) -> TheaterRefuelingFlightPlan:
     settings = SimpleNamespace(
         desired_tanker_on_station_time=timedelta(minutes=60),
-        tanker_orbit_speed_set=False,
     )
     plan = TheaterRefuelingFlightPlan.__new__(TheaterRefuelingFlightPlan)
     plan.flight = SimpleNamespace(  # type: ignore[assignment]
         coalition=SimpleNamespace(game=SimpleNamespace(settings=settings)),
         unit_type=SimpleNamespace(patrol_speed=knots(420)),
+        orbit_speed_kias=None,
     )
     plan.layout = box
     plan.tot_offset = timedelta()
