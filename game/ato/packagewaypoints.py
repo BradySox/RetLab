@@ -28,6 +28,11 @@ class PackageWaypoints:
     initial: Point
     split: Point
     refuel: Point
+    #: The player's nav points on the way in (JOIN -> IP) and out (target -> SPLIT),
+    #: flown by every flight in the package. None leaves the leg to the planner's SAM
+    #: detour. game/ato/packageroute.py
+    ingress_nav: Optional[list[Point]] = None
+    egress_nav: Optional[list[Point]] = None
 
     #: The ingress may not be pushed past this fraction of the departure-to-target
     #: leg. JoinZoneGeometry puts the join at 35-36% of that leg from home, so an

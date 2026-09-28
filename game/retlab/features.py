@@ -892,6 +892,13 @@ FEATURES: tuple[Feature, ...] = (
         "RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373)",
         105,
     ),
+    Feature(
+        # Always on. The package owns its join-to-IP and target-to-split NAV points
+        # (game/ato/packageroute.py); docs/dev/design/retlab-package-route-notes.md.
+        "package_route",
+        "Package route",
+        106,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

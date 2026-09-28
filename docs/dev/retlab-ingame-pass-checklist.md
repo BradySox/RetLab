@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-87 rows need a live pass. Full detail is under each `###` heading below —
+89 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -456,6 +456,8 @@ stress it · `✗` fail signature reproduced in-game.
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ◐ |
 | B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
+| B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
+| B151 | The package route moves every flight in the package | §106 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8424,6 +8426,9 @@ plan, and onto a kneeboard page numbered the same way.
 
 - **Setup:** a player Hornet or Viper with the DTC on. Map → crosshair button (top left)
   → click a spot → Save as waypoint. Or My aircraft → Add. Generate.
+- **Pass (app, added 2026-09-27):** with neutral border defense on, the crosshair answers a
+  click inside a country's airspace, not only over the sea. A click on a route, a base or a
+  suspected-site circle still belongs to that thing.
 - **Pass:** the kneeboard's "saved points" page lists the point with a number N. In the
   jet, STPT N is that point (name and position), SEQ1 is still the route, and stepping to
   SEQ2 (Hornet) shows only the saved points. Viper: the tanker/AWACS anchors now follow
@@ -8604,6 +8609,10 @@ checked headless on a turn-2 save.
   min. No group spawns at 0:00:00 unless its planned startup is that time. The lead of each
   group at the busy field is airborne within about 2 min of its planned takeoff, and
   packages reach their push points on time.
+- **Pass (app, added 2026-09-27):** an ASAP package at the busy field keeps one TOT. Opening
+  its package window, adding a flight or dragging a waypoint does not move the TOT back and
+  forth, and Done raises no `RecursionError` (the one-shot estimate flipped between two
+  times and the dialog re-saved each; unit-tested).
 - **Fail signatures:** every flight at the busy field still gets 8 min; a group spawning at
   0:00:00 and flying late while the mission started less than 30 min early; the mission
   starting more than 30 min early; flights airborne well before their takeoff and holding
@@ -8737,3 +8746,47 @@ missile sites, `Iran 2015` the Sejjil-2. Unit-tested; never loaded in DCS throug
   inside the launcher's `threat_range`); a launcher that deploys but never fires (the mod's own
   fire logic, not RetLab's); a crash to desktop when a TEL moves (the Kheibar author fixed a
   chassis `trace_width` crash in theirs; the PG IRBM TELs are not known to carry that fix).
+
+### B150 — Insert NAV point finds a leg beside the selected waypoint · §106 · ☐ UNTESTED
+
+Built 2026-09-27 from the DM's report: a Strike's NAV after the Join refused an insert. The old
+rule knew only the transit legs; the new one tries every list and keeps a slot only if the point
+lands next to the selected waypoint. Unit-tested (`test_nav_insert.py`).
+
+- **Setup:** any turn, a player Strike flight with escorts. Edit flight → Waypoints.
+- **Pass (app):** Insert NAV point with each selected, and the new row appears where named:
+  Join → right after the Join; the NAV (line-up) before INGRESS → right before it; the last
+  STRIKE target → right after it; Split with a Refuel after it → right before the Split; Hold
+  → right after the Hold. The new row is selected. On a strike with other flights, Join and
+  the target ask Whole package / This flight only first.
+- **Pass (app):** INGRESS, a target that is not the last, Takeoff before a Hold, Bullseye and
+  Divert say "No room for a NAV point" with the reason.
+- **Pass (app):** Move Up / Move Down reorder two NAV points between the Join and INGRESS.
+- **Fail signatures:** a new point on the far side of a fixed waypoint (the map route zigzags
+  back through it); an insert that changes nothing in the list; the old "Could not insert a
+  new waypoint" message.
+
+### B151 — The package route moves every flight in the package · §106 · ☐ UNTESTED
+
+Built 2026-09-27 from the DM's ask: "there should be a package waypoint edit". The package
+owns its join-to-IP and target-to-split NAV points; the window, the flight tab and a drag on
+the primary flight edit them for every flight. Unit-tested (`test_package_route.py`,
+`test_package_route_dialog.py`); never used in the app or flown.
+
+- **Setup:** a Strike package with an Escort and a SEAD Escort (all fixed-wing). Package
+  window → Package route.
+- **Pass (app):** the table reads Join, the way-in NAVs, Ingress (IP), Target, the way-out
+  NAVs, Split, and Flown by names the three flights. Insert NAV point after Join: every
+  flight's Waypoints tab shows the new NAV between its Join and its IP, and the map draws it
+  on all three routes. Delete and Move act on all three. Reset to planned route puts back the
+  planner's detours.
+- **Pass (app):** select the Strike on the map and drag its new NAV: the escorts' NAVs move
+  with it, and the window shows the new coordinates when you click back into it. Dragging the
+  escort's NAV moves the escort's only.
+- **Pass (app):** with ASAP on, the TOT updates once after each edit and stays put.
+- **Pass (app):** add a flight to the package after the edit: its route has the same NAV.
+- **Pass (flown):** the package flies the edited route and meets at the join together; the
+  escorts stay with the strikers through the added point.
+- **Fail signatures:** one flight without the point (it was not counted as flying the route);
+  the escorts reaching the join minutes before or after the strikers (join times out of step);
+  a new flight flying the planner's detour instead of the edited route; the TOT flipping.

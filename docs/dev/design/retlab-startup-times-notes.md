@@ -117,6 +117,13 @@ in its thread and it was never modelled; upstreaming queue item 42.
 - The TOT estimator's `minimum_duration_from_start_to_tot` includes ground ops, so an ASAP
   package scheduled after others at a busy field is pushed later by its wait. Packages
   scheduled earlier do not see it.
+- The wait is read at the package's current TOT, so one estimate depends on the TOT it was
+  taken at. Taken once, ASAP flipped between two times (the TOT that meets another
+  package's departure, and the one just past it). **Fixed 2026-09-27:**
+  `TotEstimator.earliest_tot` starts from the no-queue floor and moves the TOT later until
+  it covers its own queue, at most 32 passes, then puts the TOT back. The package dialog had
+  turned the flip into a `RecursionError` by saving every redraw back through
+  `timeChanged`; its redraw now blocks the spinner's signals.
 - A flight still being planned (not yet in the ATO) queues behind everything already there.
 - Code: `game/ato/runwayqueue.py`, called from `FlightPlan.estimate_ground_ops`. Tests:
   `tests/test_runway_queue.py`.

@@ -13,6 +13,54 @@
 # changes sharing a date keep the order written here.
 
 entries:
+  - date: 2026-09-27
+    title: Edit a package's route once, for every flight in it
+    change: >-
+      The package window has a Package route button. It lists the way in (join
+      to IP) and the way out (target to split) that every flight in the package
+      flies together. A NAV point added, deleted or moved there changes every
+      flight's route, so the package still meets at the join. Drag a point on
+      the primary flight's route on the map to move it for all of them.
+    watch: >-
+      Add a NAV point after the join and open each flight's Waypoints tab: all
+      of them have it between the join and the IP, and the escorts stay with
+      the strikers through it in the mission.
+    row: B151
+  - date: 2026-09-27
+    title: Insert NAV point works beside any waypoint with a leg next to it
+    change: >-
+      Insert NAV point knew only the legs to the join and home from the split,
+      and refused everything a strike flies in between. It now adds the point
+      halfway along the leg after the selected waypoint, or the leg before it,
+      and says why when a waypoint has neither (the attack run from the IP). On
+      the package's shared legs it asks whether the point is for the whole
+      package or this flight only.
+    watch: >-
+      On a strike, select the NAV just before INGRESS and insert: the new point
+      appears between the join and that NAV, and the map route does not
+      zigzag.
+    row: B150
+  - date: 2026-09-27
+    title: Pick a point works inside a country's airspace
+    change: >-
+      With neutral border defense on, the map's crosshair ignored clicks inside
+      any country's border, so it only worked over the sea. It now answers
+      anywhere on the map that is not a route, a base or a site.
+    watch: >-
+      Switch on the crosshair and click inside a country: the coordinates
+      popup opens.
+    row: B135
+  - date: 2026-09-27
+    title: An ASAP package keeps one TOT
+    change: >-
+      At a busy field, an ASAP package's TOT could flip between two times each
+      time the package was touched, and saving the package window could end in
+      a "maximum recursion depth exceeded" error. ASAP now settles on one time
+      that leaves the flights room for the runway queue.
+    watch: >-
+      Open an ASAP package at a busy field, add a flight, then press Done: no
+      error, and the TOT does not change when you open it again.
+    row: B145
   - date: 2026-09-23
     title: Flights at a busy field spawn early enough to make their takeoff
     change: >-

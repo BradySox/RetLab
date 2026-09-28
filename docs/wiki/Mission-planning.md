@@ -99,6 +99,15 @@ toward the target.
 
 A **split point** follows egress, allowing flights to separate for return-to-base procedures.
 
+The join-to-IP and target-to-split legs are the **package route**: every flight in the package
+flies them together. The package window's **Package route** button edits them for every flight
+at once. A NAV point added there goes into each flight's route, so the package still meets at
+the join. To move a point, select the primary flight and drag the point on the map.
+
+In a flight's Waypoints tab, **Insert NAV point** adds a point halfway along the leg beside the
+selected waypoint. On the package route it asks whether the point is for the whole package or
+that flight only. The attack run from the IP to the target takes no NAV point.
+
 ## Unlimited fuel
 
 Turning on unlimited fuel does not mean AI aircraft will never run out of fuel — that would

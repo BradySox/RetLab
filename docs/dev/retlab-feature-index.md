@@ -117,5 +117,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §103 | HQ priority targets | — | `hq_priority_targets` |
 | §104 | Runway queue at busy fields | — | — |
 | §105 | RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373) | — | — |
+| §106 | Package route | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

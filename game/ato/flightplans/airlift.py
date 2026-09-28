@@ -4,7 +4,6 @@ import random
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 from typing import TYPE_CHECKING, Type
 
 from game.theater.missiontarget import MissionTarget
@@ -14,7 +13,6 @@ from .ibuilder import IBuilder
 from .planningerror import PlanningError
 from .standard import StandardFlightPlan, StandardLayout
 from .waypointbuilder import WaypointBuilder
-from ..flightwaypointtype import FlightWaypointType
 from ...theater.interfaces.CTLD import CTLD
 
 if TYPE_CHECKING:
@@ -45,17 +43,8 @@ class AirliftLayout(StandardLayout):
     return_ascent: FlightWaypoint
     return_descent: FlightWaypoint
 
-    def add_waypoint(
-        self, wpt: FlightWaypoint, next_wpt: Optional[FlightWaypoint]
-    ) -> bool:
-        new_wpt = WaypointBuilder.nav_midpoint(wpt, next_wpt)
-        if wpt.waypoint_type in [
-            FlightWaypointType.PICKUP_ZONE,
-            FlightWaypointType.CARGO_STOP,
-        ]:
-            self.nav_to_drop_off.insert(0, new_wpt)
-            return True
-        return super().add_waypoint(wpt, next_wpt)
+    def nav_sequences(self) -> list[list[FlightWaypoint]]:
+        return [self.nav_to_drop_off, *super().nav_sequences()]
 
     def delete_waypoint(self, waypoint: FlightWaypoint) -> bool:
         if waypoint in self.nav_to_drop_off:
@@ -64,19 +53,6 @@ class AirliftLayout(StandardLayout):
         elif super().delete_waypoint(waypoint):
             return True
         return False
-
-    def move_waypoint(self, waypoint: FlightWaypoint, direction: int) -> bool:
-        if waypoint in self.nav_to_drop_off:
-            index = self.nav_to_drop_off.index(waypoint)
-            target = index + direction
-            if 0 <= target < len(self.nav_to_drop_off):
-                self.nav_to_drop_off[index], self.nav_to_drop_off[target] = (
-                    self.nav_to_drop_off[target],
-                    self.nav_to_drop_off[index],
-                )
-                return True
-            return False
-        return super().move_waypoint(waypoint, direction)
 
     def iter_waypoints(self) -> Iterator[FlightWaypoint]:
         yield self.departure

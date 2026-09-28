@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from starlette.responses import Response
 
 from game import Game
-from game.ato import Flight
+from game.ato import Flight, packageroute
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.server import GameContext
@@ -91,6 +91,17 @@ def update_package_waypoints_if_primary_flight(
 ) -> None:
     wpts = flight.package.waypoints
     if flight is flight.package.primary_flight and wpts:
+        on_route = packageroute.find(flight, waypoint)
+        # A point the primary carries alone has no package point to move.
+        if on_route is not None and packageroute.in_step(
+            flight.package, flight, on_route[0]
+        ):
+            leg, index = on_route
+            packageroute.set_position(flight.package, leg, index, waypoint.position)
+            for f in packageroute.route_flights(flight.package):
+                if f is not flight:
+                    events.update_flight(f)
+            return
         if waypoint.waypoint_type is FlightWaypointType.JOIN:
             wpts.join = waypoint.position
         elif waypoint.waypoint_type is FlightWaypointType.SPLIT:

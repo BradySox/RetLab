@@ -133,6 +133,23 @@ click a spot → **Save as waypoint**. Generate, fly to the ramp. **~10 min.**
   whether SEQ1 is still the whole route.
 - **Pass criterion:** STPT N is the saved point, named, at its position; SEQ1 unchanged.
 
+### 6 · A package flies the route you gave it, together — `B151`
+
+**Why this is a card.** The package route has to be edited on purpose. Tests pin every
+flight getting the point; only the app and a flight show the map, the timing and the
+escorts staying with the strikers. Note:
+[`retlab-package-route-notes.md`](../design/retlab-package-route-notes.md).
+
+**Try:** a Strike package with an Escort and a SEAD Escort. Package window → **Package
+route** → select Join → **Insert NAV point**. Select the Strike on the map and drag the new
+point well off the straight line. Check each flight's Waypoints tab, then fly or watch in
+Tacview. **~15 min.**
+
+- **Record:** whether all three flights have the point; whether they reach the join
+  together; whether the escorts stay with the strikers through the point.
+- **Pass criterion:** every flight has the point where it was dragged, and the package
+  forms up at the join and flies it as one.
+
 ## Done
 
 ### 2 · A target you destroyed stays destroyed next turn — `B63` — **CLOSED 2026-09-16**

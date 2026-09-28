@@ -26,7 +26,9 @@ from ..flightwaypointtype import FlightWaypointType
 from ..tankeravailability import serviceable_tanker_planned
 
 if TYPE_CHECKING:
+    from game.coalition import Coalition
     from ..flight import Flight
+    from ..package import Package
 
 
 class FormationAttackFlightPlan(FormationFlightPlan, ABC):
@@ -219,12 +221,53 @@ class FormationAttackLayout(FormationLayout):
         yield self.bullseye
         yield from self.custom_waypoints
 
+    def nav_sequences(self) -> list[list[FlightWaypoint]]:
+        return [self.ingress_nav, self.egress_nav, *super().nav_sequences()]
+
     def delete_waypoint(self, waypoint: FlightWaypoint) -> bool:
         for sequence in (self.ingress_nav, self.egress_nav):
             if waypoint in sequence:
                 sequence.remove(waypoint)
                 return True
         return super().delete_waypoint(waypoint)
+
+
+def _copy(point: Point) -> Point:
+    # A waypoint's position is its own: the package keeps the original.
+    return point.new_in_same_map(point.x, point.y)
+
+
+def lineup_position(package: Package, ingress: Point) -> Point:
+    """A strike's line-up: 10 NM short of the IP on the target's bearing."""
+    hdg = package.target.position.heading_between_point(ingress)
+    return ingress.point_from_heading(hdg, nautical_miles(10).meters)
+
+
+def package_route_points(
+    package: Package, coalition: Coalition, planned: bool = False
+) -> tuple[list[Point], list[Point]]:
+    """The nav points on the package's way in (JOIN -> IP) and out (target -> SPLIT).
+
+    The player's once they have set them (packageroute.py), else the planner's detour
+    round the SAM rings each leg cuts. ``planned`` asks for the planner's regardless.
+    """
+    waypoints = package.waypoints
+    assert waypoints is not None
+    ingress = None if planned else waypoints.ingress_nav
+    if ingress is None:
+        # Routed to the strike line-up point, which sits just short of the IP.
+        ingress = package_detour(
+            package,
+            coalition,
+            waypoints.join,
+            lineup_position(package, waypoints.ingress),
+        )
+    egress = None if planned else waypoints.egress_nav
+    if egress is None:
+        egress = package_detour(
+            package, coalition, package.target.position, waypoints.split
+        )
+    return list(ingress), list(egress)
 
 
 FlightPlanT = TypeVar("FlightPlanT", bound=FlightPlan[FormationAttackLayout])
@@ -308,33 +351,22 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         )
 
     def _lineup_position(self, ingress: Point) -> Point:
-        hdg = self.package.target.position.heading_between_point(ingress)
-        return ingress.point_from_heading(hdg, nautical_miles(10).meters)
+        return lineup_position(self.package, ingress)
 
     def _sam_detours(
         self, builder: WaypointBuilder, altitude: Distance, altitude_is_agl: bool
     ) -> tuple[list[FlightWaypoint], list[FlightWaypoint]]:
-        """Nav points round the SAM rings JOIN->INGRESS and TARGET->SPLIT cut.
+        """Nav points on the package's way in and out: the package route.
 
         Built from the package's shared points, so every flight in it (escorts
-        included) flies the same detour. Helos fly their own low-level legs.
+        included) flies the same legs. Helos fly their own low-level legs.
         """
-        waypoints = self.package.waypoints
-        if self.flight.is_helo or waypoints is None:
+        if self.flight.is_helo or self.package.waypoints is None:
             return [], []
-        # Routed to the strike line-up point, which sits just short of the IP.
-        ingress = package_detour(
-            self.package,
-            self.coalition,
-            waypoints.join,
-            self._lineup_position(waypoints.ingress),
-        )
-        egress = package_detour(
-            self.package, self.coalition, self.package.target.position, waypoints.split
-        )
+        ingress, egress = package_route_points(self.package, self.coalition)
         return (
-            [builder.nav(p, altitude, altitude_is_agl) for p in ingress],
-            [builder.nav(p, altitude, altitude_is_agl) for p in egress],
+            [builder.nav(_copy(p), altitude, altitude_is_agl) for p in ingress],
+            [builder.nav(_copy(p), altitude, altitude_is_agl) for p in egress],
         )
 
     def _build_refuel(self, builder: WaypointBuilder) -> Optional[FlightWaypoint]:
