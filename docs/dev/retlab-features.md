@@ -10813,7 +10813,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - The picker leaves a click on an interactive shape to that shape, except a `map-area`
   one (hover-only: §98's country polygons). Without the exception, neutral border
   defense's borders cover every country and the picker answered only at sea (fixed
-  2026-09-27).
+  2026-09-27; the first fix put the class in `pathOptions`, which react-leaflet applies
+  through `setStyle` and Leaflet ignores there, so it never reached the DOM. Cased shapes
+  now pass `className` as a creation prop: fixed again 2026-09-28).
 
 ### §74 schema fixes (2026-09-22)
 

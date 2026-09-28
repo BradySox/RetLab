@@ -48,7 +48,6 @@ export function strokeOptions(style: CasedStyle): PathOptions {
     fill: style.fillOpacity !== undefined,
     fillColor: style.fillColor ?? style.color,
     fillOpacity: style.fillOpacity,
-    className: style.className,
   };
 }
 
@@ -75,6 +74,9 @@ export function CasedCircle(
         center={props.center}
         radius={props.radius}
         pathOptions={strokeOptions(props)}
+        // Leaflet reads className only when it creates the path; pathOptions reach
+        // it through setStyle, which ignores it.
+        className={props.className}
         eventHandlers={props.eventHandlers}
       >
         {props.children}
@@ -98,6 +100,9 @@ export function CasedPolygon(
       <Polygon
         positions={props.positions}
         pathOptions={strokeOptions(props)}
+        // Leaflet reads className only when it creates the path; pathOptions reach
+        // it through setStyle, which ignores it.
+        className={props.className}
         eventHandlers={props.eventHandlers}
       >
         {props.children}
@@ -124,6 +129,9 @@ export function CasedCircleMarker(
         center={props.center}
         radius={props.radius}
         pathOptions={strokeOptions(props)}
+        // Leaflet reads className only when it creates the path; pathOptions reach
+        // it through setStyle, which ignores it.
+        className={props.className}
         eventHandlers={props.eventHandlers}
       >
         {props.children}
