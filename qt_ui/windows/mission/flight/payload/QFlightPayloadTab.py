@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 from game import Game
 from game.ato.flight import Flight
 from game.ato.flightmember import FlightMember
+from game.ato.flighttype import FlightType
 from game.ato.loadouts import Loadout
 from game.missiongenerator.aircraft.modex import (
     MIN_BOARD_NUMBER,
@@ -228,6 +229,49 @@ class DcsFuelSelector(QHBoxLayout):
         return round(value / KG_TO_LBS)
 
 
+class TankerOrbitSpeedEditor(QWidget):
+    """A tanker flight's track speed in KIAS, or the aircraft's own when unticked."""
+
+    DEFAULT_KIAS = 280
+
+    def __init__(self, flight: Flight) -> None:
+        super().__init__()
+        self.flight = flight
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+
+        row = QHBoxLayout()
+        self.enabled = QCheckBox("Set orbit speed")
+        self.enabled.setChecked(flight.orbit_speed_kias is not None)
+        row.addWidget(self.enabled)
+        row.addStretch(1)
+        self.kias = QSpinBox()
+        self.kias.setRange(100, 350)
+        self.kias.setSingleStep(5)
+        self.kias.setSuffix(" KIAS")
+        self.kias.setValue(flight.orbit_speed_kias or self.DEFAULT_KIAS)
+        self.kias.setEnabled(flight.orbit_speed_kias is not None)
+        row.addWidget(self.kias)
+        layout.addLayout(row)
+
+        description = QLabel(
+            "Indicated airspeed on the tanker's track, to suit its receivers: "
+            "275-285 for the Hornet, 275 for the Harrier, 120-130 for helicopters. "
+            "Unticked, the tanker flies its own speed. A tanker that cannot reach "
+            "the speed flies at its top speed. A carrier recovery tanker ignores it."
+        )
+        _wrap_without_widening(description)
+        layout.addWidget(description)
+
+        self.enabled.toggled.connect(self._on_change)
+        self.kias.valueChanged.connect(self._on_change)
+
+    def _on_change(self) -> None:
+        on = self.enabled.isChecked()
+        self.kias.setEnabled(on)
+        self.flight.orbit_speed_kias = self.kias.value() if on else None
+
+
 def _wrap_without_widening(label: QLabel) -> None:
     """Let ``label`` wrap into its column instead of demanding one long line.
 
@@ -391,6 +435,9 @@ class QFlightPayloadTab(QFrame):
 
         self.fuel_selector = DcsFuelSelector(flight)
         aircraft_layout.addLayout(self.fuel_selector)
+
+        if flight.flight_type is FlightType.REFUELING:
+            aircraft_layout.addWidget(TankerOrbitSpeedEditor(flight))
 
         # RetLab (§46): the live fuel-plan readout -- the planner's own sortie
         # numbers (burn vs carried, tanker passes, RTB margin) recomputed as the
@@ -630,8 +677,9 @@ class QFlightPayloadTab(QFrame):
 
         self.save_defaults_btn = QPushButton("Save as default")
         self.save_defaults_btn.setToolTip(
-            "Remember the current internal fuel and aircraft settings (condition, "
-            "wear & tear, spawn type, etc.) as the default for every new "
+            "Remember the current internal fuel, aircraft settings (condition, "
+            "wear & tear, spawn type, etc.) and a tanker's orbit speed as the "
+            "default for every new "
             f"{self.flight.unit_type.display_name} flight."
         )
         self.save_defaults_btn.clicked.connect(self._on_save_flight_defaults)
@@ -656,6 +704,7 @@ class QFlightPayloadTab(QFrame):
             self.flight.unit_type.dcs_unit_type.id,
             self.flight.fuel,
             self.member_selector.selected_member.properties,
+            self.flight.orbit_speed_kias,
         )
         self.clear_defaults_btn.setEnabled(True)
         QMessageBox.information(

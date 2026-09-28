@@ -12,10 +12,6 @@ from .patrolling import PatrollingFlightPlan, PatrollingLayout
 if TYPE_CHECKING:
     from ..flightwaypoint import FlightWaypoint
 
-# Below this an airframe is a helicopter tanker (the KC-130J's 125 KIAS); a
-# fast-jet track speed would make it useless to the receivers it exists for.
-MIN_OVERRIDABLE_TANKER_KIAS = 200
-
 
 @dataclass
 class TankerBoxLayout(PatrollingLayout):
@@ -54,7 +50,7 @@ def orbit_leg_end(layout: object) -> FlightWaypoint | None:
 
 class RefuelingFlightPlan(PatrollingFlightPlan[PatrollingLayout], ABC):
     # The carrier recovery tanker's speed is set by its RecoveryTanker task.
-    honors_orbit_speed_setting = True
+    honors_orbit_speed = True
 
     @property
     def patrol_duration(self) -> timedelta:
@@ -62,17 +58,10 @@ class RefuelingFlightPlan(PatrollingFlightPlan[PatrollingLayout], ABC):
 
     @property
     def patrol_speed(self) -> Speed:
-        default = self._aircraft_patrol_speed()
-        settings = self.flight.coalition.game.settings
-        if not (self.honors_orbit_speed_setting and settings.tanker_orbit_speed_set):
-            return default
-        altitude = self.layout.patrol_start.alt
-        slow_limit = Speed.from_calibrated(knots(MIN_OVERRIDABLE_TANKER_KIAS), altitude)
-        if default < slow_limit:
-            return default
-        wanted = Speed.from_calibrated(
-            knots(settings.tanker_orbit_speed_kias), altitude
-        )
+        kias = getattr(self.flight, "orbit_speed_kias", None)
+        if kias is None or not self.honors_orbit_speed:
+            return self._aircraft_patrol_speed()
+        wanted = Speed.from_calibrated(knots(kias), self.layout.patrol_start.alt)
         if not self.flight.unit_type.dcs_unit_type.max_speed:
             return wanted
         return min(wanted, self.flight.unit_type.max_speed)
