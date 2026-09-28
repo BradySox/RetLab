@@ -8835,6 +8835,7 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Setup:** any campaign with a KC-135 theater tanker. Tick **Theater tankers fly a
   four-point box (experimental)**, then replan the tanker (or pass a turn) and generate.
 - **Pass (map):** the tanker's route on the app map and its F10 marker are the box.
+  Dragging any box point moves the whole box, and the F10 marker follows it.
 - **Pass (flight):** the tanker flies all four corners, not a racetrack. You can tank on a
   straight leg and through a corner. It goes round more than once. After its on-station
   time (plus at most one lap) it leaves for home instead of starting another lap.

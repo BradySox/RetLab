@@ -10,6 +10,8 @@ from game.utils import Speed, knots, Distance, meters
 from .patrolling import PatrollingFlightPlan, PatrollingLayout
 
 if TYPE_CHECKING:
+    from dcs import Point
+
     from ..flightwaypoint import FlightWaypoint
 
 
@@ -38,6 +40,25 @@ class TankerBoxLayout(PatrollingLayout):
     def lap(self) -> list[FlightWaypoint]:
         """The repeating circuit: every corner, then patrol_end."""
         return [*self.box_corners, self.patrol_end]
+
+
+def move_box(layout: object, waypoint: FlightWaypoint, to: Point) -> bool:
+    """Move a tanker box whole when any of its points is dragged to ``to``.
+
+    False when ``waypoint`` is not a box point, so the caller moves it alone.
+    """
+    if not isinstance(layout, TankerBoxLayout):
+        return False
+    box = [layout.patrol_start, *layout.box_corners, layout.patrol_end]
+    if not any(waypoint is point for point in box):
+        return False
+    dx = to.x - waypoint.position.x
+    dy = to.y - waypoint.position.y
+    for point in box:
+        point.position = point.position.new_in_same_map(
+            point.position.x + dx, point.position.y + dy
+        )
+    return True
 
 
 def orbit_leg_end(layout: object) -> FlightWaypoint | None:

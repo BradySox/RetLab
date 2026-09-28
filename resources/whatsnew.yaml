@@ -29,8 +29,9 @@ entries:
       Tick Theater tankers fly a four-point box (experimental) on Air Doctrine
       and newly planned theater tankers fly a 40 x 20 NM box instead of a
       two-point racetrack, looping it until their time on station is up. The
-      front leg is where the racetrack would be. Package and recovery tankers
-      keep the racetrack.
+      front leg is where the racetrack would be. Drag any of its points on the
+      map to move the whole box. Package and recovery tankers keep the
+      racetrack.
     watch: >-
       The tanker flies all four corners, goes round more than once, keeps
       refueling through the corners, and leaves for home when its time is up.
