@@ -42,12 +42,20 @@ def _flight(
     )
 
 
-def _game(flights: list[Any], target: Any = None, dynamic_slots: bool = False) -> Any:
+def _game(
+    flights: list[Any],
+    target: Any = None,
+    dynamic_slots: bool = False,
+    opfor_client_slots: bool = False,
+) -> Any:
     package = SimpleNamespace(flights=flights, target=target)
     return SimpleNamespace(
         blue=SimpleNamespace(ato=SimpleNamespace(packages=[package])),
         red=SimpleNamespace(ato=SimpleNamespace(packages=[])),
-        settings=SimpleNamespace(dynamic_slots=dynamic_slots),
+        settings=SimpleNamespace(
+            dynamic_slots=dynamic_slots,
+            untasked_opfor_client_slots=opfor_client_slots,
+        ),
     )
 
 
@@ -85,3 +93,12 @@ def test_dynamic_slots_keep_every_ownfor_field() -> None:
     red = _cp("red", 0, 0, Player.RED)
 
     assert airfields_players_see(_game([], dynamic_slots=True), [blue, red]) == {blue}
+
+
+def test_opfor_client_slots_keep_every_opfor_field() -> None:
+    blue = _cp("blue", 0, 0, Player.BLUE)
+    red = _cp("red", 0, 0, Player.RED)
+
+    assert airfields_players_see(_game([], opfor_client_slots=True), [blue, red]) == {
+        red
+    }

@@ -300,8 +300,8 @@ rescue to go get the downed pilot.
      airframe, **its loss is recorded** — the tracked source. This is the user's insight (the
      armed C-130s/A-10s/helos already on the ramp) applied to the helo.
   2. a **cold late-activation clone template** (the QRA `spawn_intercept_templates` pattern) as the
-     fallback when the ramp is bare (`perf_disable_untasked_blufor_aircraft` at a field no player
-     flight uses or passes, or a fully-tasked
+     fallback when the ramp is bare (a field no player flight uses or passes,
+     `perf_disable_untasked_blufor_aircraft`, or a fully-tasked
      wing) — SPAWN-cloned; the clone is **untracked**, like the pre-rework rescue clones.
 
   Both go straight into the pickup (the clone-into-mission path that works). **Why parked and not
