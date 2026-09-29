@@ -444,7 +444,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-95 rows need a live pass. Full detail is under each `###` heading below —
+96 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -516,6 +516,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B157 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
 | B159 | A target steerpoint in the hills sits on the ground | §74 | ☐ |
 | B160 | Every settings row reads as one line: shading, dividers and a hover band | settings UI | ☐ |
+| B161 | Untasked parked aircraft are culled only at airfields no player sees | Culling settings | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8992,4 +8993,18 @@ Built 2026-09-29. Filter and disclosure tests pass with the painting in place; r
 - **Fail signatures:** bands stacked at the top of a section (geometry read before layout); a
   hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
   a search.
+
+### B161 — Untasked parked aircraft are culled only at airfields no player sees · Culling settings · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_untaskedculling.py`); never generated in DCS.
+
+- **Setup:** Settings → Mission Generator → Culling & untasked units: tick **Disable
+  untasked OWNFOR aircraft at airfields** and **Disable untasked OPFOR aircraft at
+  airfields**. Fly a player flight whose route passes one enemy airfield and stays well
+  clear (more than 20 NM) of another.
+- **Pass:** your departure field's ramp and the enemy field beside your route hold their
+  parked aircraft; the far enemy field has none (F10 map or the Mission Editor).
+- **Fail signatures:** your own ramp empty (the old all-or-nothing rule is still in the
+  build); every field full (the rule found no player flight — check the flight has a
+  client slot).
 

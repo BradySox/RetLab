@@ -24,6 +24,17 @@ entries:
       runs from the label to its checkbox.
     row: B160
   - date: 2026-09-29
+    title: Untasked aircraft culled only where no one looks
+    change: >-
+      Disable untasked OWNFOR/OPFOR aircraft at airfields now skips the parked
+      jets only at airfields no player will see. Your own field, your landing
+      and divert fields, any field within 20 NM of your route and any
+      OCA/Aircraft target keep theirs.
+    watch: >-
+      Tick both boxes and fly: your ramp and the fields along your route are
+      full, and a field far from any player route is empty in the F10 map.
+    row: B161
+  - date: 2026-09-29
     title: Cheat - move a carrier instantly
     change: >-
       Settings, Cheats, Enable Instant Carrier and Ship Move Cheat. A carrier
