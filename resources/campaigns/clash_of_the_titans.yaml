@@ -5,8 +5,8 @@ authors: Starfire
 recommended_player_faction: Blufor Current
 recommended_enemy_faction: Redfor (Russia) 2020
 description:
-  <p><strong>This campaign utilises both Afghanistan East and West. It is intended to be run with CurrentHill's USA, Russia, and 
-  China Asset Packs installed, although this is not mandatory.</strong></p>
+  <p><strong>This campaign utilises both Afghanistan East and West. It is intended to be run with CurrentHill's USA and Russia
+  Asset Packs installed, although this is not mandatory.</strong></p>
   <p>In the rugged heart of Afghanistan, the balance of power is tipping. Clash of the Titans is a high-stakes campaign set during 
   a fictional escalation in 2006, where NATO-led BLUFOR forces face off against a resurgent and well-equipped REDFOR coalition. 
   BLUFOR holds the vital eastern corridor, anchored by the fortified positions at Bagram Airfield, the strategic capital of Kabul, 
@@ -21,7 +21,6 @@ recommended_start_date: 2006-01-27
 version: "10.9"
 settings:
   russianmilitaryassetspack: true
-  chinesemilitaryassetspack: true
   usamilitaryassetspack: true
   f22_raptor: true
   fa_18efg: true

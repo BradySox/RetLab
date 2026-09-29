@@ -26,6 +26,7 @@ settings:
   # The ashore VMAQ EA-6B Prowler det at Al Minhad is the AI-only VSN mod -- preseed
   # on so the SEAD squadron resolves (drops silently on a mod-less install).
   ea6b_prowler: true
+  iranmilitaryassetspack: true
   # Iranian ballistic-missile sites: the PG IRBM and PG AD packs and the Kheibar TEL.
   iranmissilemods: true
 squadrons:
