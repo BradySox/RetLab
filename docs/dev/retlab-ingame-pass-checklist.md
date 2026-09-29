@@ -8895,3 +8895,10 @@ the SA-2 Battery layouts to 8 or 12 and the mixed site's SA-2 slot to 6, on thei
 - **Fail signatures:** a launcher spawned into another unit (the extra ring is too close); an SA-5
   that still never fires at close targets (the cause was not the second Square Pair; see test 47's
   SA-5 finding).
+### B165 — Two QRA scrambles from one field in the same second do not collide · §1 · ☐ UNTESTED
+
+Built 2026-09-29 after test 48 (Kerman: two F-14 wingmen air-started on the same spot and collided). Harness-tested (`tests/lua/test_intercept_filter.py`); never flown.
+
+- **Setup:** any campaign where red QRA scrambles a pair or more from one base. Watch in Tacview.
+- **Pass:** groups launched from one base inside a minute appear about 500 ft apart in altitude; no QRA jet dies within seconds of spawning.
+- **Fail signatures:** two jets spawning at the same altitude and position; a QRA loss with no shot fired at it in its first seconds.

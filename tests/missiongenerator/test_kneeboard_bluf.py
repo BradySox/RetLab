@@ -103,7 +103,8 @@ def test_bluf_lines_carry_task_threats_and_sar() -> None:
 
     # The SAR if-down drill always closes the BLUF (no SAR assets on this fake).
     assert lines[-1].startswith("SAR")
-    assert "squawk 7700" in lines[-1]
+    # A pilot on the ground has no transponder; the drill is the radio.
+    assert "GUARD" in lines[-1] and "squawk" not in lines[-1]
 
 
 def _fighter(name: str, priority: int, barcap: bool = True) -> Any:

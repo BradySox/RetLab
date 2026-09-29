@@ -1,0 +1,1 @@
+* **[Mission Generation]** **The kneeboard SAR drill no longer tells a downed pilot to squawk 7700.** A pilot on the ground has no transponder; the line now reads: call on GUARD, stay hidden, rescue homes your beacon.
