@@ -149,6 +149,8 @@ settings:
   autoplan_tankers_for_strike: true
   autoplan_tankers_for_oca: true
   autoplan_tankers_for_dead: true
+  # The carrier's Escort Jammer squadron flies only the EA-6B.
+  ea6b_prowler: true
 
 # The .miz places a CVN-71. The loader only recognises the Stennis hull as a
 # carrier, so the group must be a CVN-74 in the editor; this block paints it
@@ -271,7 +273,7 @@ squadrons:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
-        - F-16D Fighting Falcon (Block 50+)
+        - F-16CM Fighting Falcon (Block 50)
       size: 16
       country: Turkey
     - primary: AEW&C
