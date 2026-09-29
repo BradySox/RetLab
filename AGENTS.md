@@ -168,8 +168,8 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
   arrows for last turn's front movement; makes B66 readable, so the §90 gate did not
   block it; row B139)
 - **Tankers** — `retlab-tanker-box-notes.md` (**BUILT 2026-09-28, not flown** — the
-  per-flight KIAS orbit speed for upstream #869 (Payload tab, saved per airframe), and the experimental four-point theater tanker
-  box (per flight too): a looped route, since DCS orbits only circle or race-track; rows B152/B153)
+  per-flight KIAS orbit speed for upstream #869 (Waypoints tab, saved per airframe), and the four-point box every
+  theater tanker flies (no setting since 2026-09-29): a looped route, since DCS orbits only circle or race-track; rows B152/B153/B170)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (**§94, adopted 2026-08-24 from
   juanjux #63** — why the baseline is Passive Defense, the `aiReactionExempt` protocol any
   plugin setting reaction-on-threat must use, why we took his head and not the merged PR,

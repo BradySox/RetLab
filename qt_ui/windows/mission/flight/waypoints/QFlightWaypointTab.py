@@ -37,6 +37,7 @@ from qt_ui.windows.mission.flight.waypoints.QFlightWaypointList import (
 from qt_ui.windows.mission.flight.waypoints.QPredefinedWaypointSelectionWindow import (
     QPredefinedWaypointSelectionWindow,
 )
+from qt_ui.windows.mission.flight.waypoints.QTankerOrbitSpeed import QTankerOrbitSpeed
 
 #: Lowest altitude the bulk setter offers. Zero is a valid spin-box entry but never a
 #: valid answer -- it drops the whole route to sea level -- and with the 1,000 ft step
@@ -162,6 +163,9 @@ class QFlightWaypointTab(QFrame):
         self.apply_bulk_altitude.clicked.connect(self.on_apply_bulk_altitude)
         bulk_alt_layout.addWidget(self.apply_bulk_altitude)
         rlayout.addLayout(bulk_alt_layout)
+
+        if self.flight.flight_type is FlightType.REFUELING:
+            rlayout.addWidget(QTankerOrbitSpeed(self.flight))
 
         rlayout.addWidget(QLabel("<strong>Generator :</strong>"))
         rlayout.addWidget(QLabel("<small>AI compatible</small>"))
