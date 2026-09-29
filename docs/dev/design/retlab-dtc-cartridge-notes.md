@@ -535,11 +535,41 @@ re-derives it on upload, so a generator must write one. The extraction script
 lives in the 2026-09-12 session scratchpad; rebuild it from this paragraph if
 upstream ever wants the table.
 
-**Still an estimate.** The exact route, if a pod slaved to a hilltop target still
-aims short, is a DCS-side dump: the GUI-environment `Terrain.GetHeight(x, y)` the
-mission editor itself uses, sampled on a grid per terrain the way the pydcs export
-is run — not the SRTM-sampled table that was built and reverted on 2026-08-20.
-Checklist B90.
+**Terrain height grids (2026-09-29, DM call).** The nearest-field number is off by
+hundreds of metres in hills, and that is the one way the cartridge is worse than
+upstream: upstream has no cartridge, so the jet loads the .miz route and DCS turns
+its 0 AGL into the exact ground. The fix is DCS's own heights, not SRTM (built and
+reverted 2026-08-20):
+
+- `scripts/dcs_terrain_heights.py generate --terrain <Name>` builds a probe mission.
+  Its `dcs_terrain_height_probe.lua` samples `land.getHeight` every 1 km over the
+  terrain's airfields plus 150 km, and writes one text row per step to
+  `Saved Games\DCS\Logs`. It needs the de-sanitized `MissionScripting.lua`.
+- `apply <file>` writes `resources/terrain_heights/<terrain>.npz`: int16 metres in
+  256-point square tiles, each stored as differences along y (about 30% smaller),
+  decoded on first use, so a mission loads only the tiles its points touch.
+  `--every N` keeps every Nth point, for a coarser grid from one fine dump.
+- `ground_elevation()` in `dtc/common.py` reads the grid, bilinear, and falls back
+  to the nearest field where no grid ships or the point is off the grid. It feeds
+  ground-marked points, AGL legs and threat points.
+- Spacing is per terrain (DM 2026-09-29): 100 m on Syria and the Persian Gulf,
+  333 m on Caucasus, 1 km on Afghanistan, Iraq, Falklands, Germany Cold War, Kola,
+  Marianas, Nevada and Sinai; 67 MB in all, Syria 31 MB, Persian Gulf 28 MB. Normandy, The Channel and
+  Marianas WWII have no grid yet (not installed on the DM's machine / no probe
+  terrain class). Measured on Syria, predicting 333 m points from a 666 m
+  grid: land above 1,000 m median 4 m off, 90th percentile 33 m, 99th 98 m. A
+  grid point next to a cliff is the worst case at any spacing. Syria at 100 m:
+  224 airfields and helipads median 0.1 m from the June airfield table.
+- Left raw: 12 Syria and 17 Persian Gulf points sit over 100 m below all eight
+  neighbours (a gorge or tunnel line in DCS's own terrain). A steerpoint beside
+  one reads low. Persian Gulf at 100 m: 29 airfields median 0.3 m from the table;
+  Fujairah reads 13 m above it at both spacings.
+- The airfield table (`resources/airport_imagery`) disagrees with the grids by
+  5-70 m at some Iraq, Afghanistan and Germany fields where the grid is flat
+  around the field (Balad, Herat, Spangdahlem); probably a stale table after
+  terrain updates, not verified.
+
+Checklist B159.
 
 ### The DED reads `alt`, and the point carries what the miz would have (2026-09-13)
 
