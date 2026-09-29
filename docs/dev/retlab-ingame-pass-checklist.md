@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-89 rows need a live pass. Full detail is under each `###` heading below —
+90 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -460,6 +460,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B151 | The package route moves every flight in the package | §106 | ☐ |
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
+| B154 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8842,3 +8843,14 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Fail signatures:** the tanker orbits at BOX 1 or flies BOX 1-END once and goes home (loop
   not firing); it never leaves (condition never false); it refuses contacts after BOX 1 (the
   Tanker task did not persist along the route); it races back toward BOX 1 at top speed.
+
+### B154 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
+
+- **Setup:** generate any mission with no `briefing.png` in `Saved Games\DCS\Retribution`.
+  Load it in DCS. Then copy a picture there as `briefing.png`, generate again, load it.
+- **Pass:** the first load shows the dark RetLab picture; the second shows yours.
+- **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
+  blank picture box (DCS could not read the file — try a JPEG).
+

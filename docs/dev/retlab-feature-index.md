@@ -118,5 +118,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §104 | Runway queue at busy fields | — | — |
 | §105 | RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373) | — | — |
 | §106 | Package route | — | — |
+| §107 | Briefing screen picture | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

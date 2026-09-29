@@ -177,6 +177,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   The package window's **Package route** button lists it.
 - Insert NAV point in a flight's Waypoints tab adds a point beside any waypoint with a leg
   next to it. On the package route it asks whether the point is for the whole package.
+- A generated mission loads with a RetLab picture on the briefing screen. To use your own,
+  save it as `briefing.png` or `briefing.jpg` in `Saved Games\DCS\Retribution`.
 - A TARCAP in a package with SEAD or DEAD arrives with the suppression, not up to 20 minutes
   ahead of it over the target's SAMs. Part of the RetLab planner suite.
 - At a busy airfield, flights queue for the runway at 45 seconds per jet, and each flight

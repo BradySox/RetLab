@@ -899,6 +899,13 @@ FEATURES: tuple[Feature, ...] = (
         "Package route",
         106,
     ),
+    Feature(
+        # Always on, no setting: a briefing.png/.jpg in Saved Games\DCS\Retribution
+        # replaces the RetLab default (game/retlab/briefing_image.py).
+        "briefing_image",
+        "Briefing screen picture",
+        107,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

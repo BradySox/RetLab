@@ -11083,3 +11083,25 @@ delete), the window, the flight tab's question, and a flown package on an edited
 
 - Typed coordinates (the DM does not want them); keeping a flight's own point across a
   package edit; reordering on the map.
+
+## §107 — Briefing screen picture
+
+The picture on the DCS briefing screen when a generated mission loads. It used to be
+upstream's startup splash (`resources/ui/splash_screen.png`). It is now RetLab's own plain
+picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg` into
+`Saved Games\DCS\Retribution`. Built 2026-09-29, not flown.
+
+### Files
+
+- `game/retlab/briefing_image.py` — `briefing_image_path()`: the first of `briefing.png`,
+  `briefing.jpg`, `briefing.jpeg` in the Retribution user folder, else
+  `resources/ui/retlab_briefing.png`.
+- `game/missiongenerator/briefinggenerator.py` — `generate()` passes it to
+  `add_picture_blue`.
+- `tests/retlab/test_briefing_image.py`.
+
+### Constraints
+
+- No setting: the file is the switch (the §42/§43 precedent).
+- The app's startup splash still reads `splash_screen.png`; only the mission picture changed.
+- Blue only. The red briefing has no picture, as before.
