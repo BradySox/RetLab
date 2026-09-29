@@ -383,6 +383,13 @@ was replaced; it is kept for reading old notes and saves. The rules that hold no
 | Un-engaged field forces | dashed "suspected activity" circle offset from the true position | exact marker; only composition is fogged |
 | Decoy circles (§79) | optional fake contacts | removed |
 
+**Fixed SAM sites are always known (2026-09-29, DM call).** SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk sites
+report `KNOWN` for every viewer from turn one, map and §74 DTC rings alike. The rule is
+`TheaterGroundObject.is_fixed_sam_site`, keyed on the fire-control radar or launcher type id
+(`_FIXED_SAM_TYPE_PREFIXES`); the mobile S-300V, SA-6, SA-11 and SHORAD stay fogged. It is
+computed, not stored, so it applies to existing saves too. A test checks every prefix
+matches a real pydcs id. Row B176.
+
 The DM's call, verbatim: *"Hidden until scouted is wrong, it should be hidden until
 struck, then you should be omniscient like it was before we touched any fog of war
 setting."*

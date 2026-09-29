@@ -1,0 +1,10 @@
+date: 2026-09-29
+title: Fixed SAM sites are always known
+change: >-
+  SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk sites show their composition and threat rings from
+  turn one, without being attacked first. Mobile SAMs such as the SA-6 and
+  SA-11 stay hidden until engaged.
+watch: >-
+  An enemy SA-10 you have never hit has its ring on the map and on the
+  Viper's HSD or the Hornet's SA page.
+row: B176

@@ -1,0 +1,1 @@
+* **[Campaign]** Fixed SAM sites (SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk) are always known: their composition and threat rings show from turn one, on the map and in the jet's data cartridge.

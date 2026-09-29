@@ -505,7 +505,7 @@ linked design note.
 
 1. **QRA intercept reserve** — per-squadron alert reserve feeding the Moose `AI_A2A_DISPATCHER`, with player-manned cold alert, a scramble cue, and forward-defense border zones.
 2. **JAMMING flight type** — the C-130J as an EC-130H/RC-130H EW + ISR platform (`c130j` plugin).
-3. **Recon intel fog** — an enemy site's composition stays hidden until you engage it (ordnance on it, or any ground-attack sortie that reaches it); once engaged it is known completely and permanently. There is no BDA damage lag. Recon's only job is finding the enemy command posts, which are hidden from the map outright and so cannot be engaged at all.
+3. **Recon intel fog** — an enemy site's composition stays hidden until you engage it (ordnance on it, or any ground-attack sortie that reaches it); once engaged it is known completely and permanently. Fixed SAM sites (SA-2/3/5/10/20, S-400, Patriot, Hawk) are always known. There is no BDA damage lag. Recon's only job is finding the enemy command posts, which are hidden from the map outright and so cannot be engaged at all.
 4. **UI transparency** — target intel panel, mission-impact debrief, package context bar.
 5. **Player target location precision** — `Approximate` mode offsets steerpoints and hides exact coords.
 6. **Air-defense planning rework** — overlapping BARCAP waves, the first one ASAP along with every tanker and AWACS. **The geometry/volume half was REVERTED to upstream 2026-08-09** (re-convergence work order D): no forward CAP line, no threat-weighted volume or orbit bias, no front-anchor guarantee, no forward-middle layer, no front-anchored support orbits, no FLOT navmesh hazard. Kept: the overlap waves, the `cap_orbit_distance_band` fix, the Vietnam-only escort-reserve trim.

@@ -84,7 +84,8 @@ convoy advances one supply-route segment per turn. Set offensive or defensive st
 about.
 
 **The enemy picture is deliberately incomplete.** A site's composition, strength, damage and threat
-rings stay hidden until you **engage** it. Recon does not reveal them — its one job is finding
+rings stay hidden until you **engage** it. Fixed SAM sites (SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk) are the
+exception: they are known from turn one. Recon does not reveal them — its one job is finding
 hidden enemy command posts. Plan your opening turns expecting to discover the defences. See
 [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
 

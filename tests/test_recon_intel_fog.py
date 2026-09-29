@@ -123,3 +123,49 @@ def test_the_map_symbol_does_not_leak_condition_while_fogged() -> None:
     # Engaging the site hands over the real condition.
     tgo.discovered_by_player = True
     assert tgo.sidc_for(Player.BLUE).status is Status.PRESENT_DESTROYED
+
+
+def _with_units(tgo: SamGroundObject, *type_ids: str) -> SamGroundObject:
+    units = [SimpleNamespace(type=SimpleNamespace(id=t)) for t in type_ids]
+    tgo.groups = cast(Any, [SimpleNamespace(units=units)])
+    return tgo
+
+
+def test_fixed_sam_site_is_known_without_being_engaged() -> None:
+    for radar in (
+        "SNR_75V",
+        "snr s-125 tr",
+        "RPC_5N62V",
+        "S-300PS 40B6M tr",
+        "S-300PMU1 40B6M tr",
+        "S-400 92N6E tr",
+        "Patriot str",
+        "Hawk tr",
+    ):
+        tgo = _with_units(_enemy_sam(), "p-19 s-125 sr", radar)
+        assert tgo.discovered_by_player is False
+        assert tgo.known_for(Player.BLUE) is True, radar
+
+
+def test_mobile_sam_site_stays_fogged() -> None:
+    for radar in ("Kub 1S91 str", "SA-11 Buk SR 9S18M1", "S-300V 9S32 tr", "Tor 9A331"):
+        tgo = _with_units(_enemy_sam(), radar)
+        assert tgo.known_for(Player.BLUE) is False, radar
+
+
+def test_fixed_sam_types_are_real_dcs_ids() -> None:
+    """Every fixed-SAM prefix matches a unit pydcs knows, so a typo cannot
+    silently fog a site the rule was meant to reveal."""
+    from dcs import vehicles
+
+    from game.theater.theatergroundobject import _FIXED_SAM_TYPE_PREFIXES
+    from pydcs_extensions.highdigitsams import highdigitsams
+
+    ids = {
+        getattr(obj, "id", None)
+        for module in (vehicles, vehicles.AirDefence, highdigitsams)
+        for obj in vars(module).values()
+    }
+    ids.discard(None)
+    for prefix in _FIXED_SAM_TYPE_PREFIXES:
+        assert any(str(i).startswith(prefix) for i in ids), prefix
