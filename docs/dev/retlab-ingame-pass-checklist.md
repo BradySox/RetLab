@@ -8928,3 +8928,11 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Setup:** Yankee Station with Naval gunfire, FAC(A) marking and Super Gaggle on. After the gaggle launches (10 min in), place an F10 marker on a coastal target inside 10 NM of a gun ship and call Naval Fire Mission → Fire on last F10 map marker. Watch the suppressor pair over the outpost in Tacview.
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
+
+### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: every auto-planned tanker and AWACS package, and each station's first BARCAP wave, is an ASAP package. Tankers used to be spread at random through the mission. Unit-tested (`tests/commander/test_support_asap.py`, `tests/test_missionscheduler.py`); never flown.
+
+- **Setup:** any campaign with a theater tanker and an AWACS. Auto-plan a turn and open the ATO before flying.
+- **Pass:** the tanker, AWACS and first BARCAP packages show TOT ... (ASAP); relief BARCAP waves do not; in the mission, the tanker is on its track by the time the first strike package needs gas.
+- **Fail signatures:** a tanker with a TOT late in the mission; two BARCAP waves of one station arriving together (a relief wave was pulled onto the first).

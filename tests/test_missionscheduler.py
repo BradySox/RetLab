@@ -121,14 +121,26 @@ def test_overlapping_waves_are_spaced_by_duration_minus_overlap() -> None:
     assert tots[2] - tots[1] == interval
 
 
-def test_first_wave_is_jittered_but_bounded() -> None:
-    overlap = timedelta(minutes=15)
-    # Run several times; the first wave should always land within the jitter
-    # ceiling (min(overlap, 5 min)) after the earliest possible TOT (== NOW).
-    ceiling = min(overlap, timedelta(minutes=5))
-    for _ in range(50):
-        first = _schedule(overlap, rounds=1)[0]
-        assert NOW <= first <= NOW + ceiling
+def _schedule_packages(overlap: timedelta, rounds: int) -> list[_FakePackage]:
+    target = _LandTarget()
+    packages = [_FakePackage(target) for _ in range(rounds)]
+    coalition = _FakeCoalition(packages, _FakeSettings(overlap))
+    ms.MissionScheduler(coalition, timedelta(minutes=120)).schedule_missions(NOW)  # type: ignore[arg-type]
+    return packages
+
+
+def test_first_wave_is_an_asap_package() -> None:
+    for _ in range(20):
+        first = _schedule_packages(timedelta(minutes=15), rounds=1)[0]
+        assert first.time_over_target == NOW
+        assert first.auto_asap
+
+
+def test_relief_waves_are_never_flagged_asap() -> None:
+    # The package editor re-runs ASAP on any edit, which would pull a relief wave
+    # back onto the first and leave the rest of the mission uncovered.
+    packages = _schedule_packages(timedelta(minutes=15), rounds=3)
+    assert [p.auto_asap for p in packages] == [True, False, False]
 
 
 def test_zero_overlap_reproduces_legacy_back_to_back_schedule() -> None:
@@ -193,6 +205,20 @@ def test_carrier_barcaps_stack_up_to_the_configured_limit(
     )
     assert tots[:max_simultaneous] == [NOW] * max_simultaneous
     assert tots[max_simultaneous] == NOW + DURATION - OVERLAP
+
+
+@pytest.mark.parametrize("max_simultaneous", [1, 2])
+def test_only_the_first_carrier_stack_is_flagged_asap(
+    max_simultaneous: int, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(ms, "NavalControlPoint", _NavalTarget)
+    monkeypatch.setattr(ms, "MAX_CARRIER_SIMULTANEOUS_BARCAPS", max_simultaneous)
+    target = _NavalTarget()
+    packages = [_FakePackage(target) for _ in range(max_simultaneous + 2)]
+    coalition = _FakeCoalition(packages, _FakeSettings(OVERLAP))
+    ms.MissionScheduler(coalition, timedelta(minutes=120)).schedule_missions(NOW)  # type: ignore[arg-type]
+    flags = [p.auto_asap for p in packages]
+    assert flags == [True] * max_simultaneous + [False, False]
 
 
 class _TransitTotEstimator:

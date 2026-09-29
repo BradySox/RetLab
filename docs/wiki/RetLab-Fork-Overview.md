@@ -60,8 +60,8 @@ Full detail: [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
 
 - Squadrons hold aircraft in a **QRA intercept reserve** for base defence. Part of it can be
   player-manned as cold alert.
-- **BARCAP** uses overlapping, jittered waves so coverage hands off instead of arriving all at
-  once at mission start.
+- **BARCAP** uses overlapping waves so coverage hands off instead of arriving all at
+  once at mission start. The first wave, and every tanker and AWACS, is planned ASAP.
 - **AWACS and tanker** racetracks are drawn on the generated mission's F10 map with callsign,
   frequency and TACAN.
 - Native DCS **data cartridges** auto-load in Hornets, Vipers and CJS Super Hornets: comms
