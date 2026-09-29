@@ -8856,3 +8856,16 @@ Built 2026-09-29. Unit-tested (`test_untaskedculling.py`); never generated in DC
   build); every field full (the rule found no player flight — check the flight has a
   client slot).
 
+
+### B163 — The kneeboard drops its dead lines, and LOADOUT counts what the jet carries · §22 · ☐ UNTESTED
+
+Built 2026-09-29. Checked on a headless Long Road to H3 deck (8 player flights); never read in DCS.
+
+- **Setup:** an Apache flight with Hellfires and rockets, any jet with drop tanks, and a
+  flight with no divert field. Generate friendly packages kneeboard page on.
+- **Pass:** the Apache LOADOUT line matches the payload screen (eight Hellfires read `8×`,
+  not `2× AGM-114L * 1`), tanks read `fuel tank`, the SAR line is one line, Mission Info has
+  no empty Divert row, and Friendly Packages has no second heading under its title.
+- **Fail signatures:** a count that disagrees with the payload screen; a table cut off or a
+  page that now spills (the lines removed should only free space).
+

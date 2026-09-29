@@ -1,7 +1,6 @@
 ﻿# Retribution v1.6.3 (RetLab)
 
 ## Features/Improvements
-* **[Mission Generation]** **The kneeboard drops a few dead lines.** Mission Info no longer prints an empty Divert row, the Friendly Packages page no longer repeats its own title as a heading, the Apache LOADOUT line no longer lists the AN/APG-78 radar, and the QFE storm-cell note no longer shows `â€”` for a dash.
 * **[UI]** **The debrief grades each flight.** A Flight report cards box lists one card per blue flight that flew, player flights first: timing at the target, the package target, kills, shots and hits, losses and the player's fuel on landing against the jet's reserve, graded Unsat, Below average, Average or Above average with the faults listed. Built from the sortie records the mission already writes; nothing in the campaign reads the grade.
 * **[UI]** **Settings rows line up with their checkboxes.** On a wide window the label sat at the left edge and its checkbox at the right, with nothing between them, so it was hard to tell which box belonged to which label. Every settings page now shades alternate rows, draws a thin divider under each one, and highlights the row under the mouse across its full width. Nothing to configure.
 * **[Mission Generation]** **Carriers and LHAs join their side's Skynet IADS as radars.** Skynet rejected every flagship at mission start ("EW Radar that does not exist"), because the ship spawns under its hull name and the IADS data used a different one. Takes effect on the next generated mission.

@@ -33,9 +33,11 @@ The lead page opens with a **BLUF** block that answers "what am I doing and what
 before the flight plan:
 
 - **THREATS AIR / SAM** — compact one-line summaries of what is up and what is emitting.
-- **LOADOUT** — a one-line summary of what you are actually carrying.
-- **SAR** — the survivor beacon frequency (260 kHz ADF) and the if-down drill: your beacon keys
-  itself, squawk 7700, voice on GUARD, stay put and stay hidden while rescue homes the beacon.
+- **LOADOUT** — a one-line summary of what you are actually carrying, counted by store:
+  `8× AGM-114L`, `38× Hydra 70 M151 HE`, `2× fuel tank`. Pods and sensors collapse to
+  `TGP` / `HTS` or are left off.
+- **SAR** — the survivor beacon frequency (260 kHz ADF) and the if-down drill: squawk 7700,
+  GUARD, stay hidden; rescue homes your beacon.
 
 The flight plan below it carries a **Fuel** column — planned fuel remaining at each steerpoint —
 and a one-line **RTB margin** call-out, amber when the margin goes negative. That margin is the

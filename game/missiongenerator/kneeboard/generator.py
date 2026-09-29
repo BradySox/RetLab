@@ -419,11 +419,7 @@ class KneeboardGenerator(MissionInfoGenerator):
             [sar_beacon_brief()]
             + [f"{role} {airframe}" for role, airframe in self._brief_sar(flight)]
         )
-        if_down = (
-            "If down: your beacon keys automatically — squawk 7700, voice on "
-            "GUARD, stay put and stay hidden. Rescue homes the beacon; you go "
-            "MIA if nobody reaches you in time"
-        )
+        if_down = "if down: squawk 7700, GUARD, stay hidden; rescue homes your beacon"
         lines.append(f"SAR      {sar_bits} — {if_down}")
 
         return lines
