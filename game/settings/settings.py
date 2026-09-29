@@ -101,6 +101,7 @@ class Settings(
     enable_frontline_cheats: bool = False
     enable_base_capture_cheat: bool = False
     enable_transfer_cheat: bool = False
+    enable_instant_naval_move_cheat: bool = False
     enable_runway_state_cheat: bool = False
     enable_air_wing_adjustments: bool = False
     enable_enemy_buy_sell: bool = False

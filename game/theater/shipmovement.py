@@ -27,30 +27,36 @@ def move_and_reparent_ships(control_points: list[ControlPoint]) -> None:
     ]
 
     for ship in movers:
-        if ship.target_position is None:
-            continue
+        snap_ship(ship)
+        reparent_ship(ship, control_points)
 
-        # Snap: teleport the ship and its units to the destination (same math as
-        # the carrier block in ControlPoint.process_turn).
-        delta = ship.target_position - ship.position
-        ship.position.x = ship.position.x + delta.x
-        ship.position.y = ship.position.y + delta.y
-        for unit in ship.units:
-            unit.position.x = unit.position.x + delta.x
-            unit.position.y = unit.position.y + delta.y
-        ship.target_position = None
 
-        # Re-parent: move to the closest CP owned by the ship's current owner.
-        owner = ship.control_point.captured
-        candidates = [cp for cp in control_points if cp.captured == owner]
-        if not candidates:
-            continue
-        closest = min(
-            candidates,
-            key=lambda cp: cp.position.distance_to_point(ship.position),
-        )
-        old_cp = ship.control_point
-        if closest is not old_cp:
-            old_cp.connected_objectives.remove(ship)
-            closest.connected_objectives.append(ship)
-            ship.control_point = closest
+def snap_ship(ship: ShipGroundObject) -> None:
+    """Teleport the ship and its units to its queued destination."""
+    if ship.target_position is None:
+        return
+    # Same math as ControlPoint.apply_pending_move.
+    delta = ship.target_position - ship.position
+    ship.position.x = ship.position.x + delta.x
+    ship.position.y = ship.position.y + delta.y
+    for unit in ship.units:
+        unit.position.x = unit.position.x + delta.x
+        unit.position.y = unit.position.y + delta.y
+    ship.target_position = None
+
+
+def reparent_ship(ship: ShipGroundObject, control_points: list[ControlPoint]) -> None:
+    """Move the ship to the closest CP owned by the ship's current owner."""
+    owner = ship.control_point.captured
+    candidates = [cp for cp in control_points if cp.captured == owner]
+    if not candidates:
+        return
+    closest = min(
+        candidates,
+        key=lambda cp: cp.position.distance_to_point(ship.position),
+    )
+    old_cp = ship.control_point
+    if closest is not old_cp:
+        old_cp.connected_objectives.remove(ship)
+        closest.connected_objectives.append(ship)
+        ship.control_point = closest

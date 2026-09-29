@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-90 rows need a live pass. Full detail is under each `###` heading below —
+91 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -460,6 +460,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B151 | The package route moves every flight in the package | §106 | ☐ |
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
+| B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
@@ -8843,6 +8844,24 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Fail signatures:** the tanker orbits at BOX 1 or flies BOX 1-END once and goes home (loop
   not firing); it never leaves (condition never false); it refuses contacts after BOX 1 (the
   Tanker task did not persist along the route); it races back toward BOX 1 at top speed.
+
+### B154 — A carrier moved with the instant move cheat launches from its new spot · cheat · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's ask. Settings → Cheats → **Enable Instant Carrier and Ship
+Move Cheat**: a carrier or ship dragged on the map moves as soon as it is dropped, with no
+range limit, and only the destination has to be open sea. Flights from the boat, and
+flights whose target is the boat or ship, are replanned; threat zones are recomputed.
+Unit-tested (`test_instant_naval_move.py`, `test_tgo_movement_routes.py`); never flown.
+
+- **Setup:** any campaign with a blue carrier. Tick the cheat, then drag the carrier about
+  200 NM out to sea on the map.
+- **Pass (map):** no move line or ghost marker; the carrier and its escorts sit at the new
+  spot; clicking it opens its base menu; its flights' routes start there.
+- **Pass (flight):** generate; the carrier group spawns at the new spot and its flights take
+  off from the deck and fly the new routes.
+- **Fail signatures:** the carrier snaps back or waits for turn end (the cheat did not
+  apply); the marker will not open its menu until the map reloads (stale drag state); a
+  flight's first waypoint at the old spot (not replanned); the escorts left behind.
 
 ### B155 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
 

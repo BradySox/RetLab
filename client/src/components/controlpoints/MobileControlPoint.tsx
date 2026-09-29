@@ -4,7 +4,11 @@ import {
   useClearControlPointDestinationMutation,
   useSetControlPointDestinationMutation,
 } from "../../api/liberationApi";
-import { formatLatLng, metersToNauticalMiles } from "./destinationFormat";
+import {
+  formatLatLng,
+  metersToNauticalMiles,
+  mobileMarkerKey,
+} from "./destinationFormat";
 import { makeLocationMarkerEventHandlers } from "./EventHandlers";
 import { iconForControlPoint } from "./Icons";
 import LocationTooltipText from "./LocationTooltipText";
@@ -213,7 +217,7 @@ export const MobileControlPoint = (props: MobileControlPointProps) => {
     <>
       <PrimaryMarker
         controlPoint={props.controlPoint}
-        key={props.controlPoint.destination ? 0 : 1}
+        key={mobileMarkerKey(props.controlPoint)}
       />
       <SecondaryMarker
         controlPoint={props.controlPoint}

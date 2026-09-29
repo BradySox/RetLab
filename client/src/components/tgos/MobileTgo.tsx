@@ -18,6 +18,7 @@ import { MovementPath, MovementPathHandle } from "../controlpoints/MovementPath"
 import {
   formatLatLng,
   metersToNauticalMiles,
+  mobileMarkerKey,
 } from "../controlpoints/destinationFormat";
 import { TgoTooltip, iconForTgo } from "./shared";
 import { LatLng, Marker as LMarker, LatLngLiteral } from "leaflet";
@@ -282,7 +283,7 @@ interface MobileTgoProps {
 function MobileTgo(props: MobileTgoProps) {
   return (
     <>
-      <PrimaryMarker tgo={props.tgo} key={props.tgo.destination ? 0 : 1} />
+      <PrimaryMarker tgo={props.tgo} key={mobileMarkerKey(props.tgo)} />
       <SecondaryMarker tgo={props.tgo} destination={props.tgo.destination} />
     </>
   );
