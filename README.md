@@ -44,6 +44,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Every enemy site is on your map from turn one, at its real position. What is actually
   parked there — unit types, counts, threat and detection rings — stays hidden until you
   engage it.
+- Fixed SAM sites (SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk) are always known: composition and rings from turn one.
+  Mobile SAMs (SA-6, SA-11 and the rest) are fogged like any other site.
 - Engaging means ordnance on the site, or any ground-attack sortie that reaches it. Recon
   overflight does not reveal.
 - Once engaged, a site is known completely and permanently, damage included. There is no

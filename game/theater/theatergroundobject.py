@@ -74,6 +74,32 @@ _AAA_FIRE_CONTROL_RADAR_VARIANTS = frozenset(
 )
 
 
+#: Fixed SAM systems sit in prepared sites mapped before the war, so recon fog
+#: never hides them (DM 2026-09-29): SA-2/3/5/10/20, S-400, Patriot, Hawk, keyed
+#: on the fire-control radar or launcher. The mobile S-300V is left out.
+_FIXED_SAM_TYPE_PREFIXES = (
+    "S_75M_Volhov",
+    "SNR_75V",
+    "ERO_SA2_SNR75",
+    "snr s-125 tr",
+    "5p73 s-125 ln",
+    "RPC_5N62V",
+    "S-200_Launcher",
+    "S-300PS ",
+    "S-300PMU",
+    "S-400 ",
+    "Patriot str",
+    "Patriot ln",
+    "Hawk tr",
+    "Hawk ln",
+)
+
+
+def is_fixed_sam_type(type_id: str) -> bool:
+    """Whether a DCS unit type id belongs to a fixed SAM system."""
+    return type_id.startswith(_FIXED_SAM_TYPE_PREFIXES)
+
+
 def _is_erroneous_aaa_search_radar(unit: "TheaterUnit") -> bool:
     """True if `unit` is a search radar that should not be on an AAA site."""
     unit_type = unit.unit_type
@@ -230,8 +256,10 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
           captured, or the site discovered by strike/scout/TARPS), then fully
           known with exact coordinates (SME 2026-06-18). Its own gate,
           independent of the general recon fog.
+        * A fixed SAM site (SA-2/3/5/10/20, S-400, Patriot, Hawk) is always
+          known: it sits in a prepared position the enemy mapped before the war.
         * Otherwise the site shows as a marker and only its composition is
-          fogged, until recon confirms it.
+          fogged, until it is engaged.
         """
         if viewer_sees_truth(viewer, self):
             return Visibility.KNOWN
@@ -244,9 +272,18 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
             return Visibility.HIDDEN
         if not settings.recon_intel_fog:
             return Visibility.KNOWN
-        if self.discovered_by_player:
+        if self.discovered_by_player or self.is_fixed_sam_site:
             return Visibility.KNOWN
         return Visibility.UNKNOWN
+
+    @property
+    def is_fixed_sam_site(self) -> bool:
+        """An air-defense site built around a fixed SAM system (always known)."""
+        if self.category != "aa":
+            return False
+        return any(
+            is_fixed_sam_type(str(getattr(unit.type, "id", ""))) for unit in self.units
+        )
 
     def known_for(self, viewer: Optional[Player] = None) -> bool:
         """Whether the viewer knows what is actually at this site."""

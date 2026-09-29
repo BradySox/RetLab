@@ -4,6 +4,10 @@ Every enemy site is on your map from turn one, at its real position. What is par
 Composition, unit counts, and threat and detection rings stay hidden until you **engage** the site
 — and once you do, you know everything about it, permanently.
 
+**Fixed SAM sites are always known.** SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk sit in prepared positions, so their
+composition and rings show from turn one, on the map and in the jet's data cartridge. Mobile SAMs
+(SA-6, SA-11 and the rest) are fogged like any other site.
+
 Fog applies only to the human (BLUE) map and dialogs. The AI planner and all threat math always use
 ground truth, so the enemy never gets dumber because you are fogged.
 
@@ -15,6 +19,7 @@ ground truth, so the enemy never gets dumber because you are fogged.
 |---|---|---|
 | Un-engaged site | position, category, allegiance, air-defence band, valid mission types | unit types, counts, live/dead state, threat ring, detection ring |
 | Engaged site | everything, including current damage | nothing |
+| Fixed SAM site | everything, from turn one | nothing |
 
 ![The target intel dialog for an un-engaged enemy SAM site: known live units, detection range, and threat range all read Unknown, and the units list reads composition unknown](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/fog-intel-not-scouted.png)
 
