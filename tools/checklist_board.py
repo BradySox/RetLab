@@ -13,9 +13,8 @@ from __future__ import annotations
 
 import re
 import sys
-from pathlib import Path
 
-CHECKLIST = Path("docs/dev/retlab-ingame-pass-checklist.md")
+from checklist_rows import checklist_text
 
 # Same pairing as tests/test_flycard_board.py and .claude/hooks/session-start.sh.
 STATUS = re.compile(
@@ -29,7 +28,7 @@ OUTSTANDING = {"UNTESTED", "PARTIAL", "REGRESSED"}
 def main(argv: list[str]) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8")
-    text = CHECKLIST.read_text(encoding="utf-8")
+    text = checklist_text()
     everything = "--all" in argv
     table = []
     for line in text.splitlines():

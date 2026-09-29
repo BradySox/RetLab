@@ -33,7 +33,7 @@ Never derive the state of the codebase from memory; always read the current file
 3. `README.md` — if the change is player-visible
 4. `CLAUDE.md` — if the tech stack, architecture patterns, or feature list changed
 5. `AGENTS.md` — sync to mirror `CLAUDE.md` (see Conventions)
-6. `docs/dev/retlab-ingame-pass-checklist.md` — add a row for any feature with runtime behavior that CI can't exercise
+6. `docs/dev/checklist-rows/<ID>.md` — add a row for any feature with runtime behavior that CI can't exercise (one file per row; see the table below)
 7. **If a feature's RULE changed (not just its internals): grep the docs for the phrases the
    change falsified.** Steps 1-6 cover the feature's own faces; they do not cover the other
    notes that merely mention it. `§3` is named in **50 doc files** — the 2026-08-18 rework
@@ -59,7 +59,7 @@ nearly every PR used to conflict in the same five places. Each now has a rule:
 
 | Adding | Do this | Never |
 |---|---|---|
-| A checklist row | `python tools/claim_id.py row` prints the next free `B###`, reserved on GitHub; add the `###` heading at the end of the checklist | pick the number by reading the file |
+| A checklist row | `python tools/claim_id.py row` prints the next free `B###`, reserved on GitHub, and writes its stub `docs/dev/checklist-rows/B###.md`; fill that file in | pick the number by reading the file, or add the row to the end of `retlab-ingame-pass-checklist.md` |
 | A features-doc `§N` | `python tools/claim_id.py section` | the same |
 | A changelog line | a new file `changelog.d/<slug>.feature.md` or `<slug>.fix.md` (see its README) | edit `changelog.md` |
 | A What's New entry | a new file `resources/whatsnew/<date>-<slug>.yaml`, one entry | append to someone else's file |
@@ -71,6 +71,9 @@ them, run `git merge origin/main` in the worktree (or the app's sync) and git ke
 sides with no hand editing. Read the merged spot anyway: a line both sides *changed*
 comes out twice, and a block one side *deleted* comes back if the other side edited
 it. Duplicate row ids, `§` numbers and a returned checklist summary fail a test. A
+branch that still added its row to the end of the main checklist moves it out with
+`python tools/checklist_rows.py move B###`. Rows from before 2026-09-29 stay in the
+main file; every reader (board, claim tool, hook, tests) reads both. A
 generated file (the feature index) that comes out wrong is fixed by regenerating it.
 
 ---
@@ -98,7 +101,7 @@ feature — each carries the design rationale, the flown-test findings, and the 
 |---|---|
 | [retlab-features.md](docs/dev/retlab-features.md) | **The deep dive.** Every feature with file paths, gotchas, tests, deferred work. |
 | [retlab-feature-index.md](docs/dev/retlab-feature-index.md) | Generated catalog of every feature with its plugin and `Settings` wiring. |
-| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. Find a row: `grep -n "^### B55 "`, then Read ~15 lines from there. Never search a bare row ID. |
+| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. Rows added from 2026-09-29 are one file each in `docs/dev/checklist-rows/`. Find a row: `grep -rn "^### B55 " docs/dev/retlab-ingame-pass-checklist.md docs/dev/checklist-rows`, then Read ~15 lines from there. Never search a bare row ID. |
 | [flycards/WATCH.md](docs/dev/flycards/WATCH.md) | The standing opportunistic watch list — rows to adjudicate on any flight. |
 | [flycards/LOCAL.md](docs/dev/flycards/LOCAL.md) | The rolling local test card for contrived conditions. |
 | [retlab-early-systems-decision-ledger.md](docs/dev/retlab-early-systems-decision-ledger.md) | The 2026-07-18 deep-audit verdicts on the early-systems core, with self-play evidence. |

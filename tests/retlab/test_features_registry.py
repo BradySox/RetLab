@@ -20,9 +20,9 @@ from game.retlab.features import (
     render_feature_index,
 )
 from game.settings.settings import Settings
+from tools.checklist_rows import checklist_text
 
 CLAUDE_MD = Path("CLAUDE.md")
-CHECKLIST = Path("docs/dev/retlab-ingame-pass-checklist.md")
 FEATURES_DOC = Path("docs/dev/retlab-features.md")
 
 
@@ -61,7 +61,7 @@ def _features_at_a_glance_sections() -> set[int]:
 
 def _checklist_sections() -> set[int]:
     """Every `· §N ·` feature reference in the in-game-pass checklist rows."""
-    text = CHECKLIST.read_text(encoding="utf-8")
+    text = checklist_text()
     return {int(m.group(1)) for m in re.finditer(r"·\s*§(\d+)", text)}
 
 

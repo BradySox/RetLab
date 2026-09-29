@@ -17,6 +17,11 @@ a Tacview/log reference and a date. When a row reaches `VERIFIED`, also drop the
 *"needs an in-game pass"* tag from the matching section of `retlab-features.md`
 so the two docs don't drift.
 
+**New rows do not go in this file.** From 2026-09-29 each new row is its own file,
+[`checklist-rows/<ID>.md`](checklist-rows/), written by `python tools/claim_id.py row`,
+so two PRs adding rows never meet at the end of this one. Rows already here stay here;
+the board, the hook and the tests read both.
+
 > **Headless queue status (2026-06-27):** the desk-adjudicable work is **exhausted**. The
 > Python/Lua-logic layer behind every outstanding row is test-covered and was re-verified **green on
 > branch** (227 backing tests + `test_late_init`), so the remaining items are gated on a live cockpit

@@ -5,12 +5,17 @@
 set -euo pipefail
 
 md="${CLAUDE_PROJECT_DIR:-.}/docs/dev/retlab-ingame-pass-checklist.md"
+rows_dir="${CLAUDE_PROJECT_DIR:-.}/docs/dev/checklist-rows"
 [ -f "$md" ] || exit 0   # checklist absent (e.g. stale checkout) — nothing to do
 
 # Rows are `### ` headings ONLY. `## ` section headings are not rows, and one of
 # them carries a marker ("## E. SOF insert generation · ☑ VERIFIED"), so the old
-# `^#{2,3}` scope counted a section as a verified row.
-headings="$(grep -E '^### ' "$md" || true)"
+# `^#{2,3}` scope counted a section as a verified row. New rows live one per file
+# in checklist-rows/ (tools/checklist_rows.py); the main file keeps the old ones.
+shopt -s nullglob
+row_files=("$rows_dir"/[A-Z]*[0-9].md)
+shopt -u nullglob
+headings="$(grep -hE '^### ' "$md" ${row_files[@]+"${row_files[@]}"} || true)"
 
 # A row's status is the FIRST `<symbol> <WORD>` pair on its heading line.
 #
@@ -60,7 +65,7 @@ else
   echo "All tracked rows verified — nothing outstanding."
 fi
 echo
-echo "Source: docs/dev/retlab-ingame-pass-checklist.md"
+echo "Source: docs/dev/retlab-ingame-pass-checklist.md + docs/dev/checklist-rows/"
 
 # --- the fly cards ----------------------------------------------------------
 # Two standing cards, same format, parsed by one function so they can never
