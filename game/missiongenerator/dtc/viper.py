@@ -12,8 +12,9 @@ Sections emitted (schema mined from ``CoreMods/aircraft/F-16C/DTC``):
   steerpoints (the SA-page ask, Viper-style -- the jet has no orbit element).
   The jet auto-sequences only 1-20 and reserves 25 for the bullseye, so the
   route takes 1-20 and anchors 21-24.
-* ``MPD.GEO_LINES`` -- the boundary with red land on line set L1, and a box
-  around each tanker this jet can use on L2-L4, nearest first. The four sets share 25 points.
+* ``MPD.GEO_LINES`` -- land borders within 40 NM of the route, the player's
+  drawings, a box around each tanker this jet can use, then the boundary with
+  red land, in that priority. The four sets share 25 points.
 * ``MPD.THREAT_PTS`` -- viewer-fogged enemy SAM rings ("Custom" type, radius
   in meters, <= 15).
 * ``MPD.DEST`` -- friendly recovery fields as Destination steerpoints 81-99,
@@ -43,6 +44,8 @@ from game.missiongenerator.dtc.savedpoints import (
 )
 from game.missiongenerator.dtc.common import (
     SupportTrack,
+    decimate_open,
+    land_border_runs,
     leg_altitude,
     ground_elevation,
     red_land_boundary,
@@ -80,8 +83,13 @@ MAX_GEO_LINE_SETS = 4
 #: shared across the four line sets with no per-set cap of their own, so the
 #: boundary takes L1 whole and L2-L4 stay free.
 MAX_GEO_POINTS = 25
-#: What the boundary keeps however much the player draws (§102).
+#: What borders and the front line keep however much the player draws (§102).
 MIN_BOUNDARY_POINTS = 10
+#: A border this far either side of the route is drawn: the HSD's 60 NM scale
+#: shows it from the route in DEP.
+BORDER_CORRIDOR_M = 40 * 1852.0
+#: Line sets borders may take, so a tanker box or the front line still fits.
+MAX_BORDER_LINE_SETS = 2
 MAX_THREAT_POINTS = 15
 #: DEST owns steerpoints 81-99, and the editor refuses a 20th.
 MAX_DESTINATIONS = 19
@@ -645,17 +653,18 @@ def _build_cmds() -> dict[str, Any]:
 def _build_geo_lines(
     game: Game, mission_data: MissionData, flight: FlightData
 ) -> list[dict[str, Any]]:
-    """The HSD's four line sets: the red-land boundary on L1, a tanker or AEW&C
-    box on each of L2-L4.
+    """The HSD's four line sets, filled in priority order until the sets or the
+    25 shared points run out.
 
-    The 25 points are shared, so the boxes are allocated first -- each is a fixed
-    five and a box missing a corner is nonsense, where a boundary thinned by ten
-    points is still a boundary.
+    1. The player's orbits and drawings (§102): drawn on purpose.
+    2. Land borders near the route: crossing one can start a fight (§98).
+    3. A box on each tanker or AEW&C this jet can use, nearest first.
+    4. The boundary with red land (the front line).
+
+    Borders and the front line are thinned to fit; a box or a drawing missing a
+    corner is nonsense, so those go in whole or not at all.
     """
     options = flight.dtc_options
-    line_sets: list[tuple[str, list[tuple[float, float]]]] = []
-    # The player's orbits and drawings (§102) go before the support boxes: they
-    # were drawn on purpose. The boundary keeps at least MIN_BOUNDARY_POINTS.
     player: list[tuple[str, list[tuple[float, float]]]] = []
     player_budget = MAX_GEO_POINTS - MIN_BOUNDARY_POINTS
     for name, points, closed in player_shapes(flight, orbits_as_boxes=True):
@@ -664,23 +673,48 @@ def _build_geo_lines(
             continue
         player.append((name, corners))
         player_budget -= len(corners)
-    used = sum(len(corners) for _name, corners in player)
-    room = MAX_GEO_LINE_SETS - 1 - len(player)
-    boxes = (
-        support_boxes(mission_data, room, flight)
-        if options.friendly_orbits and room > 0
+    fixed = sum(len(corners) for _name, corners in player)
+    sets_left = MAX_GEO_LINE_SETS - len(player)
+
+    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    borders = (
+        land_border_runs(game, route, BORDER_CORRIDOR_M)[
+            : min(MAX_BORDER_LINE_SETS, sets_left)
+        ]
+        if options.borders
         else []
     )
-    while boxes and used + len(boxes) * SUPPORT_BOX_POINTS > (
-        MAX_GEO_POINTS - MIN_BOUNDARY_POINTS
+    sets_left -= len(borders)
+
+    boxes = (
+        support_boxes(mission_data, sets_left, flight)
+        if options.friendly_orbits and sets_left > 0
+        else []
+    )
+    min_lines = MIN_BOUNDARY_POINTS if borders or options.flot_and_zones else 0
+    while boxes and fixed + len(boxes) * SUPPORT_BOX_POINTS > (
+        MAX_GEO_POINTS - min_lines
     ):
         boxes.pop()
-    if options.flot_and_zones:
-        boundary_budget = MAX_GEO_POINTS - used - len(boxes) * SUPPORT_BOX_POINTS
-        if boundary_budget >= 2:
-            line_sets.extend(red_land_boundary(game, 1, boundary_budget))
-    line_sets.extend(player)
-    line_sets.extend(boxes)
+    fixed += len(boxes) * SUPPORT_BOX_POINTS
+    sets_left -= len(boxes)
+
+    front: list[tuple[str, list[tuple[float, float]]]] = []
+    if options.flot_and_zones and sets_left > 0:
+        front = red_land_boundary(game, 1, MAX_GEO_POINTS)
+    # Thinned lines take what the whole shapes leave, in priority order, each
+    # keeping two points back for every line still to come.
+    lines: list[tuple[str, list[tuple[float, float]]]] = []
+    flexible = borders + front
+    room = MAX_GEO_POINTS - fixed
+    for index, (name, points) in enumerate(flexible):
+        share = min(len(points), room - 2 * (len(flexible) - index - 1))
+        if share < 2:
+            break
+        lines.append((name, decimate_open(points, share)))
+        room -= share
+
+    line_sets = lines + player + boxes
     geo_points: list[dict[str, Any]] = []
     for set_index, (name, points) in enumerate(line_sets[:MAX_GEO_LINE_SETS]):
         flags = {f"L{i}": i == set_index + 1 for i in range(1, 5)}
@@ -741,6 +775,7 @@ def build_viper_cartridge(
         or options.drawings
         or options.friendly_orbits
         or options.flot_and_zones
+        or options.borders
         or options.threat_rings
         or options.destinations
         or options.roe_table

@@ -33,6 +33,7 @@ from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     flot_segments,
+    land_border_runs,
     red_land_boundary,
     support_boxes,
     support_tracks,
@@ -2951,3 +2952,58 @@ def test_tomcat_plans_stay_inside_the_jets_limits(
         assert points(plan) <= 50
     # The route is never what gives way.
     assert len(nav[1]["waypoints"]) == 3
+
+
+#: Two countries sharing one edge, (100 km, 50 km) to (200 km, 50 km). The rest of
+#: each square is coast: only one country has it.
+_NORTH = [(100000.0, 0.0), (100000.0, 50000.0), (200000.0, 50000.0), (200000.0, 0.0)]
+_SOUTH = [
+    (100000.0, 50000.0),
+    (100000.0, 100000.0),
+    (200000.0, 100000.0),
+    (200000.0, 50000.0),
+]
+
+
+def _border_zones() -> list[Any]:
+    return [
+        SimpleNamespace(country="Alpha", border=_NORTH),
+        SimpleNamespace(country="Bravo", border=_SOUTH),
+    ]
+
+
+def test_land_border_runs_draw_only_the_shared_frontier_near_the_route() -> None:
+    """An edge only one country has is coast or the map's clip, not a border;
+    the shared one is drawn once, though both countries carry it."""
+    game = SimpleNamespace(
+        theater=SimpleNamespace(neutral_border_zones=_border_zones())
+    )
+    route = [(0.0, 0.0), (60000.0, 80000.0)]  # ends 27 NM from the frontier
+    runs = land_border_runs(game, route, 40 * 1852.0)  # type: ignore[arg-type]
+    assert runs == [("Alpha-Bravo", [(100000.0, 50000.0), (200000.0, 50000.0)])]
+    assert land_border_runs(game, route, 20 * 1852.0) == []  # type: ignore[arg-type]
+
+
+def test_viper_draws_borders_ahead_of_the_front_line(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Borders take L1; the front line follows on the next free set."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    game.theater.neutral_border_zones = _border_zones()
+    segments = [("Front", [(1000.0, 2000.0), (3000.0, 4000.0)])]
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments", lambda g: segments
+    )
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    assert [p["note"] for p in geo if p["L1"]] == ["Alpha-Bravo"] * 2
+    assert "FLOT" in {p["note"] for p in geo if not p["L1"]}
+
+    flight.dtc_options = DtcOptions(borders=False)
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    assert "Alpha-Bravo" not in {p["note"] for p in geo}
+    assert [p["note"] for p in geo if p["L1"]] == ["FLOT"] * 2
