@@ -1,0 +1,11 @@
+date: 2026-09-29
+title: New startup splash and briefing picture
+change: >-
+  RetLab starts with its own splash, and the DCS briefing screen shows the
+  matching RetLab picture: an F-16 over a chart grid. To use your own
+  briefing picture, save it as briefing.png or briefing.jpg in
+  Saved Games\DCS\Retribution.
+watch: >-
+  The splash when RetLab opens, and the briefing screen when you load the
+  next mission, both show the new picture.
+row: B155

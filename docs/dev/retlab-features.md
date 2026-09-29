@@ -11115,7 +11115,9 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 ### Constraints
 
 - No setting: the file is the switch (the §42/§43 precedent).
-- The app's startup splash still reads `splash_screen.png`; only the mission picture changed.
+- The app's startup splash (`resources/ui/splash_screen.png`) is RetLab's own too since
+  2026-09-29: the same look, an F-16 drawn to scale. It has no drop-in override. The About
+  box no longer credits upstream's splash artist.
 - Blue only. The red briefing has no picture, as before.
 
 ## §108 — Flight report cards
