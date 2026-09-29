@@ -476,8 +476,6 @@ linked design note.
   jammer closes; the C-130's burn-through weakens. Both are intentional and opposite.
 - **Never add a land-attack weapon family to the §81 anti-ship pattern list.** §63 and §81 stay
   correct only because their weapon sets are disjoint.
-- **Never run §60 radar doubling and a regiment model on the same system.** Pick one per system
-  and record which.
 - **`powerW` is range, not loudness** (§51, §70). Do not chase audio volume with it.
 - **GPS jamming (§86): at most 3 sites per campaign, non-overlapping.** Bubbles are large and
   invisible on the map, and effects do not stack.
@@ -541,7 +539,6 @@ linked design note.
 52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
 56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
 58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
-60. **SAM guidance-radar redundancy** — two spaced track radars, so one HARM is not a site kill.
 61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
 62. **Squadron-sequenced modexes** — per-squadron blocks numbered in sequence for Hornets; the Tomcat paints its number into the livery, so its squadrons fly a CAG bird and line jets instead. The Payload tab can pin a Hornet/Tomcat flight's number (wingmen follow); no other package reuses it.
 63. **Ship-launched cruise missile raids** — finite no-rearm magazines, auto raids and an F10 call-for-fire, with a defender launch wake.
@@ -614,6 +611,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 55 | Red Intent adaptive posture | Removed 2026-07-21 |
 | 57 | Air-droppable minefields | Removed 2026-09-07 — shelved 2026-07-30 and never resumed; the visible-fake problem was never worth fixing |
 | 59 | Ground AI sleep | Removed 2026-09-23 — DM call; never observed doing its job in any flown test |
+| 60 | SAM guidance-radar redundancy (two track radars per site) | Removed 2026-09-29 — DM call; every SAM site is back to one guidance radar |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 — real forces no longer hide behind circles, so a lone circle would obviously be fake |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 — "doesn't add much except in very specific campaigns" |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
@@ -927,27 +925,23 @@ aircraft. Do NOT "resync" this block from upstream until they fix it.
   supply-routes design note "Roll-out to the built campaigns"): Nevada re-traced, the worst
   Caucasus-trail defects fixed, the deep-mountain trail FOBs (Yankee Station / Steel Tiger R6–R13)
   left for an in-app by-eye pass, Germany already compliant.
-- **SAM belts: legacy → §60 doubling, strategic → regiment-by-authoring (STANDARD, 2026-07-12).**
-  When you lay out a **new campaign's** air defenses, choose the redundancy model by system class —
-  don't just drop fat single-site batteries:
+- **SAM belts: legacy → single sites, strategic → regiment-by-authoring (STANDARD, 2026-07-12;
+  §60 doubling removed 2026-09-29).** When you lay out a **new campaign's** air defenses, choose
+  by system class — don't just drop fat single-site batteries:
   - **Legacy / mobile systems** (SA-2, SA-3, SA-6, Hawk, and the generic launcher sites) — a lone
-    site is realistic and the §60 two-guidance-radar doubling already baked into their layouts is the
-    right fix (defeats the single-HARM kill). Place them as normal; nothing extra to do.
+    site with one guidance radar is realistic. Place them as normal; nothing extra to do.
   - **Strategic belts** (S-300 / S-400 / SA-10/20/21, Patriot, the long-range LORAD systems) — prefer
     the **regiment-by-authoring** pattern: place **several single-radar fire units + a shared EWR/
-    acquisition site** on the CP and let Skynet net them into one IADS, rather than one doubled fat
+    acquisition site** on the CP and let Skynet net them into one IADS, rather than one fat
     site. That is the historically faithful survivability model (kill one battalion's radar, the
     regiment fights on) and it's what the engine + Skynet already represent when you place multiple
     sites.
-  - **Guardrail — never double-count radars.** §60 doubling and a regiment layout both add engagement
-    radars. If a future engine "regiment" construct ever lands for a strategic system, revert §60's
-    doubling for that system, and **record which systems are regiment-modeled vs §60-doubled** the day
-    that starts. Rationale + the deferred directions (geometry, acquisition separation, decoys) live in
+  - Rationale + the deferred directions (geometry, acquisition separation, decoys) live in
     [docs/dev/design/retlab-sam-site-realism-notes.md](docs/dev/design/retlab-sam-site-realism-notes.md).
   - **Reference implementation:** Red Tide's three rear S-300 hubs (2026-07-12) — 3 clustered
-    single-radar S-300 battalions + a shared EWR per hub, netted by range-mode advanced IADS, with §60
-    reverted only for that campaign's S-300/SA-5 via the `Russia 1980 (Red Tide)` faction fork (the
-    front's legacy MERAD screen keeps §60 doubling). See `retlab-red-tide-campaign-notes.md`.
+    single-radar S-300 battalions + a shared EWR per hub, netted by range-mode advanced IADS, through
+    the `Russia 1980 (Red Tide)` faction fork's lean battalion layouts. See
+    `retlab-red-tide-campaign-notes.md`.
 - **Upstream dev-process standards (ADOPTED as ours, 2026-07-20 user call).** The upstream wiki's
   Contributing + Core development guides are the fork's own customs and standards, mirrored with
   **RetLab:** delta notes in `docs/wiki/` (see Project Docs). In practice: follow the

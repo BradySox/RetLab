@@ -71,7 +71,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §57 | Air-droppable minefields _(retired)_ | — | — |
 | §58 | Mission-start briefing popup | `briefing` | `mission_briefing_popup` |
 | §59 | Ground AI sleep (graduated culling) _(retired)_ | — | — |
-| §60 | SAM guidance-radar redundancy (two track radars per site) | — | — |
+| §60 | SAM guidance-radar redundancy (two track radars per site) _(retired)_ | — | — |
 | §61 | Host red-interceptor scramble (F10 bandit spawner) | `redscramble` | `host_red_scramble` |
 | §62 | Squadron-sequenced Hornet/Tomcat board numbers | — | — |
 | §63 | Ship-launched cruise missile raids | `cruisemissiles` | `cruise_missile_strikes`, `cruise_missile_auto_raids` |

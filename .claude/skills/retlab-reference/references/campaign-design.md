@@ -126,11 +126,9 @@ Modes: **Basic** (auto-association, no comms/power) is default. **Advanced** req
 > `docs/dev/design/retlab-skynet-return-notes.md`.
 >
 > Two fork conventions when laying out a new campaign's air defences:
-> - **Legacy/mobile systems** (SA-2/3/6, Hawk, generic launcher sites) — a lone site is fine;
->   §60 already gives every SAM layout **two** guidance radars so one HARM isn't a site kill.
+> - **Legacy/mobile systems** (SA-2/3/6, Hawk, generic launcher sites) — a lone site is fine.
 > - **Strategic belts** (S-300/S-400/Patriot) — prefer **several single-radar fire units plus a
 >   shared EWR** and let Skynet net them, rather than one doubled fat site.
-> - **Never run both models on the same system** — that double-counts radars.
 
 ## Motorpools
 
