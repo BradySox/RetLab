@@ -7498,13 +7498,15 @@ mechanism byte-for-byte.
 **What's in a cartridge** (per **blue client flight** — each flight gets its own route;
 package-mates share the comm plan and SA picture):
 
-- **COMM** — **neither jet carries one.** The radio allocator already writes every
-  client unit's `Radio` table (`FlightData.assign_channel`), so a COMM section could
-  only mirror it. The Viper's was dropped 2026-08-22 (its schema has no name field);
-  the Hornet's — the same frequencies plus ≤5-char names — was dropped 2026-09-13 so
-  the fork reflects the upstream carve ([#966](https://github.com/dcs-retribution/dcs-retribution/pull/966))
-  and ships nothing the miz already delivers (DM rule). The `comms` switch survives
-  for the F-14B(U)'s TIS list only.
+- **COMM** (Hornet only) — mirrors the channels the radio allocator wrote into the
+  unit's `Radio` table (`FlightData.assign_channel`) and names each after what it
+  tunes (`frequency_labels`, ≤5 chars): own flight, AWACS and tankers by callsign,
+  then `PKG`, `JTAC`, `DEP`, `ARR`, `DVT`. The names are the one thing the miz cannot
+  carry. Dropped 2026-09-13 to match the upstream carve
+  ([#966](https://github.com/dcs-retribution/dcs-retribution/pull/966)) and **restored
+  2026-09-29 on the DM's call** once the names were confirmed visible in the jet; #966
+  still ships without it. The Viper has none: its schema has no name field (dropped
+  2026-08-22). The `comms` switch drives this and the F-14B(U)'s TIS list. Row B177.
 - **WYPT / MPD.NAV_PTS** — the flight's waypoints as named steerpoints (ASCII-folded
   display names), the Hornet Route-1 sequence with per-leg altitude/speed (km/h) and
   **ETA in absolute seconds-since-midnight** (the Viper carries TOS inline), the

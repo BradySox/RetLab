@@ -2,9 +2,10 @@
 
 Sections emitted (schema mined from ``CoreMods/aircraft/FA-18C/DTC``):
 
-* No ``COMM`` (dropped 2026-09-13 to match the upstream carve): the presets
-  already reach the jet through the ``Radio`` table the radio allocator writes
-  into the unit; the cartridge adds only what the miz cannot carry.
+* ``COMM`` -- COMM1/COMM2 mirroring the channels the radio allocator wrote
+  into the unit's ``Radio`` table, each named (<=5 chars) after what it tunes.
+  The names are what the miz cannot carry; unassigned channels keep the stock
+  defaults.
 * ``WYPT`` -- the flight's waypoints as named steerpoints + the Route 1
   sequence with per-leg altitude/speed/ETA, and ``NAV_SETTINGS`` that auto-tune
   the recovery TACAN / ICLS / ACLS (the §65 boat card, closing the loop) and
@@ -38,6 +39,7 @@ from game.missiongenerator.dtc.common import (
     leg_altitude,
     red_land_boundary,
     support_boxes,
+    frequency_labels,
     is_route_waypoint,
     is_target_waypoint,
     threat_sites_for,
@@ -66,8 +68,54 @@ MAX_FLOT_LINES = 3
 MAX_FAOR_LINES = 3
 MAX_MEZ_THREATS = 40
 
+#: Stock preset frequencies (MHz) for channels 1-20 of both AN/ARC-210s, from
+#: the module's COMM1/COMM2 defaults -- kept for channels we don't assign.
+_DEFAULT_CHANNEL_FREQS = [
+    305.0, 264.0, 265.0, 256.0, 254.0, 250.0, 270.0, 257.0, 255.0, 262.0,
+    259.0, 268.0, 269.0, 260.0, 263.0, 261.0, 267.0, 251.0, 253.0, 266.0,
+]  # fmt: skip
+
 #: CAP racetrack orbit diameter (the ME default, 5 NM).
 _CAP_ORBIT_DIAMETER_M = 5 * 1852.0
+
+
+def _default_comm_table() -> dict[str, Any]:
+    """The module's stock channel table (both ARC-210s ship the same one)."""
+    table: dict[str, Any] = {"Guard": False}
+    for i, freq in enumerate(_DEFAULT_CHANNEL_FREQS, start=1):
+        table[f"Channel_{i}"] = {
+            "frequency": freq,
+            "modulation": 0,
+            "name": f"CH {i}",
+        }
+    table["Channel_G"] = {"frequency": 243.0, "modulation": 0, "name": "GUARD"}
+    table["Channel_M"] = {"frequency": 305.0, "modulation": 0, "name": "MAN"}
+    table["Channel_C"] = {"frequency": 30.0, "modulation": 1, "name": "CUE"}
+    table["Channel_S"] = {"frequency": 156.05, "modulation": 1, "name": "MAR"}
+    return table
+
+
+def _build_comm(flight: FlightData, mission_data: MissionData) -> dict[str, Any]:
+    tables = {1: _default_comm_table(), 2: _default_comm_table()}
+    labels = frequency_labels(flight, mission_data)
+    for frequency, assignments in flight.frequency_to_channel_map.items():
+        label = labels.get(frequency, "")
+        for assignment in assignments:
+            table = tables.get(assignment.radio_id)
+            if table is None or not 1 <= assignment.channel <= 20:
+                continue
+            table[f"Channel_{assignment.channel}"] = {
+                "frequency": frequency.mhz,
+                # Everything Retribution assigns above the VHF-FM band is AM.
+                "modulation": 1 if frequency.mhz < 88.0 else 0,
+                "name": label or f"CH {assignment.channel}",
+            }
+    return {
+        "COMM1": tables[1],
+        "COMM2": tables[2],
+        "mirror_COMM1": False,
+        "mirror_COMM2": False,
+    }
 
 
 def _oa_defaults(index: int) -> dict[str, Any]:
@@ -459,6 +507,8 @@ def build_hornet_cartridge(
     }
     # A section the planner turned off is omitted entirely so the jet's own
     # defaults stand (the §74 Edit Flight DTC tab).
+    if options.comms:
+        data["COMM"] = _build_comm(flight, mission_data)
     if options.route or options.nav_aids:
         carrier = _find_carrier(flight, mission_data)
         data["WYPT"] = _build_wypt(flight, game, carrier)

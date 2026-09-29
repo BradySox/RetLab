@@ -24,8 +24,7 @@ class DtcOptions:
     """
 
     enabled: Optional[bool] = None
-    #: The TIS send-to list (F-14B(U) only). The Hornet's COMM presets went
-    #: 2026-09-13: the miz Radio table already carries them.
+    #: Hornet channel names; the F-14B(U)'s TIS send-to list.
     comms: bool = True
     #: The flight's steerpoints + route sequence (ETAs, leg speeds).
     route: bool = True
