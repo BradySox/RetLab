@@ -109,6 +109,23 @@ class CheatSettingsBox(QGroupBox):
         )
         self.main_layout.addLayout(self.transfer_cheat)
 
+        # Instant carrier and ship moves
+        self.naval_move_cheat_checkbox = QCheckBox()
+        self.naval_move_cheat_checkbox.setChecked(
+            sc.settings.enable_instant_naval_move_cheat
+        )
+        self.naval_move_cheat_checkbox.setToolTip(
+            "A carrier or ship dragged on the map arrives at once, with no range"
+            " limit. Flights from it or against it are replanned."
+        )
+        self.naval_move_cheat_checkbox.toggled.connect(apply_settings)
+        self.main_layout.addLayout(
+            QLabeledWidget(
+                "Enable Instant Carrier and Ship Move Cheat:",
+                self.naval_move_cheat_checkbox,
+            )
+        )
+
         # Air wing adjustments
         self.air_wing_adjustments_checkbox = QCheckBox()
         self.air_wing_adjustments_checkbox.setChecked(
@@ -140,6 +157,10 @@ class CheatSettingsBox(QGroupBox):
     @property
     def show_transfer_cheat(self) -> bool:
         return self.transfer_cheat_checkbox.isChecked()
+
+    @property
+    def enable_instant_naval_move_cheat(self) -> bool:
+        return self.naval_move_cheat_checkbox.isChecked()
 
     @property
     def enable_runway_state_cheat(self) -> bool:
@@ -1103,6 +1124,9 @@ class QSettingsWidget(QtWidgets.QWizardPage, SettingsContainer):
             self.cheat_options.show_base_capture_cheat
         )
         self.settings.enable_transfer_cheat = self.cheat_options.show_transfer_cheat
+        self.settings.enable_instant_naval_move_cheat = (
+            self.cheat_options.enable_instant_naval_move_cheat
+        )
         self.settings.enable_runway_state_cheat = (
             self.cheat_options.enable_runway_state_cheat
         )
@@ -1146,6 +1170,9 @@ class QSettingsWidget(QtWidgets.QWizardPage, SettingsContainer):
         )
         self.cheat_options.transfer_cheat_checkbox.setChecked(
             self.settings.enable_transfer_cheat
+        )
+        self.cheat_options.naval_move_cheat_checkbox.setChecked(
+            self.settings.enable_instant_naval_move_cheat
         )
         self.cheat_options.base_runway_state_cheat_checkbox.setChecked(
             self.settings.enable_runway_state_cheat

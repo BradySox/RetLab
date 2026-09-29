@@ -6,6 +6,11 @@ from fastapi import APIRouter, Body, Depends, HTTPException, status
 from starlette.responses import Response
 
 from game import Game
+from game.theater.instantnavalmove import (
+    destination_is_open_sea,
+    instant_naval_move_enabled,
+    move_control_point_now,
+)
 from .models import ControlPointJs
 from ..dependencies import GameContext
 from ..leaflet import LeafletPoint
@@ -53,7 +58,7 @@ def destination_in_range(
         )
 
     point = Point.from_latlng(LatLng(lat, lng), game.theater.terrain)
-    return cp.destination_in_range(point)
+    return instant_naval_move_enabled(game) or cp.destination_in_range(point)
 
 
 @router.put(
@@ -83,17 +88,14 @@ def set_destination(
     point = Point.from_latlng(
         LatLng(destination.lat, destination.lng), game.theater.terrain
     )
-    if not cp.destination_in_range(point):
+    instant = instant_naval_move_enabled(game)
+    if not instant and not cp.destination_in_range(point):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot move {cp} more than "
             f"{cp.max_move_distance.nautical_miles}nm.",
         )
-    if (
-        cp.is_fleet
-        and game.theater.landmap
-        and game.theater.landmap.land_inbetween(cp.position, point)
-    ):
+    if cp.is_fleet and not destination_is_open_sea(game, cp.position, point):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot move {cp} over land.",
@@ -102,7 +104,10 @@ def set_destination(
     from .. import EventStream
 
     with EventStream.event_context() as events:
-        events.update_control_point(cp)
+        if instant:
+            move_control_point_now(game, cp, events)
+        else:
+            events.update_control_point(cp)
 
 
 @router.put(

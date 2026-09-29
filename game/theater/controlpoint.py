@@ -1230,21 +1230,24 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
         if runway_status is not None:
             runway_status.process_turn()
 
-        # Process movements for ships control points group
-        if self.target_position is not None:
-            delta = self.target_position - self.position
-            self.position = self.target_position
-            self.target_position = None
+        self.apply_pending_move()
 
-            # Move the linked unit groups
-            for ground_object in self.ground_objects:
-                if isinstance(ground_object, GenericCarrierGroundObject):
-                    ground_object.position.x = ground_object.position.x + delta.x
-                    ground_object.position.y = ground_object.position.y + delta.y
-                    for group in ground_object.groups:
-                        for u in group.units:
-                            u.position.x = u.position.x + delta.x
-                            u.position.y = u.position.y + delta.y
+    def apply_pending_move(self) -> None:
+        """Snap a moving fleet CP and its carrier groups to the queued destination."""
+        if self.target_position is None:
+            return
+        delta = self.target_position - self.position
+        self.position = self.target_position
+        self.target_position = None
+
+        for ground_object in self.ground_objects:
+            if isinstance(ground_object, GenericCarrierGroundObject):
+                ground_object.position.x = ground_object.position.x + delta.x
+                ground_object.position.y = ground_object.position.y + delta.y
+                for group in ground_object.groups:
+                    for u in group.units:
+                        u.position.x = u.position.x + delta.x
+                        u.position.y = u.position.y + delta.y
 
     def allocated_aircraft(self, parking_type: ParkingType) -> AircraftAllocations:
         present: dict[AircraftType, int] = defaultdict(int)
