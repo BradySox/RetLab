@@ -8928,3 +8928,11 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Setup:** Yankee Station with Naval gunfire, FAC(A) marking and Super Gaggle on. After the gaggle launches (10 min in), place an F10 marker on a coastal target inside 10 NM of a gun ship and call Naval Fire Mission → Fire on last F10 map marker. Watch the suppressor pair over the outpost in Tacview.
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
+
+### B172 — A new flight's cartridge waits for the pilot to load it · §74 · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested offscreen (`tests/test_dtc_tab.py`); never flown.
+
+- **Setup:** pass a turn with DTC data cartridges on, and take a player Viper or Hornet cold without touching its DTC tab.
+- **Pass:** the flight's DTC tab reads Pilot loads it; in the jet the cartridge is listed on the DTC page and nothing is loaded until you load it; loading it brings in the route and the rest.
+- **Fail signatures:** the cartridge loads itself at spawn (the default did not reach the unit); the cartridge is missing from the jet's list.

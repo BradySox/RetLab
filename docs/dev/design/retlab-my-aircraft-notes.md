@@ -81,7 +81,7 @@ there, up to the airframe's capacity or 50 for an unmeasured airframe
 - **Per airframe.** Only the sections this jet's cartridge carries
   (`game/missiongenerator/dtc/sections.py`), grouped Navigation / Situation picture /
   Weapons and defense / Comms, each with what it does on this jet.
-- **Loading.** Load at spawn (default) or pilot loads it. Hand-load still binds the
+- **Loading.** Pilot loads it (default since 2026-09-29, DM call) or load at spawn. Hand-load still binds the
   cartridge; it writes `AutoLoad = false` on the unit (`dcs/flyingunit.py:106-121`). This
   is the answer to B28's STBY objection, and campaign G's own choice.
 - **Waypoints in the cartridge.** One tick per waypoint type in the plan. An unticked type
