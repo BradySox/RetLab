@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+92 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -462,6 +462,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B160 | Every settings row reads as one line: shading, dividers and a hover band | settings UI | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8876,3 +8877,16 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
+### B160 — Every settings row reads as one line: shading, dividers and a hover band · settings UI · ☐ UNTESTED
+
+Built 2026-09-29. Filter and disclosure tests pass with the painting in place; rendered offscreen, never looked at in the running app.
+
+- **Setup:** open Settings with the window maximised. Visit Performance, then two other pages.
+  Open a section's Show N advanced options, then type a word in the search box.
+- **Pass:** every other row is shaded, a thin line sits under each row, and the row under the
+  mouse lights across its full width with an accent bar on the left, whether the cursor is
+  on the label, the control or the gap between them. Opening advanced options or searching
+  keeps the shading alternating on the rows actually shown.
+- **Fail signatures:** bands stacked at the top of a section (geometry read before layout); a
+  hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
+  a search.
