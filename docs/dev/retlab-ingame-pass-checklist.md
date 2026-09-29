@@ -403,7 +403,7 @@ The build carries the tanker box (#1091, #1093) but not #1094, #1095 or #1097: t
 The sim ran 3,546 s of mission in 3,604 s of wall time (98.4 %). No Lua error in `dcs.log`.
 
 The fight: blue lost 4 aircraft, red 3.
-- Flash's three wingmen left him after the merge at t≈2700 and flew 70 NM west into `0019 | MONKEY (SAM)` (SA-11). Two died to its 9M38s (t=3173, t=3236), the third to a Mirage F1's Super 530F (t=3319). The planned route never came within 26 NM of MONKEY.
+- Flash's three wingmen left him after the merge at t≈2700 on his "Engage bandits" call and flew 70 NM west after the only bandits they saw, over `0019 | MONKEY (SAM)` (SA-11). Two died to its 9M38s (t=3173, t=3236), the third to a Mirage F1's Super 530F (t=3319). The planned route never came within 26 NM of MONKEY.
 - `MOLLY Escort` lost a Hornet to an F-14's AIM-9P (t=2854).
 - Flash killed an F-14 with an AIM-120 (t=2782). A wingman's AIM-120 killed a Mirage (t=3234). A Hornet's AIM-9X killed the other F-14 (t≈2868; the crew ejected).
 - Flash's GBU-31 landed 30 m from MOOSE's track radar (t=3456); its two S-200 track radars, its P-19 and two trucks died over the next 41 s.
