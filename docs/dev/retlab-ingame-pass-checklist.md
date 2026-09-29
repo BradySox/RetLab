@@ -8931,6 +8931,13 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
 
+### B172 — A new flight's cartridge waits for the pilot to load it · §74 · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested offscreen (`tests/test_dtc_tab.py`); never flown.
+
+- **Setup:** pass a turn with DTC data cartridges on, and take a player Viper or Hornet cold without touching its DTC tab.
+- **Pass:** the flight's DTC tab reads Pilot loads it; in the jet the cartridge is listed on the DTC page and nothing is loaded until you load it; loading it brings in the route and the rest.
+- **Fail signatures:** the cartridge loads itself at spawn (the default did not reach the unit); the cartridge is missing from the jet's list.
 ### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: every auto-planned tanker and AWACS package, and each station's first BARCAP wave, is an ASAP package. Tankers used to be spread at random through the mission. Unit-tested (`tests/commander/test_support_asap.py`, `tests/test_missionscheduler.py`); never flown.

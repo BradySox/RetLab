@@ -7738,6 +7738,10 @@ Tests: the override/omission/pickle cases in `tests/missiongenerator/test_dtc.py
 the offscreen widget behavior in `tests/test_dtc_tab.py`. The tab itself needs an
 in-app eyeball (B28's app-side bullet).
 
+**Pilot loads it is the default (2026-09-29, DM call):** `DtcOptions.auto_load` defaults
+to `False`, so a new flight's cartridge is bound with `AutoLoad = false` and waits on the
+DTC page. Load at spawn stays one choice away on the tab. Row B172.
+
 **CJS Super Hornets — REMOVED 2026-08-22 (DM call).** FA-18E/F and EA-18G took a
 cartridge from 2026-08-02 to 2026-08-22 on the Hornet's COMM/WYPT schema, because the
 mod's descriptors `dofile` ED's own FA-18C implementations. Removed on the

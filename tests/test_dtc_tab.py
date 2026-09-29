@@ -159,6 +159,9 @@ def test_the_sam_filter_writes_a_radius_only_when_ticked() -> None:
 
 def test_load_timing_writes_auto_load() -> None:
     tab, flight = _typed_tab("F-16C_50", ["TAKEOFF"])
+    assert tab.load_selector.currentIndex() == 1  # Pilot loads it
+    tab.load_selector.setCurrentIndex(0)
+    assert flight.dtc_options.auto_load is True
     tab.load_selector.setCurrentIndex(1)
     assert flight.dtc_options.auto_load is False
 
