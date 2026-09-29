@@ -187,7 +187,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   spawns early by its wait. A quiet field keeps the flat 8 minutes.
 - The mission starts up to 30 minutes before the turn's clock when a flight needs that long
   to make its TOT. TOTs and the campaign clock do not move.
-- Also: overlapping jittered BARCAP waves, weighted off-mission combat resolution, per-side
+- Also: overlapping BARCAP waves, ASAP tankers and AWACS, weighted off-mission combat resolution, per-side
   planner unpredictability.
 
 ### Battlefield and world

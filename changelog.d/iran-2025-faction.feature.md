@@ -1,0 +1,1 @@
+* **[Factions]** New `[CH] Iran 2025` faction with the RetLab Iran pack's later kit: the Sayyad-4B Bavar-373, the Bavar-373-II, and the Fattah-2, Kheibar and Shahed 238 launchers. `[CH] Iran 2020` no longer fields them, so a 2020 campaign keeps a 2020 lineup.

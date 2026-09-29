@@ -8560,8 +8560,9 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   its canister sideways (the `LAUNCH_n` connector axis, same file); a pink or white model (a
   texture missing from the pack's `Textures`); see-through or shadowless panels (the
   material setting the exporter logged errors on).
-- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
-  and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
+- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2025` as red
+  (the only faction with the Sayyad-4B and the Bavar-373-II since 2026-09-29) and the pack's
+  toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
   and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
   Sayyad-4B launcher); a HARM on one STR leaves a Bavar-373 site (two STRs) still able to fire.
@@ -8890,11 +8891,12 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
 
 Built 2026-09-29: the RetLab Iran Air Defense Pack's Sejjil-2, Emad, Kheibar, Fattah-2 and
 Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own toggle.
-`[CH] Iran 2020` fields all five as missile sites, `Iran 2015` the Sejjil-2. Unit-tested
+`[CH] Iran 2025` fields all five as missile sites (`[CH] Iran 2020` the Sejjil-2 and Emad since
+2026-09-29), `Iran 2015` the Sejjil-2. Unit-tested
 (`tests/retlab/test_iran_pack_missiles.py`); the missiles have never flown in DCS.
 
 - **Setup:** the pack installed; Scenic Route Merged or Noisy Cricket (both preseed the pack),
-  or any campaign with red missile-site markers and `[CH] Iran 2020` as red with the pack
+  or any campaign with red missile-site markers and `[CH] Iran 2025` as red with the pack
   ticked. Missile-site fire tasks on (Settings, Performance).
 - **Pass:** red missile sites spawn with `[IRAD]` launchers; each fires once at a blue base;
   Tacview shows the missile reaching a blue field. A Shahed 238 flies at about 370 mph and takes
@@ -8947,3 +8949,10 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Fail signatures:** an old save failing to load or a tanker window erroring on open; a
   theater tanker with a two-point racetrack on a new turn; a package or recovery tanker
   flying a box.
+### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: every auto-planned tanker and AWACS package, and each station's first BARCAP wave, is an ASAP package. Tankers used to be spread at random through the mission. Unit-tested (`tests/commander/test_support_asap.py`, `tests/test_missionscheduler.py`); never flown.
+
+- **Setup:** any campaign with a theater tanker and an AWACS. Auto-plan a turn and open the ATO before flying.
+- **Pass:** the tanker, AWACS and first BARCAP packages show TOT ... (ASAP); relief BARCAP waves do not; in the mission, the tanker is on its track by the time the first strike package needs gas.
+- **Fail signatures:** a tanker with a TOT late in the mission; two BARCAP waves of one station arriving together (a relief wave was pulled onto the first).
