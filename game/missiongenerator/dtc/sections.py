@@ -79,7 +79,8 @@ SECTIONS: tuple[Section, ...] = (
         {
             VIPER_UNIT_TYPE: "Friendly fields and boats as Destination steerpoints,"
             " the briefed divert first and the enemy field you are working over"
-            " next to it.",
+            " next to it. The tags naming the HSD lines take up to 8 of the 19"
+            " slots, and stay when this is off.",
         },
     ),
     Section(

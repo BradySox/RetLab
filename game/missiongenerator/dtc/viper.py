@@ -32,6 +32,8 @@ Sections emitted (schema mined from ``CoreMods/aircraft/F-16C/DTC``):
 
 from __future__ import annotations
 
+import math
+from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
 from game.missiongenerator.dtc.cartridge import DtcCartridge
@@ -44,6 +46,8 @@ from game.missiongenerator.dtc.savedpoints import (
 )
 from game.missiongenerator.dtc.common import (
     SupportTrack,
+    country_at,
+    country_code,
     decimate_open,
     land_border_runs,
     leg_altitude,
@@ -95,6 +99,22 @@ MAX_BORDER_LINE_SETS = 2
 MAX_BORDER_POINTS = 12
 #: The front line's share when borders are drawn; alone, it takes what is left.
 FRONT_POINTS_WITH_BORDERS = 4
+#: Destination slots the line tags may take; the recovery fields keep the rest.
+MAX_LINE_LABELS = 8
+#: How far either side of a border its two country tags sit.
+BORDER_LABEL_OFFSET_M = 3 * 1852.0
+
+
+@dataclass(frozen=True)
+class LineLabel:
+    """A Destination tag naming an HSD line; the text is cut to 3 characters."""
+
+    text: str
+    x: float
+    y: float
+    note: str
+
+
 MAX_THREAT_POINTS = 15
 #: DEST owns steerpoints 81-99, and the editor refuses a 20th.
 MAX_DESTINATIONS = 19
@@ -227,13 +247,20 @@ def _target_airfield(flight: FlightData, game: Game) -> Any:
     return nearest
 
 
-def _build_dest(flight: FlightData, game: Game) -> list[dict[str, Any]]:
-    """Recovery fields as Destination steerpoints, plus the target's field.
+def _build_dest(
+    flight: FlightData, game: Game, labels: list[LineLabel]
+) -> list[dict[str, Any]]:
+    """Recovery fields as Destination steerpoints, plus the target's field, then
+    the tags naming the HSD lines.
 
     The briefed divert leads the list, the hostile field the flight is working
     over follows it so the cap can never squeeze it out, and the rest sort by
-    distance from the target so the nearest alternates fill the 19 slots.
+    distance from the target so the nearest alternates fill what the line tags
+    leave of the 19 slots. The HSD writes no text on a line (EA guide p328), so
+    a Destination beside it is the only way to name one.
     """
+    if not flight.dtc_options.destinations:
+        return _label_dests(labels, set(), 1, game)
     reference = _dest_reference(flight)
     divert_name = flight.divert.airfield_name if flight.divert else None
     fields = []
@@ -252,7 +279,7 @@ def _build_dest(flight: FlightData, game: Game) -> list[dict[str, Any]]:
         ordered.insert(1 if ordered else 0, hostile)
 
     taken: set[str] = set()
-    return [
+    field_dests = [
         {
             "number": index,
             "id": f"DEST{80 + index}",
@@ -262,7 +289,25 @@ def _build_dest(flight: FlightData, game: Game) -> list[dict[str, Any]]:
             "text": _dest_label(cp.name, taken),
             "note": cp.name,
         }
-        for index, cp in enumerate(ordered[:MAX_DESTINATIONS], start=1)
+        for index, cp in enumerate(ordered[: MAX_DESTINATIONS - len(labels)], start=1)
+    ]
+    return field_dests + _label_dests(labels, taken, len(field_dests) + 1, game)
+
+
+def _label_dests(
+    labels: list[LineLabel], taken: set[str], first: int, game: Game
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "number": number,
+            "id": f"DEST{80 + number}",
+            "x": label.x,
+            "y": label.y,
+            "alt": ground_elevation(game, label.x, label.y),
+            "text": _dest_label(label.text, taken),
+            "note": label.note,
+        }
+        for number, label in enumerate(labels, start=first)
     ]
 
 
@@ -655,9 +700,42 @@ def _build_cmds() -> dict[str, Any]:
     }
 
 
+def _middle(points: list[tuple[float, float]]) -> tuple[float, float]:
+    return points[len(points) // 2]
+
+
+def _anchor(corners: list[tuple[float, float]]) -> tuple[float, float]:
+    """A closed shape's tag goes in its middle, an open line's on its middle vertex."""
+    if len(corners) > 2 and corners[0] == corners[-1]:
+        ring = corners[:-1]
+        return (
+            sum(x for x, _ in ring) / len(ring),
+            sum(y for _, y in ring) / len(ring),
+        )
+    return _middle(corners)
+
+
+def _border_labels(game: Game, points: list[tuple[float, float]]) -> list[LineLabel]:
+    """A country tag each side of the border's middle, so the crew can read which
+    side is which."""
+    index = max(1, len(points) // 2)
+    (ax, ay), (bx, by) = points[index - 1], points[index]
+    length = math.hypot(bx - ax, by - ay) or 1.0
+    nx, ny = -(by - ay) / length, (bx - ax) / length
+    mx, my = (ax + bx) / 2, (ay + by) / 2
+    labels = []
+    for side in (1.0, -1.0):
+        x = mx + side * nx * BORDER_LABEL_OFFSET_M
+        y = my + side * ny * BORDER_LABEL_OFFSET_M
+        country = country_at(game, x, y)
+        if country is not None:
+            labels.append(LineLabel(country_code(country), x, y, country))
+    return labels
+
+
 def _build_geo_lines(
     game: Game, mission_data: MissionData, flight: FlightData
-) -> list[dict[str, Any]]:
+) -> tuple[list[dict[str, Any]], list[LineLabel]]:
     """The HSD's four line sets, filled in priority order until the sets or the
     25 shared points run out.
 
@@ -715,6 +793,7 @@ def _build_geo_lines(
     # Thinned lines take what the whole shapes leave: the front line's share is
     # set aside first, then borders take up to their cap.
     lines: list[tuple[str, list[tuple[float, float]]]] = []
+    labels: list[LineLabel] = []
     room = MAX_GEO_POINTS - fixed
     front_share = min(len(front[0][1]), FRONT_POINTS_WITH_BORDERS) if front else 0
     border_room = min(MAX_BORDER_POINTS, room - front_share)
@@ -723,12 +802,21 @@ def _build_geo_lines(
         if share < 2:
             break
         lines.append((name, decimate_open(points, share)))
+        labels.extend(_border_labels(game, points))
         border_room -= share
         room -= share
     if front:
         share = min(len(front[0][1]), room if not lines else front_share)
         if share >= 2:
             lines.append((front[0][0], decimate_open(front[0][1], share)))
+            x, y = _middle(front[0][1])
+            labels.append(LineLabel("FLT", x, y, "Front line"))
+    for name, corners in player:
+        x, y = _anchor(corners)
+        labels.append(LineLabel(name, x, y, name))
+    for callsign, corners in boxes:
+        x, y = _anchor(corners)
+        labels.append(LineLabel(callsign, x, y, f"Tanker {callsign}"))
 
     line_sets = lines + player + boxes
     geo_points: list[dict[str, Any]] = []
@@ -736,7 +824,7 @@ def _build_geo_lines(
         flags = {f"L{i}": i == set_index + 1 for i in range(1, 5)}
         for x, y in points:
             if len(geo_points) >= MAX_GEO_POINTS:
-                return geo_points
+                return geo_points, labels[:MAX_LINE_LABELS]
             number = len(geo_points) + 1
             entry: dict[str, Any] = {
                 "number": number,
@@ -748,7 +836,7 @@ def _build_geo_lines(
             }
             entry.update(flags)
             geo_points.append(entry)
-    return geo_points
+    return geo_points, labels[:MAX_LINE_LABELS]
 
 
 def _build_threat_pts(flight: FlightData, game: Game) -> list[dict[str, Any]]:
@@ -785,6 +873,7 @@ def build_viper_cartridge(
     }
     # A section the planner turned off is omitted entirely so the jet's own
     # defaults stand (the §74 Edit Flight DTC tab).
+    geo_lines, line_labels = _build_geo_lines(game, mission_data, flight)
     if (
         options.route
         or options.saved_points
@@ -802,13 +891,13 @@ def build_viper_cartridge(
             "mirror_NAV_PTS": False,
             "NAV_PTS": _build_nav_pts(flight, mission_data, game),
             "mirror_GEO_LINES": False,
-            "GEO_LINES": _build_geo_lines(game, mission_data, flight),
+            "GEO_LINES": geo_lines,
             "mirror_THREAT_PTS": False,
             "THREAT_PTS": (
                 _build_threat_pts(flight, game) if options.threat_rings else []
             ),
             "mirror_DEST": False,
-            "DEST": _build_dest(flight, game) if options.destinations else [],
+            "DEST": _build_dest(flight, game, line_labels),
         }
         if options.countermeasures:
             data["MPD"]["CMDS"] = _build_cmds()

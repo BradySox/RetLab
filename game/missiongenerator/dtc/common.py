@@ -833,6 +833,29 @@ def land_border_runs(
     return runs
 
 
+def country_at(game: Game, x: float, y: float) -> Optional[str]:
+    """The §98 country whose border contains this point, if any."""
+    for zone in getattr(game.theater, "neutral_border_zones", None) or []:
+        ring = zone.border
+        inside = False
+        for (ax, ay), (bx, by) in zip(ring, ring[1:] + ring[:1]):
+            if (ay > y) != (by > y) and x < ax + (y - ay) * (bx - ax) / (by - ay):
+                inside = not inside
+        if inside:
+            return str(zone.country)
+    return None
+
+
+def country_code(country: str) -> str:
+    """The country's 3-letter code (SYR, IRQ), from pydcs where it knows one."""
+    from dcs import countries
+
+    try:
+        return str(countries.get_by_name(country).shortname)
+    except Exception:
+        return "".join(c for c in country.upper() if c.isalpha())[:3]
+
+
 def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
     """The known sites this flight's cartridge draws: every one, or only those
     whose ring comes within the DTC tab's distance of the route (§102)."""

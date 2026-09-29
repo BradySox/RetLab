@@ -762,10 +762,10 @@ def test_viper_destinations_lead_with_the_divert() -> None:
     ]
     dest = data["MPD"]["DEST"]
     # Red-held and unusable fields drop out; the divert leads, then by range
-    # from the target at (60000, 80000).
-    assert [d["note"] for d in dest] == ["Vaziani", "Kobuleti", "Batumi"]
-    assert [d["id"] for d in dest] == ["DEST81", "DEST82", "DEST83"]
-    assert [d["text"] for d in dest] == ["VAZ", "KOB", "BAT"]
+    # from the target at (60000, 80000). The tanker box's tag follows the fields.
+    assert [d["note"] for d in dest] == ["Vaziani", "Kobuleti", "Batumi", "Tanker ARCO"]
+    assert [d["id"] for d in dest] == ["DEST81", "DEST82", "DEST83", "DEST84"]
+    assert [d["text"] for d in dest] == ["VAZ", "KOB", "BAT", "ARC"]
     assert dest[1]["alt"] == pytest.approx(17.0)
     assert dest[0]["number"] == 1
 
@@ -783,7 +783,7 @@ def test_viper_destination_labels_stay_three_characters() -> None:
         "data"
     ]
     labels = [d["text"] for d in data["MPD"]["DEST"]]
-    assert labels == ["KUT", "KU2", "CVN"]
+    assert labels == ["KUT", "KU2", "CVN", "ARC"]
     assert all(len(label) <= 3 for label in labels)
 
 
@@ -1234,7 +1234,7 @@ def test_viper_dest_paints_the_enemy_field_being_worked_over() -> None:
     dest = json.loads(
         build_viper_cartridge(flight, mission_data, game, "OCA").to_json()
     )["data"]["MPD"]["DEST"]
-    assert [d["note"] for d in dest] == ["Batumi", "Senaki", "Kutaisi"]
+    assert [d["note"] for d in dest] == ["Batumi", "Senaki", "Kutaisi", "Tanker ARCO"]
     assert dest[1]["id"] == "DEST82"
 
 
@@ -3032,3 +3032,33 @@ def test_viper_caps_borders_at_twelve_and_keeps_four_for_the_front(
     notes = [p["note"] for p in geo]
     assert notes.count("Alpha-Bravo") == 12
     assert notes.count("FLOT") == 4
+
+
+def test_viper_tags_each_hsd_line_on_the_dest_page(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The HSD writes no text on a line, so each gets a Destination tag: a
+    country code each side of a border, FLT on the front line, and the tanker's
+    callsign in its box. The fields give up the slots."""
+    flight, mission_data, game = _viper_with_fields(
+        [_airbase_cp(f"Field{n:02d}", 60000 + n * 1000, 80000) for n in range(25)]
+    )
+    game.theater.neutral_border_zones = [
+        SimpleNamespace(country="Syria", border=_NORTH),
+        SimpleNamespace(country="Iraq", border=_SOUTH),
+    ]
+    segments = [("Front", [(1000.0 * i, 2000.0) for i in range(20)])]
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments", lambda g: segments
+    )
+    dest = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["DEST"]
+    assert len(dest) == 19
+    tags = {d["note"]: d for d in dest[-4:]}
+    assert set(tags) == {"Syria", "Iraq", "Front line", "Tanker ARCO"}
+    assert tags["Syria"]["text"] == "SYR"
+    assert tags["Iraq"]["text"] == "IRQ"
+    assert tags["Front line"]["text"] == "FLT"
+    # Each country's tag sits on its own side of the y = 50 km frontier.
+    assert tags["Syria"]["y"] < 50000.0 < tags["Iraq"]["y"]

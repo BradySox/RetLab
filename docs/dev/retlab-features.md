@@ -7547,7 +7547,12 @@ package-mates share the comm plan and SA picture):
   what is left). The caps are the DM's split, 2026-09-29: measured on 7 maps, borders
   near a 100-250 NM route want 16-41 points and uncapped they left the front line a
   2-point stick. Borders and the front line are thinned to fit; boxes and drawings go
-  in whole or not at all. `land_border_runs` reads the §98
+  in whole or not at all. **Each line is tagged on the DEST page** (DM 2026-09-29): the
+  HSD writes no text on a line (EA guide p328), so a Destination steerpoint beside it
+  names it -- `country_code` each side of a border's middle 3 NM out (`country_at`
+  picks the side), `FLT` on the front line, the tanker's callsign in its box, the
+  player's name in a drawing. `MAX_LINE_LABELS` = 8; the recovery fields keep the
+  other 11, and the tags stay when Recovery fields is off. `land_border_runs` reads the §98
   zones (`theater.neutral_border_zones`, terrain file or campaign) and keeps only edges
   **two countries share** — the terrain files are one shared coverage, so an edge only
   one country has is coast or the map's clip edge. It keeps those within 40 NM of the
