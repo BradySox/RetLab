@@ -3719,6 +3719,13 @@ active for the same reason.
 
 Result: **144 basic / 71 advanced**, and Air Doctrine reads **48 → 9** options by default.
 
+**Row bands (2026-09-29).** A label sits at the left edge and its control at the right, so on a
+wide window nothing tied the two together. `AutoSettingsGroup.paintEvent` shades alternate shown rows,
+draws a divider under each, and lights the hovered row with an accent bar. Bands come from
+`AutoSettingsLayout.row_bands()`, built from the row widgets' own geometry — `QGridLayout.cellRect()`
+read empty there and stacked every band at the top. Hover is an Enter filter on each row widget plus
+the group's own mouse move for the gaps. Row **B160**.
+
 **The all-advanced-section hole (fixed 2026-08-10).** `AutoSettingsGroup.apply_filter()` hid the
 whole group box when its *shown* row count was zero — which is every section where the mechanical
 rule marks every field advanced. The disclosure lives inside that box, so it went down with it and
@@ -6797,6 +6804,10 @@ sequential fallback can't collide when two boats sail the same theater. **Every 
 value is persisted back to the control point** (`frequency`, `tacan`, `tcn_name`, `link4`,
 `icls_channel`) so the whole card is stable across turns — ATC, Link 4, and ICLS previously
 re-rolled or re-allocated every mission.
+The mission generator's up-front TACAN reservation (`keeps_stored_tacan`, `missiongenerator.py`)
+skips a carrier's *auto* channel, since `_resolve_tacan` re-derives it: reserving it made the
+boat walk off its own last value, so where the map owns the hull channel it flipped every
+generation (CVN-71 on Persian Gulf, 69X/72X; test 47, 2026-09-29, row B156).
 
 **Flagship naming.** The page's Callsign line prints the flagship's *unit name*, so
 `_flagship_name` names the carrier unit by its hull name ("CVN-74 John C. Stennis") instead
@@ -6804,6 +6815,9 @@ of the `NNNN | `-prefixed theater-unit name. The name is set before
 `_register_theater_unit` records it, so debrief kill-tracking keys off the same string; a
 second boat of the same class keeps the unique id-prefixed name (UnitMap collision guard).
 Escorts and every other ship keep the standard prefixed names.
+Anything else that names the flagship must read `MissionData.renamed_units`: until
+2026-09-29 the IADS data still sent Skynet the prefixed name, so no carrier or LHA ever
+joined as a radar (test 47's `dcs.log`; row B157).
 
 **CP naming follows the hull (2026-07-17 night-fly fix).** The flown Scenic Route Merged
 boat exposed the other half: the carrier **CP** is named at game start from the faction's
@@ -7669,9 +7683,11 @@ ELEV 131 on the DED. From 2026-08-20 the fork wrote the ground estimate into
 steerpoint read field elevation for three weeks. Now `steerpoint_altitude()`:
 the planned altitude on an en-route point, the nearest airfield's elevation on a
 ground-marked one (targets, CAS boundaries, flyovers — the miz puts those at
-0 AGL for a client flight; the kneeboard's per-field OSM/DEM elevation is the
-only height data the campaign has, DM call 2026-08-22), the same number in both
-fields; `leg_altitude()` is that plus `altitudeType`, always 1 because nothing
+0 AGL for a client flight), the same number in both fields. The ground is DCS's
+own `land.getHeight` from `resources/terrain_heights/<terrain>.npz`
+(`game/theater/terrainheights.py`, built by `scripts/dcs_terrain_heights.py`,
+2026-09-29, row B159); a terrain with no grid keeps the nearest field's
+elevation (DM call 2026-08-22); `leg_altitude()` is that plus `altitudeType`, always 1 because nothing
 honours the AGL tag (the editor's `transformAltitude` is a no-op). Takeoff and
 landing carry B79's field elevation. The Hornet's point is clamped to
 `WYPT_NAV.lua`'s -2,000..25,000 ft; the route entry keeps the real number. Orbit
@@ -11107,3 +11123,32 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 - No setting: the file is the switch (the §42/§43 precedent).
 - The app's startup splash still reads `splash_screen.png`; only the mission picture changed.
 - Blue only. The red briefing has no picture, as before.
+
+## §108 — Flight report cards
+
+After a mission, the Qt debrief shows one graded card per blue flight that got airborne,
+human-crewed flights first: timing at the TOT waypoint, the package target, kills, weapons,
+losses, and a human pilot's fuel on landing against the airframe's reserve. Grades are Unsat, Below average, Average and
+Above average. Built 2026-09-29, not flown (row B158).
+
+**Design note:** [retlab-flight-report-cards-notes.md](design/retlab-flight-report-cards-notes.md)
+has the scoring table.
+
+### Files
+
+- `game/retlab/flight_grades.py`: gathers `FlightFacts` from §91's records and the flight
+  plan, then grades them.
+- `game/sim/missionresultsprocessor.py`: `record_flight_cards` stores the cards on
+  `Game.last_flight_cards` at commit, while the flown ATO exists.
+- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`.
+- `tests/retlab/test_flight_grades.py`.
+
+### Constraints
+
+- Planned TOT is measured from `mission_start_time` (§104's early start), because record
+  times count from mission start.
+- Fuel is graded only after a landing, in pounds against the airframe's `min_safe`
+  reserve (15% of internal fuel where none is measured).
+- AI fuel is never graded. With `ai_unlimited_fuel` on it is constant (§91).
+- A grade is a record. Nothing in the campaign reads it.
+- No setting.

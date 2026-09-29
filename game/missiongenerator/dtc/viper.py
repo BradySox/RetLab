@@ -44,7 +44,7 @@ from game.missiongenerator.dtc.savedpoints import (
 from game.missiongenerator.dtc.common import (
     SupportTrack,
     leg_altitude,
-    nearest_field_elevation,
+    ground_elevation,
     red_land_boundary,
     support_boxes,
     SUPPORT_BOX_POINTS,
@@ -714,7 +714,7 @@ def _build_threat_pts(flight: FlightData, game: Game) -> list[dict[str, Any]]:
                 "threatName": "Custom",
                 "radius": site.range_m,
                 "alt": _CUSTOM_THREAT_ALT,
-                "elev": nearest_field_elevation(game, site.x, site.y),
+                "elev": ground_elevation(game, site.x, site.y),
                 "text": site.label,
                 "ring": True,
                 "def_num": 1,
