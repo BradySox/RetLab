@@ -1,0 +1,1 @@
+* **[Flight Planner]** Every theater tanker flies the 40 x 20 NM box; the Payload tab's **Fly a box (experimental)** tick box is gone. A tanker's **Set orbit speed** moved from the Payload tab to the Waypoints tab. Old saves load unchanged.

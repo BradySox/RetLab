@@ -138,10 +138,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   selectable on every station), and fills the TIS send-to list with the rest of the package.
 - A wing flying both boom and probe receivers gets a theater tanker of each, on separate
   orbits. A wing that only needs one method still gets one tanker.
-- A tanker flight's **Payload** tab has **Set orbit speed**: the KIAS it flies on its track,
-  to suit its receivers. **Save as default** keeps it for every new flight of that airframe.
-- The same tab has **Fly a box (experimental)** for a theater tanker: a 40 x 20 NM box it
-  loops until its station time is up, in place of the two-point racetrack.
+- A tanker flight's **Waypoints** tab has **Set orbit speed**: the KIAS it flies on its track,
+  to suit its receivers. **Save as default** on the Payload tab keeps it for every new flight
+  of that airframe.
+- A theater tanker flies a 40 x 20 NM box, looping it until its station time is up. Package
+  and carrier recovery tankers keep the two-point racetrack.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
   campaign-wide setting.

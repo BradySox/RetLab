@@ -45,16 +45,7 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
                 index += 1
         return 0
 
-    def _package_flies_a_box(self) -> bool:
-        # One box among the package's tankers spaces them all, or a racetrack
-        # behind a box would sit inside its back leg.
-        return any(
-            getattr(flight, "tanker_box", False)
-            for flight in self.package.flights
-            if flight.flight_type is FlightType.REFUELING
-        )
-
-    def layout(self) -> PatrollingLayout:
+    def layout(self) -> TankerBoxLayout:
         racetrack_half_distance = nautical_miles(20).meters
 
         location = self.package.target
@@ -82,10 +73,7 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         # rather than forwards so an extra tanker can never be pushed into the
         # threat zone the buffer above just cleared -- which for a threatened
         # anchor means further past the edge, not back toward it.
-        box = self.flight.tanker_box
-        spacing = TANKER_ORBIT_SPACING + (
-            TANKER_BOX_DEPTH if self._package_flies_a_box() else meters(0)
-        )
+        spacing = TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH
         orbit_distance = step_back_from_threat(
             orbit_distance,
             threatened=threatened,
@@ -105,32 +93,14 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         )
 
         builder = WaypointBuilder(self.flight)
-
-        altitude = builder.get_patrol_altitude
-
-        racetrack = builder.race_track(racetrack_start, racetrack_end, altitude)
-
-        if box:
-            # Back from the threat, as step_back_from_threat reads it.
-            back = orbit_heading if threatened else orbit_heading.opposite
-            return self._box_layout(
-                builder, racetrack_start, racetrack_end, back, altitude
-            )
-
-        return PatrollingLayout(
-            departure=builder.takeoff(self.flight.departure),
-            nav_to=builder.nav_path(
-                self.flight.departure.position, racetrack_start, altitude
-            ),
-            nav_from=builder.nav_path(
-                racetrack_end, self.flight.arrival.position, altitude
-            ),
-            patrol_start=racetrack[0],
-            patrol_end=racetrack[1],
-            arrival=builder.land(self.flight.arrival),
-            divert=builder.divert(self.flight.divert),
-            bullseye=builder.bullseye(),
-            custom_waypoints=list(),
+        # Back from the threat, as step_back_from_threat reads it.
+        back = orbit_heading if threatened else orbit_heading.opposite
+        return self._box_layout(
+            builder,
+            racetrack_start,
+            racetrack_end,
+            back,
+            builder.get_patrol_altitude,
         )
 
     def _box_layout(

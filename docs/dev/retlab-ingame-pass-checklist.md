@@ -8710,7 +8710,8 @@ ignores it; a tanker is capped at its top speed. Unit-tested
 (`test_tanker_orbit_speed.py`, `test_flight_defaults.py`); never flown.
 
 - **Setup:** any campaign with a KC-135 or KC-135 MPRS theater tanker. Open its flight →
-  Payload → tick Set orbit speed, set 270 KIAS, generate the turn.
+  Waypoints → tick Set orbit speed, set 270 KIAS, generate the turn. (The control moved
+  from the Payload tab 2026-09-29, row B170.)
 - **Pass:** join the tanker; its indicated airspeed on the straight legs reads 265-275 KIAS.
 - **Fail signatures:** the tanker at its old ~300 KIAS (the value not reaching the
   waypoint); a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a new
@@ -8727,7 +8728,8 @@ ignores it; a tanker is capped at its top speed. Unit-tested
 
 
 Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
-experimental per-flight option (Payload tab). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
+experimental per-flight option (Payload tab); since 2026-09-29 every theater tanker flies it
+and the option is gone (row B170). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
 on, and a SwitchWaypoint at BOX END loops it to BOX 2 while mission time is under its
 on-station end. Unit-tested (`test_tanker_box.py`) and headless-generated; never flown.
 Design: `docs/dev/design/retlab-tanker-box-notes.md`.
@@ -8931,6 +8933,22 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
 
+### B170 — Every theater tanker flies the box, with no box to tick · tanker box · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's ask: the box stops being a setting, and the orbit speed moves
+from the Payload tab to the Waypoints tab. The Payload tab's **Fly a box (experimental)** is
+gone; `TheaterRefuelingFlightPlan` always lays out `TankerBoxLayout`. An old save's
+`tanker_box` flag is dropped on load, and an old saved default's `tanker_box` key is
+ignored. Unit-tested (`test_tanker_box.py`, `test_flight_defaults.py`); never run in the app.
+Design: `docs/dev/design/retlab-tanker-box-notes.md`.
+
+- **Setup:** open a save from before 2026-09-29 that has a theater tanker, and start a new
+  campaign with one.
+- **Pass:** both load; each new turn's theater tankers show BOX 1-4 and BOX END on their
+  Waypoints tab; the Waypoints tab has Set orbit speed and the Payload tab has neither control.
+- **Fail signatures:** an old save failing to load or a tanker window erroring on open; a
+  theater tanker with a two-point racetrack on a new turn; a package or recovery tanker
+  flying a box.
 ### B172 — A new flight's cartridge waits for the pilot to load it · §74 · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested offscreen (`tests/test_dtc_tab.py`); never flown.

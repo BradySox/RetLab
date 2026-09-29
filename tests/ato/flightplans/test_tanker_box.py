@@ -1,4 +1,4 @@
-"""The experimental four-point tanker box (``Flight.tanker_box``)."""
+"""The four-point box every theater tanker flies."""
 
 from __future__ import annotations
 
@@ -262,19 +262,18 @@ def test_the_map_drag_endpoint_moves_the_whole_box(
     assert published == [[flight]]
 
 
-def _tanker(box: bool) -> Any:
-    return SimpleNamespace(flight_type=FlightType.REFUELING, tanker_box=box)
+def test_an_old_save_drops_the_box_flag(monkeypatch: pytest.MonkeyPatch) -> None:
+    from game.ato import flight as flight_module
 
-
-def test_one_box_among_a_packages_tankers_spaces_them_all() -> None:
-    builder = Builder.__new__(Builder)
-    escort = SimpleNamespace(flight_type=FlightType.ESCORT, tanker_box=True)
-    for flights, expected in (
-        ([_tanker(False), _tanker(False)], False),
-        ([_tanker(True), _tanker(False)], True),
-        ([_tanker(False), escort], False),
-    ):
-        builder.flight = SimpleNamespace(  # type: ignore[assignment]
-            package=SimpleNamespace(flights=flights)
-        )
-        assert builder._package_flies_a_box() is expected
+    monkeypatch.setattr(flight_module, "Uninitialized", lambda *_: None)
+    flight = flight_module.Flight.__new__(flight_module.Flight)
+    flight.__setstate__(
+        {
+            "squadron": SimpleNamespace(settings=None),
+            "roster": None,
+            "tanker_box": False,
+            "orbit_speed_kias": 270,
+        }
+    )
+    assert "tanker_box" not in flight.__dict__
+    assert flight.orbit_speed_kias == 270
