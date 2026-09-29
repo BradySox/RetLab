@@ -36,7 +36,7 @@ before the flight plan:
 - **LOADOUT** — a one-line summary of what you are actually carrying, counted by store:
   `8× AGM-114L`, `38× Hydra 70 M151 HE`, `2× fuel tank`. Pods and sensors collapse to
   `TGP` / `HTS` or are left off.
-- **SAR** — the survivor beacon frequency (260 kHz ADF) and the if-down drill: squawk 7700,
+- **SAR** — the survivor beacon frequency (260 kHz ADF) and the if-down drill: call on
   GUARD, stay hidden; rescue homes your beacon.
 
 The flight plan below it carries a **Fuel** column — planned fuel remaining at each steerpoint —
