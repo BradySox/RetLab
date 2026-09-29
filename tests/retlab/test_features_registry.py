@@ -23,6 +23,7 @@ from game.settings.settings import Settings
 
 CLAUDE_MD = Path("CLAUDE.md")
 CHECKLIST = Path("docs/dev/retlab-ingame-pass-checklist.md")
+ROW_DIR = Path("docs/dev/checklist-rows")
 FEATURES_DOC = Path("docs/dev/retlab-features.md")
 
 
@@ -62,6 +63,7 @@ def _features_at_a_glance_sections() -> set[int]:
 def _checklist_sections() -> set[int]:
     """Every `· §N ·` feature reference in the in-game-pass checklist rows."""
     text = CHECKLIST.read_text(encoding="utf-8")
+    text += "".join(p.read_text(encoding="utf-8") for p in ROW_DIR.glob("*.md"))
     return {int(m.group(1)) for m in re.finditer(r"·\s*§(\d+)", text)}
 
 

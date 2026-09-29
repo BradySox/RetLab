@@ -12,7 +12,16 @@ The rules mirror `.claude/hooks/session-start.sh`. Keep the two in step.
 from __future__ import annotations
 
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
+
+from checklist_board import (  # type: ignore[import-not-found]  # noqa: E402
+    ROW_DIR,
+    checklist_text,
+    row_files,
+)
 
 CHECKLIST = Path("docs/dev/retlab-ingame-pass-checklist.md")
 WATCH = Path("docs/dev/flycards/WATCH.md")
@@ -65,7 +74,7 @@ def _legend() -> dict[str, str]:
 def _row_statuses() -> dict[str, str]:
     """Row id -> status word, taken from the `### ` headings."""
     statuses = {}
-    for line in CHECKLIST.read_text(encoding="utf-8").splitlines():
+    for line in checklist_text().splitlines():
         heading = ROW_HEADING.match(line)
         if not heading:
             continue
@@ -101,7 +110,7 @@ def test_no_two_rows_share_an_id() -> None:
 
     ids = [
         heading["row"]
-        for line in CHECKLIST.read_text(encoding="utf-8").splitlines()
+        for line in checklist_text().splitlines()
         if (heading := ROW_HEADING.match(line))
     ]
     repeated = sorted(row for row, n in Counter(ids).items() if n > 1)
@@ -113,6 +122,47 @@ def test_no_two_rows_share_an_id() -> None:
     )
 
 
+#: The last row written into the checklist file itself. Every row after it has its
+#: own file in docs/dev/checklist-rows/, because rows appended at the end of one
+#: file conflicted between every pair of PRs that each added one.
+LAST_ROW_IN_THE_CHECKLIST_FILE = 172
+
+
+def test_new_rows_get_their_own_file() -> None:
+    late = [
+        heading["row"]
+        for line in CHECKLIST.read_text(encoding="utf-8").splitlines()
+        if (heading := ROW_HEADING.match(line))
+        and heading["row"].startswith("B")
+        and int(heading["row"][1:]) > LAST_ROW_IN_THE_CHECKLIST_FILE
+    ]
+    assert not late, (
+        f"row(s) {late} were added to the checklist file; move each to "
+        f"{ROW_DIR}/<id>.md (see its README)"
+    )
+
+
+def test_each_row_file_holds_one_row_named_for_its_id() -> None:
+    for path in row_files():
+        rows = [
+            heading["row"]
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if (heading := ROW_HEADING.match(line))
+        ]
+        assert rows == [path.stem], f"{path} must hold exactly row {path.stem}"
+
+
+def test_row_files_are_read_with_the_checklist(tmp_path: Path) -> None:
+    checklist = tmp_path / "checklist.md"
+    checklist.write_text("### B1 — old · x · ☑ VERIFIED\n", encoding="utf-8")
+    rows = tmp_path / "rows"
+    rows.mkdir()
+    (rows / "B2.md").write_text("### B2 — new · y · ☐ UNTESTED\n", encoding="utf-8")
+    (rows / "README.md").write_text("### not a row\n", encoding="utf-8")
+    text = checklist_text(checklist, rows)
+    assert "### B1 " in text and "### B2 " in text and "not a row" not in text
+
+
 def test_every_row_heading_carries_a_legend_marker() -> None:
     # A row whose marker is not in the legend is invisible to the board: it is
     # dropped from the counts, and the parser falls through to whatever marker the
@@ -120,7 +170,7 @@ def test_every_row_heading_carries_a_legend_marker() -> None:
     legend = _legend()
     unmarked = []
     unknown = []
-    for line in CHECKLIST.read_text(encoding="utf-8").splitlines():
+    for line in checklist_text().splitlines():
         heading = ROW_HEADING.match(line)
         if not heading:
             continue

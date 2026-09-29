@@ -7,7 +7,7 @@ for it. Pushing a ref that already exists is rejected as a non-fast-forward, so
 two sessions can never both win the same number. No workflow triggers on these
 refs; they are never merged and cost nothing to leave behind.
 
-    python tools/claim_id.py row          # next B row, prints e.g. B158
+    python tools/claim_id.py row          # next B row, prints e.g. B173
     python tools/claim_id.py row G        # next row in another letter block
     python tools/claim_id.py section      # next features-doc §N, prints e.g. 108
     python tools/claim_id.py list         # every claim on the remote
@@ -27,6 +27,7 @@ from typing import Iterable
 REMOTE = "origin"
 CLAIM_PREFIX = "refs/retlab-claims"
 CHECKLIST = "docs/dev/retlab-ingame-pass-checklist.md"
+ROW_DIR = "docs/dev/checklist-rows"
 FEATURES_DOC = "docs/dev/retlab-features.md"
 REGISTRY = "game/retlab/features.py"
 MAX_ATTEMPTS = 25
@@ -53,6 +54,15 @@ def _texts(path: str) -> Iterable[str]:
         yield local.read_text(encoding="utf-8")
 
 
+def _row_file_ids() -> list[str]:
+    """Row ids with their own file, on origin/main and in this checkout."""
+    listed = _git(
+        "ls-tree", "--name-only", f"{REMOTE}/main", f"{ROW_DIR}/", check=False
+    ).stdout.splitlines()
+    listed += [str(p) for p in Path(ROW_DIR).glob("*.md")]
+    return [Path(name).stem for name in listed]
+
+
 def _claimed(kind: str) -> list[str]:
     listing = _git("ls-remote", REMOTE, f"{CLAIM_PREFIX}/{kind}/*").stdout
     return [line.rsplit("/", 1)[1] for line in listing.splitlines() if "/" in line]
@@ -61,6 +71,11 @@ def _claimed(kind: str) -> list[str]:
 def _highest_row(block: str) -> int:
     pattern = re.compile(rf"^### {block}([0-9]+) ", re.M)
     found = [int(n) for text in _texts(CHECKLIST) for n in pattern.findall(text)]
+    found += [
+        int(name[len(block) :])
+        for name in _row_file_ids()
+        if re.fullmatch(rf"{block}[0-9]+", name)
+    ]
     claimed = [
         int(row[len(block) :])
         for row in _claimed("rows")

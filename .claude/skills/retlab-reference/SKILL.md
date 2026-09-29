@@ -140,7 +140,8 @@ If a design genuinely needs standalone Lua outside this system, stop and flag it
 The fork's verification model is **falsification, not confirmation**, and it is the reason its
 findings are trustworthy. Preserve it:
 
-- Every runtime feature gets a row in `docs/dev/retlab-ingame-pass-checklist.md` with an
+- Every runtime feature gets an in-game-pass checklist row (new rows: one file each in
+  `docs/dev/checklist-rows/`, see its README) with an
   **observable pass criterion** and the **fail signature to watch for**.
 - ☑ VERIFIED means *"I watched for the fail signature in DCS and it did not occur"* — with a
   date and ideally a Tacview. **Never mark it on a hunch, and never from passing tests.**

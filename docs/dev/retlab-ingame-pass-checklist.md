@@ -456,8 +456,10 @@ The session-start board prints the same thing. `☐` untested · `◐` flown but
 under the conditions that stress it · `✗` fail signature reproduced in-game.
 
 **Adding a row:** claim its id first with `python tools/claim_id.py row` (prints
-the next free `B###`, reserved on GitHub so no other branch can take it), then add
-the `###` heading at the end of the file.
+the next free `B###`, reserved on GitHub so no other branch can take it), then write
+the row as its own file, `docs/dev/checklist-rows/<id>.md`. Rows after B172 live
+there, not in this file, so two PRs adding rows never collide. See that folder's
+README.
 
 ---
 

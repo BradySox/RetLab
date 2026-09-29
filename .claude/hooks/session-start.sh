@@ -10,7 +10,9 @@ md="${CLAUDE_PROJECT_DIR:-.}/docs/dev/retlab-ingame-pass-checklist.md"
 # Rows are `### ` headings ONLY. `## ` section headings are not rows, and one of
 # them carries a marker ("## E. SOF insert generation · ☑ VERIFIED"), so the old
 # `^#{2,3}` scope counted a section as a verified row.
-headings="$(grep -E '^### ' "$md" || true)"
+# Rows added since 2026-09-29 have one file each in docs/dev/checklist-rows/.
+rowdir="${CLAUDE_PROJECT_DIR:-.}/docs/dev/checklist-rows"
+headings="$(grep -hE '^### ' "$md" "$rowdir"/*.md 2>/dev/null || true)"
 
 # A row's status is the FIRST `<symbol> <WORD>` pair on its heading line.
 #
@@ -60,7 +62,7 @@ else
   echo "All tracked rows verified — nothing outstanding."
 fi
 echo
-echo "Source: docs/dev/retlab-ingame-pass-checklist.md"
+echo "Source: docs/dev/retlab-ingame-pass-checklist.md + docs/dev/checklist-rows/"
 
 # --- the fly cards ----------------------------------------------------------
 # Two standing cards, same format, parsed by one function so they can never
