@@ -116,7 +116,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   picture (the front line, your own orbit, the tankers and AWACS, recon-confirmed SAM
   rings). The front line is drawn as one continuous boundary with the same bulges the F10
   map shows, not a separate straight dash per front, and the tanker you can actually take
-  gas from is drawn as a box you can see without selecting it. The
+  gas from is drawn as a box you can see without selecting it. On the Viper HSD the land
+  borders within 40 NM of the route come before the front line. The
   orbit shown is the flight's own — its patrol track, or its hold point when it flies no
   track — never another flight's station. Hornets get the bullseye designated as the
   air-to-air waypoint; Vipers get the friendly recovery fields as Destination steerpoints,

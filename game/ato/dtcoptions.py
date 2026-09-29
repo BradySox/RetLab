@@ -33,6 +33,8 @@ class DtcOptions:
     nav_aids: bool = True
     #: The active front line(s) (SA FLOT lines / HSD GEO lines).
     flot_and_zones: bool = True
+    #: Land borders near the route (§98 geometry; HSD GEO lines, Viper only).
+    borders: bool = True
     #: Friendly CAP stations + tanker/AEW&C orbits (SA racetracks; Viper
     #: anchor steerpoints).
     friendly_orbits: bool = True
@@ -86,6 +88,7 @@ class DtcOptions:
                 self.route,
                 self.nav_aids,
                 self.flot_and_zones,
+                self.borders,
                 self.friendly_orbits,
                 self.threat_rings,
                 self.destinations,

@@ -598,7 +598,7 @@ def _chain_bars(bars: list[list[tuple[float, float]]]) -> list[tuple[float, floa
     return chain
 
 
-def _decimate_open(
+def decimate_open(
     points: list[tuple[float, float]], max_points: int
 ) -> list[tuple[float, float]]:
     """Thin an open polyline to `max_points`, keeping both ends."""
@@ -627,7 +627,7 @@ def red_land_boundary(
     # Consecutive runs repeat their meeting vertex, which is what makes them
     # read as one line, so the repeats come out of the budget.
     budget = max_lines * max_points_per_line - (max_lines - 1)
-    chain = _decimate_open(chain, budget)
+    chain = decimate_open(chain, budget)
     runs: list[list[tuple[float, float]]] = []
     index = 0
     while index < len(chain) - 1 and len(runs) < max_lines:
@@ -747,6 +747,90 @@ def _distance_to_route(x: float, y: float, route: list[tuple[float, float]]) -> 
         t = max(0.0, min(1.0, t))
         best = min(best, math.hypot(x - (ax + t * dx), y - (ay + t * dy)))
     return best
+
+
+def _segment_distance(
+    a: tuple[float, float],
+    b: tuple[float, float],
+    route: list[tuple[float, float]],
+) -> float:
+    """Metres between segment a-b and the route polyline."""
+    best = min(_distance_to_route(a[0], a[1], route), _distance_to_route(*b, route))
+    for c, d in zip(route, route[1:]):
+        best = min(best, _distance_to_route(c[0], c[1], [a, b]))
+        best = min(best, _distance_to_route(d[0], d[1], [a, b]))
+        if _segments_cross(a, b, c, d):
+            return 0.0
+    return best
+
+
+def _segments_cross(
+    a: tuple[float, float],
+    b: tuple[float, float],
+    c: tuple[float, float],
+    d: tuple[float, float],
+) -> bool:
+    def side(
+        p: tuple[float, float], q: tuple[float, float], r: tuple[float, float]
+    ) -> float:
+        return (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+
+    return side(a, b, c) * side(a, b, d) < 0 and side(c, d, a) * side(c, d, b) < 0
+
+
+def land_border_runs(
+    game: Game, route: list[tuple[float, float]], corridor_m: float
+) -> list[tuple[str, list[tuple[float, float]]]]:
+    """The land borders within ``corridor_m`` of the route, as open runs, nearest
+    first.
+
+    A frontier is an edge two countries share: the §98 terrain files are one
+    shared coverage, so neighbours agree vertex for vertex. An edge only one
+    country has is coast or the map's clip edge, and is not drawn.
+    """
+    zones = getattr(game.theater, "neutral_border_zones", None) or []
+    rings = [
+        (zone.country, [(float(x), float(y)) for x, y in zone.border])
+        for zone in zones
+        if len(zone.border) >= 3
+    ]
+    owners: dict[frozenset[tuple[float, float]], set[str]] = {}
+    for country, ring in rings:
+        for a, b in zip(ring, ring[1:] + ring[:1]):
+            owners.setdefault(frozenset((a, b)), set()).add(country)
+    emitted: set[frozenset[tuple[float, float]]] = set()
+    runs: list[tuple[str, list[tuple[float, float]]]] = []
+    for _country, ring in rings:
+        edges = list(zip(ring, ring[1:] + ring[:1]))
+        keep = [
+            len(owners[frozenset(edge)]) >= 2
+            and frozenset(edge) not in emitted
+            and bool(route)
+            and _segment_distance(edge[0], edge[1], route) <= corridor_m
+            for edge in edges
+        ]
+        if not any(keep):
+            continue
+        # Start just after a dropped edge so no run is cut at the ring's seam.
+        start = keep.index(False) + 1 if not all(keep) else 0
+        run: list[tuple[float, float]] = []
+        run_owners: set[str] = set()
+        for offset in range(len(edges)):
+            index = (start + offset) % len(edges)
+            edge = edges[index]
+            if keep[index]:
+                if not run:
+                    run = [edge[0]]
+                    run_owners = owners[frozenset(edge)]
+                run.append(edge[1])
+                emitted.add(frozenset(edge))
+            elif run:
+                runs.append(("-".join(sorted(run_owners)), run))
+                run = []
+        if run:
+            runs.append(("-".join(sorted(run_owners)), run))
+    runs.sort(key=lambda item: min(_distance_to_route(x, y, route) for x, y in item[1]))
+    return runs
 
 
 def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:

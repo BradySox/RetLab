@@ -75,6 +75,7 @@ def test_section_checkboxes_write_the_options() -> None:
         "route",
         "nav_aids",
         "flot_and_zones",
+        "borders",
         "friendly_orbits",
         "threat_rings",
         "destinations",
