@@ -6802,6 +6802,9 @@ of the `NNNN | `-prefixed theater-unit name. The name is set before
 `_register_theater_unit` records it, so debrief kill-tracking keys off the same string; a
 second boat of the same class keeps the unique id-prefixed name (UnitMap collision guard).
 Escorts and every other ship keep the standard prefixed names.
+Anything else that names the flagship must read `MissionData.renamed_units`: until
+2026-09-29 the IADS data still sent Skynet the prefixed name, so no carrier or LHA ever
+joined as a radar (test 47's `dcs.log`; row B156).
 
 **CP naming follows the hull (2026-07-17 night-fly fix).** The flown Scenic Route Merged
 boat exposed the other half: the carrier **CP** is named at game start from the faction's

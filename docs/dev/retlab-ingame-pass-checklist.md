@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+92 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -459,9 +459,10 @@ stress it · `✗` fail signature reproduced in-game.
 | B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
 | B151 | The package route moves every flight in the package | §106 | ☐ |
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
-| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
+| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ◐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B156 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8826,7 +8827,7 @@ ignores it; a tanker is capped at its top speed. Unit-tested
   waypoint); a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a new
   KC-135 flight not picking up a saved default.
 
-### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ☐ UNTESTED
+### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ◐ PARTIAL (2026-09-28, test 47; was ☐ UNTESTED)
 
 Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
 experimental per-flight option (Payload tab). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
@@ -8847,6 +8848,15 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Fail signatures:** the tanker orbits at BOX 1 or flies BOX 1-END once and goes home (loop
   not firing); it never leaves (condition never false); it refuses contacts after BOX 1 (the
   Tanker task did not persist along the route); it races back toward BOX 1 at top speed.
+- **Test 47 (2026-09-28, Tacview, Persian Gulf):** both theater tankers flew the box. The
+  KC-135 from Al Dhafra (40 x 20 NM box at FL200) reached BOX 2-3-4-1 three times, about 16
+  min a lap; the carrier's A-6E (14,000 ft) two and a half times. Each turned about 3 NM
+  short of a corner, as DCS does. Ground speed matched the plan (KC-135 441 kt against 445
+  planned, A-6E 310 against 320), so Set orbit speed was not ticked and B152 is untested.
+  Nobody tanked: the recording ended at 59 min, before the one planned refuel (+90 min), and
+  before either tanker's on-station end, so contacts and the exit are still owed.
+  The mission was generated at 20:57 from `e8a073377`, before #1097: the small cockpit box
+  reported that evening is that build, not a new fault.
 
 ### B154 — A carrier moved with the instant move cheat launches from its new spot · cheat · ☐ UNTESTED
 
@@ -8865,6 +8875,8 @@ Unit-tested (`test_instant_naval_move.py`, `test_tgo_movement_routes.py`); never
 - **Fail signatures:** the carrier snaps back or waits for turn end (the cheat did not
   apply); the marker will not open its menu until the map reloads (stale drag state); a
   flight's first waypoint at the old spot (not replanned); the escorts left behind.
+- **Test 47 (2026-09-28):** not in that build. The mission was generated at 20:57; the cheat
+  merged at 21:24.
 
 ### B155 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
 
@@ -8875,4 +8887,22 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Pass:** the first load shows the dark RetLab picture; the second shows yours.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
+- **Test 47 (2026-09-28):** not in that build (generated 20:57, merged 21:36). Its
+  `splash_screen.png` is byte-identical to the old startup splash. A `briefing.png` was
+  already in `Saved Games\DCS\Retribution` (21:22), so the next generation tests the
+  second half first.
+
+### B156 — A carrier joins its side's Skynet as a radar · §65 / Skynet · ☐ UNTESTED
+
+Found in test 47's `dcs.log` (2026-09-28), also in tests 43 and 46: `SKYNET: you have added
+an EW Radar that does not exist ... 0798 | CVN-71 Theodore Roosevelt`, and the same for the
+LHA. §65 names the flagship by its hull (`CVN-71 Theodore Roosevelt`) but the IADS data
+still used the theater unit name, so no carrier ever joined Skynet. Fixed 2026-09-29: the
+IADS data uses the name the ship was generated under. Unit-tested
+(`test_iads_renamed_flagship.py`); never flown.
+
+- **Setup:** any campaign with a carrier or LHA. Generate and fly.
+- **Pass:** `dcs.log` has no `EW Radar that does not exist` line naming a carrier or LHA.
+- **Fail signature:** that line again = the carrier was renamed where the IADS data does
+  not see it.
 

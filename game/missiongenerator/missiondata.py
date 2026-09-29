@@ -196,3 +196,6 @@ class MissionData:
     #: DownedPilot's id (as a string). Used to wire the rescue helicopter's
     #: Embarking task to the right pilot, and to hand the group to Ops.CSAR.
     csar_pilot_groups: dict[str, CsarPilotGroupInfo] = field(default_factory=dict)
+    #: Theater unit name -> the DCS name it was generated under, for units the
+    #: generator renamed (a carrier flagship takes its hull name, §65).
+    renamed_units: dict[str, str] = field(default_factory=dict)
