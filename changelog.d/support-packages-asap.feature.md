@@ -1,0 +1,1 @@
+* **[Mission Planning]** Auto-planned tankers and AWACS, and the first BARCAP wave at each station, are ASAP packages. Tankers were spread at random through the mission, so one could arrive long after the strikes that needed it. Relief BARCAP waves still arrive as the wave before them leaves.

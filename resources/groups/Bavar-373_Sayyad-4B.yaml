@@ -1,4 +1,4 @@
-name: Bavar-373
+name: Bavar-373 (Sayyad-4B)
 tasks:
   - LORAD
 units:
@@ -7,6 +7,7 @@ units:
   - "[IRAD] Bavar-373 STR"
   - "[IRAD] Bavar-373 CP"
   - "[IRAD] Bavar-373 TEL (Sayyad-4)"
+  - "[IRAD] Bavar-373 TEL (Sayyad-4B)"
   # RetLab: battery support section
   - Truck GAZ-66
   - Truck Ural-375
