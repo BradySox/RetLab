@@ -444,7 +444,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-97 rows need a live pass. Full detail is under each `###` heading below —
+98 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
