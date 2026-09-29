@@ -991,6 +991,8 @@ class GenericCarrierGenerator(GroundObjectGenerator):
             flagship_name = None
             if is_flagship_group and carrier_type is not None:
                 flagship_name = self._flagship_name(carrier_type)
+            if flagship_name is not None:
+                self.mission_data.renamed_units[ship_units[0].unit_name] = flagship_name
             ship_group = self.create_ship_group(
                 group.group_name, ship_units, atc, flagship_name=flagship_name
             )

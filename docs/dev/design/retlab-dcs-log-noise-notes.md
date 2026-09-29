@@ -23,6 +23,8 @@ distinct message immediately above it. In the reference session, 7,569 written l
 | `WARNING APP: task "<X>" still exists` | Mission unload | 128 in the reference session, all after the mission ends. |
 | `ERROR EDCORE: Failed to load ...SouthAtlantic.dll: (127)` | DCS install | South Atlantic assets unavailable. Not mission-dependent. |
 | `[VWV] A-37`: `attempt to index global 'LockOn_Options'`, `unit a37_dragonfly not found` | VWV A-37 mod on 2.9.29 | Load-time. Matters only if a Vietnam campaign fields the A-37. |
+| `AIRBOSS ... ERROR: EventData.IniUnit=nil in event CRASH!` | vendored `Moose.lua` AIRBOSS | Two lines per aircraft crash anywhere on the map, one per AIRBOSS boat; the unit is already gone when AIRBOSS reads it. Test 47: 14 lines for 7 crashes, no effect on recovery. |
+| `SplashDamage: <weapon> missing from script (<launcher>)` | our Splash Damage copy (PINNED) | Info line for a weapon with no entry in its table; the weapon hits with its own DCS damage. Settings are locked by design, so there is nothing to add. |
 
 ## Ours — the lines worth reading
 
@@ -35,6 +37,7 @@ distinct message immediately above it. In the reference session, 7,569 written l
 | `ERROR EDCORE: Can't open file '...UnitPayloads//_retribution_backups'` | §73 | **Fixed 2026-08-29** — the backup store moved to `Retribution/PayloadBackups`. |
 | `DCSRetribution\|MANTIS-IADS plugin - ... resolved N/N SAM` | MANTIS (bridge removed 2026-09-12; a current log shows `Skynet-IADS plugin` lines instead) | Health check, not an error. A non-zero *name match failed* count means those SAMs run vanilla with no EMCON. |
 | `WARNING WORLD: ModelTimeQuantizer: ANTIFREEZE ENABLED` | DCS, but load-driven | Frame the sim could not deliver on time. Cluster it against the scripting stream — that is how the TIC correlation above was found. |
+| `WARNING SCRIPTING: water_relocate: no land within 2000m for CSAR_PILOT_RED` (and `_BLUE`) | `base/water_relocate.lua`, `csargenerator.py` | Harmless. The Ops.CSAR template is a hidden, late-activated soldier parked at the map's default view, which is at sea on Persian Gulf, so the relocator finds no land and leaves it. Seen on test 47. |
 
 ## Method
 
