@@ -74,7 +74,9 @@ Fresco stays guns-only).
 ## The `[CH] Iran 2020` faction and CurrentHill Iran pack
 
 The fork adds a dedicated `[CH] Iran 2020` faction (`resources/factions/CH_iran_2020.json`,
-country `Iran`, locale `fa_IR`) representing Iran in the 2020s. It pairs with the
+country `Iran`, locale `fa_IR`) representing Iran around 2020. `[CH] Iran 2025`
+(`CH_iran_2025.json`) is the same faction plus the RetLab Iran pack's 2022-2025 air defenses
+and missiles. It pairs with the
 **CurrentHill Iran assets pack**, which registers extra mod units:
 
 - `CH_Shahed136` — Shahed-136 one-way attack drone

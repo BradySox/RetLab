@@ -1,0 +1,10 @@
+date: 2026-09-29
+title: The data cartridge waits for you to load it
+change: >-
+  New flights start on Pilot loads it: the cartridge is in the jet's DTC
+  list, and nothing loads until you select it. Load at spawn is still on
+  the flight's DTC tab.
+watch: >-
+  Take a Viper or Hornet cold. The cartridge should be listed on the DTC
+  page but not loaded until you load it.
+row: B172

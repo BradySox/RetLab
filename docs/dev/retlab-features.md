@@ -1402,13 +1402,19 @@ controls four behaviors together when set to Approximate:
 What remains of §6:
 
 Design notes: `docs/dev/design/retlab-air-defense-planning-notes.md` (read this for intent).
-- Overlapping CAP waves + jitter: `game/commander/missionscheduler.py` (uses
+- Overlapping CAP waves: `game/commander/missionscheduler.py` (uses
   `barcap_overlap_time`); rounds math in `game/commander/theaterstate.py`.
   **Land CPs only** schedule overlapping waves; carriers keep the legacy
-  simultaneous-stacking behavior. The jitter applies to the **first wave only**,
-  capped at `min(barcap_overlap_time, 5 min)`, so CAP no longer deterministically
-  arrives at mission start (which let attackers wait it out). With
-  `barcap_overlap_time == 0` this reproduces the old back-to-back schedule exactly.
+  simultaneous-stacking behavior. The first wave (a carrier's first stack) is an
+  ASAP package; relief waves chain behind it and are never flagged ASAP, because
+  the package editor re-runs ASAP on every edit and would pull a relief wave onto
+  the first. The first-wave jitter (up to 5 min) was removed 2026-09-29, when
+  support packages went ASAP (DM call). With `barcap_overlap_time == 0` this
+  reproduces the old back-to-back schedule exactly.
+- Support packages are ASAP (2026-09-29, DM call): theater and carrier tankers
+  (`PlanRefueling.asap`) and every AEW&C station (`PlanAewc.asap`, which the
+  planner had ignored; only the first AWACS was ASAP). Tankers had been on the
+  random strike spread, so a tanker could arrive 50 min into a 60 min mission.
 - BARCAP volume is upstream's flat allocation: `2 * barcap_rounds` for a fleet CP,
   `barcap_rounds` otherwise, over `ObjectiveFinder.vulnerable_control_points()`
   (upstream's airfield-proximity rule with its unseeded per-call aggressiveness roll).
@@ -7732,6 +7738,10 @@ Tests: the override/omission/pickle cases in `tests/missiongenerator/test_dtc.py
 the offscreen widget behavior in `tests/test_dtc_tab.py`. The tab itself needs an
 in-app eyeball (B28's app-side bullet).
 
+**Pilot loads it is the default (2026-09-29, DM call):** `DtcOptions.auto_load` defaults
+to `False`, so a new flight's cartridge is bound with `AutoLoad = false` and waits on the
+DTC page. Load at spawn stays one choice away on the tab. Row B172.
+
 **CJS Super Hornets — REMOVED 2026-08-22 (DM call).** FA-18E/F and EA-18G took a
 cartridge from 2026-08-02 to 2026-08-22 on the Hornet's COMM/WYPT schema, because the
 mod's descriptors `dofile` ED's own FA-18C implementations. Removed on the
@@ -10962,8 +10972,11 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   mod's `Database` lua.
 - Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
   `Faction.apply_mod_settings` strips all twelve and the three presets when it is off.
-- Presets `3rd Khordad` (MERAD), `Bavar-373` and `Bavar-373-II` (LORAD). `[CH] Iran 2020` fields
-  all three; `Iran 2015` fields 3rd Khordad only.
+- Presets `3rd Khordad` (MERAD), `Bavar-373` (Sayyad-4 only), `Bavar-373 (Sayyad-4B)` and
+  `Bavar-373-II` (LORAD).
+- Factions by era (2026-09-29): `Iran 2015` fields 3rd Khordad; `[CH] Iran 2020` adds
+  `Bavar-373`; `[CH] Iran 2025` adds `Bavar-373 (Sayyad-4B)` (shown 2022) and `Bavar-373-II`
+  (2025). Faction files are not date-gated, so the era lives in which faction a campaign picks.
 - `Bavar-373-II Battery (Single Radar)`: six TELARs and one STR. The TELARs' mast radars are
   decorative (DM call 2026-09-27): the STR guides every TELAR, as on an S-300 site.
 - `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60
@@ -10975,7 +10988,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   Rasool is whitelisted in the C2 van slot of the comms, command-center and EWR layouts, so an
   Iranian Skynet connection node or command center fields one.
 - Missile sites: the pack's Sejjil-2, Emad, Kheibar, Fattah-2 and Shahed 238 launchers
-  (`IRAD_*_TEL`). `[CH] Iran 2020` fields all five; `Iran 2015` the Sejjil-2. They replaced
+  (`IRAD_*_TEL`). `[CH] Iran 2025` fields all five; `[CH] Iran 2020` the Sejjil-2 and Emad;
+  `Iran 2015` the Sejjil-2. The Fattah-2, Kheibar and Shahed 238 date from 2023. They replaced
   the third-party launchers and their `iranmissilemods` toggle on 2026-09-29 (DM call
   2026-09-27: support them, build our own, drop them); a saved setting of that name is
   ignored. Scenic Route Merged and both Noisy Crickets preseed the pack. Row B166.
@@ -10995,7 +11009,7 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 
 ### Deferred
 
-- 15th Khordad; an Iran 2026 faction.
+- 15th Khordad.
 - The DCS mod and its 3D models are a separate pack, like HDS and CurrentHill, in the
   private repo `BradySox/RetLab-Iran-Air-Defense` (DM call 2026-09-25; not public yet). All
   eleven models are built there by script, baked in Blender 5.1 and exported, each with

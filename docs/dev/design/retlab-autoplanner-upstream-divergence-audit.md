@@ -39,7 +39,7 @@ One line each. Ref = the flown/documented reason where one exists.
 - U19 §50 map-hidden ambush groups excluded from both planners.
 
 **Scheduling**
-- U20/U21 Land BARCAP: overlapping jittered waves; default 15 min overlap makes 2 rounds/CP where upstream plans 1 (0 restores upstream exactly).
+- U20/U21 Land BARCAP: overlapping waves (first-wave jitter removed 2026-09-29); default 15 min overlap makes 2 rounds/CP where upstream plans 1 (0 restores upstream exactly).
 - U22 §69: movable AI strikes retimed 2–10 min behind their covering SEAD/DEAD.
 - U23 Same-boat recoveries spaced ≥5 min (flown midair 2.7 NM from the boat).
 - U24 SEAD TOT −1 → −3 min. Under-documented.
