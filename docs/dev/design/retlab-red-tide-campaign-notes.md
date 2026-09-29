@@ -464,7 +464,7 @@ considered and declined.
    field what the realism note prescribes — acquisition serves the *regiment*, not each fire unit:
    the S-300 battalion is **1 search radar (Clam Shell/Tin Shield/Big Bird roll) + C2 + 1 TR + 4
    TELs** (DCS needs SR+CP+TR in-group or the site won't engage, so it can't go leaner), the SA-5
-   battalion is **Tin Shield + Square Pair + 6 launchers** with the battalion-level P-19/P-14 slots
+   battalion is **Tin Shield + Square Pair + 6 launchers** (12 since 2026-09-29) with the battalion-level P-19/P-14 slots
    deleted (the hub's shared EWR *is* the early warning; the full-suite base layouts are untouched
    for every other campaign). PD escorts (the #586 Tor slot) stay. Known behavior, not a bug: the
    loader fills each LORAD marker with a **random** faction LORAD preset (`random_group_for_task`),

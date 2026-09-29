@@ -113,7 +113,7 @@ def test_single_radar_variants_field_one_guidance_radar() -> None:
 def test_single_radar_battalions_are_lean_fire_units() -> None:
     # A regiment battalion is a *fire unit*, not a stacked full site (the flown
     # 2026-07-12 finding: "all long range sams still generated full sites"):
-    # ONE search radar and 4 TELs for the S-300; Tin Shield + Square Pair + 6
+    # ONE search radar and 4 TELs for the S-300; Tin Shield + Square Pair + 12
     # launchers for the SA-5, with no battalion-level P-19/P-14 — acquisition
     # and early warning serve the regiment via the hub's shared EWR site.
     s300 = LAYOUTS.by_name("S-300 Site (Single Radar)")
@@ -134,7 +134,7 @@ def test_single_radar_battalions_are_lean_fire_units() -> None:
         assert "Command Post" not in sa5_slots, f"{variant} regained the P-19"
         assert "EW Radar" not in sa5_slots, f"{variant} regained a battalion P-14"
         (ln,) = [ug for ug in sa5.all_unit_groups if ug.name == "Launcher"]
-        assert ln.unit_count == [6], f"{variant} launcher count drifted"
+        assert ln.unit_count == [12], f"{variant} launcher count drifted"
 
 
 def test_red_tide_recommends_the_single_radar_fork_faction() -> None:

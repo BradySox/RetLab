@@ -8882,3 +8882,16 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
 - **Fail signatures:** the tab shows the squadron's livery again (the sync is not running);
   the tab is right but the jet wears the squadron's livery (the generator is reading the
   squadron, not the member).
+
+### B167 — Every SAM site spawns one guidance radar, and SA-5 sites twice the launchers · §60 removal · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and
+the SA-5 layouts doubled to 16 launchers (circle) or 12 (semicircle, and Red Tide's battalions) on
+their own templates. Layout-tested; never generated in DCS.
+- **Setup:** a new game with an SA-5 and an SA-2 or SA-6 site on the enemy side (Persian Gulf with
+  Iran, or Red Tide). Generate a turn.
+- **Pass:** each SAM site has one track radar (the Patriot keeps two STRs); an SA-5 site has 16 or
+  12 launchers, none inside another unit or a revetment; the SA-5 fires at a jet inside its range.
+- **Fail signatures:** a launcher spawned into another unit (the extra ring is too close); an SA-5
+  that still never fires at close targets (the cause was not the second Square Pair; see test 47's
+  SA-5 finding).

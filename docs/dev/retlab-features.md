@@ -6261,6 +6261,13 @@ Learned while it was live (checklist B12, 2026-08-05): with two track radars, a 
 one kept engaging and AI SEAD re-targeted the second. Existing saves keep the sites they were
 generated with; new games and newly bought sites get one radar.
 
+**SA-5 launchers doubled in the same change (DM call).** Each S-200 launcher holds one 5V28, so
+the four SA-5 layouts field twice the launchers: the full sites 16 (circle) and 12 (semicircle),
+Red Tide's lean battalions 12. They use their own templates, `SA-5_Site_Circle.miz` and
+`SA-5_Site_Semicircle.miz`: the 8/6-launcher templates plus an outer ring of launchers (240 m
+and 200 m out, between the inner bearings, every position 25 m or more from any other unit).
+The shared 8/6-launcher templates are unchanged.
+
 Context: test 47/48 (2026-09-28) found SA-5 sites tracking blue jets inside their envelope and
 never firing. §60's second Square Pair was one of the suspects; the removal was the DM's call, not
 a proven fix. Re-check SA-5 fire on the next flight with one.
