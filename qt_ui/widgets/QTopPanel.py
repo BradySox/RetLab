@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from typing import List, Optional
 
 from PySide6.QtWidgets import (
@@ -389,6 +390,12 @@ class QTopPanel(QFrame):
         if self.check_no_missing_pilots():
             return
 
+        mission_path = persistency.mission_path_for("retribution_nextturn.miz")
+        # Checked before fast-forward runs, so a refusal leaves the turn untouched.
+        if not persistency.mission_file_writable(mission_path):
+            self.warn_mission_file_in_use(mission_path)
+            return
+
         if self.sim_controller.started:
             now = self.sim_controller.current_time_in_sim
         else:
@@ -405,12 +412,30 @@ class QTopPanel(QFrame):
         ]:
             with logged_duration("Simulating to first contact"):
                 self.sim_controller.run_to_first_contact()
-        self.sim_controller.generate_miz(
-            persistency.mission_path_for("retribution_nextturn.miz")
-        )
+        try:
+            self.sim_controller.generate_miz(mission_path)
+        except PermissionError:
+            self.warn_mission_file_in_use(mission_path)
+            return
 
         waiting = QWaitingForMissionResultWindow(self.game, self.sim_controller, self)
         waiting.exec_()
+
+    def warn_mission_file_in_use(self, path: Path) -> None:
+        mbox = QMessageBox(
+            QMessageBox.Icon.Warning,
+            "Mission file in use",
+            (
+                f"Another program has {path.name} open, so the new turn cannot be "
+                "written.\n\n"
+                "Usually this is DCS still running the last mission. Leave the "
+                "mission in DCS (back to the main menu), then press Take Off again.\n\n"
+                f"File: {path}"
+            ),
+            parent=self,
+        )
+        mbox.setEscapeButton(mbox.addButton(QMessageBox.StandardButton.Close))
+        mbox.exec_()
 
     def budget_update(self, game: Game):
         self.budgetBox.setGame(game)

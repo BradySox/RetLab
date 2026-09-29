@@ -8928,3 +8928,11 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Setup:** Yankee Station with Naval gunfire, FAC(A) marking and Super Gaggle on. After the gaggle launches (10 min in), place an F10 marker on a coastal target inside 10 NM of a gun ship and call Naval Fire Mission → Fire on last F10 map marker. Watch the suppressor pair over the outpost in Tacview.
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
+
+### B173 — Take Off with DCS still in the last mission shows a plain warning · Mission generation · ☐ UNTESTED
+
+Built 2026-09-29 after Take Off raised a raw `PermissionError` on `retribution_nextturn.miz` while DCS was still hosting the previous turn. Unit-tested (`tests/test_mission_file_writable.py`); never clicked through.
+
+- **Setup:** load the generated mission in DCS and leave it running (or paused). In Retribution, press Take Off.
+- **Pass:** a "Mission file in use" box names the file and says to leave the mission in DCS; nothing is fast-forwarded. Back out to the DCS main menu, press Take Off again, and the turn generates.
+- **Fail signatures:** the raw traceback dialog; the turn fast-forwards to first contact before the warning appears.

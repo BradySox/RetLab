@@ -656,6 +656,17 @@ def mission_path_for(name: str) -> Path:
     return base_path() / "Missions" / name
 
 
+def mission_file_writable(path: Path) -> bool:
+    """False while another program (usually DCS running the last turn) holds it."""
+    if not path.exists():
+        return True
+    try:
+        with path.open("r+b"):
+            return True
+    except PermissionError:
+        return False
+
+
 def mission_archive_dir() -> Path:
     """Directory holding the archived copy of each generated mission.
 
