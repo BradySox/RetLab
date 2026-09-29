@@ -61,4 +61,4 @@ groups:
         - 2
       unit_classes:
         - AAA
-layout_file: resources/layouts/anti_air/SA-5_Site_Semicircle.miz
+layout_file: resources/layouts/anti_air/12_Launcher_Semicircle.miz

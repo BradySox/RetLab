@@ -15,7 +15,7 @@ groups:
         - SNR_75V
     - name: Launcher
       unit_count:
-        - 4
+        - 8
       unit_types:
         - S_75M_Volhov
     - name: Logistics

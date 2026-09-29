@@ -6261,12 +6261,16 @@ Learned while it was live (checklist B12, 2026-08-05): with two track radars, a 
 one kept engaging and AI SEAD re-targeted the second. Existing saves keep the sites they were
 generated with; new games and newly bought sites get one radar.
 
-**SA-5 launchers doubled in the same change (DM call).** Each S-200 launcher holds one 5V28, so
-the four SA-5 layouts field twice the launchers: the full sites 16 (circle) and 12 (semicircle),
-Red Tide's lean battalions 12. They use their own templates, `SA-5_Site_Circle.miz` and
-`SA-5_Site_Semicircle.miz`: the 8/6-launcher templates plus an outer ring of launchers (240 m
-and 200 m out, between the inner bearings, every position 25 m or more from any other unit).
-The shared 8/6-launcher templates are unchanged.
+**SA-5 and SA-2 launchers doubled in the same change (DM call).** Each launcher holds one missile,
+so twice the launchers is twice the missiles:
+- SA-5: the full sites 16 (circle) and 12 (semicircle), Red Tide's lean battalions 12.
+- SA-2 Battery: 4 → 8 and 6 → 12 launchers; the SA-2/SA-3 mixed site's SA-2 slot 3 → 6.
+- New templates: `16_Launcher_Circle.miz` and `12_Launcher_Semicircle.miz` (the 8/6-launcher
+  templates plus an outer launcher ring, 240 m and 200 m out) and `SA-2-SA-3_Mixed_Site.miz`
+  (`S-300_Site.miz` plus three LN1 positions 230 m out). Every added position is 25 m or more
+  from any other unit. The shared templates are unchanged.
+- Not doubled: the SA-2 presets that use the generic `6 Launcher Site` layouts (`SA-2_ZSU`,
+  the HDS SA-2, HQ-2), since those layouts are shared with other systems.
 
 Context: test 47/48 (2026-09-28) found SA-5 sites tracking blue jets inside their envelope and
 never firing. §60's second Square Pair was one of the suspects; the removal was the DM's call, not
