@@ -402,6 +402,10 @@ def _hornet_fixture() -> tuple[Any, Any, Any]:
             icls=None,
         ),
     )
+    flight.frequency_to_channel_map = {
+        flight.intra_flight_channel: [SimpleNamespace(radio_id=2, channel=1)],
+        awacs_freq: [SimpleNamespace(radio_id=1, channel=2)],
+    }
     mission_data = _mission_data(
         [
             flight,
@@ -458,8 +462,21 @@ def test_hornet_cartridge_shape() -> None:
     assert nav_settings["ACLS"] == {"Frequency": 336.4, "OnOff": True}
     assert nav_settings["Home_Waypoint"] == {"FPAS_HOME_WP": 2}
 
-    # No COMM section: the presets reach the jet through the miz.
-    assert "COMM" not in data
+    # COMM: allocator channels mirrored with names; defaults elsewhere.
+    comm1 = data["COMM"]["COMM1"]
+    comm2 = data["COMM"]["COMM2"]
+    assert comm2["Channel_1"] == {
+        "frequency": 258.5,
+        "modulation": 0,
+        "name": "WIZAR",
+    }
+    assert comm1["Channel_2"] == {
+        "frequency": 251.0,
+        "modulation": 0,
+        "name": "OVERL",
+    }
+    assert comm1["Channel_3"]["name"] == "CH 3"  # untouched default
+    assert data["COMM"]["mirror_COMM1"] is False
 
     # SA: the tanker racetrack, the SAM ring, styles visible. The COLT CAP
     # station is another flight's and stays off the page; this strike plan

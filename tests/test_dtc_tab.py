@@ -129,8 +129,8 @@ def _typed_tab(dcs_id: str, waypoint_types: list[str]) -> Any:
 def test_a_hornet_is_offered_only_what_its_cartridge_carries() -> None:
     tab, _ = _typed_tab("FA-18C_hornet", ["TAKEOFF", "NAV", "LANDING_POINT"])
     offered = {attr for _box, attr in tab.section_boxes}
-    assert "nav_aids" in offered and "saved_points" in offered
-    assert not offered & {"roe_table", "destinations", "jdam_targets", "comms"}
+    assert {"nav_aids", "saved_points", "comms"} <= offered
+    assert not offered & {"roe_table", "destinations", "jdam_targets"}
 
 
 def test_unticking_a_waypoint_kind_skips_it() -> None:

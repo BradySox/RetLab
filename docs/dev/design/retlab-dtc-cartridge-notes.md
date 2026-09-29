@@ -766,6 +766,7 @@ the descriptors.
 | Recovery fields + the target's field | No | Viper `DEST` |
 | Pre-planned JDAM aimpoints | No | Tomcat `JDAM` |
 | TIS send-to list | No | Tomcat `TIS` |
+| Radio channel names | No (the `Radio` table carries frequencies only) | Hornet `COMM` |
 
 **Consequences.**
 
@@ -783,10 +784,12 @@ the descriptors.
   tab's comms switch is documented as Hornet-only (on the Tomcat it carries TIS).
   If a future Viper schema ever adds channel names, re-add the section as a mirror
   plus names, the way the Hornet's worked.
-- **The Hornet `COMM` section followed 2026-09-13.** Its names were the only add,
-  and the DM's rule for the upstream carve — ship nothing the miz already delivers —
-  applies fork-side too: the fork reflects #966 rather than carrying a second
-  shape. `DtcOptions.comms` survives for the Tomcat's TIS list.
+- **The Hornet `COMM` section followed 2026-09-13, and came back 2026-09-29.** Its
+  names are the only add, and the 9/13 cut read that as "nothing the miz lacks". The
+  names are exactly what the miz lacks, and once the DM found where the jet shows
+  them (the missing names had been a cockpit user error) he asked for them back.
+  Restored as it was: a mirror of the allocator's channels plus names. #966 still
+  ships without it, so this is a fork-side difference from the carve. Row B177.
 - This is also why the Super Hornets lost their cartridge: with no `SA`, the
   whole file was the first two rows of this table.
 

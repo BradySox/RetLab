@@ -1,0 +1,12 @@
+date: 2026-09-29
+title: Hornet radio presets have names again
+change: >-
+  The F/A-18C data cartridge names each COMM1/COMM2 preset after what it
+  tunes: your flight, the AWACS and tankers by callsign, then PKG, JTAC,
+  DEP, ARR and DVT. The frequencies and channel numbers are unchanged.
+  The Viper's cartridge has no place for channel names.
+watch: >-
+  Load the cartridge in a Hornet and page through COMM1/COMM2: the
+  channels on the kneeboard comm plan show those names; the rest read
+  CH 1, CH 2 and so on.
+row: B177
