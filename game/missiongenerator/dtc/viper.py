@@ -90,6 +90,11 @@ MIN_BOUNDARY_POINTS = 10
 BORDER_CORRIDOR_M = 40 * 1852.0
 #: Line sets borders may take, so a tanker box or the front line still fits.
 MAX_BORDER_LINE_SETS = 2
+#: DM split (2026-09-29): borders near a route want 16-41 points, so without a
+#: cap they took everything and left the front line a 2-point stick.
+MAX_BORDER_POINTS = 12
+#: The front line's share when borders are drawn; alone, it takes what is left.
+FRONT_POINTS_WITH_BORDERS = 4
 MAX_THREAT_POINTS = 15
 #: DEST owns steerpoints 81-99, and the editor refuses a 20th.
 MAX_DESTINATIONS = 19
@@ -657,9 +662,12 @@ def _build_geo_lines(
     25 shared points run out.
 
     1. The player's orbits and drawings (§102): drawn on purpose.
-    2. Land borders near the route: crossing one can start a fight (§98).
-    3. A box on each tanker or AEW&C this jet can use, nearest first.
-    4. The boundary with red land (the front line).
+    2. Land borders near the route, at most 12 points: crossing one can start
+       a fight (§98).
+    3. A box on each tanker this jet can use, nearest first; only one beside
+       borders.
+    4. The boundary with red land (the front line): 4 points beside borders,
+       otherwise what is left.
 
     Borders and the front line are thinned to fit; a box or a drawing missing a
     corner is nonsense, so those go in whole or not at all.
@@ -686,9 +694,11 @@ def _build_geo_lines(
     )
     sets_left -= len(borders)
 
+    # One tanker box beside borders, so the front line keeps a line set.
+    box_sets = min(sets_left, 1) if borders else sets_left
     boxes = (
-        support_boxes(mission_data, sets_left, flight)
-        if options.friendly_orbits and sets_left > 0
+        support_boxes(mission_data, box_sets, flight)
+        if options.friendly_orbits and box_sets > 0
         else []
     )
     min_lines = MIN_BOUNDARY_POINTS if borders or options.flot_and_zones else 0
@@ -702,17 +712,23 @@ def _build_geo_lines(
     front: list[tuple[str, list[tuple[float, float]]]] = []
     if options.flot_and_zones and sets_left > 0:
         front = red_land_boundary(game, 1, MAX_GEO_POINTS)
-    # Thinned lines take what the whole shapes leave, in priority order, each
-    # keeping two points back for every line still to come.
+    # Thinned lines take what the whole shapes leave: the front line's share is
+    # set aside first, then borders take up to their cap.
     lines: list[tuple[str, list[tuple[float, float]]]] = []
-    flexible = borders + front
     room = MAX_GEO_POINTS - fixed
-    for index, (name, points) in enumerate(flexible):
-        share = min(len(points), room - 2 * (len(flexible) - index - 1))
+    front_share = min(len(front[0][1]), FRONT_POINTS_WITH_BORDERS) if front else 0
+    border_room = min(MAX_BORDER_POINTS, room - front_share)
+    for index, (name, points) in enumerate(borders):
+        share = min(len(points), border_room - 2 * (len(borders) - index - 1))
         if share < 2:
             break
         lines.append((name, decimate_open(points, share)))
+        border_room -= share
         room -= share
+    if front:
+        share = min(len(front[0][1]), room if not lines else front_share)
+        if share >= 2:
+            lines.append((front[0][0], decimate_open(front[0][1], share)))
 
     line_sets = lines + player + boxes
     geo_points: list[dict[str, Any]] = []

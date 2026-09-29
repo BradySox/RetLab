@@ -7541,10 +7541,13 @@ package-mates share the comm plan and SA picture):
     L2-L4 are free for the zone half that nothing writes yet.
 - **Viper: land borders first (2026-09-29, row B175).** The DM would rather see
   national borders than the front line, so `_build_geo_lines` fills the four sets in
-  priority order: the player's drawings, then `land_border_runs` (up to 2 sets), then
-  the usable tanker boxes, then the red-land boundary with what is left. Borders and
-  the front line are thinned to fit and keep 2 points back for each line still to
-  come; boxes and drawings go in whole or not at all. `land_border_runs` reads the §98
+  priority order: the player's drawings, then `land_border_runs` (up to 2 sets and
+  `MAX_BORDER_POINTS` = 12), then the usable tanker boxes (only one beside borders),
+  then the red-land boundary (`FRONT_POINTS_WITH_BORDERS` = 4 beside borders, else
+  what is left). The caps are the DM's split, 2026-09-29: measured on 7 maps, borders
+  near a 100-250 NM route want 16-41 points and uncapped they left the front line a
+  2-point stick. Borders and the front line are thinned to fit; boxes and drawings go
+  in whole or not at all. `land_border_runs` reads the §98
   zones (`theater.neutral_border_zones`, terrain file or campaign) and keeps only edges
   **two countries share** — the terrain files are one shared coverage, so an edge only
   one country has is coast or the map's clip edge. It keeps those within 40 NM of the

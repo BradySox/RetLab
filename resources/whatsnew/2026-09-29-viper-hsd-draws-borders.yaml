@@ -3,8 +3,8 @@ title: The Viper HSD draws borders
 change: >-
   An F-16C's data cartridge now draws the land borders within 40 NM of its
   route as HSD lines, ahead of the front line. The HSD has room for 4 lines
-  and 25 points in all, so your own drawings go first, then borders, then
-  the tanker box, then the front line with whatever is left. Untick National
+  and 25 points in all, so your own drawings go first, then borders (up to
+  12 points), then one tanker box (5), then the front line (4). Untick National
   borders on the flight's DTC tab to go back to the front line on LINE1.
 watch: >-
   A gray dashed line on the HSD that follows the country border near your
