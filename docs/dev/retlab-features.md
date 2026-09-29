@@ -832,6 +832,8 @@ functions so the rule is testable without building the widget).
 
 ### Kneeboards
 
+**Dead-line sweep (2026-09-29, row B162).** Read against a headless Long Road to H3 deck. Removed: the empty Divert row when a flight has no divert; the "Friendly Packages" heading repeating its own page title; the Apache's AN/APG-78 radar on the LOADOUT line (a sensor, dropped like the TGP); a UTF-8 dash that printed as `â€”` on the QFE storm-cell line. The SITREP and friendly-packages setting descriptions and `docs/wiki/Kneeboards.md` no longer describe the pre-split layout, the old SAR drill, a `Flight` row or scouting as the threat-card reveal.
+
 **Kneeboard package layout (2026-09-23).** `kneeboard.py` (3,650 lines) was split into a package, one module per page family: `writer` (page writer, time formats, `TableKneeboardPage`), `flightplan`, `briefing`, `support`, `taskpages`, `threatintel`, `pages` (saved points, notes, SITREP, index), `packagesmap`, `generator` (`KneeboardGenerator`). `__init__` re-exports the old public names. Imports run one way: everything depends on `writer`, nothing depends on `generator`.
 
 **Kneeboard consolidation + overflow pagination** (`game/missiongenerator/kneeboard/`,

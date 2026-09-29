@@ -43,8 +43,7 @@ def _airfield_elevation_m(
     Looks up the airport via the theater's controlpoints (matched by airfield
     name) and reads ``elevation_m`` from ``resources/airport_imagery/<terrain>.json``.
     None when no theater, no matching control point, or no elevation shipped.
-    Shared by the full deck's weather block and the Brief Sheet's WX line so both
-    walk the same lookup chain as the recon ATIS pipeline.
+    Walks the same lookup chain as the recon ATIS pipeline.
     """
     if theater is None or not airfield_name:
         return None
@@ -130,27 +129,25 @@ class BriefingPage(KneeboardPage):
                 writer.text(line, wrap=True)
             writer.vspace(8)
 
-        # TODO: Handle carriers.
         writer.heading("Airfield Info")
         writer.rule()
         # Only show the ATIS column when ATIS is in play (plugin enabled), so a
         # mission without ATIS sees no kneeboard change (design §5).
+        # A flight with no divert field gets no Divert row, not an empty one.
+        fields = [
+            ("Departure", self.flight.departure),
+            ("Arrival", self.flight.arrival),
+        ]
+        if self.flight.divert is not None:
+            fields.append(("Divert", self.flight.divert))
         if self.atis_by_name:
             writer.table(
-                [
-                    self._row_with_atis("Departure", self.flight.departure),
-                    self._row_with_atis("Arrival", self.flight.arrival),
-                    self._row_with_atis("Divert", self.flight.divert),
-                ],
+                [self._row_with_atis(title, runway) for title, runway in fields],
                 headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY", "ATIS"],
             )
         else:
             writer.table(
-                [
-                    self.airfield_info_row("Departure", self.flight.departure),
-                    self.airfield_info_row("Arrival", self.flight.arrival),
-                    self.airfield_info_row("Divert", self.flight.divert),
-                ],
+                [self.airfield_info_row(title, runway) for title, runway in fields],
                 headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY"],
             )
 
@@ -351,7 +348,7 @@ class BriefingPage(KneeboardPage):
                 qnh_inhg - THUNDERSTORM_PRESSURE_DROP_INHG, elevation_m
             )
             line += (
-                f" (~{qfe_low:.2f} in CB cells â€” local QNH may drop "
+                f" (~{qfe_low:.2f} in CB cells — local QNH may drop "
                 "~3 mb inside storm cores)"
             )
         return line
@@ -479,6 +476,7 @@ def _brief_loadout(units: List[Any]) -> str:
             or "pylon" in low
             or "ecm" in low
             or "jammer" in low
+            or "fire control radar" in low  # the Apache's mast radar, not a store
         ):
             continue
         # A rack carries several stores on one station, and the count is the

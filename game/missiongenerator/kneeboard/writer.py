@@ -20,8 +20,7 @@ class KneeboardPageWriter:
         if dark_theme:
             self.foreground_fill = (215, 200, 200)
             self.background_fill = (10, 5, 5)
-            # Semantic accent palette for the Brief Sheet (§ brief sheet). Colour
-            # encodes meaning, not decoration: nav/comms, caution, go, emergency.
+            # Semantic accent palette. Colour encodes meaning, not decoration: nav/comms, caution, go, emergency.
             # Light, desaturated shades read on the near-black night background.
             self.col_nav = (127, 176, 216)  # blue: route, freqs, bullseye, divert
             self.col_caution = (216, 176, 112)  # amber: threats, bingo/joker
@@ -107,7 +106,7 @@ class KneeboardPageWriter:
 
         Each run is ``(text, fill)``; ``fill`` None falls back to the foreground.
         Runs carry their own spacing (trailing blanks), so the caller controls gaps.
-        Advances the cursor one line down. Used by the Brief Sheet to colour
+        Advances the cursor one line down. Used to colour
         individual tokens (a freq, the ABORT word) inside an otherwise plain line.
         """
         if font is None:

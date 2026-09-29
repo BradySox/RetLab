@@ -306,3 +306,17 @@ def test_brief_loadout_still_drops_pods_and_collapses_hts() -> None:
     summary = _brief_loadout([SimpleNamespace(pylons=_VENOM_3_PYLONS)])
     assert "ALQ" not in summary, summary
     assert summary.endswith("HTS"), summary
+
+
+def test_brief_loadout_drops_the_apache_fire_control_radar() -> None:
+    # The FCR mast radar sits on a pylon in the payload but is a sensor, not a store.
+    from game.data.weapons import WeaponGroup
+
+    WeaponGroup.load_all()
+    pylons = {
+        1: {"CLSID": "{AN_APG_78}"},
+        2: {"CLSID": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"},
+    }
+    summary = _brief_loadout([SimpleNamespace(pylons=pylons)])
+    assert "APG-78" not in summary, summary
+    assert summary, summary

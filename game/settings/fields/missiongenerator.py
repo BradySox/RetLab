@@ -176,9 +176,8 @@ class MissionGeneratorSettings:
         detail=(
             "Append page(s) listing every friendly package with its TOT (strike "
             "tasks) or patrol window (CAP, tanker, AWACS), for cross-package "
-            "coordination. Off by default: adds a Friendly Packages section to the "
-            "Mission Info page plus a package-targets map, which can spill onto "
-            "continuation pages on busy theaters."
+            "coordination, plus a package-targets map. Off by default: the list can "
+            "spill onto continuation pages on busy theaters."
         ),
     )
     generate_threat_intel_kneeboard: bool = boolean_option(
@@ -211,13 +210,13 @@ class MissionGeneratorSettings:
         ),
     )
     generate_sitrep_kneeboard: bool = boolean_option(
-        "Campaign SITREP band on the briefing page",
+        "Campaign SITREP kneeboard page",
         MISSION_GENERATOR_PAGE,
         KNEEBOARD_SECTION,
         default=True,
         detail=(
-            "Add a short 'what happened last turn' band to the Mission Info "
-            "kneeboard page: both sides' losses (enemy as claimed), bases captured or "
+            "Add a 'what happened last turn' kneeboard page after Support Info: "
+            "both sides' losses (enemy as claimed), bases captured or "
             "lost, and downed pilots recovered. Hidden on turn 1 and after a quiet "
             "turn. On by default."
         ),

@@ -360,9 +360,8 @@ class KneeboardGenerator(MissionInfoGenerator):
 
         The task line is always present (task, plus target/TOT when applicable);
         the push line is gated on the code-words feature.
-        The threat, loadout and SAR lines carry the survivors of the retired
-        one-page Brief Sheet: a compact air + SAM threat picture, a one-line
-        ordnance summary, and the SAR assets + if-down drill.
+        Then a compact air + SAM threat picture, a one-line ordnance
+        summary, and the SAR beacon + if-down drill.
         """
         lines: List[str] = []
 
@@ -399,9 +398,9 @@ class KneeboardGenerator(MissionInfoGenerator):
         if sam:
             lines.append(f"         SAM {sam}")
 
-        # Known enemy GPS-denial areas (§85). Recon-fogged like every other intel
-        # leaf: an un-scouted jammer is NOT briefed, so the first sign of it is a
-        # pass that goes long -- finding it is worth a recon sortie.
+        # Known enemy GPS-denial areas (§86). Fogged like every other intel leaf
+        # (§3): a jammer nobody has engaged is NOT briefed, so the first sign of
+        # it is a pass that goes long.
         gps = self._brief_gps_jamming(flight)
         if gps:
             lines.append(f"         GPS {gps}")
@@ -490,7 +489,7 @@ class KneeboardGenerator(MissionInfoGenerator):
 
         Empty (so the BLUF line is omitted) when the feature is off, when the
         enemy fields no jammer, or -- the interesting case -- when one exists but
-        recon has not identified it yet. Fully guarded: a briefing must never fail
+        nobody has engaged it yet (§3). Fully guarded: a briefing must never fail
         to generate because an intel lookup hiccuped.
         """
         try:

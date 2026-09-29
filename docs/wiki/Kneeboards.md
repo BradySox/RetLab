@@ -34,8 +34,8 @@ before the flight plan:
 
 - **THREATS AIR / SAM** — compact one-line summaries of what is up and what is emitting.
 - **LOADOUT** — a one-line summary of what you are actually carrying.
-- **SAR** — the if-down drill, written to match the real Combat SAR model: evade toward friendly
-  lines, capture risk climbs the deeper you went down, rescue tracks your last known position.
+- **SAR** — the survivor beacon frequency (260 kHz ADF) and the if-down drill: your beacon keys
+  itself, squawk 7700, voice on GUARD, stay put and stay hidden while rescue homes the beacon.
 
 The flight plan below it carries a **Fuel** column — planned fuel remaining at each steerpoint —
 and a one-line **RTB margin** call-out, amber when the margin goes negative. That margin is the
@@ -57,13 +57,11 @@ line below it are the retired Fuel Ladder page, folded in where you actually rea
 
 ### Support Info — comms and the code words
 
-Package flights, the radio ladder, AWACS/tanker/JTAC, and the departure/arrival airfield rows. The
-colour-keyed **code words** block rides here.
+The package frequency and TOT, the package's flights, AWACS/tanker/JTAC, and the colour-keyed
+**code words** block. The airfield directory is added here when ATIS is in play.
 
-The top row of that table is **your own flight on its intra-flight channel** — the people directly
-flying with you — which is why it reads **`Flight`** rather than a callsign, and why it sits on a
-different channel (COMM1) from the rest of the package (COMM2). Give the flight a **custom name**
-in the ATO and that name replaces `Flight` here.
+The top row of the package table is **your own flight on its intra-flight channel**; every other
+flight follows with its own channel.
 
 ![The Support Info kneeboard page: the package's flights with callsigns, tasks, types and radio channels, a colour-keyed code-words block, then AEW&C and tanker tables with frequencies, TACAN and time on station](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/kneeboard-support-info.png)
 
@@ -74,7 +72,8 @@ the AEW&C and tanker ladders with TACAN and time on station.*
 ### The threat cards
 
 The enemy air-defense dossier: one card per system with guidance, band, range and ceiling,
-**recon-fog aware** — you get cards for what you have actually scouted, not the ground truth. This
+**recon-fog aware** — a site nobody has engaged shows only as an unidentified contact with its
+bullseye position; once engaged it gets a full card. This
 is on by default and is the single most useful page in the deck for a SEAD or strike crew.
 
 ### Shared-airframe flight index
@@ -86,7 +85,7 @@ find yours. A lone flight skips it.
 
 ### Layout
 
-Sparse pages (Combat SAR, Support Info, Mission Info) use a light heading + underline-rule layout
+Sparse pages (Support Info, Mission Info) use a light heading + underline-rule layout
 that fills the page instead of boxing content into a corner, and long friendly-package lists flow
 into two columns. Tables measure their rendered width and word-wrap the widest column rather than
 running off the right edge. A theme-aware four-colour scheme — blue nav/comms, amber threats/fuel,
@@ -151,4 +150,4 @@ call-out, not its own page. Code words live on Support Info.
 - [Getting Started](Getting-Started) — opening the kneeboard in the cockpit
 - [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance) — approximate-mode kneeboard pages
 - [Mission Planning](Mission-planning) — packages, comms, and code words that feed the deck
-- [Combat SAR](Combat-SAR) — the Combat SAR kneeboard page
+- [Combat SAR](Combat-SAR) — the survivor beacon printed on every deck

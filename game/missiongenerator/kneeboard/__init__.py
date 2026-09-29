@@ -1,26 +1,12 @@
 """Generates kneeboard pages relevant to the player's mission.
 
-The player kneeboard includes the following information:
+Each client flight gets Mission Info (BLUF, airfields, flight plan with fuel,
+weather), Support Info (package, AEW&C, tankers, JTAC, code words) and, by
+setting, target, threat-intel, recon, SITREP and friendly-package pages.
 
-* Airfield (departure, arrival, divert) info.
-* Flight plan (waypoint numbers, names, altitudes).
-* Comm channels.
-* AWACS info.
-* Tanker info.
-* JTAC info.
-
-Things we should add:
-
-* Flight plan ToT and fuel ladder (current have neither available).
-* Support for planning an arrival/divert airfield separate from departure.
-* Mission package infrastructure to include information about the larger
-  mission, i.e. information about the escort flight for a strike package.
-* Target information. Steerpoints, preplanned objectives, ToT, etc.
-
-For multiplayer missions, a kneeboard will be generated per flight.
-https://forums.eagle.ru/showthread.php?t=206360 claims that kneeboard pages can
-only be added per airframe, so PvP missions where each side have the same
-aircraft will be able to see the enemy's kneeboard for the same airframe.
+DCS adds kneeboard pages per airframe, not per flight, so every flight of one
+type shares a stacked deck -- and in PvP each side sees the other's deck for a
+shared airframe.
 """
 
 from .briefing import BriefingPage, _brief_loadout

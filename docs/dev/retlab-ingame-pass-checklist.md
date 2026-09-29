@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+92 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -462,6 +462,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B162 | The kneeboard drops its dead lines and nothing else moves | §22 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8875,4 +8876,16 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Pass:** the first load shows the dark RetLab picture; the second shows yours.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
+
+### B162 — The kneeboard drops its dead lines and nothing else moves · §22 · ☐ UNTESTED
+
+Built 2026-09-29. Checked on a headless Long Road to H3 deck (8 player flights); never read in DCS.
+
+- **Setup:** any mission with a player flight that has no divert field, and the
+  Generate friendly packages kneeboard page setting on. An Apache flight if you have one.
+- **Pass:** Mission Info has no empty Divert row. The Friendly Packages page title is not
+  followed by a second "Friendly Packages" heading. The Apache LOADOUT line lists rockets
+  and Hellfires but not the AN/APG-78 radar.
+- **Fail signatures:** a table row cut off or a page that now spills onto a new page (the
+  lines removed should only ever free space).
 

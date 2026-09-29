@@ -146,8 +146,7 @@ def briefed_jammer_areas(game: "Game", viewer: Any) -> list[GpsJammerSite]:
     """The enemy jamming areas ``viewer`` has actually found, for the kneeboard.
 
     Recon-fogged through the standard ``known_for`` leaf (§3), so an un-engaged
-    jammer is *not* briefed -- the first sign of it is a pass that goes long, and
-    identifying it is worth a TARPS sortie. Friendly jammers are omitted: they do
+    jammer is *not* briefed -- the first sign of it is a pass that goes long. Friendly jammers are omitted: they do
     not threaten the viewer's own weapons.
     """
     briefed: list[GpsJammerSite] = []
