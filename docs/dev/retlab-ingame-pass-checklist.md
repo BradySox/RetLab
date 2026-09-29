@@ -444,7 +444,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-93 rows need a live pass. Full detail is under each `###` heading below —
+94 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -514,6 +514,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B156 | A carrier keeps the same TACAN every time the mission is generated | §65 | ☐ |
 | B157 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
+| B159 | A target steerpoint in the hills sits on the ground | §74 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8960,3 +8961,19 @@ generated under. Unit-tested (`test_iads_renamed_flagship.py`).
 - **Pass:** `dcs.log` has no `EW Radar that does not exist` line naming a carrier or LHA.
 - **Fail signature:** that line again = a ship renamed where the IADS data does not see it.
 
+### B159 — A target steerpoint in the hills sits on the ground · §74 · ☐ UNTESTED
+
+Built 2026-09-29. The data cartridge gave a target steerpoint the nearest airfield's
+elevation, so in hills it sat hundreds of metres above or below the target. Where a
+`resources/terrain_heights/<terrain>.npz` grid ships, it now carries DCS's own
+`land.getHeight`, bilinear on a grid of 100 m to 1 km by terrain. Unit- and harness-tested; the grids come
+from `scripts/dcs_terrain_heights.py`. Design: `retlab-dtc-cartridge-notes.md`.
+
+- **Setup:** Syria (the finest grid, 100 m) or any terrain whose grid ships. A Viper or Hornet flight with the cartridge on
+  (DTC tab, load at spawn), fragged on a target on high ground well above the nearest
+  field.
+- **Pass:** the target steerpoint's ELEV is within about 30 m (100 ft) of the ground at
+  the target, and a pod slaved to it looks at the target, not short or long.
+- **Fail signatures:** ELEV reads the nearest field's elevation (no grid loaded: check the
+  terrain name matches the .npz file name); ELEV reads 0 (point off the grid and no field
+  on the map has a record).
