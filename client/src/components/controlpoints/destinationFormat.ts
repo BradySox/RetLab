@@ -1,4 +1,4 @@
-import { LatLng } from "leaflet";
+import { LatLng, LatLngLiteral } from "leaflet";
 
 // Shared by the carrier (MobileControlPoint) and ship (MobileTgo) drag tooltips.
 
@@ -13,4 +13,15 @@ export function formatLatLng(latLng: LatLng): string {
   const ns = latLng.lat >= 0 ? "N" : "S";
   const ew = latLng.lng >= 0 ? "E" : "W";
   return `${lat}&deg;${ns} ${lng}&deg;${ew}`;
+}
+
+// The primary marker keeps local drag state, so it remounts when that state is
+// stale: a destination is queued or cleared, or the instant move cheat moved it.
+export function mobileMarkerKey(item: {
+  position: LatLngLiteral;
+  destination?: LatLngLiteral | null;
+}): string {
+  return item.destination
+    ? "destination"
+    : `${item.position.lat},${item.position.lng}`;
 }

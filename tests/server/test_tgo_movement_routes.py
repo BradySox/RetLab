@@ -45,7 +45,12 @@ def _ship(blue: bool = True) -> ShipGroundObject:
 
 
 def _game(
-    tgo: Any, *, sea: bool = True, land_between: bool = False, landmap: bool = True
+    tgo: Any,
+    *,
+    sea: bool = True,
+    land_between: bool = False,
+    landmap: bool = True,
+    instant: bool = False,
 ) -> Any:
     landmap_obj = (
         SimpleNamespace(land_inbetween=lambda a, b: land_between) if landmap else None
@@ -56,7 +61,15 @@ def _game(
         is_in_sea=lambda p: sea,
     )
     db = SimpleNamespace(tgos=SimpleNamespace(get=lambda _id: tgo))
-    return SimpleNamespace(theater=theater, db=db)
+    theater.controlpoints = [tgo.control_point]
+    settings = SimpleNamespace(enable_instant_naval_move_cheat=instant)
+    return SimpleNamespace(
+        theater=theater,
+        db=db,
+        settings=settings,
+        coalitions=[],
+        compute_threat_zones=lambda events: None,
+    )
 
 
 def _patch_latlng(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -210,3 +223,46 @@ def test_destination_in_range_rejects_red(monkeypatch: pytest.MonkeyPatch) -> No
     with pytest.raises(HTTPException) as exc:
         tgo_destination_in_range(uuid4(), 10.0, 0.0, _game(ship))
     assert exc.value.status_code == 403
+
+
+def test_instant_cheat_moves_ship_now_past_range(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_point(monkeypatch)
+    ship = _ship(blue=True)
+    far = nautical_miles(80).meters * 3
+    set_tgo_destination(
+        uuid4(), LeafletPoint(lat=far, lng=0), _game(ship, instant=True)
+    )
+    assert ship.target_position is None
+    assert ship.position.x == far
+
+
+def test_instant_cheat_ignores_land_between_but_needs_sea(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_point(monkeypatch)
+    ship = _ship(blue=True)
+    set_tgo_destination(
+        uuid4(),
+        LeafletPoint(lat=1000, lng=0),
+        _game(ship, land_between=True, instant=True),
+    )
+    assert ship.position.x == 1000
+    with pytest.raises(HTTPException) as exc:
+        set_tgo_destination(
+            uuid4(),
+            LeafletPoint(lat=2000, lng=0),
+            _game(ship, sea=False, instant=True),
+        )
+    assert exc.value.status_code == 400
+
+
+def test_instant_cheat_reports_any_destination_in_range(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_point(monkeypatch)
+    ship = _ship(blue=True)
+    far = nautical_miles(80).meters * 3
+    assert not tgo_destination_in_range(uuid4(), far, 0.0, _game(ship))
+    assert tgo_destination_in_range(uuid4(), far, 0.0, _game(ship, instant=True))
