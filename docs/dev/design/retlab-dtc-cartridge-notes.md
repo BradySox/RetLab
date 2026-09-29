@@ -1262,6 +1262,13 @@ and a border can start a fight (§98). Borders come from the §98 zones and keep
 edges two countries share: an edge one country has alone is coast or the map's clip.
 The purple circles on the HSD are the jet's own range rings (p. 326), not ours.
 
+**One line per border.** The first build drew only the pieces of a border inside
+the 40 NM strip. Flown 2026-09-29: the Georgia-Turkey border near Kobuleti left the
+strip and came back, so it drew as a 10-point piece and a 2-point straight stick, and
+the second pair of tags came out GR2 and TU2. Each country pair is now one line from
+its first to its last edge near the route, through the gap, and the border points
+split evenly across the borders drawn.
+
 **Tags.** The HSD cannot write text on a line, so each line gets a Destination
 steerpoint (81-99, up to three alphanumerics, p. 328) beside it: a country code on
 each side of a border, `FLT` on the front line, the tanker's callsign in its box, the

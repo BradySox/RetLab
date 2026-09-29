@@ -781,12 +781,14 @@ def _segments_cross(
 def land_border_runs(
     game: Game, route: list[tuple[float, float]], corridor_m: float
 ) -> list[tuple[str, list[tuple[float, float]]]]:
-    """The land borders within ``corridor_m`` of the route, as open runs, nearest
-    first.
+    """Each land border that comes within ``corridor_m`` of the route, as one
+    continuous line, nearest first.
 
     A frontier is an edge two countries share: the §98 terrain files are one
     shared coverage, so neighbours agree vertex for vertex. An edge only one
-    country has is coast or the map's clip edge, and is not drawn.
+    country has is coast or the map's clip edge, and is not drawn. A border
+    that leaves the strip and comes back is drawn through the gap (DM
+    2026-09-29): two pieces of one border read as two borders.
     """
     zones = getattr(game.theater, "neutral_border_zones", None) or []
     rings = [
@@ -794,43 +796,61 @@ def land_border_runs(
         for zone in zones
         if len(zone.border) >= 3
     ]
-    owners: dict[frozenset[tuple[float, float]], set[str]] = {}
+    owners: dict[frozenset[tuple[float, float]], frozenset[str]] = {}
     for country, ring in rings:
         for a, b in zip(ring, ring[1:] + ring[:1]):
-            owners.setdefault(frozenset((a, b)), set()).add(country)
+            key = frozenset((a, b))
+            owners[key] = owners.get(key, frozenset()) | {country}
     emitted: set[frozenset[tuple[float, float]]] = set()
-    runs: list[tuple[str, list[tuple[float, float]]]] = []
+    # Each stretch of frontier between one pair of countries, walked once.
+    chains: list[tuple[frozenset[str], list[tuple[float, float]]]] = []
     for _country, ring in rings:
         edges = list(zip(ring, ring[1:] + ring[:1]))
-        keep = [
-            len(owners[frozenset(edge)]) >= 2
-            and frozenset(edge) not in emitted
-            and bool(route)
-            and _segment_distance(edge[0], edge[1], route) <= corridor_m
+        pairs = [
+            (
+                owners[frozenset(edge)]
+                if len(owners[frozenset(edge)]) >= 2 and frozenset(edge) not in emitted
+                else None
+            )
             for edge in edges
         ]
-        if not any(keep):
+        if not any(pairs):
             continue
-        # Start just after a dropped edge so no run is cut at the ring's seam.
-        start = keep.index(False) + 1 if not all(keep) else 0
-        run: list[tuple[float, float]] = []
-        run_owners: set[str] = set()
+        # Start where the neighbour changes so no chain is cut at the ring's seam.
+        first = next((i for i in range(len(edges)) if pairs[i] != pairs[i - 1]), 0)
+        chain: list[tuple[float, float]] = []
+        chain_pair: Optional[frozenset[str]] = None
         for offset in range(len(edges)):
-            index = (start + offset) % len(edges)
-            edge = edges[index]
-            if keep[index]:
-                if not run:
-                    run = [edge[0]]
-                    run_owners = owners[frozenset(edge)]
-                run.append(edge[1])
-                emitted.add(frozenset(edge))
-            elif run:
-                runs.append(("-".join(sorted(run_owners)), run))
-                run = []
-        if run:
-            runs.append(("-".join(sorted(run_owners)), run))
-    runs.sort(key=lambda item: min(_distance_to_route(x, y, route) for x, y in item[1]))
-    return runs
+            index = (first + offset) % len(edges)
+            edge, pair = edges[index], pairs[index]
+            if chain and pair != chain_pair:
+                chains.append((chain_pair, chain))  # type: ignore[arg-type]
+                chain = []
+            if pair is None:
+                continue
+            if not chain:
+                chain, chain_pair = [edge[0]], pair
+            chain.append(edge[1])
+            emitted.add(frozenset(edge))
+        if chain:
+            chains.append((chain_pair, chain))  # type: ignore[arg-type]
+    if not route:
+        return []
+    nearest: dict[frozenset[str], tuple[float, list[tuple[float, float]]]] = {}
+    for pair, chain in chains:
+        near = [
+            index
+            for index, (a, b) in enumerate(zip(chain, chain[1:]))
+            if _segment_distance(a, b, route) <= corridor_m
+        ]
+        if not near:
+            continue
+        line = chain[near[0] : near[-1] + 2]
+        distance = min(_distance_to_route(x, y, route) for x, y in line)
+        if pair not in nearest or distance < nearest[pair][0]:
+            nearest[pair] = (distance, line)
+    ordered = sorted(nearest.items(), key=lambda item: item[1][0])
+    return [("-".join(sorted(pair)), line) for pair, (_d, line) in ordered]
 
 
 def country_at(game: Game, x: float, y: float) -> Optional[str]:

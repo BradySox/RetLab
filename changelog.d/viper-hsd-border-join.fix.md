@@ -1,0 +1,1 @@
+* **[Mission Generation]** An F-16C HSD border that leaves the 40 NM strip around the route and comes back is drawn as one line, not two pieces, so it no longer shows a straight stick with numbered tags (GR2, TU2). Two borders split the 12 points evenly.
