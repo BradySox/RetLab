@@ -1,8 +1,8 @@
 {
   "country": "Iran",
-  "name": "[CH] Iran 2020",
+  "name": "[CH] Iran 2025",
   "authors": "Codex",
-  "description": "<p>Iran from 2020 to 2022, using the CurrentHill Iran Assets Pack. [CH] Iran 2025 adds the later air defenses and missiles.</p>",
+  "description": "<p>Iran from 2025, using the CurrentHill Iran Assets Pack: the Bavar-373-II, the Sayyad-4B and the 2023 missiles (Fattah-2, Kheibar, Shahed 238).</p>",
   "locales": [
     "fa_IR"
   ],
@@ -63,7 +63,10 @@
     "SSM SS-1C Scud-B",
     "[CH] Shahed 136 LM",
     "[IRAD] Sejjil-2 TEL",
-    "[IRAD] Emad TEL"
+    "[IRAD] Emad TEL",
+    "[IRAD] Fattah-2 TEL",
+    "[IRAD] Shahed 238 launcher",
+    "[IRAD] Kheibar (Khorramshahr-4) TEL"
   ],
   "preset_groups": [
     "Hawk",
@@ -76,6 +79,8 @@
     "SA-17",
     "3rd Khordad",
     "Bavar-373",
+    "Bavar-373 (Sayyad-4B)",
+    "Bavar-373-II",
     "KS-19/SON-9",
     "Silkworm"
   ],
