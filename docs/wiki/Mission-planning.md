@@ -156,7 +156,7 @@ Every task below uses the same fields:
   inside the engagement zone and recover the CAP.
 - **AI limitations:** Waypoints can look offset from the objective, but coverage is by
   engagement zone — verify with "Display Selected BARCAP Commit Range". RetLab schedules
-  BARCAP as overlapping, jittered waves; see
+  BARCAP as overlapping waves; see
   [Air-Defense-and-the-Air-War](Air-Defense-and-the-Air-War).
 
 #### TARCAP (Target-area CAP)

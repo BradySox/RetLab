@@ -1,16 +1,17 @@
 # Tanker box and tanker orbit speed
 
-**Status:** BUILT 2026-09-28, not flown. Both are per flight, on a tanker flight's Payload tab,
-and saved per airframe by **Save as default**. Both off by default. Neither is a campaign
-setting (DM 2026-09-28). The box is **experimental** (DM 2026-09-28: "a temporary setting, no
-overwriting behavior yet"). Rows B152 (speed) and B153 (box).
+**Status:** BUILT 2026-09-28; the box flew in test 47. The speed is per flight, on a tanker
+flight's Waypoints tab, and saved per airframe by the Payload tab's **Save as default**. Off
+by default and never a campaign setting (DM 2026-09-28). **The box is no longer a setting**
+(DM 2026-09-29): every theater tanker flies it. It started as an experimental per-flight
+tick box on the Payload tab. Rows B152 (speed), B153 (box) and B170 (always on).
 
 ## Tanker orbit speed (upstream #869)
 
 - **Per flight, never a campaign setting** (DM 2026-09-28: "never a theatre option. Per
   airframe in the waypoint/loadout setting menu"). `Flight.orbit_speed_kias`, None = the
-  aircraft's own speed. Set on the tanker flight's Payload tab (`TankerOrbitSpeedEditor`,
-  100-350 KIAS). **Save as default** stores it per airframe in §43's store
+  aircraft's own speed. Set on the tanker flight's Waypoints tab (`QTankerOrbitSpeed`,
+  100-350 KIAS; on the Payload tab until 2026-09-29). **Save as default** stores it per airframe in §43's store
   (`orbit_speed_kias`), so every new flight of that type starts with it.
 - The KIAS is converted to true airspeed at the track altitude: `Speed.from_calibrated`,
   ISA atmosphere with the compressible pitot relation. DCS waypoint and orbit speeds are TAS.
@@ -28,15 +29,15 @@ DCS's Orbit task has two patterns, Circle and Race-Track. A box is therefore a *
 an orbit: the tanker flies its corners with the Tanker task active and a `SwitchWaypoint`
 loops the lap.
 
-- `Flight.tanker_box`, the Payload tab's **Fly a box (experimental)**. Shown for theater
-  tankers only (`TheaterRefuelingFlightPlan`); ticking it replans the flight
-  (`TankerTrackEditor`). **Save as default** stores it per airframe (§43,
-  `tanker_box`).
+- **Every theater tanker** (`TheaterRefuelingFlightPlan`) flies the box; there is no
+  racetrack branch left in that builder. Until 2026-09-29 it was `Flight.tanker_box`, a
+  Payload tab tick box saved per airframe. `Flight.__setstate__` drops the old flag, and
+  §43 ignores an old store's `tanker_box` key, so neither needs a migration step.
 - **Package tankers keep the racetrack.** Their station time is 5 min + (4 × jets + 1) per
   receiver flight, often shorter than one 120 NM lap.
 - **Geometry.** The front leg is where the racetrack would be (40 NM, across the threat axis).
   The box extends `TANKER_BOX_DEPTH` (20 NM) away from the threat. A second tanker steps back
-  `TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH`, so the boxes never overlap.
+  `TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH` (35 NM), so the boxes never overlap.
 - **Route.** `BOX 1` (PATROL_TRACK, the patrol start) → `BOX 2`, `BOX 3`, `BOX 4` (NAV corners)
   → `BOX END` (PATROL, on BOX 1's position) → home. Layout: `TankerBoxLayout`.
 - **Loop.** `BOX END` carries `ControlledTask(SwitchWaypoint(END → BOX 2))` with the start

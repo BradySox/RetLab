@@ -8560,8 +8560,9 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   its canister sideways (the `LAUNCH_n` connector axis, same file); a pink or white model (a
   texture missing from the pack's `Textures`); see-through or shadowless panels (the
   material setting the exporter logged errors on).
-- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2020` as red
-  and the pack's toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
+- **Setup:** the RetLab Iran Air Defense Pack installed; New Game with `[CH] Iran 2025` as red
+  (the only faction with the Sayyad-4B and the Bavar-373-II since 2026-09-29) and the pack's
+  toggle ticked. Buy or find one of each site, a Bavar-373-II included. Fly a Viper or Hornet with HARMs.
 - **Pass:** both sites spawn with every vehicle; `dcs.log` shows Skynet adding a `3rd Khordad`
   and a `Bavar-373` site; each engages inside its range (27 NM and 81 NM, 108 NM for a
   Sayyad-4B launcher); a HARM on one STR leaves a Bavar-373 site (two STRs) still able to fire.
@@ -8709,7 +8710,8 @@ ignores it; a tanker is capped at its top speed. Unit-tested
 (`test_tanker_orbit_speed.py`, `test_flight_defaults.py`); never flown.
 
 - **Setup:** any campaign with a KC-135 or KC-135 MPRS theater tanker. Open its flight →
-  Payload → tick Set orbit speed, set 270 KIAS, generate the turn.
+  Waypoints → tick Set orbit speed, set 270 KIAS, generate the turn. (The control moved
+  from the Payload tab 2026-09-29, row B170.)
 - **Pass:** join the tanker; its indicated airspeed on the straight legs reads 265-275 KIAS.
 - **Fail signatures:** the tanker at its old ~300 KIAS (the value not reaching the
   waypoint); a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a new
@@ -8726,7 +8728,8 @@ ignores it; a tanker is capped at its top speed. Unit-tested
 
 
 Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
-experimental per-flight option (Payload tab). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
+experimental per-flight option (Payload tab); since 2026-09-29 every theater tanker flies it
+and the option is gone (row B170). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
 on, and a SwitchWaypoint at BOX END loops it to BOX 2 while mission time is under its
 on-station end. Unit-tested (`test_tanker_box.py`) and headless-generated; never flown.
 Design: `docs/dev/design/retlab-tanker-box-notes.md`.
@@ -8888,11 +8891,12 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
 
 Built 2026-09-29: the RetLab Iran Air Defense Pack's Sejjil-2, Emad, Kheibar, Fattah-2 and
 Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own toggle.
-`[CH] Iran 2020` fields all five as missile sites, `Iran 2015` the Sejjil-2. Unit-tested
+`[CH] Iran 2025` fields all five as missile sites (`[CH] Iran 2020` the Sejjil-2 and Emad since
+2026-09-29), `Iran 2015` the Sejjil-2. Unit-tested
 (`tests/retlab/test_iran_pack_missiles.py`); the missiles have never flown in DCS.
 
 - **Setup:** the pack installed; Scenic Route Merged or Noisy Cricket (both preseed the pack),
-  or any campaign with red missile-site markers and `[CH] Iran 2020` as red with the pack
+  or any campaign with red missile-site markers and `[CH] Iran 2025` as red with the pack
   ticked. Missile-site fire tasks on (Settings, Performance).
 - **Pass:** red missile sites spawn with `[IRAD]` launchers; each fires once at a blue base;
   Tacview shows the missile reaching a blue field. A Shahed 238 flies at about 370 mph and takes
@@ -8929,6 +8933,22 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
 
+### B170 — Every theater tanker flies the box, with no box to tick · tanker box · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's ask: the box stops being a setting, and the orbit speed moves
+from the Payload tab to the Waypoints tab. The Payload tab's **Fly a box (experimental)** is
+gone; `TheaterRefuelingFlightPlan` always lays out `TankerBoxLayout`. An old save's
+`tanker_box` flag is dropped on load, and an old saved default's `tanker_box` key is
+ignored. Unit-tested (`test_tanker_box.py`, `test_flight_defaults.py`); never run in the app.
+Design: `docs/dev/design/retlab-tanker-box-notes.md`.
+
+- **Setup:** open a save from before 2026-09-29 that has a theater tanker, and start a new
+  campaign with one.
+- **Pass:** both load; each new turn's theater tankers show BOX 1-4 and BOX END on their
+  Waypoints tab; the Waypoints tab has Set orbit speed and the Payload tab has neither control.
+- **Fail signatures:** an old save failing to load or a tanker window erroring on open; a
+  theater tanker with a two-point racetrack on a new turn; a package or recovery tanker
+  flying a box.
 ### B172 — A new flight's cartridge waits for the pilot to load it · §74 · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested offscreen (`tests/test_dtc_tab.py`); never flown.
@@ -8936,3 +8956,10 @@ Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested
 - **Setup:** pass a turn with DTC data cartridges on, and take a player Viper or Hornet cold without touching its DTC tab.
 - **Pass:** the flight's DTC tab reads Pilot loads it; in the jet the cartridge is listed on the DTC page and nothing is loaded until you load it; loading it brings in the route and the rest.
 - **Fail signatures:** the cartridge loads itself at spawn (the default did not reach the unit); the cartridge is missing from the jet's list.
+### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: every auto-planned tanker and AWACS package, and each station's first BARCAP wave, is an ASAP package. Tankers used to be spread at random through the mission. Unit-tested (`tests/commander/test_support_asap.py`, `tests/test_missionscheduler.py`); never flown.
+
+- **Setup:** any campaign with a theater tanker and an AWACS. Auto-plan a turn and open the ATO before flying.
+- **Pass:** the tanker, AWACS and first BARCAP packages show TOT ... (ASAP); relief BARCAP waves do not; in the mission, the tanker is on its track by the time the first strike package needs gas.
+- **Fail signatures:** a tanker with a TOT late in the mission; two BARCAP waves of one station arriving together (a relief wave was pulled onto the first).

@@ -133,11 +133,11 @@ DM called it: support them, then build our own, then drop them.
 
 | Unit id | Range | Iran factions |
 |---|---|---|
-| `IRAD_Sejjil_TEL` | 1,080 NM | 2015, 2020 |
-| `IRAD_Emad_TEL` | 918 NM | 2020 |
-| `IRAD_Kheibar_TEL` | 1,080 NM | 2020 |
-| `IRAD_Fattah2_TEL` | 756 NM | 2020 |
-| `IRAD_Shahed238_TEL` | 540 NM | 2020 |
+| `IRAD_Sejjil_TEL` | 1,080 NM | 2015, 2020, 2025 |
+| `IRAD_Emad_TEL` | 918 NM | 2020, 2025 |
+| `IRAD_Kheibar_TEL` | 1,080 NM | 2025 |
+| `IRAD_Fattah2_TEL` | 756 NM | 2025 |
+| `IRAD_Shahed238_TEL` | 540 NM | 2025 |
 
 - **Gate:** the pack's own `iranairdefensepack` toggle.
 - **Left out:** the Musudan (the only evidence of Iranian service is one leaked-cable claim; DM

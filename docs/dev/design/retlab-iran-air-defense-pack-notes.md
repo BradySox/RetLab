@@ -64,7 +64,7 @@ CurrentHill's.
 | Layouts | `resources/layouts/anti_air/3rd_Khordad_Battery.yaml`, `Bavar-373_Battery.yaml`, `Bavar-373-II_Battery_Single_Radar.yaml` |
 | Radar db | `game/data/radar_db.py` |
 | Skynet | `samTypesDB['3rd Khordad']`, `samTypesDB['Bavar-373']` in `skynet-iads-compiled.lua` |
-| Factions | `[CH] Iran 2020` gets all three presets; `Iran 2015` gets 3rd Khordad only (Bavar-373 is 2019) |
+| Factions | `Iran 2015`: 3rd Khordad. `[CH] Iran 2020`: + Bavar-373 (Sayyad-4 only; 2019). `[CH] Iran 2025`: + Bavar-373 (Sayyad-4B) (2022) and Bavar-373-II (2025) |
 | Tests | `tests/retlab/test_iran_air_defense_pack.py`, plus the two layouts in the redundancy and support-section tests |
 
 ### Layout choices
@@ -222,7 +222,6 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 - **The Bashir's travel fit.** The same reason: no reference shows how the 17 ft array stows
   on an 8 ft wide truck, so the tower stands erect.
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
-- **An Iran 2026 faction.** `[CH] Iran 2020` stands in.
 - **Iran's own short-range kit** (Majid, Herz-9). MANPADS-class threat is already covered by
   vanilla units.
 

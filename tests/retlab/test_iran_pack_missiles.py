@@ -62,8 +62,16 @@ def test_every_launcher_has_unit_data(unit_id: str) -> None:
     assert data["class"] == "Missile"
 
 
-def test_iran_2020_fields_every_launcher() -> None:
-    assert _pack_missiles(_load("CH_iran_2020.json", pack=True)) == SSM_IDS
+def test_iran_2025_fields_every_launcher() -> None:
+    assert _pack_missiles(_load("CH_iran_2025.json", pack=True)) == SSM_IDS
+
+
+def test_iran_2020_fields_the_sejjil_and_emad() -> None:
+    """The Fattah-2, Kheibar and Shahed 238 were shown in 2023."""
+    assert _pack_missiles(_load("CH_iran_2020.json", pack=True)) == {
+        "IRAD_Sejjil_TEL",
+        "IRAD_Emad_TEL",
+    }
 
 
 def test_iran_2015_fields_the_sejjil_only() -> None:
@@ -71,7 +79,9 @@ def test_iran_2015_fields_the_sejjil_only() -> None:
     assert _pack_missiles(_load("iran_2015.json", pack=True)) == {"IRAD_Sejjil_TEL"}
 
 
-@pytest.mark.parametrize("name", ["CH_iran_2020.json", "iran_2015.json"])
+@pytest.mark.parametrize(
+    "name", ["CH_iran_2025.json", "CH_iran_2020.json", "iran_2015.json"]
+)
 def test_toggle_off_strips_every_launcher(name: str) -> None:
     assert _pack_missiles(_load(name, pack=False)) == set()
 

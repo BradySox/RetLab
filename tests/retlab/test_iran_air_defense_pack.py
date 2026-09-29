@@ -79,11 +79,33 @@ def test_every_unit_has_unit_data(unit_id: str) -> None:
     assert (UNITS_DIR / f"{unit_id}.yaml").is_file()
 
 
-def test_modern_iran_fields_both_systems() -> None:
+def test_iran_2025_fields_every_unit() -> None:
+    faction = _load("CH_iran_2025.json", pack=True)
+    presets = {group.name for group in faction.preset_groups}
+    assert {
+        "3rd Khordad",
+        "Bavar-373",
+        "Bavar-373 (Sayyad-4B)",
+        "Bavar-373-II",
+    } <= presets
+    assert _irad_units(faction) == IRAD_IDS
+
+
+def test_iran_2020_fields_nothing_from_after_2021() -> None:
+    """The Sayyad-4B was shown in 2022, the Bavar-373-II in 2025 and the Fattah-2,
+    Kheibar and Shahed 238 in 2023: those are [CH] Iran 2025's."""
     faction = _load("CH_iran_2020.json", pack=True)
     presets = {group.name for group in faction.preset_groups}
-    assert {"3rd Khordad", "Bavar-373", "Bavar-373-II"} <= presets
-    assert _irad_units(faction) == IRAD_IDS
+    assert {"3rd Khordad", "Bavar-373"} <= presets
+    assert not presets & {"Bavar-373 (Sayyad-4B)", "Bavar-373-II"}
+    later = {
+        "IRAD_Bavar373_LN_4B",
+        "IRAD_Bavar373_TELAR",
+        "IRAD_Fattah2_TEL",
+        "IRAD_Kheibar_TEL",
+        "IRAD_Shahed238_TEL",
+    }
+    assert _irad_units(faction) == IRAD_IDS - later
 
 
 def test_iran_2015_gets_3rd_khordad_only() -> None:
@@ -99,7 +121,9 @@ def test_iran_2015_gets_3rd_khordad_only() -> None:
     )
 
 
-@pytest.mark.parametrize("name", ["CH_iran_2020.json", "iran_2015.json"])
+@pytest.mark.parametrize(
+    "name", ["CH_iran_2025.json", "CH_iran_2020.json", "iran_2015.json"]
+)
 def test_toggle_off_strips_every_unit(name: str) -> None:
     assert _irad_units(_load(name, pack=False)) == set()
 

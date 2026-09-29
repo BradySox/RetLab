@@ -167,6 +167,8 @@ class MissionScheduler:
 
         carrier_etas: dict[MissionTarget, list[datetime]] = defaultdict(list)
         carrier_barcaps: dict[MissionTarget, int] = defaultdict(int)
+        #: Carriers whose first stack of BARCAP waves is full; later waves relieve it.
+        carrier_relief_started: set[MissionTarget] = set()
 
         latest_s = int(self.desired_mission_length.total_seconds())
         spread_ceiling = timedelta(seconds=latest_s)
@@ -185,6 +187,8 @@ class MissionScheduler:
                     # Carriers stack several simultaneous BARCAPs rather than
                     # overlapping waves; keep the legacy queueing for them.
                     previous_end_time = previous_cap_end_time[package.target]
+                    if package.target not in carrier_relief_started:
+                        package.auto_asap = True
                     if tot > previous_end_time:
                         # Can't get there exactly on time, so get there ASAP.
                         package.time_over_target = tot
@@ -205,22 +209,19 @@ class MissionScheduler:
                             handover, package.time_over_target
                         )
                         carrier_barcaps[package.target] = 0
+                        carrier_relief_started.add(package.target)
                     else:
                         carrier_barcaps[package.target] += 1
                 else:
-                    # Land CPs: schedule overlapping waves so coverage has no
-                    # handoff gap, and jitter the first wave so CAP no longer
-                    # deterministically arrives at mission start (which let
-                    # attackers wait out the front-loaded CAP and strike a clear
-                    # sky). With barcap_overlap_time == 0 this reproduces the
-                    # legacy back-to-back, no-jitter schedule exactly.
+                    # Land CPs: the first wave is an ASAP package; each relief
+                    # wave is chained to the one before so coverage has no
+                    # handoff gap. Relief waves are never flagged ASAP: the
+                    # package editor re-runs ASAP on any edit and would pull a
+                    # relief wave back onto the first one.
                     previous_start = previous_cap_start_time.get(package.target)
                     if previous_start is None:
-                        jitter_ceiling = int(
-                            min(barcap_overlap, timedelta(minutes=5)).total_seconds()
-                        )
-                        jitter = timedelta(seconds=random.randint(0, jitter_ceiling))
-                        package.time_over_target = tot + jitter
+                        package.auto_asap = True
+                        package.time_over_target = tot
                     else:
                         interval = cap_patrol_duration(package) - barcap_overlap
                         if interval < timedelta(minutes=1):
