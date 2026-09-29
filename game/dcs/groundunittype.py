@@ -227,6 +227,13 @@ class GroundUnitType(UnitType[Type[VehicleType]]):
             "[CH] M142 HIMARS (PrSM AShM)": "MLRS M142 HIMARS ATACMS HE [CH]",  # CHAP_M142_ATACMS_M48
             "[CH] Oshkosh FMTV M1083": "Truck M1083 A1P2 MTV [CH]",  # CHAP_M1083
             "[CH] Oshkosh M-ATV MRAP (M2)": "APC MRAP M-ATV [CH]",  # CHAP_MATV
+            # The third-party Iranian missile mods, replaced by the RetLab Iran pack's
+            # own launchers 2026-09-29.
+            "Sejjil-2 MRBM TEL [PG IR]": "[IRAD] Sejjil-2 TEL",
+            "Emad MRBM TEL [PG IR]": "[IRAD] Emad TEL",
+            "Fattah-2 HGV TEL [PG IR]": "[IRAD] Fattah-2 TEL",
+            "Shahed 238 LM [PG AD]": "[IRAD] Shahed 238 launcher",
+            "Kheibar (Khorramshahr-4) TEL": "[IRAD] Kheibar (Khorramshahr-4) TEL",
         }
 
     @classmethod

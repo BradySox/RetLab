@@ -1,4 +1,4 @@
-"""RetLab Iran Air Defense Pack: 3rd Khordad and Bavar-373.
+"""RetLab Iran Air Defense Pack: 3rd Khordad, Bavar-373 and five missile launchers.
 
 The type ids here are the contract with the mod's Database lua (see
 docs/dev/design/retlab-iran-air-defense-pack-notes.md). These tests hold the
@@ -60,8 +60,18 @@ def _irad_units(faction: Faction) -> set[str]:
     }
 
 
-def test_the_contract_has_twelve_units() -> None:
-    assert len(IRAD_IDS) == 12
+SSM_IDS = {
+    "IRAD_Sejjil_TEL",
+    "IRAD_Emad_TEL",
+    "IRAD_Kheibar_TEL",
+    "IRAD_Fattah2_TEL",
+    "IRAD_Shahed238_TEL",
+}
+
+
+def test_the_contract_has_seventeen_units() -> None:
+    assert len(IRAD_IDS) == 17
+    assert SSM_IDS <= IRAD_IDS
 
 
 @pytest.mark.parametrize("unit_id", sorted(IRAD_IDS))
@@ -105,8 +115,9 @@ def test_3rd_khordad_battery_always_has_a_telar() -> None:
 
 def test_skynet_knows_every_unit() -> None:
     source = SKYNET.read_text(encoding="utf-8")
-    # The comms shelter is a Skynet connection node by group, not a SAM type.
-    radars = IRAD_IDS - {"IRAD_Rasool_Comms"}
+    # The comms shelter is a Skynet connection node by group, not a SAM type, and
+    # the missile launchers are not air defense.
+    radars = IRAD_IDS - {"IRAD_Rasool_Comms"} - SSM_IDS
     missing = sorted(uid for uid in radars if f"['{uid}']" not in source)
     assert missing == []
 

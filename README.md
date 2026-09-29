@@ -409,8 +409,8 @@ by surging the Trail or opening a Tet-style ground push on a scheduled window, a
 a period GCI ambush — scramble late, one slashing pass, run for home.
 
 **Mod content:** CurrentHill Iran assets, the RetLab Iran Air Defense Pack (3rd Khordad and
-Bavar-373; Retribution support is in, the mod is not released yet), Iranian ballistic-missile
-sites from the PG Iran IRBM and Air Defense packs and the Kheibar TEL (a Mods-page toggle), High Digit SAMs (Ultimate Compilation — S-400, SAMP/T,
+Bavar-373, and the Sejjil-2, Emad, Kheibar, Fattah-2 and Shahed 238 missile sites; Retribution
+support is in, the mod is not released yet), High Digit SAMs (Ultimate Compilation — S-400, SAMP/T,
 Pantsir-SM, period EWRs), and the optional Expanded F-4E Weapons Pack (check it on the Mods page
 to arm the Heatblur Phantom for Weasel SEAD; without the mod the jet falls back to stock Shrike
 fits). Plus a rebuilt settings screen with difficulty presets and a seven-mechanic Vietnam Ops

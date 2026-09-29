@@ -93,7 +93,7 @@
   "carrier_names": [],
   "missiles": [
     "SSM SS-1C Scud-B",
-    "Sejjil-2 MRBM TEL [PG IR]"
+    "[IRAD] Sejjil-2 TEL"
   ],
   "has_jtac": true,
   "jtac_unit": "MQ-9 Reaper",

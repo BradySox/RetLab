@@ -1,0 +1,1 @@
+* **[Mods]** The RetLab Iran Air Defense Pack's own Sejjil-2, Emad, Kheibar, Fattah-2 and Shahed 238 launchers fill Iranian missile sites. They replace the third-party Iranian missile mods, and their Mods-page tick box is gone.

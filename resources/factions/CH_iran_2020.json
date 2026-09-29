@@ -62,11 +62,11 @@
   "missiles": [
     "SSM SS-1C Scud-B",
     "[CH] Shahed 136 LM",
-    "Sejjil-2 MRBM TEL [PG IR]",
-    "Emad MRBM TEL [PG IR]",
-    "Fattah-2 HGV TEL [PG IR]",
-    "Shahed 238 LM [PG AD]",
-    "Kheibar (Khorramshahr-4) TEL"
+    "[IRAD] Sejjil-2 TEL",
+    "[IRAD] Emad TEL",
+    "[IRAD] Fattah-2 TEL",
+    "[IRAD] Shahed 238 launcher",
+    "[IRAD] Kheibar (Khorramshahr-4) TEL"
   ],
   "preset_groups": [
     "Hawk",

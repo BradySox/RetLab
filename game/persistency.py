@@ -375,6 +375,17 @@ class MigrationUnpickler(pickle.Unpickler):
 
     def _handle_misc(self, module: str, name: str) -> Any:
         """Handle migrations for mods"""
+        if module == "pydcs_extensions.iranmissilemods.iranmissilemods":
+            from pydcs_extensions.iranairdefensepack import iranairdefensepack as irad
+
+            return {
+                "PGIR_Sejjil_Launcher": irad.IRAD_Sejjil_TEL,
+                "PGIR_Emad_Launcher": irad.IRAD_Emad_TEL,
+                "PGIR_Fattah2_Launcher": irad.IRAD_Fattah2_TEL,
+                "PGAD_Shahed238_TEL": irad.IRAD_Shahed238_TEL,
+                "KHEIBAR_TEL_Launcher": irad.IRAD_Kheibar_TEL,
+            }.get(name)
+
         if module == "pydcs_extensions.f4b.f4b":
             return pydcs_extensions.f4
 

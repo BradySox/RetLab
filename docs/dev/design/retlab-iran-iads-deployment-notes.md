@@ -124,33 +124,30 @@ What the three Iranian factions (`iran_1988`, `iran_2015`, `CH_iran_2020`) can f
 | EW radars | 1L13, 55G6, P-14 (with the SA-5 preset), Matla ul-Fajr (RetLab pack); P-37 in 1988 | — | No EWR preset: an EWR site takes any EWR unit the faction has |
 | MANPADS | Igla | all three | Misagh is a QW-1 copy; the Igla stands in |
 
-## 6. Missile sites: the third-party mods (temporary)
+## 6. Missile sites
 
-The only Iranian ballistic missile DCS ships is the Scud-B. Three third-party mods carry more, and
-RetLab supports them until the RetLab pack carries its own launchers (DM call 2026-09-27: support
-them, then build our own, then drop them).
+The only Iranian ballistic missile DCS ships is the Scud-B. The RetLab pack carries five more
+launchers (2026-09-29). They replaced the third-party mods RetLab supported from 2026-09-27
+(the PG Iran IRBM Pack, the PG Iran Air Defense Pack's Shahed-238 and the Kheibar TEL), as the
+DM called it: support them, then build our own, then drop them.
 
-| Unit id | Mod | Range (the mod's own) | Iran factions |
-|---|---|---|---|
-| `PGIR_Sejjil_Launcher` | PG Iran IRBM Pack | 2,000 km | 2015, 2020 |
-| `PGIR_Emad_Launcher` | PG Iran IRBM Pack | 1,700 km | 2020 |
-| `PGIR_Fattah2_Launcher` | PG Iran IRBM Pack | 1,400 km | 2020 |
-| `PGAD_Shahed238_TEL` | PG Iran Air Defense Pack | 1,000 km | 2020 |
-| `KHEIBAR_TEL_Launcher` | Kheibar (Khorramshahr-4) TEL | 2,000 km | 2020 |
+| Unit id | Range | Iran factions |
+|---|---|---|
+| `IRAD_Sejjil_TEL` | 1,080 NM | 2015, 2020 |
+| `IRAD_Emad_TEL` | 918 NM | 2020 |
+| `IRAD_Kheibar_TEL` | 1,080 NM | 2020 |
+| `IRAD_Fattah2_TEL` | 756 NM | 2020 |
+| `IRAD_Shahed238_TEL` | 540 NM | 2020 |
 
-- **Gate:** the `iranmissilemods` toggle (Mods page, Asset packs). All three mods are needed.
-- **Left out:** the PG packs' SAMs (the RetLab pack's Bavar-373 and 3rd Khordad stay the only
-  ones); the Musudan (the only evidence of Iranian service is one leaked-cable claim; DM call);
-  the Sejil-2 SSM folder (its `entry.lua` loads DF-26 files it does not have, so it never
-  loads); the PG pack's "experimental" Fattah-2 glide test unit and its trailer-mounted variants.
+- **Gate:** the pack's own `iranairdefensepack` toggle.
+- **Left out:** the Musudan (the only evidence of Iranian service is one leaked-cable claim; DM
+  call); the Fattah-2's glide phase (the pack flies it on DCS's default ballistic arc).
 - **How a site behaves:** it spawns at a campaign's Scud marker and, with missile-site fire
   tasks on, fires once per mission at a random enemy base inside its range. At these ranges that
   is every blue base on the map.
 - **Preseeded in:** `scenic_merge` (2020, 31 red missile markers), `operation_noisy_cricket` and
   `WRL_Operation_Noisy_Cricket_Redux` (2019, two each). Not in the 2005 Scenic Routes, which
   predate every launcher here, nor in campaigns where Iran is the player.
-- **Licence:** both PG packs say their models were "converted from Sea Power community assets" and
-  ship no licence. RetLab only references their unit ids; nothing of theirs is in either repo.
 
 ## 7. Applying the layout, campaign by campaign
 

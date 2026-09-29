@@ -102,13 +102,6 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.registerField("chinesemilitaryassetspack", self.chinesemilitaryassetspack)
         self.iranmilitaryassetspack = QtWidgets.QCheckBox()
         self.registerField("iranmilitaryassetspack", self.iranmilitaryassetspack)
-        self.iranmissilemods = QtWidgets.QCheckBox()
-        self.iranmissilemods.setToolTip(
-            "Requires all three: the PG Iran IRBM Pack (Sejjil-2, Emad, Fattah-2), "
-            "the PG Iran Air Defense Pack (for its Shahed-238) and the Kheibar "
-            "(Khorramshahr-4) TEL. Adds them to Iranian factions' missile sites."
-        )
-        self.registerField("iranmissilemods", self.iranmissilemods)
         self.russianmilitaryassetspack = QtWidgets.QCheckBox()
         self.registerField("russianmilitaryassetspack", self.russianmilitaryassetspack)
         self.swedishmilitaryassetspack = QtWidgets.QCheckBox()
@@ -139,10 +132,6 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 self.chinesemilitaryassetspack,
             ),
             ("CurrentHill Iran Military Assets (2.1.0)", self.iranmilitaryassetspack),
-            (
-                "Iranian missile mods (PG IRBM, PG AD, Kheibar TEL)",
-                self.iranmissilemods,
-            ),
             (
                 "CurrentHill Russian Military Assets (2.0.1)",
                 self.russianmilitaryassetspack,
@@ -257,7 +246,6 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.ea6b_prowler.setChecked(s.get("ea6b_prowler", False))
         self.high_digit_sams.setChecked(s.get("high_digit_sams", False))
         self.iranairdefensepack.setChecked(s.get("iranairdefensepack", False))
-        self.iranmissilemods.setChecked(s.get("iranmissilemods", False))
         self.oh_6_vietnamassetpack.setChecked(s.get("oh_6_vietnamassetpack", False))
         self.ov10a_bronco.setChecked(s.get("ov10a_bronco", False))
         self.vietnamwarvessels.setChecked(s.get("vietnamwarvessels", False))
