@@ -112,7 +112,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   where one has been measured rather than assumed the same for every jet; the F/A-18C is the
   first, and transits a little slower than before.
 - Native DCS data cartridges auto-load in Hornets, Vipers and F-14B(U)s: route with push
-  times, boat TACAN/ICLS/ACLS, and the SA/HSD
+  times, boat TACAN/ICLS/ACLS, Hornet radio presets named after what they tune (your
+  flight, AWACS, tankers, PKG, JTAC, DEP/ARR/DVT), and the SA/HSD
   picture (the front line, your own orbit, the tankers and AWACS, recon-confirmed SAM
   rings). The front line is drawn as one continuous boundary with the same bulges the F10
   map shows, not a separate straight dash per front, and the tanker you can actually take

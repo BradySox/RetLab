@@ -174,9 +174,11 @@ SECTIONS: tuple[Section, ...] = (
     ),
     Section(
         "comms",
-        "TIS send-to list",
+        "Comms",
         COMMS,
         {
+            HORNET_UNIT_TYPE: "Names the radio presets after what they tune: your"
+            " flight, AWACS and tankers by callsign, then PKG, JTAC, DEP, ARR, DVT.",
             TOMCAT_UNIT_TYPE: "The package's other flights on the TIS send-to list.",
         },
     ),

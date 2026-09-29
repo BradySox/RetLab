@@ -27,6 +27,7 @@ if TYPE_CHECKING:
     from game.ato.flightwaypoint import FlightWaypoint
     from game.missiongenerator.aircraft.flightdata import FlightData
     from game.missiongenerator.missiondata import MissionData
+    from game.radio.radios import RadioFrequency
     from game.theater.player import Player
 
 #: Route-sequence default speed the ME uses when a leg speed is unknown (km/h).
@@ -870,3 +871,30 @@ def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
         for site in sites
         if _distance_to_route(site.x, site.y, route) - site.range_m <= limit
     ]
+
+
+def frequency_labels(
+    flight: FlightData, mission_data: MissionData
+) -> dict[RadioFrequency, str]:
+    """A short name for every mission frequency the channel allocator may have
+    preset: the one thing the Hornet's COMM section adds over the miz."""
+    labels: dict[RadioFrequency, str] = {}
+
+    def put(freq: Optional[RadioFrequency], label: str) -> None:
+        if freq is not None and freq not in labels:
+            labels[freq] = sanitize_short_name(label)
+
+    put(flight.intra_flight_channel, short_callsign(flight.callsign))
+    for awacs in mission_data.awacs:
+        put(awacs.freq, short_callsign(awacs.callsign))
+    for tanker in mission_data.tankers:
+        put(tanker.freq, short_callsign(tanker.callsign))
+    for jtac in mission_data.jtacs:
+        put(jtac.freq, "JTAC")
+    put(flight.package.frequency, "PKG")
+    put(flight.departure.atc, "DEP")
+    if flight.arrival != flight.departure:
+        put(flight.arrival.atc, "ARR")
+    if flight.divert is not None:
+        put(flight.divert.atc, "DVT")
+    return labels
