@@ -1,0 +1,17 @@
+date: 2026-08-26
+title: The map draws the country the war is in
+change: >-
+  The map's own nation used to be left off the border layer, which meant
+  Kola had no Russia, the Persian Gulf no Iran, and Iraq no Iraq -- the war
+  itself was the one region with no line on it. Every country is now drawn.
+  A country that is in the war gets an outline and only the faintest wash,
+  because your units, the threat rings and the front line already say whose
+  ground it is; a solid shade now means one thing, that the airspace will
+  intercept you. Airspace you may cross is also shaded a little harder,
+  since the old one was invisible over desert.
+watch: >-
+  Start a campaign on Iraq or the Persian Gulf and tick the Neutral airspace
+  layer. Iraq (or Iran) should now be outlined, and the only strongly shaded
+  country should be one that is not in the war and refuses you transit.
+  Borders already in a save keep the set they were rolled with.
+row: B120

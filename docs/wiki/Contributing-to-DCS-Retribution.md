@@ -107,7 +107,8 @@ To release a pinned version of the fork, follow upstream's steps:
    (**RetLab:** `main`; upstream: `dev`) and cherry-pick the updates to the release
    branch so they stay in sync. (**RetLab:** we usually tag `main` directly rather than
    keeping a separate release branch — in that case this step is just "make sure `main`
-   is green and the docs/changelog are current.")
+   is green and the docs/changelog are current." Fold the pending `changelog.d/` entries
+   into `changelog.md` first: `python tools/changelog.py fold`.)
 2. Announce a preview build before creating the release, with a link to the GitHub
    Action build for the specific branch, and wait some time. This allows you to get some
    feedback on the build. (**RetLab:** the rolling `latest` build *is* the standing

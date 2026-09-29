@@ -444,189 +444,20 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-98 rows need a live pass. Full detail is under each `###` heading below —
-search the row id. `☐` untested · `◐` flown but not under the conditions that
-stress it · `✗` fail signature reproduced in-game.
+Not kept by hand, so two PRs grading different rows never collide here. Print it
+from the row headings:
 
-| Row | What it checks | Feature | |
-|---|---|---|---|
-| B6 | Command-center decapitation degrades enemy planning | §52 | ☐ |
-| B11 | Ground AI sleep: distant garrisons stop thinking, wake on approach | §59 | ⊘ |
-| B15 | Squadron-sequenced board numbers: the Tomcat's livery is its modex | §62 | ☑ |
-| B17 | Carrier deck spawn policy (six-pack last resort + MP slot timing) | §64 | ✗ |
-| B19 | Weather-aware auto-planning | §67 | ☐ |
-| B20 | Adaptive procurement: SAM repair + price-weighted choice | §68 | ☐ |
-| B21 | Cross-package SEAD-before-strike coordination | §69 | ☑ |
-| B22 | COMINT collection: the campaign take (tiering + leak + reveal) | §70 | ⊘ |
-| B23 | Red comms net: audible + DF-able enemy C2 | §70 | ⊘ |
-| B28 | Native DTC data pre-population (F/A-18C + F-16C) | §74 | ☑ |
-| B29 | Custom victory conditions (VICTORY chip + alternate endings) | §75 | ◐ |
-| B31 | Escort jamming (Growler / Prowler + growler plugin) | §77 | ☑ |
-| B32 | Sea-supply convoys + coastal anti-ship engagement | §78 | ☐ |
-| B35 | Air-defense class rows are filters of the "Air defences" master | §19 | ☑ |
-| B39 | Cross-turn naval magazines | §81 | ◐ |
-| B63 | A destroyed strike target is recorded in the campaign | §8 | ☑ |
-| B64 | The datalink era gate: the SA page populates when it should | datalink | ☑ |
-| B50 | The auto-planner never picks the King for a rescue | CSAR | ☑ |
-| B51 | The rescue package is not planned into threat it cannot survive | CSAR | ☑ |
-| C9 | Carrier-recovery stagger (same-boat package landings spaced) | §8 | ☑ |
-| G2 | Recon BDA bridge (one plugin, player + AI) | §12 | ✅ |
-| G19 | TARPS recon birds fly the recon leg (RF-101B / RA-5C / Su-24MR) | §3 | ◐ |
-| G39 | Engaging a site reveals it completely; recon does not | §3 | ☑ |
-| G40 | TARPS recon finds a hidden enemy command post | §3 | ☐ |
-| G41 | A bombed power station keeps its SAMs down on the NEXT turn | Skynet bridge, DeadC2 | ☐ |
-| B84 | Front-line groups move and return fire instead of holding | §8 | ☑ |
-| B85 | A flight with an unreachable TOT flies instead of orbiting | §8 | ◐ |
-| B98 | The bullseye is the same place it was last mission | §95 | ☑ |
-| B99 | AI packages arrive inside the mission, not after it | §8 | ☑ |
-| B120 | Neutral border: warned, then the battery engages if you press | §98 | ☐ |
-| B121 | Neutral border: AI intruders are never engaged | §98 | ◐ |
-| B122 | A survivor lands where his own chute came down, not where another crew's did | CSAR (#929 adoption) | ◐ |
-| B123 | An Armed Recon flight engages a gun-defended target instead of overflying the search point | §35 | ◐ |
-| B124 | A hand-fragged Harrier DEAD opens the New Flight dialog on the DEAD preset, not a stock Snakeye fit | New Flight dialog | ✅ |
-| B125 | A dynamic-slot jet spawns with the template's route, radios and loadout | §101 | ☐ |
-| B128 | An escort comes home when its primary never flies | §8 | ◐ |
-| B129 | A flight with fuel to spare has no tanker leg | §46-adjacent | ◐ |
-| B131 | The land AWACS orbit sits over land, and two AWACS never share a racetrack | support orbits | ☑ |
-| B132 | The profiler names the sim-thread sink, or clears Lua of it | sim-thread freeze note | ◐ |
-| B133 | A SAM the campaign never named goes dark with the power station beside it | Skynet return | ☐ |
-| B134 | Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package | §69 | ◐ |
-| B135 | A saved point reaches the cockpit with the number the kneeboard gives it | §102 | ☐ |
-| B136 | The DTC options do what the tab says: hand-load, skipped waypoints, your drawings | §102 | ☐ |
-| B137 | A Nevada kneeboard coordinate is the point the F10 map shows | kneeboard coordinates | ☐ |
-| B138 | A pinned board number is the flight's, no other package wears it, and only X00 flies the CAG bird | §62 | ☐ |
-| B139 | The front movement arrow points the way the line moved, and a held front has none | §90 | ☐ |
-| B140 | HQ priority targets: the panel names what a target is worth, and the planner leans to the top third | §103 | ☐ |
-| B141 | Packages route around a SAM ring that covers none of their targets | §69 | ☐ |
-| B142 | A survivor with no ejection comes down where his jet crashed | CSAR (#929 adoption) | ◐ |
-| B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
-| B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
-| B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
-| B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ◐ |
-| B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
-| B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ◐ |
-| B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
-| B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
-| B151 | The package route moves every flight in the package | §106 | ☐ |
-| B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
-| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ◐ |
-| B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
-| B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
-| B162 | The kneeboard drops its dead lines and nothing else moves | §22 | ☐ |
-| B156 | A carrier keeps the same TACAN every time the mission is generated | §65 | ☐ |
-| B157 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
-| B158 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
-| B159 | A target steerpoint in the hills sits on the ground | §74 | ☐ |
-| B160 | Every settings row reads as one line: shading, dividers and a hover band | settings UI | ☐ |
-| B161 | Untasked parked aircraft are culled only at airfields no player sees | Culling settings | ☐ |
-| B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
-| G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
-| G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
-| G42 | Skynet is the engine again: sites dark until cued, HARM defence, no `enableEmission` crash | Skynet return | ◐ |
-| G43 | A crash in a radar's view never stalls a Skynet network | Skynet return | ☑ |
-| G33 | Survivor ADF beacon: the pinned 260 kHz drives a real needle | CSAR (upstream #929 + RetLab pin) | ◐ |
-| G34 | AI landing pickup: touchdown, embark, and the rescue reported back | CSAR | ☑ |
-| G35 | AI hover hoist completes and releases the flight, including over water | CSAR | ☑ |
-| G36 | Player rescue end to end: F10 menu, the hoist at the briefed height, delivery, roster | CSAR | ☐ |
-| G37 | Multiplayer: a non-lead client can run the rescue | CSAR | ☑ |
-| G38 | `csar_rescue_ai_pilots` ON spawns a survivor for every AI ejection | CSAR | ☑ |
-| B71 | Several survivors come out on one lift | CSAR (#929 Phase 5) | ☐ |
-| B72 | A pilot down beside a base is resolved without a rescue flight | CSAR (#929 Phase 5) | ☑ |
-| B73 | Taking a base frees the prisoners held there | CSAR (#929 Phase 5) | ☐ |
-| B74 | The briefed hover follows the player hover-height setting | CSAR (#929 Phase 5) | ☑ |
-| H14 | The kneeboard SAR line is accurate, and the rescue crew gets a usable card | CSAR | ◐ |
-| I2 | Civilian background air traffic (region fleets + airways) |  | ◐ |
-| H10 | Shared-airframe kneeboard index | §27 | ☐ |
-| H15 | Offline recon pages: imagery under the symbology, or none at all | §22 | ☐ |
-| H16 | Package Targets Map: terrain behind the packages, and it lines up | §22 | ☐ |
-| H11 | Estimated fuel figures for dataless airframes | §4 | ☑ |
-| K2 | Campaign SITREP band on its own kneeboard page | §29 | ☑ |
-| L5 | New-Game "Vietnam" card | Vietnam mode P2 shell | ◐ |
-| L6 | Convoy interdiction (Steel Tiger) | §35 | ◐ |
-| L8 | Airbase harassment (rocket/mortar siege) | §36 | ✅ |
-| L9 | Super Gaggle hilltop resupply | §37 | ◐ |
-| L11 | Snake and nape (napalm CAS) | §39 | ◐ |
-| M6 | Red tempo: turn-windowed trail surge, ground-offensive pulse (campaign layer W6, rehomed 2026-07-21) | campaign layer | ☐ |
-| O1 | Local DCS chart base layer renders + aligns | §42 | ☐ |
-| P1 | COIN Enduring Resolve: the living insurgency in play | COIN C-series | ☐ |
-| P3 | COIN re-infiltration: the insurgency retakes ground | COIN C1.5 | ☐ |
-| P4 | COIN roadside IEDs: sweep the trail or pay | COIN | ◐ |
-| P5 | COIN high-value targets: hunt the leadership | COIN | ◐ |
-| P6 | COIN dispersed cells: patrol the countryside | COIN C4 | ☐ |
-| P7 | Iraq "Operation Inherent Resolve" (Mosul) COIN campaign plays | Iraq COIN campaign | ◐ |
-| P8 | COIN in-mission liveliness: cell movers + insurgent indirect fire on the FOBs | COIN | ☐ |
-| O2 | Downed-pilot map overlays: both coalitions, the fog, and the countdown | CSAR | ☑ |
-| Q3 | Bulk waypoint altitude moves every flown leg | §4 (flight altitude editing) | ☑ |
-| S1 | Route-aware fuel-tank planning (fuel-first) | §46 | ✅ |
-| S3 | Friendly convoy ambush (a chance, never telegraphed) | §50 | ◐ |
-| S4 | Enemy comms jamming: capture the intel, then the C2 belt steps on the radios | §51 | ⊘ |
-| S5 | Ambient supply convoys: both sides' roads have randomized traffic | §50 | ☑ |
-| S6 | Tanker fragged for a no-`fuel:`-block airframe on a long sortie | §46 | ✅ |
-| S7 | Measured fuel data adopted from DCS Liberation drives tanker + bingo for 12 airframes | §46 | ☐ |
-| T1 | Continuous clock marches + weather evolves across turns | §47 | ☑ |
-| T3 | Iraq "Umm al-Ma'arik (Desert Storm 1991)" campaign plays | Desert Storm campaign | ☑ |
-| T4 | DCS 2.9.28 Iraq map pass: dam destructibility + the ED airfield fixes | Desert Storm / Inherent Resolve | ☑ |
-| T5 | Marianas "Second Island Chain (2027)" campaign plays | Marianas 2027 campaign | ☑ |
-| T6 | The survival clock leaves exactly one flyable rescue window | CSAR | ☑ |
-| U1 | Water/land relocate scripts run on the MIST shim | base plugin | ✅ |
-| B45 | GPS jamming (satellite-guided weapons go long) | §86 | ☐ |
-| B52 | Escort-jammer distribution + the one-SEAD-flavour escort set | §77 | ☑ |
-| B49 | Carrier recovery-phase deck dressing | §72 | ✅ |
-| B48 | Naval station-keeping racetracks | §87 | ☑ |
-| B53 | AI flights no longer push early for a tanker stop they never fly | §46 | ✅ |
-| B54 | Planner behavior bar switches the suite in the settings UI | re-convergence | ☐ |
-| B55 | Carrier steams for wind down the angled deck | §88 | ☑ |
-| B56 | Living battlespace pre-roll: mid-cycle mission start | §89 | ⊘ |
-| B57 | Living battlespace P2: ramp residue + clean-wing returners | §89 | ⊘ |
-| B59 | Living battlespace P4: the voice net | §89 | ⊘ |
-| B60 | Living battlespace P5: reactive red | §89 | ⊘ |
-| B61 | Task-role degrade: mismatched-role AI flights still fly their mission | §8 | ☐ |
-| B65 | Reinforcement follows the supply lines | §90 rung A | ◐ |
-| B66 | Attacking costs more than defending | §90 rung B | ☐ |
-| B67 | The front line counts the forces present | §90 rung C | ☑ |
-| B68 | Terrain slows the front line | §90 rung D | ☑ |
-| B69 | The front bulges instead of running straight | §90 rung E | ☑ |
-| B70 | Sortie records reach the campaign | §91 | ☑ |
-| B75 | The ATO stops spending its escorts on the wrong packages | planner shape | ☑ |
-| B76 | A mixed boom/probe wing gets a tanker of each | U15 reinstated | ☑ |
-| B77 | A player's ramp allowance matches the airframe | #214 startup times | ☑ |
-| B78 | The escorts let go of a package the player is leading | planner shape | ☑ |
-| B79 | Ground-level waypoints read the field's elevation | §8 | ☑ |
-| B80 | String plugin options can actually be edited | §14 | ☐ |
-| B81 | SEAD-evasion scoot distance is a campaign setting | MANTIS | ✅ |
-| B82 | The AWACS orbits at a field it can actually fly from | planner shape | ☑ |
-| B88 | Tankers orbit at their own base, and each carrier gets one | planner shape | ☑ |
-| B83 | ATMOS-X live weather: the turn flies a real observation | ATMOS-X live weather | ☑ |
-| B86 | Retribution survives DCS taking over the GPU (Qt 6.8) | app / Qt | ☑ |
-| B87 | A stand-off shooter starts its run at its own launch range | §8 | ☑ |
-| B89 | Region priorities: the CP-dialog control shifts the ATO | §93 | ☑ |
-| B90 | A steerpoint's elevation is the ground under it | §74 | ☑ |
-| B91 | The F-14B(U) spawns with its cartridge loaded | §74 | ☑ |
-| B92 | A rescued marker belongs to the base it sits next to | campaign loading | ☐ |
-| B93 | The front line sits on ground the armour can hold | §90 | ☑ |
-| B94 | Editing a faction mid-campaign reaches the buy menus | juanjux #953 | ☐ |
-| B95 | Saving the air wing keeps both coalitions | air wing config | ☐ |
-| B96 | Iron Gate's fields fill without an aircraft losing its stand | Iron Gate | ◐ |
-| B97 | One salvo, and only the targeted flight breaks | §94 | ☑ |
-| B100 | The ramp still holds the squadrons authored against it | DCS 2026-08-26 parking rework | ◐ |
-| B101 | The F-4E's Shrike and gun pod are still on the jet | §71 | ☐ |
-| B102 | A low ingress against an SA-2/SA-3 belt is still flyable | DCS 2026-08-26 SAM guidance | ☑ |
-| B103 | BMP-3s in a firefight still fire like armour, not infantry | §9 TIC | ☐ |
-| B104 | The Viper's ROE tab declares the campaign's own sides | §74 | ◐ |
-| B105 | The Apache's cartridge loads: route, targets and the front line on the TSD | §74 | ☐ |
-| B106 | The C-130J King can be fragged into a rescue, and holds an orbit clear of the threat | CSAR | ☐ |
-| B107 | The log stops repeating a MOOSE event error thousands of times | vendored `Moose.lua` | ☑ |
-| B108 | A stuck TIC unit names itself, and the retries are spread not concentrated | §9 TIC | ◐ |
-| B109 | Payload backups leave `UnitPayloads` and the launch error stops | §73 | ☑ |
-| B110 | A SEAD jet's steerpoints are the site's emitters, and the card's STPT numbers match | §5 / §3 | ☐ |
-| B111 | A package's escort holds the striker's pace instead of running ahead | §8 cruise mach | ☑ |
-| B112 | The wind you set is the wind the panel shows, and the box stops at 97 kt | wind override / live weather | ☑ |
-| B113 | A pilot's logbook fills in, and the kills are the ones they got | §96 | ◐ |
-| B114 | Your lifetime logbook survives starting a new campaign | §97 | ☑ |
-| B115 | The cockpit front line is one continuous boundary, bowed where the map is bowed | §74 / §90 | ☑ |
-| B117 | A Sandy can be fragged onto a survivor, and covers the pickup | §99 | ☐ |
-| B118 | The Super Hornet still arms and its new cockpit options are there | CJS 2.4.5.260726 | ☐ |
-| B119 | The King DFs the survivor, sweeps the threats, and the Sandy sees the marks | §100 | ☐ |
+```
+python tools/checklist_board.py          # outstanding rows, with the count
+python tools/checklist_board.py --all    # every row
+```
+
+The session-start board prints the same thing. `☐` untested · `◐` flown but not
+under the conditions that stress it · `✗` fail signature reproduced in-game.
+
+**Adding a row:** claim its id first with `python tools/claim_id.py row` (prints
+the next free `B###`, reserved on GitHub so no other branch can take it), then add
+the `###` heading at the end of the file.
 
 ---
 
@@ -8943,17 +8774,6 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
-### B162 — The kneeboard drops its dead lines and nothing else moves · §22 · ☐ UNTESTED
-
-Built 2026-09-29. Checked on a headless Long Road to H3 deck (8 player flights); never read in DCS.
-
-- **Setup:** any mission with a player flight that has no divert field, and the
-  Generate friendly packages kneeboard page setting on. An Apache flight if you have one.
-- **Pass:** Mission Info has no empty Divert row. The Friendly Packages page title is not
-  followed by a second "Friendly Packages" heading. The Apache LOADOUT line lists rockets
-  and Hellfires but not the AN/APG-78 radar.
-- **Fail signatures:** a table row cut off or a page that now spills onto a new page (the
-  lines removed should only ever free space).
 ### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ☐ UNTESTED
 
 Built 2026-09-29 from test 47. Where a map owns a carrier's hull channel, the boat's TACAN

@@ -1,0 +1,11 @@
+date: 2026-08-18
+title: An un-engaged site stops leaking its condition on the map
+change: >-
+  Every enemy air-defence site you had not engaged was drawing a green "fully
+  capable" bar, a regression from removing the BDA lag. The symbol hides
+  condition again until you earn it.
+watch: >-
+  With "Reveal fog of war" off, an enemy site you have never touched should
+  carry no condition bar at all.
+row: G39
+pr: "898"

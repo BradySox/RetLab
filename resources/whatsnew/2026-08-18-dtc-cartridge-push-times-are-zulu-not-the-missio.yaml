@@ -1,0 +1,10 @@
+date: 2026-08-18
+title: DTC cartridge push times are Zulu, not the mission clock
+change: >-
+  The cartridge wrote mission-local times where the jet's avionics run Zulu, so
+  the steerpoint times disagreed with the DED and HUD by the map's offset.
+watch: >-
+  Load a cartridge and compare a steerpoint's time of arrival against System
+  Time on the DED or HUD. They should agree.
+row: B28
+pr: "895"

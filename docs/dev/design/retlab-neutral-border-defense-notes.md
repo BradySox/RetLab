@@ -1026,6 +1026,8 @@ row is first written:
 grep -oP "^### [A-Z]+[0-9]+(?= )" docs/dev/retlab-ingame-pass-checklist.md | sort | uniq -d
 ```
 
+Since 2026-09-29 a new row's id is claimed with `python tools/claim_id.py row`, and
+the glance table and its count are gone, so this should not recur. The record:
 Renumber your own rows, never main's. The renumber reaches five places, and
 `resources/whatsnew.yaml` is the one that gets forgotten -- 16 entries carried
 `row: B107` on the third pass, and 21 carried `row: B114` on the sixth. Also:

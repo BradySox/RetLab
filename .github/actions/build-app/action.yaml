@@ -19,4 +19,5 @@ runs:
     - name: Install changelog
       shell: powershell
       run: |
-        Copy-Item .\changelog.md .\dist
+        ./venv/scripts/activate
+        python tools/changelog.py render --out .\dist\changelog.md

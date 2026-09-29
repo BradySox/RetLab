@@ -1,0 +1,12 @@
+date: 2026-08-19
+title: Warships stop emptying every anti-ship tube in one mission
+change: >-
+  A ship group now holds fire after a set number of anti-ship missiles per
+  mission (default 6) and stays quiet for the rest of the day. Its campaign
+  magazine is unchanged, and a group under attack still shoots back.
+watch: >-
+  Red's cruiser should fire a salvo and go silent instead of ripple-firing its
+  whole loadout in half a minute. The log says "salvo complete (6 this
+  mission)".
+row: B39
+pr: "906"

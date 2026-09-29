@@ -788,7 +788,7 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="base",
     ),
     Feature(
-        # The recent-changes window on the toolbar. Reads resources/whatsnew.yaml;
+        # The recent-changes window on the toolbar. Reads resources/whatsnew/;
         # no plugin, no Settings gate -- it describes the build, not the campaign,
         # so it is available before a save is opened.
         "whats_new",

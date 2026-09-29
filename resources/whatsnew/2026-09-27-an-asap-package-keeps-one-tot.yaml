@@ -1,0 +1,11 @@
+date: 2026-09-27
+title: An ASAP package keeps one TOT
+change: >-
+  At a busy field, an ASAP package's TOT could flip between two times each
+  time the package was touched, and saving the package window could end in
+  a "maximum recursion depth exceeded" error. ASAP now settles on one time
+  that leaves the flights room for the runway queue.
+watch: >-
+  Open an ASAP package at a busy field, add a flight, then press Done: no
+  error, and the TOT does not change when you open it again.
+row: B145

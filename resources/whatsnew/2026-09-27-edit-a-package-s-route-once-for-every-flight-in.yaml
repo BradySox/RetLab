@@ -1,0 +1,13 @@
+date: 2026-09-27
+title: Edit a package's route once, for every flight in it
+change: >-
+  The package window has a Package route button. It lists the way in (join
+  to IP) and the way out (target to split) that every flight in the package
+  flies together. A NAV point added, deleted or moved there changes every
+  flight's route, so the package still meets at the join. Drag a point on
+  the primary flight's route on the map to move it for all of them.
+watch: >-
+  Add a NAV point after the join and open each flight's Waypoints tab: all
+  of them have it between the join and the IP, and the escorts stay with
+  the strikers through it in the mission.
+row: B151

@@ -4,17 +4,19 @@ The window it backs is reachable with no game open, so the load path is held to
 "never raises": a missing, unreadable, or half-written data file costs an empty
 window and nothing else. The ordering test pins the property the file's whole
 existence rests on -- the changelog cannot answer "what changed lately" because
-it is grouped by area, so this file is authored newest-first and must stay that
-way.
+it is grouped by area, so the feed is ordered by date. One file per entry is what
+keeps two pull requests from colliding in it.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
 
+import yaml
+
 from game.retlab.whatsnew import (
     DEFAULT_LIMIT,
-    WHATS_NEW_FILE,
+    WHATS_NEW_DIR,
     load_whats_new,
 )
 
@@ -27,7 +29,7 @@ def _write(tmp_path: Path, body: str) -> Path:
 
 def test_the_shipped_file_loads_and_every_entry_is_complete() -> None:
     entries = load_whats_new()
-    assert entries, f"{WHATS_NEW_FILE} should ship a non-empty list"
+    assert entries, f"{WHATS_NEW_DIR} should ship a non-empty feed"
     assert len(entries) <= DEFAULT_LIMIT
     for entry in entries:
         assert entry.date and entry.title and entry.change and entry.watch
@@ -36,6 +38,28 @@ def test_the_shipped_file_loads_and_every_entry_is_complete() -> None:
 def test_the_shipped_file_is_newest_first() -> None:
     dates = [entry.date for entry in load_whats_new()]
     assert dates == sorted(dates, reverse=True)
+
+
+def test_every_feed_file_holds_exactly_one_complete_entry() -> None:
+    """One entry per file is the whole point: a second entry appended to someone
+    else's file is the merge conflict the directory exists to prevent."""
+    files = sorted(WHATS_NEW_DIR.glob("*.yaml"))
+    assert files
+    for file in files:
+        document = yaml.safe_load(file.read_text(encoding="utf-8"))
+        assert isinstance(document, dict), f"{file} is not one mapping"
+        assert "entries" not in document, f"{file} holds a list; split it"
+        assert load_whats_new(limit=-1, path=file), f"{file} is incomplete"
+
+
+def test_a_feed_directory_merges_its_files_newest_first(tmp_path: Path) -> None:
+    for name, date in (("a.yaml", "2026-08-18"), ("b.yaml", "2026-08-20")):
+        (tmp_path / name).write_text(
+            f"date: {date}\ntitle: {name}\nchange: c\nwatch: w\n", encoding="utf-8"
+        )
+    (tmp_path / "broken.yaml").write_text("date: [", encoding="utf-8")
+    titles = [entry.title for entry in load_whats_new(path=tmp_path)]
+    assert titles == ["b.yaml", "a.yaml"]
 
 
 def test_same_day_entries_keep_the_order_the_file_wrote_them(tmp_path: Path) -> None:

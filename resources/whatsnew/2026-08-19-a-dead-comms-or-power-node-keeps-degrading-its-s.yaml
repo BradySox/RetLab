@@ -1,0 +1,10 @@
+date: 2026-08-19
+title: A dead comms or power node keeps degrading its SAMs
+change: >-
+  The IADS dropped any node whose units were all dead, so from the turn after
+  you killed it the dependency vanished and the SAMs it fed went back to full
+  capability.
+watch: >-
+  Kill a comms or power node, pass the turn, and the SAMs behind it should
+  still be degraded in the next mission rather than fighting fresh.
+pr: "904"

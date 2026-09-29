@@ -1,0 +1,14 @@
+date: 2026-09-27
+title: Insert NAV point works beside any waypoint with a leg next to it
+change: >-
+  Insert NAV point knew only the legs to the join and home from the split,
+  and refused everything a strike flies in between. It now adds the point
+  halfway along the leg after the selected waypoint, or the leg before it,
+  and says why when a waypoint has neither (the attack run from the IP). On
+  the package's shared legs it asks whether the point is for the whole
+  package or this flight only.
+watch: >-
+  On a strike, select the NAV just before INGRESS and insert: the new point
+  appears between the join and that NAV, and the map route does not
+  zigzag.
+row: B150

@@ -1,0 +1,12 @@
+date: 2026-08-18
+title: Engaging a site reveals it completely; recon no longer does
+change: >-
+  A site is revealed by putting ordnance on it, or by any ground-attack sortie
+  that reaches it, and is then known permanently, damage included. Recon's one
+  job is finding the hidden enemy command posts.
+watch: >-
+  Strike a site and its composition and damage should be fully readable
+  afterwards. Fly recon over a site nobody has engaged and it should stay
+  hidden.
+row: G39
+pr: "890"
