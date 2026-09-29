@@ -8796,6 +8796,21 @@ generated under. Unit-tested (`test_iads_renamed_flagship.py`).
 - **Pass:** `dcs.log` has no `EW Radar that does not exist` line naming a carrier or LHA.
 - **Fail signature:** that line again = a ship renamed where the IADS data does not see it.
 
+### B158 — The debrief grades each flight, and the grades match what happened · §108 · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flown mission.
+
+- **Setup:** fly any turn with a player strike or SEAD flight and let a few AI packages fly.
+  Accept the results. Note your actual time at the target and what you hit.
+- **Pass:** the debrief has a Flight report cards box, your flight first. Your card's timing
+  matches when you were over the target (within about a minute), the package target count
+  matches the map, and shots and hits match what you released.
+- **Fail signatures:** no box at all (no sortie records reached `state.json`, see §91); every
+  flight "Never reached the target area" (the TOT waypoint or mission start is off, check
+  §104's early start); timing out by exactly the early-start shift (planned TOT measured from
+  the wrong clock).
+
+
 ### B159 — A target steerpoint in the hills sits on the ground · §74 · ☐ UNTESTED
 
 Built 2026-09-29. The data cartridge gave a target steerpoint the nearest airfield's
@@ -8826,4 +8841,18 @@ Built 2026-09-29. Filter and disclosure tests pass with the painting in place; r
 - **Fail signatures:** bands stacked at the top of a section (geometry read before layout); a
   hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
   a search.
+
+### B161 — Untasked parked aircraft are culled only at airfields no player sees · Culling settings · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_untaskedculling.py`); never generated in DCS.
+
+- **Setup:** Settings → Mission Generator → Culling & untasked units: tick **Disable
+  untasked OWNFOR aircraft at airfields** and **Disable untasked OPFOR aircraft at
+  airfields**. Fly a player flight whose route passes one enemy airfield and stays well
+  clear (more than 20 NM) of another.
+- **Pass:** your departure field's ramp and the enemy field beside your route hold their
+  parked aircraft; the far enemy field has none (F10 map or the Mission Editor).
+- **Fail signatures:** your own ramp empty (the old all-or-nothing rule is still in the
+  build); every field full (the rule found no player flight — check the flight has a
+  client slot).
 

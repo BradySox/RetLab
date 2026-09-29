@@ -102,12 +102,24 @@ class PerformanceSettings:
         page=MISSION_GENERATOR_PAGE,
         section=PERFORMANCE_SECTION,
         default=False,
+        detail=(
+            "Parked OWNFOR aircraft with no flight this turn are left out only at "
+            "airfields no player will see. An airfield keeps them when a player "
+            "flight takes off from it, lands at it, diverts to it or passes within "
+            "20 NM of it, or when an OCA/Aircraft package targets it."
+        ),
     )
     perf_disable_untasked_opfor_aircraft: bool = boolean_option(
         "Disable untasked OPFOR aircraft at airfields",
         page=MISSION_GENERATOR_PAGE,
         section=PERFORMANCE_SECTION,
         default=False,
+        detail=(
+            "Parked OPFOR aircraft with no flight this turn are left out only at "
+            "airfields no player will see. An airfield keeps them when a player "
+            "flight takes off from it, lands at it, diverts to it or passes within "
+            "20 NM of it, or when an OCA/Aircraft package targets it."
+        ),
     )
     # Performance culling
     perf_culling: bool = boolean_option(

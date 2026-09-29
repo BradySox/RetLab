@@ -1,3 +1,4 @@
+import html
 import logging
 from typing import Callable, Dict, TypeVar
 
@@ -15,6 +16,7 @@ from PySide6.QtWidgets import (
 
 from game.debriefing import Debriefing
 from game.retlab.cruise_raids import debrief_expenditures
+from game.retlab.flight_grades import FlightCard, Grade
 from game.theater import Player
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 
@@ -177,6 +179,46 @@ class RescueReport(QGroupBox):
             layout.addWidget(QLabel("No pilots were recovered."), 0, 0)
 
 
+class FlightReportCards(QGroupBox):
+    """§108: one graded card per blue flight, player flights first."""
+
+    GRADE_COLORS = {
+        Grade.ABOVE_AVERAGE: "#1f7a45",
+        Grade.AVERAGE: "#3c4f8a",
+        Grade.BELOW_AVERAGE: "#8a5a00",
+        Grade.UNSAT: "#a3261d",
+    }
+
+    def __init__(self, cards: list[FlightCard]) -> None:
+        super().__init__("Flight report cards")
+        body = QWidget()
+        body_layout = QVBoxLayout(body)
+        for card in cards:
+            color = self.GRADE_COLORS[card.grade]
+            who = " (player)" if card.player else ""
+            header = QLabel(
+                f"<b>{html.escape(card.title)}</b>{who} "
+                f"<b style='color:{color}'>{card.grade.value}</b>"
+            )
+            header.setWordWrap(True)
+            body_layout.addWidget(header)
+            for fault in card.faults:
+                label = QLabel(f"Fault: {fault}")
+                label.setWordWrap(True)
+                body_layout.addWidget(label)
+            for line in card.lines:
+                label = QLabel(line)
+                label.setWordWrap(True)
+                body_layout.addWidget(label)
+        scroll = QScrollArea()
+        scroll.setWidgetResizable(True)
+        scroll.setWidget(body)
+        scroll.setMinimumHeight(160)
+        layout = QVBoxLayout()
+        layout.addWidget(scroll)
+        self.setLayout(layout)
+
+
 class QDebriefingWindow(QDialog):
     def __init__(self, debriefing: Debriefing):
         super(QDebriefingWindow, self).__init__()
@@ -218,6 +260,10 @@ class QDebriefingWindow(QDialog):
                 consequences_layout.addWidget(line_label)
             consequences.setLayout(consequences_layout)
             layout.addWidget(consequences)
+
+        cards = getattr(debriefing.game, "last_flight_cards", [])
+        if cards:
+            layout.addWidget(FlightReportCards(cards))
 
         player_lost_units = ScrollingCasualtyReportContainer(
             debriefing, player=Player.BLUE

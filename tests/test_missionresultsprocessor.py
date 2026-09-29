@@ -45,6 +45,7 @@ COMMIT_STEPS = [
     "commit_super_gaggle",
     "commit_cruise_missiles",
     "commit_naval_magazines",
+    "record_flight_cards",
     "record_sitrep",
 ]
 

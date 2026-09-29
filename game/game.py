@@ -53,6 +53,7 @@ from .weather.conditions import Conditions
 
 if TYPE_CHECKING:
     from .ato.airtaaskingorder import AirTaskingOrder
+    from .retlab.flight_grades import FlightCard
     from .factions.faction import Faction
     from .retlab.super_gaggle import SuperGaggleCommitment
     from .retlab.victory import VictoryBaseline
@@ -128,6 +129,8 @@ class Game:
         # shown on the next turn's kneeboard cover band. None until the first
         # mission is flown; persisted.
         self.last_sitrep: Optional[Sitrep] = None
+        #: §108: last mission's report cards, for the debrief.
+        self.last_flight_cards: list[FlightCard] = []
         # Vietnam Ops Super Gaggle (§37): the turn's planned resupply run, drawn from real
         # BLUE squadrons; None when the feature is off or no gaggle is plannable. Losses are
         # charged back to the squadrons at debrief. Replanned each turn in finish_turn.
@@ -230,6 +233,7 @@ class Game:
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("custom_kneeboards", [])
         state.setdefault("last_sitrep", None)
+        state.setdefault("last_flight_cards", [])
         state.setdefault("client_map_layers", None)
         state.setdefault("super_gaggle_commitment", None)
         # W6 red tempo: pre-feature saves resolve on their next initialize_turn.
