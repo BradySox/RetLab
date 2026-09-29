@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+92 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -462,6 +462,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B156 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8875,4 +8876,18 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Pass:** the first load shows the dark RetLab picture; the second shows yours.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
+
+### B156 — The debrief grades each flight, and the grades match what happened · §108 · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flown mission.
+
+- **Setup:** fly any turn with a player strike or SEAD flight and let a few AI packages fly.
+  Accept the results. Note your actual time at the target and what you hit.
+- **Pass:** the debrief has a Flight report cards box, your flight first. Your card's timing
+  matches when you were over the target (within about a minute), the package target count
+  matches the map, and shots and hits match what you released.
+- **Fail signatures:** no box at all (no sortie records reached `state.json`, see §91); every
+  flight "Never reached the target area" (the TOT waypoint or mission start is off, check
+  §104's early start); timing out by exactly the early-start shift (planned TOT measured from
+  the wrong clock).
 

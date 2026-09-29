@@ -11105,3 +11105,30 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 - No setting: the file is the switch (the §42/§43 precedent).
 - The app's startup splash still reads `splash_screen.png`; only the mission picture changed.
 - Blue only. The red briefing has no picture, as before.
+
+## §108 — Flight report cards
+
+After a mission, the Qt debrief shows one graded card per blue flight that got airborne,
+human-crewed flights first: timing at the TOT waypoint, the package target, kills, weapons,
+losses, and a human pilot's fuel at the end. Grades are Unsat, Below average, Average and
+Above average. Built 2026-09-29, not flown (row B156).
+
+**Design note:** [retlab-flight-report-cards-notes.md](design/retlab-flight-report-cards-notes.md)
+has the scoring table.
+
+### Files
+
+- `game/retlab/flight_grades.py`: gathers `FlightFacts` from §91's records and the flight
+  plan, then grades them.
+- `game/sim/missionresultsprocessor.py`: `record_flight_cards` stores the cards on
+  `Game.last_flight_cards` at commit, while the flown ATO exists.
+- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`.
+- `tests/retlab/test_flight_grades.py`.
+
+### Constraints
+
+- Planned TOT is measured from `mission_start_time` (§104's early start), because record
+  times count from mission start.
+- AI fuel is never graded. With `ai_unlimited_fuel` on it is constant (§91).
+- A grade is a record. Nothing in the campaign reads it.
+- No setting.
