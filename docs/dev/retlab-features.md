@@ -1402,13 +1402,19 @@ controls four behaviors together when set to Approximate:
 What remains of §6:
 
 Design notes: `docs/dev/design/retlab-air-defense-planning-notes.md` (read this for intent).
-- Overlapping CAP waves + jitter: `game/commander/missionscheduler.py` (uses
+- Overlapping CAP waves: `game/commander/missionscheduler.py` (uses
   `barcap_overlap_time`); rounds math in `game/commander/theaterstate.py`.
   **Land CPs only** schedule overlapping waves; carriers keep the legacy
-  simultaneous-stacking behavior. The jitter applies to the **first wave only**,
-  capped at `min(barcap_overlap_time, 5 min)`, so CAP no longer deterministically
-  arrives at mission start (which let attackers wait it out). With
-  `barcap_overlap_time == 0` this reproduces the old back-to-back schedule exactly.
+  simultaneous-stacking behavior. The first wave (a carrier's first stack) is an
+  ASAP package; relief waves chain behind it and are never flagged ASAP, because
+  the package editor re-runs ASAP on every edit and would pull a relief wave onto
+  the first. The first-wave jitter (up to 5 min) was removed 2026-09-29, when
+  support packages went ASAP (DM call). With `barcap_overlap_time == 0` this
+  reproduces the old back-to-back schedule exactly.
+- Support packages are ASAP (2026-09-29, DM call): theater and carrier tankers
+  (`PlanRefueling.asap`) and every AEW&C station (`PlanAewc.asap`, which the
+  planner had ignored; only the first AWACS was ASAP). Tankers had been on the
+  random strike spread, so a tanker could arrive 50 min into a 60 min mission.
 - BARCAP volume is upstream's flat allocation: `2 * barcap_rounds` for a fleet CP,
   `barcap_rounds` otherwise, over `ObjectiveFinder.vulnerable_control_points()`
   (upstream's airfield-proximity rule with its unseeded per-call aggressiveness roll).
