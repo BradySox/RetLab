@@ -6274,8 +6274,10 @@ so twice the launchers is twice the missiles:
   templates plus an outer launcher ring, 240 m and 200 m out) and `SA-2-SA-3_Mixed_Site.miz`
   (`S-300_Site.miz` plus three LN1 positions 230 m out). Every added position is 25 m or more
   from any other unit. The shared templates are unchanged.
-- Not doubled: the SA-2 presets that use the generic `6 Launcher Site` layouts (`SA-2_ZSU`,
-  the HDS SA-2, HQ-2), since those layouts are shared with other systems.
+- The SA-2 presets that used the shared generic launcher layouts (`SA-2_ZSU`, the HDS SA-2,
+  HQ-2) moved to new copies of them with twice the launchers: `12 Launcher Site` (12 on the
+  16/12-position templates) and `8 Launcher Site` (HQ-2). The shared 4/6-launcher layouts are
+  unchanged for every other system.
 
 Context: test 47/48 (2026-09-28) found SA-5 sites tracking blue jets inside their envelope and
 never firing. §60's second Square Pair was one of the suspects; the removal was the DM's call, not
