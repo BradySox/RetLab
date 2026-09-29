@@ -514,6 +514,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B156 | A carrier keeps the same TACAN every time the mission is generated | §65 | ☐ |
 | B157 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
+| B158 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
 | B159 | A target steerpoint in the hills sits on the ground | §74 | ☐ |
 | B160 | Every settings row reads as one line: shading, dividers and a hover band | settings UI | ☐ |
 | B161 | Untasked parked aircraft are culled only at airfields no player sees | Culling settings | ☐ |
@@ -8962,6 +8963,21 @@ generated under. Unit-tested (`test_iads_renamed_flagship.py`).
 - **Setup:** any campaign with a carrier or LHA. Generate and fly.
 - **Pass:** `dcs.log` has no `EW Radar that does not exist` line naming a carrier or LHA.
 - **Fail signature:** that line again = a ship renamed where the IADS data does not see it.
+
+### B158 — The debrief grades each flight, and the grades match what happened · §108 · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flown mission.
+
+- **Setup:** fly any turn with a player strike or SEAD flight and let a few AI packages fly.
+  Accept the results. Note your actual time at the target and what you hit.
+- **Pass:** the debrief has a Flight report cards box, your flight first. Your card's timing
+  matches when you were over the target (within about a minute), the package target count
+  matches the map, and shots and hits match what you released.
+- **Fail signatures:** no box at all (no sortie records reached `state.json`, see §91); every
+  flight "Never reached the target area" (the TOT waypoint or mission start is off, check
+  §104's early start); timing out by exactly the early-start shift (planned TOT measured from
+  the wrong clock).
+
 
 ### B159 — A target steerpoint in the hills sits on the ground · §74 · ☐ UNTESTED
 

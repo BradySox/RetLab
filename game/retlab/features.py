@@ -906,6 +906,13 @@ FEATURES: tuple[Feature, ...] = (
         "Briefing screen picture",
         107,
     ),
+    Feature(
+        # Always on, no setting: graded at results commit from §91's records
+        # (game/retlab/flight_grades.py) and shown in the Qt debrief.
+        "flight_report_cards",
+        "Flight report cards",
+        108,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

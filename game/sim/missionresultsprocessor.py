@@ -103,6 +103,8 @@ class MissionResultsProcessor:
                 self.commit_cruise_missiles(debriefing)
             with logged_duration("commit_naval_magazines"):
                 self.commit_naval_magazines(debriefing)
+            with logged_duration("record_flight_cards"):
+                self.record_flight_cards(debriefing)
             with logged_duration("record_sitrep"):
                 self.record_sitrep(debriefing)
 
@@ -130,6 +132,12 @@ class MissionResultsProcessor:
         from game.retlab.naval_magazines import reconcile_naval_magazines
 
         reconcile_naval_magazines(self.game, debriefing)
+
+    def record_flight_cards(self, debriefing: Debriefing) -> None:
+        # §108: graded here because the flown ATO is gone once the turn passes.
+        from game.retlab.flight_grades import flight_cards
+
+        self.game.last_flight_cards = flight_cards(self.game, debriefing)
 
     def record_sitrep(self, debriefing: Debriefing) -> None:
         # Capture a one-turn campaign summary for the next turn's kneeboard cover
