@@ -14,7 +14,8 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-CHECKLIST = Path("docs/dev/retlab-ingame-pass-checklist.md")
+from tools.checklist_rows import CHECKLIST, ROW_HEADING, checklist_text, row_files
+
 WATCH = Path("docs/dev/flycards/WATCH.md")
 LOCAL = Path("docs/dev/flycards/LOCAL.md")
 
@@ -26,10 +27,6 @@ STATUS = re.compile(
     r"(?P<symbol>[\u2610\u2611\u2612\u2298\u2716\u2717\u25d0\u2705]) "
     r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED)"
 )
-
-#: Row ids are a letter block plus a number: B6, G19, S2, C9. The `### Session 1 —`
-#: headings under "Drain order" are prose, not rows, and carry no status.
-ROW_HEADING = re.compile(r"^### (?P<row>[A-Z]+[0-9]+) ")
 
 #: A card section holding history rather than work. Matches the hook's list.
 DEAD_SECTION = re.compile(
@@ -65,7 +62,7 @@ def _legend() -> dict[str, str]:
 def _row_statuses() -> dict[str, str]:
     """Row id -> status word, taken from the `### ` headings."""
     statuses = {}
-    for line in CHECKLIST.read_text(encoding="utf-8").splitlines():
+    for line in checklist_text().splitlines():
         heading = ROW_HEADING.match(line)
         if not heading:
             continue
@@ -101,7 +98,7 @@ def test_no_two_rows_share_an_id() -> None:
 
     ids = [
         heading["row"]
-        for line in CHECKLIST.read_text(encoding="utf-8").splitlines()
+        for line in checklist_text().splitlines()
         if (heading := ROW_HEADING.match(line))
     ]
     repeated = sorted(row for row, n in Counter(ids).items() if n > 1)
@@ -120,7 +117,7 @@ def test_every_row_heading_carries_a_legend_marker() -> None:
     legend = _legend()
     unmarked = []
     unknown = []
-    for line in CHECKLIST.read_text(encoding="utf-8").splitlines():
+    for line in checklist_text().splitlines():
         heading = ROW_HEADING.match(line)
         if not heading:
             continue
@@ -158,6 +155,26 @@ def test_the_checklist_keeps_no_hand_written_summary() -> None:
         "the checklist carries a hand-kept summary table again: "
         f"{summary[:3]}; `python tools/checklist_board.py` prints it"
     )
+
+
+def test_each_row_file_holds_its_own_row_and_nothing_else() -> None:
+    # A row file is named by its claimed id so two PRs never write the same file.
+    # A file whose heading names another id, or that carries a second row, puts
+    # the collision back.
+    for path in row_files():
+        rows = [
+            heading["row"]
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if (heading := ROW_HEADING.match(line))
+        ]
+        assert rows == [path.stem], (
+            f"{path} must hold exactly one row, headed `### {path.stem} — ...`; "
+            f"found {rows or 'none'}"
+        )
+        assert not any(
+            line.startswith("## ")
+            for line in path.read_text(encoding="utf-8").splitlines()
+        ), f"{path} carries a `## ` section heading; a row file is one row"
 
 
 def test_the_board_tool_counts_what_the_headings_say() -> None:

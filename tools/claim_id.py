@@ -7,13 +7,16 @@ for it. Pushing a ref that already exists is rejected as a non-fast-forward, so
 two sessions can never both win the same number. No workflow triggers on these
 refs; they are never merged and cost nothing to leave behind.
 
-    python tools/claim_id.py row          # next B row, prints e.g. B158
+    python tools/claim_id.py row          # next B row, prints e.g. B158, and
+                                          # writes docs/dev/checklist-rows/B158.md
     python tools/claim_id.py row G        # next row in another letter block
     python tools/claim_id.py section      # next features-doc §N, prints e.g. 108
     python tools/claim_id.py list         # every claim on the remote
 
 The next id is one past the highest of: origin/main's docs, this checkout's docs,
-and every existing claim. Claim once per new row or section, then write it.
+and every existing claim. Claim once per new row or section, then write it. A row
+lands in its own file (see ``tools/checklist_rows.py``), never at the end of the
+main checklist.
 """
 
 from __future__ import annotations
@@ -23,6 +26,8 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Iterable
+
+from checklist_rows import ROW_ID, ROWS_DIR, stub
 
 REMOTE = "origin"
 CLAIM_PREFIX = "refs/retlab-claims"
@@ -53,6 +58,21 @@ def _texts(path: str) -> Iterable[str]:
         yield local.read_text(encoding="utf-8")
 
 
+def _row_file_ids() -> Iterable[str]:
+    """Row ids named by the row files on origin/main and in this checkout."""
+    listed = _git(
+        "ls-tree",
+        "--name-only",
+        f"{REMOTE}/main",
+        f"{ROWS_DIR.as_posix()}/",
+        check=False,
+    )
+    names = [Path(line).stem for line in listed.stdout.splitlines()]
+    if ROWS_DIR.is_dir():
+        names += [p.stem for p in ROWS_DIR.glob("*.md")]
+    return [name for name in names if ROW_ID.fullmatch(name)]
+
+
 def _claimed(kind: str) -> list[str]:
     listing = _git("ls-remote", REMOTE, f"{CLAIM_PREFIX}/{kind}/*").stdout
     return [line.rsplit("/", 1)[1] for line in listing.splitlines() if "/" in line]
@@ -61,6 +81,11 @@ def _claimed(kind: str) -> list[str]:
 def _highest_row(block: str) -> int:
     pattern = re.compile(rf"^### {block}([0-9]+) ", re.M)
     found = [int(n) for text in _texts(CHECKLIST) for n in pattern.findall(text)]
+    found += [
+        int(row[len(block) :])
+        for row in _row_file_ids()
+        if re.fullmatch(rf"{block}[0-9]+", row)
+    ]
     claimed = [
         int(row[len(block) :])
         for row in _claimed("rows")
@@ -115,7 +140,9 @@ def main(argv: list[str]) -> int:
         block = argv[1] if len(argv) > 1 else "B"
         if not re.fullmatch(r"[A-Z]+", block):
             raise SystemExit(f"row block must be capital letters, not {block!r}")
-        print(claim("rows", block))
+        row = claim("rows", block)
+        print(row)
+        print(f"wrote {stub(row).as_posix()}", file=sys.stderr)
     else:
         print(claim("sections"))
     return 0
