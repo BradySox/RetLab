@@ -1,0 +1,31 @@
+date: 2026-09-07
+title: Border countries defend with a missile battery, not fighters
+change: >-
+  The fighter patrol is gone. A country that guards its airspace now stands
+  a real surface-to-air battery inside its own border instead, on the map
+  from the moment the mission starts so you can find it before you cross.
+  What it fields depends on how much country there is -- a small one gets an
+  SA-3 or a Hawk, a big one an S-300 or a Patriot -- and it sits far enough
+  back that its reach only just covers the frontier. Cross and it warns you
+  on the radio. Stay too long or drop something inside, and it changes sides
+  and shoots. Fourteen countries that were previously drawn but harmless can
+  defend now, because a battery needs no airfield and no aircraft.
+watch: >-
+  Before crossing a shaded border, look for the battery -- it is emitting,
+  so it should paint on your RWR and sit on the F10 map. Then decide whether
+  you want to be inside its ring when the timer runs out.
+row: B120
+title: Your logbook now outlives the campaign
+change: >-
+  A Pilot Logbook button on the toolbar keeps your own flying across every
+  campaign, not just the current one: lifetime sorties, hours, kills by
+  type, a breakdown of what you actually fly, and the individual flights.
+  It opens with no campaign loaded. You are identified by your DCS player
+  name, so nothing needs setting up, and a host running an event records
+  every pilot who flew to their own profile. Kept in a file beside your
+  other Retribution settings, not in the save game.
+watch: >-
+  Open Pilot Logbook before you load anything. After a mission, check your
+  sorties went up by one and the aircraft is right. Then start a different
+  campaign, fly one, and confirm the totals are the sum of both.
+row: B114

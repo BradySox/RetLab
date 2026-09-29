@@ -1,0 +1,11 @@
+date: 2026-08-18
+title: Automatic fire missions stop naming targets you cannot see
+change: >-
+  Auto cruise-missile raids and the long-range carrier strike both picked from
+  ground truth with no fog gate, so the first raid of a campaign could go
+  straight at a command post you had not found, and reveal it permanently.
+watch: >-
+  With the fog on, an automatic raid should never name a site that is absent
+  from your own map.
+row: G40
+pr: "893"

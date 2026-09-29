@@ -1,0 +1,9 @@
+date: 2026-09-22
+title: Logbook flight time counts only time in the air
+change: >-
+  Flight time used to start at slot-in, so a cold start logged its whole
+  start-up and taxi. It now runs from the first sample airborne to the last.
+watch: >-
+  Fly a cold start, land and accept results: the logbook's new time is
+  close to wheels-up to touchdown, not slot-in to the end of the mission.
+row: B113

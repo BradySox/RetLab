@@ -54,6 +54,24 @@ Never derive the state of the codebase from memory; always read the current file
 
 A push that moves code past its docs is a broken push.
 
+**Parallel PRs must not collide (STANDARD, 2026-09-29).** Several threads run at once, and
+nearly every PR used to conflict in the same five places. Each now has a rule:
+
+| Adding | Do this | Never |
+|---|---|---|
+| A checklist row | `python tools/claim_id.py row` prints the next free `B###`, reserved on GitHub; add the `###` heading at the end of the checklist | pick the number by reading the file |
+| A features-doc `§N` | `python tools/claim_id.py section` | the same |
+| A changelog line | a new file `changelog.d/<slug>.feature.md` or `<slug>.fix.md` (see its README) | edit `changelog.md` |
+| A What's New entry | a new file `resources/whatsnew/<date>-<slug>.yaml`, one entry | append to someone else's file |
+| The outstanding count or summary table | nothing: `python tools/checklist_board.py` prints both from the row headings | write a count into the checklist |
+
+The checklist, the features doc, the feature index, `CLAUDE.md`, `AGENTS.md` and
+`changelog.md` are `merge=union` in `.gitattributes`: when GitHub reports a conflict in
+them, run `git merge origin/main` in the worktree (or the app's sync) and git keeps both
+sides with no hand editing. Read the merged spot anyway: a line both sides *changed*
+comes out twice, and only duplicate row ids and `§` numbers are caught by a test. A
+generated file (the feature index) that comes out wrong is fixed by regenerating it.
+
 ---
 
 ## Project Docs
@@ -431,6 +449,7 @@ Find §N: `grep -nE "^## (§)?57[. ]"` — §1–18 are mostly headed `## N.`, t
 The generated catalog is [docs/dev/retlab-feature-index.md](docs/dev/retlab-feature-index.md); the
 source of truth is the registry `game/retlab/features.py` (regenerate with
 `python -m game.retlab.features`). **Register every new feature there** or CI fails.
+Claim its `§N` first with `python tools/claim_id.py section`.
 
 ### Hard constraints — established by flown tests, do not undo
 

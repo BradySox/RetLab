@@ -1,0 +1,10 @@
+date: 2026-09-28
+title: Set the tanker's speed in KIAS
+change: >-
+  A tanker flight's Payload tab has Set orbit speed: the indicated speed it
+  flies on its track, 100-350 KIAS, to suit its receivers. Save as default
+  keeps it for every new flight of that airframe. A carrier recovery tanker
+  ignores it; a tanker that cannot reach it flies at its top speed.
+watch: >-
+  Set 270 and join a KC-135: it reads 265-275 KIAS on the straight legs.
+row: B152

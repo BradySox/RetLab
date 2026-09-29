@@ -1,0 +1,15 @@
+date: 2026-09-15
+title: One fuel story on the kneeboard, the Bingo number and the Payload tab
+change: >-
+  A planned tanker pass no longer counts as gas taken anywhere. The
+  kneeboard RTB margin is the unrefuelled figure, as the Payload tab's
+  fuel plan already was, and Bingo is the fuel to the recovery field, not
+  to the tanker. When the sortie only gets home with the pass, the
+  kneeboard says so on its own amber line with the with-tanker figure.
+  The Payload tab also counts a pass only when a tanker that can serve
+  the jet is actually flying, and burns the legs to that tanker's orbit.
+watch: >-
+  Open the Payload tab for a jet with a REFUEL steerpoint and compare its
+  RTB margin with the kneeboard's. They should match to the pound. A jet
+  that can only take a boom should show no tanker pass when only a
+  probe tanker is up, and the kneeboard should have no REFUEL row.

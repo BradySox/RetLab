@@ -1,0 +1,13 @@
+date: 2026-08-20
+title: The Viper card carries both clocks
+change: >-
+  The F-16's DED runs Zulu and its kneeboard ran local, so the card and the
+  cockpit read a map offset apart. The Viper card now prints both, local
+  first — "17:28L 14:28Z" — on the flight plan, the BLUF TOT, the package
+  list and the tanker and AWACS lines, so it matches the DED and still
+  matches the wingman coordinating off local. No other airframe is touched.
+watch: >-
+  On a Viper, check the flight-plan Takeoff row before you roll:
+  "17:28L 14:28Z", with the Zulu figure matching the DED. Every other
+  aircraft's card is local only, exactly as before.
+row: B28

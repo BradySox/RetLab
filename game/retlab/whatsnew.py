@@ -3,8 +3,9 @@
 The changelog cannot answer "what changed lately", because it is grouped by area
 (``[Campaign]`` / ``[Mission Generation]`` / ``[UI]``) rather than ordered by
 date: two changes landing the same afternoon get written 70 lines apart. So the
-recent-changes list is its own small curated file, ``resources/whatsnew.yaml``,
-authored newest-first.
+recent-changes list is its own curated feed, ``resources/whatsnew/``: one small
+YAML file per entry, so two pull requests adding an entry never touch the same
+file. Entries are ordered by their ``date`` field; same-day entries by file name.
 
 It also carries something the changelog deliberately does not: a ``watch`` line
 per entry saying what to look for in the next mission. That is the point of the
@@ -25,9 +26,9 @@ from typing import Any, Optional
 
 import yaml
 
-#: The curated source, relative to the install root like every other resource
+#: The curated feed, relative to the install root like every other resource
 #: read (``game.version`` reads ``resources/buildnumber`` the same way).
-WHATS_NEW_FILE = Path("resources/whatsnew.yaml")
+WHATS_NEW_DIR = Path("resources/whatsnew")
 
 #: How many entries the window shows. The file may hold more; the tail is
 #: history, not something anyone scrolls to.
@@ -55,14 +56,22 @@ def load_whats_new(
 ) -> list[WhatsNewEntry]:
     """The most recent entries, newest first.
 
-    Returns an empty list — never raises — when the file is missing, unreadable,
-    or malformed. A single bad entry is skipped rather than discarding the file.
+    ``path`` is the feed directory, or a single file holding one entry or an
+    ``entries:`` list. Returns an empty list — never raises — when the feed is
+    missing, unreadable, or malformed. A bad file or entry is skipped rather than
+    discarding the rest.
     """
-    source = path or WHATS_NEW_FILE
-    raw = _read(source)
-    if raw is None:
-        return []
-    entries = [entry for entry in (_entry_from(item, source) for item in raw) if entry]
+    source = path or WHATS_NEW_DIR
+    if source.is_dir():
+        files = sorted(source.glob("*.yaml"), key=lambda f: f.name, reverse=True)
+    else:
+        files = [source]
+    entries = [
+        entry
+        for file in files
+        for entry in (_entry_from(item, file) for item in _read(file) or [])
+        if entry
+    ]
     # Stable sort, so entries sharing a date keep the order the file wrote them.
     entries.sort(key=lambda entry: entry.date, reverse=True)
     if limit >= 0:
@@ -82,6 +91,8 @@ def _read(source: Path) -> Optional[list[Any]]:
     if not isinstance(document, dict):
         logging.warning("What's New: %s has no top-level mapping", source)
         return None
+    if "entries" not in document:
+        return [document]
     entries = document.get("entries")
     if not isinstance(entries, list):
         logging.warning("What's New: %s has no 'entries' list", source)

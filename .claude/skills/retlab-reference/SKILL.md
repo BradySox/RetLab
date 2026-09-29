@@ -62,8 +62,10 @@ in that order:
 - New work starts on a fresh branch cut from `dev`.
 - **One PR = one feature/bugfix/change.** Small PRs get reviewed faster, and testers can't
   isolate a bug inside a big mixed PR.
-- User-visible features and fixes need a note in `changelog.md`. Skip for refactors with no
-  visible behaviour change and for bugs that never shipped.
+- User-visible features and fixes need a changelog note. Skip for refactors with no
+  visible behaviour change and for bugs that never shipped. In RetLab the note is a new
+  file in `changelog.d/`, never an edit to `changelog.md`; an upstream carve edits
+  upstream's `changelog.md` as usual.
 - **Upstream PRs open as drafts** by default; un-draft only on an explicit call.
 - Fork PRs are **squash-merged** (sync merges excepted). Never merge unbidden.
 

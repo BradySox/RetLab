@@ -106,9 +106,10 @@ def test_no_two_rows_share_an_id() -> None:
     ]
     repeated = sorted(row for row, n in Counter(ids).items() if n > 1)
     assert not repeated, (
-        f"row id(s) used twice: {', '.join(repeated)}. Renumber YOUR rows to "
-        "the next free id, never main's, and update the features doc, the "
-        "design note and every `row:` in resources/whatsnew.yaml."
+        f"row id(s) used twice: {', '.join(repeated)}. Claim a free id for YOUR "
+        "row with `python tools/claim_id.py row`, never renumber main's, and "
+        "update the features doc, the design note and any `row:` in "
+        "resources/whatsnew/."
     )
 
 
@@ -135,39 +136,45 @@ def test_every_row_heading_carries_a_legend_marker() -> None:
     )
 
 
-def test_at_a_glance_table_agrees_with_the_row_headings() -> None:
-    # The summary table is what a reader skims; the row heading is the record. They
-    # drifted on four rows, two of them reporting a closed feature as outstanding.
+def test_the_checklist_keeps_no_hand_written_summary() -> None:
+    # The at-a-glance table and its "N rows need a live pass" count were edited by
+    # every PR that touched a row, so parallel PRs conflicted there, and they drifted
+    # from the headings on four rows. `tools/checklist_board.py` derives both now.
     legend = _legend()
-    rows = _row_statuses()
-    drift = []
-    for line in CHECKLIST.read_text(encoding="utf-8").splitlines():
-        cells = [c.strip() for c in line.split("|")]
-        if len(cells) != 6 or not re.fullmatch(r"[A-Z]+[0-9]+", cells[1]):
-            continue
-        row, mark = cells[1], cells[4]
-        if row not in rows or mark not in legend:
-            continue
-        if legend[mark] != rows[row]:
-            drift.append(f"{row}: table {legend[mark]} vs heading {rows[row]}")
-    assert not drift, f"at-a-glance table disagrees with the row heading: {drift}"
-
-
-def test_outstanding_count_in_the_table_header_is_right() -> None:
-    # The header states the number the board also computes. When they disagree the
-    # reader has no way to know which one is stale.
-    rows = _row_statuses()
-    open_now = sum(
-        1 for w in rows.values() if w in {"UNTESTED", "PARTIAL", "REGRESSED"}
-    )
     text = CHECKLIST.read_text(encoding="utf-8")
-    header = re.search(r"^(\d+) rows need a live pass", text, re.M)
-    assert header, "the at-a-glance header no longer states an outstanding count"
-    stated = int(header.group(1))
-    assert stated == open_now, (
-        f"the at-a-glance header says {stated} rows need a live pass, but the row "
-        f"headings count {open_now}"
+    assert not re.search(r"^\d+ rows need a live pass", text, re.M), (
+        "the checklist states an outstanding count again; "
+        "`python tools/checklist_board.py` prints it"
     )
+    summary = [
+        line
+        for line in text.splitlines()
+        if (cells := [c.strip() for c in line.split("|")])
+        and len(cells) == 6
+        and re.fullmatch(r"[A-Z]+[0-9]+", cells[1])
+        and cells[4] in legend
+    ]
+    assert not summary, (
+        "the checklist carries a hand-kept summary table again: "
+        f"{summary[:3]}; `python tools/checklist_board.py` prints it"
+    )
+
+
+def test_the_board_tool_counts_what_the_headings_say() -> None:
+    import subprocess
+    import sys
+
+    printed = subprocess.run(
+        [sys.executable, "tools/checklist_board.py"],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        check=True,
+    ).stdout
+    open_now = sum(
+        1 for w in _row_statuses().values() if w in {"UNTESTED", "PARTIAL", "REGRESSED"}
+    )
+    assert printed.startswith(f"{open_now} rows need a live pass.")
 
 
 def test_fly_cards_hold_no_closed_items_in_their_live_section() -> None:

@@ -264,6 +264,10 @@ canary build), and changes with no intended user-observable behavior, such as a 
 If you're comfortable writing the note yourself, add it to `changelog.md` in the root of
 the project in the section for the upcoming release.
 
+**RetLab:** a changelog entry is its own file in `changelog.d/` (`<slug>.feature.md` or
+`<slug>.fix.md`), not an edit to `changelog.md`, so parallel PRs never conflict over it.
+See `changelog.d/README.md`.
+
 **RetLab:** three fork-side additions to the upstream PR standard:
 
 * **Docs move with the code.** Update the doc faces in the order `CLAUDE.md` prescribes

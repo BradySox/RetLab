@@ -1,0 +1,11 @@
+date: 2026-08-19
+title: ATMOS-X live weather — the turn flies a real observation
+change: >-
+  With the ATMOS-X cloud pack selected, "Use ATMOS-X live weather" replaces the
+  generated weather with a real one. The turn display, the kneeboard QNH and
+  winds, the active runway and the carrier's course into wind all read it.
+watch: >-
+  Turn it on and check the kneeboard QNH and winds match the turn display.
+  Any fetch failure should log and leave the generated weather in place.
+row: B83
+pr: "902"

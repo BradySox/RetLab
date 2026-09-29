@@ -1,0 +1,10 @@
+date: 2026-08-19
+title: The app stops freezing when DCS takes the GPU
+change: >-
+  Qt moved from 6.4 to 6.8, which draws the embedded map through Direct3D 11
+  instead of desktop OpenGL. The old path could deadlock inside the graphics
+  driver while a fullscreen DCS held the card.
+watch: >-
+  Open Retribution, then launch DCS. The app should stay responsive, and a
+  dialog opened over the map should no longer hang it.
+pr: "905"

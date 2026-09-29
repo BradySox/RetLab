@@ -1,0 +1,10 @@
+date: 2026-09-22
+title: A crashed aircraft no longer switches off a SAM network
+change: >-
+  When an aircraft crashed where a radar could still see the wreck, Skynet
+  tripped over it every cycle and stopped cueing that side's SAM sites for
+  the rest of the mission. It now ignores the wreck.
+watch: >-
+  Once something has crashed near a SAM belt, the SAMs still come up when
+  you are detected. dcs.log has no "Static doesn't exist" lines.
+row: G43

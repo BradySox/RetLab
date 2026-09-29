@@ -1,0 +1,13 @@
+date: 2026-09-13
+title: Hornet radio presets come from the mission, not the cartridge
+change: >-
+  The F/A-18C data cartridge no longer carries COMM1/COMM2. The mission's
+  own radio table already loads the same channels into the jet; the
+  cartridge only ever added short channel names. The Viper dropped its
+  COMM section in August for the same reason. Route, recovery aids, the
+  A/A waypoint and the SA page are unchanged.
+watch: >-
+  Slot into a Hornet and page through COMM1/COMM2: the mission
+  frequencies are there on the same channel numbers as the kneeboard comm
+  plan, with the jet's stock channel names instead of callsign labels.
+row: B28

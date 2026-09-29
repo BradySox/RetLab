@@ -1,0 +1,25 @@
+date: 2026-08-22
+title: The Tomcat's JDAM page hands each bomb its own target
+change: >-
+  The F-14B(U) cartridge reads which tunnel stations actually carry a JDAM
+  and gives each one a different target as PP1, in route order, wrapping
+  when there are more bombs than targets. Every target stays on every
+  station for a re-pick. All targets in a cluster now run in from the IP;
+  the second building used to measure its heading, speed and release
+  altitude from the first. The release speed behind the LAR is the slower
+  of the plan and 450 kt, so the envelope the CDNU draws is the
+  conservative one. The first target waypoint is named with the jet's XST
+  code, which puts a pentagon on it in the HUD; the rest of a cluster go to
+  the LANTIRN store, the top-ranked SAM site becomes the hostile area that
+  sets the threat axis, and a CAP's defended point sits on the asset it
+  covers. Points that would share a name are numbered, and the recovery
+  and divert points are named after their fields. A strike's extra target
+  points stay off the route and appear as JDAM points only, and the
+  remaining plain points take the jet's priority waypoint slots so they
+  rank with the coded ones on a crowded display.
+watch: >-
+  Load a multi-building strike with two or more JDAMs on the tunnel
+  stations. On the JDAM page, STA 3 PP1 should be the first building and
+  the next loaded station's PP1 the second, both with the same run-in
+  heading and 20,000-ft-class release altitude.
+row: B91

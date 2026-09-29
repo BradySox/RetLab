@@ -15,3 +15,15 @@
 *.pyd    binary
 unshipped_data/arcgis_maps/ filter=lfs diff=lfs merge=lfs -text
 *.blend  binary
+
+# Append-heavy docs that nearly every PR adds to at the same place (a new row,
+# section or list line at the end). On a clash git keeps both sides instead of
+# stopping, so `git merge origin/main` resolves them with no hand editing. Only
+# local merges apply this; GitHub's own conflict check does not. A same-line edit
+# on both sides keeps BOTH lines: tests catch duplicate row ids and § numbers.
+docs/dev/retlab-ingame-pass-checklist.md merge=union
+docs/dev/retlab-features.md              merge=union
+docs/dev/retlab-feature-index.md         merge=union
+CLAUDE.md                                merge=union
+AGENTS.md                                merge=union
+changelog.md                             merge=union
