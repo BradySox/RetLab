@@ -394,7 +394,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-90 rows need a live pass. Full detail is under each `###` heading below —
+91 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -461,6 +461,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
+| B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8861,3 +8862,14 @@ Unit-tested (`test_instant_naval_move.py`, `test_tgo_movement_routes.py`); never
 - **Fail signatures:** the carrier snaps back or waits for turn end (the cheat did not
   apply); the marker will not open its menu until the map reloads (stale drag state); a
   flight's first waypoint at the old spot (not replanned); the escorts left behind.
+
+### B155 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
+
+- **Setup:** generate any mission with no `briefing.png` in `Saved Games\DCS\Retribution`.
+  Load it in DCS. Then copy a picture there as `briefing.png`, generate again, load it.
+- **Pass:** the first load shows the dark RetLab picture; the second shows yours.
+- **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
+  blank picture box (DCS could not read the file — try a JPEG).
+

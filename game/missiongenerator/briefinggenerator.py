@@ -4,7 +4,6 @@ Briefing generation logic
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Dict, List, TYPE_CHECKING
 
@@ -12,6 +11,7 @@ from dcs.mission import Mission
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from game.ato.flightwaypoint import FlightWaypoint
+from game.retlab.briefing_image import briefing_image_path
 from game.retlab.cruise_raids import (
     CruiseRaid,
     LacmShip,
@@ -193,9 +193,7 @@ class BriefingGenerator(MissionInfoGenerator):
         self.generate_allied_flights_by_departure()
         self.owned_airbases = self._collect_owned_airbases()
         self.mission.set_description_text(self.template.render(vars(self)))
-        self.mission.add_picture_blue(
-            os.path.abspath("./resources/ui/splash_screen.png")
-        )
+        self.mission.add_picture_blue(str(briefing_image_path()))
 
     def _collect_owned_airbases(self) -> List[OwnedAirbaseInfo]:
         """List friendly airfields with their TACAN and ATC (when present).
