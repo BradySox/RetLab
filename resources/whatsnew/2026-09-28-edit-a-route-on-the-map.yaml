@@ -1,0 +1,12 @@
+date: 2026-09-28
+title: Edit a route on the map
+change: >-
+  With a flight selected, drag a point to move it, double-click the route to
+  add a point there, and right-click a point to delete it. On a package's way
+  in and out (join to IP, target to split) the change lands on every flight
+  in the package, whichever of its flights is selected. The Package route
+  window now opens ready to use and lists the route.
+watch: >-
+  Select an escort, double-click its route between the join and the IP, and
+  drag the new point: the strikers' routes follow it.
+row: B151

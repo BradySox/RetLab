@@ -1,0 +1,9 @@
+date: 2026-09-22
+title: Settings and plugin options say what the game does
+change: >-
+  Descriptions that still described removed features are corrected, plugin
+  options show their explanations, the plugin pages are Lua Plugins and Lua
+  Plugin Options, and the CSAR settings sit together in one section.
+watch: >-
+  On Lua Plugin Options, GPS jamming's options each carry a line of
+  explanation. With a pilot down, the SITREP reads "Awaiting rescue:".

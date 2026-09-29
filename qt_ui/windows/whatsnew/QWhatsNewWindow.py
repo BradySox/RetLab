@@ -1,6 +1,6 @@
 """The What's New window (§92) — recent changes, and what to look for.
 
-Reads ``resources/whatsnew.yaml`` through :mod:`game.retlab.whatsnew`. It
+Reads ``resources/whatsnew/`` through :mod:`game.retlab.whatsnew`. It
 takes no ``Game``, because it describes the build rather than the campaign — the
 toolbar action is live before a save is opened, unlike Settings/Stats/Notes.
 """
@@ -55,7 +55,7 @@ class QWhatsNewWindow(QDialog):
 def _render(entries: Sequence[WhatsNewEntry]) -> str:
     if not entries:
         return (
-            "<p>resources/whatsnew.yaml is missing or unreadable, so there is "
+            "<p>resources/whatsnew/ is missing or unreadable, so there is "
             "nothing to show. The rest of the app is unaffected.</p>"
         )
     # A rule between entries, never around them: ten stacked blocks with only

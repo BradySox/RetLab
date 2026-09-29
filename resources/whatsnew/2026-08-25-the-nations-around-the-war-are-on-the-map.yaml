@@ -1,0 +1,21 @@
+date: 2026-08-25
+title: The nations around the war are on the map
+change: >-
+  Every country bordering the war is now drawn with its real border. Colour
+  says whose airspace it is -- red for a nation holding the enemy's fields,
+  blue for one holding yours, mint for a country not in the war -- and
+  shading says whether it bites. Who a nation sides with is worked out from
+  who actually holds the airfields inside its border, so it flips by itself
+  if a base changes hands (on Into the Hornet's Nest, Lebanon reads enemy
+  because red flies out of Beirut). A neutral that refuses you transit is
+  the one shaded solid: cross it and a pair shadows you, warns you off, and
+  engages only if you stay, drop, or shoot. AI flights that stray are
+  shadowed, never fired on. Enemy airspace is covered by the enemy's own
+  alert fighters, not a second system.
+watch: >-
+  On Enduring Resolve, check the map layer: Pakistan's two shaded blocks
+  with the carrier lane between them, Iran to the west, and the Central
+  Asian neighbours in faint mint you may overfly. Then cut a corner into
+  Pakistan and hold -- warned in ~40 s, a MiG-21 pair on your enemy's IFF,
+  and they go home if you leave promptly.
+row: B120

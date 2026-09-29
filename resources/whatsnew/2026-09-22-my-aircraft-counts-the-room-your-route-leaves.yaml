@@ -1,0 +1,12 @@
+date: 2026-09-22
+title: My aircraft counts the room your route leaves
+change: >-
+  The saved points count and number the way the jet does: after the route
+  on the Hornet, Viper and Apache, from 1 on the F-14B(U). With the
+  cartridge off, the window says kneeboard only. The Loadout tab is now
+  Payload, as in Edit Flight, and the kneeboard page is Saved points.
+watch: >-
+  On a Viper with a ten-steerpoint route and no saved points, the
+  Waypoints group reads room for 14 more in the jet. Save one: it reads
+  W11, and the kneeboard and the jet both number it 11.
+row: B135

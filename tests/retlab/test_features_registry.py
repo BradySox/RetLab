@@ -183,3 +183,21 @@ def test_generated_catalog_is_current() -> None:
         f"{FEATURE_INDEX_DOC} is stale; regenerate with "
         "`python -m game.retlab.features`"
     )
+
+
+def test_no_section_number_is_used_twice() -> None:
+    # Two branches taking the same next §N used to be the common case; claim one with
+    # `python tools/claim_id.py section`. The union merge on these files keeps both
+    # sides of a clash, so a duplicate would otherwise land silently.
+    from collections import Counter
+
+    registered = [f.doc_section for f in FEATURES if f.doc_section is not None]
+    headings = [
+        int(m.group(1) or m.group(2))
+        for m in re.finditer(
+            r"^## (?:§(\d+)|(\d+)\.)", FEATURES_DOC.read_text(encoding="utf-8"), re.M
+        )
+    ]
+    for where, numbers in (("registry", registered), ("features doc", headings)):
+        repeated = sorted(n for n, count in Counter(numbers).items() if count > 1)
+        assert not repeated, f"§ number(s) used twice in the {where}: {repeated}"

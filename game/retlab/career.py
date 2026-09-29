@@ -34,7 +34,7 @@ if TYPE_CHECKING:
     from game.sortierecord import SortieRecord
 
 #: The curated source, relative to the install root like every other resource
-#: read (§92 reads `resources/whatsnew.yaml` the same way).
+#: read (§92 reads `resources/whatsnew/` the same way).
 CAREER_FILE = Path("resources/pilot_career.yaml")
 
 #: Fields a `requires:` block may name. A closed list rather than "any attribute"

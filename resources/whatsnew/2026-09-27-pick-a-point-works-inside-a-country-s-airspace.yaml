@@ -1,0 +1,10 @@
+date: 2026-09-27
+title: Pick a point works inside a country's airspace
+change: >-
+  With neutral border defense on, the map's crosshair ignored clicks inside
+  any country's border, so it only worked over the sea. It now answers
+  anywhere on the map that is not a route, a base or a site.
+watch: >-
+  Switch on the crosshair and click inside a country: the coordinates
+  popup opens.
+row: B135

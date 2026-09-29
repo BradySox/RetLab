@@ -9721,8 +9721,10 @@ first, each with a **Watch for** line saying what to look for in the next missio
 the same afternoon get written seventy lines apart, so position carries no recency at all.
 Adding a date to every historical entry to fix that would be a bigger edit than the feature.
 
-So the feed is `resources/whatsnew.yaml` — authored newest-first, one entry per
-player-visible change, five fields:
+So the feed is `resources/whatsnew/` — **one YAML file per entry**, named
+`<date>-<slug>.yaml`, one per player-visible change, five fields. It was one
+`whatsnew.yaml` until 2026-09-29; every parallel PR added its entry at the top of the same
+list and conflicted, so it was split so no two PRs touch the same file:
 
 | Field | |
 |---|---|
@@ -9739,16 +9741,18 @@ spec change.
 The toolbar action is live **before a save is opened** — it describes the build, not the
 campaign, so it sits outside `enable_game_actions` alongside nothing else. That means a
 malformed data file must cost an empty window and nothing more: a missing file, bad YAML,
-a document with no `entries`, or a single half-written entry are each logged and skipped,
+a file with no entry, or a single half-written entry are each logged and skipped,
 and `load_whats_new` returns `[]` rather than raising into the toolbar.
 
-Ordering is a **stable** sort on `date` descending, so several changes sharing a date keep
-the order the file wrote them — the file stays the author's list, not a re-shuffled one.
+Ordering is a **stable** sort on `date` descending over the files read in reverse name
+order, so same-day entries sort by file name. A single file holding an `entries:` list
+still loads (the tests use it), but `test_every_feed_file_holds_exactly_one_complete_entry`
+keeps the shipped feed at one entry per file.
 
 ### Files & tests
 
 - `game/retlab/whatsnew.py` — `WhatsNewEntry`, `load_whats_new`, `DEFAULT_LIMIT` (10).
-- `resources/whatsnew.yaml` — the curated feed.
+- `resources/whatsnew/` — the curated feed, one file per entry.
 - `qt_ui/windows/whatsnew/QWhatsNewWindow.py` — the dialog. Renders through a
   `QTextBrowser` with inline styles, because Qt's rich-text engine does not read the app's
   QSS token sheet; entries are separated by a rule, since ten stacked blocks with only

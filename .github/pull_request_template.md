@@ -22,4 +22,4 @@ Exceptions are fixes for bugs that never shipped (were only present in a canary
 build), and changes with no intended user observable behavior, such as a
 refactor. If you're comfortable writing the note yourself, add it to
 `changelog.md` in the root of the project in the section for the upcoming
-release.
+release. (RetLab: add a file to `changelog.d/` instead; see its README.)
