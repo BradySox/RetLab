@@ -403,6 +403,12 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "no longer", "historical"),
     ),
     Removed(
+        "SAM guidance-radar redundancy (S60)",
+        "2026-09-29",
+        r"two guidance radars|two track radars per site|guidance-radar redundancy",
+        allow=("removed", "no longer", "historical"),
+    ),
+    Removed(
         "eight tuning settings folded into constants",
         "2026-09-23",
         r"gps_jamming_default_reach_nm|gps_jamming_miss_radius_m"

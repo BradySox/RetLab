@@ -446,6 +446,9 @@ considered and declined.
    verified through `Campaign.load_theater`: each hub CP resolves **3 `long_range_sams` + an EWR**.
    CI-locked in `tests/retlab/test_red_tide_sam_regiments.py`.
 
+   *(2026-09-29: §60 was removed, so every campaign's sites are single-radar now; what still
+   sets Red Tide apart is the lean battalion composition below.)*
+
    **Single-radar battalions via a Red-Tide faction fork (§60 guardrail).** Redundancy comes from
    *three* fire units, not doubled radars, so §60's second track radar is reverted **for Red Tide's
    S-300/SA-5 only** — scoped so every other campaign's lone S-300 keeps its §60 redundancy. Because
@@ -461,7 +464,7 @@ considered and declined.
    field what the realism note prescribes — acquisition serves the *regiment*, not each fire unit:
    the S-300 battalion is **1 search radar (Clam Shell/Tin Shield/Big Bird roll) + C2 + 1 TR + 4
    TELs** (DCS needs SR+CP+TR in-group or the site won't engage, so it can't go leaner), the SA-5
-   battalion is **Tin Shield + Square Pair + 6 launchers** with the battalion-level P-19/P-14 slots
+   battalion is **Tin Shield + Square Pair + 6 launchers** (12 since 2026-09-29) with the battalion-level P-19/P-14 slots
    deleted (the hub's shared EWR *is* the early warning; the full-suite base layouts are untouched
    for every other campaign). PD escorts (the #586 Tor slot) stay. Known behavior, not a bug: the
    loader fills each LORAD marker with a **random** faction LORAD preset (`random_group_for_task`),

@@ -20,7 +20,7 @@ groups:
         - IRAD_Bavar373_CP
     - name: S-300 Site TR
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_types:
         - IRAD_Bavar373_STR
     - name: S-300 Site LN1

@@ -16,7 +16,7 @@ groups:
       optional: true
       fill: false # Do not fill with faction possible units
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_classes:
         - TrackRadar
     - name: Optical Tracker

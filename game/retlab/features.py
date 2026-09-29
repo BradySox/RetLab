@@ -371,15 +371,12 @@ FEATURES: tuple[Feature, ...] = (
         retired=True,
     ),
     Feature(
-        # §60 SAM guidance-radar redundancy -- every SAM site layout fields TWO
-        # engagement radars (track radar / combined STR) so a single HARM cannot
-        # blind the whole site (Red Tide finding 2026-07-12). Pure layout data:
-        # unit_count 2 in resources/layouts/anti_air/*.yaml + a second radar
-        # position in the shared .miz templates. No setting, no plugin -- the
-        # contract is CI-locked in tests/armedforces/test_sam_radar_redundancy.py.
+        # REMOVED 2026-09-29 (DM call). Every SAM site is back to one guidance
+        # radar. Tombstone only.
         "sam_radar_redundancy",
         "SAM guidance-radar redundancy (two track radars per site)",
         60,
+        retired=True,
     ),
     Feature(
         # §61 host red-interceptor scramble -- the game master's "give the boys

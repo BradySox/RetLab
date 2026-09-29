@@ -10,12 +10,12 @@ groups:
         - p-19 s-125 sr
     - name: Track Radar
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_types:
         - SNR_75V
     - name: Launcher
       unit_count:
-        - 4
+        - 8
       unit_types:
         - S_75M_Volhov
     - name: Logistics

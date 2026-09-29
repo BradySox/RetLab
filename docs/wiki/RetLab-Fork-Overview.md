@@ -69,7 +69,6 @@ Full detail: [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
   picture. A per-flight DTC tab controls it.
 - **Strike packages are timed behind the SEAD** servicing their target instead of arriving
   early.
-- **SAM batteries field two guidance radars**, so one HARM no longer kills a site.
 - Optional per-side **auto-planner unpredictability** varies which offensive targets the enemy
   services first.
 - Enemy air defences run on **Skynet-IADS**, the same engine as upstream, with two fork

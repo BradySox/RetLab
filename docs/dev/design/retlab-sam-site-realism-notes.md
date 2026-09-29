@@ -1,5 +1,8 @@
 # RetLab — SAM site realism directions (design notes)
 
+> **§60 was removed 2026-09-29 (DM call): every SAM site is back to one guidance radar.**
+> Mentions of §60 doubling below are history. Direction B (regiment-by-authoring) stands.
+
 **Status: DESIGN ONLY — no code.** Follow-on to feature **§60** (SAM guidance-radar redundancy). §60
 gave every SAM layout a second engagement radar so a single HARM stops being a functional site kill;
 this note is the honest accounting of *what §60 abstracts away* and the three real-world directions

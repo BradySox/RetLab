@@ -10,17 +10,17 @@ groups:
         - p-19 s-125 sr
     - name: S-300 Site CP
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_types:
         - SNR_75V
     - name: S-300 Site TR
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_types:
         - snr s-125 tr
     - name: S-300 Site LN1
       unit_count:
-        - 3
+        - 6
       unit_types:
         - S_75M_Volhov
     - name: S-300 Site LN2
@@ -79,4 +79,4 @@ groups:
         - 2
       unit_classes:
         - AAA
-layout_file: resources/layouts/anti_air/S-300_Site.miz
+layout_file: resources/layouts/anti_air/SA-2-SA-3_Mixed_Site.miz

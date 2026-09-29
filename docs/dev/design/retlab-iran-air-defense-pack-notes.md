@@ -69,19 +69,19 @@ CurrentHill's.
 
 ### Layout choices
 
-- **3rd Khordad Battery** — `6_Launcher_Circle.miz`. 1 Bashir SR, **2 TELARs in the Track Radar
-  slot**, 4 Alam al-Hoda TELs. The TELAR is the guidance radar, so two of them is the §60
-  anti-single-HARM rule, and a site can never roll zero (a TEL-only site is blind).
+- **3rd Khordad Battery** — `6_Launcher_Circle.miz`. 1 Bashir SR, **1 TELAR in the Track Radar
+  slot** (2 until §60 was removed 2026-09-29), 4 Alam al-Hoda TELs. The slot is mandatory, so a
+  site can never roll zero (a TEL-only site is blind).
 - **Bavar-373 Battery** — `S-300_Site.miz`, the HQ-22 pattern: Meraj-4 and Hafez in SR1/SR2,
-  CP, 2 STRs, LN1 = 3 Sayyad-4, LN2 = 3 of either Sayyad-4B or Sayyad-4. Full §85 support
+  CP, 1 STR (2 until §60 was removed 2026-09-29), LN1 = 3 Sayyad-4, LN2 = 3 of either Sayyad-4B or Sayyad-4. Full §85 support
   section, Soviet kit.
 - **Bavar-373-II Battery (Single Radar)** — the same template with six TELARs and **one** STR. The
   TELARs' mast radars are decorative (DM call 2026-09-27), so the STR guides every TELAR and a
   HARM on it silences the site. The single STR is kept on purpose (DM call 2026-09-27: not
   doubled). `Single Radar` in the name is the redundancy test's marker for a deliberate single
   engagement radar.
-- Bavar-373 is a strategic system; the §60 two-STR layout is used rather than a regiment
-  layout. **Record the switch here if a campaign ever authors it regiment-style.**
+- Bavar-373 is a strategic system placed as a single site. **Record the switch here if a
+  campaign ever authors it regiment-style.**
 
 ## 3. Research and best estimates
 

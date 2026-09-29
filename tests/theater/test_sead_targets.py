@@ -41,8 +41,8 @@ def _sead_targets(units: list[Any]) -> list[Any]:
 
 
 def test_sead_targets_keep_emitters_and_launchers_and_drop_support() -> None:
-    # The SA-2 site from the report: a search radar, two track radars (§60
-    # doubling), launchers, and the Logistics/Fuel/AAA slots the layout adds.
+    # The SA-2 site from the report: a search radar, two track radars,
+    # launchers, and the Logistics/Fuel/AAA slots the layout adds.
     search = _unit("p-19 s-125 sr", UnitClass.SEARCH_RADAR)
     track = _unit("SNR_75V", UnitClass.TRACK_RADAR)
     launcher = _unit("S_75M_Volhov", UnitClass.LAUNCHER)
