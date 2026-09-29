@@ -34,10 +34,12 @@ loops the lap.
   Payload tab tick box saved per airframe. `Flight.__setstate__` drops the old flag, and
   §43 ignores an old store's `tanker_box` key, so neither needs a migration step.
 - **Package tankers keep the racetrack.** Their station time is 5 min + (4 × jets + 1) per
-  receiver flight, often shorter than one 120 NM lap.
-- **Geometry.** The front leg is where the racetrack would be (40 NM, across the threat axis).
-  The box extends `TANKER_BOX_DEPTH` (20 NM) away from the threat. A second tanker steps back
-  `TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH` (35 NM), so the boxes never overlap.
+  receiver flight, often shorter than one 90 NM lap.
+- **Geometry.** The front leg is `TANKER_BOX_LENGTH` (30 NM, across the threat axis), centred
+  where the racetrack sat. The box extends `TANKER_BOX_DEPTH` (15 NM) away from the threat. A
+  second tanker steps back `TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH` (30 NM), so the boxes
+  never overlap. Shrunk from 40 x 20 NM on 2026-09-29 (DM: "downsized a little", after test
+  47 showed it working); the cockpit box is drawn from the route, so it follows.
 - **Route.** `BOX 1` (PATROL_TRACK, the patrol start) → `BOX 2`, `BOX 3`, `BOX 4` (NAV corners)
   → `BOX END` (PATROL, on BOX 1's position) → home. Layout: `TankerBoxLayout`.
 - **Loop.** `BOX END` carries `ControlledTask(SwitchWaypoint(END → BOX 2))` with the start

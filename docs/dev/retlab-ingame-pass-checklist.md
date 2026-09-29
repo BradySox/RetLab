@@ -8730,6 +8730,7 @@ ignores it; a tanker is capped at its top speed. Unit-tested
 - The F-16 cartridge drew the KC-135's box as a 7 x 5 NM square at BOX 1 (`GEO_LINES` 13 x 9 km). This build predates #1097.
 - Not reached: nobody tanked, and the on-station end (t=7,786 and 7,204) is past the 3,546 s mission, so leaving for home was not seen.
 - Still owed: tank on a straight leg and through a corner, the cockpit box on a post-#1097 build, and a mission long enough to see the tanker leave.
+- 2026-09-29: the box was shrunk to 30 x 15 NM after this flight (DM). The owed items are flown on the smaller box.
 
 
 Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
