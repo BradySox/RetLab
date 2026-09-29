@@ -1,7 +1,7 @@
 """§108: a report card per blue flight, graded from what the mission recorded.
 
 Reads §91's sortie records against the flight plan: timing at the TOT waypoint,
-the package target, weapons, losses, and a human pilot's fuel at the end.
+the package target, weapons, losses, and a human pilot's fuel on landing.
 Computed at results commit, while the flown ATO still exists, and shown in the
 debrief. Nothing reads a grade back; it never changes the campaign.
 docs/dev/design/retlab-flight-report-cards-notes.md.
@@ -30,10 +30,10 @@ ARRIVAL_RADIUS_M = 5 * 1852.0
 ON_TIME_S = 150.0
 #: Late (or early) past ON_TIME_S but within this is a note, not a fault.
 LATE_FAULT_S = 300.0
-#: A human finishing under this fraction of internal fuel is a fault.
-FUMES_FUEL = 0.05
-#: Under this it is worth a line.
-LOW_FUEL = 0.15
+#: Landing reserve as a share of internal fuel for an airframe with no measured
+#: `min_safe`. The measured Hornet and Viper reserves are about 18% and 14%.
+FALLBACK_RESERVE = 0.15
+KG_PER_LB = 0.45359237
 
 #: Tasks graded on the package's ground target.
 ATTACK_TASKS = frozenset(
@@ -115,8 +115,11 @@ class FlightFacts:
     target_name: str = ""
     target_total: int = 0
     target_killed: int = 0
-    #: Lowest fuel at end among surviving human jets; None for AI.
-    lowest_fuel: Optional[float] = None
+    #: Lowest internal-fuel share among human jets that landed; None for AI.
+    landed_fuel: Optional[float] = None
+    #: Internal fuel capacity and measured landing reserve, in pounds.
+    fuel_capacity_lb: Optional[float] = None
+    reserve_lb: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -205,13 +208,22 @@ def grade_flight(facts: FlightFacts) -> FlightCard:
     if facts.ejected:
         lines.append(f"{facts.ejected} ejected.")
 
-    if facts.lowest_fuel is not None:
-        percent = int(round(facts.lowest_fuel * 100))
-        if facts.lowest_fuel < FUMES_FUEL:
-            faults.append(f"Finished the sortie with {percent}% fuel.")
+    if facts.landed_fuel is not None:
+        capacity = facts.fuel_capacity_lb
+        if capacity and facts.reserve_lb is not None:
+            reserve = facts.reserve_lb
+            landed = facts.landed_fuel * capacity
+            text = f"Landed with {landed:,.0f} lb (reserve {reserve:,.0f} lb)."
+        else:
+            reserve = FALLBACK_RESERVE
+            landed = facts.landed_fuel
+            percent = int(round(landed * 100))
+            text = f"Landed with {percent}% fuel (reserve {int(reserve * 100)}%)."
+        if landed < reserve:
+            faults.append(text)
             score -= 1
-        elif facts.lowest_fuel < LOW_FUEL:
-            lines.append(f"Finished the sortie with {percent}% fuel.")
+        else:
+            lines.append(text)
 
     return FlightCard(
         name=facts.name,
@@ -261,6 +273,28 @@ def _target_counts(flight: Flight, debriefing: Debriefing) -> tuple[str, int, in
     return target.name, len(alive | killed), len(killed)
 
 
+def _landed(record: SortieRecord) -> bool:
+    """Seen on the ground on a sweep after its last airborne one."""
+    return (
+        record.last_airborne is not None
+        and record.last_airborne >= 0
+        and record.last_seen > record.last_airborne
+    )
+
+
+def _fuel_capacity_lb(flight: Flight) -> Optional[float]:
+    try:
+        kg = float(flight.unit_type.dcs_unit_type.fuel_max)
+    except (AttributeError, TypeError, ValueError):
+        return None
+    return kg / KG_PER_LB if kg > 0 else None
+
+
+def _reserve_lb(flight: Flight) -> Optional[float]:
+    consumption = getattr(flight.unit_type, "fuel_consumption", None)
+    return None if consumption is None else float(consumption.min_safe)
+
+
 def _task_name(flight: Flight) -> str:
     try:
         return str(flight.task_display_name)
@@ -286,7 +320,7 @@ def facts_for(
     fuel = [
         record.fuel_at_end
         for record in human_survivors
-        if record.fuel_at_end is not None
+        if record.fuel_at_end is not None and _landed(record)
     ]
 
     planned_tot: Optional[float] = None
@@ -330,7 +364,9 @@ def facts_for(
         target_name=target_name,
         target_total=target_total,
         target_killed=target_killed,
-        lowest_fuel=min(fuel) if fuel else None,
+        landed_fuel=min(fuel) if fuel else None,
+        fuel_capacity_lb=_fuel_capacity_lb(flight),
+        reserve_lb=_reserve_lb(flight),
     )
 
 

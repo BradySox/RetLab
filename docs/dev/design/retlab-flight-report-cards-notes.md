@@ -26,7 +26,7 @@ The grades are Unsat, Below average, Average and Above average.
 | Air kills (fighter tasks) | `air_kills` on the records | any +1 |
 | Weapons (attack tasks) | shots and hits | 2 or more released and no hits −1 |
 | Losses | `debriefing.air_losses` | any −1; half the flight or more −2 |
-| Fuel (humans only) | `fuel_at_end` of surviving human records | under 5% −1; under 15% a note |
+| Fuel on landing (humans only) | `fuel_at_end` of human records seen on the ground after their last airborne sweep, times internal capacity (`fuel_max`) | under the airframe's measured `min_safe` reserve −1 (always shown in lb); no measured reserve: under 15% of internal fuel −1 |
 
 A score of +2 or more is Above average, 0 to +1 is Average, −1 to −2 is Below average, and
 below that is Unsat.
@@ -37,6 +37,9 @@ below that is Unsat.
   the mission up to 30 minutes early, and sortie-record times count from mission start.
 - **Early is fine for station tasks** (BARCAP, TARCAP, AEW&C, tanker, jamming). Arriving early
   to a strike is still graded.
+- **Fuel is graded only after a landing.** A jet still airborne when the mission ends has no
+  landing fuel. The reserve is the airframe's own `min_safe` (Hornet 2,000 lb of 10,803, Viper
+  1,000 of 7,163); 34 airframe files carry one. The 15% fallback sits between those two.
 - **AI fuel is never graded.** With `ai_unlimited_fuel` on, an AI record's fuel field is
   constant (§91), so it is not a fuel state.
 - **The package target counts every kill on it**, whoever made it. The card says "package

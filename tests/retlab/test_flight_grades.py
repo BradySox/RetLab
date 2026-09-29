@@ -132,13 +132,31 @@ def test_air_kills_lift_a_fighter_task() -> None:
     assert card.grade is Grade.AVERAGE
 
 
-def test_fuel_is_a_fault_only_on_fumes() -> None:
-    assert grade_flight(replace(BASE, lowest_fuel=0.03)).faults == (
-        "Finished the sortie with 3% fuel.",
+def test_landing_under_the_measured_reserve_is_a_fault() -> None:
+    hornet = replace(BASE, fuel_capacity_lb=10_800.0, reserve_lb=2_000.0)
+
+    short = grade_flight(replace(hornet, landed_fuel=0.13))
+    assert short.faults == ("Landed with 1,404 lb (reserve 2,000 lb).",)
+    assert short.grade is Grade.BELOW_AVERAGE
+
+    fine = grade_flight(replace(hornet, landed_fuel=0.25))
+    assert fine.faults == ()
+    assert fine.lines == ("Landed with 2,700 lb (reserve 2,000 lb).",)
+
+
+def test_an_unmeasured_airframe_falls_back_to_a_share_of_internal_fuel() -> None:
+    assert grade_flight(replace(BASE, landed_fuel=0.10)).faults == (
+        "Landed with 10% fuel (reserve 15%).",
     )
-    low = grade_flight(replace(BASE, lowest_fuel=0.10))
-    assert low.faults == ()
-    assert low.lines == ("Finished the sortie with 10% fuel.",)
+    assert grade_flight(replace(BASE, landed_fuel=0.30)).faults == ()
+
+
+class _Hornet:
+    dcs_unit_type = SimpleNamespace(fuel_max=4900.0)
+    fuel_consumption = SimpleNamespace(min_safe=2000)
+
+    def __str__(self) -> str:
+        return "F/A-18C"
 
 
 def _flight(flight_type: FlightType, tot: datetime | None) -> Any:
@@ -148,7 +166,7 @@ def _flight(flight_type: FlightType, tot: datetime | None) -> Any:
         flight_type=flight_type,
         task_display_name=flight_type.value,
         count=2,
-        unit_type="F/A-18C",
+        unit_type=_Hornet(),
         flight_plan=plan,
         package=SimpleNamespace(target=None),
     )
@@ -171,6 +189,7 @@ def test_facts_time_the_arrival_against_mission_start() -> None:
         _sample(1830.0, 100_000.0 - ARRIVAL_RADIUS_M + 10.0),
         _sample(2400.0, 0.0, fuel=0.2),
         player=True,
+        last_airborne=2370.0,
         shots=2,
         hits=1,
         air_kills=1,
@@ -181,22 +200,31 @@ def test_facts_time_the_arrival_against_mission_start() -> None:
     assert facts.planned_tot == 1800.0
     assert facts.arrival == 1830.0
     assert facts.graded_on_air_kills
-    assert facts.lowest_fuel == 0.2
+    assert facts.landed_fuel == 0.2
+    assert facts.reserve_lb == 2000.0
+    assert facts.fuel_capacity_lb is not None
+    assert round(facts.fuel_capacity_lb) == 10803
     assert (facts.shots, facts.hits, facts.air_kills) == (2, 1, 1)
 
 
 def test_a_dead_or_ejected_human_has_no_fuel_to_grade() -> None:
     flight = _flight(FlightType.BARCAP, None)
-    dead = _record("Enfield 1-1", _sample(0.0, 0.0, fuel=0.01), player=True)
+    dead = _record(
+        "Enfield 1-1", _sample(0.0, 0.0, fuel=0.01), player=True, last_airborne=100.0
+    )
     ejected = _record(
-        "Enfield 1-2", _sample(0.0, 0.0, fuel=0.02), player=True, ejected=True
+        "Enfield 1-2",
+        _sample(0.0, 0.0, fuel=0.02),
+        player=True,
+        ejected=True,
+        last_airborne=100.0,
     )
 
     facts = facts_for(
         flight, [dead, ejected], _debriefing(["Enfield 1-1"], flight), None
     )
 
-    assert facts.lowest_fuel is None
+    assert facts.landed_fuel is None
     assert facts.lost == 1
     assert facts.ejected == 1
     assert facts.planned_tot is None
@@ -207,4 +235,17 @@ def test_an_ai_flight_never_grades_fuel() -> None:
     flight = _flight(FlightType.BARCAP, None)
     anchor = _record("Enfield 1-1", _sample(0.0, 0.0, fuel=1.0))
 
-    assert facts_for(flight, [anchor], _debriefing([]), None).lowest_fuel is None
+    assert facts_for(flight, [anchor], _debriefing([]), None).landed_fuel is None
+
+
+def test_a_human_still_airborne_at_mission_end_has_no_landing_fuel() -> None:
+    flight = _flight(FlightType.BARCAP, None)
+    airborne = _record(
+        "Enfield 1-1",
+        _sample(0.0, 0.0, fuel=0.4),
+        player=True,
+        last_seen=3600.0,
+        last_airborne=3600.0,
+    )
+
+    assert facts_for(flight, [airborne], _debriefing([]), None).landed_fuel is None

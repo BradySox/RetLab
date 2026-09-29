@@ -11110,7 +11110,7 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 
 After a mission, the Qt debrief shows one graded card per blue flight that got airborne,
 human-crewed flights first: timing at the TOT waypoint, the package target, kills, weapons,
-losses, and a human pilot's fuel at the end. Grades are Unsat, Below average, Average and
+losses, and a human pilot's fuel on landing against the airframe's reserve. Grades are Unsat, Below average, Average and
 Above average. Built 2026-09-29, not flown (row B158).
 
 **Design note:** [retlab-flight-report-cards-notes.md](design/retlab-flight-report-cards-notes.md)
@@ -11129,6 +11129,8 @@ has the scoring table.
 
 - Planned TOT is measured from `mission_start_time` (§104's early start), because record
   times count from mission start.
+- Fuel is graded only after a landing, in pounds against the airframe's `min_safe`
+  reserve (15% of internal fuel where none is measured).
 - AI fuel is never graded. With `ai_unlimited_fuel` on it is constant (§91).
 - A grade is a record. Nothing in the campaign reads it.
 - No setting.

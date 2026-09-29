@@ -180,7 +180,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - A generated mission loads with a RetLab picture on the briefing screen. To use your own,
   save it as `briefing.png` or `briefing.jpg` in `Saved Games\DCS\Retribution`.
 - The debrief grades each flight: on time at the target or not, the package target, kills,
-  shots and hits, losses, and your fuel at the end. Grades run Unsat, Below average,
+  shots and hits, losses, and your fuel on landing against the jet's reserve. Grades run Unsat, Below average,
   Average, Above average, with the faults listed. Your flights come first.
 - A TARCAP in a package with SEAD or DEAD arrives with the suppression, not up to 20 minutes
   ahead of it over the target's SAMs. Part of the RetLab planner suite.
