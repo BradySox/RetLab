@@ -214,7 +214,7 @@ def test_brief_loadout_summarises_pylons() -> None:
 
     WeaponGroup.load_all()
     # Two stations of the same clsid -> a "2x <name>" count; an empty station is ignored.
-    clsid = next(iter(Weapon._by_clsid))
+    clsid = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"  # AIM-9M, one per station
     unit = SimpleNamespace(pylons={1: {"CLSID": clsid}, 2: {"CLSID": clsid}, 3: {}})
     summary = _brief_loadout([unit])
     assert summary.startswith("2×")  # the doubled station is counted
@@ -279,7 +279,7 @@ def test_brief_loadout_shows_fuel_tanks() -> None:
 
     WeaponGroup.load_all()
     summary = _brief_loadout([SimpleNamespace(pylons=_VENOM_3_PYLONS)])
-    assert "2× bag" in summary, summary
+    assert "2× fuel tank" in summary, summary
 
 
 def test_brief_loadout_counts_rack_mounted_stores() -> None:
@@ -306,3 +306,52 @@ def test_brief_loadout_still_drops_pods_and_collapses_hts() -> None:
     summary = _brief_loadout([SimpleNamespace(pylons=_VENOM_3_PYLONS)])
     assert "ALQ" not in summary, summary
     assert summary.endswith("HTS"), summary
+
+
+def test_brief_loadout_drops_the_apache_fire_control_radar() -> None:
+    # The FCR mast radar sits on a pylon in the payload but is a sensor, not a store.
+    from game.data.weapons import WeaponGroup
+
+    WeaponGroup.load_all()
+    pylons = {
+        1: {"CLSID": "{AN_APG_78}"},
+        2: {"CLSID": "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"},
+    }
+    summary = _brief_loadout([SimpleNamespace(pylons=pylons)])
+    assert "APG-78" not in summary, summary
+    assert summary, summary
+
+
+def _clsid_named(name: str) -> str:
+    from dcs.weapons_data import Weapons
+
+    for store in vars(Weapons).values():
+        if isinstance(store, dict) and store.get("name") == name:
+            return str(store["clsid"])
+    raise KeyError(name)
+
+
+def test_brief_loadout_counts_what_the_launcher_carries() -> None:
+    # pydcs names the four-round M299's group "AGM-114L * 1", and the M261 pod has no
+    # group at all, so the card used to read "2x AGM-114L * 1" for eight Hellfires.
+    from game.data.weapons import WeaponGroup
+
+    WeaponGroup.load_all()
+    rockets = _clsid_named("M261 - 19 x UnGd Rkts, 70 mm Hydra 70 M151 HE")
+    pylons = {
+        1: {"CLSID": rockets},
+        2: {"CLSID": "{M299_4xAGM_114L}"},
+        3: {"CLSID": "{M299_1xAGM_114K_3xAGM_114L_PRT}"},
+        4: {"CLSID": rockets},
+    }
+    summary = _brief_loadout([SimpleNamespace(pylons=pylons)])
+    assert summary == "38× Hydra 70 M151 HE · 7× AGM-114L · AGM-114K", summary
+
+
+def test_brief_loadout_counts_a_rack_by_its_stores() -> None:
+    from game.data.weapons import WeaponGroup
+
+    WeaponGroup.load_all()
+    mer = _clsid_named("6 x Mk-82 - 500lb GP Bomb LD (MER)")
+    summary = _brief_loadout([SimpleNamespace(pylons={1: {"CLSID": mer}})])
+    assert summary == "6× Mk 82", summary

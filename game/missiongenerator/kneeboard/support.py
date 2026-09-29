@@ -56,8 +56,8 @@ class FriendlyPackagesPage(KneeboardPage):
 
     def _render(self, writer: KneeboardPageWriter) -> List[List[str]]:
         """Draw title + two-column packages table; return rows that overflowed."""
+        # The title already names the page; a heading repeating it was a dead line.
         writer.title(self._title())
-        writer.heading(self.HEADING)
         writer.rule()
         font = self._font()
         single_capacity = writer.remaining_table_rows(font, bool(self.HEADERS))

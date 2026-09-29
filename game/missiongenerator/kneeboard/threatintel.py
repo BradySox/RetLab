@@ -353,7 +353,7 @@ class ThreatIntelBriefPage(KneeboardPage):
 
     def _render_card(self, writer: KneeboardPageWriter, card: ThreatCard) -> None:
         body = self._body_font()
-        # System name in emphasis; the same four-colour scheme as the Brief Sheet --
+        # System name in emphasis; the writer's four-colour scheme --
         # amber = the threat envelope (MEZ/Detect), blue = the HARM code + bullseye cues.
         writer.text(card.system, font=self._heading_font(), fill=writer.col_emphasis)
         writer.rule(gap_below=4)

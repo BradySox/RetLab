@@ -4,7 +4,7 @@ import datetime
 import re
 import textwrap
 from pathlib import Path
-from typing import Any, Dict, List, Optional, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from PIL import ImageFont
 from suntime import Sun, SunTimeException  # type: ignore
@@ -43,8 +43,7 @@ def _airfield_elevation_m(
     Looks up the airport via the theater's controlpoints (matched by airfield
     name) and reads ``elevation_m`` from ``resources/airport_imagery/<terrain>.json``.
     None when no theater, no matching control point, or no elevation shipped.
-    Shared by the full deck's weather block and the Brief Sheet's WX line so both
-    walk the same lookup chain as the recon ATIS pipeline.
+    Walks the same lookup chain as the recon ATIS pipeline.
     """
     if theater is None or not airfield_name:
         return None
@@ -130,27 +129,25 @@ class BriefingPage(KneeboardPage):
                 writer.text(line, wrap=True)
             writer.vspace(8)
 
-        # TODO: Handle carriers.
         writer.heading("Airfield Info")
         writer.rule()
         # Only show the ATIS column when ATIS is in play (plugin enabled), so a
         # mission without ATIS sees no kneeboard change (design §5).
+        # A flight with no divert field gets no Divert row, not an empty one.
+        fields = [
+            ("Departure", self.flight.departure),
+            ("Arrival", self.flight.arrival),
+        ]
+        if self.flight.divert is not None:
+            fields.append(("Divert", self.flight.divert))
         if self.atis_by_name:
             writer.table(
-                [
-                    self._row_with_atis("Departure", self.flight.departure),
-                    self._row_with_atis("Arrival", self.flight.arrival),
-                    self._row_with_atis("Divert", self.flight.divert),
-                ],
+                [self._row_with_atis(title, runway) for title, runway in fields],
                 headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY", "ATIS"],
             )
         else:
             writer.table(
-                [
-                    self.airfield_info_row("Departure", self.flight.departure),
-                    self.airfield_info_row("Arrival", self.flight.arrival),
-                    self.airfield_info_row("Divert", self.flight.divert),
-                ],
+                [self.airfield_info_row(title, runway) for title, runway in fields],
                 headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY"],
             )
 
@@ -351,7 +348,7 @@ class BriefingPage(KneeboardPage):
                 qnh_inhg - THUNDERSTORM_PRESSURE_DROP_INHG, elevation_m
             )
             line += (
-                f" (~{qfe_low:.2f} in CB cells â€” local QNH may drop "
+                f" (~{qfe_low:.2f} in CB cells — local QNH may drop "
                 "~3 mb inside storm cores)"
             )
         return line
@@ -433,15 +430,60 @@ class BriefingPage(KneeboardPage):
 
 #: A rack-mounted store names its own count ("2xMk 82", "4 x GBU-12").
 _RACK_MULTIPLIER_RE = re.compile(r"^(\d+)\s*x\s*(.+)$", re.IGNORECASE)
+#: A launcher named for its contents: "M299 - 1 x AGM-114K, 3 x AGM-114L Hellfire",
+#: "BRU-41A - 4 x Mk-81", "3x LAU-3 pod - 19 x 2.75" FFAR, UnGd Rkts M156, ...".
+_LAUNCHER_RE = re.compile(r"^(.+?) - (\d+\s*x\s*.+)$", re.IGNORECASE)
+_LAUNCHER_TERM_RE = re.compile(r"(\d+)\s*x\s*([^,]+)", re.IGNORECASE)
+_PREFIX_COUNT_RE = re.compile(r"(?:^|\s)(\d+)\s*x\s", re.IGNORECASE)
+#: pydcs group names carry a count suffix that is often wrong ("AGM-114L * 1"
+#: for a four-round M299), so the count is read from the launcher name instead.
+_GROUP_COUNT_SUFFIX_RE = re.compile(r"\s*[*x]\s*\d+$")
+#: "6 x Mk-82 - 500lb GP Bomb LD (MER)", "APU-60-2M with 2 x R-60M": a leading
+#: or "with" count only, so "BK-90 MJ2 (24 x MJ2 HEAT Bomblets)" stays one bomb.
+_STORE_COUNT_RE = re.compile(r"^(\d+)\s*x\s|\bwith (\d+)\s*x\s", re.IGNORECASE)
+
+
+def _rocket_name(contents: str) -> str:
+    """ "Hydra 70 M151 HE" out of "19 x UnGd Rkts, 70 mm Hydra 70 M151 HE"."""
+    segments = [seg.strip() for seg in contents.split(",")]
+    for i, seg in enumerate(segments):
+        if "rkts" in seg.lower():
+            after = re.split(r"rkts", seg, flags=re.IGNORECASE)[1].strip()
+            if after:
+                return after
+            if i + 1 < len(segments):
+                return re.sub(r"^\d+(\.\d+)?\s*mm\s+", "", segments[i + 1])
+    return "rockets"
+
+
+def _launcher_stores(weapon_name: str) -> Optional[List[Tuple[str, int]]]:
+    """(store, count) pairs from a launcher's own name, or None if it has none."""
+    launcher = _LAUNCHER_RE.match(weapon_name)
+    if launcher is None:
+        return None
+    prefix, contents = launcher.group(1), launcher.group(2)
+    low = contents.lower()
+    if "submunition" in low or "bomblet" in low:
+        return None  # a cluster bomb names its bomblets, not its stores
+    multiplier = _PREFIX_COUNT_RE.search(prefix)
+    per_launcher = int(multiplier.group(1)) if multiplier else 1
+    terms = _LAUNCHER_TERM_RE.findall(contents)
+    if "rkts" in low:
+        return [(_rocket_name(contents), per_launcher * int(terms[0][0]))]
+    return [
+        (store.split()[0], per_launcher * int(count))
+        for count, store in terms
+        if store.split()
+    ]
 
 
 def _brief_loadout(units: List[Any]) -> str:
     """One-line **ordnance** summary from the lead aircraft's generated pylons.
 
     Keeps the munitions a pilot briefs (bombs, missiles, rockets); a targeting pod
-    collapses to a single "TGP" and fuel tanks to "bag". Skips the noise -- ECM pods,
-    empty/clean stations, and clsids that don't resolve to a named weapon. Counts by
-    station and strips a rack multiplier from the name ("2xGBU-12" -> "GBU-12").
+    collapses to a single "TGP" and drop tanks to "fuel tank". Skips the noise -- ECM pods,
+    empty/clean stations, and clsids that don't resolve to a named weapon. Counts
+    stores, not stations: "BRU-41A - 4 x Mk-81" is four Mk-81.
     """
     if not units:
         return ""
@@ -464,10 +506,11 @@ def _brief_loadout(units: List[Any]) -> str:
         # group's placeholder is the literal string "Unknown" -- truthy, so it
         # won the `or` and was then dropped by the guard below. That silently
         # ate every 370 gal fuel tank on an F-16 BAI card.
+        full_name = weapon.name or ""
         group_name = getattr(weapon.weapon_group, "name", None)
         if not group_name or group_name == "Unknown":
-            group_name = weapon.name
-        name = (group_name or "").strip()
+            group_name = full_name
+        name = group_name.strip()
         low = name.lower()
         if "harm targeting" in low:  # AN/ASQ-213 HTS pod -- a SEAD sensor, not a weapon
             has_hts = True
@@ -479,22 +522,42 @@ def _brief_loadout(units: List[Any]) -> str:
             or "pylon" in low
             or "ecm" in low
             or "jammer" in low
+            or "fire control radar" in low  # the Apache's mast radar, not a store
+            or "nav pod" in low  # the Strike Eagle's LANTIRN nav pod, a sensor
         ):
             continue
-        # A rack carries several stores on one station, and the count is the
-        # thing a pilot briefs: a TER with 2 x Mk-82 is two bombs, not one.
-        # The multiplier used to be stripped off the name and discarded.
-        per_station = 1
         if "fuel" in low or "tank" in low:
-            name = "bag"
+            stores: List[Tuple[str, int]] = [("fuel tank", 1)]
         else:
+            # The launcher's own name carries the count a pilot briefs: a TER with
+            # 2 x Mk-82 is two bombs, and an M299 with 4 x AGM-114L is four.
+            stores = _launcher_stores(full_name) or []
+            named_group = (
+                name != full_name
+                and not _GROUP_COUNT_SUFFIX_RE.search(name)
+                and not _LAUNCHER_RE.match(name)
+            )
+            if len(stores) == 1 and named_group and "rkts" not in full_name.lower():
+                # One store type: the group's name reads better, the count is right.
+                rack = _RACK_MULTIPLIER_RE.match(name)
+                stores = [(rack.group(2).strip() if rack else name, stores[0][1])]
+        if not stores:
+            name = _GROUP_COUNT_SUFFIX_RE.sub("", name)
+            if name == full_name:
+                # "AN-M64 - 500lb GP Bomb LD": the designation is the part to brief.
+                name = name.split(" - ", 1)[0].strip()
+            per_station = 1
             rack = _RACK_MULTIPLIER_RE.match(name)
             if rack:
                 per_station = int(rack.group(1))
                 name = rack.group(2).strip()
-        if name not in counts:
-            order.append(name)
-        counts[name] = counts.get(name, 0) + per_station
+            elif (inline := _STORE_COUNT_RE.search(full_name)) is not None:
+                per_station = int(inline.group(1) or inline.group(2))
+            stores = [(name, per_station)]
+        for store, count in stores:
+            if store not in counts:
+                order.append(store)
+            counts[store] = counts.get(store, 0) + count
     parts = [(f"{counts[n]}× {n}" if counts[n] > 1 else n) for n in order]
     if has_hts:
         parts.append("HTS")
