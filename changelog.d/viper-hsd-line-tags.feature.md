@@ -1,0 +1,1 @@
+* **[Mission Generation]** Each F-16C HSD line gets a 3-letter tag on the Destination page: a country code on each side of a border, FLT on the front line, the tanker callsign in its box. Up to 8 tags; the recovery fields keep the other 11.

@@ -1261,3 +1261,10 @@ Borders beat the tanker box because the tanker anchor is already a steerpoint (2
 and a border can start a fight (§98). Borders come from the §98 zones and keep only
 edges two countries share: an edge one country has alone is coast or the map's clip.
 The purple circles on the HSD are the jet's own range rings (p. 326), not ours.
+
+**Tags.** The HSD cannot write text on a line, so each line gets a Destination
+steerpoint (81-99, up to three alphanumerics, p. 328) beside it: a country code on
+each side of a border, `FLT` on the front line, the tanker's callsign in its box, the
+first three letters of a player drawing's name. At most 8 slots go to tags; the
+recovery fields keep the other 11. A tag is a real steerpoint, so the pilot can select
+it, but it never joins the route.
