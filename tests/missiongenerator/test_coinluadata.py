@@ -239,6 +239,24 @@ def test_harassment_emits_bases_in_stronghold_reach_only() -> None:
     assert excluded_names == {"Player Field"}
 
 
+def test_harassment_never_shells_an_airbase() -> None:
+    from game.theater import ControlPointType
+
+    game = _harass_game()
+    airbase = _cp("blue", _Point(15_000.0, 0.0), [], cp_id="AI Airbase")
+    airbase.cptype = ControlPointType.AIRBASE
+    game.theater.controlpoints.append(airbase)
+
+    coin = _populate(game).get_item("coin")
+    assert coin is not None
+    harass = coin.get_item("harassment")
+    assert harass is not None
+    bases = harass.get_item("bases")
+    assert isinstance(bases, LuaData)
+    # The airbase sits inside mortar reach and no player uses it; it is still skipped.
+    assert [_kv(b)["name"] for b in bases.objects] == ["FOB Near"]
+
+
 def test_harassment_gated_by_its_toggle_and_by_red_presence() -> None:
     assert _populate(_harass_game(harass=False)).get_item("coin") is None
     # All strongholds cleared -> the fire falls silent (no node at all).
