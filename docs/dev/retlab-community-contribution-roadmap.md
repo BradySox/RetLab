@@ -176,7 +176,7 @@ since the last revision (§29–§73):
 | Fuel brief readout + kneeboard fuel ladder — §46's planner half was reverted 2026-08-09, do not carve it | High | none | 🟡 S7 |
 | §47 continuous clock & weather | High | none | 🟡 T1 |
 | §52 C2 decapitation → planner degradation | High | none | 🟡 B6 |
-| §60 SAM radar redundancy | Medium — **balance opinion, needs the realism-notes rationale attached** | none | 🔴 pushed as #893, closed 2026-08-02 mid-review — needs the re-open decision above |
+| §60 SAM radar redundancy (**removed 2026-09-29**) | Medium — **balance opinion, needs the realism-notes rationale attached** | none | 🔴 pushed as #893, closed 2026-08-02 mid-review — needs the re-open decision above |
 | §62 squadron-sequenced modex | High | none (note: parked per-pilot branch is the *upstream* #862/#863 answer) | 🟢 B15 ☑ |
 | §64 carrier deck spawn policy | High | none | 🟡 B17/B26 |
 | §66 generated-mission archive | Medium | none | 🟢 |

@@ -27,8 +27,7 @@ performance: 2
 # statics (in the .miz). Skynet range mode wires each base's SAMs to its nearby comms (<15nm) /
 # power (<35nm) / command center -> destroyable per-base C2 cells. The three strategic S-400
 # hubs (Copenhagen / Rostock / Szczecin) are authored as multi-battalion regiments + a shared
-# EWR (§60 doubling reverted for those, per the SAM-belt STANDARD); the forward MERAD screen
-# (SA-11/17/BUK-M3/SA-6) keeps §60 doubling. See the campaign design note.
+# EWR, per the SAM-belt STANDARD. See the campaign design note.
 advanced_iads: true
 recommended_start_date: 2027-07-17
 # Blue counter-offensive tuning: NATO out-produces and out-buys the culminated salient.

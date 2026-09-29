@@ -1,4 +1,4 @@
-name: 6 Launcher Site (Semicircle)
+name: 12 Launcher Site (Semicircle)
 tasks:
   - MERAD
   - LORAD
@@ -26,7 +26,7 @@ groups:
         - CommandPost
     - name: Launcher
       unit_count:
-        - 6
+        - 12
       unit_classes:
         - Launcher
         - TELAR
@@ -69,4 +69,4 @@ groups:
         - 2
       unit_classes:
         - AAA
-layout_file: resources/layouts/anti_air/6_Launcher_Semicircle.miz
+layout_file: resources/layouts/anti_air/12_Launcher_Semicircle.miz

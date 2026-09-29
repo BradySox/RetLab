@@ -89,7 +89,7 @@ CARRIER = ("CVN-75 Harry S. Truman", (127353, -868754))  # 55.0N 6.8E, blue
 
 # --- SAM / IADS belt (vanilla band markers) ---------------------------------
 # Strategic S-400 regiments: single-radar battalions + a shared EWR per hub
-# (regiment-by-authoring; §60 doubling stays off for these). LORAD band.
+# (regiment-by-authoring). LORAD band.
 S400_REGIMENTS = [
     (127222, -500129),
     (121000, -503000),
