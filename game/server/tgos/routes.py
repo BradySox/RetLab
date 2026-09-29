@@ -9,6 +9,7 @@ from game import Game
 from .models import TgoJs
 from ..dependencies import GameContext
 from ..leaflet import LeafletPoint
+from game.theater.instantnavalmove import instant_naval_move_enabled, move_ship_now
 from game.theater.theatergroundobject import ShipGroundObject
 
 router: APIRouter = APIRouter(prefix="/tgos")
@@ -42,7 +43,7 @@ def tgo_destination_in_range(
             status.HTTP_403_FORBIDDEN, detail=f"{tgo} is not owned by the player"
         )
     point = Point.from_latlng(LatLng(lat, lng), game.theater.terrain)
-    return tgo.destination_in_range(point)
+    return instant_naval_move_enabled(game) or tgo.destination_in_range(point)
 
 
 @router.put(
@@ -68,7 +69,8 @@ def set_tgo_destination(
     point = Point.from_latlng(
         LatLng(destination.lat, destination.lng), game.theater.terrain
     )
-    if not tgo.destination_in_range(point):
+    instant = instant_naval_move_enabled(game)
+    if not instant and not tgo.destination_in_range(point):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail=f"Cannot move {tgo} more than "
@@ -79,7 +81,7 @@ def set_tgo_destination(
     # all moves (carriers face the same gap and likewise skip the check).
     if game.theater.landmap and (
         not game.theater.is_in_sea(point)
-        or game.theater.landmap.land_inbetween(tgo.position, point)
+        or (not instant and game.theater.landmap.land_inbetween(tgo.position, point))
     ):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
@@ -89,7 +91,10 @@ def set_tgo_destination(
     from .. import EventStream
 
     with EventStream.event_context() as events:
-        events.update_tgo(tgo)
+        if instant:
+            move_ship_now(game, tgo, events)
+        else:
+            events.update_tgo(tgo)
 
 
 @router.put(
