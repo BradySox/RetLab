@@ -142,7 +142,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - A tanker flight's **Waypoints** tab has **Set orbit speed**: the KIAS it flies on its track,
   to suit its receivers. **Save as default** on the Payload tab keeps it for every new flight
   of that airframe.
-- A theater tanker flies a 40 x 20 NM box, looping it until its station time is up. Package
+- A theater tanker flies a 30 x 15 NM box, looping it until its station time is up. Package
   and carrier recovery tankers keep the two-point racetrack.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
@@ -177,7 +177,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   The package window's **Package route** button lists it.
 - Insert NAV point in a flight's Waypoints tab adds a point beside any waypoint with a leg
   next to it. On the package route it asks whether the point is for the whole package.
-- A generated mission loads with a RetLab picture on the briefing screen. To use your own,
+- RetLab starts with its own splash, and a generated mission loads with a RetLab picture on
+  the briefing screen. To use your own mission picture,
   save it as `briefing.png` or `briefing.jpg` in `Saved Games\DCS\Retribution`.
 - The debrief grades each flight: on time at the target or not, the package target, kills,
   shots and hits, losses, and your fuel on landing against the jet's reserve. Grades run Unsat, Below average,

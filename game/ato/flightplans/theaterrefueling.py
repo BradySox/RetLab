@@ -25,9 +25,12 @@ class TheaterRefuelingFlightPlan(RefuelingFlightPlan):
 #: airspace at the same altitude.
 TANKER_ORBIT_SPACING = nautical_miles(15)
 
+#: The tanker box's front leg, across the threat axis. Shrunk from 40 NM (DM 2026-09-29).
+TANKER_BOX_LENGTH = nautical_miles(30)
+
 #: How far a tanker box extends back from its front leg. Added to the spacing so a
 #: second tanker's box starts behind the first one's back leg.
-TANKER_BOX_DEPTH = nautical_miles(20)
+TANKER_BOX_DEPTH = nautical_miles(15)
 
 
 class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
@@ -46,7 +49,7 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         return 0
 
     def layout(self) -> TankerBoxLayout:
-        racetrack_half_distance = nautical_miles(20).meters
+        racetrack_half_distance = TANKER_BOX_LENGTH.meters / 2
 
         location = self.package.target
 

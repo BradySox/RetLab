@@ -277,3 +277,42 @@ def test_an_old_save_drops_the_box_flag(monkeypatch: pytest.MonkeyPatch) -> None
     )
     assert "tanker_box" not in flight.__dict__
     assert flight.orbit_speed_kias == 270
+
+
+def test_the_planner_builds_a_30_by_15_nm_box(monkeypatch: pytest.MonkeyPatch) -> None:
+    from game.ato.flightplans import theaterrefueling
+
+    class _Builder(_FakeWaypointBuilder):
+        def __init__(self, _: Any) -> None:
+            pass
+
+        get_patrol_altitude = ALT
+
+    monkeypatch.setattr(theaterrefueling, "WaypointBuilder", _Builder)
+    # The threat boundary is 200 NM due east of the anchor, which is unthreatened.
+    threats = SimpleNamespace(
+        closest_boundary=lambda _: _p(0, nautical_miles(200).meters),
+        threatened=lambda _: False,
+    )
+    settings = SimpleNamespace(tanker_threat_buffer_min_distance=70)
+    flight = SimpleNamespace(flight_type=FlightType.REFUELING)
+    flight.departure = flight.arrival = SimpleNamespace(position=_p(-100000, 0))
+    flight.divert = None
+    flight.package = SimpleNamespace(
+        target=SimpleNamespace(position=_p(0, 0)), flights=[flight]
+    )
+    flight.coalition = SimpleNamespace(
+        game=SimpleNamespace(settings=settings),
+        opponent=SimpleNamespace(threat_zone=threats),
+    )
+    builder = Builder.__new__(Builder)
+    builder.flight = flight  # type: ignore[assignment]
+
+    box = builder.layout()
+
+    a = box.patrol_start.position
+    b, c, _ = (w.position for w in box.box_corners)
+    assert a.distance_to_point(b) == pytest.approx(nautical_miles(30).meters, abs=1)
+    assert b.distance_to_point(c) == pytest.approx(nautical_miles(15).meters, abs=1)
+    # The box extends away from the threat (west, toward -y).
+    assert c.y < b.y
