@@ -1616,7 +1616,7 @@ def test_tomcat_flight_gets_a_cartridge_bound_to_its_clients() -> None:
     assert len(generator.cartridges) == 1
     cartridge = generator.cartridges[0]
     assert cartridge.unit_type == TOMCAT_UNIT_TYPE
-    assert flight.client_units[0].dtc_autoload is True
+    assert flight.client_units[0].dtc_autoload is False  # Pilot loads it, the default
     assert flight.client_units[0].dtc_cartridges[0]["name"] == cartridge.name
 
 
