@@ -88,8 +88,8 @@ SECTIONS: tuple[Section, ...] = (
         PICTURE,
         {
             HORNET_UNIT_TYPE: "On the SA page.",
-            VIPER_UNIT_TYPE: "An HSD line, after National borders, your drawings"
-            " and the tanker box when the 4 lines and 25 points run short.",
+            VIPER_UNIT_TYPE: "An HSD line, 4 points when National borders are"
+            " drawn, otherwise what your drawings and the tanker box leave.",
             TOMCAT_UNIT_TYPE: "As a plot line.",
             APACHE_UNIT_TYPE: "As a TSD line.",
         },
@@ -100,7 +100,7 @@ SECTIONS: tuple[Section, ...] = (
         PICTURE,
         {
             VIPER_UNIT_TYPE: "Land borders within 40 NM of your route as HSD lines,"
-            " the nearest two first. They come before everything else on the HSD"
+            " the nearest two first, 12 points at most. They come before everything else on the HSD"
             " but your drawings.",
         },
     ),

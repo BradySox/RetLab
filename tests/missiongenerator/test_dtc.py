@@ -3007,3 +3007,28 @@ def test_viper_draws_borders_ahead_of_the_front_line(
     ]["MPD"]["GEO_LINES"]
     assert "Alpha-Bravo" not in {p["note"] for p in geo}
     assert [p["note"] for p in geo if p["L1"]] == ["FLOT"] * 2
+
+
+def test_viper_caps_borders_at_twelve_and_keeps_four_for_the_front(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """DM split: a border wanting 30 points gets 12, the front line keeps 4."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    frontier = [(20000.0 + 2000.0 * i, 50000.0) for i in range(30)]
+    north = [(frontier[0][0], 0.0), *frontier, (frontier[-1][0], 0.0)]
+    south = [(frontier[0][0], 100000.0), *frontier, (frontier[-1][0], 100000.0)]
+    game.theater.neutral_border_zones = [
+        SimpleNamespace(country="Alpha", border=north),
+        SimpleNamespace(country="Bravo", border=south),
+    ]
+    segments = [("Front", [(1000.0 * i, 2000.0) for i in range(20)])]
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments", lambda g: segments
+    )
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    notes = [p["note"] for p in geo]
+    assert notes.count("Alpha-Bravo") == 12
+    assert notes.count("FLOT") == 4

@@ -1249,9 +1249,13 @@ would rather have national borders than the front line. Order, highest first:
 | Rank | What | Sets | Points |
 |---|---|---|---|
 | 1 | The player's drawings and orbits (§102) | up to 3 | whole, or skipped |
-| 2 | Land borders within 40 NM of the route, nearest first | up to 2 | thinned to fit |
-| 3 | The nearest usable tanker box | what is left | 5 each, whole |
-| 4 | The boundary with red land (the front line) | what is left | thinned to fit |
+| 2 | Land borders within 40 NM of the route, nearest first | up to 2 | at most 12, thinned |
+| 3 | The nearest usable tanker box | 1 beside borders, else what is left | 5 each, whole |
+| 4 | The boundary with red land (the front line) | what is left | 4 beside borders, else the rest |
+
+The caps are the DM's split (2026-09-29). Measured over 200 routes of 100-250 NM on each
+of 7 maps, the borders near a route want 16-41 points (median per map), so uncapped they
+took everything and left the front line a 2-point stick.
 
 Borders beat the tanker box because the tanker anchor is already a steerpoint (21-24),
 and a border can start a fight (§98). Borders come from the §98 zones and keep only
