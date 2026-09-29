@@ -1238,3 +1238,22 @@ every cartridge. Everything is in
 [retlab-my-aircraft-notes.md](retlab-my-aircraft-notes.md); its §5a lists four schema
 defects in the builders above, with DCS file:line sources. **All four were fixed
 the same day** (Apache lines and ETA, Hornet one TGT, Tomcat plan limits).
+
+## Viper HSD: what gets a line when the budget runs out (2026-09-29, B175)
+
+The Viper has **4 line sets sharing 25 points** (steerpoints 31-55; `GEO_LINES.lua`
+refuses a 26th). The F-16C guide (p. 328) draws every geographic line gray and dashed,
+whatever it is, so priority is the only thing that decides what the pilot sees. The DM
+would rather have national borders than the front line. Order, highest first:
+
+| Rank | What | Sets | Points |
+|---|---|---|---|
+| 1 | The player's drawings and orbits (§102) | up to 3 | whole, or skipped |
+| 2 | Land borders within 40 NM of the route, nearest first | up to 2 | thinned to fit |
+| 3 | The nearest usable tanker box | what is left | 5 each, whole |
+| 4 | The boundary with red land (the front line) | what is left | thinned to fit |
+
+Borders beat the tanker box because the tanker anchor is already a steerpoint (21-24),
+and a border can start a fight (§98). Borders come from the §98 zones and keep only
+edges two countries share: an edge one country has alone is coast or the map's clip.
+The purple circles on the HSD are the jet's own range rings (p. 326), not ours.

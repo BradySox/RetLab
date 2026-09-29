@@ -7506,7 +7506,8 @@ package-mates share the comm plan and SA picture):
   boat card** (`CarrierInfo.tacan/icls_channel/link4_freq`; a land arrival uses the
   field's `RunwayData.tacan`), FPAS home waypoint = the landing steerpoint.
 - **SA / MPD (the situational-awareness picture)** — the boundary with red land
-  (`red_land_boundary`; Viper: the GEO_LINES L1 set),
+  (`red_land_boundary`; Viper: a GEO_LINES set after the borders, drawings and tanker box),
+  **the land borders near the route** (Viper only, 2026-09-29: see below),
   **friendly CAP stations (BARCAP/
   TARCAP) + tanker/AEW&C orbits as CAP_PTS racetracks** (Viper: named extra
   steerpoints — the jet has no orbit element), and **enemy SAM threat rings as MEZ
@@ -7531,6 +7532,19 @@ package-mates share the comm plan and SA picture):
   - The Viper's `MAX_GEO_POINTS_PER_SET = 8` was invented. `GEO_LINES.lua:586` caps the
     partition at 25 points with **no per-set cap**, so the boundary takes L1 whole and
     L2-L4 are free for the zone half that nothing writes yet.
+- **Viper: land borders first (2026-09-29, row B175).** The DM would rather see
+  national borders than the front line, so `_build_geo_lines` fills the four sets in
+  priority order: the player's drawings, then `land_border_runs` (up to 2 sets), then
+  the usable tanker boxes, then the red-land boundary with what is left. Borders and
+  the front line are thinned to fit and keep 2 points back for each line still to
+  come; boxes and drawings go in whole or not at all. `land_border_runs` reads the §98
+  zones (`theater.neutral_border_zones`, terrain file or campaign) and keeps only edges
+  **two countries share** — the terrain files are one shared coverage, so an edge only
+  one country has is coast or the map's clip edge. It keeps those within 40 NM of the
+  route (`BORDER_CORRIDOR_M`), walks each ring into open runs, emits each shared edge
+  once, and sorts runs nearest first. Its own DTC-tab switch is `DtcOptions.borders`
+  ("National borders"). A map with no border file (Nevada, the Marianas, fictional
+  overlays) gets the front line on L1 as before.
 - **Tanker and AEW&C orbits as boxes (2026-09-10).** `support_boxes` draws each
   support orbit as a closed rectangle: the straight legs plus the 5 NM the turns
   need at each end, aligned to the orbit's own course. The Viper takes them on

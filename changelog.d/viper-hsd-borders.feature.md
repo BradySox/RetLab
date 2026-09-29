@@ -1,0 +1,1 @@
+* **[Mission Generation]** The F-16C data cartridge draws the land borders within 40 NM of the route on the HSD, ahead of the front line. When the 4 lines and 25 points run short, your drawings come first, then borders, the tanker box, and the front line. New National borders option on the flight's DTC tab.
