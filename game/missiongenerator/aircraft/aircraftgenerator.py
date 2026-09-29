@@ -58,6 +58,7 @@ from .flightdata import FlightData
 from .flightgroupconfigurator import FlightGroupConfigurator
 from .flightgroupspawner import FlightGroupSpawner
 from .modex import ModexAllocator
+from .untaskedculling import airfields_players_see
 from ...radio.datalink import DataLinkRegistry
 
 if TYPE_CHECKING:
@@ -233,13 +234,20 @@ class AircraftGenerator:
                             break
 
     def spawn_unused_aircraft(self) -> None:
-        for control_point in self.game.theater.controlpoints:
-            if not (
-                isinstance(control_point, Airfield) or isinstance(control_point, Fob)
-            ):
-                continue
-
+        bases = [
+            cp
+            for cp in self.game.theater.controlpoints
+            if isinstance(cp, Airfield) or isinstance(cp, Fob)
+        ]
+        culling = (
+            self.game.settings.perf_disable_untasked_blufor_aircraft
+            or self.game.settings.perf_disable_untasked_opfor_aircraft
+        )
+        seen = airfields_players_see(self.game, bases) if culling else set()
+        for control_point in bases:
             for squadron in control_point.squadrons:
+                if self._cull_untasked(squadron) and control_point not in seen:
+                    continue
                 country = self.country_assigner.for_squadron(squadron)
                 try:
                     self._spawn_unused_for(squadron, country)
@@ -462,21 +470,17 @@ class AircraftGenerator:
                 RedScrambleTemplate(group_name=group_name, label=aircraft.variant_id)
             )
 
+    def _cull_untasked(self, squadron: Squadron) -> bool:
+        if squadron.coalition.player.is_blue:
+            return self.game.settings.perf_disable_untasked_blufor_aircraft
+        if squadron.coalition.player.is_red:
+            return self.game.settings.perf_disable_untasked_opfor_aircraft
+        return False
+
     def _spawn_unused_for(self, squadron: Squadron, country: Country) -> None:
         assert isinstance(squadron.location, Airfield) or isinstance(
             squadron.location, Fob
         )
-        if (
-            squadron.coalition.player.is_blue
-            and self.game.settings.perf_disable_untasked_blufor_aircraft
-        ):
-            return
-        elif (
-            squadron.coalition.player.is_red
-            and self.game.settings.perf_disable_untasked_opfor_aircraft
-        ):
-            return
-
         for _ in range(squadron.untasked_aircraft):
             flight = Flight(
                 Package(squadron.location, self.game.db.flights),
