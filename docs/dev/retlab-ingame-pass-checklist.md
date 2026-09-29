@@ -8883,3 +8883,11 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
 - **Fail signatures:** the tab shows the squadron's livery again (the sync is not running);
   the tab is right but the jet wears the squadron's livery (the generator is reading the
   squadron, not the member).
+
+### B165 — Two QRA scrambles from one field in the same second do not collide · §1 · ☐ UNTESTED
+
+Built 2026-09-29 after test 48 (Kerman: two F-14 wingmen air-started on the same spot and collided). Harness-tested (`tests/lua/test_intercept_filter.py`); never flown.
+
+- **Setup:** any campaign where red QRA scrambles a pair or more from one base. Watch in Tacview.
+- **Pass:** groups launched from one base inside a minute appear about 500 ft apart in altitude; no QRA jet dies within seconds of spawning.
+- **Fail signatures:** two jets spawning at the same altitude and position; a QRA loss with no shot fired at it in its first seconds.

@@ -56,6 +56,11 @@ is legacy only and should not be extended.
   high-elevation fields. Both are tunable; in-game pass ☑ VERIFIED 2026-06-24 (A1,
   Tacview) — scrambled MiG-29As air-spawned at ~750 m AGL / 240–510 kt and climbed
   under control, no stall or ground-clawing dive.
+- Scramble stacking (2026-09-29, test 48): Moose air-starts every group on the same point
+  over the field at the same altitude, so two scrambles in the same second overlap unit for
+  unit. At Kerman two F-14 pairs launched together and the wingmen collided on spawn.
+  `stack_air_spawns` wraps each squadron SPAWN so each scramble from a base within 60 s
+  goes 150 m (~500 ft) higher, four levels, then wraps. Row B165.
 - **Takeoff method — in-air, and the three that failed (all validated in-DCS).** Every
   ground spawn dies on a saturated ramp; the blocker is ground movement, not the takeoff
   method. Do **not** call `SetSquadronVisible` — it puts Moose in its `ParkDefender`
