@@ -48,6 +48,7 @@ from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
     from game import Game
+    from game.theater.iadsnetwork.iadsnetwork import IadsNode
 
 
 class LuaGenerator:
@@ -70,6 +71,10 @@ class LuaGenerator:
         # single trigger (the same shape the reliable late-init pass uses) keeps
         # any one config from being dropped.
         self._deferred_plugin_loads: list[DoScriptFile] = []
+
+    def iads_dcs_name(self, node: IadsNode) -> str:
+        # A carrier flagship is generated under its hull name, not its unit name.
+        return self.mission_data.renamed_units.get(node.dcs_name, node.dcs_name)
 
     def generate(self) -> None:
         self.generate_plugin_data()
@@ -304,7 +309,7 @@ class LuaGenerator:
             coalition = iads_object.get_or_create_item(coalition_key)
             iads_type = coalition.get_or_create_item(node.iads_role.skynet_value)
             iads_element = iads_type.add_item()
-            iads_element.add_key_value("dcsGroupName", node.dcs_name)
+            iads_element.add_key_value("dcsGroupName", self.iads_dcs_name(node))
             if node.iads_role in [IadsRole.SAM, IadsRole.SAM_AS_EWR]:
                 # add additional SkynetProperties to SAM Sites
                 for property, value in node.properties.items():
