@@ -8856,3 +8856,15 @@ Built 2026-09-29. Unit-tested (`test_untaskedculling.py`); never generated in DC
   build); every field full (the rule found no player flight — check the flight has a
   client slot).
 
+
+### B164 — A changed livery is still selected when the flight is reopened · Payload tab · ☐ UNTESTED
+
+Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never clicked in the running app.
+
+- **Setup:** any campaign. Open a player flight → Payload, pick a livery other than the
+  squadron's, close the flight window, open it again. Then generate the mission.
+- **Pass:** the Payload tab shows the livery you picked; the Mission Editor (or the jet on the
+  ramp) wears it on every member.
+- **Fail signatures:** the tab shows the squadron's livery again (the sync is not running);
+  the tab is right but the jet wears the squadron's livery (the generator is reading the
+  squadron, not the member).
