@@ -98,7 +98,12 @@ function AI_A2A_DISPATCHER:New(detection)
     function obj:SetDefaultFuelThreshold(threshold, time) end
     function obj:SetSendMessages(onoff) end
     function obj:SetSquadron(name, base, templates, count)
-        self.DefenderSquadrons[name] = { Spawn = {} }
+        local spawn = { alts = {} }
+        function spawn:InitSpeedKnots(kt) end
+        function spawn:SpawnAtAirbase(airbase, takeoff, alt)
+            table.insert(self.alts, alt)
+        end
+        self.DefenderSquadrons[name] = { Spawn = { spawn } }
     end
     function obj:SetSquadronGci(name, minSpeed, maxSpeed) end
     function obj:SetSquadronTakeoffInAirAltitude(name, alt) end
@@ -342,3 +347,23 @@ def test_dispatcher_evaluation_skips_react_free_clusters() -> None:
     assert dispatcher.EvaluateENGAGE(dispatcher, strike) == "friendlies"
     assert len(dispatcher.gciCalls) == 1
     assert len(dispatcher.engageCalls) == 1
+
+
+def test_simultaneous_scrambles_air_start_on_separate_levels() -> None:
+    """Moose air-starts every group on one point over the field; two scrambles
+    in the same second collided unit for unit (test 48, Kerman F-14 wingmen).
+    Each scramble inside the window goes ~500 ft higher; a quiet base resets."""
+    harness = DcsPluginHarness()
+    _load(harness, ewr_names=["0041 | LION (EWR)"])
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    dispatcher = harness.lua.globals().InterceptTest.dispatchers[1]
+    squadron = next(iter(dispatcher.DefenderSquadrons.values()))
+    spawn = squadron.Spawn[1]
+    spawn.SpawnAtAirbase(spawn, "Test AFB", "air", 860.0)
+    spawn.SpawnAtAirbase(spawn, "Test AFB", "air", 860.0)
+    harness.advance_to(BUILD_DELAY_S + 120)
+    spawn.SpawnAtAirbase(spawn, "Test AFB", "air", 860.0)
+
+    assert harness.to_python(spawn.alts) == [860.0, 1010.0, 860.0]
