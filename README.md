@@ -141,7 +141,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - A tanker flight's **Waypoints** tab has **Set orbit speed**: the KIAS it flies on its track,
   to suit its receivers. **Save as default** on the Payload tab keeps it for every new flight
   of that airframe.
-- A theater tanker flies a 40 x 20 NM box, looping it until its station time is up. Package
+- A theater tanker flies a 30 x 15 NM box, looping it until its station time is up. Package
   and carrier recovery tankers keep the two-point racetrack.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
