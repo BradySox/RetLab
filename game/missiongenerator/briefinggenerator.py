@@ -149,10 +149,12 @@ class MissionInfoGenerator:
 
 
 def format_waypoint_time(waypoint: FlightWaypoint, depart_prefix: str) -> str:
+    # Whole seconds, dropped rather than rounded, to match the kneeboard
+    # flight-plan page's strftime.
     if waypoint.tot is not None:
-        return f"{waypoint.tot.time()} "
+        return f"{waypoint.tot.strftime('%H:%M:%S')} "
     elif waypoint.departure_time is not None:
-        return f"{depart_prefix} {waypoint.departure_time.time()} "
+        return f"{depart_prefix} {waypoint.departure_time.strftime('%H:%M:%S')} "
     return ""
 
 

@@ -1,0 +1,12 @@
+date: 2026-09-29
+title: One target steerpoint per site
+change: >-
+  Strike and DEAD flights get one target steerpoint at the center of the
+  site instead of one for every unit in it. An S-300 site was 18
+  steerpoints and is now one. The Strike kneeboard page still lists every
+  building with its coordinates, and an F-14B(U) still gets a JDAM point
+  per building. Briefing waypoint times now show whole seconds.
+watch: >-
+  On a DEAD or Strike flight, check the route has one target steerpoint
+  and that your weapons can still be aimed at the unit you want.
+row: B174

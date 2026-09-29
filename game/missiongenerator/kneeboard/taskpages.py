@@ -17,12 +17,21 @@ from game.missiongenerator import f15ecc
 from game.settings.settings import TargetIntelPrecision
 from game.theater import TheaterGroundObject, TheaterUnit
 from game.theater.bullseye import Bullseye
+from game.theater.theatergroup import SceneryUnit
 from game.utils import meters
 from ..aircraft.flightdata import FlightData
 from ..kneeboard_page import KneeboardPage
 
 from .writer import KneeboardPageWriter
 from .flightplan import NumberedWaypoint
+
+
+def _unit_label(unit: TheaterUnit) -> str:
+    """A unit's row label: a scenery object by its map name, the rest by type."""
+    unit_type = unit.type
+    if isinstance(unit, SceneryUnit) or unit_type is None:
+        return unit.name
+    return unit_type.name
 
 
 class SeadTaskPage(KneeboardPage):
@@ -37,12 +46,12 @@ class SeadTaskPage(KneeboardPage):
 
     @property
     def target_units(self) -> Iterator[TheaterUnit]:
-        """The units that got a per-target waypoint, in waypoint order.
+        """The units the flight plan targeted, in waypoint order.
 
-        SEAD gets a steerpoint per *emitter* and DEAD one per unit, so the two
-        read different lists. This must stay the list the flight plan built from
-        (game/ato/flightplans/{sead,dead}.py) or ``_target_point_numbers``
-        pairing below silently prints the wrong STPT.
+        SEAD gets a steerpoint per *emitter*; DEAD gets one site steerpoint for
+        every unit, which only the consolidated view below reads. This must stay
+        the list the flight plan built from (game/ato/flightplans/{sead,dead}.py)
+        or ``_target_point_numbers`` pairing below silently prints the wrong STPT.
         """
         target = self.flight.package.target
         if not isinstance(target, TheaterGroundObject):
@@ -55,7 +64,7 @@ class SeadTaskPage(KneeboardPage):
     def _target_point_numbers(self) -> List[int]:
         """STPT numbers of the per-target waypoints, in target order.
 
-        DEAD/SEAD flights get one TARGET_POINT waypoint per target, built from
+        SEAD flights get one TARGET_POINT waypoint per emitter, built from
         the same ``target_units`` list (in the same order) that this page
         lists, so the i-th TARGET_POINT waypoint is the i-th listed target. The
         number is the index into the flight's waypoint list, matching the
@@ -265,6 +274,22 @@ class StrikeTaskPage(KneeboardPage):
             if waypoint.waypoint_type == FlightWaypointType.TARGET_POINT:
                 yield NumberedWaypoint(idx, waypoint)
 
+    @property
+    def aimpoints(self) -> Iterator[Tuple[int | str, str, Point]]:
+        """``(STPT, description, position)`` per target, in the ingress task's order.
+
+        A site waypoint lists each unit it carries under its one STPT; a plan made
+        before site waypoints has one waypoint per unit and lists those.
+        """
+        for target in self.targets:
+            units = target.waypoint.targets
+            if not units:
+                yield target.number, target.waypoint.display_name, (
+                    target.waypoint.position
+                )
+            for unit in units:
+                yield target.number, _unit_label(unit), unit.position
+
     def write(self, path: Path) -> None:
         writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         self.render_into(writer)
@@ -284,22 +309,18 @@ class StrikeTaskPage(KneeboardPage):
         writer.table(
             [
                 [
-                    str(target.number),
+                    str(number),
                     writer.wrap_line(
-                        self._target_description(
-                            target.waypoint.display_name, i, is_f15e
-                        ),
+                        self._target_description(description, i, is_f15e),
                         self.WAYPOINT_DESC_MAX_LEN,
                     ),
                     (
                         "Search around target area waypoint"
                         if self._approximate_target_intel
-                        else format_dms_suffix(
-                            target.waypoint.position.latlng(), decimals=2
-                        )
+                        else format_dms_suffix(position.latlng(), decimals=2)
                     ),
                 ]
-                for i, target in enumerate(self.targets)
+                for i, (number, description, position) in enumerate(self.aimpoints)
             ],
             headers=headers,
         )

@@ -44,8 +44,8 @@ class Builder(FormationAttackBuilder[DeadFlightPlan, FormationAttackLayout]):
 
         # Mobile SAMs relocate between intel updates, so under Approximate intel
         # the player gets a single fuzzed target-area waypoint to visually acquire
-        # rather than exact per-emitter points. Exact intel keeps the per-unit
-        # points for trivial TOO designation.
+        # rather than an exact site point. Exact intel gets one exact site point
+        # carrying the units (formationattack.SITE_WAYPOINT_TASKS).
         targets = (
             self.strike_targets_for(location)
             if self.settings.target_intel_precision is TargetIntelPrecision.EXACT

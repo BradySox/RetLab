@@ -7781,8 +7781,10 @@ reference layer, which plan 2 repeats:
   its own target as PP1** (read from the lead's loaded pylons — pydcs 4–7 are the
   jet's STA 3–6), handed out in route order and wrapping; every target stays on
   every station for a re-pick. All targets in a cluster run in from the IP.
+  Strike and DEAD plan one site waypoint carrying its units (2026-09-29, row B174);
+  the JDAM page expands it back to one point per unit (`_aimpoints`).
   Only **one** target reaches the route -- the surface target -- because a strike
-  plans a waypoint per building and the PTID displays 18 at a time, ranking the
+  used to plan a waypoint per building and the PTID displays 18 at a time, ranking the
   coded points above plain ones (DM call 2026-08-23; the manual's prioritisation
   scheme is in the design note). Every remaining plain point takes a priority slot,
   `X1`-`X7` in route order, so it ranks with the coded ones; that code literal is
