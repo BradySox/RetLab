@@ -37,7 +37,7 @@ recorded natively. See §35.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 from game.ato import FlightType
 from game.data.units import HEAVY_BOMBER_DCS_IDS, UnitClass
@@ -256,6 +256,52 @@ def _populate_super_gaggle(vietnam: "LuaItem", game: "Game") -> None:
         supp_names = supp.add_item("names")
         for name in commitment.supp_unit_names:
             supp_names.add_item().set_value(name)
+        payload = _suppressor_payload(game, commitment)
+        if payload is not None:
+            fuel, flare, chaff, pylons = payload
+            payload_item = supp.add_item("payload")
+            payload_item.add_key_value("fuel", str(fuel))
+            payload_item.add_key_value("flare", str(flare))
+            payload_item.add_key_value("chaff", str(chaff))
+            pylons_item = payload_item.add_item("pylons")
+            for number, clsid in sorted(pylons.items()):
+                pylon = pylons_item.add_item()
+                pylon.add_key_value("num", str(number))
+                pylon.add_key_value("clsid", clsid)
+
+
+def _suppressor_payload(
+    game: "Game", commitment: Any
+) -> Optional[tuple[float, int, int, dict[int, str]]]:
+    """The suppressor squadron's CAS fit as (fuel kg, flares, chaff, pylon -> CLSID).
+
+    The plugin spawns the suppressors with ``coalition.addGroup``, which mounts nothing
+    unless the unit carries a payload. ``None`` when the squadron is gone.
+    """
+    from game.ato.loadouts import Loadout
+    from game.retlab.super_gaggle import squadron_by_id
+
+    if commitment.supp_squadron_id is None:
+        return None
+    squadron = squadron_by_id(game, commitment.supp_squadron_id)
+    if squadron is None:
+        return None
+    aircraft = squadron.aircraft
+    loadout = Loadout.default_for_task_and_aircraft(
+        FlightType.CAS, aircraft.dcs_unit_type
+    )
+    if game.settings.restrict_weapons_by_date:
+        loadout = loadout.degrade_for_date(
+            aircraft, game.date, squadron.coalition.faction
+        )
+    pylons = {n: w.clsid for n, w in loadout.pylons.items() if w is not None}
+    dcs_type = aircraft.dcs_unit_type
+    return (
+        dcs_type.fuel_max,
+        getattr(dcs_type, "flare", 0),
+        getattr(dcs_type, "chaff", 0),
+        pylons,
+    )
 
 
 def _target_position(flight: "FlightData") -> tuple[float, float] | None:

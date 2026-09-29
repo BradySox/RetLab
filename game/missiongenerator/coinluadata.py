@@ -17,10 +17,10 @@ intact and means a shot-down mover is recorded natively, exactly like the static
 Movers: the HVT convoy (patrol loop), each mobile VBIED (drives at a friendly base), each
 C4 **dispersed field cell** (wanders its patch of countryside), and the live C1.5
 **re-infiltration cell** (creeps toward the base it is infiltrating). **Harassment**
-(``coin_harassment``): each blue-held airfield/FARP/FOB within mortar reach of a red
-stronghold draws sporadic insurgent indirect fire at runtime -- the §36
-airbase-harassment shape, with the same hard never-a-player-spawn-field guarantee
-(filtered here, double-guarded in the Lua).
+(``coin_harassment``): each blue-held FARP/FOB within mortar reach of a red
+stronghold draws sporadic insurgent indirect fire at runtime, never a player-spawn
+field (filtered here, double-guarded in the Lua). Never an airbase: a scripted
+explosion there holds every AI fixed-wing launch (why §36 was removed).
 
 Emits nothing unless ``coin_insurgency`` is on and at least one mover or harassable base
 exists, so a non-COIN mission carries no ``coin`` node and the plugin no-ops. Static
@@ -236,14 +236,14 @@ def _infiltrator_movements(game: "Game", state: dict[str, Any]) -> list[dict[str
 
 
 def _harassment_bases(game: "Game") -> Optional[dict[str, Any]]:
-    """Blue-held airfields/FARPs/FOBs within :data:`HARASS_STRONGHOLD_REACH_M` of a
+    """Blue-held FARPs/FOBs within :data:`HARASS_STRONGHOLD_REACH_M` of a
     red stronghold, minus every player-spawn field this mission (the hard §36
     anti-grief guarantee -- filtered here, never emitted). ``None`` when no base
     qualifies (no red CPs left, nothing in reach), so the plugin no-ops."""
     from game.theater import ControlPointType
 
+    # No AIRBASE: scripted fire on a fixed-wing field holds its AI launches (§36).
     harassable = {
-        ControlPointType.AIRBASE,
         ControlPointType.FARP,
         ControlPointType.FOB,
     }
