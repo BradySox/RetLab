@@ -3001,6 +3001,31 @@ def test_land_border_runs_draw_only_the_shared_frontier_near_the_route() -> None
     assert land_border_runs(game, route, 20 * 1852.0) == []  # type: ignore[arg-type]
 
 
+def test_land_border_runs_join_a_border_that_leaves_the_strip_and_returns() -> None:
+    """A border that bulges away from the route is one line through the bulge,
+    not two pieces: two pieces of one border read as two borders."""
+    frontier = [
+        (100000.0, 50000.0),
+        (150000.0, 300000.0),
+        (200000.0, 300000.0),
+        (250000.0, 50000.0),
+        (300000.0, 50000.0),
+    ]
+    north = [*frontier, (300000.0, 400000.0), (100000.0, 400000.0)]
+    south = [*frontier, (300000.0, -100000.0), (100000.0, -100000.0)]
+    game = SimpleNamespace(
+        theater=SimpleNamespace(
+            neutral_border_zones=[
+                SimpleNamespace(country="Alpha", border=north),
+                SimpleNamespace(country="Bravo", border=south),
+            ]
+        )
+    )
+    route = [(0.0, 0.0), (400000.0, 0.0)]
+    runs = land_border_runs(game, route, 40 * 1852.0)  # type: ignore[arg-type]
+    assert runs == [("Alpha-Bravo", frontier)]
+
+
 def test_viper_draws_borders_ahead_of_the_front_line(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

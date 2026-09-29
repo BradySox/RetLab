@@ -7548,7 +7548,12 @@ package-mates share the comm plan and SA picture):
   then the red-land boundary (`FRONT_POINTS_WITH_BORDERS` = 4 beside borders, else
   what is left). The caps are the DM's split, 2026-09-29: measured on 7 maps, borders
   near a 100-250 NM route want 16-41 points and uncapped they left the front line a
-  2-point stick. Borders and the front line are thinned to fit; boxes and drawings go
+  2-point stick. **One line per border** (2026-09-29, flown the same day): a border
+  that leaves the 40 NM strip and comes back used to come out as two pieces, which
+  split the 12 points 10/2 and drew a straight stick with numbered tags (GR2, TU2).
+  `land_border_runs` now draws each country pair's frontier from its first to its last
+  edge near the route, through the gap, and the 12 points split evenly across the
+  borders drawn. Borders and the front line are thinned to fit; boxes and drawings go
   in whole or not at all. **Each line is tagged on the DEST page** (DM 2026-09-29): the
   HSD writes no text on a line (EA guide p328), so a Destination steerpoint beside it
   names it -- `country_code` each side of a border's middle 3 NM out (`country_at`

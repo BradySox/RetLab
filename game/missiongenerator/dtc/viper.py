@@ -798,7 +798,7 @@ def _build_geo_lines(
     front_share = min(len(front[0][1]), FRONT_POINTS_WITH_BORDERS) if front else 0
     border_room = min(MAX_BORDER_POINTS, room - front_share)
     for index, (name, points) in enumerate(borders):
-        share = min(len(points), border_room - 2 * (len(borders) - index - 1))
+        share = min(len(points), border_room // (len(borders) - index))
         if share < 2:
             break
         lines.append((name, decimate_open(points, share)))
