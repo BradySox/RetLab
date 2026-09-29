@@ -393,6 +393,7 @@ class QFlightPayloadTab(QFrame):
         self.livery_selector = SquadronLiverySelector(
             self.flight.squadron, update_squadron=False
         )
+        self.sync_livery_selector()
         self.livery_selector.currentIndexChanged.connect(self.on_livery_change)
         bound_dropdown_width(self.livery_selector, self.DROPDOWN_HINT_CHARS)
         hbox.addWidget(self.livery_selector, stretch=1)
@@ -573,6 +574,15 @@ class QFlightPayloadTab(QFrame):
                 self.loadout_selector.setCurrentText(member.loadout.name)
         self.custom_loadout_note.setVisible(is_custom)
 
+    def sync_livery_selector(self) -> None:
+        """Show the selected member's livery, not the squadron default.
+
+        Signals are blocked so showing a choice never writes one back.
+        """
+        member = self.member_selector.selected_member
+        with block_signals(self.livery_selector):
+            self.livery_selector.select_livery(member.livery, member.use_livery_set)
+
     def refresh_fuel_brief(self) -> None:
         brief = fuel_brief_for(
             self.flight, self.member_selector.selected_member.loadout
@@ -603,9 +613,7 @@ class QFlightPayloadTab(QFrame):
         self.property_editor.set_flight_member(member)
         self.sync_loadout_selector()
         self.loadout_selector.setDisabled(member.loadout.is_custom)
-        self.livery_selector.setCurrentIndex(
-            self.livery_selector.findData(member.livery)
-        )
+        self.sync_livery_selector()
         self.payload_editor.set_flight_member(member)
         self.weapon_laser_code_selector.set_flight_member(member)
         self.own_laser_code_info.set_flight_member(member)

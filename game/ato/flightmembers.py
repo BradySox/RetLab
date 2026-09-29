@@ -99,8 +99,10 @@ class FlightMembers(IFlightRoster):
         if not self.members:
             return
         livery = self.members[0].livery
+        use_livery_set = self.members[0].use_livery_set
         for member in self.members[1:]:
             member.livery = livery
+            member.use_livery_set = use_livery_set
 
     def use_distinct_loadouts_for_each_member(self) -> None:
         for member in self.members:

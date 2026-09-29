@@ -1,10 +1,12 @@
 import logging
+from typing import Optional
 
 from PySide6.QtWidgets import QComboBox
 
 from game.squadrons import Squadron
 
 LIVERY_SET_TEXT = "Use livery-set from squadron's yaml"
+LIVERY_OVERRIDES_TEXT = "Use livery overrides"
 
 
 class SquadronLiverySelector(QComboBox):
@@ -48,7 +50,7 @@ class SquadronLiverySelector(QComboBox):
         if squadron.livery_set:
             self.addItem(LIVERY_SET_TEXT, userData=None)
         if len(overrides) > 0:
-            self.addItem("Use livery overrides", userData=None)
+            self.addItem(LIVERY_OVERRIDES_TEXT, userData=None)
         if (
             selected_livery is None
             and not squadron.livery_set
@@ -63,6 +65,21 @@ class SquadronLiverySelector(QComboBox):
         if len(liveries) == 0:
             self.addItem("No available liveries (using DCS default)")
             self.setEnabled(False)
+        self.default_index = self.currentIndex()
+
+    def select_livery(self, livery: Optional[str], use_livery_set: bool) -> None:
+        """Show a flight member's saved choice, else the squadron default."""
+        index = -1
+        if livery is not None:
+            for i in range(self.count()):
+                data = self.itemData(i)
+                if isinstance(data, str) and data.lower() == livery.lower():
+                    index = i
+                    break
+        else:
+            text = LIVERY_SET_TEXT if use_livery_set else LIVERY_OVERRIDES_TEXT
+            index = self.findText(text)
+        self.setCurrentIndex(index if index >= 0 else self.default_index)
 
     @property
     def using_livery_set(self) -> bool:
