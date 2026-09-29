@@ -446,6 +446,9 @@ considered and declined.
    verified through `Campaign.load_theater`: each hub CP resolves **3 `long_range_sams` + an EWR**.
    CI-locked in `tests/retlab/test_red_tide_sam_regiments.py`.
 
+   *(2026-09-29: §60 was removed, so every campaign's sites are single-radar now; what still
+   sets Red Tide apart is the lean battalion composition below.)*
+
    **Single-radar battalions via a Red-Tide faction fork (§60 guardrail).** Redundancy comes from
    *three* fire units, not doubled radars, so §60's second track radar is reverted **for Red Tide's
    S-300/SA-5 only** — scoped so every other campaign's lone S-300 keeps its §60 redundancy. Because

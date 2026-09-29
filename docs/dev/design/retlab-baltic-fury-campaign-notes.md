@@ -164,14 +164,13 @@ by design (offensive agency = Backfire anti-ship raids + §55 red-intent surges)
 
 Networked advanced IADS (`advanced_iads: true`, MANTIS range mode + per-base C2 statics). Built
 to the SAM-belt STANDARD:
-- **Strategic S-400 → regiment-by-authoring** (multi-battalion single-radar + shared EWR; §60
-  doubling OFF for these): hubs at Copenhagen `[127222, -500129]`, Rostock `[-46917, -547933]`,
+- **Strategic S-400 → regiment-by-authoring** (multi-battalion single-radar + shared EWR): hubs at Copenhagen `[127222, -500129]`, Rostock `[-46917, -547933]`,
   Szczecin `[-104437, -377931]`; `SA-20/PMU-1` mid nodes.
 - **Coastal anti-ship wall** (`Bastion-P` + `BAL` LBASM, sea-facing — the CSG's gate): Rostock
   `[-21425, -544701]`, Kap Arkona/Rügen `[23897, -452187]`, Usedom `[-49529, -425779]`, Darß
   `[1512, -502398]`, Copenhagen `[131614, -490031]`.
 - **Baltic Fleet SAG** (`Russian Navy`) at `[19397, -441610]` — CSG threat + hunt target.
-- **Forward MERAD screen** (§60 doubling ON): `SA-11`/`SA-17`/`BUK M3` + `SA-6` across the neck.
+- **Forward MERAD screen**: `SA-11`/`SA-17`/`BUK M3` + `SA-6` across the neck.
 - **Point defense** every red base: `SA-15 Tor M2`/`Pantsir-S2`/`SA-19`. **EWR**: `55G6U`/`1L119`/`1L13`.
 - **Blue base AD:** `Patriot` + `NASAMS 3` at Nordholz/Bremen; the CSG carries Aegis.
 - **§49 SCUD hunt:** one coastal `SS-26 Iskander` at `[-70726, -537596]` (shoot-and-scoot).

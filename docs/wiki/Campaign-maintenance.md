@@ -66,10 +66,10 @@ the per-campaign design notes.
   generate the intermediate waypoints from the real road network's lat/lon with
   `tools/supply_route_geo.py`.
 * **SAM belts by system class.** Legacy/mobile systems (SA-2/3/6, Hawk, generic launcher
-  sites) place as single sites — their layouts already carry two guidance radars.
+  sites) place as single sites.
   Strategic belts (S-300/S-400, Patriot, the long-range systems) prefer the
   regiment-by-authoring pattern: several single-radar fire units plus a shared EWR,
-  netted by Skynet. Never stack both redundancy models on the same system.
+  netted by Skynet.
 * **Know the miz's source of truth.** A *generated* campaign miz
   (`tools/build_*_miz.py`) is edited in the generator and re-run — never hand-edit the
   output. A *decorate-a-base* campaign (hand-positioned in the Mission Editor) is the

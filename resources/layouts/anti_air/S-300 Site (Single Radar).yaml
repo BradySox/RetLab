@@ -33,7 +33,7 @@ groups:
         - S-400 55K6 cp # SA-21
     - name: S-300 Site TR
       unit_count:
-        - 1 # RetLab: single-radar battalion (regiment-modeled, §60 reverted per SAM-belt STANDARD)
+        - 1 # RetLab: single-radar battalion (regiment-modeled)
       unit_types:
         - S-300PS 40B6M tr # SA-10 Flap Lid-A TR
         - S-300PS 30N6 TRAILER tr # SA-10B

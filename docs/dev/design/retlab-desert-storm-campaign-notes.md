@@ -181,7 +181,7 @@ not "fix" them.
 
 Note the SAM-belt standard tension deliberately left alone: Iraq 1991 fields no
 strategic SAM (its best is the SA-6), so the regiment-by-authoring pattern doesn't
-apply — the legacy sites ride the §60 doubling like every other campaign.
+apply — the legacy sites are single sites like every other campaign.
 
 ## The feature stack (preseeds)
 

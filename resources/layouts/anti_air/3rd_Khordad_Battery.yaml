@@ -11,7 +11,7 @@ groups:
     # The TELAR carries the fire-control radar, so it fills the guidance slot.
     - name: Track Radar
       unit_count:
-        - 2 # RetLab: guidance-radar redundancy - one HARM must not blind the site
+        - 1
       unit_types:
         - IRAD_3Khordad_TELAR
     - name: Launcher

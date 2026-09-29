@@ -27,8 +27,7 @@ MIZ = Path("resources/campaigns/red_tide.miz")
 YAML = Path("resources/campaigns/red_tide.yaml")
 
 # The single-radar S-300/SA-5 variants Red Tide's fork faction uses so each
-# regiment battalion fields ONE guidance radar (SAM-belt STANDARD: revert §60's
-# doubling for a regiment-modeled strategic system, scoped to Red Tide).
+# regiment battalion is a lean single-radar fire unit.
 SINGLE_RADAR_LAYOUTS = {
     "S-300 Site (Single Radar)": "S-300 Site TR",
     "SA-5 Legacy Site (Single Radar Circle)": "Track Radar",
@@ -136,14 +135,6 @@ def test_single_radar_battalions_are_lean_fire_units() -> None:
         assert "EW Radar" not in sa5_slots, f"{variant} regained a battalion P-14"
         (ln,) = [ug for ug in sa5.all_unit_groups if ug.name == "Launcher"]
         assert ln.unit_count == [6], f"{variant} launcher count drifted"
-
-
-def test_base_s300_layout_keeps_its_60_doubling() -> None:
-    # The scoping guardrail: reverting §60 for Red Tide must NOT touch the shared
-    # S-300 Site layout, or every other campaign's lone S-300 loses its redundancy.
-    base = LAYOUTS.by_name("S-300 Site")
-    (tr,) = [ug for ug in base.all_unit_groups if ug.name == "S-300 Site TR"]
-    assert tr.unit_count == [2], "base S-300 Site lost its §60 second radar"
 
 
 def test_red_tide_recommends_the_single_radar_fork_faction() -> None:

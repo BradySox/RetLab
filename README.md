@@ -154,8 +154,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   internally and in tanks, the RTB margin with no tanker, and how many tanker passes the
   route has. It flags a sortie that only gets home on a top-off, so you can add a bag or
   trim the route before you fly it.
-- SAM batteries field two guidance radars, spaced so one missile cannot take both. New
-  campaigns only.
 - One continuous clock: time advances a few hours per turn and weather evolves from the
   previous turn instead of re-rolling. Requires day-and-night missions.
 - The planner reads that weather — rain and storms ground automatic photo-recon and push
