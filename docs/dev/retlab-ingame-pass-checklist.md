@@ -8842,19 +8842,21 @@ Built 2026-09-29. Filter and disclosure tests pass with the painting in place; r
   hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
   a search.
 
-### B161 — Untasked parked aircraft are culled only at airfields no player sees · Culling settings · ☐ UNTESTED
+### B161 — Untasked parked aircraft spawn only at airfields a player sees · Culling settings · ☐ UNTESTED
 
-Built 2026-09-29. Unit-tested (`test_untaskedculling.py`); never generated in DCS.
+Built 2026-09-29; made the default the same day (the two boxes now mean "at every
+airfield"). Unit-tested (`test_untaskedculling.py`); never generated in DCS.
 
-- **Setup:** Settings → Mission Generator → Culling & untasked units: tick **Disable
-  untasked OWNFOR aircraft at airfields** and **Disable untasked OPFOR aircraft at
-  airfields**. Fly a player flight whose route passes one enemy airfield and stays well
-  clear (more than 20 NM) of another.
+- **Setup:** Settings → Mission Generator → Culling & untasked units: leave **Disable
+  untasked OWNFOR aircraft at every airfield** and **Disable untasked OPFOR aircraft at
+  every airfield** unticked. Fly a player flight whose route passes one enemy airfield and
+  stays well clear (more than 20 NM) of another.
 - **Pass:** your departure field's ramp and the enemy field beside your route hold their
-  parked aircraft; the far enemy field has none (F10 map or the Mission Editor).
-- **Fail signatures:** your own ramp empty (the old all-or-nothing rule is still in the
-  build); every field full (the rule found no player flight — check the flight has a
-  client slot).
+  parked aircraft; the far enemy field has none (F10 map or the Mission Editor). Tick both
+  boxes and generate again: every ramp is empty.
+- **Fail signatures:** every field full (the rule found no player flight — check the flight
+  has a client slot, and that dynamic slots and OPFOR client slots are off); your own ramp
+  empty with the boxes unticked.
 
 
 ### B163 — The kneeboard drops its dead lines, and LOADOUT counts what the jet carries · §22 · ☐ UNTESTED

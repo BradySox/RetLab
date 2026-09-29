@@ -1,10 +1,11 @@
-"""Which airfields keep their untasked parked aircraft under the culling settings.
+"""Which airfields spawn their untasked parked aircraft.
 
-"Disable untasked OWNFOR/OPFOR aircraft at airfields" skips the parked jets only
-where no human will see them: a field a player flight departs from, lands at,
-diverts to or passes within ``PLAYER_VIEW_RADIUS`` of keeps its ramp. A field a
-package is fragged against with OCA/Aircraft keeps it too, so the strike has
-targets. With dynamic slots on, every OWNFOR field is a possible player spawn.
+Parked jets with no flight spawn only where a human will see them: a field a
+player flight departs from, lands at, diverts to or passes within
+``PLAYER_VIEW_RADIUS`` of. A field a package is fragged against with
+OCA/Aircraft keeps its ramp too, so the strike has targets. With dynamic slots
+on every OWNFOR field is a possible player spawn, and with untasked OPFOR client
+slots on every OPFOR field is.
 """
 
 from __future__ import annotations
@@ -80,6 +81,9 @@ def airfields_players_see(
         if cp in seen:
             continue
         if game.settings.dynamic_slots and cp.captured.is_blue:
+            seen.add(cp)
+            continue
+        if game.settings.untasked_opfor_client_slots and cp.captured.is_red:
             seen.add(cp)
             continue
         if any(_near_route(cp.position, route, radius_m) for route in routes):

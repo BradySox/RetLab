@@ -1,0 +1,11 @@
+date: 2026-09-29
+title: Parked jets only where players look
+change: >-
+  Untasked parked aircraft now spawn only at airfields a player will see:
+  your own field, your landing and divert fields, any field within 20 NM
+  of your route and any OCA/Aircraft target. Disable untasked
+  OWNFOR/OPFOR aircraft at every airfield empties every ramp instead.
+watch: >-
+  Leave both boxes unticked and fly: your ramp and the fields along your
+  route are full, and a field far from any player route is empty.
+row: B161

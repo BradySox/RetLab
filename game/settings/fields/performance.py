@@ -98,27 +98,29 @@ class PerformanceSettings:
         default=True,
     )
     perf_disable_untasked_blufor_aircraft: bool = boolean_option(
-        "Disable untasked OWNFOR aircraft at airfields",
+        "Disable untasked OWNFOR aircraft at every airfield",
         page=MISSION_GENERATOR_PAGE,
         section=PERFORMANCE_SECTION,
         default=False,
         detail=(
-            "Parked OWNFOR aircraft with no flight this turn are left out only at "
-            "airfields no player will see. An airfield keeps them when a player "
-            "flight takes off from it, lands at it, diverts to it or passes within "
-            "20 NM of it, or when an OCA/Aircraft package targets it."
+            "Parked OWNFOR aircraft with no flight this turn always spawn only at "
+            "airfields a player will see: one a player flight takes off from, "
+            "lands at, diverts to or passes within 20 NM of, or one an "
+            "OCA/Aircraft package targets. Tick this to leave them out at every "
+            "airfield."
         ),
     )
     perf_disable_untasked_opfor_aircraft: bool = boolean_option(
-        "Disable untasked OPFOR aircraft at airfields",
+        "Disable untasked OPFOR aircraft at every airfield",
         page=MISSION_GENERATOR_PAGE,
         section=PERFORMANCE_SECTION,
         default=False,
         detail=(
-            "Parked OPFOR aircraft with no flight this turn are left out only at "
-            "airfields no player will see. An airfield keeps them when a player "
-            "flight takes off from it, lands at it, diverts to it or passes within "
-            "20 NM of it, or when an OCA/Aircraft package targets it."
+            "Parked OPFOR aircraft with no flight this turn always spawn only at "
+            "airfields a player will see: one a player flight takes off from, "
+            "lands at, diverts to or passes within 20 NM of, or one an "
+            "OCA/Aircraft package targets. Tick this to leave them out at every "
+            "airfield."
         ),
     )
     # Performance culling

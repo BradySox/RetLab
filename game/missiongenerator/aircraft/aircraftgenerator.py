@@ -239,14 +239,10 @@ class AircraftGenerator:
             for cp in self.game.theater.controlpoints
             if isinstance(cp, Airfield) or isinstance(cp, Fob)
         ]
-        culling = (
-            self.game.settings.perf_disable_untasked_blufor_aircraft
-            or self.game.settings.perf_disable_untasked_opfor_aircraft
-        )
-        seen = airfields_players_see(self.game, bases) if culling else set()
+        seen = airfields_players_see(self.game, bases)
         for control_point in bases:
             for squadron in control_point.squadrons:
-                if self._cull_untasked(squadron) and control_point not in seen:
+                if self._cull_untasked(squadron) or control_point not in seen:
                     continue
                 country = self.country_assigner.for_squadron(squadron)
                 try:
