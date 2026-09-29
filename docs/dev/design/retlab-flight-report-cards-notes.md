@@ -1,6 +1,6 @@
 # Flight report cards (§108)
 
-**Status: BUILT 2026-09-29, not flown.** Row B156.
+**Status: BUILT 2026-09-29, not flown.** Row B158.
 
 ## What it is
 
@@ -61,4 +61,4 @@ below that is Unsat.
 - A kneeboard page with the last mission's cards.
 - Grading escorts on their package's losses, and CAS on front-line kills.
 - A per-pilot trend in the §96 logbook, such as grades over the last ten sorties.
-- Tuning the thresholds after the first flown read (row B156).
+- Tuning the thresholds after the first flown read (row B158).

@@ -23,7 +23,7 @@ entries:
     watch: >-
       Note when you were over the target and what you hit. Your card's timing
       and counts should match within about a minute.
-    row: B156
+    row: B158
   - date: 2026-09-29
     title: Cheat - move a carrier instantly
     change: >-

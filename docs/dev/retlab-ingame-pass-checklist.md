@@ -462,7 +462,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
-| B156 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
+| B158 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8877,7 +8877,7 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
-### B156 — The debrief grades each flight, and the grades match what happened · §108 · ☐ UNTESTED
+### B158 — The debrief grades each flight, and the grades match what happened · §108 · ☐ UNTESTED
 
 Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flown mission.
 
