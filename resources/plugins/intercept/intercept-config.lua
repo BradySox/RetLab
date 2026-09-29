@@ -63,6 +63,37 @@ local BUILD_DELAY = 5  -- seconds; let the mission's groups register before SET_
 -- Both tunable; need an in-game pass.
 local SCRAMBLE_SPEED_KT = 300   -- air-spawn airspeed (was effectively ~0 -> near-stall)
 local SCRAMBLE_AGL_M = 760      -- ~2,500 ft above the LAUNCHING field's elevation
+-- Moose air-starts every group on one point over the field, so two scrambles in
+-- the same second overlap unit for unit (test 48, Kerman: two F-14 wingmen collided
+-- on spawn). Each scramble within the window goes one level higher.
+local STACK_STEP_M = 150        -- ~500 ft between scrambles launched together
+local STACK_LEVELS = 4
+local STACK_WINDOW_S = 60
+
+local scramble_stack = {}
+
+local function scramble_stack_offset(base_name)
+    local now = timer.getTime()
+    local s = scramble_stack[base_name]
+    if s == nil or now - s.t > STACK_WINDOW_S then
+        s = { level = 0 }
+    else
+        s.level = (s.level + 1) % STACK_LEVELS
+    end
+    s.t = now
+    scramble_stack[base_name] = s
+    return s.level * STACK_STEP_M
+end
+
+local function stack_air_spawns(spawn, base_name)
+    local orig = spawn.SpawnAtAirbase
+    spawn.SpawnAtAirbase = function(self, airbase, takeoff, alt, ...)
+        if alt then
+            alt = alt + scramble_stack_offset(base_name)
+        end
+        return orig(self, airbase, takeoff, alt, ...)
+    end
+end
 
 -- GCI-ambush hit-and-run leash (Vietnam campaign layer W5); applied only when the
 -- generator marks a coalition's records ambushPosture=true (gci_ambush doctrine).
@@ -403,6 +434,7 @@ local function build_dispatcher(coalition_name, records)
             if sq_obj and sq_obj.Spawn then
                 for _, sp in ipairs(sq_obj.Spawn) do
                     pcall(function() sp:InitSpeedKnots(SCRAMBLE_SPEED_KT) end)
+                    stack_air_spawns(sp, rec.airbaseName)
                 end
             end
             -- Aircraft launched per scramble. The generator rolls this per
@@ -609,4 +641,5 @@ return {
     pattern_escape = lua_pattern_escape,
     group_reacts = qra_group_reacts,
     cluster_has_react = qra_cluster_has_react,
+    scramble_stack_offset = scramble_stack_offset,
 }
