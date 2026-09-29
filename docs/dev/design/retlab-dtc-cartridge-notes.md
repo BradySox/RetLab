@@ -552,16 +552,18 @@ reverted 2026-08-20):
 - `ground_elevation()` in `dtc/common.py` reads the grid, bilinear, and falls back
   to the nearest field where no grid ships or the point is off the grid. It feeds
   ground-marked points, AGL legs and threat points.
-- Spacing is per terrain (DM 2026-09-29): 100 m on Syria, 333 m on Caucasus and the
-  Persian Gulf, 1 km on Afghanistan, Iraq, Falklands, Germany Cold War, Kola,
-  Marianas, Nevada and Sinai; 43 MB in all, Syria 31 MB. Normandy, The Channel and
+- Spacing is per terrain (DM 2026-09-29): 100 m on Syria and the Persian Gulf,
+  333 m on Caucasus, 1 km on Afghanistan, Iraq, Falklands, Germany Cold War, Kola,
+  Marianas, Nevada and Sinai; 67 MB in all, Syria 31 MB, Persian Gulf 28 MB. Normandy, The Channel and
   Marianas WWII have no grid yet (not installed on the DM's machine / no probe
   terrain class). Measured on Syria, predicting 333 m points from a 666 m
   grid: land above 1,000 m median 4 m off, 90th percentile 33 m, 99th 98 m. A
   grid point next to a cliff is the worst case at any spacing. Syria at 100 m:
   224 airfields and helipads median 0.1 m from the June airfield table.
-- Left raw: 12 Syria points sit over 100 m below all eight neighbours (a gorge
-  or tunnel line in DCS's own terrain). A steerpoint beside one reads low.
+- Left raw: 12 Syria and 17 Persian Gulf points sit over 100 m below all eight
+  neighbours (a gorge or tunnel line in DCS's own terrain). A steerpoint beside
+  one reads low. Persian Gulf at 100 m: 29 airfields median 0.3 m from the table;
+  Fujairah reads 13 m above it at both spacings.
 - The airfield table (`resources/airport_imagery`) disagrees with the grids by
   5-70 m at some Iraq, Afghanistan and Germany fields where the grid is flat
   around the field (Balad, Herat, Spangdahlem); probably a stale table after
