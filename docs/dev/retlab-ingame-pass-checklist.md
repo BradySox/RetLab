@@ -460,7 +460,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B151 | The package route moves every flight in the package | §106 | ☐ |
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
 | B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
-| B154 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8844,7 +8844,7 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
   not firing); it never leaves (condition never false); it refuses contacts after BOX 1 (the
   Tanker task did not persist along the route); it races back toward BOX 1 at top speed.
 
-### B154 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
+### B155 — The briefing screen shows the RetLab picture, or your own briefing.png · §107 · ☐ UNTESTED
 
 Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 
