@@ -8628,7 +8628,7 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   salvo dying together a few seconds after its last launch, with no HARM in the air, is most
   likely the same fault.
 
-### B149 — Iranian missile sites spawn and fire (third-party missile mods) · §105 · ☐ UNTESTED
+### B149 — Iranian missile sites spawn and fire (third-party missile mods) · §105 · ✅ CLOSED (2026-09-29, the third-party support was removed; the pack's own launchers are B166; was ☐ UNTESTED)
 
 Built 2026-09-27 on the DM's call, until the RetLab pack carries its own launchers: the PG Iran
 IRBM Pack's Sejjil-2, Emad and Fattah-2 TELs, the PG Iran Air Defense Pack's Shahed-238 launcher
@@ -8883,3 +8883,22 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
 - **Fail signatures:** the tab shows the squadron's livery again (the sync is not running);
   the tab is right but the jet wears the squadron's livery (the generator is reading the
   squadron, not the member).
+
+
+### B166 — The pack's own Iranian missile sites spawn and fire · §105 · ☐ UNTESTED
+
+Built 2026-09-29: the RetLab Iran Air Defense Pack's Sejjil-2, Emad, Kheibar, Fattah-2 and
+Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own toggle.
+`[CH] Iran 2020` fields all five as missile sites, `Iran 2015` the Sejjil-2. Unit-tested
+(`tests/retlab/test_iran_pack_missiles.py`); the missiles have never flown in DCS.
+
+- **Setup:** the pack installed; Scenic Route Merged or Noisy Cricket (both preseed the pack),
+  or any campaign with red missile-site markers and `[CH] Iran 2020` as red with the pack
+  ticked. Missile-site fire tasks on (Settings, Performance).
+- **Pass:** red missile sites spawn with `[IRAD]` launchers; each fires once at a blue base;
+  Tacview shows the missile reaching a blue field. A Shahed 238 flies at about 370 mph and takes
+  most of the mission to arrive.
+- **Fail signatures:** a missile site with no vehicles (a type id that does not match the pack;
+  `dcs.log` names it); `Couldn't setup missile site to fire` in the Retribution log (no blue base
+  inside the launcher's range); a launcher that erects and never fires, or a missile that falls
+  far short (the pack's `Database/irad_ssm.lua`, not RetLab).

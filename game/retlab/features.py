@@ -885,9 +885,9 @@ FEATURES: tuple[Feature, ...] = (
         104,
     ),
     Feature(
-        # Gated by the ModSettings/New Game `iranairdefensepack` toggle, and the
-        # third-party missile launchers by `iranmissilemods` (wizard fields, not Settings
-        # fields). docs/dev/design/retlab-iran-air-defense-pack-notes.md holds the contract.
+        # Gated by the ModSettings/New Game `iranairdefensepack` toggle (a wizard field,
+        # not a Settings field). docs/dev/design/retlab-iran-air-defense-pack-notes.md
+        # holds the contract.
         "iran_air_defense_pack",
         "RetLab Iran Air Defense Pack (3rd Khordad, Bavar-373)",
         105,

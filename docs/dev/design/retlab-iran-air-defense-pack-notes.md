@@ -1,8 +1,8 @@
-# RetLab Iran Air Defense Pack — 3rd Khordad and Bavar-373 (§105)
+# RetLab Iran Air Defense Pack — 3rd Khordad, Bavar-373 and missile launchers (§105)
 
 **Status (2026-09-27):** repo side BUILT, unit-tested. The DCS mod v0.1 is BUILT and flown in
-tests 41-46: all twelve units, all eleven models with their own wrecks, and the three
-missiles at the §3 numbers, in the separate private repo
+tests 41-46: all twelve air-defense units, all eleven models with their own wrecks, and the
+three missiles at the §3 numbers, in the separate private repo
 `BradySox/RetLab-Iran-Air-Defense` (DM call: its own pack, like HDS and CurrentHill; not public
 yet). Remaining steps are in
 [`retlab-iran-air-defense-pack-HANDOFF.md`](retlab-iran-air-defense-pack-HANDOFF.md).
@@ -34,6 +34,14 @@ values in meters because pydcs requires it.
 | `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | Launcher | — | 86 NM |
 | `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
 | `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
+| `IRAD_Sejjil_TEL` | `[IRAD] Sejjil-2 TEL` | Missile | — | 1,080 NM |
+| `IRAD_Emad_TEL` | `[IRAD] Emad TEL` | Missile | — | 918 NM |
+| `IRAD_Kheibar_TEL` | `[IRAD] Kheibar (Khorramshahr-4) TEL` | Missile | — | 1,080 NM |
+| `IRAD_Fattah2_TEL` | `[IRAD] Fattah-2 TEL` | Missile | — | 756 NM |
+| `IRAD_Shahed238_TEL` | `[IRAD] Shahed 238 launcher` | Missile | — | 540 NM |
+
+The five launchers were added to the pack 2026-09-28 and to RetLab 2026-09-29, replacing the
+third-party ones (`retlab-iran-iads-deployment-notes.md` §6). Row B166 owns their flight.
 
 A launcher's threat is the range it fires at, capped inside the lock range (85 % of detection) of the radar that guides it. The STR guides every Bavar launcher, so both Sayyad-4B launchers threaten 86 NM; the missile's 108 NM stays its flight limit. The cap does not move where DCS launches (test 45: 118 km against a closing target).
 
@@ -208,15 +216,12 @@ The `.edm` export happens on a PC with a DCS exporter; see the handoff, step 3b.
 
 ## 5. Deferred
 
-- **Our own wreck models.** DM call 2026-09-26: v1 points each unit's destroyed shape at the
-  vanilla unit it borrows from; a burnt wreck of each of our models comes after v1 works.
 - **The Meraj-4's towed travel fit.** A parade photograph shows the array turned lengthwise and folded
   flat on the trailer behind a tractor. The model is deployed only: SAM sites do not move in
   Retribution, and a fold without the real mechanism would read wrong.
 - **The Bashir's travel fit.** The same reason: no reference shows how the 17 ft array stows
   on an 8 ft wide truck, so the tower stands erect.
 - **15th Khordad** (Sayyad-3, 65 NM, S-300PS-lite). The third system; not in v0.1.
-- **Far-view LODs** for the models.
 - **An Iran 2026 faction.** `[CH] Iran 2020` stands in.
 - **Iran's own short-range kit** (Majid, Herz-9). MANPADS-class threat is already covered by
   vanilla units.

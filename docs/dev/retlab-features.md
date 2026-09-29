@@ -10985,8 +10985,9 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 `docs/dev/design/retlab-iran-air-defense-pack-HANDOFF.md`. Built 2026-09-25; flown in tests
 41-46 (row B148).
 
-- `pydcs_extensions/iranairdefensepack/`: twelve `IRAD_` vehicle types. Their ids are the
-  contract with the mod's `Database` lua.
+- `pydcs_extensions/iranairdefensepack/`: seventeen `IRAD_` vehicle types, the twelve
+  air-defense units and five surface-to-surface launchers. Their ids are the contract with the
+  mod's `Database` lua.
 - Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
   `Faction.apply_mod_settings` strips all twelve and the three presets when it is off.
 - Presets `3rd Khordad` (MERAD), `Bavar-373` and `Bavar-373-II` (LORAD). `[CH] Iran 2020` fields
@@ -11001,12 +11002,13 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 - `IRAD_MatlaUlFajr_EWR` and `IRAD_Rasool_Comms` join the Iran factions' air-defense units. The
   Rasool is whitelisted in the C2 van slot of the comms, command-center and EWR layouts, so an
   Iranian Skynet connection node or command center fields one.
-- Third-party Iranian missile launchers, until the pack carries its own (DM call
-  2026-09-27): `pydcs_extensions/iranmissilemods/` holds the PG Iran IRBM Pack's Sejjil-2,
-  Emad and Fattah-2 TELs, the PG Iran Air Defense Pack's Shahed-238 launcher and the Kheibar
-  TEL, behind the `iranmissilemods` toggle (Mods page, Asset packs). `[CH] Iran 2020` fields
-  all five as missile sites; `Iran 2015` the Sejjil-2. Deployment research for laying Iran
-  out in a campaign: `docs/dev/design/retlab-iran-iads-deployment-notes.md`.
+- Missile sites: the pack's Sejjil-2, Emad, Kheibar, Fattah-2 and Shahed 238 launchers
+  (`IRAD_*_TEL`). `[CH] Iran 2020` fields all five; `Iran 2015` the Sejjil-2. They replaced
+  the third-party launchers and their `iranmissilemods` toggle on 2026-09-29 (DM call
+  2026-09-27: support them, build our own, drop them); a saved setting of that name is
+  ignored. Scenic Route Merged and both Noisy Crickets preseed the pack. Row B166.
+  Deployment research for laying Iran out in a campaign:
+  `docs/dev/design/retlab-iran-iads-deployment-notes.md`.
 
 ### Gotchas
 
@@ -11016,12 +11018,12 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 
 ### Tests
 
-`tests/retlab/test_iran_air_defense_pack.py` and `test_iran_missile_mods.py`, plus both layouts in
+`tests/retlab/test_iran_air_defense_pack.py` and `test_iran_pack_missiles.py`, plus both layouts in
 `tests/armedforces/test_sam_radar_redundancy.py` and `test_sam_support_vehicles.py`.
 
 ### Deferred
 
-- 15th Khordad; an Iran 2026 faction; far-view LODs for the models.
+- 15th Khordad; an Iran 2026 faction.
 - The DCS mod and its 3D models are a separate pack, like HDS and CurrentHill, in the
   private repo `BradySox/RetLab-Iran-Air-Defense` (DM call 2026-09-25; not public yet). All
   eleven models are built there by script, baked in Blender 5.1 and exported, each with

@@ -2,9 +2,9 @@ from dcs import unittype
 
 from game.modsupport import vehiclemod
 
-# RetLab Iran Air Defense Pack: 3rd Khordad and Bavar-373. The type ids are the
-# contract with the mod's Database lua; ranges are the conservative best
-# estimates in docs/dev/design/retlab-iran-air-defense-pack-notes.md.
+# RetLab Iran Air Defense Pack: 3rd Khordad, Bavar-373 and five surface-to-surface
+# launchers. The type ids are the contract with the mod's Database lua; ranges are
+# the best estimates in docs/dev/design/retlab-iran-air-defense-pack-notes.md.
 
 
 @vehiclemod
@@ -125,3 +125,52 @@ class IRAD_Rasool_Comms(unittype.VehicleType):
     threat_range = 0
     air_weapon_dist = 0
     eplrs = True
+
+
+# Surface-to-surface launchers: missile sites pick a target inside threat_range,
+# the mod's own GT.ThreatRange.
+
+
+@vehiclemod
+class IRAD_Sejjil_TEL(unittype.VehicleType):
+    id = "IRAD_Sejjil_TEL"
+    name = "[IRAD] Sejjil-2 TEL"
+    detection_range = 0
+    threat_range = 2000000
+    air_weapon_dist = 0
+
+
+@vehiclemod
+class IRAD_Emad_TEL(unittype.VehicleType):
+    id = "IRAD_Emad_TEL"
+    name = "[IRAD] Emad TEL"
+    detection_range = 0
+    threat_range = 1700000
+    air_weapon_dist = 0
+
+
+@vehiclemod
+class IRAD_Kheibar_TEL(unittype.VehicleType):
+    id = "IRAD_Kheibar_TEL"
+    name = "[IRAD] Kheibar (Khorramshahr-4) TEL"
+    detection_range = 0
+    threat_range = 2000000
+    air_weapon_dist = 0
+
+
+@vehiclemod
+class IRAD_Fattah2_TEL(unittype.VehicleType):
+    id = "IRAD_Fattah2_TEL"
+    name = "[IRAD] Fattah-2 TEL"
+    detection_range = 0
+    threat_range = 1400000
+    air_weapon_dist = 0
+
+
+@vehiclemod
+class IRAD_Shahed238_TEL(unittype.VehicleType):
+    id = "IRAD_Shahed238_TEL"
+    name = "[IRAD] Shahed 238 launcher"
+    detection_range = 0
+    threat_range = 1000000
+    air_weapon_dist = 0
