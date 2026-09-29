@@ -421,3 +421,40 @@ def test_building_a_page_never_spawns_a_top_level_window(qt_app: object) -> None
     groups = page_widget.page_layout.widgets
     assert groups
     assert any(g.isVisibleTo(page_widget) for g in groups)
+
+
+def test_row_bands_follow_the_shown_rows(qt_app: object) -> None:
+    """The shading and dividers track the rows on screen, not every field."""
+    settings = Settings()
+    page, section = _find_section_with_advanced(settings)
+    group, _filter = _group(qt_app, settings, page, section)
+    group._test_host.resize(1400, 800)
+    qt_app.processEvents()  # type: ignore[attr-defined]
+
+    def band_names() -> list[str]:
+        return [name for name, _band in group.row_bands()]
+
+    basic = [n for n in group.grid.descriptions if n not in group.grid.advanced_names]
+    assert band_names() == basic
+
+    bands = group.row_bands()
+    for (_, upper), (_, lower) in zip(bands, bands[1:]):
+        assert upper.height() > 0
+        assert upper.top() < lower.top()
+
+    group._toggle_advanced()
+    qt_app.processEvents()  # type: ignore[attr-defined]
+    assert band_names() == list(group.grid.descriptions)
+
+
+def test_hovering_a_rows_control_lights_its_row(qt_app: object) -> None:
+    from PySide6.QtCore import QEvent
+
+    settings = Settings()
+    page, section = _find_section_with_advanced(settings)
+    group, _filter = _group(qt_app, settings, page, section)
+
+    name = next(iter(group.grid.descriptions))
+    control = group.grid.row_widgets(name)[-1]
+    group.eventFilter(control, QEvent(QEvent.Type.Enter))
+    assert group.hovered_row == name
