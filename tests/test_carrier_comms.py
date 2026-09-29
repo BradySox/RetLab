@@ -7,6 +7,7 @@ from unittest.mock import MagicMock
 from dcs.ships import CVN_71, KUZNECOW, LHA_Tarawa, Stennis
 
 from game.data.carrier_comms import CARRIER_COMMS_PLANS
+from game.missiongenerator.missiongenerator import keeps_stored_tacan
 from game.missiongenerator.tgogenerator import (
     CarrierGenerator,
     GenericCarrierGenerator,
@@ -14,6 +15,7 @@ from game.missiongenerator.tgogenerator import (
     LINK4_CARRIERS,
 )
 from game.radio.radios import MHz, RadioRegistry
+from game.theater.controlpoint import Carrier
 from game.radio.tacan import (
     UNAVAILABLE,
     TacanBand,
@@ -130,6 +132,12 @@ def _make_generator() -> GenericCarrierGenerator:
     return gen
 
 
+def _reserve_stored_tacan(registry: TacanRegistry, cp: Carrier) -> None:
+    """The mission generator's up-front reservation, for one control point."""
+    if cp.tacan is not None and keeps_stored_tacan(cp):
+        registry.mark_unavailable(cp.tacan)
+
+
 class TestCommsResolution:
     def test_curated_tacan(self) -> None:
         gen = _make_generator()
@@ -189,6 +197,29 @@ class TestCommsResolution:
         tacan, ident = gen._resolve_tacan(CARRIER_COMMS_PLANS[CVN_71.id])
         assert tacan == TacanChannel(71, TacanBand.X)
         assert ident == "TRO"
+
+    def test_auto_tacan_is_stable_across_generations(self) -> None:
+        """Test 47: with the curated channel map-owned, the boat's own auto
+        value from last mission must not be reserved, or it alternates."""
+        plan = CARRIER_COMMS_PLANS[CVN_71.id]
+        cp = Carrier.__new__(Carrier)
+        cp.tacan = None
+        cp.tacan_is_auto = True
+        channels = []
+        for _ in range(3):
+            gen = _make_generator()
+            gen.control_point = cp
+            cp.tcn_name = None
+            gen.tacan_registry.mark_unavailable(plan.tacan)
+            _reserve_stored_tacan(gen.tacan_registry, cp)
+            channels.append(gen._resolve_tacan(plan)[0])
+        assert len(set(channels)) == 1
+
+    def test_user_chosen_carrier_tacan_is_reserved(self) -> None:
+        cp = Carrier.__new__(Carrier)
+        cp.tacan = TacanChannel(42, TacanBand.X)
+        cp.tacan_is_auto = False
+        assert keeps_stored_tacan(cp)
 
     def test_no_plan_uses_legacy_allocator(self) -> None:
         gen = _make_generator()
