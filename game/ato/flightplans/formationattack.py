@@ -30,6 +30,10 @@ if TYPE_CHECKING:
     from ..flight import Flight
     from ..package import Package
 
+#: Tasks that get one steerpoint per target site instead of one per unit. SEAD
+#: keeps its per-emitter points: a HARM shooter aims at each radar.
+SITE_WAYPOINT_TASKS = {FlightType.STRIKE: "STRIKE", FlightType.DEAD: "DEAD"}
+
 
 class FormationAttackFlightPlan(FormationFlightPlan, ABC):
     @property
@@ -130,8 +134,13 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
 
     @property
     def time_at_target(self) -> timedelta:
-        """Time the package spends over the target: 45 s per target point."""
-        return timedelta(minutes=0.75 * len(self.layout.targets))
+        """Time the package spends over the target: 45 s per aimpoint.
+
+        A site waypoint counts each unit it carries, so collapsing a site to one
+        steerpoint leaves the package timing as it was.
+        """
+        aimpoints = sum(max(1, len(wp.targets)) for wp in self.layout.targets)
+        return timedelta(minutes=0.75 * aimpoints)
 
     def total_time_between_waypoints(
         self, a: FlightWaypoint, b: FlightWaypoint
@@ -395,6 +404,9 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         # strike_targets_for() only lists live units. Fall back to a single
         # target-area waypoint in that case so the layout always has at least one
         # target (tot_waypoint and the timing math index targets[0]).
+        if targets and self.flight.flight_type in SITE_WAYPOINT_TASKS:
+            task = SITE_WAYPOINT_TASKS[self.flight.flight_type]
+            return [builder.target_site(self.flight.package.target, targets, task)]
         if targets:
             return [
                 self.target_waypoint(self.flight, builder, target) for target in targets
@@ -420,10 +432,8 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         """One StrikeTarget per individual unit of a ground objective.
 
         This is the same per-unit list the kneeboard target page renders (with
-        coordinates). Mission types whose kneeboard lists targets with
-        coordinates (Strike, DEAD, SEAD) pass this to ``_build`` so each listed
-        target also gets its own TARGET_POINT waypoint in the aircraft, making it
-        trivial to designate with TOO.
+        coordinates). Strike and DEAD fold it into one site waypoint that carries
+        the units (``SITE_WAYPOINT_TASKS``); the ingress gets it for the AI task.
         """
         return FormationAttackBuilder._targets_for(location.strike_targets)
 

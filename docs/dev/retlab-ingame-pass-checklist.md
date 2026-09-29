@@ -8928,3 +8928,11 @@ Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua
 - **Setup:** Yankee Station with Naval gunfire, FAC(A) marking and Super Gaggle on. After the gaggle launches (10 min in), place an F10 marker on a coastal target inside 10 NM of a gun ship and call Naval Fire Mission → Fire on last F10 map marker. Watch the suppressor pair over the outpost in Tacview.
 - **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
 - **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).
+
+### B174 — A Strike or DEAD flight has one target steerpoint per site · flight plans · ☐ UNTESTED
+
+Built 2026-09-29 after an F-16C DEAD on an S-300PS site planned 18 target steerpoints (WP 5-22), one per unit. Strike and DEAD now plan one steerpoint at the site center; SEAD keeps one per emitter. Unit-tested; never flown.
+
+- **Setup:** a player F-16C or F/A-18C DEAD flight on a SAM site with Target intel precision on Exact, and a player F-14B(U) Strike flight with JDAMs. Generate a turn.
+- **Pass:** each flight has one target steerpoint at the site; the Strike kneeboard page lists every building with coordinates under that one STPT; the Tomcat's JDAM page still has one point per building; the briefing's waypoint times show whole seconds.
+- **Fail signatures:** a steerpoint per unit (an old save's plan: re-plan the flight); the Tomcat's JDAM points all on the site center; the package arriving at the split earlier than its planned time (the dwell stopped counting units).

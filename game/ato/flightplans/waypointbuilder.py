@@ -399,6 +399,31 @@ class WaypointBuilder:
         # only meant to model mobile threats (SAMs) that relocate.
         return self._target_point(target, f"STRIKE {target.name}", approximate=False)
 
+    def target_site(
+        self, location: MissionTarget, targets: list[StrikeTarget], task: str
+    ) -> FlightWaypoint:
+        """One steerpoint for the whole site, carrying every unit as ``targets``.
+
+        A steerpoint per unit gave an S-300 site 18 of them. The units stay on the
+        waypoint for what aims at each one: the Tomcat's JDAM points and the Strike
+        kneeboard's coordinates. Both callers plan it only from exact positions.
+        """
+        description = f"{task} {location.name}"
+        waypoint = FlightWaypoint(
+            description,
+            FlightWaypointType.TARGET_POINT,
+            location.position,
+            meters(0),
+            "RADIO",
+            description=description,
+            pretty_name=description,
+            only_for_player=True,
+        )
+        waypoint.targets = [
+            t.target for t in targets if isinstance(t.target, TheaterUnit)
+        ]
+        return waypoint
+
     def _target_point(
         self, target: StrikeTarget, description: str, approximate: bool = True
     ) -> FlightWaypoint:

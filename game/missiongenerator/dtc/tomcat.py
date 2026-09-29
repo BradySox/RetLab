@@ -32,6 +32,7 @@ cartridge.
 from __future__ import annotations
 
 import math
+from dataclasses import replace
 from typing import TYPE_CHECKING, Any, Optional
 
 from dcs.weapons_data import Weapons
@@ -61,6 +62,7 @@ from game.missiongenerator.dtc.common import (
     support_tracks,
     waypoint_display_name,
 )
+from game.theater.theatergroup import SceneryUnit, TheaterUnit
 
 if TYPE_CHECKING:
     from dcs import Point
@@ -806,6 +808,30 @@ def jdam_stations(flight: FlightData) -> list[int]:
     ]
 
 
+def _aimpoints(waypoint: FlightWaypoint) -> list[FlightWaypoint]:
+    """A site waypoint as one point per unit it carries, else the waypoint itself.
+
+    Strike and DEAD fly one steerpoint per site; each bomb still wants its own
+    unit, so the JDAM page gets them back here.
+    """
+    return [
+        replace(
+            waypoint,
+            name=unit.name,
+            position=unit.position,
+            pretty_name=(
+                unit.name
+                if isinstance(unit, SceneryUnit) or unit.type is None
+                else unit.type.name
+            ),
+            custom_name=None,
+            targets=[],
+        )
+        for unit in waypoint.targets
+        if isinstance(unit, TheaterUnit)
+    ] or [waypoint]
+
+
 def _build_jdam(flight: FlightData, game: Game, coords: _Coords) -> dict[str, Any]:
     """Each station that carries a JDAM gets its own target as PP1.
 
@@ -827,9 +853,10 @@ def _build_jdam(flight: FlightData, game: Game, coords: _Coords) -> dict[str, An
     previous: Optional[FlightWaypoint] = None
     for waypoint in flight.waypoints:
         is_target = is_target_waypoint(waypoint)
-        if is_target and len(planned) < JDAM_TARGETS_PER_STATION:
-            planned.append(_jdam_target(coords, game, waypoint, previous))
-            planned_names.append(waypoint.display_name or waypoint.name)
+        for aimpoint in _aimpoints(waypoint) if is_target else []:
+            if len(planned) < JDAM_TARGETS_PER_STATION:
+                planned.append(_jdam_target(coords, game, aimpoint, previous))
+                planned_names.append(aimpoint.display_name or aimpoint.name)
         if is_route_waypoint(waypoint) and not is_target:
             previous = waypoint
     _number_targets(planned, planned_names)
