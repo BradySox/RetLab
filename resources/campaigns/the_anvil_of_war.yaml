@@ -22,7 +22,7 @@ settings:
   russianmilitaryassetspack: true
   chinesemilitaryassetspack: true
   usamilitaryassetspack: true
-  swedishmilitaryassetspack: false
+  swedishmilitaryassetspack: true
   f22_raptor: true
   fa_18efg: true
   uh_60l: true
