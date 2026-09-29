@@ -8838,6 +8838,9 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
   box (experimental)** (the tanker replans), then generate.
 - **Pass (map):** the tanker's route on the app map and its F10 marker are the box.
   Dragging any box point moves the whole box, and the F10 marker follows it.
+- **Pass (cockpit, added 2026-09-29):** in a Viper (HSD) or Hornet (SA), the tanker's
+  box is the same size and place as its F10 marker, and the tanker flies inside it. Fail:
+  a small square near BOX 1 (the 7 x 5 NM defect reported that day).
 - **Pass (flight):** the tanker flies all four corners, not a racetrack. You can tank on a
   straight leg and through a corner. It goes round more than once. After its on-station
   time (plus at most one lap) it leaves for home instead of starting another lap.

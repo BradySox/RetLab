@@ -70,6 +70,7 @@ from patrol start to the next waypoint. The box keeps that shape:
 | Receiver refuel rendezvous (`refuelrendezvous.py`) | Meets on the front leg (`orbit_leg_end` → BOX 2) |
 | `TankerInfo` orbit (kneeboard, rendezvous) | Front leg, same helper |
 | F10 support-orbit marker (`drawingsgenerator.py`) | Draws the box, buffered by the turn radius |
+| DTC cockpit box (`dtc/common.py` `support_boxes`) | Draws the four corners, pushed out by the F10 marker's half-width; the track is the front leg (fixed 2026-09-29, it had drawn a 7 x 5 NM square at BOX 1) |
 | App map | Shows the route, which is the box |
 | `RaceTrackBuilder` | Tanker task, TACAN and TOT at BOX 1; no Orbit |
 
