@@ -237,6 +237,14 @@ def _coalition(squadron_ids: Optional[list[str]] = None) -> Any:
     )
 
 
+@pytest.fixture(autouse=True)
+def _no_terrain_height_grid(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Pin the nearest-field fallback; the grid lookup has its own tests."""
+    from game.theater import terrainheights
+
+    monkeypatch.setattr(terrainheights, "terrain_height", lambda name, x, y: None)
+
+
 def _game(
     *,
     dtc_on: bool = True,
@@ -1658,6 +1666,27 @@ def test_a_ground_marked_point_reads_the_nearest_fields_elevation(
     assert steerpoint_altitude(target, _game(controlpoints=[_sam_cp()])) == 0.0
 
 
+def test_a_terrain_height_grid_beats_the_nearest_field(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Where DCS's own heights ship, a ground-marked point reads the ground
+    under it, and an AGL leg is converted with that same ground."""
+    from game.theater import terrainheights
+
+    monkeypatch.setattr(
+        terrainheights, "terrain_height", lambda name, x, y: 1234.0 + x / 1000.0
+    )
+    game = _game(controlpoints=[_sam_cp()])
+    target = _waypoint(
+        "TGT", FlightWaypointType.TARGET_POINT, 2000, 84000, 0, None, targets=[1]
+    )
+    low = _waypoint(
+        "LOW", FlightWaypointType.NAV, 1000, 1000, 150, None, alt_type="RADIO"
+    )
+    assert steerpoint_altitude(target, game) == 1236.0
+    assert steerpoint_altitude(low, game) == 1385.0
+
+
 def test_an_ingress_carrying_the_target_list_is_still_an_ip() -> None:
     """Retribution attaches the target list to the ingress point so the task
     can be built. That must not make it the target on the HSD or the route."""
@@ -2201,7 +2230,7 @@ def test_apache_target_points_sit_on_the_ground_not_at_sea_level(
     """The TADS slaves to a point in 3D; a T-point at 0 m cues under a hilltop SAM."""
     import game.missiongenerator.dtc.apache as apache
 
-    monkeypatch.setattr(apache, "nearest_field_elevation", lambda g, x, y: 512.0)
+    monkeypatch.setattr(apache, "ground_elevation", lambda g, x, y: 512.0)
     flight, mission_data, game = _apache_fixture()
     targets = json.loads(
         build_apache_cartridge(flight, mission_data, game, "Chalk").to_json()

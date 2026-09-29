@@ -166,6 +166,20 @@ def nearest_field_elevation(game: Game, x: float, y: float) -> float:
     return best if best is not None else 0.0
 
 
+def ground_elevation(game: Game, x: float, y: float) -> float:
+    """The ground at a point, metres AMSL: DCS's own height where a grid ships.
+
+    Terrains without a ``resources/terrain_heights`` grid keep the nearest
+    field's elevation.
+    """
+    from game.theater.terrainheights import terrain_height
+
+    height = terrain_height(game.theater.terrain.name, x, y)
+    if height is not None:
+        return height
+    return nearest_field_elevation(game, x, y)
+
+
 def steerpoint_altitude(waypoint: FlightWaypoint, game: Game) -> float:
     """The steerpoint's altitude in metres MSL: what the .miz route gives the jet.
 
@@ -177,12 +191,12 @@ def steerpoint_altitude(waypoint: FlightWaypoint, game: Game) -> float:
     number: the planned altitude on an en-route point, the ground under a
     ground-marked one (the .miz puts those at 0 AGL for a client flight).
     Nothing honours an AGL tag on the point, so an AGL plan is converted with
-    the nearest field's elevation. Design note: retlab-dtc-cartridge-notes.md.
+    the same ground height. Design note: retlab-dtc-cartridge-notes.md.
     """
     if waypoint.marks_ground_for_player:
-        return nearest_field_elevation(game, waypoint.position.x, waypoint.position.y)
+        return ground_elevation(game, waypoint.position.x, waypoint.position.y)
     if waypoint.alt_type == "RADIO":
-        return waypoint.alt.meters + nearest_field_elevation(
+        return waypoint.alt.meters + ground_elevation(
             game, waypoint.position.x, waypoint.position.y
         )
     return waypoint.alt.meters

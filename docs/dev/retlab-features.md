@@ -7667,9 +7667,11 @@ ELEV 131 on the DED. From 2026-08-20 the fork wrote the ground estimate into
 steerpoint read field elevation for three weeks. Now `steerpoint_altitude()`:
 the planned altitude on an en-route point, the nearest airfield's elevation on a
 ground-marked one (targets, CAS boundaries, flyovers — the miz puts those at
-0 AGL for a client flight; the kneeboard's per-field OSM/DEM elevation is the
-only height data the campaign has, DM call 2026-08-22), the same number in both
-fields; `leg_altitude()` is that plus `altitudeType`, always 1 because nothing
+0 AGL for a client flight), the same number in both fields. The ground is DCS's
+own `land.getHeight` from `resources/terrain_heights/<terrain>.npz`
+(`game/theater/terrainheights.py`, built by `scripts/dcs_terrain_heights.py`,
+2026-09-29, row B159); a terrain with no grid keeps the nearest field's
+elevation (DM call 2026-08-22); `leg_altitude()` is that plus `altitudeType`, always 1 because nothing
 honours the AGL tag (the editor's `transformAltitude` is a no-op). Takeoff and
 landing carry B79's field elevation. The Hornet's point is clamped to
 `WYPT_NAV.lua`'s -2,000..25,000 ft; the route entry keeps the real number. Orbit

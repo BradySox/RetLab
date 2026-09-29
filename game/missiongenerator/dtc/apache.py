@@ -39,7 +39,7 @@ from game.missiongenerator.dtc.common import (
     is_route_waypoint,
     threat_sites_for,
     leg_speed_kmh,
-    nearest_field_elevation,
+    ground_elevation,
     seconds_of_day,
     steerpoint_altitude,
     waypoint_display_name,
@@ -231,7 +231,7 @@ def _build_targets(flight: FlightData, game: Game) -> list[dict[str, Any]]:
                 site.y,
                 # The sight slaves to the point in 3D (manual, TADS acquisition), so
                 # sea level would put the cue under a site on high ground.
-                nearest_field_elevation(game, site.x, site.y),
+                ground_elevation(game, site.x, site.y),
             )
         )
     return points
