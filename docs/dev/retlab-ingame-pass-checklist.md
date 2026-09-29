@@ -444,7 +444,7 @@ Found, not rows:
 
 ## Outstanding rows at a glance
 
-95 rows need a live pass. Full detail is under each `###` heading below —
+96 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -516,6 +516,7 @@ stress it · `✗` fail signature reproduced in-game.
 | B157 | A carrier joins its side's Skynet as a radar | §65 / Skynet | ☐ |
 | B158 | The debrief grades each flight, and the grades match what happened | §108 | ☐ |
 | B159 | A target steerpoint in the hills sits on the ground | §74 | ☐ |
+| B160 | Every settings row reads as one line: shading, dividers and a hover band | settings UI | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8993,3 +8994,18 @@ from `scripts/dcs_terrain_heights.py`. Design: `retlab-dtc-cartridge-notes.md`.
 - **Fail signatures:** ELEV reads the nearest field's elevation (no grid loaded: check the
   terrain name matches the .npz file name); ELEV reads 0 (point off the grid and no field
   on the map has a record).
+
+### B160 — Every settings row reads as one line: shading, dividers and a hover band · settings UI · ☐ UNTESTED
+
+Built 2026-09-29. Filter and disclosure tests pass with the painting in place; rendered offscreen, never looked at in the running app.
+
+- **Setup:** open Settings with the window maximised. Visit Performance, then two other pages.
+  Open a section's Show N advanced options, then type a word in the search box.
+- **Pass:** every other row is shaded, a thin line sits under each row, and the row under the
+  mouse lights across its full width with an accent bar on the left, whether the cursor is
+  on the label, the control or the gap between them. Opening advanced options or searching
+  keeps the shading alternating on the rows actually shown.
+- **Fail signatures:** bands stacked at the top of a section (geometry read before layout); a
+  hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
+  a search.
+

@@ -6,8 +6,25 @@ from functools import lru_cache
 from typing import Any, Callable, Optional, Dict
 
 from PySide6 import QtWidgets
-from PySide6.QtCore import QItemSelectionModel, QPoint, QSize, Qt
-from PySide6.QtGui import QStandardItem, QStandardItemModel, QCloseEvent
+from PySide6.QtCore import (
+    QEvent,
+    QItemSelectionModel,
+    QObject,
+    QPoint,
+    QRect,
+    QSize,
+    Qt,
+)
+from PySide6.QtGui import (
+    QCloseEvent,
+    QColor,
+    QCursor,
+    QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QStandardItem,
+    QStandardItemModel,
+)
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QCheckBox,
@@ -57,6 +74,7 @@ from pydcs_extensions import AtmosXClouds, BanditClouds, Weather2Clouds
 from qt_ui.widgets.QLabeledWidget import QLabeledWidget
 from qt_ui.widgets.spinsliders import FloatSpinSlider, TimeInputs
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
+from qt_ui.theme.tokens import RETRIBUTION_DARK
 from qt_ui.windows.settings.plugins import PluginOptionsPage, PluginsPage
 
 
@@ -365,23 +383,53 @@ class AutoSettingsLayout(QGridLayout):
 
     # --- filtering + advanced disclosure ---------------------------------------------
 
-    def _set_row_visible(self, name: str, visible: bool) -> None:
+    def row_widgets(self, name: str) -> list[QWidget]:
+        """The label and every widget of the row's control."""
+        widgets: list[QWidget] = []
         label = self.labels_map.get(name)
         if label is not None:
-            label.setVisible(visible)
+            widgets.append(label)
         control = self.settings_map.get(name)
-        if control is None:
-            return
         if isinstance(control, QWidget):
-            control.setVisible(visible)
-        else:
+            widgets.append(control)
+        elif control is not None:
             # FloatSpinSlider / TimeInputs are QHBoxLayouts of a slider + spinner;
             # a layout has no visibility of its own, so walk its children.
             for i in range(control.count()):
                 item = control.itemAt(i)
                 child = item.widget() if item is not None else None
                 if child is not None:
-                    child.setVisible(visible)
+                    widgets.append(child)
+        return widgets
+
+    def _set_row_visible(self, name: str, visible: bool) -> None:
+        for widget in self.row_widgets(name):
+            widget.setVisible(visible)
+
+    def row_bands(self, left: int, right: int) -> list[tuple[str, QRect]]:
+        """Each shown row's rectangle, from ``left`` to ``right``, in row order."""
+        half_gap = max(self.verticalSpacing(), 0) // 2
+        bands = []
+        for name in self.descriptions:
+            label = self.labels_map.get(name)
+            if label is None or label.isHidden():
+                continue
+            # The widgets' own geometry, not cellRect(): that reads empty here.
+            cells = QRect(label.geometry())
+            for widget in self.row_widgets(name):
+                cells = cells.united(widget.geometry())
+            bands.append(
+                (
+                    name,
+                    QRect(
+                        left,
+                        cells.top() - half_gap,
+                        right - left,
+                        cells.height() + 2 * half_gap,
+                    ),
+                )
+            )
+        return bands
 
     def apply_filter(self) -> tuple[int, int]:
         """Show the rows the current filter wants. Returns (shown, hidden_advanced).
@@ -615,6 +663,15 @@ class AutoSettingsGroup(QGroupBox):
         )
 
         self.setLayout(self.grid)
+        # Shading, dividers and a hover band tie each label to its control across
+        # a wide window, where the two sit at opposite edges.
+        self.grid.setVerticalSpacing(10)
+        self.hovered_row: Optional[str] = None
+        self.setMouseTracking(True)
+        for name in self.grid.descriptions:
+            for widget in self.grid.row_widgets(name):
+                widget.setProperty("settings_row", name)
+                widget.installEventFilter(self)
         # The first filter pass is deliberately NOT run here: this group has no
         # parent yet, and showing a parentless widget makes it a top-level window.
         # AutoSettingsPage runs it once its layout has adopted every group.
@@ -622,6 +679,67 @@ class AutoSettingsGroup(QGroupBox):
     def _toggle_advanced(self) -> None:
         self.grid.show_advanced = not self.grid.show_advanced
         self.apply_filter()
+
+    # --- row bands ---------------------------------------------------------------------
+
+    ROW_STRIPE = QColor(128, 128, 128, 22)
+    ROW_DIVIDER = QColor(128, 128, 128, 55)
+    ROW_HOVER = QColor(RETRIBUTION_DARK.accent)
+
+    def row_bands(self) -> list[tuple[str, QRect]]:
+        inner = self.contentsRect()
+        return self.grid.row_bands(inner.left() + 4, inner.right() - 3)
+
+    def _set_hovered(self, name: Optional[str]) -> None:
+        if name != self.hovered_row:
+            self.hovered_row = name
+            self.update()
+
+    def _row_at(self, pos: QPoint) -> Optional[str]:
+        for name, band in self.row_bands():
+            if band.contains(pos):
+                return name
+        return None
+
+    def eventFilter(self, watched: QObject, event: QEvent) -> bool:
+        if event.type() == QEvent.Type.Enter:
+            name = watched.property("settings_row")
+            if isinstance(name, str):
+                self._set_hovered(name)
+        return super().eventFilter(watched, event)
+
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        self._set_hovered(self._row_at(event.position().toPoint()))
+        super().mouseMoveEvent(event)
+
+    def leaveEvent(self, event: QEvent) -> None:
+        # Qt also sends Leave when the cursor moves onto one of our own children.
+        if not self.rect().contains(self.mapFromGlobal(QCursor.pos())):
+            self._set_hovered(None)
+        super().leaveEvent(event)
+
+    def paintEvent(self, event: QPaintEvent) -> None:
+        super().paintEvent(event)
+        bands = self.row_bands()
+        if not bands:
+            return
+        painter = QPainter(self)
+        hover_fill = QColor(self.ROW_HOVER)
+        hover_fill.setAlpha(38)
+        for index, (name, band) in enumerate(bands):
+            if name == self.hovered_row:
+                painter.fillRect(band, hover_fill)
+                painter.fillRect(
+                    QRect(band.left(), band.top(), 3, band.height()), self.ROW_HOVER
+                )
+            elif index % 2:
+                painter.fillRect(band, self.ROW_STRIPE)
+            if index < len(bands) - 1:
+                painter.setPen(self.ROW_DIVIDER)
+                painter.drawLine(
+                    band.left(), band.bottom(), band.right(), band.bottom()
+                )
+        painter.end()
 
     def apply_filter(self) -> int:
         """Re-run the filter over this section. Returns how many rows it offers.

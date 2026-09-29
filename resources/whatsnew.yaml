@@ -26,6 +26,16 @@ entries:
       and counts should match within about a minute.
     row: B158
   - date: 2026-09-29
+    title: Settings rows line up with their boxes
+    change: >-
+      Every settings page shades alternate rows, draws a thin line under each
+      one, and lights the row under the mouse across the full width, so on a
+      wide window each checkbox reads as belonging to its label.
+    watch: >-
+      Open Settings maximised and move the mouse down a page: the lit band
+      runs from the label to its checkbox.
+    row: B160
+  - date: 2026-09-29
     title: Cheat - move a carrier instantly
     change: >-
       Settings, Cheats, Enable Instant Carrier and Ship Move Cheat. A carrier

@@ -3717,6 +3717,13 @@ active for the same reason.
 
 Result: **144 basic / 71 advanced**, and Air Doctrine reads **48 → 9** options by default.
 
+**Row bands (2026-09-29).** A label sits at the left edge and its control at the right, so on a
+wide window nothing tied the two together. `AutoSettingsGroup.paintEvent` shades alternate shown rows,
+draws a divider under each, and lights the hovered row with an accent bar. Bands come from
+`AutoSettingsLayout.row_bands()`, built from the row widgets' own geometry — `QGridLayout.cellRect()`
+read empty there and stacked every band at the top. Hover is an Enter filter on each row widget plus
+the group's own mouse move for the gaps. Row **B160**.
+
 **The all-advanced-section hole (fixed 2026-08-10).** `AutoSettingsGroup.apply_filter()` hid the
 whole group box when its *shown* row count was zero — which is every section where the mechanical
 rule marks every field advanced. The disclosure lives inside that box, so it went down with it and
