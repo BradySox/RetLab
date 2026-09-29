@@ -8775,9 +8775,11 @@ Unit-tested (`test_instant_naval_move.py`, `test_tgo_movement_routes.py`); never
 
 Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 
-- **Setup:** generate any mission with no `briefing.png` in `Saved Games\DCS\Retribution`.
-  Load it in DCS. Then copy a picture there as `briefing.png`, generate again, load it.
-- **Pass:** the first load shows the dark RetLab picture; the second shows yours.
+- **Setup:** start RetLab. Generate any mission with no `briefing.png` in
+  `Saved Games\DCS\Retribution`. Load it in DCS. Then copy a picture there as
+  `briefing.png`, generate again, load it.
+- **Pass:** the app's startup splash and the first load both show the dark RetLab picture
+  with the F-16; the second load shows yours.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
