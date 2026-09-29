@@ -42,10 +42,12 @@ is the only live reactive-A2A path.
 
 ## BARCAP coverage
 
-- **Overlapping, jittered waves.** Land-CP BARCAP is scheduled as overlapping waves with a
-  jittered first wave, instead of front-loaded back-to-back waves that all arrive at mission
-  start (which let attackers simply wait the CAP out). The `barcap_overlap_time` doctrine
-  setting controls the overlap; `0` reproduces the stock schedule.
+- **Overlapping waves.** Land-CP BARCAP is scheduled as overlapping waves. The first wave
+  is an ASAP package; each relief wave arrives before the one it relieves leaves. The
+  `barcap_overlap_time` doctrine setting controls the overlap; `0` reproduces the stock
+  schedule.
+- **Tankers and AWACS fly ASAP.** Every auto-planned tanker and AWACS package is on
+  station as early as it can get there.
 - **Flat volume.** Every defended base gets the same number of waves; a fleet objective gets
   double. Coverage does not scale with how contested a sector is.
 - **Which bases are defended** is stock Retribution's rule: a base is defended when an enemy

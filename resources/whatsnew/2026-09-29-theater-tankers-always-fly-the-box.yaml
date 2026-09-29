@@ -1,0 +1,12 @@
+date: 2026-09-29
+title: Theater tankers always fly the box
+change: >-
+  Every theater tanker flies a 40 x 20 NM box, looping it until its time on
+  station is up; there is no box to tick any more. Set orbit speed moved
+  from the Payload tab to the Waypoints tab. Package and carrier recovery
+  tankers keep the racetrack. Drag any point of the box on the map to move
+  the whole box.
+watch: >-
+  A new turn's theater tanker shows BOX 1-4 on its Waypoints tab, and an
+  older save still opens.
+row: B170

@@ -136,3 +136,9 @@ class PlanRefueling(PackagePlanningTask[MissionTarget]):
         # See PlanAewc: untagged, this is a primary flight whose shortage scrubs
         # the tanker package outright.
         self.propose_flight(FlightType.ESCORT, 2, EscortType.AirToAir)
+
+    @property
+    def asap(self) -> bool:
+        # A tanker spread into the turn left the early packages dry; one station
+        # per boat and one on land, so ASAP cannot stack two on the same orbit.
+        return True

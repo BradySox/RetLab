@@ -59,9 +59,9 @@ class DtcOptions:
     drawings: bool = True
     #: Known SAM sites within this many nm of the route; None writes every one.
     threat_ring_radius_nm: Optional[int] = None
-    #: Load at spawn. Off binds the cartridge but leaves loading to the pilot, so
-    #: the Viper crew can set CMDS to STBY first (checklist B28).
-    auto_load: bool = True
+    #: Load at spawn. Off (the default, DM 2026-09-29) binds the cartridge but
+    #: leaves loading to the pilot, so the Viper crew can set CMDS to STBY first (B28).
+    auto_load: bool = False
     #: FlightWaypointType names left out of the cartridge's route. The kneeboard
     #: prints "-" for them, so its numbers still match the jet.
     skipped_waypoints: list[str] = field(default_factory=list)

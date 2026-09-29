@@ -1,0 +1,10 @@
+date: 2026-09-29
+title: Tankers and AWACS fly ASAP
+change: >-
+  The auto-planner plans every tanker and AWACS package, and the first
+  BARCAP wave at each station, as ASAP: on station as early as they can
+  get there. Tankers used to arrive at a random time in the mission.
+watch: >-
+  In the ATO, the tanker and AWACS show TOT with (ASAP). In the mission,
+  the tanker is on its track before the first package needs gas.
+row: B169

@@ -13,7 +13,7 @@ Everything below is on top of upstream; we still pull upstream fixes, so you los
 | You're used to (stock) | In RetLab |
 |---|---|
 | Red AWACS/tankers wandering far off-axis, sometimes near the front | Support orbits **anchor on the FLOT** and hold at a sane depth behind it |
-| One BARCAP box per sector, predictable | **Overlapping, jittered BARCAP waves**, threat-weighted, with a forward CAP line |
+| One BARCAP box per sector, predictable | **Overlapping BARCAP waves**, threat-weighted, with a forward CAP line |
 | CAS packages spawning with no TARCAP; forward DEAD/BAI flying unescorted | Escort/TARCAP reach fixed — front-line packages get their **A2A + SEAD escort** |
 | QRA ramp-scrambling (and occasionally clawing off the runway) | **Distributed alert interceptors** with a base-defense posture — they screen their field instead of charging the FLOT |
 | Mobile SHORAD/AAA/MANPADs showing up on the datalink/MFD | Mobile SAMs **hidden from the datalink**; standalone MERAD/LORAD stay visible for SEAD |

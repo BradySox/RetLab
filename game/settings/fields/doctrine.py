@@ -41,9 +41,8 @@ class DoctrineSettings:
         min=0,
         max=60,
         detail="How long consecutive BARCAP waves overlap on-station. Higher values"
-        " plan more, more-frequent waves so coverage has no handoff gap and the"
-        " first wave's timing is less predictable. 0 restores back-to-back,"
-        " non-overlapping waves (the legacy behavior).",
+        " plan more, more-frequent waves so coverage has no handoff gap. 0 restores"
+        " back-to-back, non-overlapping waves (the legacy behavior).",
     )
     ownfor_default_qra_reserve: int = bounded_int_option(
         "Default QRA reserve per OWNFOR interceptor squadron",

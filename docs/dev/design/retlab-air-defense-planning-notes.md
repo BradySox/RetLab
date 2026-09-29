@@ -19,7 +19,7 @@
 > and the AI depth factor (`support_orbit_anchor`, `AI_SUPPORT_DEPTH_FACTOR`) · the
 > `air_engagement` escort-reach zone · the FLOT navmesh hazard capsule.
 >
-> **Still live:** overlapping/jittered BARCAP waves (`barcap_overlap_time`, byte-parity
+> **Still live:** overlapping BARCAP waves (first wave ASAP; the jitter went 2026-09-29) (`barcap_overlap_time`, byte-parity
 > with upstream at 0) · `cap_orbit_distance_band` (an upstream bug fix) · the
 > strike-escort reserve trim, Vietnam-only · QRA (§1), which is a separate feature and
 > untouched.
