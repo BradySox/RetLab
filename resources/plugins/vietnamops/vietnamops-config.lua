@@ -33,6 +33,10 @@ local NM_TO_M = 1852
 local KTS_TO_MS = 0.514444
 local LB_TO_KG = 0.453592
 
+-- F10 marks this plugin draws (FAC, Super Gaggle). Their ids start at 970001, so the
+-- naval call-for-fire must skip them or they always outrank the player's own marker.
+local ownMarkIds = {}
+
 -------------------------------------------------------------------------------
 -- Arc Light: heavy-bomber Strike carpet
 -------------------------------------------------------------------------------
@@ -462,7 +466,8 @@ if suite.navalGunfire and suite.navalGunfire.ships then
             local panels = world.getMarkPanels() or {}
             local best
             for _, m in pairs(panels) do
-                if m.pos and (m.coalition == side or m.coalition == -1) then
+                if m.pos and not ownMarkIds[m.idx]
+                    and (m.coalition == side or m.coalition == -1) then
                     if not best or (m.idx or 0) > (best.idx or 0) then
                         best = m
                     end
@@ -626,6 +631,28 @@ if suite.superGaggle and suite.superGaggle.outpost and suite.superGaggle.launch
             if not (supp and supp.type and supp.names and #supp.names > 0) then
                 return false
             end
+            -- The squadron's CAS fit, emitted by the generator. addGroup with no payload
+            -- spawns the jet with empty pylons.
+            local function suppressorPayload()
+                local sp = supp.payload
+                if not (sp and sp.pylons) then
+                    return nil
+                end
+                local pylons = {}
+                for _, p in pairs(sp.pylons) do
+                    local n = tonumber(p.num)
+                    if n and p.clsid then
+                        pylons[n] = { CLSID = p.clsid }
+                    end
+                end
+                return {
+                    pylons = pylons,
+                    fuel = tonumber(sp.fuel),
+                    flare = tonumber(sp.flare) or 0,
+                    chaff = tonumber(sp.chaff) or 0,
+                    gun = 100,
+                }
+            end
             local units = {}
             for i, nm in ipairs(supp.names) do
                 units[i] = {
@@ -637,6 +664,7 @@ if suite.superGaggle and suite.superGaggle.outpost and suite.superGaggle.launch
                     alt_type = "BARO",
                     heading = 0,
                     skill = "Good",
+                    payload = suppressorPayload(),
                 }
             end
             local groupData = {
@@ -710,6 +738,7 @@ if suite.superGaggle and suite.superGaggle.outpost and suite.superGaggle.launch
             local function refreshGaggleMark(pos)
                 gaggleMarkSeq = gaggleMarkSeq + 1
                 local newId = gaggleMarkSeq
+                ownMarkIds[newId] = true
                 pcall(trigger.action.markToCoalition, newId,
                     "SUPER GAGGLE -- resupply inbound to " .. outpostName,
                     { x = pos.x, y = pos.y, z = pos.z }, SIDE, true)
@@ -867,6 +896,7 @@ if suite.fac and suite.fac.enabled then
                                 -- Refresh this FAC's single map mark (drop the previous one).
                                 facMarkSeq = facMarkSeq + 1
                                 local newId = facMarkSeq
+                                ownMarkIds[newId] = true
                                 pcall(trigger.action.markToCoalition, newId,
                                     "FAC(A): " .. desc .. " -- willie pete, cleared hot",
                                     mark, side, true)

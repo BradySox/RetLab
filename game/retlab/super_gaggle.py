@@ -243,7 +243,7 @@ def _charge_losses(
     lost = sum(1 for name in unit_names if name in killed)
     if lost <= 0:
         return 0
-    squadron = _squadron_by_id(game, squadron_id)
+    squadron = squadron_by_id(game, squadron_id)
     if squadron is None:
         return lost
     squadron.owned_aircraft = max(0, squadron.owned_aircraft - lost)
@@ -255,7 +255,7 @@ def _charge_losses(
     return lost
 
 
-def _squadron_by_id(game: "Game", squadron_id: UUID) -> Optional["Squadron"]:
+def squadron_by_id(game: "Game", squadron_id: UUID) -> Optional["Squadron"]:
     for squadron in game.blue.air_wing.iter_squadrons():
         if squadron.id == squadron_id:
             return squadron

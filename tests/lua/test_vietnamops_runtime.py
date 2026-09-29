@@ -239,3 +239,131 @@ class TestFlakGauntlet:
             len(harness.records("explosions")) == before
         ), "a dead gun must stop firing without waiting for the AAA cache refresh"
         harness.assert_no_lua_errors()
+
+
+GAGGLE = {
+    "superGaggle": {
+        "coalition": "BLUE",
+        "countryId": "2",
+        "outpost": {"name": "FOB Khe Sanh", "x": "20000", "y": "0"},
+        "launch": {"x": "0", "y": "0"},
+        "helo": {"type": "UH-1H", "names": ["SG-Helo-1", "SG-Helo-2"]},
+        "suppressor": {
+            "type": "F-4E-45MC",
+            "names": ["SG-Sandy-1"],
+            "payload": {
+                "fuel": "5510.5",
+                "flare": "30",
+                "chaff": "120",
+                "pylons": [
+                    {"num": "1", "clsid": "{MK-82-SNAKEYE}"},
+                    {"num": "9", "clsid": "{MK-82-SNAKEYE}"},
+                ],
+            },
+        },
+    }
+}
+
+
+def capture_spawns(harness: DcsPluginHarness) -> None:
+    """Record the raw addGroup data (payload, route) the stub otherwise drops."""
+    harness.lua.execute("""
+        DcsHarness.spawnData = {}
+        local stubAddGroup = coalition.addGroup
+        coalition.addGroup = function(countryId, category, data)
+            DcsHarness.spawnData[data.name] = data
+            return stubAddGroup(countryId, category, data)
+        end
+        DcsHarness.countrySide = { [2] = coalition.side.BLUE }
+        """)
+
+
+class TestSuperGaggle:
+    def test_suppressors_spawn_with_the_emitted_payload(
+        self, harness: DcsPluginHarness
+    ) -> None:
+        capture_spawns(harness)
+        harness.set_retribution_config(vietnam_ops=GAGGLE)
+        harness.load_plugin_script(PLUGIN)
+        harness.advance_to(620)  # past the 600 s launch delay
+
+        data = harness.lua.globals().DcsHarness.spawnData
+        sandy = data["SuperGaggleSandy"]
+        assert sandy is not None, "the suppressor flight must spawn"
+        payload = sandy.units[1].payload
+        assert payload is not None, "an addGroup unit with no payload flies unarmed"
+        assert payload.pylons[1].CLSID == "{MK-82-SNAKEYE}"
+        assert payload.pylons[9].CLSID == "{MK-82-SNAKEYE}"
+        assert payload.fuel == 5510.5
+        assert data["SuperGaggleHelos"].units[1].payload is None
+        harness.assert_no_lua_errors()
+
+
+class TestNavalGunfire:
+    def gun_ship(self, harness: DcsPluginHarness) -> None:
+        harness.add_group(
+            {
+                "name": "BLUE-DD",
+                "side": 2,
+                "category": 3,  # SHIP
+                "units": [
+                    {
+                        "name": "BLUE-DD-1",
+                        "type": "USS_Arleigh_Burke_IIa",
+                        "x": 5000,
+                        "z": 0,
+                    }
+                ],
+            }
+        )
+
+    def fire_command(self, harness: DcsPluginHarness) -> tuple[Any, Any]:
+        for record in harness.records("menus"):
+            if (
+                isinstance(record, dict)
+                and str(record.get("path", "")).startswith("Fire on last F10")
+                and "fn" in record
+            ):
+                return record["fn"], record["arg"]
+        raise AssertionError("no naval call-for-fire command registered")
+
+    def test_fire_on_mark_ignores_the_plugins_own_marks(
+        self, harness: DcsPluginHarness
+    ) -> None:
+        """The Super Gaggle mark (id 980001+) must not outrank the player's marker."""
+        capture_spawns(harness)
+        self.gun_ship(harness)
+        harness.set_retribution_config(
+            vietnam_ops={
+                **GAGGLE,
+                "navalGunfire": {"ships": [{"group": "BLUE-DD", "coalition": "BLUE"}]},
+            },
+            plugin_options={"vietnamops": {"ngfsAuto": False}},
+        )
+        harness.load_plugin_script(PLUGIN)
+        harness.advance_to(620)
+
+        gaggle_marks = [m for m in harness.records("marks") if m["id"] >= 980001]
+        assert gaggle_marks, "the gaggle should have drawn its F10 mark"
+        own = gaggle_marks[-1]
+        harness.harness.markPanels = harness.to_lua(
+            [
+                {
+                    "idx": 3,
+                    "coalition": 2,
+                    "pos": {"x": 9000.0, "y": 0, "z": 1500.0},
+                },
+                {
+                    "idx": own["id"],
+                    "coalition": 2,
+                    "pos": {"x": own["x"], "y": 0, "z": own["z"]},
+                },
+            ]
+        )
+        fire, side = self.fire_command(harness)
+        fire(side)
+
+        tasks = harness.records("firedTasks")
+        assert len(tasks) == 1
+        assert (tasks[0]["x"], tasks[0]["y"]) == (9000.0, 1500.0)
+        harness.assert_no_lua_errors()
