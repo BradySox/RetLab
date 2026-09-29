@@ -392,9 +392,46 @@ Found, not rows:
 | B128 | Every primary flew |
 | B6, B20, B29, B54, B65, B66, B80, B139, B140 | App-side or multi-turn |
 
+## Test 47 — what it reached, and what it could not (2026-09-29)
+
+Persian Gulf turn 1, 59 min, Flash leading `MOLLY SEAD Escort` (4 F-16C from Al Minhad) for three F-15Es striking `0104 | MOLLY (Command Center)`. `Tacview-20260928-205338`, DCS 2.9.29.27468. Red flew vanilla Iranian kit (F-14A, Mirage F1EQ, SA-5, SA-11, SA-6, Tor); no `[IRAD]` unit spawned.
+
+The uploaded `.miz` is a regeneration of the same turn, written about 4 min after the flown one loaded: same plan, but callsigns, radios and carrier TACANs differ from the briefing in the Tacview. Readings taken from the `.miz` are the plan, not the flown file.
+
+The build carries the tanker box (#1091, #1093) but not #1094, #1095 or #1097: the briefing picture is upstream's `splash_screen.png`, and the F-16 cartridge draws the tanker box the pre-#1097 way.
+
+The sim ran 3,546 s of mission in 3,604 s of wall time (98.4 %). No Lua error in `dcs.log`.
+
+The fight: blue lost 4 aircraft, red 3.
+- Flash's three wingmen left him after the merge at t≈2700 and flew 70 NM west into `0019 | MONKEY (SAM)` (SA-11). Two died to its 9M38s (t=3173, t=3236), the third to a Mirage F1's Super 530F (t=3319). The planned route never came within 26 NM of MONKEY.
+- `MOLLY Escort` lost a Hornet to an F-14's AIM-9P (t=2854).
+- Flash killed an F-14 with an AIM-120 (t=2782). A wingman's AIM-120 killed a Mirage (t=3234). A Hornet's AIM-9X killed the other F-14 (t≈2868; the crew ejected).
+- Flash's GBU-31 landed 30 m from MOOSE's track radar (t=3456); its two S-200 track radars, its P-19 and two trucks died over the next 41 s.
+- Blue's Patriots shot down all six Scuds red fired. PORPOISE used six MIM-104 (t=424–453) against BARRACUDA's volley at Khasab; WEEVIL used three (t=897–903) against RATTLESNAKE's at Al Minhad. The Scuds died at 5.3–16.1 km altitude.
+
+Rows moved: **B153** ☐ → ◐ (both tankers flew the box and looped; the cockpit box is the pre-#1097 fail signature); **B146** ☐ → ◐ (the civil ground departures were staggered; the flown `.miz` is gone, so the ETAs cannot be matched).
+
+Evidence recorded without a status change: **B142** (7 crashes, 7 `crash_positions`, 3 ejections), **B70** (red air kills 2 in the records and 2 in the recording; blue 2 against 3, the missing one a wingman with no record), **G43** (7 crashes, no Skynet error), **A-rows** (the Kish and Kerman alert four-ships scrambled at t=2230 and t=2620; all eight survived).
+
+Found, not rows:
+
+1. **A carrier's TACAN changed on every generation.** Flown: CVN-71 69X, Tarawa 40X. Regenerated 4 min later: 72X and 41X. `initialize_tacan_registry` reserved every control point's stored channel before generation, carriers included. A carrier's auto channel is then re-derived, finds its own last value taken, and walks to the other side of the curated one. On Persian Gulf 71X is a map beacon, so CVN-71 alternated 72X/69X and Tarawa 41X/40X. **Fixed the same day**: a carrier's auto channel is no longer reserved (`keeps_stored_tacan`); a channel chosen in the base dialog still is. Row **B156**.
+2. **The MOLLY command center did not die.** One GBU-31(V)3B landed 11 m from `0594 | Command Center` (t=3289) and four more 42–56 m from it. `state.json` has no death for it; one ATZ-5 beside it died. The other seven F-15E JDAMs fell 0.35–2.55 km off, several near MOOSE. Check the turn-2 map: if it still stands, one 2,000 lb bomb at 11 m does not kill this static, which matters for §52 (row B6).
+3. The F-16 cartridge carries one tanker box, the KC-135's. By design: `usable_tanker_tracks` drops the probe-only A-6E for a boom jet.
+4. Three `dcs.log` lines added to `retlab-dcs-log-noise-notes.md`: AIRBOSS `EventData.IniUnit=nil in event CRASH`, `water_relocate: no land within 2000m for CSAR_PILOT_*`, and `SplashDamage: <weapon> missing from script`. None is a fault.
+
+| Row | Why test 47 could not answer it |
+|---|---|
+| B154, B155 | Not in the build (#1094 and #1095 merged after this mission was generated) |
+| B148, B149 | Red had no `[IRAD]` unit and no Iranian missile mod site |
+| B152 | Neither tanker had a set orbit speed |
+| B17 | Ten carrier aircraft; nothing near the deck limit |
+| B141, B147 | No detour was needed and there was no TARCAP |
+| B6, B20, B29, B65, B66, B139, B140 | App-side or multi-turn |
+
 ## Outstanding rows at a glance
 
-91 rows need a live pass. Full detail is under each `###` heading below —
+92 rows need a live pass. Full detail is under each `###` heading below —
 search the row id. `☐` untested · `◐` flown but not under the conditions that
 stress it · `✗` fail signature reproduced in-game.
 
@@ -452,16 +489,17 @@ stress it · `✗` fail signature reproduced in-game.
 | B143 | A player F-15E's JDAM CC missions match the kneeboard, and the flight radio is on the UHF radio | F-15E manual pass | ☐ |
 | B144 | Radios, laser codes and nav points match the manuals on the Phantom, Mustang, Tomcat and Apache | manual pass | ☐ |
 | B145 | A busy field's later departures spawn early enough to make their takeoff | §104 | ☐ |
-| B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ☐ |
+| B146 | Civil departures spread across the mission instead of all leaving at the start | I2 civilian traffic | ◐ |
 | B147 | A TARCAP reaches the target with its package's SEAD, not ahead of it | §69 | ☐ |
 | B148 | A 3rd Khordad and a Bavar-373 site spawn, join Skynet and engage | §105 | ◐ |
 | B149 | Iranian missile sites spawn and fire (third-party missile mods) | §105 | ☐ |
 | B150 | Insert NAV point finds a leg beside the selected waypoint | §106 | ☐ |
 | B151 | The package route moves every flight in the package | §106 | ☐ |
 | B152 | A tanker flies its track at the set orbit speed | upstream #869 | ☐ |
-| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ☐ |
+| B153 | A theater tanker flies and tanks around its four-point box | tanker box | ◐ |
 | B154 | A carrier moved with the instant move cheat launches from its new spot | cheat | ☐ |
 | B155 | The briefing screen shows the RetLab picture, or your own briefing.png | §107 | ☐ |
+| B156 | A carrier keeps the same TACAN every time the mission is generated | §65 | ☐ |
 | B126 | An AI DEAD gets its shot: the EWR is fragged first, and the site it covered is live the turn after | doctrine row 8 | ☐ |
 | G25 | Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep | §3 | ◐ |
 | G30 | Skynet point defence: the paired SHORAD answers the HARM shot | Skynet return | ☑ |
@@ -8627,7 +8665,9 @@ checked headless on a turn-2 save.
   (45 s per jet is too slow for that field); jets spawned early block the taxiway for flights
   ahead of them in the queue; next turn's clock or weather jumping by the shift.
 
-### B146 — Civil departures spread across the mission instead of all leaving at the start · I2 civilian traffic · ☐ UNTESTED
+### B146 — Civil departures spread across the mission instead of all leaving at the start · I2 civilian traffic · ◐ PARTIAL (2026-09-29, test 47; was ☐ UNTESTED)
+
+**2026-09-29, test 47** (Persian Gulf turn 1, 59 min) — **staggered, but not matched to the plan.** Two civil ground starts appeared: a Mi-8 at t=8 and an SA342M at t=2139. No other civil aircraft stood on a runway at t=0; the rest were air starts. The `.miz` Brady kept is a later regeneration of the turn with different civil flights, so no departure can be checked against its own ETA. Needs a flight where the kept `.miz` is the flown one.
 
 Built 2026-09-23 from test 40. A ground-started civil flight draws a delay of 0–6,600 s. It was
 written to the group's `start_time`, which DCS overwrites from the first waypoint's ETA on load,
@@ -8826,7 +8866,15 @@ ignores it; a tanker is capped at its top speed. Unit-tested
   waypoint); a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a new
   KC-135 flight not picking up a saved default.
 
-### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ☐ UNTESTED
+### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ◐ PARTIAL (2026-09-29, test 47; was ☐ UNTESTED)
+
+**2026-09-29, test 47** (Persian Gulf turn 1, 59 min, a build before #1097) — **the flight half passes; the cockpit shows the fail signature #1097 fixed.**
+- Both theatre tankers flew the box: the KC-135 (Al Dhafra, 40 x 20 NM) and the carrier's A-6E. Each passed every corner in order, cutting each by 4–5 km, and went round about three times (KC-135: BOX 2 at t=786, 1754, 2729). The SwitchWaypoint loop fired every lap.
+- The F10 markers are boxes around the flown route.
+- The F-16 cartridge drew the KC-135's box as a 7 x 5 NM square at BOX 1 (`GEO_LINES` 13 x 9 km). This build predates #1097.
+- Not reached: nobody tanked, and the on-station end (t=7,786 and 7,204) is past the 3,546 s mission, so leaving for home was not seen.
+- Still owed: tank on a straight leg and through a corner, the cockpit box on a post-#1097 build, and a mission long enough to see the tanker leave.
+
 
 Built 2026-09-28 from the DM's ask for a tanker box instead of a two-point racetrack, as an
 experimental per-flight option (Payload tab). The tanker flies BOX 1-4 and BOX END as a route with the Tanker task
@@ -8875,4 +8923,16 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Pass:** the first load shows the dark RetLab picture; the second shows yours.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
+
+### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ☐ UNTESTED
+
+Built 2026-09-29 from test 47. Where a map owns a carrier's hull channel, the boat's TACAN
+flipped between two neighbours on every generation (CVN-71 on Persian Gulf: 69X, 72X, 69X).
+The mission generator reserved the boat's own last value before re-deriving it. Unit-tested
+(`test_auto_tacan_is_stable_across_generations`).
+- **Setup:** Persian Gulf with CVN-71, or Afghanistan with the Stennis. Generate the turn,
+  note the TACAN on the CV Operations Data page, generate again.
+- **Pass:** the same channel both times (CVN-71 on Persian Gulf: 72X; Tarawa: 41X).
+- **Fail signature:** the channel moves by one or two each generation.
+- **Also:** a TACAN set by hand in the carrier's base dialog is kept.
 

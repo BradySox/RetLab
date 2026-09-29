@@ -25,7 +25,7 @@ from game.naming import namegen
 from game.spatialindex import LiveUnitIndex
 from game.radio.radios import RadioFrequency, RadioRegistry, MHz
 from game.radio.tacan import TacanRegistry
-from game.theater import Airfield
+from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
 from game.theater.fogofwar import fog_intact
 from game.theater.player import Player
@@ -63,6 +63,17 @@ if TYPE_CHECKING:
     from game import Game
 
 CARCASS_SUPPRESS_RADIUS_M = 5.0
+
+
+def keeps_stored_tacan(cp: TacanContainer) -> bool:
+    """Whether a control point's stored TACAN is reserved before generation.
+
+    A carrier's auto channel is re-derived by its generator every mission;
+    reserving last mission's value made it walk off itself (69X, 72X, 69X ...).
+    """
+    return not (
+        isinstance(cp, NavalControlPoint) and getattr(cp, "tacan_is_auto", True)
+    )
 
 
 class MissionGenerator:
@@ -256,7 +267,11 @@ class MissionGenerator:
                 else:
                     self.tacan_registry.mark_unavailable(channel)
         for cp in self.game.theater.controlpoints:
-            if isinstance(cp, TacanContainer) and cp.tacan is not None:
+            if (
+                isinstance(cp, TacanContainer)
+                and cp.tacan is not None
+                and keeps_stored_tacan(cp)
+            ):
                 self.tacan_registry.mark_unavailable(cp.tacan)
 
     def initialize_radio_registry(

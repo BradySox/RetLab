@@ -6795,6 +6795,10 @@ sequential fallback can't collide when two boats sail the same theater. **Every 
 value is persisted back to the control point** (`frequency`, `tacan`, `tcn_name`, `link4`,
 `icls_channel`) so the whole card is stable across turns — ATC, Link 4, and ICLS previously
 re-rolled or re-allocated every mission.
+The mission generator's up-front TACAN reservation (`keeps_stored_tacan`, `missiongenerator.py`)
+skips a carrier's *auto* channel, since `_resolve_tacan` re-derives it: reserving it made the
+boat walk off its own last value, so where the map owns the hull channel it flipped every
+generation (CVN-71 on Persian Gulf, 69X/72X; test 47, 2026-09-29, row B156).
 
 **Flagship naming.** The page's Callsign line prints the flagship's *unit name*, so
 `_flagship_name` names the carrier unit by its hull name ("CVN-74 John C. Stennis") instead
