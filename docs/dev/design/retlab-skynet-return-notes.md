@@ -124,8 +124,7 @@ These cost missions to learn and still hold, or hold in a changed form:
   edges; `DeadC2` names them. This is the juanjux #97 hole, which was live against Skynet too.
 - **Skynet has no name-prefix matching**, so the `escape_prefix` lesson does not apply to it.
   It still applies to every MOOSE `SET_*` filter the fork uses (intercept, cruise missiles).
-- **Never spawn a backstop EWR** (§1) and **never double-count radars** (§60 vs regiments)
-  are engine-independent and unchanged.
+- **Never spawn a backstop EWR** (§1) is engine-independent and unchanged.
 - **Point defence** is explicit under Skynet (`addPointDefence`, from the emitted `PD`
   arrays), so the SEAD-triggered SHORAD link that the MANTIS bridge built has a native
   equivalent. Row G30 is re-pointed at it.

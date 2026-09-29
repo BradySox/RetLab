@@ -15,5 +15,5 @@ units:
   - Refueler ATZ-60 (MAZ-7410)
   - Refueler TZ-22 (KrAZ-258B1)
 layouts:
-  - 4 Launcher Site (Semicircle)
-  - 4 Launcher Site (Circle)
+  - 8 Launcher Site (Semicircle)
+  - 8 Launcher Site (Circle)

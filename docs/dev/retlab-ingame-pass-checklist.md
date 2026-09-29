@@ -841,7 +841,9 @@ wake look identical here, which is the "prefer a loud failure" rule biting.
 - **Fail signature:** `managing 0 group(s)` on a garrison-rich map (the emitter filter is too tight, or group names don't match the .miz); a SAM site or EWR goes blind (a non-armor TGO leaked into the list); a COIN cell / HVT convoy / VBIED / ambush team / SCUD stops moving (a concealed/map_hidden mover leaked); a garrison never reacts even at close range (the wake poll or the hit-wake broke — check `aiOnOff` semantics against the DCS controller); kills on slept units missing from the debrief (would falsify the setOnOff-keeps-death-events assumption — pull the feature back to default-off and re-scope).
 - **AAA gun sites** (`perf_aaa_site_sleep`, added 2026-07-19 off the "10 fps on the ground" report — Yankee Station measured 2–4× every other campaign, AAA 4–12×, while the emitter managed 16 of 121 groups): **Setup** — enable it *and* the master toggle on **1968 Yankee Station** (the AAA-doctrine laydown; the flown turn-1 miz is in the §66 archive for a before/after). Expect the arm line to jump from ~16 to ~50+ groups. Fly the same profile twice, setting off vs on, and compare frame time on the ramp (the reported symptom was 10 fps parked at an *empty* field, so the ramp is the measurement point, not the target area). **Pass:** frame time visibly recovers; flak belts still open up on the same pass and at the same range they always did (the sensor guard's whole claim is that a 5 km gun is awake long before you're inside 5 km); the §33 flak-gauntlet bursts still appear; MANTIS logs no change in resolved SAM/EWR counts. **Fail signature:** guns that never fire, or fire late (the wake radius is too tight against real DCS detection — raise `wakeRadiusNm`, it is always safe); MANTIS resolving fewer EWR groups with the toggle on (an EWR-role site that MANTIS actually needed went dark — tighten `AAA_SLEEP_MAX_DETECTION`); no measurable frame-time change (the AAA was never the sink — re-measure with the probe method in the §59 features-doc section before tuning further).
 
-### B12 — SAM guidance-radar redundancy: a site survives its first HARM · §60 · ☑ VERIFIED
+### B12 — SAM guidance-radar redundancy: a site survives its first HARM · §60 · ✖ REMOVED
+
+**Removed 2026-09-29** (DM call): every SAM site is back to one guidance radar. No pass owed.
 
 **History:** 2026-08-05, user pass `units-runway-generation-bf755e` — "B12 is good") (was ☐ UNTESTED, built 2026-07-12 off the Red Tide finding "a single HARM kills the entire site"; the layout contract — every SAM layout asks for 2 guidance radars AND its .miz template carries ≥ 2 positions for the slot, across all 31 layout/slot pairs incl. the SA-6's 1S91, the mixed site's both channels, and the NASAMS/Sky Sabre search-slot engagement radars — is CI-locked in `tests/armedforces/test_sam_radar_redundancy.py`, and generation was probe-verified end-to-end (every preset spawns 2 radars of the right type). CI can't exercise DCS's actual guidance logic.
 - **What CI cannot exercise:** whether a site with one dead track radar actually keeps engaging in DCS (the second TR picks up guidance — the whole point), whether MANTIS keeps treating the half-decapitated site correctly (alive, in the network, threat rings honest), and whether AI SEAD re-targets the surviving radar instead of calling the site dead.
@@ -7401,7 +7403,7 @@ a defended target. Do not change the campaign. ~25 min.
 
 **Pass.** Going low still trades radar exposure for a survivable run, and the fork's own
 numbers are unaffected: the threat rings on the kneeboard match what actually engages,
-and §60's two-guidance-radar doubling still means one HARM does not kill a site.
+and a site's threat ring still matches what engages.
 
 **Fail signatures, and what each means:**
 
@@ -7411,9 +7413,6 @@ and §60's two-guidance-radar doubling still means one HARM does not kill a site
 - **The kneeboard's threat ring no longer predicts where you get shot at** — the ring is
   drawn from sensor detection range, and the change was to missile guidance, so the two
   should still agree. If they do not, the export is stale.
-- **§60-doubled sites die to one HARM again** — unrelated to this patch, but it is the
-  cheapest thing to notice on the same sortie. Check the site actually generated two
-  track radars.
 
 **Watch for.** The Patriot's DLZ was corrected against ballistic targets in the same
 patch. That only matters where a campaign fields both Patriot and mobile theatre
@@ -8884,6 +8883,18 @@ Built 2026-09-29. Unit-tested offscreen (`tests/test_livery_selector.py`); never
   the tab is right but the jet wears the squadron's livery (the generator is reading the
   squadron, not the member).
 
+### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ☐ UNTESTED
+
+Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and
+the SA-5 layouts doubled to 16 launchers (circle) or 12 (semicircle, and Red Tide's battalions),
+the SA-2 Battery layouts to 8 or 12 and the mixed site's SA-2 slot to 6, on their own templates. Layout-tested; never generated in DCS.
+- **Setup:** a new game with an SA-5 and an SA-2 or SA-6 site on the enemy side (Persian Gulf with
+  Iran, or Red Tide). Generate a turn.
+- **Pass:** each SAM site has one track radar (the Patriot keeps two STRs); an SA-5 site has 16 or
+  12 launchers and an SA-2 battery 8 or 12, none inside another unit or a revetment; the SA-5 fires at a jet inside its range.
+- **Fail signatures:** a launcher spawned into another unit (the extra ring is too close); an SA-5
+  that still never fires at close targets (the cause was not the second Square Pair; see test 47's
+  SA-5 finding).
 ### B165 — Two QRA scrambles from one field in the same second do not collide · §1 · ☐ UNTESTED
 
 Built 2026-09-29 after test 48 (Kerman: two F-14 wingmen air-started on the same spot and collided). Harness-tested (`tests/lua/test_intercept_filter.py`); never flown.

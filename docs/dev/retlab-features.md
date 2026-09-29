@@ -6250,81 +6250,43 @@ The old saves' settings keys and `aisleep` plugin options are dropped on load
 
 ---
 
-## §60 — SAM guidance-radar redundancy (two track radars per site)
+## §60 — SAM guidance-radar redundancy (two track radars per site) — REMOVED 2026-09-29
 
-The answer to the 2026-07-12 Red Tide finding: **a single HARM killed an entire SAM site**,
-because every site layout fielded exactly one engagement radar. In DCS a SAM group whose track
-radar (or combined search/track radar) dies cannot engage at all — the launchers are alive but
-blind — so one anti-radiation missile on the one guidance radar was a functional site kill, and
-SEAD collapsed into "shoot one HARM per site." Every SAM layout now fields **two** guidance
-radars, so decapitating a site takes a deliberate multi-shot SEAD effort (or a follow-up strike),
-not one lucky shot.
+**Removed on the DM's call.** Every SAM layout's guidance slot is back to `unit_count: 1`
+(upstream's value): the 23 layouts in `resources/layouts/anti_air/` that §60 doubled, including
+the fork-only SA-2/SA-3/SA-5/SA-6 batteries, HQ-22, S-350, NASAMS-3, Sky Sabre, 3rd Khordad and
+Bavar-373. The Patriot family was never changed by §60 and keeps its two STRs. The contract test
+`tests/armedforces/test_sam_radar_redundancy.py` is deleted.
 
-**What counts as the guidance radar.** The slot that stops the site from shooting when it dies:
+What stays:
+- The second radar **positions** in the shared `.miz` templates (`2_Launcher`, `6_Launcher_*`,
+  `8_Launcher_Circle`, `S-300_Site`). They are inert at `unit_count: 1`; the buy menu can still
+  add a second radar by hand, as upstream allows wherever a template has the room. Later §85
+  support-section edits live in the same templates, so they were not rolled back.
+- Red Tide's and Baltic Fury's lean regiment battalions (`S-300 Site (Single Radar)`,
+  `SA-5 Legacy Site (Single Radar ...)`). They differ from the base layouts in composition, not
+  only radar count.
 
-- the **Track Radar** slot — the generic 2/4/6-launcher sites (Hawk, HQ-2, the HDS SA-2/SA-3,
-  compact SA-10, David's Sling/Iron Dome sector radar, Rapier Blindfire…) and the named SA-2 ×4 /
-  SA-3 ×2 / SA-5 ×2 / S-350 / NASAMS-3 battery layouts;
-- the **S-300 Site TR** slot — the S-300 family site and the HQ-22 battery;
-- **both channels of the SA-2/SA-3 mixed site** — its SNR-75 Fan Song is mapped onto the
-  "S-300 Site CP" slot and its SNR-125 Low Blow onto "S-300 Site TR"; both doubled;
-- the SA-6's combined **1S91 Straight Flush** (the "Search Radar" slot of the SA-6 Reinforced
-  layouts — the 2P25 TELs carry no radar, so the STR is the whole fire channel);
-- the **NASAMS Sentinel** and **Sky Sabre Giraffe** ("Search Radar" slot of their dedicated
-  layouts — AMRAAM/CAMM engagement stops without them);
-- the Patriot family (Patriot / MIM-104 / SAMP/T / LvS-103 ×4) **already fielded 2** STRs
-  ("Patriot Battery 0") — unchanged, now CI-locked.
+Learned while it was live (checklist B12, 2026-08-05): with two track radars, a site that lost
+one kept engaging and AI SEAD re-targeted the second. Existing saves keep the sites they were
+generated with; new games and newly bought sites get one radar.
 
-**How it is wired (pure layout data — no setting, no plugin, no engine change).** Each layout's
-guidance-radar unit group in `resources/layouts/anti_air/*.yaml` asks for `unit_count: 2`, and the
-shared `.miz` templates gained a second radar **position** for the slot — `generate_units` raises
-`LayoutException` past the template's position count, so both halves must move together. Template
-edits (pydcs round-trip, all positions ≥ 25 m clear of every other unit, 45–121 m from the primary
-radar so one HARM blast can't take both): `8_Launcher_Circle.miz` / `6_Launcher_Circle.miz` /
-`6_Launcher_Semicircle.miz` (+1 Track Radar, +1 Search Radar), `2_Launcher.miz` (+1 Track Radar),
-`S-300_Site.miz` (+1 S-300 Site TR, +1 S-300 Site CP). Extra template positions are inert for any
-layout that keeps a lower `unit_count` (the S-300's own 54K6 CP stays 1; only the mixed site uses
-the second CP position for its second Fan Song).
+**SA-5 and SA-2 launchers doubled in the same change (DM call).** Each launcher holds one missile,
+so twice the launchers is twice the missiles:
+- SA-5: the full sites 16 (circle) and 12 (semicircle), Red Tide's lean battalions 12.
+- SA-2 Battery: 4 → 8 and 6 → 12 launchers; the SA-2/SA-3 mixed site's SA-2 slot 3 → 6.
+- New templates: `16_Launcher_Circle.miz` and `12_Launcher_Semicircle.miz` (the 8/6-launcher
+  templates plus an outer launcher ring, 240 m and 200 m out) and `SA-2-SA-3_Mixed_Site.miz`
+  (`S-300_Site.miz` plus three LN1 positions 230 m out). Every added position is 25 m or more
+  from any other unit. The shared templates are unchanged.
+- The SA-2 presets that used the shared generic launcher layouts (`SA-2_ZSU`, the HDS SA-2,
+  HQ-2) moved to new copies of them with twice the launchers: `12 Launcher Site` (12 on the
+  16/12-position templates) and `8 Launcher Site` (HQ-2). The shared 4/6-launcher layouts are
+  unchanged for every other system.
 
-**What falls out for free.** The buy-menu (`QGroundObjectBuyMenu`) maxes each slot at the
-template's position count, so a purchased site defaults to 2 guidance radars and can be trimmed
-back to 1 by hand; campaign-authored sites (`MizCampaignLoader` MERAD/SHORAD markers) and
-generated laydowns flow through the same `ForceGroup.create_ground_object_for_layout` path. Site
-price rises by exactly one radar's price — reinforcement isn't free. The optional generic Track
-Radar slots stay optional (`fill: false`): a faction with no track-radar unit skips the slot
-entirely, same as before, so `usable_by_faction` is unchanged.
-
-**Known limitation (deliberate).** Presets that route a lone search-track radar through a
-*generic* layout's "Search Radar" slot — NASAMS-B/C, IRIS-T SLM, THAAD — keep a single engagement
-radar: doubling that shared slot would also double the pure search radars (P-19, Snow Drift…) of
-every generic site, which is a different (bigger) composition change than the track-radar ask.
-Extend per-system dedicated layouts if those ever need the same treatment. Systems whose TELARs
-carry their own engagement radar (SA-11/SA-17/BUK-M3, Roland, SA-8/15/19 SHORAD) never had the
-single-point-of-failure and are untouched.
-
-**Tests.** `tests/armedforces/test_sam_radar_redundancy.py` pins the contract for all 31
-layout/slot pairs: `unit_count == [2]` **and** template positions ≥ 2, so a YAML or `.miz` edit
-that reopens the one-HARM kill fails CI. Generation was probe-verified end-to-end (every SAM
-preset spawns 2 guidance radars of the right type; the mixed site spawns 2+2).
-
-**This is a balance abstraction, not a TO&E correction.** At the **battalion / fire-unit** level a
-real legacy system fields exactly **one** engagement radar — one Fan Song, one Low Blow, one 1S91
-Straight Flush, one Flap Lid — so "two guidance radars per site" is a deliberate gameplay call to
-defeat the trivial single-HARM kill, **not** a claim about real order of battle. It reads closest to
-reality on the **strategic systems** (S-300/S-400, Patriot), where redundancy and multiple radars
-genuinely exist at the battalion-group/regiment level. The more historically faithful model of
-survivability — a *regiment* of single-radar fire units netted to a shared acquisition radar + C2 —
-and two other realism directions (revetment-geometry authenticity, acquisition-radar separation +
-decoys) are worked through, with verdicts, in
-[`docs/dev/design/retlab-sam-site-realism-notes.md`](design/retlab-sam-site-realism-notes.md). Note the
-tension recorded there: §60 and a future regiment model both add radars, so **don't stack them** —
-if the regiment model ever lands for a strategic system, revert §60's doubling for it.
-
-**In-game pass DONE** (checklist B12): that a site with one dead track radar actually keeps
-engaging in DCS (the second TR picks up guidance), that the IADS engine treats the site as alive/degraded
-correctly, and that AI SEAD flights re-target the second radar. NEW game required (layouts are
-baked into the campaign at generation).
-
+Context: test 47/48 (2026-09-28) found SA-5 sites tracking blue jets inside their envelope and
+never firing. §60's second Square Pair was one of the suspects; the removal was the DM's call, not
+a proven fix. Re-check SA-5 fire on the next flight with one.
 ---
 
 ## §61 — Host red-interceptor scramble (F10 bandit spawner)
