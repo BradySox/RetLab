@@ -8796,3 +8796,34 @@ generated under. Unit-tested (`test_iads_renamed_flagship.py`).
 - **Pass:** `dcs.log` has no `EW Radar that does not exist` line naming a carrier or LHA.
 - **Fail signature:** that line again = a ship renamed where the IADS data does not see it.
 
+### B159 — A target steerpoint in the hills sits on the ground · §74 · ☐ UNTESTED
+
+Built 2026-09-29. The data cartridge gave a target steerpoint the nearest airfield's
+elevation, so in hills it sat hundreds of metres above or below the target. Where a
+`resources/terrain_heights/<terrain>.npz` grid ships, it now carries DCS's own
+`land.getHeight`, bilinear on a grid of 100 m to 1 km by terrain. Unit- and harness-tested; the grids come
+from `scripts/dcs_terrain_heights.py`. Design: `retlab-dtc-cartridge-notes.md`.
+
+- **Setup:** Syria (the finest grid, 100 m) or any terrain whose grid ships. A Viper or Hornet flight with the cartridge on
+  (DTC tab, load at spawn), fragged on a target on high ground well above the nearest
+  field.
+- **Pass:** the target steerpoint's ELEV is within about 30 m (100 ft) of the ground at
+  the target, and a pod slaved to it looks at the target, not short or long.
+- **Fail signatures:** ELEV reads the nearest field's elevation (no grid loaded: check the
+  terrain name matches the .npz file name); ELEV reads 0 (point off the grid and no field
+  on the map has a record).
+
+### B160 — Every settings row reads as one line: shading, dividers and a hover band · settings UI · ☐ UNTESTED
+
+Built 2026-09-29. Filter and disclosure tests pass with the painting in place; rendered offscreen, never looked at in the running app.
+
+- **Setup:** open Settings with the window maximised. Visit Performance, then two other pages.
+  Open a section's Show N advanced options, then type a word in the search box.
+- **Pass:** every other row is shaded, a thin line sits under each row, and the row under the
+  mouse lights across its full width with an accent bar on the left, whether the cursor is
+  on the label, the control or the gap between them. Opening advanced options or searching
+  keeps the shading alternating on the rows actually shown.
+- **Fail signatures:** bands stacked at the top of a section (geometry read before layout); a
+  hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
+  a search.
+

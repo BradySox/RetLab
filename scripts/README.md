@@ -48,6 +48,26 @@ dump parser is `game/atmosprobe/model.py`; tests live under `tests/atmosprobe/`.
 > `resources/scripts/MissionScripting.lua`) is what lets `io` write a file; without
 > it the probe falls back to the dcs.log stream, which `apply --log` consumes.
 
+## Terrain heights for DTC steerpoints — `dcs_terrain_heights.py`
+
+A data cartridge replaces the jet's route, so it must give every target
+steerpoint an elevation above sea level. Without a grid that is the nearest
+airfield's elevation, which is wrong in hills. This samples DCS's own
+`land.getHeight` on a 1 km grid per terrain:
+
+```bash
+# 1. build the probe mission (same terrain names as above)
+PYTHONPATH=. .venv/bin/python scripts/dcs_terrain_heights.py generate --terrain Syria
+# 2. run terrain_height_probe_syria.miz in DCS, unpause, wait for "[HEIGHTS] done"
+#    (it writes Saved Games/DCS/Logs/retlab_terrain_heights_Syria.txt), then quit
+# 3. write resources/terrain_heights/syria.npz
+PYTHONPATH=. .venv/bin/python scripts/dcs_terrain_heights.py apply "<Saved Games>/DCS/Logs/retlab_terrain_heights_Syria.txt"
+```
+
+Needs Retribution's de-sanitized `MissionScripting.lua` (the probe writes a file).
+`--step` and `--margin-km` change the grid spacing and how far past the outermost
+airfields it reaches.
+
 ## Other scripts
 
 - **`derive_airport_imagery_offsets.py`** — generates the

@@ -69,7 +69,8 @@ The checklist, the features doc, the feature index, `CLAUDE.md`, `AGENTS.md` and
 `changelog.md` are `merge=union` in `.gitattributes`: when GitHub reports a conflict in
 them, run `git merge origin/main` in the worktree (or the app's sync) and git keeps both
 sides with no hand editing. Read the merged spot anyway: a line both sides *changed*
-comes out twice, and only duplicate row ids and `§` numbers are caught by a test. A
+comes out twice, and a block one side *deleted* comes back if the other side edited
+it. Duplicate row ids, `§` numbers and a returned checklist summary fail a test. A
 generated file (the feature index) that comes out wrong is fixed by regenerating it.
 
 ---
