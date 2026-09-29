@@ -8920,3 +8920,11 @@ Built 2026-09-29 after test 48 (Kerman: two F-14 wingmen air-started on the same
 - **Setup:** any campaign where red QRA scrambles a pair or more from one base. Watch in Tacview.
 - **Pass:** groups launched from one base inside a minute appear about 500 ft apart in altitude; no QRA jet dies within seconds of spawning.
 - **Fail signatures:** two jets spawning at the same altitude and position; a QRA loss with no shot fired at it in its first seconds.
+
+### B168 — Naval gunfire hits your marker, and the Super Gaggle's F-4s are armed · §34 / §37 / COIN · ☐ UNTESTED
+
+Built 2026-09-29 from the Vietnam Ops and COIN audit. Harness-tested (`tests/lua/test_vietnamops_runtime.py`, `TestNavalGunfire`, `TestSuperGaggle`); never flown.
+
+- **Setup:** Yankee Station with Naval gunfire, FAC(A) marking and Super Gaggle on. After the gaggle launches (10 min in), place an F10 marker on a coastal target inside 10 NM of a gun ship and call Naval Fire Mission → Fire on last F10 map marker. Watch the suppressor pair over the outpost in Tacview.
+- **Pass:** the shells land on your marker; the suppressors spawn with bombs and rockets on the pylons and release on the guns around the outpost.
+- **Fail signatures:** the shells land on the gaggle or on a FAC's white-smoke target (the mark filter missed); the suppressors spawn clean or with no fuel (the payload did not reach `coalition.addGroup`).

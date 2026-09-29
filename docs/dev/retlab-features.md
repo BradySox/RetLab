@@ -4380,7 +4380,9 @@ TIC has no artillery path of its own — its `TaskFireAtPoint` is combatants' di
 - **Player call-for-fire (F10).** Each coalition that owns gun ships gets an F10 **"Naval Fire Mission →
   Fire on last F10 map marker"** command. It reads the coalition's most recent F10 mark
   (`world.getMarkPanels`) and fires the nearest in-range friendly gun ship there (with a "SHOT"/"no ship in
-  range" call back).
+  range" call back). The plugin's own FAC(A) and Super Gaggle marks (ids 970001+ and 980001+) are
+  skipped: until 2026-09-29 their high ids always won, so the ships shelled the FAC's target or the
+  friendly gaggle instead of the player's marker.
 - **Automatic coastal bombardment.** Every cadence (default 90 s), each alive gun ship shells the nearest
   **opposing** ground target within gun range. Because ships sit offshore and the range gate is ~10 NM, this
   only ever reaches **coastal** targets — the feature is coastal-by-construction and **no-ops inland** (Khe
@@ -4590,8 +4592,9 @@ the tell (they need no taxi clearance). The generic `artillery_base_harassment` 
 runtime with a 35–42 km reach, went with it, as did the two settings, the six plugin options,
 the emitter, the Lua block, the Red Tide / Baltic Fury / Vietnam / COIN preseeds and the design
 note. The COIN insurgent indirect fire (`coin_harassment`, §-less, `coin` plugin) is a separate
-emitter and stays; it shells FOBs and helicopter fields, where the hold does not bite, and Balad
-on Inherent Resolve is the one fixed-wing field it can reach. Checklist L8 is closed.
+emitter and stays; it shells FOBs and FARPs only, where the hold does not bite. Airbases were in
+its list until 2026-09-29 (Balad on Inherent Resolve was in reach) and are now filtered out in
+`coinluadata.py`. Checklist L8 is closed.
 
 What is worth keeping from it: the never-a-player-spawn-field exclusion walk
 (`ato.packages → flights → departure/arrival/divert`) lives on in `coinluadata.py`, and the
@@ -4638,7 +4641,9 @@ hardcoded USA fallback (kept only for pre-fix saves) spawned the gaggle NEUTRAL 
 **The `vietnamops` plugin spawns exactly the committed airframes, once, after a delay** (vanilla DCS
 `coalition.addGroup`, `pcall`-guarded): a helo group named with the committed helo unit names (launch →
 outpost → back), and the suppressor attack flight with the committed suppressor names (launch → over the
-outpost on a CAS task → back). **No respawn loop** — the run flies once (airframes are bounded to the
+outpost on a CAS task → back). The suppressors carry their squadron's CAS fit, emitted by
+`vietnamopsluadata.py` as `suppressor.payload` (pylons, fuel, flares, chaff); before 2026-09-29 they
+spawned with empty pylons, because `coalition.addGroup` mounts nothing a unit does not list. **No respawn loop** — the run flies once (airframes are bounded to the
 commitment), and a single tick fires the "delivered" / "down" cue then stops. The "inbound" cue notes the
 suppressors when they spawned. **Launch is delayed, not immediate (2026-07-03 rework):** the whole spawn
 was firing at t=0 (mission-config load), and a flown session's helos delivered by t≈306 s — the run was

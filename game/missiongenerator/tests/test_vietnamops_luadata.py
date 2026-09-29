@@ -55,6 +55,7 @@ def _emit(
             vietnam_super_gaggle=super_gaggle,
             vietnam_fac_marking=fac,
             vietnam_snake_and_nape=snake_nape,
+            restrict_weapons_by_date=False,
         ),
         theater=SimpleNamespace(
             ground_objects=ground_objects or [],
@@ -251,6 +252,7 @@ def _commitment() -> Any:
         launch_y=4000.0,
         helo_type="UH-1H",
         helo_unit_names=["SuperGaggle-T3-Helo-1", "SuperGaggle-T3-Helo-2"],
+        supp_squadron_id=None,
         supp_type="A-4E-C",
         supp_unit_names=["SuperGaggle-T3-Sandy-1"],
     )
@@ -288,3 +290,36 @@ def test_super_gaggle_emits_helos_without_a_suppressor() -> None:
     assert "superGaggle" in lua
     assert "SuperGaggle-T3-Helo-1" in lua
     assert "suppressor" not in lua  # no suppressor sub-node when none was committed
+
+
+def test_super_gaggle_suppressors_carry_their_squadrons_cas_fit(
+    monkeypatch: Any,
+) -> None:
+    # addGroup mounts nothing without a payload, so the emitter must send the fit.
+    from dcs.planes import F_4E_45MC
+
+    from game.retlab import super_gaggle
+
+    squadron = SimpleNamespace(aircraft=SimpleNamespace(dcs_unit_type=F_4E_45MC))
+    monkeypatch.setattr(super_gaggle, "squadron_by_id", lambda game, sid: squadron)
+    commit = _commitment()
+    commit.supp_squadron_id = "sq-1"
+    commit.supp_type = "F-4E-45MC"
+
+    lua = _emit([], super_gaggle=True, super_gaggle_commitment=commit)
+    assert "payload" in lua
+    assert f'fuel = "{F_4E_45MC.fuel_max}"' in lua
+    assert "clsid" in lua
+
+
+def test_super_gaggle_payload_skipped_when_the_squadron_is_gone(
+    monkeypatch: Any,
+) -> None:
+    from game.retlab import super_gaggle
+
+    monkeypatch.setattr(super_gaggle, "squadron_by_id", lambda game, sid: None)
+    commit = _commitment()
+    commit.supp_squadron_id = "sq-1"
+    lua = _emit([], super_gaggle=True, super_gaggle_commitment=commit)
+    assert "SuperGaggle-T3-Sandy-1" in lua
+    assert "payload" not in lua
