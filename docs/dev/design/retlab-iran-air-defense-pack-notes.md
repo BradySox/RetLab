@@ -34,14 +34,21 @@ values in meters because pydcs requires it.
 | `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | Launcher | — | 86 NM |
 | `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
 | `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
-| `IRAD_Sejjil_TEL` | `[IRAD] Sejjil-2 TEL` | Missile | — | 1,080 NM |
-| `IRAD_Emad_TEL` | `[IRAD] Emad TEL` | Missile | — | 918 NM |
-| `IRAD_Kheibar_TEL` | `[IRAD] Kheibar (Khorramshahr-4) TEL` | Missile | — | 1,080 NM |
-| `IRAD_Fattah2_TEL` | `[IRAD] Fattah-2 TEL` | Missile | — | 756 NM |
+| `IRAD_Sejjil_TEL` | `[IRAD] Sejjil-2 TEL` | Missile | — | 486 NM (81 NM minimum) |
+| `IRAD_Emad_TEL` | `[IRAD] Emad TEL` | Missile | — | 486 NM (81 NM minimum) |
+| `IRAD_Kheibar_TEL` | `[IRAD] Kheibar (Khorramshahr-4) TEL` | Missile | — | 486 NM (81 NM minimum) |
+| `IRAD_Fattah2_TEL` | `[IRAD] Fattah-2 TEL` | Missile | — | 486 NM (81 NM minimum) |
 | `IRAD_Shahed238_TEL` | `[IRAD] Shahed 238 launcher` | Missile | — | 540 NM |
 
 The five launchers were added to the pack 2026-09-28 and to RetLab 2026-09-29, replacing the
 third-party ones (`retlab-iran-iads-deployment-notes.md` §6). Row B166 owns their flight.
+
+The four ballistic missiles fly ED's ballistic flight model (the scheme and tables of ED's
+Iskander) since 2026-09-30. DCS's old model flew every shot flat at ~6,000 kt. ED's motor
+always burns out, so a full-range motor can only hit a short shot flat or absurdly high; each
+motor is sized for RetLab's shots instead (DM call 2026-09-30): ~3,000 m/s at burnout, 150-900 km,
+shorter shots lofted. RetLab picks missile targets inside that band
+(`MISSILE_MIN_RANGE_M`). The published 1,400-2,000 km ranges are not modelled.
 
 A launcher's threat is the range it fires at, capped inside the lock range (85 % of detection) of the radar that guides it. The STR guides every Bavar launcher, so both Sayyad-4B launchers threaten 86 NM; the missile's 108 NM stays its flight limit. The cap does not move where DCS launches (test 45: 118 km against a closing target).
 

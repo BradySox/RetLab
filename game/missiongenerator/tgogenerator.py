@@ -96,6 +96,7 @@ from game.theater.theatergroundobject import (
 from game.theater.theatergroup import SceneryUnit, IadsGroundGroup
 from game.flightplan.carriercruisesolver import solve_carrier_cruise
 from game.unitmap import UnitMap
+from pydcs_extensions.iranairdefensepack.iranairdefensepack import MISSILE_MIN_RANGE_M
 from game.utils import Heading, feet, knots, mps, nautical_miles, pairwise
 
 if TYPE_CHECKING:
@@ -866,12 +867,24 @@ class MissileSiteGenerator(GroundObjectGenerator):
         :return: List of possible missile targets
         """
         targets: List[Point] = []
+        min_range = self.missile_site_min_range
         for cp in self.game.theater.controlpoints:
             if cp.captured != self.ground_object.control_point.captured:
                 distance = cp.position.distance_to_point(self.ground_object.position)
-                if distance < self.missile_site_range:
+                if min_range <= distance < self.missile_site_range:
                     targets.append(cp.position)
         return targets
+
+    @property
+    def missile_site_min_range(self) -> int:
+        # A target inside the launcher's minimum is refused in DCS and the site never fires.
+        min_range = 0
+        for group in self.ground_object.groups:
+            vg = self.m.find_group(group.group_name)
+            if vg is not None:
+                for u in vg.units:
+                    min_range = max(min_range, MISSILE_MIN_RANGE_M.get(u.type, 0))
+        return min_range
 
     @property
     def missile_site_range(self) -> int:
