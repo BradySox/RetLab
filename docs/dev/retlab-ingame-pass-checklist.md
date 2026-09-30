@@ -8647,6 +8647,10 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   pitch or roll on a hillside, past the 5 deg level limit copied from the 5P85D; on flat ground
   they raised. The pack now levels 15 deg (pack PR #11). **Re-run: the TELs raised to ready to**
   **fire.** Still owed: a Sayyad-4B shot that reaches its target.
+- **Test 51 (2026-09-30, Tacview):** with the TELs raised the site **engaged and killed**: 24
+  Sayyad-4B at Hornets of a DEAD package, one kill (the missile ended 0.03 NM from a DEAD Hornet).
+  The first six launched near 55 NM, flew 94 s and never came within 22 NM; eight died 6-26 s
+  after launch, as in tests 42-46. Still owed: a better hit rate, and the HARM-on-the-STR check.
 - **Fail signature:** TELs that never raise = the ground tilts them past `maxDeviationPitch`/`Roll`;
   read each unit's pitch and roll in Tacview before anything else.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
