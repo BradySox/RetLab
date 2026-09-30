@@ -7505,7 +7505,7 @@ package-mates share the comm plan and SA picture):
   carry. Dropped 2026-09-13 to match the upstream carve
   ([#966](https://github.com/dcs-retribution/dcs-retribution/pull/966)) and **restored
   2026-09-29 on the DM's call** once the names were confirmed visible in the jet; #966
-  still ships without it. The Viper has none: its schema has no name field (dropped
+  carries it again since 2026-09-30. The Viper has none: its schema has no name field (dropped
   2026-08-22). The `comms` switch drives this and the F-14B(U)'s TIS list. Row B177.
 - **WYPT / MPD.NAV_PTS** — the flight's waypoints as named steerpoints (ASCII-folded
   display names), the Hornet Route-1 sequence with per-leg altitude/speed (km/h) and
