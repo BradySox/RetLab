@@ -236,6 +236,14 @@ he carries them, and the reply there points him at the free route sequence 2. Th
 Tomcat, the ROE table and CMDS still wait on B91/B104. It uses pydcs #39's seams (pin
 at the PR-branch SHA, which pip resolves through GitHub's PR refs). Work in the
 isolated worktree `..\retribution-pr-dtc`, which has its own venv on the #39 pin.
+**Synced 2026-09-30, head `55b8d4e3` (DM OK in the thread):** the Hornet COMM names
+are back in the carve (a mirror of the unit's `Radio` table, so no frequency
+changes); tanker boxes take their half-width from the tanker's orbit speed (20-degree
+turn plus 3 NM, 2 NM floor; `FlightData.patrol_speed` added upstream); and the
+campaign setting is `DTC data cartridges`: Off / Pilot loads it (default) / Load at
+spawn, since upstream has no per-flight tab to choose. **Still not carried:** the
+terrain height grids (a data file upstream would own), the §98 borders and their
+tags, and the DTC tab (a follow-up PR once #966 merges).
 
 ## Open items
 
@@ -756,7 +764,7 @@ the descriptors.
 
 | Data | Reaches the jet without a cartridge? | What the cartridge adds |
 |---|---|---|
-| Radio presets on channels | **Yes** — upstream's channel allocator writes every client unit's `Radio` table (`FlightData.assign_channel` → `unit.set_radio_channel_preset`, driven by `game/radio/channels.py`) | Nothing, since 2026-09-13. The Viper's schema has no name field; the Hornet's ≤5-char names were the only add, cut when the fork was aligned to #966 |
+| Radio presets on channels | **Yes** — upstream's channel allocator writes every client unit's `Radio` table (`FlightData.assign_channel` → `unit.set_radio_channel_preset`, driven by `game/radio/channels.py`) | The Hornet's ≤5-char channel names (restored 2026-09-29; in #966 since 2026-09-30). The Viper's schema has no name field |
 | The route as steerpoints | **Yes** — the miz flight plan | Hornet: names, per-leg ETA/speed, the target flag. Viper: TOS and leg speed inline, TGT/IP sub-types. Tomcat: nothing (plan 1 is the ME route; plan 2 repeats it with TOTs) |
 | Recovery TACAN / ICLS / ACLS | No | Hornet `NAV_SETTINGS` |
 | A/A waypoint on the bullseye, FPAS home | No | Hornet `NAV_SETTINGS` |
@@ -788,8 +796,8 @@ the descriptors.
   names are the only add, and the 9/13 cut read that as "nothing the miz lacks". The
   names are exactly what the miz lacks, and once the DM found where the jet shows
   them (the missing names had been a cockpit user error) he asked for them back.
-  Restored as it was: a mirror of the allocator's channels plus names. #966 still
-  ships without it, so this is a fork-side difference from the carve. Row B177.
+  Restored as it was: a mirror of the allocator's channels plus names. #966 took
+  it back 2026-09-30, mirroring the unit's `Radio` table. Row B177.
 - This is also why the Super Hornets lost their cartridge: with no `SA`, the
   whole file was the first two rows of this table.
 
