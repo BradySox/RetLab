@@ -8642,6 +8642,13 @@ its `tools/check_entry.py` runs the Lua against stubs only.
 - **Test 49 (2026-09-30):** after the one-launcher change the TELs still lay in travel all
   mission. In the Mission Editor, set to red alert at spawn, they raised. RetLab now spawns a
   Bavar-373 site on red alert (`ALARM_RED_AT_SPAWN`); Skynet still keeps its radars off. Unflown.
+- **Test 50 (2026-09-30):** red alert at spawn and ED's full 5P85D deploy sequence changed nothing:
+  the TELs stayed down with Skynet off too. Tacview: every TEL at the site sat at 6-14 deg of
+  pitch or roll on a hillside, past the 5 deg level limit copied from the 5P85D; on flat ground
+  they raised. The pack now levels 15 deg (pack PR #11). **Re-run: the TELs raised to ready to**
+  **fire.** Still owed: a Sayyad-4B shot that reaches its target.
+- **Fail signature:** TELs that never raise = the ground tilts them past `maxDeviationPitch`/`Roll`;
+  read each unit's pitch and roll in Tacview before anything else.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
   the Sayyad-4B's numbers in the pack's `Database/irad_missiles.lua`, not the site.
 
