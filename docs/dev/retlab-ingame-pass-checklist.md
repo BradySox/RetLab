@@ -8935,6 +8935,13 @@ Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own
   time 9-11 min. **Fail signatures:** a shot that still flies flat (the scheme did not load:
   `dcs.log` near the weapon name), or lands long or short (the pack's `LOFT_PITCH` and
   `LOFT_FTIME` tables).
+- **Tests 49-50 (2026-09-30, Tacview):** our own motors on ED's scheme first lofted past
+  2,000,000 ft, then (depressed tables) flew into the ground under power 23-73 NM out. DM call:
+  fly ED's 9M723 Iskander exactly. All four now carry it field for field, 75-400 km; RetLab
+  fires them at fields 40-216 NM away. Unflown.
+- **Pass (from test 51):** an Iskander-like arc, Mach 5-6, landing on the field. **Fail
+  signatures:** a shot into the ground short of the field, or one far above 200,000 ft (the
+  pack's `Database/irad_ssm.lua` has drifted from ED's `Iskander_Unitary`).
 ### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and

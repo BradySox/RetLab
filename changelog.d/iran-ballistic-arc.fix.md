@@ -1,1 +1,1 @@
-* **[Mods]** RetLab Iran Air Defense Pack: an Iranian missile site fires only at a field 81-486 NM away, the band the pack's reworked Sejjil-2, Emad, Kheibar and Fattah-2 can reach.
+* **[Mods]** RetLab Iran Air Defense Pack: an Iranian missile site fires only at a field 40-216 NM away, the band the pack's Sejjil-2, Emad, Kheibar and Fattah-2 reach now that they fly ED's Iskander.

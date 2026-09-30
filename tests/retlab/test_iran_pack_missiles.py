@@ -149,7 +149,7 @@ BALLISTIC = [
 def test_a_ballistic_launcher_fires_only_inside_its_motor(
     launcher: type[VehicleType],
 ) -> None:
-    """The pack sizes each motor for 150-900 km (DM call 2026-09-30); RetLab must pick
+    """The pack flies ED's Iskander, 75-400 km (DM call 2026-09-30); RetLab must pick
     targets inside that band or DCS refuses the shot."""
-    assert launcher.threat_range == 900000
-    assert irad.MISSILE_MIN_RANGE_M[launcher.id] == 150000
+    assert launcher.threat_range == 400000
+    assert irad.MISSILE_MIN_RANGE_M[launcher.id] == 75000
