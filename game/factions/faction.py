@@ -950,8 +950,6 @@ class Faction:
             self.remove_vehicle("IRAD_Bavar373_STR")
             self.remove_vehicle("IRAD_Bavar373_CP")
             self.remove_vehicle("IRAD_Bavar373_LN")
-            self.remove_vehicle("IRAD_Bavar373_LN_4B")
-            self.remove_vehicle("IRAD_Bavar373_TELAR")
             self.remove_vehicle("IRAD_MatlaUlFajr_EWR")
             self.remove_vehicle("IRAD_Rasool_Comms")
             self.remove_vehicle("IRAD_Sejjil_TEL")
@@ -961,8 +959,6 @@ class Faction:
             self.remove_vehicle("IRAD_Shahed238_TEL")
             self.remove_preset("3rd Khordad")
             self.remove_preset("Bavar-373")
-            self.remove_preset("Bavar-373 (Sayyad-4B)")
-            self.remove_preset("Bavar-373-II")
         # Russian Military Assets Pack
         if not mod_settings.russianmilitaryassetspack:
             self.remove_vehicle("CH_2S35")

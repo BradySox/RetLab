@@ -386,6 +386,15 @@ class MigrationUnpickler(pickle.Unpickler):
                 "KHEIBAR_TEL_Launcher": irad.IRAD_Kheibar_TEL,
             }.get(name)
 
+        if module == "pydcs_extensions.iranairdefensepack.iranairdefensepack" and name in (
+            "IRAD_Bavar373_LN_4B",
+            "IRAD_Bavar373_TELAR",
+        ):
+            # One Bavar-373 launcher since 2026-09-30 (DM call).
+            from pydcs_extensions.iranairdefensepack import iranairdefensepack as irad
+
+            return irad.IRAD_Bavar373_LN
+
         if module == "pydcs_extensions.f4b.f4b":
             return pydcs_extensions.f4
 

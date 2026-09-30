@@ -32,7 +32,6 @@ groups:
       unit_count:
         - 3
       unit_types:
-        - IRAD_Bavar373_LN_4B
         - IRAD_Bavar373_LN
     # RetLab: the battery support section -- the S-300 template's groups (§85),
     # the same Soviet kit whitelist as the S-300 family.

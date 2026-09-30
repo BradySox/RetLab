@@ -114,7 +114,7 @@ What the three Iranian factions (`iran_1988`, `iran_2015`, `CH_iran_2020`) can f
 | 2K12 Kub | `SA-6` | 2015, 2020 | Good |
 | Tor-M1 | `SA-15 Tor` (SHORAD unit) | 2015, 2020 | Good |
 | S-300PMU2 | `SA-20B/S-300PMU-2` (High Digit SAMs) exists | none | Gap: C counts four battalions |
-| Bavar-373, -II | `Bavar-373`, `Bavar-373-II` (RetLab pack) | 2020 | Good |
+| Bavar-373 | `Bavar-373` (RetLab pack; one variant since 2026-09-30) | 2020 | Good |
 | 3rd Khordad | `3rd Khordad` (RetLab pack) | 2015, 2020 | Good |
 | Raad-1 / Raad-2 / Tabas | `SA-11`, `SA-17` are the nearest stand-ins (Buk-type) | 2015, 2020 | Iran fields no Buk; keep them only as that stand-in |
 | Talash, Sayyad, Khordad-15 | none | — | No DCS model |

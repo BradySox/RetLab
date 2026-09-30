@@ -1,0 +1,1 @@
+* **[Mods]** RetLab Iran Air Defense Pack: one Bavar-373, the TEL firing the Sayyad-4B. A Sayyad-4 site locked a target at 22 NM and never fired. The Sayyad-4, the Sayyad-4B TEL and the Bavar-373-II are gone; an old save's sites load with the TEL.
