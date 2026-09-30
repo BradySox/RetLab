@@ -80,3 +80,13 @@ def test_force_red_still_honored_for_non_ewr() -> None:
     _generator(_armor_tgo()).set_alarm_state(group, force_red=True)
 
     assert group.points[0].tasks[0].value == 2  # RED
+
+
+def test_bavar_launchers_spawn_on_red_alarm() -> None:
+    """Left on AUTO under Skynet the Bavar-373 TELs never raised (tests 48-49)."""
+    from pydcs_extensions.iranairdefensepack.iranairdefensepack import (
+        ALARM_RED_AT_SPAWN,
+        IRAD_Bavar373_LN,
+    )
+
+    assert IRAD_Bavar373_LN.id in ALARM_RED_AT_SPAWN

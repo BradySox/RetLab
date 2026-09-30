@@ -8639,6 +8639,9 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   RetLab and Skynet are cleared. DM call the same day: one Bavar-373, the TEL firing the Sayyad-4B
   (the missile that fired in tests 42-46); the Sayyad-4, the 4B TEL and the Bavar-373-II TELAR
   were removed. Unflown.
+- **Test 49 (2026-09-30):** after the one-launcher change the TELs still lay in travel all
+  mission. In the Mission Editor, set to red alert at spawn, they raised. RetLab now spawns a
+  Bavar-373 site on red alert (`ALARM_RED_AT_SPAWN`); Skynet still keeps its radars off. Unflown.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
   the Sayyad-4B's numbers in the pack's `Database/irad_missiles.lua`, not the site.
 

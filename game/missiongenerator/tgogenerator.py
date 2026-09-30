@@ -96,7 +96,10 @@ from game.theater.theatergroundobject import (
 from game.theater.theatergroup import SceneryUnit, IadsGroundGroup
 from game.flightplan.carriercruisesolver import solve_carrier_cruise
 from game.unitmap import UnitMap
-from pydcs_extensions.iranairdefensepack.iranairdefensepack import MISSILE_MIN_RANGE_M
+from pydcs_extensions.iranairdefensepack.iranairdefensepack import (
+    ALARM_RED_AT_SPAWN,
+    MISSILE_MIN_RANGE_M,
+)
 from game.utils import Heading, feet, knots, mps, nautical_miles, pairwise
 
 if TYPE_CHECKING:
@@ -477,7 +480,10 @@ class GroundObjectGenerator:
                 self.enable_eplrs(vehicle_group, unit.type)
                 self.enable_ewr(vehicle_group)
                 vehicle_group.units[0].name = unit.unit_name
-                self.set_alarm_state(vehicle_group)
+                self.set_alarm_state(
+                    vehicle_group,
+                    force_red=any(u.type.id in ALARM_RED_AT_SPAWN for u in units),
+                )
                 self.set_coastal_engagement(vehicle_group)
                 GroundForcePainter(faction, vehicle_group.units[0]).apply_livery()
             else:

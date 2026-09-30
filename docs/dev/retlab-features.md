@@ -11014,6 +11014,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   Sayyad-4B, since 2026-09-30 (DM call): a Sayyad-4 site locked a Hornet at 22 NM and never fired,
   and the 4B fired in tests 42-46. The Sayyad-4, the Sayyad-4B TEL and the Bavar-373-II TELAR
   were removed; an old save loads them as the TEL (`persistency._handle_misc`).
+- A Bavar-373 site spawns on red alert (`ALARM_RED_AT_SPAWN`, 2026-09-30): left on AUTO under
+  Skynet its TELs never raised (tests 48-49). Skynet still owns its radar emissions.
 - Factions by era (2026-09-29): `Iran 2015` fields 3rd Khordad; `[CH] Iran 2020` adds
   `Bavar-373`; `[CH] Iran 2025` adds the 2023 missiles. Faction files are not date-gated, so the era lives in which faction a campaign picks.
 - `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60

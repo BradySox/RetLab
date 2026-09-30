@@ -166,3 +166,8 @@ MISSILE_MIN_RANGE_M: dict[str, int] = {
     IRAD_Kheibar_TEL.id: BALLISTIC_MIN_RANGE_M,
     IRAD_Fattah2_TEL.id: BALLISTIC_MIN_RANGE_M,
 }
+
+
+#: Launchers a site spawns with on red alert. Under Skynet on AUTO the Bavar-373 TELs never
+#: raised (tests 48-49); set red in the Mission Editor they did.
+ALARM_RED_AT_SPAWN: set[str] = {IRAD_Bavar373_LN.id}
