@@ -128,7 +128,10 @@ class IRAD_Rasool_Comms(unittype.VehicleType):
 
 
 # Surface-to-surface launchers: missile sites pick a target inside threat_range,
-# the mod's own GT.ThreatRange.
+# the mod's own GT.ThreatRange. The four ballistic missiles fly ED's ballistic model with
+# motors sized for 150-900 km (DM call 2026-09-30), not their published ranges.
+BALLISTIC_MIN_RANGE_M = 150000
+BALLISTIC_MAX_RANGE_M = 900000
 
 
 @vehiclemod
@@ -136,7 +139,7 @@ class IRAD_Sejjil_TEL(unittype.VehicleType):
     id = "IRAD_Sejjil_TEL"
     name = "[IRAD] Sejjil-2 TEL"
     detection_range = 0
-    threat_range = 2000000
+    threat_range = BALLISTIC_MAX_RANGE_M
     air_weapon_dist = 0
 
 
@@ -145,7 +148,7 @@ class IRAD_Emad_TEL(unittype.VehicleType):
     id = "IRAD_Emad_TEL"
     name = "[IRAD] Emad TEL"
     detection_range = 0
-    threat_range = 1700000
+    threat_range = BALLISTIC_MAX_RANGE_M
     air_weapon_dist = 0
 
 
@@ -154,7 +157,7 @@ class IRAD_Kheibar_TEL(unittype.VehicleType):
     id = "IRAD_Kheibar_TEL"
     name = "[IRAD] Kheibar (Khorramshahr-4) TEL"
     detection_range = 0
-    threat_range = 2000000
+    threat_range = BALLISTIC_MAX_RANGE_M
     air_weapon_dist = 0
 
 
@@ -163,7 +166,7 @@ class IRAD_Fattah2_TEL(unittype.VehicleType):
     id = "IRAD_Fattah2_TEL"
     name = "[IRAD] Fattah-2 TEL"
     detection_range = 0
-    threat_range = 1400000
+    threat_range = BALLISTIC_MAX_RANGE_M
     air_weapon_dist = 0
 
 
@@ -174,3 +177,12 @@ class IRAD_Shahed238_TEL(unittype.VehicleType):
     detection_range = 0
     threat_range = 1000000
     air_weapon_dist = 0
+
+
+#: The closest a missile site of these types may fire; the mod's launchers refuse nearer.
+MISSILE_MIN_RANGE_M: dict[str, int] = {
+    IRAD_Sejjil_TEL.id: BALLISTIC_MIN_RANGE_M,
+    IRAD_Emad_TEL.id: BALLISTIC_MIN_RANGE_M,
+    IRAD_Kheibar_TEL.id: BALLISTIC_MIN_RANGE_M,
+    IRAD_Fattah2_TEL.id: BALLISTIC_MIN_RANGE_M,
+}

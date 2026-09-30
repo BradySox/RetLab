@@ -13,6 +13,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from dcs.unittype import VehicleType
+
 from game import persistency
 from game.dcs.groundunittype import GroundUnitType
 from game.factions.faction import Faction
@@ -133,3 +135,21 @@ def test_an_old_save_loads_the_pack_launcher(old_class: str, new_class: type) ->
 )
 def test_an_old_variant_name_resolves_to_the_pack(old_name: str, new_id: str) -> None:
     assert GroundUnitType.named(old_name).dcs_unit_type.id == new_id
+
+
+BALLISTIC = [
+    irad.IRAD_Sejjil_TEL,
+    irad.IRAD_Emad_TEL,
+    irad.IRAD_Kheibar_TEL,
+    irad.IRAD_Fattah2_TEL,
+]
+
+
+@pytest.mark.parametrize("launcher", BALLISTIC)
+def test_a_ballistic_launcher_fires_only_inside_its_motor(
+    launcher: type[VehicleType],
+) -> None:
+    """The pack sizes each motor for 150-900 km (DM call 2026-09-30); RetLab must pick
+    targets inside that band or DCS refuses the shot."""
+    assert launcher.threat_range == 900000
+    assert irad.MISSILE_MIN_RANGE_M[launcher.id] == 150000

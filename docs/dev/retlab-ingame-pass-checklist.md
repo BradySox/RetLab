@@ -8913,6 +8913,16 @@ Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own
   `dcs.log` names it); `Couldn't setup missile site to fire` in the Retribution log (no blue base
   inside the launcher's range); a launcher that erects and never fires, or a missile that falls
   far short (the pack's `Database/irad_ssm.lua`, not RetLab).
+- **Test 48 (2026-09-30, Tacview):** 20 Emad and 24 Sejjil-2 fired, 108-452 NM. Each peaked at
+  ~6,000 kt within 30 s, topped out at 104,000-172,000 ft and glided in at ~5° (DCS's old
+  missile model), and every shape flew 90° sideways. Fixed in the pack the same day: shapes
+  exported nose-forward, and the four ballistic missiles moved to ED's ballistic model with
+  motors sized for 150-900 km (DM call). RetLab now fires them only at fields 81-486 NM away.
+  Unflown.
+- **Pass (from 2026-09-30):** a steep climb, a lofted arc, a steep dive onto the field; flight
+  time 9-11 min. **Fail signatures:** a shot that still flies flat (the scheme did not load:
+  `dcs.log` near the weapon name), or lands long or short (the pack's `LOFT_PITCH` and
+  `LOFT_FTIME` tables).
 ### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and
