@@ -80,27 +80,7 @@ class IRAD_Bavar373_CP(unittype.VehicleType):
 @vehiclemod
 class IRAD_Bavar373_LN(unittype.VehicleType):
     id = "IRAD_Bavar373_LN"
-    name = "[IRAD] Bavar-373 TEL (Sayyad-4)"
-    detection_range = 0
-    threat_range = 150000
-    air_weapon_dist = 150000
-    eplrs = True
-
-
-@vehiclemod
-class IRAD_Bavar373_LN_4B(unittype.VehicleType):
-    id = "IRAD_Bavar373_LN_4B"
-    name = "[IRAD] Bavar-373 TEL (Sayyad-4B)"
-    detection_range = 0
-    threat_range = 160000
-    air_weapon_dist = 160000
-    eplrs = True
-
-
-@vehiclemod
-class IRAD_Bavar373_TELAR(unittype.VehicleType):
-    id = "IRAD_Bavar373_TELAR"
-    name = "[IRAD] Bavar-373-II TELAR"
+    name = "[IRAD] Bavar-373 TEL"
     detection_range = 0
     threat_range = 160000
     air_weapon_dist = 160000

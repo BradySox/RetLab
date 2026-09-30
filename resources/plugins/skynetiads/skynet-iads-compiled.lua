@@ -1687,10 +1687,6 @@ samTypesDB['Bavar-373'] = {
 	['launchers'] = {
 		['IRAD_Bavar373_LN'] = {
 		},
-		['IRAD_Bavar373_LN_4B'] = {
-		},
-		['IRAD_Bavar373_TELAR'] = {
-		},
 	},
 	['name']  = {
 		['NATO'] = 'Bavar-373'

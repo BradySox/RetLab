@@ -11005,21 +11005,21 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 `docs/dev/design/retlab-iran-air-defense-pack-HANDOFF.md`. Built 2026-09-25; flown in tests
 41-46 (row B148).
 
-- `pydcs_extensions/iranairdefensepack/`: seventeen `IRAD_` vehicle types, the twelve
+- `pydcs_extensions/iranairdefensepack/`: fifteen `IRAD_` vehicle types, the ten
   air-defense units and five surface-to-surface launchers. Their ids are the contract with the
   mod's `Database` lua.
 - Gated by the `iranairdefensepack` ModSettings toggle (the Mods page, Air defense group).
-  `Faction.apply_mod_settings` strips all twelve and the three presets when it is off.
-- Presets `3rd Khordad` (MERAD), `Bavar-373` (Sayyad-4 only), `Bavar-373 (Sayyad-4B)` and
-  `Bavar-373-II` (LORAD).
+  `Faction.apply_mod_settings` strips all fifteen and the two presets when it is off.
+- Presets `3rd Khordad` (MERAD) and `Bavar-373` (LORAD). One Bavar-373 launcher, the TEL firing the
+  Sayyad-4B, since 2026-09-30 (DM call): a Sayyad-4 site locked a Hornet at 22 NM and never fired,
+  and the 4B fired in tests 42-46. The Sayyad-4, the Sayyad-4B TEL and the Bavar-373-II TELAR
+  were removed; an old save loads them as the TEL (`persistency._handle_misc`).
 - Factions by era (2026-09-29): `Iran 2015` fields 3rd Khordad; `[CH] Iran 2020` adds
-  `Bavar-373`; `[CH] Iran 2025` adds `Bavar-373 (Sayyad-4B)` (shown 2022) and `Bavar-373-II`
-  (2025). Faction files are not date-gated, so the era lives in which faction a campaign picks.
-- `Bavar-373-II Battery (Single Radar)`: six TELARs and one STR. The TELARs' mast radars are
-  decorative (DM call 2026-09-27): the STR guides every TELAR, as on an S-300 site.
+  `Bavar-373`; `[CH] Iran 2025` adds the 2023 missiles. Faction files are not date-gated, so the era lives in which faction a campaign picks.
 - `3rd Khordad Battery`: `6_Launcher_Circle.miz`, 2 TELARs in the Track Radar slot (the §60
   pair, and never zero), 4 radar-less TELs.
-- `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, with the §85 support section.
+- `Bavar-373 Battery`: `S-300_Site.miz` on the HQ-22 pattern, six TELs and one STR, with the §85
+  support section.
 - Skynet: `samTypesDB['3rd Khordad']` and `samTypesDB['Bavar-373']`; the Bavar-373 CP is
   `required`, as the S-300's is. `['Matla ul-Fajr']` is an `ewr` entry.
 - `IRAD_MatlaUlFajr_EWR` and `IRAD_Rasool_Comms` join the Iran factions' air-defense units. The
@@ -11053,7 +11053,7 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
 - The DCS mod and its 3D models are a separate pack, like HDS and CurrentHill, in the
   private repo `BradySox/RetLab-Iran-Air-Defense` (DM call 2026-09-25; not public yet). All
   eleven models are built there by script, baked in Blender 5.1 and exported, each with
-  its own wreck; the Taer-2B, Sayyad-4 and Sayyad-4B are defined at the §3 numbers.
+  its own wreck; the Taer-2B and Sayyad-4B are defined at the §3 numbers.
   This repo carries only the Retribution side.
 
 In-game row **B148**.

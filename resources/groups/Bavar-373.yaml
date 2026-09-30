@@ -6,7 +6,7 @@ units:
   - "[IRAD] Bavar-373 Hafez AR"
   - "[IRAD] Bavar-373 STR"
   - "[IRAD] Bavar-373 CP"
-  - "[IRAD] Bavar-373 TEL (Sayyad-4)"
+  - "[IRAD] Bavar-373 TEL"
   # RetLab: battery support section
   - Truck GAZ-66
   - Truck Ural-375

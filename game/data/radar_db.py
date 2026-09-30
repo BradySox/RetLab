@@ -156,8 +156,6 @@ LAUNCHER_TRACKER_PAIRS = {
     cmap.CH_HQ22_LN: (cmap.CH_HQ22_STR,),
     irad.IRAD_AlamAlHoda_TEL: (irad.IRAD_3Khordad_TELAR,),
     irad.IRAD_Bavar373_LN: (irad.IRAD_Bavar373_STR,),
-    irad.IRAD_Bavar373_LN_4B: (irad.IRAD_Bavar373_STR,),
-    irad.IRAD_Bavar373_TELAR: (irad.IRAD_Bavar373_STR,),
     rmap.CH_BukM3_9A317M: (rmap.CH_BukM3_9S36M,),
     rmap.CH_BukM3_9A317MA: (rmap.CH_BukM3_9S36M,),
     rmap.CH_S350_50P6_9M96D: (rmap.CH_S350_50N6,),

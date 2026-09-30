@@ -234,6 +234,10 @@ class GroundUnitType(UnitType[Type[VehicleType]]):
             "Fattah-2 HGV TEL [PG IR]": "[IRAD] Fattah-2 TEL",
             "Shahed 238 LM [PG AD]": "[IRAD] Shahed 238 launcher",
             "Kheibar (Khorramshahr-4) TEL": "[IRAD] Kheibar (Khorramshahr-4) TEL",
+            # One Bavar-373 launcher since 2026-09-30 (DM call).
+            "[IRAD] Bavar-373 TEL (Sayyad-4)": "[IRAD] Bavar-373 TEL",
+            "[IRAD] Bavar-373 TEL (Sayyad-4B)": "[IRAD] Bavar-373 TEL",
+            "[IRAD] Bavar-373-II TELAR": "[IRAD] Bavar-373 TEL",
         }
 
     @classmethod

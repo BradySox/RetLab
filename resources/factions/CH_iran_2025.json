@@ -2,7 +2,7 @@
   "country": "Iran",
   "name": "[CH] Iran 2025",
   "authors": "Codex",
-  "description": "<p>Iran from 2025, using the CurrentHill Iran Assets Pack: the Bavar-373-II, the Sayyad-4B and the 2023 missiles (Fattah-2, Kheibar, Shahed 238).</p>",
+  "description": "<p>Iran from 2025, using the CurrentHill Iran Assets Pack: the 2023 missiles (Fattah-2, Kheibar, Shahed 238).</p>",
   "locales": [
     "fa_IR"
   ],
@@ -79,8 +79,6 @@
     "SA-17",
     "3rd Khordad",
     "Bavar-373",
-    "Bavar-373 (Sayyad-4B)",
-    "Bavar-373-II",
     "KS-19/SON-9",
     "Silkworm"
   ],

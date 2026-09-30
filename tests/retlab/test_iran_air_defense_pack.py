@@ -9,6 +9,7 @@ presets reach only era-correct factions, and Skynet knows every radar.
 from __future__ import annotations
 
 import dataclasses
+import io
 import json
 from pathlib import Path
 
@@ -16,6 +17,7 @@ import pytest
 from dcs.unittype import VehicleType
 
 from game import persistency
+from game.dcs.groundunittype import GroundUnitType
 from game.factions.faction import Faction
 from game.data.radar_db import LAUNCHER_TRACKER_PAIRS, TELARS, UNITS_WITH_RADAR
 from game.layout import LAYOUTS
@@ -69,8 +71,8 @@ SSM_IDS = {
 }
 
 
-def test_the_contract_has_seventeen_units() -> None:
-    assert len(IRAD_IDS) == 17
+def test_the_contract_has_fifteen_units() -> None:
+    assert len(IRAD_IDS) == 15
     assert SSM_IDS <= IRAD_IDS
 
 
@@ -82,25 +84,17 @@ def test_every_unit_has_unit_data(unit_id: str) -> None:
 def test_iran_2025_fields_every_unit() -> None:
     faction = _load("CH_iran_2025.json", pack=True)
     presets = {group.name for group in faction.preset_groups}
-    assert {
-        "3rd Khordad",
-        "Bavar-373",
-        "Bavar-373 (Sayyad-4B)",
-        "Bavar-373-II",
-    } <= presets
+    assert {"3rd Khordad", "Bavar-373"} <= presets
     assert _irad_units(faction) == IRAD_IDS
 
 
 def test_iran_2020_fields_nothing_from_after_2021() -> None:
-    """The Sayyad-4B was shown in 2022, the Bavar-373-II in 2025 and the Fattah-2,
-    Kheibar and Shahed 238 in 2023: those are [CH] Iran 2025's."""
+    """The Fattah-2, Kheibar and Shahed 238 were shown in 2023: those are [CH] Iran
+    2025's."""
     faction = _load("CH_iran_2020.json", pack=True)
     presets = {group.name for group in faction.preset_groups}
     assert {"3rd Khordad", "Bavar-373"} <= presets
-    assert not presets & {"Bavar-373 (Sayyad-4B)", "Bavar-373-II"}
     later = {
-        "IRAD_Bavar373_LN_4B",
-        "IRAD_Bavar373_TELAR",
         "IRAD_Fattah2_TEL",
         "IRAD_Kheibar_TEL",
         "IRAD_Shahed238_TEL",
@@ -114,7 +108,6 @@ def test_iran_2015_gets_3rd_khordad_only() -> None:
     presets = {group.name for group in faction.preset_groups}
     assert "3rd Khordad" in presets
     assert "Bavar-373" not in presets
-    assert "Bavar-373-II" not in presets
     assert not any(
         "Bavar" in unit or "Meraj" in unit or "Hafez" in unit
         for unit in _irad_units(faction)
@@ -146,21 +139,35 @@ def test_skynet_knows_every_unit() -> None:
     assert missing == []
 
 
-def test_bavar_ii_launchers_are_the_telars() -> None:
-    """Every Bavar-373-II launcher slot is a TELAR, all guided by the one STR."""
-    layout = LAYOUTS.by_name("Bavar-373-II Battery (Single Radar)")
+def test_one_bavar_launcher_the_str_guides() -> None:
+    """One Bavar-373 launcher since 2026-09-30 (DM call): the TEL, in every launcher slot,
+    guided by the STR."""
+    layout = LAYOUTS.by_name("Bavar-373 Battery")
     groups = {ug.name: ug for ug in layout.all_unit_groups}
     for slot in ("S-300 Site LN1", "S-300 Site LN2"):
-        assert groups[slot].unit_types == [irad.IRAD_Bavar373_TELAR]
-    assert groups["S-300 Site TR"].unit_count == [1]
+        assert groups[slot].unit_types == [irad.IRAD_Bavar373_LN]
+    assert LAUNCHER_TRACKER_PAIRS[irad.IRAD_Bavar373_LN] == (irad.IRAD_Bavar373_STR,)
 
 
-def test_bavar_ii_telar_is_a_launcher_the_str_guides() -> None:
-    """The TELAR's mast radar is decorative in the mod (DM call 2026-09-27), so its
-    threat ring lives and dies with the STR, as the Bavar-373 TEL's does."""
-    assert irad.IRAD_Bavar373_TELAR not in TELARS
-    assert irad.IRAD_Bavar373_TELAR not in UNITS_WITH_RADAR
-    assert LAUNCHER_TRACKER_PAIRS[irad.IRAD_Bavar373_TELAR] == (irad.IRAD_Bavar373_STR,)
+@pytest.mark.parametrize("old_class", ["IRAD_Bavar373_LN_4B", "IRAD_Bavar373_TELAR"])
+def test_an_old_save_loads_the_one_bavar_launcher(old_class: str) -> None:
+    unpickler = persistency.MigrationUnpickler(io.BytesIO(b""))
+    found = unpickler.find_class(
+        "pydcs_extensions.iranairdefensepack.iranairdefensepack", old_class
+    )
+    assert found is irad.IRAD_Bavar373_LN
+
+
+@pytest.mark.parametrize(
+    "old_name",
+    [
+        "[IRAD] Bavar-373 TEL (Sayyad-4)",
+        "[IRAD] Bavar-373 TEL (Sayyad-4B)",
+        "[IRAD] Bavar-373-II TELAR",
+    ],
+)
+def test_an_old_bavar_name_resolves_to_the_tel(old_name: str) -> None:
+    assert GroundUnitType.named(old_name).dcs_unit_type is irad.IRAD_Bavar373_LN
 
 
 @pytest.mark.parametrize(

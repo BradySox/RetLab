@@ -29,9 +29,7 @@ values in meters because pydcs requires it.
 | `IRAD_Hafez_SR` | `[IRAD] Bavar-373 Hafez AR` | SearchRadar | 108 NM | — |
 | `IRAD_Bavar373_STR` | `[IRAD] Bavar-373 STR` | TrackRadar | 108 NM | — |
 | `IRAD_Bavar373_CP` | `[IRAD] Bavar-373 CP` | CommandPost | — | — |
-| `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL (Sayyad-4)` | Launcher | — | 81 NM |
-| `IRAD_Bavar373_LN_4B` | `[IRAD] Bavar-373 TEL (Sayyad-4B)` | Launcher | — | 86 NM |
-| `IRAD_Bavar373_TELAR` | `[IRAD] Bavar-373-II TELAR` | Launcher | — | 86 NM |
+| `IRAD_Bavar373_LN` | `[IRAD] Bavar-373 TEL` | Launcher | — | 86 NM |
 | `IRAD_MatlaUlFajr_EWR` | `[IRAD] Matla ul-Fajr EWR` | EarlyWarningRadar | 135 NM | — |
 | `IRAD_Rasool_Comms` | `[IRAD] Rasool Comms Shelter` | CommandPost | — | — |
 | `IRAD_Sejjil_TEL` | `[IRAD] Sejjil-2 TEL` | Missile | — | 486 NM (81 NM minimum) |
@@ -39,6 +37,11 @@ values in meters because pydcs requires it.
 | `IRAD_Kheibar_TEL` | `[IRAD] Kheibar (Khorramshahr-4) TEL` | Missile | — | 486 NM (81 NM minimum) |
 | `IRAD_Fattah2_TEL` | `[IRAD] Fattah-2 TEL` | Missile | — | 486 NM (81 NM minimum) |
 | `IRAD_Shahed238_TEL` | `[IRAD] Shahed 238 launcher` | Missile | — | 540 NM |
+
+**One Bavar-373 launcher since 2026-09-30 (DM call):** the TEL, firing the Sayyad-4B. In the
+debug run of test 48 a Sayyad-4 site was live, weapons free, its STR locked on a Hornet from 56 NM
+to 22 NM, and it never fired; the 4B fired in tests 42-46. The Sayyad-4, the Sayyad-4B TEL and the
+Bavar-373-II TELAR were removed from the pack and here. The history below keeps their names.
 
 The five launchers were added to the pack 2026-09-28 and to RetLab 2026-09-29, replacing the
 third-party ones (`retlab-iran-iads-deployment-notes.md` §6). Row B166 owns their flight.
@@ -67,8 +70,8 @@ CurrentHill's.
 | New Game toggle `iranairdefensepack` | `game/theater/start_generator.py`, `qt_ui/windows/newgame/` |
 | Strip when off | `game/factions/faction.py` |
 | Unit data | `resources/units/ground_units/IRAD_*.yaml` |
-| Presets | `resources/groups/3rd_Khordad.yaml`, `Bavar-373.yaml`, `Bavar-373-II.yaml` |
-| Layouts | `resources/layouts/anti_air/3rd_Khordad_Battery.yaml`, `Bavar-373_Battery.yaml`, `Bavar-373-II_Battery_Single_Radar.yaml` |
+| Presets | `resources/groups/3rd_Khordad.yaml`, `Bavar-373.yaml` |
+| Layouts | `resources/layouts/anti_air/3rd_Khordad_Battery.yaml`, `Bavar-373_Battery.yaml` |
 | Radar db | `game/data/radar_db.py` |
 | Skynet | `samTypesDB['3rd Khordad']`, `samTypesDB['Bavar-373']` in `skynet-iads-compiled.lua` |
 | Factions | `Iran 2015`: 3rd Khordad. `[CH] Iran 2020`: + Bavar-373 (Sayyad-4 only; 2019). `[CH] Iran 2025`: + Bavar-373 (Sayyad-4B) (2022) and Bavar-373-II (2025) |
