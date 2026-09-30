@@ -108,10 +108,10 @@ class IRAD_Rasool_Comms(unittype.VehicleType):
 
 
 # Surface-to-surface launchers: missile sites pick a target inside threat_range,
-# the mod's own GT.ThreatRange. The four ballistic missiles fly ED's ballistic model with
-# motors sized for 150-900 km (DM call 2026-09-30), not their published ranges.
-BALLISTIC_MIN_RANGE_M = 150000
-BALLISTIC_MAX_RANGE_M = 900000
+# the mod's own GT.ThreatRange. The four ballistic missiles fly ED's Iskander
+# flight path, 75-400 km (DM call 2026-09-30), not their published ranges.
+BALLISTIC_MIN_RANGE_M = 75000
+BALLISTIC_MAX_RANGE_M = 400000
 
 
 @vehiclemod

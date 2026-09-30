@@ -11033,8 +11033,8 @@ side is built; the mod is built on the DM's machine. Design, the unit contract a
   the third-party launchers and their `iranmissilemods` toggle on 2026-09-29 (DM call
   2026-09-27: support them, build our own, drop them); a saved setting of that name is
   ignored. Scenic Route Merged and both Noisy Crickets preseed the pack. Row B166.
-  The four ballistic missiles fly ED's ballistic model with motors sized for 150-900 km (DM
-  call 2026-09-30); a missile site fires only at a field inside that band.
+  The four ballistic missiles fly ED's 9M723 Iskander exactly, 75-400 km (DM call
+  2026-09-30); a missile site fires only at a field 40-216 NM away.
   Deployment research for laying Iran out in a campaign:
   `docs/dev/design/retlab-iran-iads-deployment-notes.md`.
 
