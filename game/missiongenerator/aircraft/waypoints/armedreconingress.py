@@ -6,8 +6,11 @@ from dcs.task import (
     EngageTargetsInZone,
 )
 
+from game.theater.theatergroundobject import MotorpoolGroundObject
 from game.utils import nautical_miles
 from .pydcswaypointbuilder import PydcsWaypointBuilder
+
+_MOTORPOOL_ENGAGEMENT_RADIUS_M = 106
 
 
 class ArmedReconIngressBuilder(PydcsWaypointBuilder):
@@ -26,10 +29,13 @@ class ArmedReconIngressBuilder(PydcsWaypointBuilder):
             target.position
             for target in getattr(flight_plan.layout, "targets", []) or []
         ] or [flight_plan.tot_waypoint.position]
-        # The plan widens the zone past the doctrine range when the standoff has
-        # pushed the search point out to the rim (armedrecon.search_zone_radius).
+        # A motorpool is one parked vehicle grid: a tight zone keeps the flight on it.
+        # Otherwise the plan widens the zone past the doctrine range when the standoff
+        # has pushed the search point out to the rim (armedrecon.search_zone_radius).
         zone_radius = getattr(flight_plan, "search_zone_radius", None)
-        if zone_radius is not None:
+        if isinstance(self.flight.package.target, MotorpoolGroundObject):
+            radius = _MOTORPOOL_ENGAGEMENT_RADIUS_M
+        elif zone_radius is not None:
             radius = int(zone_radius().meters)
         else:
             radius = int(
