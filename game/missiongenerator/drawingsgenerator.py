@@ -239,11 +239,13 @@ class DrawingsGenerator:
             box = self._box_corners(flight)
             if box is not None:
                 outline = ShapelyPolygon([(p.x, p.y) for p in box]).buffer(radius)
+                # DCS does not close a free polygon's outline, so the ring keeps
+                # its repeated first point; dropping it left a gap in the box.
                 shape = self.player_layer.add_freeform_polygon(
                     start,
                     [
                         start.new_in_same_map(x - start.x, y - start.y)
-                        for x, y in list(outline.exterior.coords)[:-1]
+                        for x, y in outline.exterior.coords
                     ],
                     line_thickness=4,
                     color=line,
