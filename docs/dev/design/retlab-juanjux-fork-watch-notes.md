@@ -627,6 +627,12 @@ SAM and loaned squadrons bypass §68 procurement. Re-assess once his stack has m
 and he has flown it. The objective half alone (rated targets, no prizes) sits nearer
 §93 region priorities, if it is ever scoped.
 
+### Adopted here 2026-10-06 — Loadout training filter (§73)
+
+#504 and #505 taken: the Loadout editor hides training and non-combat stores until
+asked. His `WP` / `Wht Phos` rocket pattern was not taken (DM call): the §38 FAC(A)
+uses white phosphorus rockets, and `M156` is exempted with them.
+
 ## Sweep 2026-10-06 — four fixes adopted
 
 Each was checked live in RetLab main @ `01a0b3a4d` before it was ported.

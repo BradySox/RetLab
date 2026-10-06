@@ -6104,6 +6104,24 @@ population is ephemeral (rebuilt each mission-gen), so **no save migration is ne
 generated mission simply parks them in the new spot. Checklist B8 still owns the in-game pass and
 should now also confirm the garage lands on its authored marker.
 
+### Upstream drift sync (2026-10-06) — the #926 split
+
+Geoff split his closed [#926](https://github.com/dcs-retribution/dcs-retribution/pull/926) into
+five PRs, all open upstream, none merged. The fork adopts them one RetLab PR at a time, his
+commits cherry-picked with him as author. **They are open PRs: re-sync if he changes them.**
+
+- **[#960](https://github.com/dcs-retribution/dcs-retribution/pull/960) re-homing.**
+  `MotorpoolPopulator._rehome_motorpools` attaches every depot to the nearest land control
+  point (FARPs and FOBs included; carriers, LHAs and off-map points never), on every load and
+  on every `ControlPoint.capture`. A depot used to stay with whoever owned it at New Game.
+  Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
+  marker left the campaign and de-duplicates a save that listed one twice. Generated groups
+  are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
+  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` (which still binds through
+    the loader's blue-preference and stranded-marker rules) and overrides that owner with
+    the nearest land CP. The loader's binding still decides which side's warning fires.
+  - Row B180.
+
 ---
 
 ## §57 — Air-droppable minefields (convoy interdiction) — REMOVED (2026-09-07)
@@ -7481,6 +7499,33 @@ teeth:
 
 **Deliberately not touched:** the `TACAN Channel Presel` typo is pydcs mirroring the
 DCS module data (`planes.py`, alongside `ILS Channel Presel`) — not ours to patch.
+
+### Training and non-combat stores hidden by default (2026-10-06)
+
+Ported from juanjux/dcs-escalation #504 and #505. The Loadout editor has a
+**Show training and non-combat stores** checkbox, unticked by default and not saved.
+Unticked, each pylon's dropdown leaves out what `Weapon.is_training_or_non_combat`
+(`game/data/weapons.py`) flags:
+
+- names or CLSIDs with training, practice, captive, inert, dummy, smoke, illumination,
+  ACMI/TCTS, CATM, TGM, Trg, BDU, LGTR, LUU, SAB or travel pod;
+- rockets marked SM, IL or TP (smoke, illumination, target practice), and the Hydra
+  70 Mk 1 practice round, which pydcs labels "Mk 1 HE". The SM/IL/TP rule only applies
+  to rocket stores: TP is also the live Mk-84 AIR's chute, and SM is in missile names.
+
+**White phosphorus is never hidden (DM call).** His #505 filtered `WP` and `Wht Phos`;
+we do not, because the §38 FAC(A) marks with WP rockets. pydcs names the M156 WP round
+"M156 SM", so `M156` is exempt as well. Coloured smoke marker rockets (S-8TsM, SNEB
+Type 254) are still hidden.
+
+The store already fitted on a pylon is always listed, so a preset or saved loadout with
+a hidden store shows it; it drops out of the list once replaced. Rebuilding the list
+blocks the combo's signals, so toggling the filter never writes the loadout or clears
+pylon settings. Classified by name, not weapon group: captive and live missiles share
+groups.
+
+Tests: `tests/test_loadout_training_filter.py`, including a scan of every pydcs store
+with WP, M156 or Wht Phos in its name. Checklist **B178**.
 
 ## §74 — Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D)
 
