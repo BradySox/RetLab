@@ -1,0 +1,10 @@
+date: 2026-10-06
+title: Motorpool depots change hands on capture
+change: >-
+  A motorpool depot belongs to the nearest land base or FARP, and moves to the
+  new owner when that base is captured. Before, a depot stayed with whoever
+  held it at the start of the campaign.
+watch: >-
+  After a base with a depot is captured, the depot marker should take the new
+  owner's color, and its parked vehicles should be the new owner's armor.
+row: B180
