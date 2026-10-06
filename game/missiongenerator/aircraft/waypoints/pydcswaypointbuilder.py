@@ -191,7 +191,7 @@ class PydcsWaypointBuilder:
             OrbitAction(altitude=waypoint.alt, speed=speed_kph, pattern=pattern)
         )
         orbit.stop_after_time(stop_time)
-        create_stop_orbit_trigger(orbit, self.package, self.mission, stop_time)
+        create_stop_orbit_trigger(orbit, self.group.id, self.mission, stop_time)
         waypoint.add_task(orbit)
 
     def set_waypoint_tot(self, waypoint: MovingPoint, tot: datetime) -> None:

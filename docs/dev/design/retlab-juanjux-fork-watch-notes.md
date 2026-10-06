@@ -633,6 +633,17 @@ and he has flown it. The objective half alone (rated targets, no prizes) sits ne
 asked. His `WP` / `Wht Phos` rocket pattern was not taken (DM call): the §38 FAC(A)
 uses white phosphorus rockets, and `M156` is exempted with them.
 
+## Sweep 2026-10-06 — four fixes adopted
+
+Each was checked live in RetLab main @ `01a0b3a4d` before it was ported.
+
+| PR | Defect | Landed here |
+|---|---|---|
+| upstream #964 | Every orbit in a package stopped at the first-generated flight's time: the StopOrbit flag was keyed on the package. | Flag keyed on the group and its stop time (his is the group alone). |
+| #452 | Rebuilding a site the IADS config never named read the config, got nothing, and left it with no grid; the defaultdict read also inserted an empty entry that blocked the #1040 repair. `update_tgo` also removed from `nodes` while iterating it. | His `.get` and range-wire rule. The old-save clean-up drops only empty entries the campaign yaml does not write, and nothing when the campaign cannot be found. |
+| #453 | Ships range-wired to power stations and comms towers ashore. | As his, plus the late-enrol repair skips ships. |
+| #501 (deck half) | A sunk carrier or LHA still took relocations, transfers and new squadrons. | `_has_usable_flight_deck` + the `can_operate` edits. The High Command half is not taken (watched, not decided). |
+
 ## Running the watch
 
 Cheap pass, a few minutes:

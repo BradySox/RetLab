@@ -248,12 +248,12 @@ class IadsNetwork:
         """Update the IADS Network for the given TGO"""
         if self.advanced_iads and IadsRole.for_category(tgo.category).is_comms_or_power:
             return self._update_iads_comms_and_power(tgo, events)
-        # Remove existing nodes for the given tgo
-        for cn in self.nodes:
-            if cn.group.ground_object == tgo:
-                self.nodes.remove(cn)
-                for cID in cn.connections:
-                    events.delete_iads_connection(cID)
+        # Remove existing nodes for the given tgo (from a copy: removing from the
+        # list being iterated skipped the node after each removal).
+        for cn in [n for n in self.nodes if n.group.ground_object == tgo]:
+            self.nodes.remove(cn)
+            for cID in cn.connections:
+                events.delete_iads_connection(cID)
 
         node = self.node_for_tgo(tgo)
         if node is None:
@@ -261,9 +261,11 @@ class IadsNetwork:
             return
         events.update_iads_node(node)
         if self.advanced_iads:
-            if self.iads_config:
+            if tgo.original_name in self.iads_config:
                 self._add_connections_from_config(node)
-            else:
+            elif not self.iads_config or self._belongs_in_the_network(tgo):
+                # A site the config never named was range-wired when it joined;
+                # rebuilt from the config it came back with no grid at all.
                 self._make_advanced_connections_by_range(node)
 
     def node_for_group(self, group: IadsGroundGroup) -> IadsNetworkNode:
@@ -386,6 +388,8 @@ class IadsNetwork:
                 continue
             if not self._belongs_in_the_network(go):
                 continue
+            if isinstance(go, NavalGroundObject):
+                continue
             node = self.node_for_tgo(go)
             if node is None or self._has_grid(node):
                 continue
@@ -393,6 +397,52 @@ class IadsNetwork:
             if self._has_grid(node):
                 enrolled.append(go.name)
         return enrolled
+
+    def drop_config_entries_not_in(self, written: set[str]) -> list[str]:
+        """Remove the empty config entries the campaign never wrote.
+
+        ``iads_config`` is a defaultdict, and reading an unnamed site from it
+        inserted an empty entry, so the late-enrol repair took the site as named
+        and never wired it. Returns the names dropped.
+        """
+        stray = [
+            name
+            for name, connections in self.iads_config.items()
+            if not connections and name not in written
+        ]
+        for name in stray:
+            del self.iads_config[name]
+        return stray
+
+    def empty_config_entries(self) -> list[str]:
+        return [name for name, conns in self.iads_config.items() if not conns]
+
+    @staticmethod
+    def _is_ship(node: IadsNetworkNode) -> bool:
+        # A ship makes its own power and carries its own radios, and range wiring
+        # tied it to a plant ashore wherever it sailed.
+        return isinstance(node.group.ground_object, NavalGroundObject)
+
+    def unwire_ships(self) -> list[str]:
+        """Take range-wired ships off the shore grid; config-named ships keep theirs.
+
+        Returns the names unwired.
+        """
+        unwired = []
+        for node in self.nodes:
+            tgo = node.group.ground_object
+            if not self._is_ship(node) or tgo.original_name in self.iads_config:
+                continue
+            grid = [
+                cid
+                for cid, group in node.connections.items()
+                if group.iads_role.is_comms_or_power
+            ]
+            for cid in grid:
+                del node.connections[cid]
+            if grid:
+                unwired.append(tgo.name)
+        return unwired
 
     @staticmethod
     def _has_grid(node: IadsNetworkNode) -> bool:
@@ -415,7 +465,9 @@ class IadsNetwork:
     def _add_connections_from_config(self, node: IadsNetworkNode) -> None:
         """Add all connections for the given primary node based on the iads_config"""
         primary_node = node.group.ground_object.original_name
-        connections = self.iads_config[primary_node]
+        # .get, not []: the defaultdict would insert an empty entry for a site
+        # the config never named.
+        connections = self.iads_config.get(primary_node, [])
         for secondary_node in connections:
             try:
                 node.add_connection_for_tgo(self.ground_objects[secondary_node])
@@ -450,6 +502,8 @@ class IadsNetwork:
         if not iads_role.is_comms_or_power:
             return
         for node in self.nodes:
+            if self._is_ship(node):
+                continue
             dist = node.group.ground_object.position.distance_to_point(tgo.position)
             in_range = dist < iads_role.connection_range.meters
             if in_range and self._is_friendly(node, tgo):
@@ -457,6 +511,8 @@ class IadsNetwork:
                 events.update_iads_node(node)
 
     def _make_advanced_connections_by_range(self, node: IadsNetworkNode) -> None:
+        if self._is_ship(node):
+            return
         tgo = node.group.ground_object
         # Find nearby Power or Connection
         for nearby_go in self.ground_objects.values():
