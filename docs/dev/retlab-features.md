@@ -6166,6 +6166,18 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     count is #959's projection. Its armed-recon layout test was dropped: the fork's
     `ArmedReconFlightPlan` stands off and has its own tests.
   - Row B183.
+- **[#958](https://github.com/dcs-retribution/dcs-retribution/pull/958) OPFOR ground forces.**
+  Not motorpool itself, but split out of #926 with it. `PendingTransfers.validate_transfer`
+  checks owner, origin, destination and route, and runs in `new_transfer` and in
+  `TransferModel.new_transfer` before the row is inserted. `cancel_transfer` calls
+  `TransferOrder.disband`, so an origin captured since the order gets nothing back. RED
+  ground sales work under the buy/sell cheat (`_sale_allowed`), the cheat reads "Enable OPFOR
+  Buy/Sell/Transfer Cheat", and RED's Ground Forces HQ tab needs `can_deploy_ground_units`.
+  - **Fork decisions:** squashed into one commit (Geoff as author). #958 and #959 are two
+    implementations of the same transfer-ownership work; #959's model stays (a hidden RED
+    mutation is ignored, not raised as `PermissionError`) and #958's duplicate members were
+    removed. Tests from both were fitted to the one model.
+  - Row B184.
 
 ---
 

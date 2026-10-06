@@ -82,6 +82,9 @@ class HashableCP:
         self.ground_objects: list[Any] = []
         self.position = object()
 
+    def is_friendly(self, to_player: Player) -> bool:
+        return self.captured == to_player
+
     def __hash__(self) -> int:
         return id(self)
 
@@ -96,7 +99,7 @@ def _cp(name: str, captured: Player = Player.BLUE) -> HashableCP:
 def _make_pending(player: Player) -> PendingTransfers:
     """A PendingTransfers with arrange_transport stubbed out."""
     game = MagicMock()
-    game.transit_network_for = lambda _p: object()
+    game.transit_network_for = lambda _p: MagicMock()
     pending = PendingTransfers(cast(Any, game), player)
     cast(Any, pending).arrange_transport = lambda _transfer, _now, _events: None
     return pending
@@ -194,6 +197,7 @@ def _ground_purchase_fixture(
         has_ground_unit_source=lambda _game: True,
     )
     coalition: Any = SimpleNamespace(
+        player=Player.BLUE,
         budget=100,
         adjust_budget=lambda amount: setattr(
             coalition, "budget", coalition.budget + amount
@@ -376,7 +380,7 @@ def test_red_base_menu_exposes_authorized_ground_forces_tab(
     monkeypatch.setattr(tabs_module, "DepartingConvoysMenu", StubConvoys)
     monkeypatch.setattr(tabs_module, "QGroundForcesHQ", StubGroundForces)
 
-    cp = SimpleNamespace(captured=Player.RED)
+    cp = SimpleNamespace(captured=Player.RED, can_deploy_ground_units=True)
     game_model = SimpleNamespace(
         game=SimpleNamespace(
             settings=SimpleNamespace(enable_enemy_buy_sell=enemy_buy_sell)
@@ -423,6 +427,8 @@ def test_ground_purchase_authorization_is_live_and_owner_based() -> None:
     transfer_model = FakeTransferModel()
     cp, unit_type, adapter = _ground_purchase_fixture(transfer_model)
     cp.captured = Player.RED
+    # #958: the adapter acts for the base's owner, as the base menu builds it.
+    adapter.coalition.player = Player.RED
 
     assert not adapter.can_buy(unit_type)
     with pytest.raises(TransactionError):
@@ -482,6 +488,7 @@ def test_armor_recruitment_menu_uses_captured_faction_catalog(
             blue_faction if player is Player.BLUE else red_faction
         ),
         coalition_for=lambda player: SimpleNamespace(
+            player=player,
             faction=blue_faction if player is Player.BLUE else red_faction,
             transfers=SimpleNamespace(),
             budget=100,
@@ -498,7 +505,8 @@ def test_armor_recruitment_menu_uses_captured_faction_catalog(
     menu = QArmorRecruitmentMenu(cast(Any, cp), cast(Any, game_model))
 
     assert set(menu.purchase_groups) == {red_unit}
-    assert menu.purchase_groups[red_unit].sell_button.isHidden()
+    # #958 lets the cheat sell RED's ground units, so the stocked row can sell.
+    assert not menu.purchase_groups[red_unit].sell_button.isHidden()
 
 
 # ---------------------------------------------------------------------------

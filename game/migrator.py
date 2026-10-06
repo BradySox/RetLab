@@ -278,11 +278,14 @@ class Migrator:
     @staticmethod
     def _normalize_single_transfer_player(transfer: Any, coalition: Any) -> None:
         owner = getattr(transfer, "player", None)
-        if owner is None or isinstance(owner, bool):
+        if owner is None:
             transfer.player = coalition.player
-        elif owner != coalition.player:
+            return
+        if isinstance(owner, bool):
+            transfer.player = coalition.player
+        if transfer.player != coalition.player:
             raise RuntimeError(
-                f"Transfer {transfer} has owner {owner} but is in the "
+                f"Transfer {transfer} has owner {transfer.player} but is in the "
                 f"{coalition.player} coalition"
             )
 
