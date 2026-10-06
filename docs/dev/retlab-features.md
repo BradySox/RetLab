@@ -6073,7 +6073,7 @@ The #859 branch kept moving after the fork's adoption; the drift was ported back
   offensive-emphasis machinery; both were removed 2026-07-21, and the 2026-07-19 sync brought the
   `AttackMotorpools` compound task + `PlanMotorpoolAttack` in, wired into the fork's offensive
   lists. BAI is the doctrinal primary with STRIKE as the fallback, and the package is sized off
-  the live reserve pool (`reserve_armor_for`) rather than the stale `alive_unit_count`.
+  the live reserve pool (`reserve_armor_for`) rather than the stale `alive_unit_count`. **Replaced 2026-10-06 by #961:** Armed Recon from `AttackBattlePositions`; see the drift sync below.
 
 ### Upstream drift sync (2026-07-26)
 
@@ -6135,6 +6135,16 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     fork's condensed unit summary and click hint. `test_reserve_armor` reads the fork's
     `units_per_cp`, since the fork's planner has no `tank_groups`.
   - Row B181.
+- **[#961](https://github.com/dcs-retribution/dcs-retribution/pull/961) auto-planner.**
+  `AttackMotorpools` is gone. `AttackBattlePositions` offers `PlanMotorpoolAttack` right
+  after the BAI positions and before the Armed Recon control points, and the package is
+  Armed Recon plus the common escorts, not BAI or Strike. The armed recon ingress uses a
+  106 m engage zone on a motorpool, so the flight works the parked grid.
+  - **Fork decisions:** squashed into one commit (Geoff as author): #961's stand-in
+    projection in `theatergroundobject` duplicated #959's and was dropped. Motorpools pass
+    `auto_planning_skips`, so §93 Ignored regions skip them like the BAI targets beside
+    them. The ingress keeps the fork's per-search-point loop and `search_zone_radius`.
+  - Row B182.
 
 ---
 

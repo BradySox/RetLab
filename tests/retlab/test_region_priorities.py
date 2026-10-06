@@ -198,6 +198,7 @@ def test_an_ignored_cp_gets_neither_bai_nor_armed_recon() -> None:
             normal: SimpleNamespace(in_priority_order=[live]),
         },
         control_point_priority_queue=[ignored, normal],
+        motorpool_targets=[],
     )
     methods = AttackBattlePositions().each_valid_method(state)  # type: ignore[arg-type]
     targets = _targets_of(methods)

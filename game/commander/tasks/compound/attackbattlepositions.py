@@ -3,6 +3,7 @@ from collections.abc import Iterator
 from game.commander.tasks.primitive.armedrecon import PlanArmedRecon
 from game.commander.tasks.primitive.bai import PlanBai
 from game.commander.tasks.targetorder import shuffled_by_priority
+from game.commander.tasks.primitive.motorpool import PlanMotorpoolAttack
 from game.commander.theaterstate import TheaterState
 from game.retlab.region_priorities import auto_planning_skips
 from game.htn import CompoundTask, Method
@@ -18,6 +19,9 @@ class AttackBattlePositions(CompoundTask[TheaterState]):
         ]
         for battle_position in shuffled_by_priority(battle_positions, state):
             yield [PlanBai(battle_position)]
+        for motorpool in state.motorpool_targets:
+            if not auto_planning_skips(motorpool.control_point, state):
+                yield [PlanMotorpoolAttack(motorpool)]
         # Only plan against the 2 most important CPs
         for cp in state.control_point_priority_queue[:2]:
             if not cp.is_fleet and not auto_planning_skips(cp, state):
