@@ -104,7 +104,7 @@ no DTC and no screenshots:
   the real driveable roads.
 - **Control points** — a coloured capture-radius circle per airbase and FARP.
 - **Tanker and AWACS orbits** — each orbit as an outline, tankers green and AWACS amber, labelled with callsign,
-  type, frequency and TACAN (`Texaco 1-1 KC-135 · 251.0 AM TCN 31Y`). *(Pending its first
+  type, frequency and TACAN (`Texaco 1-1 KC-135 · UHF 251.000 TCN 31Y`). *(Pending its first
   in-cockpit check, checklist R1.)*
 
 ---
