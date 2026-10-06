@@ -1,0 +1,1 @@
+* **[UI]** The Loadout editor hides practice, captive, inert, smoke and illumination stores, TCTS pods and travel pods until "Show training and non-combat stores" is ticked. White phosphorus marking rockets are always listed.

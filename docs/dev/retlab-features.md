@@ -7476,6 +7476,33 @@ teeth:
 **Deliberately not touched:** the `TACAN Channel Presel` typo is pydcs mirroring the
 DCS module data (`planes.py`, alongside `ILS Channel Presel`) — not ours to patch.
 
+### Training and non-combat stores hidden by default (2026-10-06)
+
+Ported from juanjux/dcs-escalation #504 and #505. The Loadout editor has a
+**Show training and non-combat stores** checkbox, unticked by default and not saved.
+Unticked, each pylon's dropdown leaves out what `Weapon.is_training_or_non_combat`
+(`game/data/weapons.py`) flags:
+
+- names or CLSIDs with training, practice, captive, inert, dummy, smoke, illumination,
+  ACMI/TCTS, CATM, TGM, Trg, BDU, LGTR, LUU, SAB or travel pod;
+- rockets marked SM, IL or TP (smoke, illumination, target practice), and the Hydra
+  70 Mk 1 practice round, which pydcs labels "Mk 1 HE". The SM/IL/TP rule only applies
+  to rocket stores: TP is also the live Mk-84 AIR's chute, and SM is in missile names.
+
+**White phosphorus is never hidden (DM call).** His #505 filtered `WP` and `Wht Phos`;
+we do not, because the §38 FAC(A) marks with WP rockets. pydcs names the M156 WP round
+"M156 SM", so `M156` is exempt as well. Coloured smoke marker rockets (S-8TsM, SNEB
+Type 254) are still hidden.
+
+The store already fitted on a pylon is always listed, so a preset or saved loadout with
+a hidden store shows it; it drops out of the list once replaced. Rebuilding the list
+blocks the combo's signals, so toggling the filter never writes the loadout or clears
+pylon settings. Classified by name, not weapon group: captive and live missiles share
+groups.
+
+Tests: `tests/test_loadout_training_filter.py`, including a scan of every pydcs store
+with WP, M156 or Wht Phos in its name. Checklist **B178**.
+
 ## §74 — Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D)
 
 Design note: [`docs/dev/design/retlab-dtc-cartridge-notes.md`](design/retlab-dtc-cartridge-notes.md)

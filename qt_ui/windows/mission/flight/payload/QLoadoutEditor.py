@@ -6,6 +6,7 @@ from typing import Dict, Union, Any
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QAbstractScrollArea,
+    QCheckBox,
     QFrame,
     QGridLayout,
     QGroupBox,
@@ -41,6 +42,18 @@ class QLoadoutEditor(QGroupBox):
         self.setChecked(flight_member.loadout.is_custom)
 
         vbox = QVBoxLayout(self)
+
+        self.show_training_check = QCheckBox("Show training and non-combat stores")
+        self.show_training_check.toggled.connect(self._show_training_changed)
+        vbox.addWidget(self.show_training_check)
+        training_hint = QLabel(
+            "Practice, captive and inert weapons, smoke and illumination stores, "
+            "TCTS/ACMI and travel pods. White phosphorus marking rockets are always "
+            "listed, and so is a store already fitted on the pylon."
+        )
+        training_hint.setWordWrap(True)
+        training_hint.setStyleSheet("color: gray;")
+        vbox.addWidget(training_hint)
 
         pylon_grid = QGridLayout()
         for i, pylon in enumerate(Pylon.iter_pylons(self.flight.unit_type)):
@@ -105,6 +118,10 @@ class QLoadoutEditor(QGroupBox):
 
     def iter_pylon_editors(self) -> Iterator[QPylonEditor]:
         yield from self.findChildren(QPylonEditor)
+
+    def _show_training_changed(self, show: bool) -> None:
+        for pylon_editor in self.iter_pylon_editors():
+            pylon_editor.set_show_training(show)
 
     def set_flight_member(self, flight_member: FlightMember) -> None:
         self.flight_member = flight_member
