@@ -65,7 +65,7 @@ enemy threat by the configured buffer (`aewc_threat_buffer_min_distance`,
 `tanker_threat_buffer_min_distance`, both Campaign Doctrine settings).
 
 - **You can find them from the cockpit.** Every blue tanker and AEW&C orbit is painted onto the
-  generated mission's **F10 map** as a cyan dashed racetrack with a label — callsign, type,
+  generated mission's **F10 map** as an outline (tankers green, AEW&C amber) with a label — callsign, type,
   radio frequency, TACAN — so "where's my gas?" is answered by the F10 map, no DTC and no
   briefing screenshot needed. See
   [The Retribution UI](The-Retribution-UI).

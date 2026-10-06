@@ -103,7 +103,7 @@ no DTC and no screenshots:
   [corridor standard](Custom-Campaigns#supply-routes-follow-the-driveable-corridor) these follow
   the real driveable roads.
 - **Control points** — a coloured capture-radius circle per airbase and FARP.
-- **Tanker and AWACS orbits** — each racetrack as a cyan dashed capsule labelled with callsign,
+- **Tanker and AWACS orbits** — each orbit as an outline, tankers green and AWACS amber, labelled with callsign,
   type, frequency and TACAN (`Texaco 1-1 KC-135 · 251.0 AM TCN 31Y`). *(Pending its first
   in-cockpit check, checklist R1.)*
 

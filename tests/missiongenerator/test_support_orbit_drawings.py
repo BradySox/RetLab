@@ -11,6 +11,7 @@ from types import SimpleNamespace
 from typing import Any
 
 from dcs import Point
+from dcs.drawing import LineStyle
 from dcs.drawing.drawings import StandardLayer
 from dcs.mission import Mission
 from dcs.terrain import Caucasus
@@ -18,7 +19,9 @@ from dcs.terrain import Caucasus
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.drawingsgenerator import (
+    AEWC_ORBIT_LINE,
     SUPPORT_ORBIT_MIN_RADIUS_M,
+    TANKER_ORBIT_LINE,
     DrawingsGenerator,
 )
 from game.theater.player import Player
@@ -112,6 +115,40 @@ def test_awacs_orbit_drawn_without_tacan() -> None:
     label = next(o for o in _objects(m) if o.name == "MAGIC label")
     assert "MAGIC" in label.text and "252.0" in label.text
     assert "TCN" not in label.text
+
+
+def test_tanker_and_awacs_read_apart_on_the_map() -> None:
+    m = Mission(Caucasus())
+    flights = [
+        _flight(
+            m.terrain,
+            flight_type=flight_type,
+            coalition=Player.BLUE,
+            callsign=callsign,
+            group=callsign,
+            start=(0.0, 0.0),
+            end=(40000.0, 0.0),
+            type_name=callsign,
+        )
+        for flight_type, callsign in (
+            (FlightType.REFUELING, "ARCO"),
+            (FlightType.AEWC, "MAGIC"),
+        )
+    ]
+    mission_data = SimpleNamespace(tankers=[], awacs=[], flights=flights)
+
+    gen = DrawingsGenerator(m, SimpleNamespace(), mission_data)  # type: ignore[arg-type]
+    gen.generate_support_orbits()
+
+    by_name = {o.name: o for o in _objects(m)}
+    tanker, awacs = by_name["ARCO orbit"], by_name["MAGIC orbit"]
+    assert tanker.color == TANKER_ORBIT_LINE
+    assert awacs.color == AEWC_ORBIT_LINE
+    for orbit in (tanker, awacs):
+        assert orbit.fill.a == 0  # outline only: overlapping boxes stay readable
+        assert orbit.line_style == LineStyle.Solid
+    assert by_name["ARCO label"].color == TANKER_ORBIT_LINE
+    assert by_name["MAGIC label"].color == AEWC_ORBIT_LINE
 
 
 def test_the_box_widens_with_the_orbit_speed() -> None:
