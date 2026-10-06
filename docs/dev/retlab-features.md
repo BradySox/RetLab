@@ -5226,8 +5226,8 @@ per-airframe device.
   defines the leg. Drawn with `add_oblong(start, end, radius)` — a capsule that reads as a
   racetrack — or `add_circle` if the ends coincide.
 - **The look** (2026-10-06) — outline only, one colour per job: tankers solid green
-  (`TANKER_ORBIT_LINE`), AEW&C solid amber (`AEWC_ORBIT_LINE`), CAP stations thin dashed cyan
-  (`CAP_ORBIT_LINE`). The old cyan fill stacked into one wash over blue sea, and DCS renders
+  (`TANKER_ORBIT_LINE`), AEW&C solid amber (`AEWC_ORBIT_LINE`), CAP stations a thinner solid cyan
+  (`CAP_ORBIT_LINE`; dashed until a flown look showed it near invisible). The old cyan fill stacked into one wash over blue sea, and DCS renders
   `LineStyle.Dash` as a faint dotted hairline, so the fill was all that showed. A CAP shape
   passed no `fill` and so took pydcs's red default; every shape now passes `NO_FILL`. A text
   box's border takes its text colour, so each label is the job's colour on a dark box, at
@@ -7826,7 +7826,7 @@ BARCAP/TARCAP flight pre-selects its **own station**, matched by orbit
 center; everyone else gets entry 1 — the first tanker, given the emit
 order), and the **whole friendly orbit picture moved to the display that can
 actually show it at once: the §45 F10 drawings now also paint each blue CAP
-*station*** (deduped, thin dashed racetrack + a "CAP &lt;callsign&gt;" label,
+*station*** (deduped, thin racetrack + a "CAP &lt;callsign&gt;" label,
 alongside the thicker tanker/AEW&C capsules;
 `DrawingsGenerator._generate_cap_station_orbits`,
 `tests/missiongenerator/test_cap_station_drawings.py`).

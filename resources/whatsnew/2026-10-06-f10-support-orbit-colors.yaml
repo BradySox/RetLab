@@ -2,7 +2,7 @@ date: 2026-10-06
 title: Tanker and AWACS boxes are easier to see on the F10 map
 change: >-
   Tanker orbits are drawn as a solid green outline and AWACS orbits as a
-  solid amber outline, with no fill. CAP stations stay a thin dashed cyan
+  solid amber outline, with no fill. CAP stations are a thinner solid cyan
   outline. Labels are larger and take their box's colour on a dark
   background.
 watch: >-
