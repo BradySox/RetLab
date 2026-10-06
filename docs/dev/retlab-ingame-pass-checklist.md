@@ -8651,6 +8651,11 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   Sayyad-4B at Hornets of a DEAD package, one kill (the missile ended 0.03 NM from a DEAD Hornet).
   The first six launched near 55 NM, flew 94 s and never came within 22 NM; eight died 6-26 s
   after launch, as in tests 42-46. Still owed: a better hit rate, and the HARM-on-the-STR check.
+- **Test 52 (2026-10-06, Tacview):** Sayyad-4B on HDS's 48N6E2 numbers: 24 fired, **4 kills**
+  (the last salvo, each missile within 0.03-0.34 NM of its Hornet) and a 0.36 NM near miss. No
+  shot climbed above 79,000 ft; every guided one turned down onto its target. Still owed: 15
+  missiles died 6-50 s after launch while still climbing, in salvos of up to 11 in 33 s, most
+  likely more missiles in the air than the STR has guidance channels.
 - **Fail signature:** TELs that never raise = the ground tilts them past `maxDeviationPitch`/`Roll`;
   read each unit's pitch and roll in Tacview before anything else.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
@@ -8953,6 +8958,11 @@ Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own
 - **Pass (from test 51):** an Iskander-like arc, Mach 5-6, landing on the field. **Fail
   signatures:** a shot into the ground short of the field, or one far above 200,000 ft (the
   pack's `Database/irad_ssm.lua` has drifted from ED's `Iskander_Unitary`).
+- **Test 52 (2026-10-06, Tacview):** on ED's Iskander path, 17 Emad and 21 Sejjil-2 flew
+  56-206 NM in 150-300 s, peaking near 4,000 kt and topping out at 36,000-275,000 ft, then
+  dove in. Each three-round salvo landed within ~0.1 NM of itself; impacts sat 0.02-1.1 NM from
+  the targeted carriers, a Patriot site and an armour group (RetLab aims at the field's spot
+  plus up to 1.35 NM of scatter). **Passes.**
 ### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ☐ UNTESTED
 
 Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and
