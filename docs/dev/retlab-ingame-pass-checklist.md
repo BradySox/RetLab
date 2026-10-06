@@ -4509,7 +4509,8 @@ engaged. The rest of the campaign check stands.
   wasn't threaded into `DrawingsGenerator` — check `missiongenerator.py`); a marker in the wrong place (the
   racetrack-end waypoint pick); a blank/partial label (the `group_name` match to `TankerInfo`/`AwacsInfo`
   failed — freq/TACAN come from there, not `FlightData`); a red tanker marked (the `friendly.is_blue` gate).
-  Knobs: `SUPPORT_ORBIT_LINE`/`SUPPORT_ORBIT_RADIUS_M`/`SUPPORT_LABEL_*` (drawingsgenerator.py).
+  Knobs: `TANKER_ORBIT_LINE`/`AEWC_ORBIT_LINE`/`CAP_ORBIT_LINE`/`SUPPORT_LABEL_*` (drawingsgenerator.py).
+  The look changed 2026-10-06 (outline only, colour per job): B185 owns that pass.
 
 ### S1 — Route-aware fuel-tank planning (fuel-first) · §46 · ✅ CLOSED (feature reverted 2026-08-09) (was ◐ PARTIAL
 

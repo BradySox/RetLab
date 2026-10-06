@@ -30,12 +30,18 @@ CP_NEUTRAL = Rgba(128, 128, 128, 80)
 BLUE_PATH_COLOR = Rgba(0, 0, 255, 100)
 RED_PATH_COLOR = Rgba(255, 0, 0, 100)
 ACTIVE_PATH_COLOR = Rgba(255, 80, 80, 100)
-# Support-package orbits (tankers + AWACS): a cyan dashed racetrack + a label so a
-# pilot can find their tanker / AEW&C on the F10 map in flight (the anti-DTC).
-SUPPORT_ORBIT_LINE = Rgba(0, 200, 255, 255)
-SUPPORT_ORBIT_FILL = Rgba(0, 200, 255, 55)
-SUPPORT_LABEL_TEXT = Rgba(0, 190, 255, 255)
-SUPPORT_LABEL_FILL = Rgba(0, 30, 45, 150)
+# Support-package orbits: outline only, one colour per job, so overlapping boxes
+# stay readable on blue sea. DCS draws a dashed line as a faint dotted hairline,
+# so tanker and AEW&C boxes are solid; CAP keeps the dash to read differently.
+TANKER_ORBIT_LINE = Rgba(40, 230, 90, 255)
+AEWC_ORBIT_LINE = Rgba(255, 190, 0, 255)
+CAP_ORBIT_LINE = Rgba(0, 200, 255, 255)
+NO_FILL = Rgba(0, 0, 0, 0)
+#: A text box's border takes its text colour, so the label is the job's colour
+#: on a near-opaque dark box.
+SUPPORT_LABEL_FILL = Rgba(10, 15, 20, 210)
+SUPPORT_LABEL_FONT_SIZE = 18
+CAP_LABEL_FONT_SIZE = 14
 #: Floor for a drawn orbit half-width (~2 NM); below this the capsule is not
 #: readable at map zoom. Also the fixed width for a CAP station, which is a
 #: station marker -- a CAP chases contacts and no capsule can contain it.
@@ -225,6 +231,11 @@ class DrawingsGenerator:
             if start is None or end is None:
                 continue
             radius = self._support_orbit_radius(flight)
+            line = (
+                TANKER_ORBIT_LINE
+                if flight.flight_type is FlightType.REFUELING
+                else AEWC_ORBIT_LINE
+            )
             box = self._box_corners(flight)
             if box is not None:
                 outline = ShapelyPolygon([(p.x, p.y) for p in box]).buffer(radius)
@@ -234,37 +245,37 @@ class DrawingsGenerator:
                         start.new_in_same_map(x - start.x, y - start.y)
                         for x, y in list(outline.exterior.coords)[:-1]
                     ],
-                    line_thickness=6,
-                    color=SUPPORT_ORBIT_LINE,
-                    fill=SUPPORT_ORBIT_FILL,
-                    line_style=LineStyle.Dash,
+                    line_thickness=4,
+                    color=line,
+                    fill=NO_FILL,
+                    line_style=LineStyle.Solid,
                 )
             elif start.distance_to_point(end) < 1.0:
                 shape = self.player_layer.add_circle(
                     start,
                     radius,
-                    line_thickness=6,
-                    color=SUPPORT_ORBIT_LINE,
-                    fill=SUPPORT_ORBIT_FILL,
-                    line_style=LineStyle.Dash,
+                    line_thickness=4,
+                    color=line,
+                    fill=NO_FILL,
+                    line_style=LineStyle.Solid,
                 )
             else:
                 shape = self.player_layer.add_oblong(
                     start,
                     end,
                     radius,
-                    line_thickness=6,
-                    color=SUPPORT_ORBIT_LINE,
-                    fill=SUPPORT_ORBIT_FILL,
-                    line_style=LineStyle.Dash,
+                    line_thickness=4,
+                    color=line,
+                    fill=NO_FILL,
+                    line_style=LineStyle.Solid,
                 )
             shape.name = f"{flight.callsign} orbit"
             label = self.player_layer.add_text_box(
                 start,
                 self._support_label(flight, info_by_group.get(flight.group_name)),
-                color=SUPPORT_LABEL_TEXT,
+                color=line,
                 fill=SUPPORT_LABEL_FILL,
-                font_size=14,
+                font_size=SUPPORT_LABEL_FONT_SIZE,
             )
             label.name = f"{flight.callsign} label"
 
@@ -289,7 +300,8 @@ class DrawingsGenerator:
                     station.start,
                     SUPPORT_ORBIT_MIN_RADIUS_M,
                     line_thickness=3,
-                    color=SUPPORT_ORBIT_LINE,
+                    color=CAP_ORBIT_LINE,
+                    fill=NO_FILL,
                     line_style=LineStyle.Dash,
                 )
             else:
@@ -298,7 +310,8 @@ class DrawingsGenerator:
                     station.end,
                     SUPPORT_ORBIT_MIN_RADIUS_M,
                     line_thickness=3,
-                    color=SUPPORT_ORBIT_LINE,
+                    color=CAP_ORBIT_LINE,
+                    fill=NO_FILL,
                     line_style=LineStyle.Dash,
                 )
             seen = used.get(station.callsign, 0) + 1
@@ -308,9 +321,9 @@ class DrawingsGenerator:
             label = self.player_layer.add_text_box(
                 station.start,
                 f"CAP {name}",
-                color=SUPPORT_LABEL_TEXT,
+                color=CAP_ORBIT_LINE,
                 fill=SUPPORT_LABEL_FILL,
-                font_size=12,
+                font_size=CAP_LABEL_FONT_SIZE,
             )
             label.name = f"CAP {name} label"
 

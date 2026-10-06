@@ -77,3 +77,10 @@ def test_cap_stations_are_drawn_once_per_station() -> None:
     assert "CAP UZI orbit" in names
     # The tanker keeps its own (thicker, labelled) capsule from the §45 pass.
     assert "Arco 1 orbit" in names
+    # pydcs fills an unfilled shape red by default; a CAP station is outline only.
+    cap = next(
+        drawing
+        for drawing in mission.drawings.get_layer(StandardLayer.Blue).objects
+        if drawing.name == "CAP COLT orbit"
+    )
+    assert cap.fill.a == 0

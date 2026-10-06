@@ -5224,7 +5224,14 @@ per-airframe device.
 - **The orbit** — the flight's racetrack ends come from its waypoints: `race_track_start` is emitted as a
   `PATROL_TRACK` waypoint and `race_track_end` as a `PATROL` waypoint (the waypoint builder), so the pair
   defines the leg. Drawn with `add_oblong(start, end, radius)` — a capsule that reads as a
-  racetrack — or `add_circle` if the ends coincide. Cyan, dashed (`SUPPORT_ORBIT_LINE`).
+  racetrack — or `add_circle` if the ends coincide.
+- **The look** (2026-10-06) — outline only, one colour per job: tankers solid green
+  (`TANKER_ORBIT_LINE`), AEW&C solid amber (`AEWC_ORBIT_LINE`), CAP stations thin dashed cyan
+  (`CAP_ORBIT_LINE`). The old cyan fill stacked into one wash over blue sea, and DCS renders
+  `LineStyle.Dash` as a faint dotted hairline, so the fill was all that showed. A CAP shape
+  passed no `fill` and so took pydcs's red default; every shape now passes `NO_FILL`. A text
+  box's border takes its text colour, so each label is the job's colour on a dark box, at
+  18 pt (CAP 14). Row B185.
 - **The width** — `_support_orbit_radius` sizes the capsule off the flight's own `patrol_speed`: the
   level-turn radius at 20° of bank plus 3 NM, floored at `SUPPORT_ORBIT_MIN_RADIUS_M` (2 NM). The fixed
   2 NM half-width it replaced left the aircraft outside its own box for about half the time on station,
