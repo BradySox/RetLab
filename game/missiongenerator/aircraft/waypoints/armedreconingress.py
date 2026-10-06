@@ -1,3 +1,5 @@
+import math
+
 from dcs.point import MovingPoint
 from dcs.task import (
     OptECMUsing,
@@ -6,11 +8,13 @@ from dcs.task import (
     EngageTargetsInZone,
 )
 
+from game.missiongenerator.motorpoolpopulator import motorpool_full_grid_extent_m
 from game.theater.theatergroundobject import MotorpoolGroundObject
 from game.utils import nautical_miles
 from .pydcswaypointbuilder import PydcsWaypointBuilder
 
-_MOTORPOOL_ENGAGEMENT_RADIUS_M = 106
+# Slack beyond the furthest slot of a full parked grid: 20 m = 60 ft.
+_MOTORPOOL_ZONE_BUFFER_M = 20.0
 
 
 class ArmedReconIngressBuilder(PydcsWaypointBuilder):
@@ -29,12 +33,16 @@ class ArmedReconIngressBuilder(PydcsWaypointBuilder):
             target.position
             for target in getattr(flight_plan.layout, "targets", []) or []
         ] or [flight_plan.tot_waypoint.position]
-        # A motorpool is one parked vehicle grid: a tight zone keeps the flight on it.
-        # Otherwise the plan widens the zone past the doctrine range when the standoff
+        # A motorpool zone is centred on the garage and covers a full parked grid
+        # plus a buffer, however many vehicles render. Otherwise the plan widens the zone past the doctrine range when the standoff
         # has pushed the search point out to the rim (armedrecon.search_zone_radius).
         zone_radius = getattr(flight_plan, "search_zone_radius", None)
-        if isinstance(self.flight.package.target, MotorpoolGroundObject):
-            radius = _MOTORPOOL_ENGAGEMENT_RADIUS_M
+        target = self.flight.package.target
+        if isinstance(target, MotorpoolGroundObject):
+            positions = [target.position]
+            radius = math.ceil(
+                motorpool_full_grid_extent_m() + _MOTORPOOL_ZONE_BUFFER_M
+            )
         elif zone_radius is not None:
             radius = int(zone_radius().meters)
         else:

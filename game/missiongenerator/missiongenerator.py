@@ -29,6 +29,7 @@ from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
 from game.theater.fogofwar import fog_intact
 from game.theater.player import Player
+from game.theater.theatergroundobject import MotorpoolGroundObject
 from game.unitmap import UnitMap
 from .atisgenerator import AtisGenerator
 from .briefinggenerator import BriefingGenerator, MissionInfoGenerator
@@ -74,6 +75,23 @@ def keeps_stored_tacan(cp: TacanContainer) -> bool:
     return not (
         isinstance(cp, NavalControlPoint) and getattr(cp, "tacan_is_auto", True)
     )
+
+
+def refresh_motorpool_target_flight_plans(game: Game) -> None:
+    """Rebuild flight plans for every package targeting a motorpool.
+
+    Motorpool groups are ephemeral: they are rendered only at mission
+    generation, after flight plans were first built (against empty groups)
+    at ATO planning time. Refreshing the affected plans lets their layouts
+    snapshot the freshly rendered units -- e.g. one player-facing waypoint
+    per parked vehicle for a motorpool STRIKE.
+    """
+    for coalition in game.coalitions:
+        for package in coalition.ato.packages:
+            if not isinstance(package.target, MotorpoolGroundObject):
+                continue
+            for flight in package.flights:
+                flight.refresh_flight_plan()
 
 
 class MissionGenerator:
@@ -149,6 +167,7 @@ class MissionGenerator:
             self.mission_data,
         )
         MotorpoolPopulator(self.game).populate()
+        refresh_motorpool_target_flight_plans(self.game)
         tgo_generator.generate()
 
         logging.info("MIZ generation: convoys and cargo ships")

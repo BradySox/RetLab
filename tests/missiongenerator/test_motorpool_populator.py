@@ -7,16 +7,23 @@ from types import SimpleNamespace
 from typing import Any, TYPE_CHECKING, cast
 from unittest.mock import MagicMock
 
+import pytest
 from dcs.mapping import Point
 from dcs.terrain import Terrain
 from dcs.terrain.caucasus import Caucasus
 from dcs.vehicles import Armor
 
 from game.dcs.groundunittype import GroundUnitType
-from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator, _select_capped
+from game.missiongenerator.motorpoolpopulator import (
+    MotorpoolPopulator,
+    _select_capped,
+    projected_motorpool_count,
+)
+from game.theater.base import Base
 from game.theater.controlpoint import ControlPoint
 from game.theater.presetlocation import PresetLocation
 from game.theater.theatergroundobject import MotorpoolGroundObject
+from game.theater.theatergroup import TheaterGroup
 from game.utils import Heading
 
 if TYPE_CHECKING:
@@ -120,6 +127,62 @@ def test_populate_disabled_renders_nothing() -> None:
     tgo, cp = _motorpool({gut: 5})
     MotorpoolPopulator(cast("Game", _game([cp], cap=10, enabled=False))).populate()
     assert tgo.groups == []
+
+
+def motorpool_rendered_unit_count(
+    tgo: MotorpoolGroundObject, motorpool_enabled: bool, spawn_cap: int
+) -> int:
+    # #962's planner count; the fork reads #959's projection for it.
+    if not motorpool_enabled or spawn_cap <= 0:
+        return 0
+    return projected_motorpool_count(tgo, spawn_cap)
+
+
+@pytest.mark.parametrize(
+    ("enabled", "cap"),
+    [(False, 10), (True, 0)],
+)
+def test_rendered_unit_count_ignores_stale_groups_when_not_rendering(
+    enabled: bool, cap: int
+) -> None:
+    gut = _gut()
+    tgo, _cp = _motorpool({gut: 5})
+    tgo.groups = cast("list[TheaterGroup]", [SimpleNamespace(alive_units=1)])
+
+    assert motorpool_rendered_unit_count(tgo, enabled, cap) == 0
+
+
+def test_rendered_unit_count_uses_current_reserve_after_consuming_snapshot() -> None:
+    gut = _gut()
+    tgo, cp = _motorpool({gut: 3})
+    cp.base = Base()
+    cp.base.armor = {gut: 3}
+    game = _game([cp], cap=10)
+    MotorpoolPopulator(cast("Game", game)).populate()
+
+    assert motorpool_rendered_unit_count(tgo, motorpool_enabled=True, spawn_cap=10) == 3
+
+    # Mission losses consume the persistent reserve while the populated groups
+    # remain as the previous mission's ephemeral render snapshot.
+    cp.base.commit_losses({gut: 3})
+
+    assert motorpool_rendered_unit_count(tgo, motorpool_enabled=True, spawn_cap=10) == 0
+
+
+def test_planner_count_matches_next_renderer_after_reserve_replenishment() -> None:
+    gut = _gut()
+    tgo, cp = _motorpool({gut: 3})
+    game = cast("Game", _game([cp], cap=10))
+    pop = MotorpoolPopulator(game)
+    pop.populate()
+
+    cp.base.armor[gut] += 3
+    planner_count = motorpool_rendered_unit_count(tgo, True, 10)
+
+    pop.populate()
+    rendered_count = sum(len(g.units) for g in tgo.groups)
+
+    assert planner_count == rendered_count == 6
 
 
 def test_populate_is_idempotent_across_runs() -> None:
