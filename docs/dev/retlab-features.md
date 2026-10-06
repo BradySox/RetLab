@@ -6104,6 +6104,24 @@ population is ephemeral (rebuilt each mission-gen), so **no save migration is ne
 generated mission simply parks them in the new spot. Checklist B8 still owns the in-game pass and
 should now also confirm the garage lands on its authored marker.
 
+### Upstream drift sync (2026-10-06) — the #926 split
+
+Geoff split his closed [#926](https://github.com/dcs-retribution/dcs-retribution/pull/926) into
+five PRs, all open upstream, none merged. The fork adopts them one RetLab PR at a time, his
+commits cherry-picked with him as author. **They are open PRs: re-sync if he changes them.**
+
+- **[#960](https://github.com/dcs-retribution/dcs-retribution/pull/960) re-homing.**
+  `MotorpoolPopulator._rehome_motorpools` attaches every depot to the nearest land control
+  point (FARPs and FOBs included; carriers, LHAs and off-map points never), on every load and
+  on every `ControlPoint.capture`. A depot used to stay with whoever owned it at New Game.
+  Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
+  marker left the campaign and de-duplicates a save that listed one twice. Generated groups
+  are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
+  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` (which still binds through
+    the loader's blue-preference and stranded-marker rules) and overrides that owner with
+    the nearest land CP. The loader's binding still decides which side's warning fires.
+  - Row B180.
+
 ---
 
 ## §57 — Air-droppable minefields (convoy interdiction) — REMOVED (2026-09-07)
