@@ -8654,8 +8654,9 @@ its `tools/check_entry.py` runs the Lua against stubs only.
 - **Test 52 (2026-10-06, Tacview):** Sayyad-4B on HDS's 48N6E2 numbers: 24 fired, **4 kills**
   (the last salvo, each missile within 0.03-0.34 NM of its Hornet) and a 0.36 NM near miss. No
   shot climbed above 79,000 ft; every guided one turned down onto its target. Still owed: 15
-  missiles died 6-50 s after launch while still climbing, in salvos of up to 11 in 33 s, most
-  likely more missiles in the air than the STR has guidance channels.
+  missiles died 6-50 s after launch while still climbing. The second salvo (11 in 33 s at
+  Hornets 47 NM out) was destroyed together ~7 s after its last launch, with no blue weapon
+  near it and every radar alive. Cause not yet known; a logging run of the same mission is owed.
 - **Fail signature:** TELs that never raise = the ground tilts them past `maxDeviationPitch`/`Roll`;
   read each unit's pitch and roll in Tacview before anything else.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
