@@ -32,7 +32,7 @@ RED_PATH_COLOR = Rgba(255, 0, 0, 100)
 ACTIVE_PATH_COLOR = Rgba(255, 80, 80, 100)
 # Support-package orbits: outline only, one colour per job, so overlapping boxes
 # stay readable on blue sea. DCS draws a dashed line as a faint dotted hairline,
-# so tanker and AEW&C boxes are solid; CAP keeps the dash to read differently.
+# so every outline is solid; CAP reads apart by colour and a thinner line.
 TANKER_ORBIT_LINE = Rgba(40, 230, 90, 255)
 AEWC_ORBIT_LINE = Rgba(255, 190, 0, 255)
 CAP_ORBIT_LINE = Rgba(0, 200, 255, 255)
@@ -299,20 +299,20 @@ class DrawingsGenerator:
                 shape = self.player_layer.add_circle(
                     station.start,
                     SUPPORT_ORBIT_MIN_RADIUS_M,
-                    line_thickness=3,
+                    line_thickness=2,
                     color=CAP_ORBIT_LINE,
                     fill=NO_FILL,
-                    line_style=LineStyle.Dash,
+                    line_style=LineStyle.Solid,
                 )
             else:
                 shape = self.player_layer.add_oblong(
                     station.start,
                     station.end,
                     SUPPORT_ORBIT_MIN_RADIUS_M,
-                    line_thickness=3,
+                    line_thickness=2,
                     color=CAP_ORBIT_LINE,
                     fill=NO_FILL,
-                    line_style=LineStyle.Dash,
+                    line_style=LineStyle.Solid,
                 )
             seen = used.get(station.callsign, 0) + 1
             used[station.callsign] = seen
