@@ -6121,6 +6121,20 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     the loader's blue-preference and stranded-marker rules) and overrides that owner with
     the nearest land CP. The loader's binding still decides which side's warning fires.
   - Row B180.
+- **[#959](https://github.com/dcs-retribution/dcs-retribution/pull/959) inventory.**
+  The populator became a projection reconciled each call: an unchanged reserve keeps the
+  same groups and unit ids, so a flight plan aimed at a parked vehicle stays valid. The
+  depot tooltip (`TgoTooltipContent`) lists reserve, expected next turn, unrendered reserve
+  and in transit; `GameUpdateEvents.update_motorpools_at` refreshes it on every buy, sale,
+  transfer and turn. `TransferOrder` now takes its owner (`player`) and
+  `PendingTransfers.new_transfer` asserts it, so the fork's convoy seeders (§35, §50) pass
+  `coalition.player`.
+  - **Fork decisions:** the reserve lists follow `known_for(Player.BLUE)`, the same fog as
+    `units`. #959's migration-time `populate()` was dropped: #960 keeps loads free of
+    generated groups and id churn, and the two PRs disagree there. The tooltip keeps the
+    fork's condensed unit summary and click hint. `test_reserve_armor` reads the fork's
+    `units_per_cp`, since the fork's planner has no `tank_groups`.
+  - Row B181.
 
 ---
 

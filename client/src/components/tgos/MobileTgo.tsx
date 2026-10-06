@@ -12,15 +12,13 @@ import {
   setHoveredEmitter,
 } from "../../api/mapSlice";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import SplitLines from "../splitlines/SplitLines";
-import summarizeUnits from "../unitsummary/summarizeUnits";
 import { MovementPath, MovementPathHandle } from "../controlpoints/MovementPath";
 import {
   formatLatLng,
   metersToNauticalMiles,
   mobileMarkerKey,
 } from "../controlpoints/destinationFormat";
-import { TgoTooltip, iconForTgo } from "./shared";
+import { TgoTooltip, TgoTooltipContent, iconForTgo } from "./shared";
 import { LatLng, Marker as LMarker, LatLngLiteral } from "leaflet";
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactDOMServer from "react-dom/server";
@@ -33,11 +31,11 @@ import { Marker, Tooltip } from "react-leaflet";
 function destinationTooltipText(
   tgo: TgoModel,
   destinationish: LatLngLiteral,
-  inRange: boolean
+  inRange: boolean,
 ): string {
   const destination = new LatLng(destinationish.lat, destinationish.lng);
   const distance = metersToNauticalMiles(
-    destination.distanceTo(tgo.position)
+    destination.distanceTo(tgo.position),
   ).toFixed(1);
   if (!inRange) {
     return `Out of range (${distance} NM away)`;
@@ -82,11 +80,17 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
   const icon = useMemo(() => iconForTgo(props.tgo), [props.tgo.sidc]);
 
   const [hasDestination, setHasDestination] = useState<boolean>(
-    props.tgo.destination != null
+    props.tgo.destination != null,
   );
   const [position, setPosition] = useState<LatLngLiteral>(
-    props.tgo.destination ? props.tgo.destination : props.tgo.position
+    props.tgo.destination ? props.tgo.destination : props.tgo.position,
   );
+
+  useEffect(() => {
+    const authoritativePosition = props.tgo.destination ?? props.tgo.position;
+    setPosition(authoritativePosition);
+    setHasDestination(props.tgo.destination != null);
+  }, [props.tgo.destination, props.tgo.position]);
 
   const setDestination = useCallback((destination: LatLng) => {
     setPosition(destination);
@@ -109,7 +113,7 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
   const raised = useAppSelector(
     (state) =>
       selectHighlightEmitters(state) &&
-      selectHoveredEmitter(state) === props.tgo.id
+      selectHoveredEmitter(state) === props.tgo.id,
   );
 
   // Set the tooltip content imperatively against the empty <Tooltip/> rendered
@@ -123,13 +127,7 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
     markerRef.current?.setTooltipContent(
       props.tgo.destination
         ? destinationTooltipText(props.tgo, props.tgo.destination, true)
-        : ReactDOMServer.renderToString(
-            <>
-              {`${props.tgo.name} (${props.tgo.control_point_name})`}
-              <br />
-              <SplitLines items={summarizeUnits(props.tgo.units)} />
-            </>
-          )
+        : ReactDOMServer.renderToString(<TgoTooltipContent tgo={props.tgo} />),
     );
   });
 
@@ -168,17 +166,19 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
             }
           },
           mouseover: () =>
-            dispatch(setHoveredEmitter({ id: props.tgo.id, source: "emitter" })),
+            dispatch(
+              setHoveredEmitter({ id: props.tgo.id, source: "emitter" }),
+            ),
           mouseout: () => dispatch(setHoveredEmitter(null)),
           drag: (event) => {
             const dest = event.target.getLatLng() as LatLng;
             backend
               .get(
-                `/tgos/${props.tgo.id}/destination-in-range?lat=${dest.lat}&lng=${dest.lng}`
+                `/tgos/${props.tgo.id}/destination-in-range?lat=${dest.lat}&lng=${dest.lng}`,
               )
               .then((inRange) => {
                 markerRef.current?.setTooltipContent(
-                  destinationTooltipText(props.tgo, dest, inRange.data)
+                  destinationTooltipText(props.tgo, dest, inRange.data),
                 );
               });
             pathRef.current?.setDestination(dest);
@@ -241,7 +241,7 @@ function SecondaryMarker(props: SecondaryMarkerProps) {
   const raised = useAppSelector(
     (state) =>
       selectHighlightEmitters(state) &&
-      selectHoveredEmitter(state) === props.tgo.id
+      selectHoveredEmitter(state) === props.tgo.id,
   );
 
   if (!props.destination) {

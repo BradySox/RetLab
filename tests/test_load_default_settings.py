@@ -13,6 +13,7 @@ from __future__ import annotations
 import json
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -28,6 +29,8 @@ def _widget_loading_default_from(sd: Path, monkeypatch: pytest.MonkeyPatch) -> S
     # QWidget machinery (and the need for a QApplication) entirely.
     widget: Any = QSettingsWidget.__new__(QSettingsWidget)
     widget.settings = Settings()
+    widget.game = None
+    widget.settings_applied = SimpleNamespace(emit=lambda: None)
     QSettingsWidget.load_default_settings(widget)
     return widget.settings
 

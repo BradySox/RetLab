@@ -471,11 +471,11 @@ class Game:
         # since the coalition-specific finalization handles transit network updates and
         # transfer processing. If in the other order, units may be delivered to captured
         # bases, and freshly delivered units will spawn one leg through their journey.
-        self.blue.end_turn()
-        self.red.end_turn()
+        self.blue.end_turn(events)
+        self.red.end_turn(events)
 
         for control_point in self.theater.controlpoints:
-            control_point.process_turn(self)
+            control_point.process_turn(self, events)
 
         # Vietnam Ops convoy interdiction (§35): ensure the opfor has a *real*, tracked
         # convoy flowing on the trail corridor to interdict (replacing the old phantom
@@ -763,9 +763,9 @@ class Game:
 
         # Plan Coalition specific turn
         if for_blue:
-            self.blue.initialize_turn(self.turn == 0 and squadrons_start_full)
+            self.blue.initialize_turn(self.turn == 0 and squadrons_start_full, events)
         if for_red:
-            self.red.initialize_turn(self.turn == 0 and squadrons_start_full)
+            self.red.initialize_turn(self.turn == 0 and squadrons_start_full, events)
 
         # Sweep any stale "downed SOF team" objectives a pre-retirement save still
         # carries (the SOF capture economy was removed 2026-07-01; the objectives

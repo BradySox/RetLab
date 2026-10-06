@@ -659,6 +659,10 @@ class QLiberationWindow(QMainWindow):
         # let opening a second window drop the only reference to the first, so Qt
         # could garbage-collect and close it out from under the user.
         self.settings_dialog = QSettingsWindow(self.game)
+        # Re-sync transfer visibility so RED rows follow enable_enemy_buy_sell.
+        self.settings_dialog.settings_applied.connect(
+            self.game_model.transfer_model.sync_game_and_visibility
+        )
         self.settings_dialog.show()
 
     def showStatsDialog(self):

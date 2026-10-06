@@ -36,7 +36,7 @@ def _cp(name: str) -> SimpleNamespace:
 def _ship(units: dict[str, int]) -> CargoShip:
     origin, dest = _cp("Bandar Abbas"), _cp("Qeshm")
     ship = CargoShip(origin, dest)  # type: ignore[arg-type]
-    ship.add_units(TransferOrder(origin, dest, dict(units)))  # type: ignore[arg-type]
+    ship.add_units(TransferOrder(origin, dest, dict(units), Player.BLUE))  # type: ignore[arg-type]
     return ship
 
 

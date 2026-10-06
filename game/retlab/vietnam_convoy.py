@@ -164,7 +164,8 @@ def ensure_enemy_trail_convoy(game: "Game") -> None:
             continue  # no unit pool available to seed from -- try the next road.
 
         coalition.transfers.new_transfer(
-            TransferOrder(source, destination, units), game.conditions.start_time
+            TransferOrder(source, destination, units, coalition.player),
+            game.conditions.start_time,
         )
         created += 1
 
