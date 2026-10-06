@@ -412,7 +412,11 @@ class TransferModel(QAbstractListModel):
 
     @property
     def transfers(self) -> PendingTransfers:
-        return self.game_model.game.coalition_for(player=Player.BLUE).transfers
+        return self._transfers_for(Player.BLUE)
+
+    @property
+    def red_visible(self) -> bool:
+        return self._red_visible
 
     def _transfers_for(self, player: Player) -> PendingTransfers:
         return self.game_model.game.coalition_for(player=player).transfers
@@ -480,6 +484,9 @@ class TransferModel(QAbstractListModel):
         """Updates the game with the new unit transfer."""
         if not self._is_transfer_authorized(transfer):
             return
+        transfers = self._transfers_for(self.owner_of(transfer))
+        # #958: reject a bad route or owner before the view is told a row is coming.
+        transfers.validate_transfer(transfer)
         visible = transfer.player.is_blue or (
             transfer.player.is_red and self._red_visible
         )
@@ -490,7 +497,7 @@ class TransferModel(QAbstractListModel):
                 insert_row = self.rowCount()
             self.beginInsertRows(QModelIndex(), insert_row, insert_row)
         events = GameUpdateEvents()
-        self._transfers_for(self.owner_of(transfer)).new_transfer(transfer, now, events)
+        transfers.new_transfer(transfer, now, events)
         if visible:
             self.endInsertRows()
         EventStream.put_nowait(events)

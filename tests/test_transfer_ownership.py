@@ -25,6 +25,9 @@ class HashableCP(SimpleNamespace):
     def __hash__(self) -> int:  # type: ignore[override]
         return id(self)
 
+    def is_friendly(self, to_player: Player) -> bool:
+        return bool(self.captured == to_player)
+
 
 def _cp(name: str, captured: Player = Player.BLUE) -> Any:
     """A minimal control-point stand-in for transfer tests."""
@@ -39,7 +42,7 @@ def _cp(name: str, captured: Player = Player.BLUE) -> Any:
 
 def _make_pending(player: Player) -> PendingTransfers:
     """A PendingTransfers with arrange_transport stubbed out."""
-    game = SimpleNamespace(transit_network_for=lambda _p: object())
+    game = SimpleNamespace(transit_network_for=lambda _p: MagicMock())
     pending = PendingTransfers(cast(Any, game), player)
     cast(Any, pending).arrange_transport = lambda _transfer, _now, _events: None
     return pending
@@ -101,7 +104,7 @@ def test_new_transfer_invariant_checks_player_match() -> None:
     destination = _cp("Bravo", captured=Player.BLUE)
     transfer = TransferOrder(origin, destination, {}, player=Player.RED)
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         pending.new_transfer(transfer, datetime.now(), GameUpdateEvents())
 
 

@@ -409,6 +409,7 @@ def test_motorpool_in_transit_units_survive_origin_capture(
     blue_transfers.player = Player.BLUE
     blue_transfers.pending_transfers = []
     cast(Any, blue_transfers).arrange_transport = lambda _transfer, _now, _events: None
+    cast(Any, blue_transfers).validate_transfer = lambda _transfer: None
     red_transfers = PendingTransfers.__new__(PendingTransfers)
     red_transfers.game = game
     red_transfers.player = Player.RED
@@ -470,6 +471,7 @@ def test_new_transfer_emits_motorpool_tgo_update(
     pending.pending_transfers = []
     pending.player = Player.BLUE
     cast(Any, pending).arrange_transport = lambda _transfer, _now, _events: None
+    cast(Any, pending).validate_transfer = lambda _transfer: None
     events = GameUpdateEvents()
 
     pending.new_transfer(transfer, datetime.now(), events)
