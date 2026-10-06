@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import inspect
 import logging
+import re
 from dataclasses import dataclass, field
 from enum import unique, Enum
 from functools import cached_property, lru_cache
@@ -20,6 +21,26 @@ from game.factions.faction import Faction
 
 PydcsWeapon = Any
 PydcsWeaponAssignment = tuple[int, PydcsWeapon]
+
+# The Loadout editor's training filter, ported from juanjux/dcs-escalation
+# #504/#505. Short designations catch racks that omit the descriptive suffix.
+_TRAINING_OR_NON_COMBAT = re.compile(
+    r"\b(training|practice|captive|inert|dummy|smoke|smokewinder|"
+    r"illumination|illum|ACMI|TCTS|CATM|TGM|Trg|BDU|LGTR|LUU|SAB|travel\s+pod)\b",
+    re.IGNORECASE,
+)
+# SM, IL and TP mark smoke, illumination and target-practice rockets. Scoped to
+# rockets: TP also names the live Mk-84 AIR's chute, and SM is in missile names.
+_ROCKET_STORE = re.compile(
+    r"\b(rkts?|rockets?|hydra|FFAR|SNEB|LAU[- ](?:3|61|68|131))\b",
+    re.IGNORECASE,
+)
+_NON_COMBAT_ROCKET_ROLE = re.compile(r"\b(SM|IL|TP)\b", re.IGNORECASE)
+# The A-10's Mk 1 practice round is labelled "Mk 1 HE" in pydcs.
+_HYDRA_MK1_PRACTICE = re.compile(r"\bHydra\s+70\s+Mk\s*1\b", re.IGNORECASE)
+# White phosphorus marks targets for the §38 FAC(A), so it is never hidden. pydcs
+# names the M156 WP round "M156 SM", which the rocket rule would otherwise catch.
+_WHITE_PHOSPHORUS = re.compile(r"\b(WP|M156)\b|\bWht\s+Phos", re.IGNORECASE)
 
 
 def weapons_migrator(name: str) -> str:
@@ -96,6 +117,24 @@ class Weapon:
     @property
     def name(self) -> str:
         return self.pydcs_data["name"]
+
+    @property
+    def is_training_or_non_combat(self) -> bool:
+        """Whether the Loadout editor hides this store until asked to show it.
+
+        Not classified by weapon group: captive and live missiles can share one.
+        """
+        if _WHITE_PHOSPHORUS.search(self.name) is not None:
+            return False
+        text = f"{self.name} {self.clsid}".replace("_", " ")
+        return (
+            _TRAINING_OR_NON_COMBAT.search(text) is not None
+            or _HYDRA_MK1_PRACTICE.search(self.name) is not None
+            or (
+                _ROCKET_STORE.search(self.name) is not None
+                and _NON_COMBAT_ROCKET_ROLE.search(self.name) is not None
+            )
+        )
 
     @property
     def standoff_range(self) -> Optional[Distance]:

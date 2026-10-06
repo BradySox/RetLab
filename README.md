@@ -240,6 +240,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Set as default for &lt;task&gt;** in the payload editor pins a loadout for that airframe and
   task across campaigns until cleared. Fuel and cockpit settings are already remembered per
   airframe.
+- The payload editor hides practice, captive, inert, smoke and illumination stores, TCTS
+  pods and travel pods until **Show training and non-combat stores** is ticked. White
+  phosphorus marking rockets are always listed.
 - Also: target intel panels, impact-first debriefs, custom kneeboard import, era-gated cockpit
   options.
 

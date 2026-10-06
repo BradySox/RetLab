@@ -1,0 +1,11 @@
+date: 2026-10-06
+title: Training stores hidden in the Loadout editor
+change: >-
+  Each pylon's dropdown leaves out practice, captive and inert weapons, smoke
+  and illumination stores, TCTS pods and travel pods. Tick "Show training and
+  non-combat stores" to list them. White phosphorus marking rockets are always
+  listed, and so is a store already fitted on the pylon.
+watch: >-
+  An A-10C rocket pylon should list M151 and M156 rockets but not the M257
+  illumination or TP practice rockets until the box is ticked.
+row: B178
