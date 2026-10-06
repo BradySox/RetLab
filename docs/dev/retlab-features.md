@@ -6145,6 +6145,20 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     `auto_planning_skips`, so §93 Ignored regions skip them like the BAI targets beside
     them. The ingress keeps the fork's per-search-point loop and `search_zone_radius`.
   - Row B182.
+- **[#962](https://github.com/dcs-retribution/dcs-retribution/pull/962) mission generation.**
+  `refresh_motorpool_target_flight_plans` re-plans every motorpool-target flight right after
+  `MotorpoolPopulator.populate()` in mission generation (`Flight.refresh_flight_plan` keeps
+  manual timing), so plans see the vehicles actually parked. BAI gets one `bai_group`
+  waypoint on the depot; Armed Recon one area waypoint, its engage zone centred on the
+  garage and sized to a full grid plus 20 m (`motorpool_full_grid_extent_m`), replacing
+  #961's 106 m. The strike ingress adds one `Bombing` per parked vehicle, re-read at
+  ingress. `_set_passive` stops parked vehicles dispersing under fire.
+  - **Fork decisions:** squashed into one commit (Geoff as author). A motorpool Strike keeps
+    the fork's single site waypoint carrying every unit (`SITE_WAYPOINT_TASKS`), not #962's
+    waypoint per vehicle; the AI still bombs each vehicle from the ingress. #962's planner
+    count is #959's projection. Its armed-recon layout test was dropped: the fork's
+    `ArmedReconFlightPlan` stands off and has its own tests.
+  - Row B183.
 
 ---
 
