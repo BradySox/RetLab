@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from collections.abc import Iterable
 from dataclasses import dataclass
@@ -118,6 +119,13 @@ def projected_motorpool_count(motorpool: MotorpoolGroundObject, cap: int) -> int
     return projected_motorpool_counts(motorpools_at(motorpool.control_point), cap).get(
         motorpool.id, 0
     )
+
+
+def motorpool_full_grid_extent_m() -> float:
+    """Distance from the garage origin to the furthest slot of a full grid."""
+    last_row = _COLUMNS - 1
+    last_column = _COLUMNS - 1
+    return math.hypot(_GRID_OFFSET_M + last_row * _SPACING_M, last_column * _SPACING_M)
 
 
 class MotorpoolPopulator:

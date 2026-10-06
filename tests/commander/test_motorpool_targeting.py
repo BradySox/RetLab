@@ -174,6 +174,28 @@ def test_plan_missions_does_not_populate_motorpools(monkeypatch: Any) -> None:
     populate.assert_not_called()
 
 
+def test_motorpool_targets_excludes_zero_allocation_shared_cap_bucket() -> None:
+    gut = _gut()
+    first_tgo, enemy_cp = _motorpool_cp({gut: 1}, friendly=False, name="First")
+    second_tgo = MotorpoolGroundObject(
+        "Second Motorpool 0",
+        PresetLocation(
+            "G",
+            Point(0.0, 0.0, MagicMock(spec=Terrain)),
+            Heading.from_degrees(0.0),
+        ),
+        enemy_cp,
+        GroupTask.MOTORPOOL,
+    )
+    second_tgo.distance_to = MagicMock(return_value=100.0)  # type: ignore[method-assign]
+    enemy_cp.ground_objects = [first_tgo, second_tgo]  # type: ignore[misc]
+    game = _game([enemy_cp, _friendly_cp()], cap=10)
+
+    targets = list(ObjectiveFinder(cast("Game", game), Player.BLUE).motorpool_targets())
+
+    assert targets == [first_tgo]
+
+
 def test_motorpool_targets_sorted_nearest_first() -> None:
     gut = _gut()
     near_tgo, near_cp = _motorpool_cp({gut: 1}, friendly=False, name="Near")
@@ -277,6 +299,29 @@ def test_motorpool_attack_proposes_armed_recon_plus_escorts() -> None:
         FlightType.SEAD_SWEEP,
         FlightType.ESCORT_JAMMER,
     ]
+
+
+def test_motorpool_attack_sizes_from_shared_cp_allocation() -> None:
+    tgo = _motorpool_target(10)
+    cp = tgo.control_point
+    second = MotorpoolGroundObject(
+        "CP Motorpool 1",
+        PresetLocation(
+            "G",
+            Point(0.0, 0.0, MagicMock(spec=Terrain)),
+            Heading.from_degrees(0.0),
+        ),
+        cp,
+        GroupTask.MOTORPOOL,
+    )
+    cp.ground_objects = [tgo, second]  # type: ignore[misc]
+
+    task = PlanMotorpoolAttack(tgo)
+    task.propose_flights()
+
+    # #961 made the motorpool package Armed Recon.
+    attack = next(f for f in task.flights if f.task is FlightType.ARMED_RECON)
+    assert attack.num_aircraft == 2  # five of the shared ten-unit cap go to this TGO
 
 
 def test_motorpool_attack_effect_removes_target() -> None:

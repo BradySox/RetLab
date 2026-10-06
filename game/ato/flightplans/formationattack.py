@@ -15,6 +15,7 @@ from game.flightplan.samdetour import package_detour
 from game.theater import MissionTarget, TheaterGroundObject
 from game.theater.theatergroup import SceneryUnit, TheaterUnit
 from game.utils import Distance, nautical_miles, Speed, feet
+from game.theater.theatergroundobject import MotorpoolGroundObject
 from .flightplan import FlightPlan
 from .formation import FormationFlightPlan, FormationLayout
 from .ibuilder import IBuilder
@@ -407,6 +408,13 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         if targets and self.flight.flight_type in SITE_WAYPOINT_TASKS:
             task = SITE_WAYPOINT_TASKS[self.flight.flight_type]
             return [builder.target_site(self.flight.package.target, targets, task)]
+        motorpool = self.package.target
+        if isinstance(motorpool, MotorpoolGroundObject):
+            # One waypoint for the whole depot: BAI names it like any BAI target,
+            # Armed Recon searches the area. Strike already folded into the site.
+            if self.flight.flight_type is FlightType.BAI:
+                return [builder.bai_group(StrikeTarget(motorpool.name, motorpool))]
+            return [self.target_area_waypoint(self.flight, motorpool, builder)]
         if targets:
             return [
                 self.target_waypoint(self.flight, builder, target) for target in targets
