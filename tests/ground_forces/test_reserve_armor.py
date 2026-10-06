@@ -37,7 +37,11 @@ def _cp(armor: dict[MagicMock, int], limit: int, has_enemy: bool) -> ControlPoin
     # enemy gate vacuously false. Use object().
     own = object()
     enemy = SimpleNamespace(captured=object(), id=object(), name="Enemy")
-    base = SimpleNamespace(armor=armor, total_armor=sum(armor.values()))
+    base = SimpleNamespace(
+        armor=armor,
+        total_armor=sum(armor.values()),
+        total_frontline_units=sum(armor.values()),
+    )
     return cast(
         "ControlPoint",
         SimpleNamespace(
@@ -81,8 +85,10 @@ def test_reserve_matches_ground_planner_allocation(
     planner.plan_groundwar()
 
     planned: dict[GroundUnitType, int] = {}
-    for group in planner.tank_groups:
-        planned[group.unit_type] = planned.get(group.unit_type, 0) + group.size
+    # The fork's planner deals groups straight to the enemy CPs (§90).
+    for groups in planner.units_per_cp.values():
+        for group in groups:
+            planned[group.unit_type] = planned.get(group.unit_type, 0) + group.size
     reserve = reserve_armor_for(cp)
     assert planned == {
         unit_type: count - reserve.get(unit_type, 0)

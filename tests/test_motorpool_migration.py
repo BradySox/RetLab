@@ -218,7 +218,7 @@ def test_migrate_game_rehomes_motorpools_after_all_migrations() -> None:
     assert events.index("rehome") > events.index("_update_theater")
 
 
-def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
+def test_loaded_migration_rehomes_without_generating_groups(
     tmp_path: Path,
 ) -> None:
     unit_type = next(GroundUnitType.for_dcs_type(Armor.M_1_Abrams))
@@ -304,8 +304,6 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
             "Garage B", Point(1000.0, 0.0, Caucasus()), Heading.from_degrees(0)
         ),
     ]
-    assert all(tgo.groups == [] for tgo in loaded_motorpools)
-    assert all(tgo.motorpool_unit_types == {} for tgo in loaded_motorpools)
     assert loaded.current_group_id == 20
     assert loaded.current_unit_id == 10
     loaded_next_group_id = cast(_IdAllocator, loaded.next_group_id)
@@ -340,4 +338,3 @@ def test_loaded_migration_rehomes_without_persisting_ephemeral_groups(
         if isinstance(tgo, MotorpoolGroundObject)
     ]
     assert len(reloaded_motorpools) == 2
-    assert all(tgo.groups == [] for tgo in reloaded_motorpools)

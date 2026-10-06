@@ -1113,10 +1113,11 @@ def test_settings_default_load_emits_once_and_syncs_transfer_visibility(
     assert fired == [1]
 
 
-def test_default_settings_without_json_emits_no_update(
+def test_default_settings_with_any_json_member_emits_once(
     app: QApplication, monkeypatch: pytest.MonkeyPatch, tmp_path: Any
 ) -> None:
-    """An existing default archive without Default.json is a failed load."""
+    """The fork reads any JSON member of Default.zip (Save Settings writes
+    settings.json), so an archive without Default.json still loads."""
     import qt_ui.windows.settings.QSettingsWindow as qsw
 
     widget = _settings_widget()
@@ -1130,7 +1131,8 @@ def test_default_settings_without_json_emits_no_update(
 
     widget.load_default_settings()
 
-    assert fired == []
+    assert fired == [1]
+    # No game is open, so there is nothing to publish.
     assert published == []
 
 

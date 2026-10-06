@@ -136,6 +136,7 @@ def _populated_motorpools(
     cp = SimpleNamespace(
         name="factory",
         captured=Player.BLUE,
+        is_friendly=lambda player: player is Player.BLUE,
         connected_points=[],
         base=SimpleNamespace(
             armor=armor,
@@ -274,6 +275,9 @@ def test_event_serialization_sorts_updated_tgos_by_stable_id(
         def __init__(self, name: str) -> None:
             self.id = uuid4()
             self.name = name
+
+        def hidden_on_player_map(self, viewer: Player) -> bool:
+            return False
 
         __hash__ = object.__hash__
 

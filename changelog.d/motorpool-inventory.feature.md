@@ -1,0 +1,1 @@
+* **[UX]** A motorpool depot's map tooltip lists its parked reserve, the armor expected there next turn, the reserve too large to park and the armor leaving in transfers, and updates as you buy and transfer.

@@ -135,7 +135,8 @@ def _top_up_side(game: "Game", coalition: "Coalition") -> None:
         if not units:
             continue
         coalition.transfers.new_transfer(
-            TransferOrder(source, destination, units), game.conditions.start_time
+            TransferOrder(source, destination, units, coalition.player),
+            game.conditions.start_time,
         )
 
 

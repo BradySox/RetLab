@@ -1,0 +1,10 @@
+date: 2026-10-06
+title: Motorpool depots show what is in them
+change: >-
+  Hovering a motorpool depot on the map lists the reserve armor parked there,
+  what is expected next turn, the reserve too large to park, and what is
+  leaving in transfers. The lists update as you buy armor and order transfers.
+watch: >-
+  The vehicles parked at a depot in the mission should match its Motorpool
+  reserve list.
+row: B181

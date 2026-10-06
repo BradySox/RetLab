@@ -129,6 +129,7 @@ class GameUpdateEvents:
 
     def delete_tgo(self, tgo_id: UUID) -> GameUpdateEvents:
         self.deleted_tgos.add(tgo_id)
+        return self
 
     def update_motorpools_at(self, *control_points: ControlPoint) -> GameUpdateEvents:
         """Adds every authored motorpool TGO at the given control points.
