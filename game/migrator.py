@@ -3,7 +3,7 @@ from __future__ import annotations
 import typing
 from datetime import timedelta
 import logging
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from dcs.countries import countries_by_name
 from dcs.terrain import Airport, Terrain
@@ -66,6 +66,8 @@ class Migrator:
         try_set_attr(self.game.settings, "max_csar_flights", 2)
         try_set_attr(self.game.settings, "csar_hover_extraction", False)
         self._ensure_motorpool_tgos()
+        self._drop_stray_iads_config_entries()
+        self._unwire_iads_ships()
         self._wire_iads_sites_that_arrived_late()
         self._reload_terrain()
         self._update_theater()
@@ -385,6 +387,25 @@ class Migrator:
                 cp.connected_objectives.append(tgo)
                 existing[identity] = tgo
 
+    def _drop_stray_iads_config_entries(self) -> None:
+        # Must run before the late wiring, which skips every config key.
+        network = self.game.theater.iads_network
+        if not network.empty_config_entries():
+            return
+        written = _campaign_iads_config_names(getattr(self.game, "campaign_name", None))
+        if written is None:
+            # Without the campaign an authored bare entry cannot be told from a
+            # stray one, so nothing is dropped.
+            return
+        dropped = network.drop_config_entries_not_in(written)
+        if dropped:
+            logging.info("IADS: unnamed again: %s", ", ".join(sorted(dropped)))
+
+    def _unwire_iads_ships(self) -> None:
+        unwired = self.game.theater.iads_network.unwire_ships()
+        if unwired:
+            logging.info("IADS: ships off the grid: %s", ", ".join(sorted(unwired)))
+
     def _wire_iads_sites_that_arrived_late(self) -> None:
         # The network is built once, at New Game; a site its config never named
         # was outside it for the rest of the campaign until 2026-09-21.
@@ -407,3 +428,32 @@ class Migrator:
     def _update_campaign_name(self) -> None:
         if not hasattr(self.game, "campaign_name"):
             self.game.campaign_name = None
+
+
+def _campaign_iads_config_names(campaign_name: Optional[str]) -> Optional[set[str]]:
+    """The site names the campaign's own ``iads_config`` writes, or None if unknown."""
+    if not campaign_name:
+        return None
+    try:
+        import yaml
+
+        from game.campaignloader.campaign import Campaign
+
+        for path in Campaign.iter_campaign_defs():
+            try:
+                with path.open(encoding="utf-8") as campaign_file:
+                    data = yaml.safe_load(campaign_file)
+            except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
+                continue
+            if not isinstance(data, dict) or data.get("name") != campaign_name:
+                continue
+            names: set[str] = set()
+            for element in data.get("iads_config") or []:
+                if isinstance(element, str):
+                    names.add(element)
+                elif isinstance(element, dict):
+                    names.update(element)
+            return names
+    except Exception:  # noqa: BLE001
+        logging.exception("IADS: campaign lookup failed for %r", campaign_name)
+    return None

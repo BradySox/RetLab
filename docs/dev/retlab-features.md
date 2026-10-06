@@ -6769,6 +6769,12 @@ landing. The single-player bypass is **checklist B26**: how DCS seats the SP pil
 a late-activated Player-skill group (and where they wait until it materializes) is
 DCS-only.
 
+**Sunk deck (2026-10-06, juanjux/dcs-escalation#501, deck half)**: `Carrier`,
+`EssexCarrier` and `Lha.can_operate` also require `_has_usable_flight_deck()`, so a
+sunk hull with escorts afloat takes no relocation, transfer or new squadron. A fleet
+with no carrier group yet (turn-0 squadron assignment) passes, because
+`find_main_tgo` raises then. Tests: `tests/theater/test_sunk_flight_deck.py`.
+
 ---
 
 ## §65 — Curated carrier comms (CV Operations Data cleanup)

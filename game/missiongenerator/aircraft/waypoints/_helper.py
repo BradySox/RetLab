@@ -1,10 +1,11 @@
 from typing import Any, Optional
 
 from dcs import Mission
-from dcs.action import SetFlag
+from dcs.action import DoScript, SetFlag
 from dcs.condition import Or, PartOfGroupInZone, TimeAfter
 from dcs.mapping import Point
 from dcs.task import ControlledTask
+from dcs.translation import String
 from dcs.triggers import TriggerOnce, Event
 from dcs.unitgroup import FlyingGroup
 
@@ -12,21 +13,27 @@ from game.ato import Package
 
 
 def create_stop_orbit_trigger(
-    orbit: ControlledTask, package: Package, mission: Mission, elapsed: int
+    orbit: ControlledTask, group_id: int, mission: Mission, elapsed: int
 ) -> None:
-    orbit.stop_if_user_flag(id(package), True)
-    orbits = [
-        x
-        for x in mission.triggerrules.triggers
-        if x.comment == f"StopOrbit{id(package)}"
-    ]
-    if not any(orbits):
-        stop_trigger = TriggerOnce(Event.NoEvent, f"StopOrbit{id(package)}")
-        stop_condition = TimeAfter(elapsed)
-        stop_action = SetFlag(id(package))
-        stop_trigger.add_condition(stop_condition)
-        stop_trigger.add_action(stop_action)
-        mission.triggerrules.triggers.append(stop_trigger)
+    """End an orbit at `elapsed`, backing up DCS's unreliable "stop after time".
+
+    Keyed by group and time, not package: a flag fires once, so a package-wide
+    flag ended every orbit at the first-generated flight's time (an AWACS
+    packaged with a BARCAP left station early). A group id is also stable
+    across generations, where the old Python id() was an object address.
+    """
+    flag = f"stop-orbit-{group_id}-{elapsed}"
+    orbit.stop_if_user_flag(flag, True)
+    comment = f"StopOrbit{group_id}-{elapsed}"
+    if any(t.comment == comment for t in mission.triggerrules.triggers):
+        return
+    stop_trigger = TriggerOnce(Event.NoEvent, comment)
+    stop_trigger.add_condition(TimeAfter(elapsed))
+    # A string user flag cannot collide with the numbered capture-zone flags.
+    stop_trigger.add_action(
+        DoScript(String(f'trigger.action.setUserFlag("{flag}", true)'))
+    )
+    mission.triggerrules.triggers.append(stop_trigger)
 
 
 # The escorted flight is never exactly on its SPLIT point when the escort should

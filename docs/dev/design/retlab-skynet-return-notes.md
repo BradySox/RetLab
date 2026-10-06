@@ -199,6 +199,20 @@ networks never had the hole. Found in juanjux/dcs-escalation#336, verified in
 - `enrol_sites_that_arrived_late` repairs a save on load (`Migrator`): any site with no
   comms or power link is wired by range, once. Basic-mode networks are untouched.
 - `tests/theater/test_iads_unnamed_sites.py`. Checklist row B133 is the in-game half.
+
+### Rebuilds and ships (2026-10-06, juanjux/dcs-escalation#452, #453)
+
+- `update_tgo` rebuilt every node of a config campaign from the config, so a site the
+  config never named came back with no grid. It now uses the config only for the sites
+  it names and range-wires the rest. It no longer removes from `nodes` while iterating.
+- `_add_connections_from_config` reads with `.get`: the defaultdict read inserted an
+  empty entry, which made the late-enrol repair treat the site as named. The migrator
+  drops empty entries the campaign yaml does not write; if the campaign cannot be
+  found it drops nothing, because an authored bare entry looks the same.
+- Ships make their own power and carry their own radios: range wiring skips them, the
+  late-enrol repair skips them, and the migrator removes their range-built grid links.
+  Config-named ships keep what the config writes.
+- `tests/theater/test_iads_config_and_ships.py`.
 ## The flag defaults from the miz (2026-09-21)
 
 `advanced_iads` only chooses the network mode. What range mode consumes is the command
