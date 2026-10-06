@@ -78,7 +78,7 @@ if TYPE_CHECKING:
     from game import Game
     from game.sim import GameUpdateEvents
     from game.squadrons import Squadron
-    from game.theater import Coalition, TheaterGroundObject
+    from game.theater import Coalition
 
 
 def create_transfer(

@@ -16,7 +16,6 @@ from game.ato.packagewaypoints import PackageWaypoints
 from game.ato.starttype import StartType
 from game.data.doctrine import MODERN_DOCTRINE, COLDWAR_DOCTRINE, WWII_DOCTRINE
 from game.theater import ParkingType, SeasonalConditions, Airfield
-from game.theater.player import Player
 from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
 
 if TYPE_CHECKING:

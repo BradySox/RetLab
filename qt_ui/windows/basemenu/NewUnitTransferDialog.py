@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import logging
 from collections import defaultdict
 from typing import Callable, Dict, Type
 
@@ -25,7 +24,7 @@ from dcs.unittype import UnitType
 
 from game import Game
 from game.dcs.groundunittype import GroundUnitType
-from game.theater import ControlPoint, Player
+from game.theater import ControlPoint
 from game.transfers import submit_transfer
 from qt_ui.models import GameModel
 from qt_ui.widgets.QLabeledWidget import QLabeledWidget

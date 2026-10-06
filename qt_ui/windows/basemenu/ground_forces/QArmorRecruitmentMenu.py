@@ -4,7 +4,6 @@ from PySide6.QtWidgets import QGridLayout, QScrollArea, QVBoxLayout, QWidget
 from game.dcs.groundunittype import GroundUnitType
 from game.purchaseadapter import GroundUnitPurchaseAdapter
 from game.theater import ControlPoint
-from game.theater.player import Player
 from qt_ui.models import GameModel
 from qt_ui.windows.basemenu.UnitTransactionFrame import UnitTransactionFrame
 
