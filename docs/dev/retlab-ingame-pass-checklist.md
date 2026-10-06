@@ -8656,7 +8656,15 @@ its `tools/check_entry.py` runs the Lua against stubs only.
   shot climbed above 79,000 ft; every guided one turned down onto its target. Still owed: 15
   missiles died 6-50 s after launch while still climbing. The second salvo (11 in 33 s at
   Hornets 47 NM out) was destroyed together ~7 s after its last launch, with no blue weapon
-  near it and every radar alive. Cause not yet known; a logging run of the same mission is owed.
+  near it and every radar alive.
+- **Test 53 (2026-10-06, logging run of test 52's mission, STR at 8 channels):** 23 Sayyad-4B, 0
+  kills. Every lost missile's target went to none, then the missile was destroyed 2-4 s later; each
+  loss lines up with its Hornet beaming (70-95 deg off the radar) or turning away while dumping
+  chaff (171 bundles in 10 s around the first batch). Test 52's four kills came at Hornets flying
+  straight in. Cause: the AI's defense breaks the STR's lock, as DCS intends. DM call 2026-10-06:
+  leave it. Not Skynet and not the channel count; the pack's STR stays at 8 channels.
+- **Fail signature:** Sayyads destroyed mid-flight with their target set to none = the targeted jet
+  beamed or chaffed the STR off; read the jet's aspect and the chaff in Tacview before blaming the site.
 - **Fail signature:** TELs that never raise = the ground tilts them past `maxDeviationPitch`/`Roll`;
   read each unit's pitch and roll in Tacview before anything else.
 - **Fail signature:** a Bavar-373 site whose STR tracks a target inside 86 NM and never fires =
