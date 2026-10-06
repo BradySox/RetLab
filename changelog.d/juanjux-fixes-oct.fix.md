@@ -1,0 +1,4 @@
+* **[Mission Generation]** Every orbit in a package ended at the same time, whichever flight was generated first, so an AWACS or tanker packaged with a BARCAP left station early. Each flight now ends its orbit at its own time. (upstream #964, juanjux)
+* **[IADS]** An air-defence site the campaign's IADS config does not name lost its power and comms links when one of its units died or was repaired, and the load-time repair never put them back. Existing saves are repaired on load. (juanjux)
+* **[IADS]** Ships are no longer wired to power stations and comms towers ashore; bombing a coastal plant no longer shuts down a carrier group's air defence. Existing saves are unwired on load. (juanjux)
+* **[Campaign]** A carrier or LHA whose flight deck has sunk no longer accepts squadron relocations, transfers or new squadrons. (juanjux)
