@@ -1,0 +1,1 @@
+* **[Cheats]** The OPFOR buy/sell/transfer cheat can buy, sell and transfer red's ground units from red bases that deploy them, and a transfer with no route or to the other side's base is refused before anything moves.
