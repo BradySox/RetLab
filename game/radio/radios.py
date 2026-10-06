@@ -29,8 +29,24 @@ class RadioFrequency:
 
     def __str__(self) -> str:
         if self.hertz >= 1000000:
-            return self.format("MHz", 1000000)
+            return self.band_label()
         return self.format("kHz", 1000)
+
+    @property
+    def band(self) -> str:
+        """The aviation band name: UHF from 225 MHz, VHF from 30 MHz, else HF."""
+        if self.hertz >= 225000000:
+            return "UHF"
+        if self.hertz >= 30000000:
+            return "VHF"
+        return "HF"
+
+    def band_label(self) -> str:
+        """How a pilot reads it: "UHF 239.000". AM is assumed; FM is named."""
+        label = f"{self.band} {self.mhz:0.3f}"
+        if self.modulation == Modulation.FM:
+            label += " FM"
+        return label
 
     def format(self, units: str, divisor: int) -> str:
         # Always render three decimals (e.g. "131.000 MHz AM") so frequency

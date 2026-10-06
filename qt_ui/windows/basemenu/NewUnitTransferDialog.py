@@ -40,6 +40,7 @@ class TransferDestinationComboBox(QComboBox):
         for cp in self.game.theater.controlpoints:
             if (
                 cp != self.origin
+                and not owner.is_neutral
                 and cp.is_friendly(to_player=owner)
                 and cp.can_deploy_ground_units
                 and self.game.transit_network_for(owner).has_path_between(origin, cp)

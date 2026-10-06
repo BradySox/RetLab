@@ -46,6 +46,9 @@ class HashableCP(SimpleNamespace):
     def __hash__(self) -> int:  # type: ignore[override]
         return id(self)
 
+    def is_friendly(self, to_player: Player) -> bool:
+        return bool(self.captured == to_player)
+
 
 def _unit_type() -> GroundUnitType:
     return next(GroundUnitType.for_dcs_type(Armor.M_1_Abrams))

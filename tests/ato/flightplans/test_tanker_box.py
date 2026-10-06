@@ -201,6 +201,11 @@ def test_the_f10_marker_draws_the_box() -> None:
     # Encloses every corner, not a circle at the start.
     assert min(xs) < -TANKER_BOX_DEPTH.meters < 0 < max(xs)
     assert min(ys) < 0 < nautical_miles(40).meters < max(ys)
+    # DCS draws the outline open, so the ring must end where it started.
+    assert (orbit.points[0].x, orbit.points[0].y) == (
+        orbit.points[-1].x,
+        orbit.points[-1].y,
+    )
 
 
 @pytest.mark.parametrize("dragged", range(5))

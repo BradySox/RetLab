@@ -1,0 +1,1 @@
+* **[Mission Generation]** Radio frequencies on the kneeboard, briefing, F10 map and in the app name the band the way a pilot reads them: `UHF 239.000`, `VHF 124.000`, with FM named where used. Beacon frequencies in kHz are unchanged.
