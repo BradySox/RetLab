@@ -32,6 +32,7 @@ from game.theater.theatergroundobject import (
     VehicleGroupGroundObject,
 )
 from game.threatzones import ThreatZones
+from game.utils import nautical_miles
 
 if TYPE_CHECKING:
     from game import Game
@@ -54,6 +55,24 @@ class PersistentContext:
 #: :func:`trim_rounds_for_escort_reserve` (a control point in practice; the
 #: function itself is key-agnostic).
 _RoundsKeyT = TypeVar("_RoundsKeyT")
+
+
+#: An LHA this close to a friendly carrier flies under the carrier's CAP.
+LHA_CARRIER_CAP_COVER = nautical_miles(25)
+
+
+def lha_covered_by_carrier(cp: ControlPoint, friendly: list[ControlPoint]) -> bool:
+    """True for an LHA within ``LHA_CARRIER_CAP_COVER`` of a friendly carrier.
+
+    Both ships got their own BARCAP stack over nearly the same point, which
+    spent two flights on one patch of sky. A lone LHA keeps its own.
+    """
+    if not cp.is_lha:
+        return False
+    return any(
+        other.is_carrier and cp.distance_to(other) <= LHA_CARRIER_CAP_COVER.meters
+        for other in friendly
+    )
 
 
 def trim_rounds_for_escort_reserve(
@@ -269,9 +288,11 @@ class TheaterState(WorldState["TheaterState"]):
         enemy_air_defenses = list(finder.enemy_air_defenses())
         enemy_ships = list(finder.enemy_ships())
 
+        friendly_cps = list(finder.friendly_control_points())
         barcaps_needed = {
             cp: 2 * barcap_rounds if cp.is_fleet else barcap_rounds
             for cp in finder.vulnerable_control_points()
+            if not lha_covered_by_carrier(cp, friendly_cps)
         }
         # Strike-escort reserve (Doctrine.strike_escort_reserve): on fighter-poor
         # eras the HTN spends every fighter on BARCAP before any strike proposes
