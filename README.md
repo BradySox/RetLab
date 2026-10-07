@@ -283,6 +283,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Cruise missile raids.** Mark a target and call the strike; the nearest warship ripples a
   salvo. Magazines are finite and never rearm. A launch alerts defending SAMs around the
   aimpoint.
+  Automatic raids never fly past an enemy SAM site that has point defense.
 - **Naval magazines.** Warships can be released to weapons-free a group at a time instead of
   all at once, and anti-ship missiles fired are gone for the rest of the war. A ship group also
   stops after a set number of anti-ship missiles per mission, so a fleet fights a running battle

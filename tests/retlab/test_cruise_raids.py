@@ -28,6 +28,7 @@ from game.retlab.cruise_raids import (
     tgo_magazines,
 )
 from game.theater import Player
+from game.theater.iadsnetwork.iadsrole import IadsRole
 
 BURKE = "USS_Arleigh_Burke_IIa"
 KARAKURT = "CH_Karakurt_LACM"
@@ -555,3 +556,97 @@ def test_the_reveal_overview_does_not_change_what_blue_shoots() -> None:
 
     assert [r.target_name for r in fogged] == [r.target_name for r in revealed]
     assert fogged[0].target_name == "Cache"
+
+
+def _sam_site(
+    name: str,
+    pos: _Pos,
+    radius_m: float,
+    *,
+    point_defense: bool = True,
+    pd_alive: bool = True,
+    unseen: bool = False,
+) -> Any:
+    """A SAM TGO; its point-defense group is a separate group, as in the layouts."""
+    groups = [
+        SimpleNamespace(
+            group_name=f"{name} (SAM)",
+            iads_role=IadsRole.SAM,
+            units=[SimpleNamespace(alive=True, type=SimpleNamespace(id="S-300"))],
+        )
+    ]
+    if point_defense:
+        groups.append(
+            SimpleNamespace(
+                group_name=f"{name} (PD)",
+                iads_role=IadsRole.POINT_DEFENSE,
+                units=[SimpleNamespace(alive=pd_alive, type=SimpleNamespace(id="2S6"))],
+            )
+        )
+    return SimpleNamespace(
+        category="aa",
+        name=name,
+        position=pos,
+        groups=groups,
+        units=[u for g in groups for u in g.units],
+        is_control_point=False,
+        map_hidden=False,
+        hidden_on_player_map=lambda viewer=None: unseen,
+        max_threat_range=lambda: SimpleNamespace(meters=radius_m),
+    )
+
+
+def _blocked_hq_game(**sam_kwargs: Any) -> Any:
+    """An HQ straight down the line past a SAM, and a clear ammo dump off to
+    the side. The HQ outranks the dump, so picking the dump means the HQ was
+    blocked."""
+    blue_cp, _ = _blue_burke()
+    red_cp = _cp(Player.RED)
+    red_cp.ground_objects.append(
+        _target_tgo("Division HQ", "commandcenter", _Pos(100_000.0, 0.0))
+    )
+    red_cp.ground_objects.append(_target_tgo("Dump", "ammo", _Pos(0.0, 100_000.0)))
+    red_cp.ground_objects.append(
+        _sam_site("Grumble", _Pos(50_000.0, 30_000.0), 40_000.0, **sam_kwargs)
+    )
+    return _game([blue_cp, red_cp])
+
+
+def test_raid_skips_a_target_whose_path_passes_a_point_defended_sam() -> None:
+    raids = plan_cruise_raids(cast(Any, _blocked_hq_game()))
+    assert [r.target_name for r in raids] == ["Dump"]
+
+
+def test_a_sam_without_live_point_defense_does_not_block() -> None:
+    for kwargs in ({"point_defense": False}, {"pd_alive": False}):
+        raids = plan_cruise_raids(cast(Any, _blocked_hq_game(**kwargs)))
+        assert [r.target_name for r in raids] == ["Division HQ"]
+
+
+def test_blue_ignores_a_point_defended_sam_it_cannot_see() -> None:
+    raids = plan_cruise_raids(cast(Any, _blocked_hq_game(unseen=True)))
+    assert [r.target_name for r in raids] == ["Division HQ"]
+
+
+def test_no_raid_when_every_path_is_blocked() -> None:
+    blue_cp, _ = _blue_burke()
+    red_cp = _cp(Player.RED)
+    red_cp.ground_objects.append(
+        _target_tgo("Factory", "factory", _Pos(100_000.0, 0.0))
+    )
+    # The target itself sits inside the ring.
+    red_cp.ground_objects.append(_sam_site("Grumble", _Pos(90_000.0, 0.0), 40_000.0))
+    assert plan_cruise_raids(cast(Any, _game([blue_cp, red_cp]))) == []
+
+
+def test_red_raids_avoid_blue_point_defended_sams_too() -> None:
+    red_cp = _cp(Player.RED)
+    red_cp.ground_objects.append(
+        _ship_tgo("Red fleet", red_cp, _Pos(0.0, 0.0), [_unit(KARAKURT)], "Red Fleet")
+    )
+    blue_cp = _cp(Player.BLUE)
+    blue_cp.ground_objects.append(
+        _target_tgo("Blue factory", "factory", _Pos(100_000.0, 0.0))
+    )
+    blue_cp.ground_objects.append(_sam_site("Patriot", _Pos(50_000.0, 0.0), 30_000.0))
+    assert plan_cruise_raids(cast(Any, _game([red_cp, blue_cp]))) == []

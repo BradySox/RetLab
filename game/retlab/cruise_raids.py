@@ -20,7 +20,8 @@ This module is the campaign side of §63:
   turn: the launching ship whose best reachable enemy ground object has the
   highest category priority (C2 first, then the war-economy buildings, then
   anything strikeable). Pure function of game state — idempotent across mission
-  regenerations.
+  regenerations. A target is skipped when the straight line to it enters
+  the ring of an enemy SAM site with point defense.
 
 The missiles themselves are real DCS weapons from a real, tracked ship TGO:
 kills record natively at debrief (no phantom spawns, no debrief-schema change),
@@ -33,10 +34,12 @@ call-for-fire) and ``cruise_missile_auto_raids`` (the planner), both default OFF
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Iterator, Optional
 
 from game.theater import Player
+from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.retlab.region_priorities import planning_factor
 from game.theater.fogofwar import hidden_from
 from game.utils import nautical_miles
@@ -298,11 +301,14 @@ def _plan_side_raid(game: "Game", side: str) -> Optional[CruiseRaid]:
     if not ships:
         return None
 
+    rings = _point_defended_rings(game, side)
     best: Optional[tuple[int, float, LacmShip, "TheaterGroundObject"]] = None
     for ship in ships:
         for tgo in _enemy_raid_targets(game, side):
             dist = ship.position.distance_to_point(tgo.position)
             if dist > MAX_RAID_RANGE_M:
+                continue
+            if _path_crosses_ring(ship.position, tgo.position, rings):
                 continue
             priority = _TARGET_CATEGORY_PRIORITY.get(
                 getattr(tgo, "category", ""), _FALLBACK_PRIORITY
@@ -322,6 +328,49 @@ def _plan_side_raid(game: "Game", side: str) -> Optional[CruiseRaid]:
         target_y=target.position.y,
         missiles=min(RAID_SALVO, ship.remaining),
     )
+
+
+def _point_defended_rings(game: "Game", side: str) -> list[tuple[float, float, float]]:
+    """(x, y, radius m) of every enemy SAM site with a live point-defense group.
+
+    Test 54: six TLAMs flew past a point-defended SA-10 and it spent 22 of its 24
+    missiles on them before the strike package arrived. Blue counts only sites it
+    can see, as with targets.
+    """
+    rings = []
+    for cp in game.theater.controlpoints:
+        owner = cp.captured
+        if not (owner.is_red if side == "blue" else owner.is_blue):
+            continue
+        for tgo in cp.ground_objects:
+            if not any(
+                getattr(group, "iads_role", None) is IadsRole.POINT_DEFENSE
+                and any(unit.alive for unit in group.units)
+                for group in getattr(tgo, "groups", [])
+            ):
+                continue
+            if side == "blue" and hidden_from(Player.BLUE, tgo):
+                continue
+            radius = tgo.max_threat_range().meters
+            if radius > 0:
+                rings.append((tgo.position.x, tgo.position.y, radius))
+    return rings
+
+
+def _path_crosses_ring(
+    start: "Point", end: "Point", rings: list[tuple[float, float, float]]
+) -> bool:
+    """Whether the straight line a FireAtPoint missile flies enters any ring."""
+    dx, dy = end.x - start.x, end.y - start.y
+    length_sq = dx * dx + dy * dy
+    for cx, cy, radius in rings:
+        t = 0.0
+        if length_sq > 0:
+            t = ((cx - start.x) * dx + (cy - start.y) * dy) / length_sq
+            t = max(0.0, min(1.0, t))
+        if math.hypot(start.x + t * dx - cx, start.y + t * dy - cy) < radius:
+            return True
+    return False
 
 
 def _enemy_raid_targets(game: "Game", side: str) -> Iterator["TheaterGroundObject"]:

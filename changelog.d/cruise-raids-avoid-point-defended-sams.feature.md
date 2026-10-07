@@ -1,0 +1,1 @@
+* **[Campaign AI]** An automatic cruise missile raid no longer picks a target whose straight-line path passes inside the ring of an enemy SAM site with point defense. It takes the next-best clear target, or holds its missiles that turn.
