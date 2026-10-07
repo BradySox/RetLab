@@ -1,0 +1,9 @@
+date: 2026-10-07
+title: Carrier player slots work from mission start
+change: >-
+  Player flights on a carrier spawn as soon as the mission starts, so
+  their multiplayer slots can be taken straight away. The Carrier
+  six-pack usage setting is gone.
+watch: >-
+  Every fragged carrier slot can be joined from mission start, with no
+  delayed start, and nobody needs a dynamic slot to fly their flight.

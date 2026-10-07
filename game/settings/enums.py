@@ -116,15 +116,10 @@ class DatalinkPolicy(Enum):
 
 @unique
 class CarrierDeckPolicy(Enum):
-    """How the carrier six-pack (the first-filled deck spots) is used.
-
-    DCS offers no mission-level control over deck parking beyond spawn timing:
-    groups spawning at mission start fill the six-pack first, and anything that
-    spawns even one second later is placed elsewhere on deck (the
-    dcs_liberation#1309 placement trick the generator already uses to keep AI
-    off the six-pack). The six-pack sits in the taxi lane to the bow catapults,
-    so a slow-starting player parked there jams every AI jet taxiing to launch.
-    """
+    """Save-compat stub. The carrier six-pack setting (§64) persisted this enum
+    in saves; it is kept only so they unpickle, and the migration drops the
+    value. Removed 2026-10-07: LAST_RESORT late-activated player carrier groups,
+    which made their multiplayer slots unflyable."""
 
     SIXPACK_FIRST = "Players spawn on the six-pack"
     LAST_RESORT = "Six-pack is overflow parking (last resort)"

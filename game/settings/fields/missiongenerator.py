@@ -15,7 +15,6 @@ if TYPE_CHECKING:
     pass
 from ..enums import (
     AiRadioBehavior,
-    CarrierDeckPolicy,
     CombatResolutionMethod,
     DatalinkPolicy,
     DefaultPlayerLaserCode,
@@ -564,21 +563,6 @@ class MissionGeneratorSettings:
         GAMEPLAY_SECTION,
         default=True,
         detail=("Enables dynamic cargo for airfields, ships, FARPs & warehouses."),
-    )
-    carrier_deck_policy: CarrierDeckPolicy = choices_option(
-        "Carrier six-pack usage",
-        page=MISSION_GENERATOR_PAGE,
-        section=GAMEPLAY_SECTION,
-        choices={v.value: v for v in CarrierDeckPolicy},
-        default=CarrierDeckPolicy.LAST_RESORT,
-        detail=(
-            "The six-pack (the first-filled carrier deck spots) sits in the taxi "
-            "lane to the bow catapults, so AI taxiing to launch jam against a "
-            "slow-starting player parked there. Last resort spawns player flights "
-            "one second after mission start, which makes DCS park them clear of "
-            "the six-pack; the six-pack then only fills once the rest of the deck "
-            "is full. AI carrier flights always spawn clear of the six-pack."
-        ),
     )
     use_auto_fog: bool = boolean_option(
         "Use DCS' automatic fog setting",

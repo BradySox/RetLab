@@ -103,10 +103,8 @@ in its thread and it was never modelled; upstreaming queue item 42.
 - One queue per departure field, per coalition ATO.
 - In the queue: every flight of that coalition leaving that field with a cold or warm
   (parking) start, fixed-wing only, whose package is scheduled.
-- Out of the queue, and no wait: FOBs, off-map spawns, runway and air starts,
+- Out of the queue, and no wait: carriers, FOBs, off-map spawns, runway and air starts,
   helicopters.
-- **Carriers queue on the deck (DM call 2026-10-07)**, at `count × 75 s`
-  (`DECK_SECONDS_PER_AIRCRAFT`). See "Carrier deck" below.
 - Order: planned takeoff time. Ties go by package order, then flight order in the package.
 - Each flight holds the runway for `count × 45 s` (`RUNWAY_SECONDS_PER_AIRCRAFT`).
 - A flight's slot opens at its planned takeoff or when the previous slot closes, whichever
@@ -130,22 +128,6 @@ in its thread and it was never modelled; upstreaming queue item 42.
 - A flight still being planned (not yet in the ATO) queues behind everything already there.
 - Code: `game/ato/runwayqueue.py`, called from `FlightPlan.estimate_ground_ops`. Tests:
   `tests/test_runway_queue.py`.
-
-### Carrier deck
-
-Test 54 (2026-10-06): the plan gave Iron Gate's carrier package 2.5 min from spawn to
-airborne; its SEAD 4-ship and two escort pairs launched 9-15 min late and the package was
-10 min late on target. 23 flown carrier groups (measured 2026-09-18) took 3-4.5 min for a
-quiet-deck pair and 6-9 min for a busy 4-ship.
-
-- `estimate_ground_ops` on a ship = 2 min + the deck wait + `count × 75 s` for the flight's
-  own launches. 75 s puts a pair at 4.5 min (the measured median) and a 4-ship at 7.
-- Unlike the runway, a deck flight's own launch is already in its ground ops, so its slot
-  ends at its planned takeoff: the next flight waits only for the launches still ahead of
-  it.
-- Helicopters neither wait nor hold the deck. This is not the dropped deck work of
-  2026-09-18 (cap, waves, Tomcat delay): nothing is held back, flights only spawn earlier.
-- Row B187.
 
 ### Calibration
 

@@ -354,7 +354,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "dynamic_slots_hot",
                     "dynamic_slots_templates",
                     "dynamic_cargo",
-                    "carrier_deck_policy",
                     "untasked_opfor_client_slots",
                     "game_masters_count",
                     "tactical_commander_count",

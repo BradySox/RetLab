@@ -190,8 +190,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   ahead of it over the target's SAMs. Part of the RetLab planner suite.
 - At a busy airfield, flights queue for the runway at 45 seconds per jet, and each flight
   spawns early by its wait. A quiet field keeps the flat 8 minutes.
-- On a carrier, each flight gets 2 minutes plus 75 seconds per jet for the catapult, and
-  waits for the launches ahead of it off the same ship.
 - The mission starts up to 30 minutes before the turn's clock when a flight needs that long
   to make its TOT. TOTs and the campaign clock do not move.
 - Also: overlapping BARCAP waves, ASAP tankers and AWACS, weighted off-mission combat resolution, per-side

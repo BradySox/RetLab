@@ -75,7 +75,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §61 | Host red-interceptor scramble (F10 bandit spawner) | `redscramble` | `host_red_scramble` |
 | §62 | Squadron-sequenced Hornet/Tomcat board numbers | — | — |
 | §63 | Ship-launched cruise missile raids | `cruisemissiles` | `cruise_missile_strikes`, `cruise_missile_auto_raids` |
-| §64 | Carrier deck spawn policy (six-pack last resort + MP slot timing) | — | `carrier_deck_policy` |
+| §64 | Carrier deck spawn policy (AI off the six-pack + MP slot timing) | — | — |
 | §65 | Curated carrier comms (CV Operations Data cleanup) | — | — |
 | §66 | Generated-mission archive | — | — |
 | §67 | Weather-aware auto-planning | — | `weather_aware_planning` |
