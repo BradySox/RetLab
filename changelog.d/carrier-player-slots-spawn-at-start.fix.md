@@ -1,0 +1,1 @@
+* **[Mission Generation]** Player carrier flights spawn when the mission starts again. The "Carrier six-pack usage" setting is removed: its default late-activated player groups, which showed their multiplayer slots as a delayed start nobody could fly.

@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     pass
 from .enums import (
     AiRadioBehavior,
-    CarrierDeckPolicy,
     CloudPresetPack,
     CombatResolutionMethod,
     DatalinkPolicy,
@@ -45,18 +44,6 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
     if "datalink_policy" not in migrated and "eplrs_enabled" in migrated:
         migrated["datalink_policy"] = (
             DatalinkPolicy.ALWAYS if migrated["eplrs_enabled"] else DatalinkPolicy.NEVER
-        )
-
-    # The carrier six-pack boolean became the CarrierDeckPolicy enum (§64).
-    # ON exempted player flights from the off-six-pack placement delay (so
-    # they filled the six-pack); OFF already behaved like the last-resort
-    # policy. Preserve whichever the save had; the old key is dropped in the
-    # obsolete-key sweep below.
-    if "carrier_deck_policy" not in migrated and "player_flights_sixpack" in migrated:
-        migrated["carrier_deck_policy"] = (
-            CarrierDeckPolicy.SIXPACK_FIRST
-            if migrated["player_flights_sixpack"]
-            else CarrierDeckPolicy.LAST_RESORT
         )
 
     # Pre-pack saves carried a boolean "use Bandit's clouds"; the packs are now
@@ -130,9 +117,10 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         # (dead code removed 2026-07-01; nothing wrote scar_misid since the
         # armor-hunt plugin was deleted).
         "scar_misid_penalty",
-        # Consolidated into the CarrierDeckPolicy enum (value already
-        # migrated above).
+        # §64's carrier six-pack setting, then its CarrierDeckPolicy successor,
+        # REMOVED 2026-10-07: player carrier flights always spawn at mission start.
         "player_flights_sixpack",
+        "carrier_deck_policy",
         # Tuning knobs folded into constants 2026-09-23 (simplification pass).
         "gps_jamming_default_reach_nm",
         "gps_jamming_miss_radius_m",

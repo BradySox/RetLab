@@ -6721,6 +6721,16 @@ salvo sizing, the CH Kalibr hulls, red-side raids, full-magazine exhaustion.
 
 ## §64 — Carrier deck spawn policy (six-pack last resort + MP slot timing)
 
+**2026-10-07 — the six-pack setting is REMOVED (DM call, test 54).** `LAST_RESORT`
+late-activated player carrier groups at t=1 s. In multiplayer that turns their slots into
+a "delayed start" nobody can fly: in test 54 the CPY Hornet pilots sat in their fragged
+slots and had to move to dynamic slots, and the carrier package launched 9-15 min late.
+Player carrier flights now always spawn at mission start (the old `SIXPACK_FIRST`
+behavior); AI carrier ground starts keep the one-second placement activation.
+`carrier_deck_policy` and `player_flights_sixpack` are dropped in `migration.py`; the
+`CarrierDeckPolicy` enum stays only as a save-compat stub. The rest of this section is
+the history.
+
 The 2026-07-16 supercarrier finding: AI taxiing to the catapults jam against the player
 — "they get stuck between me and the catapult" — because the player is parked **on the
 six-pack**, the first-filled deck spots that sit squarely in the taxi lane to the bow

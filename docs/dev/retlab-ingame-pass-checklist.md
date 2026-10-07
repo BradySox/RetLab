@@ -938,6 +938,11 @@ jets. See §62.
 
 ### B17 — Carrier deck spawn policy (six-pack last resort + MP slot timing) · §64 · ✗ REGRESSED (2026-09-17, test 36)
 
+**2026-10-07, test 54 — player carrier slots were unflyable; the six-pack setting is removed.**
+Its default late-activated player carrier groups at t=1 s, so in MP their slots showed a
+delayed start and the CPY pilots moved to dynamic slots. Player carrier flights now spawn
+at mission start. Next MP carrier fly: every fragged boat slot joins from mission start.
+
 **2026-09-18 — the fix is removed (DM call).** The deck cap (#1032) and the Tomcat spawn
 delay (#1020) were both taken out, so every carrier flight parks on the deck again and the
 test 36 failure below can recur on a boat fragged past its deck. Row stays ✗ REGRESSED.

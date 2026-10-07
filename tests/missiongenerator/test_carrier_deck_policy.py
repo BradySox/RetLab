@@ -7,13 +7,12 @@ elsewhere on deck (dcs_liberation#1309). These tests pin the generator's use of
 that lever:
 
 * AI carrier ground starts always spawn >= 1s late (never in the six-pack).
-* Player carrier flights take the same placement delay under the last-resort
-  deck policy, and keep the six-pack under SIXPACK_FIRST.
-* A TOT-delayed player carrier flight is no longer late-activated for its full
-  delay (which removed its slots from the MP slot list until the push time):
-  it spawns uncontrolled like its airfield counterpart, with only the
-  one-second placement activation, and the StartCommand holds the AI members
-  to the planned push.
+* Player carrier flights never take it: in multiplayer a late-activated client
+  group is a "delayed start" slot nobody can fly (test 54, 2026-10-07), so they
+  spawn at mission start like airfield player flights.
+* A TOT-delayed player carrier flight spawns uncontrolled at mission start like
+  its airfield counterpart, and the StartCommand holds the AI members to the
+  planned push.
 * Single player ignores "Spawn player flights immediately": with fewer than
   two player slots in the mission (the same predicate that assigns Player
   rather than Client skill) there is no slot list to keep selectable, so the
@@ -33,7 +32,7 @@ from game.ato.starttype import StartType
 from game.missiongenerator.aircraft.waypoints.waypointgenerator import (
     WaypointGenerator,
 )
-from game.settings import CarrierDeckPolicy, Settings
+from game.settings import Settings
 
 
 class FakeWaiting(WaitingForStart):
@@ -125,18 +124,15 @@ def startup_delays(mission: Any) -> list[int]:
     ]
 
 
-def settings_with(policy: CarrierDeckPolicy, never_delay: bool = True) -> Settings:
+def settings_with(never_delay: bool = True) -> Settings:
     settings = Settings()
-    settings.carrier_deck_policy = policy
     settings.never_delay_player_flights = never_delay
     return settings
 
 
 def test_ai_carrier_ground_start_spawns_off_the_sixpack() -> None:
     flight = make_flight(client_count=0, is_fleet=True, state=FakeGroundState())
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.SIXPACK_FIRST)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with())
     assert group.late_activation
     assert activation_delays(mission) == [1]
     assert startup_delays(mission) == []
@@ -146,9 +142,7 @@ def test_ai_carrier_flight_with_zero_hold_still_spawns_late() -> None:
     # WaitingForStart(0) previously produced a TimeAfter(0) activation, which
     # joins the mission-start deck fill; the placement delay now floors it.
     flight = make_flight(client_count=0, is_fleet=True, state=FakeWaiting(timedelta()))
-    _, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT)
-    )
+    _, mission = run_set_takeoff_time(flight, settings_with())
     assert activation_delays(mission) == [1]
 
 
@@ -156,55 +150,26 @@ def test_ai_carrier_flight_activates_at_its_push_time() -> None:
     flight = make_flight(
         client_count=0, is_fleet=True, state=FakeWaiting(timedelta(minutes=20))
     )
-    _, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT)
-    )
+    _, mission = run_set_takeoff_time(flight, settings_with())
     assert activation_delays(mission) == [1200]
 
 
-def test_client_carrier_last_resort_spawns_off_the_sixpack() -> None:
+def test_client_carrier_flight_spawns_at_mission_start() -> None:
+    """Test 54: late-activated at 1 s, the CPY Hornets' slots were a "delayed
+    start" in MP and the pilots had to take dynamic slots."""
     flight = make_flight(client_count=2, is_fleet=True, state=FakeGroundState())
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT)
-    )
-    assert group.late_activation
-    assert not group.uncontrolled
-    assert activation_delays(mission) == [1]
-
-
-def test_client_carrier_sixpack_first_joins_the_mission_start_fill() -> None:
-    flight = make_flight(client_count=2, is_fleet=True, state=FakeGroundState())
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.SIXPACK_FIRST)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with())
     assert not group.late_activation
     assert mission.triggerrules.triggers == []
 
 
 def test_delayed_client_carrier_flight_keeps_its_slots() -> None:
-    # The MP fix: previously late-activated for the full 45 minutes, so the
-    # client slots did not exist until the push time. Now it spawns at ~1s
-    # (uncontrolled, off the six-pack) and only the AI members hold for the
+    # Spawns uncontrolled at mission start; only the AI members hold for the
     # StartCommand.
     flight = make_flight(
         client_count=2, is_fleet=True, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT, never_delay=False)
-    )
-    assert group.uncontrolled
-    assert group.late_activation
-    assert startup_delays(mission) == [2700]
-    assert activation_delays(mission) == [1]
-
-
-def test_delayed_client_carrier_flight_sixpack_first_spawns_at_start() -> None:
-    flight = make_flight(
-        client_count=2, is_fleet=True, state=FakeWaiting(timedelta(minutes=45))
-    )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.SIXPACK_FIRST, never_delay=False)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(never_delay=False))
     assert group.uncontrolled
     assert not group.late_activation
     assert startup_delays(mission) == [2700]
@@ -220,9 +185,7 @@ def test_delayed_warm_client_carrier_flight_still_activates_late() -> None:
         state=FakeWaiting(timedelta(minutes=45), spawn=StartType.WARM),
         start_type=StartType.WARM,
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT, never_delay=False)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(never_delay=False))
     assert not group.uncontrolled
     assert activation_delays(mission) == [2700]
 
@@ -233,18 +196,14 @@ def test_airfield_flights_are_untouched() -> None:
     flight = make_flight(
         client_count=2, is_fleet=False, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT, never_delay=False)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(never_delay=False))
     assert group.uncontrolled
     assert not group.late_activation
     assert activation_delays(mission) == []
 
     # Mission-start AI airfield flight: no triggers at all.
     flight = make_flight(client_count=0, is_fleet=False, state=FakeGroundState())
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with())
     assert not group.late_activation
     assert mission.triggerrules.triggers == []
 
@@ -256,9 +215,7 @@ def test_runway_start_never_takes_the_placement_delay() -> None:
         state=FakeGroundState(spawn=StartType.RUNWAY),
         start_type=StartType.RUNWAY,
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT)
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with())
     assert not group.late_activation
     assert mission.triggerrules.triggers == []
 
@@ -269,9 +226,7 @@ def test_multiplayer_client_flight_spawns_immediately_with_the_setting_on() -> N
     flight = make_flight(
         client_count=2, is_fleet=False, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=True
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=True)
     assert not group.late_activation
     assert not group.uncontrolled
     assert mission.triggerrules.triggers == []
@@ -284,9 +239,7 @@ def test_single_player_cold_flight_activates_at_its_planned_startup_time() -> No
     flight = make_flight(
         client_count=1, is_fleet=False, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert group.late_activation
     assert not group.uncontrolled
     assert activation_delays(mission) == [2700]
@@ -300,9 +253,7 @@ def test_single_player_warm_flight_activates_at_its_planned_taxi_time() -> None:
         state=FakeWaiting(timedelta(minutes=45), spawn=StartType.WARM),
         start_type=StartType.WARM,
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert group.late_activation
     assert not group.uncontrolled
     assert activation_delays(mission) == [2700]
@@ -315,9 +266,7 @@ def test_single_player_runway_flight_activates_at_its_takeoff_time() -> None:
         state=FakeWaiting(timedelta(minutes=20), spawn=StartType.RUNWAY),
         start_type=StartType.RUNWAY,
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert group.late_activation
     assert activation_delays(mission) == [1200]
 
@@ -328,9 +277,7 @@ def test_single_player_short_delay_still_spawns_at_mission_start() -> None:
     flight = make_flight(
         client_count=1, is_fleet=False, state=FakeWaiting(timedelta(minutes=5))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert not group.late_activation
     assert not group.uncontrolled
     assert mission.triggerrules.triggers == []
@@ -342,9 +289,7 @@ def test_single_player_cold_carrier_flight_activates_late_and_off_sixpack() -> N
     flight = make_flight(
         client_count=1, is_fleet=True, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert group.late_activation
     assert not group.uncontrolled
     assert activation_delays(mission) == [2700]
@@ -356,9 +301,7 @@ def test_single_player_ai_flights_keep_the_normal_delay_paths() -> None:
     flight = make_flight(
         client_count=0, is_fleet=False, state=FakeWaiting(timedelta(minutes=45))
     )
-    group, mission = run_set_takeoff_time(
-        flight, settings_with(CarrierDeckPolicy.LAST_RESORT), multiplayer=False
-    )
+    group, mission = run_set_takeoff_time(flight, settings_with(), multiplayer=False)
     assert group.uncontrolled
     assert not group.late_activation
     assert startup_delays(mission) == [2700]

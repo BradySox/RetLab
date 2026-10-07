@@ -23,7 +23,7 @@ from game.retlab.range_fuel import flight_external_fuel_lbs
 from game.missiongenerator.aircraft.waypoints.cargostop import CargoStopBuilder
 from game.missiongenerator.missiondata import MissionData
 from game.missiongenerator.refuelrendezvous import refuel_rendezvous
-from game.settings import CarrierDeckPolicy, Settings
+from game.settings import Settings
 from game.utils import KG_TO_LBS, feet, nautical_miles, pairwise
 from .airassaultingress import AirAssaultIngressBuilder
 from .antishipingress import AntiShipIngressBuilder
@@ -604,8 +604,8 @@ class WaypointGenerator:
         taxiing to launch. Delaying a carrier deck spawn by one second causes
         DCS to place the aircraft elsewhere on deck, so AI carrier ground
         starts always take the delay, and player flights take it too under the
-        last-resort deck policy (the six-pack then only fills as overflow once
-        the rest of the deck is full).
+        never: a late-activated client group in multiplayer shows its slots as
+        a "delayed start" nobody can fly (test 54, 2026-10-07).
         """
         if self.flight.state.in_flight:
             return False
@@ -613,9 +613,7 @@ class WaypointGenerator:
             return False
         if not self.flight.departure.is_fleet:
             return False
-        if not self.flight.client_count:
-            return True
-        return self.settings.carrier_deck_policy is CarrierDeckPolicy.LAST_RESORT
+        return not self.flight.client_count
 
     def set_activation_time(self, delay: timedelta) -> None:
         # Note: Late activation causes the waypoint TOTs to look *weird* in the
