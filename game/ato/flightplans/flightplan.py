@@ -18,7 +18,7 @@ from typing import Any, Generic, TYPE_CHECKING, TypeGuard, TypeVar
 from game.typeguard import self_type_guard
 from game.utils import Distance, Speed, meters
 from .planningerror import PlanningError
-from ..runwayqueue import runway_queue_wait
+from ..runwayqueue import deck_launch_time, runway_queue_wait
 from ..flightwaypointtype import FlightWaypointType
 from ..starttype import StartType
 from ..traveltime import GroundSpeed
@@ -442,7 +442,13 @@ class FlightPlan(ABC, Generic[LayoutT]):
     def estimate_ground_ops(self) -> timedelta:
         if self.flight.start_type in {StartType.RUNWAY, StartType.IN_FLIGHT}:
             return timedelta()
-        if self.flight.departure.is_fleet or self.flight.departure.is_fob:
+        if self.flight.departure.is_fleet:
+            return (
+                timedelta(minutes=2)
+                + runway_queue_wait(self.flight)
+                + deck_launch_time(self.flight)
+            )
+        if self.flight.departure.is_fob:
             return timedelta(minutes=2)
         return timedelta(minutes=8) + runway_queue_wait(self.flight)
 

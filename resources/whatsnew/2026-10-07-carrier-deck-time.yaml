@@ -1,0 +1,9 @@
+date: 2026-10-07
+title: Carrier flights get deck time
+change: >-
+  A carrier flight's start allows 75 seconds per jet for the catapult,
+  and a flight waits for the launches ahead of it off the same ship. A
+  busy deck's flights spawn earlier, so the package still joins on time.
+watch: >-
+  Carrier flights are airborne close to their planned takeoff, and the
+  package is not late on target waiting for them.
