@@ -242,7 +242,7 @@ end
 -- Task-type reaction filter (upstream PR #782)
 -- QRA only scrambles against air-to-ground raids. The enemy flight's Retribution
 -- task type is embedded in its DCS group name by namegen.next_aircraft_name as
--- "{target} {flight_type}|{country}|{n}|{variant}|" (game/naming.py). We react
+-- "{target} {flight_type}|{n}|{dcs type id}|" (game/naming.py). We react
 -- only when a detected cluster contains a group whose type is in QRA_REACT_TASKS;
 -- CAP/sweep/escort/intercept/SEAD/CAS/DEAD/Air Assault/support are ignored.
 -- Non-ATO enemy air (not named by namegen) has no matching suffix and is never

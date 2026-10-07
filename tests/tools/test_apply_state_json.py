@@ -13,12 +13,15 @@ import math
 from types import SimpleNamespace
 from typing import Any
 
+import pytest
+
 from tools.apply_state_json import (
     AircraftEntry,
     FrontLineEntry,
     StateTranslator,
     TargetPools,
     TgoEntry,
+    airframe_id,
     front_line_side,
     parse_front_line_unit_name,
     parse_pilot_unit_name,
@@ -56,6 +59,38 @@ def test_parse_pilot_unit_name() -> None:
     assert parse_pilot_unit_name("unit|0|8|PT-76| Unit #2") is None
     assert parse_pilot_unit_name("Intercept|Haina|abc123 Pilot #1") is None
     assert parse_pilot_unit_name("0373 | AAA Fire Can SON-9") is None
+
+
+def test_parse_pilot_unit_name_short_format() -> None:
+    assert parse_pilot_unit_name("MANTIS DEAD|31|FA-18C_hornet| Pilot #1") == (
+        "MANTIS DEAD",
+        "FA-18C_hornet",
+    )
+
+
+def test_old_variant_token_matches_new_id_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from game.dcs.aircrafttype import AircraftType
+
+    hornet = SimpleNamespace(dcs_id="FA-18C_hornet")
+    monkeypatch.setattr(AircraftType, "_by_name", {"F/A-18C Hornet (Lot 20)": hornet})
+    assert airframe_id("F/A-18C Hornet (Lot 20)") == "FA-18C_hornet"
+    assert airframe_id("FA-18C_hornet") == "FA-18C_hornet"
+    pools = TargetPools(
+        aircraft=[
+            AircraftEntry(
+                "TOAD DEAD|4|FA-18C_hornet| Pilot #1",
+                "TOAD DEAD",
+                "FA-18C_hornet",
+                client=False,
+            )
+        ]
+    )
+    out = make_translator({}, pools).translate_events(
+        {"kill_events": ["MANTIS DEAD|2|31|F/A-18C Hornet (Lot 20)| Pilot #1"]}
+    )
+    assert out["kill_events"] == ["TOAD DEAD|4|FA-18C_hornet| Pilot #1"]
 
 
 def test_parse_front_line_unit_name() -> None:

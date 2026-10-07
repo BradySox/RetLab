@@ -23,7 +23,8 @@ namespace:
   lands on the right side. Culling is disabled for the throwaway generation
   (the miz is never flown) so every TGO is spawnable/debriefable regardless of
   how the new ATO's cull zones fall.
-- **Aircraft** (``<label>|<country>|<n>|<type>| Pilot #N``): matched by task
+- **Aircraft** (``<label>|<n>|<type>| Pilot #N``; before 2026-10
+  ``<label>|<country>|<n>|<variant>| Pilot #N``): matched by task
   label + airframe against the target ATO's generated flights, AI-crewed units
   first, so squadron attrition lands on the same squadrons flying the same
   jobs. Kills the new ATO fields no flight for are **debited directly** from a
@@ -104,13 +105,34 @@ STATIC_SUFFIX = " object"
 
 
 def parse_pilot_unit_name(name: str) -> Optional[tuple[str, str]]:
-    """(task label, airframe token) for '<label>|<pkg>|<n>|<type>| Pilot #N'."""
+    """(task label, airframe token) for '<label>|<n>|<type>| Pilot #N'.
+
+    Names generated before 2026-10 carry a country id after the label and the
+    variant name as the type: '<label>|<country>|<n>|<variant>| Pilot #N'.
+    """
     parts = name.split("|")
     if len(parts) < 4 or not parts[-1].startswith(" Pilot #"):
         return None
     if parts[0] in ("unit", "TIC:unit", "Intercept"):
         return None
     return parts[0], parts[-2]
+
+
+def airframe_id(token: str) -> str:
+    """DCS type id for an airframe token, so an old variant-name token
+    ("F/A-18C Hornet (Lot 20)") matches a new id token ("FA-18C_hornet")."""
+    from game.dcs.aircrafttype import AircraftType
+
+    known = AircraftType._by_name.get(token)
+    return known.dcs_id if known is not None else token
+
+
+def parse_pilot(name: str) -> Optional[tuple[str, str]]:
+    """parse_pilot_unit_name with the airframe token as a DCS type id."""
+    parsed = parse_pilot_unit_name(name)
+    if parsed is None:
+        return None
+    return parsed[0], airframe_id(parsed[1])
 
 
 def parse_front_line_unit_name(name: str) -> Optional[str]:
@@ -147,6 +169,9 @@ class AircraftEntry:
     unit_type: str
     client: bool
     used: bool = False
+
+    def __post_init__(self) -> None:
+        self.unit_type = airframe_id(self.unit_type)
 
 
 @dataclass
@@ -215,7 +240,7 @@ def pools_from_unit_map(
 ) -> TargetPools:
     pools = TargetPools()
     for name, flying in unit_map.aircraft.items():
-        parsed = parse_pilot_unit_name(name)
+        parsed = parse_pilot(name)
         if parsed is None:
             continue
         label, unit_type = parsed
@@ -272,7 +297,7 @@ def pools_from_miz(
     names = re.findall(r'\["name"\]="((?:[^"\\]|\\.)*)"', text)
     pools = TargetPools()
     for name in names:
-        parsed = parse_pilot_unit_name(name)
+        parsed = parse_pilot(name)
         if parsed is not None:
             label, unit_type = parsed
             pools.aircraft.append(AircraftEntry(name, label, unit_type, client=False))
@@ -535,7 +560,7 @@ class StateTranslator:
     def _resolve_aircraft(self, names: list[str]) -> None:
         """Assign air kills tier by tier so a weaker match never starves a
         later kill's exact one."""
-        parsed = {n: parse_pilot_unit_name(n) for n in names}
+        parsed = {n: parse_pilot(n) for n in names}
         tiers = [
             lambda e, label, ut: e.label == label
             and e.unit_type == ut
@@ -685,14 +710,14 @@ def debit_unmapped_air_losses(
         target_game.red.air_wing.iter_squadrons()
     )
     for name in unmapped:
-        parsed = parse_pilot_unit_name(name)
+        parsed = parse_pilot(name)
         if parsed is None:
             continue
         label, unit_type = parsed
         candidates = [
             s
             for s in squadrons
-            if s.aircraft.variant_id == unit_type and s.owned_aircraft > 0
+            if s.aircraft.dcs_id == unit_type and s.owned_aircraft > 0
         ]
         if not candidates:
             report.air_debits.append(f"NO SQUADRON with {unit_type} left for: {name}")
