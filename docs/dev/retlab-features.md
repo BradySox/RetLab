@@ -6652,6 +6652,10 @@ mission is free; there is no rearm — the magazine is the war stock.
   (commandcenter/comms first — composing with §52 decapitation — then the §53 war-economy
   power/factory/oil/fuel/ware/ammo buildings, then anything else strikeable; never ships,
   never `map_hidden` ambush teams), ROE-gated for BLUE via the §40 `roe_blocks_target`.
+  **A target is skipped when the straight ship-to-target line enters the threat ring of an
+  enemy SAM site with a live point-defense group** (`_point_defended_rings`; blue counts only
+  sites it can see). Test 54: six TLAMs flew past a point-defended SA-10 and it spent 22 of
+  its 24 missiles on them before the strike package arrived (DM call 2026-10-07, row B186).
   The plugin fires the salvo (`RAID_SALVO` 6, capped by the magazine) after a launch
   delay (default 240 s), cueing the launching side with the target and the defender with
   a deliberately vague "LAUNCH WARNING — enemy cruise missile launch detected".
