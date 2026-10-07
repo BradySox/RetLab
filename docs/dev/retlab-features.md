@@ -11063,12 +11063,8 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
   holding the runway `count × 45 s`.
 - `FlightPlan.estimate_ground_ops` = 8 min + the wait. It feeds `startup_time`,
   `minimum_duration_from_start_to_tot` (TOT estimation) and the sim's `Taxi` state.
-- Not queued: FOBs, off-map, runway and air starts, helicopters, unscheduled
+- Not queued: carriers, FOBs, off-map, runway and air starts, helicopters, unscheduled
   packages (TOT at the `datetime.min` sentinel).
-- **Carriers (DM call 2026-10-07):** ground ops on a ship = 2 min + the deck wait +
-  `count × 75 s` (`DECK_SECONDS_PER_AIRCRAFT`). A deck slot ends at the flight's planned
-  takeoff, since its own launch is already counted. Test 54's carrier package launched
-  9-15 min late against a 2.5 min allowance. Row B187.
 - Players queue like AI; the wait adds to their startup allowance, never replaces it.
 - 45 s per jet: fitted on 494 flown AI groups; groups more than 2 min late fell from 25 % to
   10 %.

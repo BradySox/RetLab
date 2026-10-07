@@ -12,10 +12,7 @@ from types import SimpleNamespace
 from typing import Any, cast
 
 from game.ato.flightplans.flightplan import FlightPlan
-from game.ato.runwayqueue import (
-    DECK_SECONDS_PER_AIRCRAFT,
-    RUNWAY_SECONDS_PER_AIRCRAFT,
-)
+from game.ato.runwayqueue import RUNWAY_SECONDS_PER_AIRCRAFT
 from game.ato.starttype import StartType
 
 T0 = datetime(2026, 9, 23, 12, 0, 0)
@@ -134,9 +131,10 @@ def test_different_fields_do_not_interact() -> None:
     assert _ground_ops(world.flight(_field(), T0, count=2)) == BASE
 
 
-def test_fobs_and_off_map_fields_keep_their_allowance() -> None:
+def test_ships_fobs_and_off_map_fields_keep_their_allowance() -> None:
     world = _World()
     for kind, allowance in (
+        ({"fleet": True}, timedelta(minutes=2)),
         ({"fob": True}, timedelta(minutes=2)),
         ({"offmap": True}, BASE),
     ):
@@ -281,48 +279,3 @@ def test_estimating_asap_leaves_the_package_tot_alone() -> None:
     package.time_over_target = scheduled
     TotEstimator(cast(Any, package)).earliest_tot(T0)
     assert package.time_over_target == scheduled
-
-
-DECK_BASE = timedelta(minutes=2)
-
-
-def _deck(jets: int) -> timedelta:
-    return timedelta(seconds=jets * DECK_SECONDS_PER_AIRCRAFT)
-
-
-def test_a_carrier_launches_a_jet_every_75_seconds() -> None:
-    """Fitted on 23 flown carrier groups: pairs took 3-4.5 min, 4-ships 6-9."""
-    assert DECK_SECONDS_PER_AIRCRAFT == 75
-
-
-def test_a_lone_carrier_flight_gets_its_own_launch_time() -> None:
-    world = _World()
-    pair = world.flight(_field(fleet=True), T0, count=2)
-    assert _ground_ops(pair) == DECK_BASE + _deck(2)
-
-
-def test_carrier_flights_queue_behind_each_other() -> None:
-    """Test 54: a SEAD 4-ship and two escort pairs all spawned at once."""
-    world = _World()
-    boat = _field(fleet=True)
-    sead = world.flight(boat, T0, count=4)
-    escort = world.flight(boat, T0, count=2)
-    tomcats = world.flight(boat, T0, count=2)
-    # Each waits only for the launches ahead of it, then launches its own.
-    assert _ground_ops(sead) == DECK_BASE + _deck(4)
-    assert _ground_ops(escort) == DECK_BASE + _deck(2) + _deck(2)
-    assert _ground_ops(tomcats) == DECK_BASE + _deck(4) + _deck(2)
-
-
-def test_a_carrier_and_an_airfield_do_not_share_a_queue() -> None:
-    world = _World()
-    world.flight(_field(fleet=True), T0, count=4)
-    assert _ground_ops(world.flight(_field(), T0, count=2)) == BASE
-
-
-def test_carrier_helicopters_neither_wait_nor_hold_the_deck() -> None:
-    world = _World()
-    boat = _field(fleet=True)
-    helo = world.flight(boat, T0, count=2, helo=True)
-    assert _ground_ops(helo) == DECK_BASE
-    assert _ground_ops(world.flight(boat, T0, count=2)) == DECK_BASE + _deck(2)
