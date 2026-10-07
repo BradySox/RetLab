@@ -16,7 +16,8 @@ def _fake_flight(
     flight = MagicMock()
     flight.custom_name = custom_name
     flight.flight_type = flight_type
-    flight.unit_type.variant_id = "F-16C_50"
+    flight.unit_type.variant_id = "F-16CM Fighting Falcon (Block 50)"
+    flight.unit_type.dcs_id = "F-16C_50"
     flight.package.target.name = target_name
     return cast(Flight, flight)
 
@@ -32,7 +33,7 @@ def test_next_aircraft_name_uses_target_and_task() -> None:
     name = NameGenerator.next_aircraft_name(
         _fake_country(5), _fake_flight(FlightType.STRIKE, None, "Tiyas")
     )
-    assert name.startswith("Tiyas Strike|5|")
+    assert name == "Tiyas Strike|1|F-16C_50|"
 
 
 def test_next_aircraft_name_custom_name_keeps_task() -> None:
@@ -43,4 +44,13 @@ def test_next_aircraft_name_custom_name_keeps_task() -> None:
     name = NameGenerator.next_aircraft_name(
         _fake_country(6), _fake_flight(FlightType.BAI, "Alpha", "Tiyas")
     )
-    assert name.startswith("Alpha BAI|6|")
+    assert name == "Alpha BAI|1|F-16C_50|"
+
+
+def test_next_aircraft_name_has_no_moose_alias_separator() -> None:
+    # MOOSE cuts a group name at "#"; the pydcs " Pilot #N" suffix is the only one.
+    NameGenerator.reset_numbers()
+    name = NameGenerator.next_aircraft_name(
+        _fake_country(2), _fake_flight(FlightType.DEAD, None, "MANTIS")
+    )
+    assert "#" not in name

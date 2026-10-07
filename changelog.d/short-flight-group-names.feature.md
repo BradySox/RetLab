@@ -1,0 +1,1 @@
+* **[Mission Generation]** Flight group names are shorter: `MANTIS DEAD|31|FA-18C_hornet|` instead of `MANTIS DEAD|2|31|F/A-18C Hornet (Lot 20)|`, in the multiplayer slot list, LotAtc, Tacview, the C-130 handoff menu and the flight report cards.

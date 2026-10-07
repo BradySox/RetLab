@@ -490,9 +490,12 @@ class NameGenerator:
         prefix = (
             flight.custom_name if flight.custom_name else flight.package.target.name
         )
+        # The DCS type id ("FA-18C_hornet"), not the variant's display name, and
+        # no country id: nothing reads either back. Never a "#" -- MOOSE cuts a
+        # group name at it.
         name_str = "{} {}".format(prefix, flight.flight_type)
-        return "{}|{}|{}|{}|".format(
-            name_str, country.id, cls.aircraft_number, flight.unit_type.variant_id
+        return "{}|{}|{}|".format(
+            name_str, cls.aircraft_number, flight.unit_type.dcs_id
         )
 
     @classmethod

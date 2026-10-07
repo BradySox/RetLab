@@ -290,6 +290,9 @@ def test_group_reacts_only_to_air_to_ground_taskings() -> None:
     assert reacts("Incirlik OCA/Aircraft|2|4|F-16C_50|")
     assert reacts("CVN-71 Anti-ship|1|5|Su-24M|")
     assert reacts("Haina Armed Recon|1|6|A-10C|")
+    # The 2026-10 short format: no country id, DCS type id as the airframe.
+    assert reacts("MANTIS Strike|31|FA-18C_hornet|")
+    assert not reacts("MANTIS DEAD|31|FA-18C_hornet|")
 
     assert not reacts("PKG BARCAP|USA|7|F-14B|")
     assert not reacts("PKG DEAD|USA|8|F-16C_50|")
