@@ -91,7 +91,7 @@ SECTIONS: tuple[Section, ...] = (
         "Front line",
         PICTURE,
         {
-            HORNET_UNIT_TYPE: "On the SA page, CAS flights only.",
+            HORNET_UNIT_TYPE: "On the SA page. Ticked to start on CAS flights only.",
             VIPER_UNIT_TYPE: "An HSD line, 4 points when National borders are"
             " drawn, otherwise what your drawings and the tanker box leave.",
             TOMCAT_UNIT_TYPE: "As a plot line.",

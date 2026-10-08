@@ -3145,6 +3145,8 @@ def test_hornet_draws_the_nearest_border_dashed_and_the_next_one_solid(
     """The SA page draws one FAOR and one FLOT line, the selected ones (the
     cockpit's SA.lua): DM 2026-10-08 gave both to borders, nearest first."""
     flight, mission_data, game = _hornet_fixture()
+    # A strike flight starts with the front line unticked; CAS ticks it.
+    flight.dtc_options = DtcOptions.for_task(FlightType.STRIKE)
     flight.waypoints = [
         _waypoint("A", FlightWaypointType.NAV, 150000, -30000, 7000, None),
         _waypoint("B", FlightWaypointType.NAV, 150000, 120000, 7000, None),
@@ -3166,12 +3168,13 @@ def test_hornet_draws_the_nearest_border_dashed_and_the_next_one_solid(
 
     # CAS keeps the front line first; the second border follows it.
     flight.flight_type = FlightType.CAS
+    flight.dtc_options = DtcOptions.for_task(FlightType.CAS)
     flot = _hornet_sa(flight, mission_data, game)["FAOR_FLOT"]["FLOT"]
     assert [line["note"] for line in flot] == ["FLOT", "Alpha-Charlie"]
 
     # Borders off: the tanker box is the dashed line again.
     flight.flight_type = FlightType.STRIKE
-    flight.dtc_options = DtcOptions(borders=False)
+    flight.dtc_options = DtcOptions(borders=False, flot_and_zones=False)
     sa = _hornet_sa(flight, mission_data, game)
     assert [line["note"] for line in sa["FAOR_FLOT"]["FAOR"]] == ["ARCO"]
     assert sa["FAOR_FLOT"]["FLOT"] == []
