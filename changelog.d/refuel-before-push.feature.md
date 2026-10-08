@@ -1,0 +1,1 @@
+* **[Mission Planning]** A flight's Waypoints tab has **Refuel before the push**: the flight tanks at a theater tanker between Hold and Join instead of after the strike. The stop after the strike is kept only if the jet cannot get home without it. AI flights fill to 90% there.

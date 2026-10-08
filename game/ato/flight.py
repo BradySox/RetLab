@@ -146,6 +146,8 @@ class Flight(
         self.initialize_fuel()
         # A tanker's track speed, set on the waypoints tab; None flies the aircraft's own.
         self.orbit_speed_kias: Optional[int] = None
+        # Tank at a theater tanker between the hold and the join (waypoints tab).
+        self.refuel_before_push = False
         # RetLab (§43): seed a genuinely fresh player-side flight's fuel + cockpit
         # properties (condition/wear/spawn/...) from the per-aircraft "save as
         # default" store. Only when roster is None -- a brand-new flight, never a
@@ -335,6 +337,8 @@ class Flight(
             state["board_number"] = None
         if "orbit_speed_kias" not in state:
             state["orbit_speed_kias"] = None
+        if "refuel_before_push" not in state:
+            state["refuel_before_push"] = False
         # The box was a per-flight choice until every theater tanker flew one.
         state.pop("tanker_box", None)
         self.__dict__.update(state)

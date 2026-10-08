@@ -9,9 +9,17 @@ class RefuelPointBuilder(PydcsWaypointBuilder):
         if not self.ai_despawn(waypoint, True):
             refuel = ControlledTask(RefuelingTaskAction())
             refuel.start_if_lua_predicate(self._get_lua_predicate(0.2))
-            refuel.stop_if_lua_predicate(self._get_lua_predicate(0.5))
+            refuel.stop_if_lua_predicate(self._get_lua_predicate(self._stop_fuel()))
             waypoint.add_task(refuel)
         return super().add_tasks(waypoint)
+
+    def _stop_fuel(self) -> float:
+        # Before the push every jet is still above half, so the usual 0.5 would
+        # end the task before an AI flight ever plugged in (DM 2026-10-07: top off).
+        layout = self.flight.flight_plan.layout
+        if self.waypoint is getattr(layout, "pre_push_refuel", None):
+            return 0.9
+        return 0.5
 
     def _get_lua_predicate(self, fuel_level: float) -> str:
         return f"""

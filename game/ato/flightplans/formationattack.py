@@ -153,7 +153,26 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
         total = super().total_time_between_waypoints(a, b)
         if b is self.layout.split:
             return total + self.time_at_target
+        if a is self.layout.pre_push_refuel:
+            return total + self.tanking_time
         return total
+
+    @property
+    def tanking_time(self) -> timedelta:
+        """Time on the boom before the push: the package tanker's 4 min a jet, plus 1."""
+        return timedelta(minutes=4 * self.flight.roster.max_size + 1)
+
+    @property
+    def push_time(self) -> datetime:
+        refuel = self.layout.pre_push_refuel
+        if refuel is None or self.layout.hold is None:
+            return super().push_time
+        to_join = self._time_along([refuel, *self.layout.nav_to, self.layout.join])
+        return (
+            self.join_time
+            - to_join
+            - self.travel_time_between_waypoints(self.layout.hold, refuel)
+        )
 
     @property
     def split_time(self) -> datetime:
@@ -189,6 +208,10 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
             return self.initial_time
         elif waypoint in self.layout.targets:
             return self.tot
+        elif waypoint is self.layout.pre_push_refuel and self.layout.hold is not None:
+            return self.push_time + self.travel_time_between_waypoints(
+                self.layout.hold, waypoint
+            )
         return super().tot_for_waypoint(waypoint)
 
 
@@ -201,16 +224,21 @@ class FormationAttackLayout(FormationLayout):
     #: Detours round SAM rings on the straight legs (samdetour.py).
     ingress_nav: list[FlightWaypoint] = field(default_factory=list)
     egress_nav: list[FlightWaypoint] = field(default_factory=list)
+    #: A theater-tanker stop between the hold and the join (Flight.refuel_before_push).
+    pre_push_refuel: Optional[FlightWaypoint] = None
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("ingress_nav", [])
         state.setdefault("egress_nav", [])
+        state.setdefault("pre_push_refuel", None)
         self.__dict__.update(state)
 
     def iter_waypoints(self) -> Iterator[FlightWaypoint]:
         yield self.departure
         if self.hold:
             yield self.hold
+        if self.pre_push_refuel is not None:
+            yield self.pre_push_refuel
         yield from self.nav_to
         yield self.join
         yield from self.ingress_nav
@@ -239,6 +267,9 @@ class FormationAttackLayout(FormationLayout):
             if waypoint in sequence:
                 sequence.remove(waypoint)
                 return True
+        if waypoint is self.pre_push_refuel:
+            self.pre_push_refuel = None
+            return True
         return super().delete_waypoint(waypoint)
 
 
@@ -284,7 +315,68 @@ FlightPlanT = TypeVar("FlightPlanT", bound=FlightPlan[FormationAttackLayout])
 LayoutT = TypeVar("LayoutT", bound=FormationAttackLayout)
 
 
+def pre_push_refuel_point(flight: Flight, planned: Point) -> Optional[Point]:
+    """Where on a theater tanker's track ``flight`` tanks before the push, or None.
+
+    A package's own tanker is timed to arrive after the strike, so it is not a
+    candidate. Lightweight test doubles with no ATO keep the planned point.
+    """
+    from game.missiongenerator.refuelrendezvous import (
+        planned_tankers,
+        refuel_rendezvous,
+    )
+
+    tankers = planned_tankers(flight)
+    if tankers is None:
+        return planned
+    return refuel_rendezvous(
+        flight.unit_type, flight.blue.is_blue, planned, tankers, theater_only=True
+    )
+
+
 class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
+    #: Set for the second build when the tanker stop before the push covers the
+    #: whole sortie, so the stop after the strike is dropped.
+    _drop_post_refuel = False
+
+    def regenerate(self, dump_debug_info: bool = False) -> None:
+        self._drop_post_refuel = False
+        super().regenerate(dump_debug_info)
+        if self._post_refuel_unneeded():
+            self._drop_post_refuel = True
+            super().regenerate()
+
+    def _post_refuel_unneeded(self) -> bool:
+        """Whether the flight gets home on the pre-push top-off alone (DM 2026-10-07)."""
+        from game.retlab.fuel_brief import fuel_brief_for
+
+        plan = self.built
+        layout = getattr(plan, "layout", None)
+        post = getattr(layout, "refuel", None)
+        if post is None or getattr(layout, "pre_push_refuel", None) is None:
+            return False
+        assert isinstance(layout, FormationAttackLayout)
+        layout.refuel = None
+        try:
+            brief = fuel_brief_for(self.flight)
+        finally:
+            layout.refuel = post
+        return brief is None or brief.margin_lbs >= 0
+
+    def _build_pre_push_refuel(
+        self, builder: WaypointBuilder, hold: Optional[FlightWaypoint]
+    ) -> Optional[FlightWaypoint]:
+        if not getattr(self.flight, "refuel_before_push", False) or hold is None:
+            return None
+        assert self.package.waypoints is not None
+        position = pre_push_refuel_point(self.flight, self.package.waypoints.refuel)
+        if position is None:
+            return None
+        refuel = builder.refuel(position)
+        refuel.pretty_name = "Refuel (before push)"
+        refuel.description = "Refuel from the theater tanker before the push"
+        return refuel
+
     def _build(
         self,
         ingress_type: FlightWaypointType,
@@ -326,15 +418,22 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         use_agl_ingress_egress = is_helo
 
         refuel = self._build_refuel(builder)
+        pre_push_refuel = self._build_pre_push_refuel(builder, hold)
         ingress_nav, egress_nav = self._sam_detours(
             builder, ingress_egress_altitude, use_agl_ingress_egress
         )
+        nav_to_start = self.flight.departure.position
+        if pre_push_refuel is not None:
+            nav_to_start = pre_push_refuel.position
+        elif hold is not None:
+            nav_to_start = hold.position
 
         return FormationAttackLayout(
             departure=builder.takeoff(self.flight.departure),
             hold=hold,
+            pre_push_refuel=pre_push_refuel,
             nav_to=builder.nav_path(
-                hold.position if hold else self.flight.departure.position,
+                nav_to_start,
                 join.position,
                 ingress_egress_altitude,
                 use_agl_ingress_egress,
@@ -381,6 +480,8 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
 
     def _build_refuel(self, builder: WaypointBuilder) -> Optional[FlightWaypoint]:
         refuel: Optional[FlightWaypoint] = None
+        if self._drop_post_refuel:
+            return None
         # Owning a tanker squadron is not the same as having a tanker up this
         # turn, and the old test asked the first question. A waypoint with no
         # tanker behind it is a detour, and the fuel readout credits a top-off

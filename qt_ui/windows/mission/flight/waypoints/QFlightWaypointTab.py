@@ -37,6 +37,10 @@ from qt_ui.windows.mission.flight.waypoints.QFlightWaypointList import (
 from qt_ui.windows.mission.flight.waypoints.QPredefinedWaypointSelectionWindow import (
     QPredefinedWaypointSelectionWindow,
 )
+from qt_ui.windows.mission.flight.waypoints.QRefuelBeforePush import (
+    QRefuelBeforePush,
+    offers_refuel_before_push,
+)
 from qt_ui.windows.mission.flight.waypoints.QTankerOrbitSpeed import QTankerOrbitSpeed
 
 #: Lowest altitude the bulk setter offers. Zero is a valid spin-box entry but never a
@@ -166,6 +170,11 @@ class QFlightWaypointTab(QFrame):
 
         if self.flight.flight_type is FlightType.REFUELING:
             rlayout.addWidget(QTankerOrbitSpeed(self.flight))
+
+        if offers_refuel_before_push(self.flight):
+            refuel_before_push = QRefuelBeforePush(self.flight)
+            refuel_before_push.changed.connect(self.on_change)
+            rlayout.addWidget(refuel_before_push)
 
         rlayout.addWidget(QLabel("<strong>Generator :</strong>"))
         rlayout.addWidget(QLabel("<small>AI compatible</small>"))

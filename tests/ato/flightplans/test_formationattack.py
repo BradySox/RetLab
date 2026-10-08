@@ -110,6 +110,7 @@ def test_the_leg_out_of_the_target_carries_the_time_over_it() -> None:
             targets=targets,
             ingress_nav=[],
             egress_nav=[],
+            pre_push_refuel=None,
         ),
     )
 

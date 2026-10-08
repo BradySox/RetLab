@@ -77,6 +77,12 @@ from patrol start to the next waypoint. The box keeps that shape:
 | App map | Shows the route, which is the box |
 | `RaceTrackBuilder` | Tanker task, TACAN and TOT at BOX 1; no Orbit |
 
+### Refuel before the push (2026-10-07)
+
+A receiver can tank at the box before its package pushes: the Waypoints tab's
+**Refuel before the push** (features doc, Refuelling). Only a theater tanker is
+used, because a package tanker comes on station after the strike. Row B189.
+
 ### Verified
 
 - `tests/ato/flightplans/test_tanker_box.py`: geometry, route order, timing sum, fuel, the
