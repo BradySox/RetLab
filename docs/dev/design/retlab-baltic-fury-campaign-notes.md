@@ -162,8 +162,8 @@ by design (offensive agency = Backfire anti-ship raids + §55 red-intent surges)
 
 ## IADS / SAM / coastal / naval belt (the signature)
 
-Networked advanced IADS (`advanced_iads: true`, MANTIS range mode + per-base C2 statics). Built
-to the SAM-belt STANDARD:
+Networked advanced IADS (`advanced_iads: true`, range mode + per-base C2 statics). Laid out
+as regiments:
 - **Strategic S-400 → regiment-by-authoring** (multi-battalion single-radar + shared EWR): hubs at Copenhagen `[127222, -500129]`, Rostock `[-46917, -547933]`,
   Szczecin `[-104437, -377931]`; `SA-20/PMU-1` mid nodes.
 - **Coastal anti-ship wall** (`Bastion-P` + `BAL` LBASM, sea-facing — the CSG's gate): Rostock
