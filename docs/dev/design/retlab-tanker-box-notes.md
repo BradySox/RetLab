@@ -82,6 +82,7 @@ from patrol start to the next waypoint. The box keeps that shape:
 A receiver can tank at the box before its package pushes: the Waypoints tab's
 **Refuel before the push** (features doc, Refuelling). Only a theater tanker is
 used, because a package tanker comes on station after the strike. Row B189.
+BARCAP and TARCAP get the same as **Refuel before station** (2026-10-08, row B191).
 
 ### Verified
 

@@ -2180,6 +2180,14 @@ defect that reached a build, most of them found by flying.
   on the early stop instead of 0.5, because every jet is above half before the push and
   would otherwise never plug in. Dragging the early stop moves only that flight, not the
   package's refuel point. Tests `tests/ato/flightplans/test_refuel_before_push.py`.
+- **Refuel before station (built 2026-10-08, DM call, not flown — row B191).** The same
+  flag on a BARCAP or TARCAP shows as **Refuel before station** and puts the stop between
+  Takeoff and Race-track start (`BarCapLayout`, `TarCapLayout.pre_push_refuel`, built by
+  `barcap.station_refuel` from a point 75% of the way to station). The leg out of it
+  carries the tanking time in `PatrollingFlightPlan`, so takeoff moves earlier and the
+  station times do not move. Station time is not stretched (DM unsure, kept). TARCAP keeps
+  its stock after-station stop. `early_refuel_point` and `tanking_time` moved to
+  `tankeravailability.py` for both. Tests `test_refuel_before_station.py`.
 - **A refuel waypoint on a flight that does not need gas (fixed 2026-09-17, DM call).** The
   planner still emits a REFUEL waypoint whenever the coalition owns a tanker-capable
   squadron anywhere in theater, and `_build_refuel` says in its own comment that it is not

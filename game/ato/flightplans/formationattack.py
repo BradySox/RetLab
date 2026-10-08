@@ -24,7 +24,11 @@ from .waypointbuilder import StrikeTarget, WaypointBuilder
 from .. import FlightType
 from ..flightwaypoint import FlightWaypoint
 from ..flightwaypointtype import FlightWaypointType
-from ..tankeravailability import serviceable_tanker_planned
+from ..tankeravailability import (
+    early_refuel_point,
+    serviceable_tanker_planned,
+    tanking_time,
+)
 
 if TYPE_CHECKING:
     from game.coalition import Coalition
@@ -159,8 +163,7 @@ class FormationAttackFlightPlan(FormationFlightPlan, ABC):
 
     @property
     def tanking_time(self) -> timedelta:
-        """Time on the boom before the push: the package tanker's 4 min a jet, plus 1."""
-        return timedelta(minutes=4 * self.flight.roster.max_size + 1)
+        return tanking_time(self.flight)
 
     @property
     def push_time(self) -> datetime:
@@ -315,25 +318,6 @@ FlightPlanT = TypeVar("FlightPlanT", bound=FlightPlan[FormationAttackLayout])
 LayoutT = TypeVar("LayoutT", bound=FormationAttackLayout)
 
 
-def pre_push_refuel_point(flight: Flight, planned: Point) -> Optional[Point]:
-    """Where on a theater tanker's track ``flight`` tanks before the push, or None.
-
-    A package's own tanker is timed to arrive after the strike, so it is not a
-    candidate. Lightweight test doubles with no ATO keep the planned point.
-    """
-    from game.missiongenerator.refuelrendezvous import (
-        planned_tankers,
-        refuel_rendezvous,
-    )
-
-    tankers = planned_tankers(flight)
-    if tankers is None:
-        return planned
-    return refuel_rendezvous(
-        flight.unit_type, flight.blue.is_blue, planned, tankers, theater_only=True
-    )
-
-
 class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
     #: Set for the second build when the tanker stop before the push covers the
     #: whole sortie, so the stop after the strike is dropped.
@@ -369,7 +353,7 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
         if not getattr(self.flight, "refuel_before_push", False) or hold is None:
             return None
         assert self.package.waypoints is not None
-        position = pre_push_refuel_point(self.flight, self.package.waypoints.refuel)
+        position = early_refuel_point(self.flight, self.package.waypoints.refuel)
         if position is None:
             return None
         refuel = builder.refuel(position)
