@@ -1273,7 +1273,10 @@ usable tanker box when no border is near. FLOT is the next border; the front lin
 it only on CAS, because a front line is noise to anyone not working it (same call, made
 for both jets). The corridor is the package's lane: the flight's waypoints from the
 first `INGRESS_*` through the `SPLIT`, thinned to 14. `TCN` carries the boats of the
-flight's side and the departure, arrival and divert fields' ground TACANs, at most 10.
+flight's side, the departure, arrival and divert fields' ground TACANs, then every other
+ground TACAN on the map nearest the route first (DM follow-up: there are few per map),
+to the editor's 10 (`TACAN.lua` refuses an 11th). Caucasus has 6, Syria 11, Sinai 16,
+Nevada 21, Germany 28.
 
 **TCN keys.** A ship station is matched to its `ActivateBeacon` task by `unitId` and
 `unitPointNum`, with `display_name` `<unit name>_P<point>` (`TCN/TACAN.lua`

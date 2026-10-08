@@ -3188,7 +3188,8 @@ def test_hornet_lane_runs_from_the_ip_over_the_target_to_the_split() -> None:
 
 def test_hornet_tacan_list_carries_the_boat_then_the_fields() -> None:
     """Ships are keyed by unit id and route point, as the editor keys an
-    ActivateBeacon task; fields come from the terrain's beacon data."""
+    ActivateBeacon task; fields come from the terrain's beacon data, the
+    flight's own first, then the rest of the map's."""
     flight, mission_data, game = _hornet_fixture()
     game.theater.terrain.airports = {
         25: SimpleNamespace(
@@ -3210,10 +3211,21 @@ def test_hornet_tacan_list_carries_the_boat_then_the_fields() -> None:
         "x": -90000,
         "y": 40000,
     }
-    assert [(t["display_name"], t["callsign"], t["channel"]) for t in tcn[1:]] == [
-        ("Kutaisi", "KTS", 44)
-    ]
+    assert (tcn[1]["display_name"], tcn[1]["callsign"], tcn[1]["channel"]) == (
+        "Kutaisi",
+        "KTS",
+        44,
+    )
     assert tcn[1]["x"] != 0 and tcn[1]["y"] != 0
+    # Then every other TACAN on the map (Caucasus has six), nearest the route
+    # first, with no repeats.
+    names = [t["display_name"] for t in tcn]
+    assert len(names) == len(set(names)) == 7
+    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    distances = [
+        min(math.hypot(t["x"] - x, t["y"] - y) for x, y in route) for t in tcn[2:]
+    ]
+    assert distances == sorted(distances)
 
     flight.dtc_options = DtcOptions(nav_aids=False)
     data = json.loads(

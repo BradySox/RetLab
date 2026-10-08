@@ -7745,8 +7745,9 @@ package-mates share the comm plan and SA picture):
   of the route, else the tanker box; FLOT (solid) is the next border; the front line
   takes FLOT only on CAS. The corridor is the package's lane from the IP over the
   target to the split. `TCN` lists the friendly boats (unit id + route point 1, as the
-  editor keys an `ActivateBeacon` task) and the home, arrival and divert fields' ground
-  TACANs, which needed beacon positions: `resources/dcs/beacons/*.json` now carry
+  editor keys an `ActivateBeacon` task), the home, arrival and divert fields' ground
+  TACANs, then the map's other TACANs nearest the route, to the editor's 10. That
+  needed beacon positions: `resources/dcs/beacons/*.json` now carry
   `x`/`y`/`elevation` from each terrain's `beacons.lua`. Tankers cannot be listed; the
   editor takes ships and ground beacons only. Row B192. Rationale and the study of
   four paid Hornet campaigns' cartridges: design note, 2026-10-08 section.

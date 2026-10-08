@@ -5,8 +5,9 @@ change: >-
   one job. The nearest land border is the dashed line, the next border the
   solid line, and the front line shows only on CAS flights. Strike and SEAD
   flights get a lane from the IP over the target to the split. The data
-  cartridge also lists the boats and your home, arrival and divert fields
-  as TACAN stations.
+  cartridge also lists the boats, your home, arrival and divert fields and
+  the map's other TACANs, nearest your route first, as TACAN stations
+  (10 at most).
 watch: >-
   Near a border, the SA page shows a dashed and a solid border line, and a
   strike flight sees its attack lane as two parallel lines. With no border

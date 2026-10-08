@@ -15,8 +15,8 @@ Sections emitted (schema mined from ``CoreMods/aircraft/FA-18C/DTC``):
   (FAOR, dashed), the next border or else the front line (FLOT, solid), the
   package's lane from the IP over the target (CORRIDORS), and viewer-fogged
   enemy SAM rings (MEZ, all of them).
-* ``TCN`` -- the TACAN stations: the friendly boats, then the home, arrival
-  and divert fields' ground TACANs.
+* ``TCN`` -- the TACAN stations: the friendly boats, the home, arrival and
+  divert fields, then the map's other ground TACANs nearest the route first.
 
 Limits honored from the ME editor: 59 waypoints, 9 CAP points, 3 FAOR + 3
 FLOT lines of 7 points, one corridor of 14, 40 MEZ threats, 10 TACANs.
@@ -24,10 +24,12 @@ FLOT lines of 7 points, one corridor of 14, 40 MEZ threats, 10 TACANs.
 
 from __future__ import annotations
 
+import math
+
 from typing import TYPE_CHECKING, Any, Optional
 
 from game.ato.flighttype import FlightType
-from game.dcs.beacons import Beacons
+from game.dcs.beacons import Beacon, Beacons
 from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.viper import BORDER_CORRIDOR_M
 from game.ato.savedpoints import SavedPoint
@@ -396,6 +398,23 @@ def _ship_tacan(carrier: CarrierInfo) -> Optional[dict[str, Any]]:
     }
 
 
+def _ground_tacan(beacon: Beacon) -> Optional[dict[str, Any]]:
+    """A ground station, keyed by the beacon's own name as the editor keys it."""
+    if not beacon.is_tacan or beacon.channel is None or beacon.x is None:
+        return None
+    station: dict[str, Any] = {
+        "callsign": beacon.callsign,
+        "channel": beacon.channel,
+        "display_name": beacon.name,
+        "elevation": beacon.elevation or 0,
+        "x": beacon.x,
+        "y": beacon.y,
+    }
+    if beacon.hertz is not None:
+        station["frequency"] = beacon.hertz
+    return station
+
+
 def _field_tacans(game: Game, airfield_name: str) -> list[dict[str, Any]]:
     """The field's own ground TACANs, from the terrain's beacon data."""
     stations: list[dict[str, Any]] = []
@@ -407,41 +426,46 @@ def _field_tacans(game: Game, airfield_name: str) -> list[dict[str, Any]]:
                 beacon = Beacons.with_id(beacon_data.id, game.theater)
             except KeyError:
                 continue
-            if not beacon.is_tacan or beacon.channel is None or beacon.x is None:
-                continue
-            station: dict[str, Any] = {
-                "callsign": beacon.callsign,
-                "channel": beacon.channel,
-                "display_name": beacon.name,
-                "elevation": beacon.elevation or 0,
-                "x": beacon.x,
-                "y": beacon.y,
-            }
-            if beacon.hertz is not None:
-                station["frequency"] = beacon.hertz
-            stations.append(station)
+            station = _ground_tacan(beacon)
+            if station is not None:
+                stations.append(station)
     return stations
 
 
 def _build_tcn(
     flight: FlightData, mission_data: MissionData, game: Game
 ) -> list[dict[str, Any]]:
-    """The jet's TACAN station list: our boats, then the home, arrival and
-    divert fields. Tankers cannot be listed: the editor takes only ships and
-    ground beacons."""
+    """The jet's TACAN station list: our boats, the home, arrival and divert
+    fields, then every other TACAN on the map nearest the route first (DM
+    2026-10-08), to the editor's 10. Tankers cannot be listed: the editor
+    takes only ships and ground beacons."""
     stations: list[dict[str, Any]] = []
+
+    def add(station: Optional[dict[str, Any]]) -> None:
+        if station is not None and all(
+            s["display_name"] != station["display_name"] for s in stations
+        ):
+            stations.append(station)
+
     for carrier in mission_data.carriers:
         if carrier.blue.is_blue == flight.friendly.is_blue:
-            station = _ship_tacan(carrier)
-            if station is not None:
-                stations.append(station)
-    fields = [flight.departure, flight.arrival, flight.divert]
-    for runway in fields:
-        if runway is None:
-            continue
-        for station in _field_tacans(game, runway.airfield_name):
-            if all(s["display_name"] != station["display_name"] for s in stations):
-                stations.append(station)
+            add(_ship_tacan(carrier))
+    for runway in (flight.departure, flight.arrival, flight.divert):
+        if runway is not None:
+            for station in _field_tacans(game, runway.airfield_name):
+                add(station)
+    route = [w.position for w in flight.waypoints if is_route_waypoint(w)]
+    others = [
+        station
+        for station in map(_ground_tacan, Beacons.iter_theater(game.theater))
+        if station is not None
+    ]
+    if route:
+        others.sort(
+            key=lambda s: min(math.hypot(s["x"] - p.x, s["y"] - p.y) for p in route)
+        )
+    for station in others:
+        add(station)
     return stations[:MAX_TACAN_STATIONS]
 
 

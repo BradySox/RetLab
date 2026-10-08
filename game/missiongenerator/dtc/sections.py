@@ -70,8 +70,9 @@ SECTIONS: tuple[Section, ...] = (
         {
             HORNET_UNIT_TYPE: "Pre-tunes the recovery TACAN (the boat's whole card on"
             " a carrier flight), sets the FPAS home waypoint, makes the bullseye"
-            " the air-to-air waypoint, and lists the boats and your home, arrival"
-            " and divert fields as TACAN stations.",
+            " the air-to-air waypoint, and lists the boats, your home, arrival and"
+            " divert fields, then the map's other TACANs nearest your route, 10 in"
+            " all.",
         },
     ),
     Section(
