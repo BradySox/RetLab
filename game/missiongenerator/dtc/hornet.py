@@ -28,7 +28,6 @@ import math
 
 from typing import TYPE_CHECKING, Any, Optional
 
-from game.ato.flighttype import FlightType
 from game.dcs.beacons import Beacon, Beacons
 from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.viper import BORDER_CORRIDOR_M
@@ -558,7 +557,7 @@ def _build_sa(
     flot_shapes: list[tuple[str, list[tuple[float, float]]]] = []
     # The front line gives up lines to the player's drawings (§102), down to one.
     drawn = player_shapes(flight, orbits_as_boxes=False)
-    if options.flot_and_zones and flight.flight_type is FlightType.CAS:
+    if options.flot_and_zones:
         boundary_lines = max(1, MAX_FLOT_LINES - len(second_border) - len(drawn))
         flot_shapes += red_land_boundary(game, boundary_lines, MAX_LINE_POINTS)
     flot_shapes += second_border
