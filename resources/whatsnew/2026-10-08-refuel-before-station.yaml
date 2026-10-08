@@ -1,0 +1,8 @@
+date: 2026-10-08
+title: Refuel before station
+change: >-
+  A BARCAP or TARCAP flight's Waypoints tab has a Refuel before station
+  box. Ticked, the flight tanks at a theater tanker on its way out and
+  takes off earlier to make it; the race-track times stay put.
+watch: >-
+  The CAP plugs in at the tanker, AI included, and is on station on time.

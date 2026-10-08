@@ -1,0 +1,1 @@
+* **[Mission Planning]** BARCAP and TARCAP flights get **Refuel before station** on the Waypoints tab: the flight tanks at a theater tanker on its way out, and the station times stay put. AI flights fill to 90% there.
