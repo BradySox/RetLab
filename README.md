@@ -155,6 +155,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   tanker between Hold and Join, and leaves Hold earlier to make it; the TOT stays put. The
   stop after the strike stays only if the jet cannot get home without it. AI flights fill
   to 90% there.
+- BARCAP and TARCAP flights get **Refuel before station** on the same tab: the flight tanks
+  at a theater tanker on its way out, and the race-track times stay put.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
   campaign-wide setting.

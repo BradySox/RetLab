@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from typing import Any, TYPE_CHECKING, TypeGuard, TypeVar
 
 from game.ato.flightplans.standard import StandardFlightPlan, StandardLayout
+from game.ato.tankeravailability import tanking_time
 from game.typeguard import self_type_guard
 from game.utils import Distance, Speed, nautical_miles
 from .uizonedisplay import UiZone, UiZoneDisplay
@@ -86,6 +87,17 @@ class PatrollingFlightPlan(StandardFlightPlan[LayoutT], UiZoneDisplay, ABC):
     def tot_for_waypoint(self, waypoint: FlightWaypoint) -> datetime | None:
         if waypoint == self.layout.patrol_start:
             return self.patrol_start_time
+        refuel = getattr(self.layout, "pre_push_refuel", None)
+        if refuel is not None and waypoint is refuel:
+            legs = [refuel, *self.layout.nav_to, self.layout.patrol_start]
+            to_station = sum(
+                (
+                    self.total_time_between_waypoints(a, b)
+                    for a, b in zip(legs, legs[1:])
+                ),
+                timedelta(),
+            )
+            return self.patrol_start_time - to_station
         return None
 
     def depart_time_for_waypoint(self, waypoint: FlightWaypoint) -> datetime | None:
@@ -103,7 +115,10 @@ class PatrollingFlightPlan(StandardFlightPlan[LayoutT], UiZoneDisplay, ABC):
         # the loiter collapses to flight time and every later waypoint shifts early.
         if a is self.layout.patrol_start and b is self.layout.patrol_end:
             return self.patrol_duration
-        return super().total_time_between_waypoints(a, b)
+        total = super().total_time_between_waypoints(a, b)
+        if a is getattr(self.layout, "pre_push_refuel", None):
+            return total + tanking_time(self.flight)
+        return total
 
     def fuel_burn_distance_between_points(
         self, a: FlightWaypoint, b: FlightWaypoint

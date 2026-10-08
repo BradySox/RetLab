@@ -3,13 +3,14 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import TYPE_CHECKING, Type
+from typing import Any, TYPE_CHECKING, Type
 
 from game.ato.flighttype import FlightType
 from game.utils import Distance, Speed
 from .capbuilder import CapBuilder
 from .patrolling import PatrollingFlightPlan, PatrollingLayout
 from .tacticaloverlay import TacticalOverlay, TacticalOverlayDisplay, cap_overlay
+from .barcap import station_refuel
 from .waypointbuilder import WaypointBuilder
 from game.ato.tankeravailability import serviceable_tanker_planned
 
@@ -24,9 +25,17 @@ SUPPRESSION_TYPES = frozenset(
 @dataclass
 class TarCapLayout(PatrollingLayout):
     refuel: FlightWaypoint | None
+    #: A theater-tanker stop on the way to station (Flight.refuel_before_push).
+    pre_push_refuel: FlightWaypoint | None = None
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state.setdefault("pre_push_refuel", None)
+        self.__dict__.update(state)
 
     def iter_waypoints(self) -> Iterator[FlightWaypoint]:
         yield self.departure
+        if self.pre_push_refuel is not None:
+            yield self.pre_push_refuel
         yield from self.nav_to
         yield self.patrol_start
         yield self.patrol_end
@@ -40,6 +49,9 @@ class TarCapLayout(PatrollingLayout):
         yield from self.custom_waypoints
 
     def delete_waypoint(self, waypoint: FlightWaypoint) -> bool:
+        if waypoint is self.pre_push_refuel:
+            self.pre_push_refuel = None
+            return True
         if waypoint == self.refuel:
             self.refuel = None
             return True
@@ -128,6 +140,10 @@ class Builder(CapBuilder[TarCapFlightPlan, TarCapLayout]):
         orbit0p, orbit1p = self.cap_racetrack_for_objective(location, barcap=False)
 
         start, end = builder.race_track(orbit0p, orbit1p, patrol_alt)
+        early_refuel = station_refuel(self.flight, builder, start)
+        nav_to_start = self.flight.departure.position
+        if early_refuel is not None:
+            nav_to_start = early_refuel.position
 
         refuel = None
         nav_from_origin = orbit1p
@@ -144,9 +160,8 @@ class Builder(CapBuilder[TarCapFlightPlan, TarCapLayout]):
 
         return TarCapLayout(
             departure=builder.takeoff(self.flight.departure),
-            nav_to=builder.nav_path(
-                self.flight.departure.position, orbit0p, patrol_alt
-            ),
+            pre_push_refuel=early_refuel,
+            nav_to=builder.nav_path(nav_to_start, orbit0p, patrol_alt),
             nav_from=builder.nav_path(
                 nav_from_origin, self.flight.arrival.position, patrol_alt
             ),

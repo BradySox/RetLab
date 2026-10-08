@@ -22,11 +22,14 @@ another flight's ``flight_plan``, which would risk recursion.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import timedelta
+from typing import Optional, TYPE_CHECKING
 
 from game.ato.flighttype import FlightType
 
 if TYPE_CHECKING:
+    from dcs import Point
+
     from game.ato.flight import Flight
 
 
@@ -49,3 +52,28 @@ def serviceable_tanker_planned(flight: "Flight") -> bool:
             if flight.unit_type.can_refuel_from(tanker.unit_type):
                 return True
     return False
+
+
+def early_refuel_point(flight: "Flight", planned: "Point") -> Optional["Point"]:
+    """Where on a theater tanker's track ``flight`` tanks on its way out, or None.
+
+    For the stop before a push or a CAP station. A package's own tanker is timed
+    to arrive after the strike, so it is not a candidate. Lightweight test doubles
+    with no ATO keep the planned point.
+    """
+    from game.missiongenerator.refuelrendezvous import (
+        planned_tankers,
+        refuel_rendezvous,
+    )
+
+    tankers = planned_tankers(flight)
+    if tankers is None:
+        return planned
+    return refuel_rendezvous(
+        flight.unit_type, flight.blue.is_blue, planned, tankers, theater_only=True
+    )
+
+
+def tanking_time(flight: "Flight") -> timedelta:
+    """Time on the boom: the package tanker's 4 min a jet, plus 1."""
+    return timedelta(minutes=4 * flight.roster.max_size + 1)
