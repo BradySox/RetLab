@@ -15,6 +15,7 @@ from game.squadrons import Squadron
 
 if TYPE_CHECKING:
     from game.ato import FlightWaypoint, Package
+    from game.ato.flightplans.uizonedisplay import UiZone
     from game.dcs.aircrafttype import AircraftType
     from game.radio.radios import RadioFrequency
     from game.runways import RunwayData
@@ -109,6 +110,9 @@ class FlightData:
 
     #: The generated mission's start, which can fall before the turn clock (§104).
     mission_start: Optional[datetime] = None
+
+    #: The working area the map draws for this flight (CAS, SEAD...), if any.
+    work_zone: Optional[UiZone] = None
 
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])

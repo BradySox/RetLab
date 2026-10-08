@@ -39,7 +39,8 @@ SECTIONS: tuple[Section, ...] = (
             HORNET_UNIT_TYPE: "The route as named waypoints on sequence 1, with the"
             " planned leg speeds and times.",
             VIPER_UNIT_TYPE: "The route as steerpoints from 1 (20 at most) with times"
-            " on target. Saved points and support anchors follow it, up to 24.",
+            " on target. Saved points and support anchors follow it, up to 24."
+            " A CAS or SEAD flight's working area is an HSD box, tagged CAS or SD.",
             TOMCAT_UNIT_TYPE: "The route on flight plan 2 with its times. Plan 1 stays"
             " the mission editor's own.",
             APACHE_UNIT_TYPE: "The route as W-points on route ALPHA, with leg speeds"
@@ -89,8 +90,9 @@ SECTIONS: tuple[Section, ...] = (
         PICTURE,
         {
             HORNET_UNIT_TYPE: "On the SA page.",
-            VIPER_UNIT_TYPE: "An HSD line, 4 points when National borders are"
-            " drawn, otherwise what your drawings and the tanker box leave.",
+            VIPER_UNIT_TYPE: "An HSD line: 4 points when National borders are"
+            " drawn (3 beside a CAS flight's working-area box), otherwise what"
+            " your drawings and the tanker box leave.",
             TOMCAT_UNIT_TYPE: "As a plot line.",
             APACHE_UNIT_TYPE: "As a TSD line.",
         },
@@ -168,8 +170,9 @@ SECTIONS: tuple[Section, ...] = (
         "Countermeasure programs",
         WEAPONS,
         {
-            VIPER_UNIT_TYPE: "MAN 1 flares only, MAN 5 chaff only. Set the CMDS knob"
-            " to STBY before the cartridge loads.",
+            VIPER_UNIT_TYPE: "MAN 1 flares only, MAN 5 chaff only, and the jet's"
+            " own auto program for every threat: AUTO 2, none for search radars"
+            " and AWACS. Set the CMDS knob to STBY before the cartridge loads.",
         },
     ),
     Section(

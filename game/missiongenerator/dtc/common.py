@@ -882,7 +882,9 @@ def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
     whose ring comes within the DTC tab's distance of the route (§102)."""
     sites = known_enemy_threat_sites(game, flight.friendly)
     radius_nm = flight.dtc_options.threat_ring_radius_nm
-    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    route = [
+        (w.position.x, w.position.y) for w in flight.waypoints if is_route_waypoint(w)
+    ]
     if radius_nm is None or not route:
         return sites
     limit = radius_nm * 1852.0

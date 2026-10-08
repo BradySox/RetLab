@@ -1286,3 +1286,36 @@ each side of a border, `FLT` on the front line, the tanker's callsign in its box
 first three letters of a player drawing's name. At most 8 slots go to tags; the
 recovery fields keep the other 11. A tag is a real steerpoint, so the pilot can select
 it, but it never joins the route.
+
+## Four F-16C campaigns' cartridges (2026-10-08, row B193)
+
+103 cartridges from campaigns C, D, G and I (I is new: an F-16C training campaign on
+Nevada), each section diffed against `CoreMods/aircraft/F-16C/DTC`.
+
+| Section | What they do | Us |
+|---|---|---|
+| `CMDSPrograms` | all four: AUTO 2 per threat; C and D exactly `CMDS_defs.lua` (NONE on search radars and AWACS) | **was an empty table; now the module's own, in full** |
+| `CMDSProgramSettings` | one flares-only and one chaff-only manual program (I: MAN 1 and MAN 6) | same idea, MAN 1 and MAN 5 |
+| `GEO_LINES` | closed working areas and airspace boxes (C, D, I), one long boundary (G) | **adds a CAS/SEAD working box** |
+| `THREAT_PTS` | C and D: named SAM types, up to 12 | Custom type, same 3-character labels |
+| `DEST` | 3-character labels, airfields and named fixes | same |
+| `NAV_PTS` | only I loads the route (R2/R3 on 11 points) | route on R1 |
+| `ROE` | I only | yes |
+| `COMM` | G and I set all 40 channels | none: the miz Radio table carries them |
+| `ELINT`, `COLR` | module defaults plus DCS-version drift | none |
+| `VIPVRP`, offset aimpoints | unused everywhere | none |
+
+**The module default is not NONE.** The 2026-09-10 section read campaign G's blanket
+AUTO 2 as a choice against a NONE default. `CMDS_defs.lua` ships 72 threats on AUTO 2
+and 24 on NONE; the threats `threat_base.lua` lists that `CMDS_defs` does not get NONE
+from the editor's own fallback (`CMDS.lua` `makeCMDSTable`).
+
+**The empty table.** The editor compiles `CMDS_Avionics_Threat_Table` from
+`threat_base.lua` (wsType codes) plus the category grids, and every campaign ships it
+compiled. Ours shipped `{}`. Whether the jet recompiles from the grids is not known
+outside a cockpit, so we write both, exactly as the editor would. Row B193 flies it.
+
+**Front line on CAS only (DM call, 2026-10-08).** Off a CAS flight it is noise. The
+DTC tab's starting ticks carry that (#1158); the builder follows the tick, and an
+unticked front line's points go to the borders. The working box ranks after borders and before the tanker
+box; beside both the front line keeps 3 points.

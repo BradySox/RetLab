@@ -21,9 +21,10 @@ Sections emitted (schema mined from ``CoreMods/aircraft/F-16C/DTC``):
   labelled with the HSD's 3-character Destination text, plus the hostile field
   the flight is working over when there is one within 10 NM of the target.
 * ``MPD.CMDS`` -- the countermeasure dispenser: MAN 1 flares only, MAN 5 chaff
-  only, everything else the module's own value. ``CMDSPrograms`` carries only
-  the two fields ``CMDS.lua`` reads without a nil guard, so the per-threat auto
-  assignment stays the jet's.
+  only, everything else the module's own value. ``CMDSPrograms`` carries the
+  module's own per-threat auto programs in full (AUTO 2, search radars and
+  AWACS NONE), exported by ``tools/export_viper_cmds_threats.py``: an empty
+  table leaves AUTO and SEMI with nothing to answer.
 * ``MPD.ROE`` -- the ROE tab's Air Target Data Table derived from the
   campaign's order of battle (see ``roedata``). Rows carry only
   ``{group_name, sovereignty}``: the jet's own ``make_ROE_table`` compiles
@@ -32,10 +33,14 @@ Sections emitted (schema mined from ``CoreMods/aircraft/F-16C/DTC``):
 
 from __future__ import annotations
 
+import json
 import math
 from dataclasses import dataclass
+from functools import cache
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from game.ato.flighttype import FlightType
 from game.missiongenerator.dtc.cartridge import DtcCartridge
 from game.missiongenerator.dtc.roedata import build_atdt
 from game.missiongenerator.dtc.savedpoints import (
@@ -99,6 +104,14 @@ MAX_BORDER_LINE_SETS = 2
 MAX_BORDER_POINTS = 12
 #: The front line's share when borders are drawn; alone, it takes what is left.
 FRONT_POINTS_WITH_BORDERS = 4
+#: ... and beside borders and a working-area box (DM pick 2026-10-08).
+FRONT_POINTS_WITH_WORK_BOX = 3
+#: The flights that get a box on their working area, and its tag.
+WORK_BOX_TAGS = {
+    FlightType.CAS: "CAS",
+    FlightType.SEAD: "SD",
+    FlightType.SEAD_SWEEP: "SD",
+}
 #: Destination slots the line tags may take; the recovery fields keep the rest.
 MAX_LINE_LABELS = 8
 #: How far either side of a border its two country tags sit.
@@ -674,6 +687,49 @@ _MAN5_CHAFF = {"BurstQuantity": 2, "BurstInterval": 0.1, "SalvoQuantity": 5, "Sa
 _NO_DISPENSE = {"BurstQuantity": 0, "BurstInterval": 0.0, "SalvoQuantity": 0, "SalvoInterval": 0.0}  # fmt: skip
 
 
+#: The jet's compiled CMDS threat table, from ``tools/export_viper_cmds_threats.py``.
+CMDS_THREATS_PATH = (
+    Path(__file__).resolve().parents[3] / "resources" / "dtc" / "f16c_cmds_threats.json"
+)
+
+
+@cache
+def _cmds_threats() -> dict[str, Any]:
+    with CMDS_THREATS_PATH.open(encoding="utf-8") as source:
+        return json.load(source)
+
+
+def _build_cmds_programs() -> dict[str, Any]:
+    """The per-threat auto programs exactly as the DTC editor compiles them:
+    the avionics table the jet reads, plus the per-category grid it shows."""
+    exported = _cmds_threats()
+    programs: dict[str, Any] = {
+        "CMDS_Avionics_Threat_Table": [],
+        "delayBetweenPrograms": exported["delayBetweenPrograms"],
+        "Air": {},
+        "Ground": {},
+        "Naval": {},
+        "Other": {},
+    }
+    for threat in exported["threats"]:
+        setting = {
+            "program": threat["program"],
+            "thresholds": threat["thresholds"],
+            "default_threshold": threat["default_threshold"],
+        }
+        programs["CMDS_Avionics_Threat_Table"].append(
+            {
+                "group_name": threat["group_name"],
+                "hint": threat["hint"],
+                "threats": threat["threats"],
+                **setting,
+            }
+        )
+        if threat["category"] is not None:
+            programs[threat["category"]][threat["group_name"]] = setting
+    return programs
+
+
 def _build_cmds() -> dict[str, Any]:
     programs: dict[str, Any] = {
         name: {dispenser: dict(values) for dispenser, values in program.items()}
@@ -694,9 +750,7 @@ def _build_cmds() -> dict[str, Any]:
             "BINGO": True,
         },
         "CMDSProgramSettings": programs,
-        # The two fields CMDS.lua reads unguarded; the per-threat program
-        # assignment is left at the module's default of NONE.
-        "CMDSPrograms": {"CMDS_Avionics_Threat_Table": {}, "delayBetweenPrograms": 2},
+        "CMDSPrograms": _build_cmds_programs(),
     }
 
 
@@ -733,6 +787,32 @@ def _border_labels(game: Game, points: list[tuple[float, float]]) -> list[LineLa
     return labels
 
 
+def _work_box(flight: FlightData) -> list[tuple[float, float]] | None:
+    """A closed box around the zone the map draws for a CAS or SEAD flight: its
+    engagement range either side of the track, or round the point."""
+    zone = flight.work_zone
+    if flight.flight_type not in WORK_BOX_TAGS or zone is None or not zone.points:
+        return None
+    radius = zone.radius.meters
+    (ax, ay), (bx, by) = (
+        (zone.points[0].x, zone.points[0].y),
+        (zone.points[-1].x, zone.points[-1].y),
+    )
+    length = math.hypot(bx - ax, by - ay)
+    ux, uy = ((bx - ax) / length, (by - ay) / length) if length else (1.0, 0.0)
+    nx, ny = -uy, ux
+    corners = [
+        (px + along * ux + side * nx, py + along * uy + side * ny)
+        for (px, py), along, side in (
+            ((ax, ay), -radius, -radius),
+            ((bx, by), radius, -radius),
+            ((bx, by), radius, radius),
+            ((ax, ay), -radius, radius),
+        )
+    ]
+    return closed_ring(corners)
+
+
 def _build_geo_lines(
     game: Game, mission_data: MissionData, flight: FlightData
 ) -> tuple[list[dict[str, Any]], list[LineLabel]]:
@@ -740,12 +820,15 @@ def _build_geo_lines(
     25 shared points run out.
 
     1. The player's orbits and drawings (§102): drawn on purpose.
-    2. Land borders near the route, at most 12 points: crossing one can start
-       a fight (§98).
-    3. A box on each tanker this jet can use, nearest first; only one beside
-       borders.
-    4. The boundary with red land (the front line): 4 points beside borders,
-       otherwise what is left.
+    2. Land borders near the route: crossing one can start a fight (§98). At
+       most 12 points when the front line is drawn, otherwise what is left.
+    3. A box on a CAS or SEAD flight's working area.
+    4. A box on each tanker this jet can use, nearest first; only one beside
+       borders and the front line.
+    5. The boundary with red land (the front line), when ticked (by default
+       on CAS flights only, DM call 2026-10-08): 4 points
+       beside borders, 3 beside borders and a working box, otherwise what is
+       left.
 
     Borders and the front line are thinned to fit; a box or a drawing missing a
     corner is nonsense, so those go in whole or not at all.
@@ -762,7 +845,9 @@ def _build_geo_lines(
     fixed = sum(len(corners) for _name, corners in player)
     sets_left = MAX_GEO_LINE_SETS - len(player)
 
-    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    route = [
+        (w.position.x, w.position.y) for w in flight.waypoints if is_route_waypoint(w)
+    ]
     borders = (
         land_border_runs(game, route, BORDER_CORRIDOR_M)[
             : min(MAX_BORDER_LINE_SETS, sets_left)
@@ -771,15 +856,28 @@ def _build_geo_lines(
         else []
     )
     sets_left -= len(borders)
+    draw_front = options.flot_and_zones
+    front_set = 1 if draw_front else 0
+    min_lines = MIN_BOUNDARY_POINTS if borders or draw_front else 0
 
-    # One tanker box beside borders, so the front line keeps a line set.
-    box_sets = min(sets_left, 1) if borders else sets_left
+    work: list[tuple[str, list[tuple[float, float]]]] = []
+    work_corners = _work_box(flight) if options.route else None
+    if (
+        work_corners is not None
+        and sets_left > front_set
+        and fixed + len(work_corners) <= MAX_GEO_POINTS - min_lines
+    ):
+        work.append((WORK_BOX_TAGS[flight.flight_type], work_corners))
+        fixed += len(work_corners)
+        sets_left -= 1
+
+    # One tanker box beside borders and the front line, so the front keeps a set.
+    box_sets = min(sets_left, 1) if borders and draw_front else sets_left - front_set
     boxes = (
         support_boxes(mission_data, box_sets, flight)
         if options.friendly_orbits and box_sets > 0
         else []
     )
-    min_lines = MIN_BOUNDARY_POINTS if borders or options.flot_and_zones else 0
     while boxes and fixed + len(boxes) * SUPPORT_BOX_POINTS > (
         MAX_GEO_POINTS - min_lines
     ):
@@ -788,15 +886,17 @@ def _build_geo_lines(
     sets_left -= len(boxes)
 
     front: list[tuple[str, list[tuple[float, float]]]] = []
-    if options.flot_and_zones and sets_left > 0:
+    if draw_front and sets_left > 0:
         front = red_land_boundary(game, 1, MAX_GEO_POINTS)
     # Thinned lines take what the whole shapes leave: the front line's share is
     # set aside first, then borders take up to their cap.
     lines: list[tuple[str, list[tuple[float, float]]]] = []
     labels: list[LineLabel] = []
     room = MAX_GEO_POINTS - fixed
-    front_share = min(len(front[0][1]), FRONT_POINTS_WITH_BORDERS) if front else 0
-    border_room = min(MAX_BORDER_POINTS, room - front_share)
+    front_cap = FRONT_POINTS_WITH_WORK_BOX if work else FRONT_POINTS_WITH_BORDERS
+    front_share = min(len(front[0][1]), front_cap) if front else 0
+    border_cap = MAX_BORDER_POINTS if draw_front else MAX_GEO_POINTS
+    border_room = min(border_cap, room - front_share)
     for index, (name, points) in enumerate(borders):
         share = min(len(points), border_room // (len(borders) - index))
         if share < 2:
@@ -814,11 +914,14 @@ def _build_geo_lines(
     for name, corners in player:
         x, y = _anchor(corners)
         labels.append(LineLabel(name, x, y, name))
+    for tag, corners in work:
+        x, y = _anchor(corners)
+        labels.append(LineLabel(tag, x, y, f"{flight.flight_type.value} area"))
     for callsign, corners in boxes:
         x, y = _anchor(corners)
         labels.append(LineLabel(callsign, x, y, f"Tanker {callsign}"))
 
-    line_sets = lines + player + boxes
+    line_sets = lines + player + work + boxes
     geo_points: list[dict[str, Any]] = []
     for set_index, (name, points) in enumerate(line_sets[:MAX_GEO_LINE_SETS]):
         flags = {f"L{i}": i == set_index + 1 for i in range(1, 5)}

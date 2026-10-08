@@ -1,0 +1,11 @@
+date: 2026-10-08
+title: Viper cartridge auto countermeasures and working box
+change: >-
+  With Countermeasure programs ticked on the DTC tab, the Viper's cartridge
+  now carries the jet's own auto program for each threat, so CMDS SEMI and
+  AUTO dispense against a lock. A CAS or SEAD flight's HSD shows a box on
+  its working area, tagged CAS or SD. With Front line unticked, its HSD
+  points go to the borders.
+watch: >-
+  On a CAS Viper, CMDS in SEMI asks to dispense when a SAM locks you, and
+  the HSD shows the CAS box and the front line.

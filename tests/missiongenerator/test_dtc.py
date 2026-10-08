@@ -178,6 +178,7 @@ def _flight(
     channel_map: Optional[dict[Any, list[Any]]] = None,
     arrival: Optional[Any] = None,
     dtc_options: Optional[DtcOptions] = None,
+    work_zone: Optional[Any] = None,
 ) -> Any:
     intra = _freq(258.5)
     return SimpleNamespace(
@@ -198,6 +199,7 @@ def _flight(
         saved_points=[],
         saved_drawings=[],
         mission_start=None,
+        work_zone=work_zone,
     )
 
 
@@ -2381,9 +2383,28 @@ def test_viper_cmds_gives_each_dispenser_its_own_manual_program() -> None:
     assert programs["AUTO2"]["Chaff"]["SalvoQuantity"] == 6
     assert programs["BYP"]["Flare"]["BurstQuantity"] == 1
     assert cmds["CMDSBingoSettings"]["ChaffNum"] == 10
-    # CMDS.lua reads both of these without a nil guard.
     assert cmds["CMDSPrograms"]["delayBetweenPrograms"] == 2
-    assert cmds["CMDSPrograms"]["CMDS_Avionics_Threat_Table"] == {}
+
+
+def test_viper_cmds_carries_the_jets_own_auto_programs() -> None:
+    """An empty threat table leaves AUTO and SEMI nothing to answer, so the
+    cartridge writes the module's table in full: AUTO 2 against shooters,
+    NONE against search radars and AWACS."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.dtc_options = DtcOptions(countermeasures=True)
+    programs = json.loads(
+        build_viper_cartridge(flight, mission_data, game, "V").to_json()
+    )["data"]["MPD"]["CMDS"]["CMDSPrograms"]
+    table = {e["group_name"]: e for e in programs["CMDS_Avionics_Threat_Table"]}
+    assert len(table) > 90
+    assert table["SAM SA-6 'Gainful'"]["program"] == 3  # AUTO 2
+    assert table["SAM SA-6 'Gainful'"]["threats"][0]["wstype"]
+    assert table["EWR 1L13"]["program"] == 1  # NONE
+    assert table["E-3"]["program"] == 1
+    # The editor's grid reads the same settings per category.
+    assert programs["Ground"]["SAM SA-6 'Gainful'"]["program"] == 3
+    assert programs["Air"]["E-3"]["program"] == 1
 
 
 def test_viper_cmds_is_off_by_default() -> None:
@@ -3074,6 +3095,103 @@ def test_viper_caps_borders_at_twelve_and_keeps_four_for_the_front(
     notes = [p["note"] for p in geo]
     assert notes.count("Alpha-Bravo") == 12
     assert notes.count("FLOT") == 4
+
+
+def _two_borders(game: Any) -> None:
+    frontier = [(20000.0 + 2000.0 * i, 50000.0) for i in range(30)]
+    north = [(frontier[0][0], 0.0), *frontier, (frontier[-1][0], 0.0)]
+    south = [(frontier[0][0], 100000.0), *frontier, (frontier[-1][0], 100000.0)]
+    game.theater.neutral_border_zones = [
+        SimpleNamespace(country="Alpha", border=north),
+        SimpleNamespace(country="Bravo", border=south),
+    ]
+
+
+def _zone(points: list[tuple[float, float]], radius_nm: float) -> Any:
+    return SimpleNamespace(
+        points=[Pt(x, y) for x, y in points],
+        radius=SimpleNamespace(meters=radius_nm * 1852.0),
+    )
+
+
+def _straight_front(monkeypatch: pytest.MonkeyPatch) -> None:
+    segments = [("Front", [(1000.0 * i, 2000.0) for i in range(20)])]
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments", lambda g: segments
+    )
+
+
+def test_viper_gives_an_unticked_front_lines_points_to_the_borders(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """DM call 2026-10-08: off a CAS flight the front line is noise (unticked by
+    default), and its points go to the borders instead of their 12-point cap."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.dtc_options = DtcOptions(flot_and_zones=False)
+    _two_borders(game)
+    _straight_front(monkeypatch)
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    notes = [p["note"] for p in geo]
+    assert "FLOT" not in notes
+    assert notes.count("Alpha-Bravo") > 12
+
+
+def test_viper_boxes_a_cas_working_area_and_trims_the_front_to_three(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A CAS flight gets a closed box on its working area, tagged CAS; beside
+    borders and the box the front line keeps 3 points (DM pick 2026-10-08)."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.flight_type = FlightType.CAS
+    flight.work_zone = _zone([(60000.0, 70000.0), (60000.0, 90000.0)], 10)
+    _two_borders(game)
+    _straight_front(monkeypatch)
+    data = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]
+    geo = data["GEO_LINES"]
+    box = [p for p in geo if p["note"] == "CAS"]
+    assert len(box) == 5
+    assert (box[0]["x"], box[0]["y"]) == (box[-1]["x"], box[-1]["y"])
+    # The engagement range either side of the track, and past each end.
+    assert {round(p["x"]) for p in box} == {60000 - 18520, 60000 + 18520}
+    assert {round(p["y"]) for p in box} == {70000 - 18520, 90000 + 18520}
+    notes = [p["note"] for p in geo]
+    assert notes.count("FLOT") == 3
+    assert notes.count("Alpha-Bravo") == 12
+    assert len(geo) <= 25
+    assert "CAS" in [d["text"] for d in data["DEST"]]
+
+
+def test_viper_boxes_a_sead_working_area_without_a_front_line(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.flight_type = FlightType.SEAD
+    flight.dtc_options = DtcOptions(flot_and_zones=False)
+    flight.work_zone = _zone([(60000.0, 80000.0)], 20)
+    _straight_front(monkeypatch)
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    notes = [p["note"] for p in geo]
+    assert notes.count("SD") == 5
+    assert "FLOT" not in notes
+
+
+def test_viper_draws_no_working_box_on_a_strike() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.work_zone = _zone([(60000.0, 80000.0)], 20)
+    geo = json.loads(build_viper_cartridge(flight, mission_data, game, "V").to_json())[
+        "data"
+    ]["MPD"]["GEO_LINES"]
+    assert all(p["note"] != "SD" for p in geo)
 
 
 def test_viper_tags_each_hsd_line_on_the_dest_page(

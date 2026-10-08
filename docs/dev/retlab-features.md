@@ -7723,6 +7723,17 @@ package-mates share the comm plan and SA picture):
   once, and sorts runs nearest first. Its own DTC-tab switch is `DtcOptions.borders`
   ("National borders"). A map with no border file (Nevada, the Marianas, fictional
   overlays) gets the front line on L1 as before.
+- **Viper: a working-area box, and an unticked front line's points (2026-10-08, row
+  B193).** DM call: off a CAS flight the front line is noise; the DTC tab's starting
+  ticks put Front line on CAS only (#1158), and with it unticked `_build_geo_lines` gives
+  its points to the borders, uncapped. CAS, SEAD and SEAD Sweep flights get a closed
+  5-point box on the zone the web map draws for them (`FlightData.work_zone`, from the
+  flight plan's `ui_zone()`), drawn with the route: the engagement range either side of
+  the track and past each end, tagged `CAS` or `SD`. It ranks after the borders and
+  before the tanker box, and beside borders and the box the front line keeps
+  `FRONT_POINTS_WITH_WORK_BOX` = 3 (DM pick). Two of the four paid F-16C campaigns
+  studied draw a working area this way. The border and threat-ring searches now skip the
+  bullseye and divert points, which are not on the route.
 - **Tanker and AEW&C orbits as boxes (2026-09-10).** `support_boxes` draws each
   support orbit as a closed rectangle: the straight legs plus the 5 NM the turns
   need at each end, aligned to the orbit's own course. The Viper takes them on
@@ -7741,8 +7752,16 @@ package-mates share the comm plan and SA picture):
 - **CMDS (Viper, default OFF)** — `MAN1` dispenses flares only and `MAN5` chaff only, so
   one button answers an IR shot and another a radar one; the three AUTO programs and BYP
   keep the module's own values, written whole because `CMDS.lua` indexes every program
-  and dispenser with no nil guard. `CMDSPrograms` carries only the two fields that file
-  reads unguarded, leaving the per-threat auto assignment at the module default.
+  and dispenser with no nil guard. **`CMDSPrograms` carries the module's per-threat auto
+  programs in full (2026-10-08, row B193)**: AUTO 2 against every shooter, NONE against
+  search radars and AWACS -- `CMDS_defs.lua`'s own values, and what all four paid F-16C
+  campaigns studied ship. Until then it carried an empty `CMDS_Avionics_Threat_Table`,
+  which the editor would have compiled from `threat_base.lua`; the jet reads the compiled
+  table, so a ticked Countermeasures section most likely left AUTO and SEMI with nothing
+  to answer. The table needs each threat's wsType codes, so it is exported from the
+  install by `tools/export_viper_cmds_threats.py` into `resources/dtc/f16c_cmds_threats.json`
+  (123 threats; matched a 2026 campaign's compiled table on 118 of 120). Re-run it after
+  a DCS patch touches `CoreMods/aircraft/F-16C/DTC`.
   **Reverses the 2026-08-18 "no CMDS section" decision on two of its three counts** —
   campaign G's working cartridge puts the section at `data.MPD.CMDS` (settling the
   descriptor-vs-test-file disagreement) and authors two programs away from default
