@@ -148,8 +148,7 @@ against a predicted starvation failure that did not occur.
   `Conditions.advance` never consults `night_day_missions` — that setting governs
   turn 1 only. A full day cycles every 4–8 turns, so expect roughly a third of
   missions in darkness. Left unpinned on the DM's call.
-- **The CLAUDE.md SAM-belt standard disagrees with this campaign.** It prefers
-  regiment-by-authoring for strategic belts; the S-300s here are single sites, on
-  an explicit DM call. The DM is having that rule rebuilt separately (2026-10-08);
-  until then this is an undocumented deviation.
+- **The S-300s are single sites, by choice.** This was an explicit DM call when
+  the campaign was built. CLAUDE.md no longer sets a SAM-belt rule (2026-10-08).
+  Layout is each campaign's own call, and this is the record of this one.
 - Red engages civilian airliners (two lost in the first turn). Cosmetic.
