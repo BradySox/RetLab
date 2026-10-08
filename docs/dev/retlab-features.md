@@ -7746,6 +7746,19 @@ package-mates share the comm plan and SA picture):
   AWACS. `support_boxes` now takes the flight and boxes only the `REFUELING` orbits its
   `AircraftType.can_refuel_from` admits, ordered by distance from the flight's target
   (`usable_tanker_tracks`); the AWACS gets no box on any airframe.
+- **The Hornet SA page: one item per class, one job each (2026-10-08, DM).** The
+  cockpit's own `SA.lua` allocates one CAP racetrack, one corridor (14 points), one
+  FAOR line and one FLOT line (7 points each) and 40 MEZ rings, so only the selected
+  entry of each list draws. FAOR (dashed) is now the nearest land border within 40 NM
+  of the route, else the tanker box; FLOT (solid) is the next border; the front line
+  takes FLOT only on CAS. The corridor is the package's lane from the IP over the
+  target to the split. `TCN` lists the friendly boats (unit id + route point 1, as the
+  editor keys an `ActivateBeacon` task), the home, arrival and divert fields' ground
+  TACANs, then the map's other TACANs nearest the route, to the editor's 10. That
+  needed beacon positions: `resources/dcs/beacons/*.json` now carry
+  `x`/`y`/`elevation` from each terrain's `beacons.lua`. Tankers cannot be listed; the
+  editor takes ships and ground beacons only. Row B192. Rationale and the study of
+  four paid Hornet campaigns' cartridges: design note, 2026-10-08 section.
 - **CMDS (Viper, default OFF)** — `MAN1` dispenses flares only and `MAN5` chaff only, so
   one button answers an IR shot and another a radar one; the three AUTO programs and BYP
   keep the module's own values, written whole because `CMDS.lua` indexes every program

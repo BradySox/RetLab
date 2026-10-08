@@ -118,7 +118,10 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   rings). The front line is drawn as one continuous boundary with the same bulges the F10
   map shows, not a separate straight dash per front, and the tanker you can actually take
   gas from is drawn as a box you can see without selecting it. On the Viper HSD the land
-  borders within 40 NM of the route come before the front line. The
+  borders within 40 NM of the route come before the front line. The Hornet SA page draws
+  one item of each kind: the nearest border dashed, the next border solid (the front line
+  instead on CAS), the package's lane from the IP over the target, and its TACAN list
+  holds the boats, your fields and the map's other TACANs nearest your route. The
   orbit shown is the flight's own — its patrol track, or its hold point when it flies no
   track — never another flight's station. Hornets get the bullseye designated as the
   air-to-air waypoint; Vipers get the friendly recovery fields as Destination steerpoints,
