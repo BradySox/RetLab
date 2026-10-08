@@ -589,6 +589,15 @@ def flight_defaults_path() -> Path:
     return _create_dir_if_needed(base_path() / "Retribution") / "flight_defaults.json"
 
 
+def dtc_defaults_path() -> Path:
+    """JSON store for the per-airframe, per-task DTC tab defaults (§74).
+
+    Global and never part of a save game, like ``flight_defaults_path`` above.
+    See ``game/retlab/dtc_defaults.py``.
+    """
+    return _create_dir_if_needed(base_path() / "Retribution") / "dtc_defaults.json"
+
+
 def pilot_profiles_path() -> Path:
     """JSON store for the §97 lifetime pilot profiles.
 

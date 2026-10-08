@@ -1334,3 +1334,23 @@ each side of a border, `FLT` on the front line, the tanker's callsign in its box
 first three letters of a player drawing's name. At most 8 slots go to tags; the
 recovery fields keep the other 11. A tag is a real steerpoint, so the pilot can select
 it, but it never joins the route.
+
+## Ticks by task, and the saved default (2026-10-08)
+
+Until now every flight started with the same ticks, and the only task-based content
+was a CAP flight's own orbit. The DM's calls:
+
+- **Automatic by task, editable.** `DtcOptions.for_task` sets a new flight's starting
+  ticks, and the tab shows them, so any flight can still be changed by hand.
+- **Front line on CAS only.** Every other flight starts with it unticked.
+- **SAM rings by task.** SEAD/DEAD-type flights: every known site. CAP-type: rings of
+  15 NM or wider, the systems that reach a fighter at altitude. Strike, CAS and
+  escort: within 40 NM of the route. The 15 NM cut is ours (DM picked "long-range";
+  the number was not specified).
+- **Escorts split by job.** A SEAD escort is a SEAD flight (every site); a fighter
+  escort gets the route rule like the package it covers.
+- **Save as my default.** Per airframe and task, global, outside the save, like §43.
+  It replaces the task ticks wholesale (everything but the on/off override), so a
+  saved default made before a new section exists falls back to that section's task
+  tick for the missing key.
+

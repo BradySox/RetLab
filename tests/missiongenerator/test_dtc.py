@@ -9,6 +9,8 @@ discipline on threat rings.
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import dataclasses
 import json
 import math
@@ -2819,6 +2821,21 @@ def test_the_sam_filter_keeps_only_rings_near_the_route() -> None:
     assert threat_sites_for(game, flight) == []
     flight.dtc_options = DtcOptions(threat_ring_radius_nm=40)
     assert len(threat_sites_for(game, flight)) == 1
+
+
+def test_long_range_filter_keeps_rings_15_nm_or_wider(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import game.missiongenerator.dtc.common as common
+
+    flight, _mission_data, game = _hornet_fixture()
+    # The fixture's SA-2 ring is 43 km, about 23 NM.
+    flight.dtc_options = DtcOptions(long_range_rings_only=True)
+    sites = common.threat_sites_for(game, flight)
+    assert len(sites) == 1
+    short = [replace(sites[0], range_m=20_000.0)]
+    monkeypatch.setattr(common, "known_enemy_threat_sites", lambda g, v: short)
+    assert common.threat_sites_for(game, flight) == []
 
 
 def _orbit(name: str = "CAP") -> SavedPoint:

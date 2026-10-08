@@ -19,6 +19,7 @@ import pytest
 from PySide6.QtWidgets import QApplication
 
 from game.ato.dtcoptions import DtcOptions
+from game.ato.flighttype import FlightType
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -31,7 +32,9 @@ def _qt_app() -> Iterator[QApplication]:
 def _tab(*, campaign_on: bool = True, options: DtcOptions | None = None) -> Any:
     from qt_ui.windows.mission.flight.QFlightDtcTab import QFlightDtcTab
 
-    flight = SimpleNamespace(dtc_options=options or DtcOptions())
+    flight = SimpleNamespace(
+        dtc_options=options or DtcOptions(), flight_type=FlightType.STRIKE
+    )
     game = SimpleNamespace(settings=SimpleNamespace(dtc_data_cartridges=campaign_on))
     return QFlightDtcTab(flight, game), flight  # type: ignore[arg-type]
 
@@ -114,7 +117,10 @@ def _typed_tab(dcs_id: str, waypoint_types: list[str]) -> Any:
 
     flight = SimpleNamespace(
         dtc_options=DtcOptions(),
-        unit_type=SimpleNamespace(dcs_unit_type=SimpleNamespace(id=dcs_id)),
+        flight_type=FlightType.STRIKE,
+        unit_type=SimpleNamespace(
+            dcs_unit_type=SimpleNamespace(id=dcs_id), display_name="F-16CM"
+        ),
         flight_plan=SimpleNamespace(
             waypoints=[
                 SimpleNamespace(waypoint_type=FlightWaypointType[name])
@@ -181,3 +187,27 @@ def test_the_skip_note_is_true_for_the_airframe() -> None:
     tomcat, _ = _typed_tab("F-14BU", ["TAKEOFF", "NAV"])
     assert "prints '-'" in viper._waypoint_picker_note()
     assert "prints '-'" not in tomcat._waypoint_picker_note()
+
+
+def test_save_and_clear_my_default(
+    tmp_path: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from game.retlab import dtc_defaults
+
+    monkeypatch.setattr(
+        dtc_defaults, "dtc_defaults_path", lambda: tmp_path / "dtc_defaults.json"
+    )
+    dtc_defaults.invalidate_cache()
+    tab, flight = _typed_tab("F-16C_50", ["TAKEOFF", "NAV"])
+    assert "F-16CM Strike" in tab.save_default_btn.text()
+    assert not tab.clear_default_btn.isEnabled()
+
+    tab.long_range_only.setChecked(True)
+    assert flight.dtc_options.long_range_rings_only
+    tab.save_default_btn.click()
+    assert dtc_defaults.has_default_for("F-16C_50", FlightType.STRIKE)
+    assert tab.clear_default_btn.isEnabled()
+
+    tab.clear_default_btn.click()
+    assert not dtc_defaults.has_default_for("F-16C_50", FlightType.STRIKE)
+    dtc_defaults.invalidate_cache()

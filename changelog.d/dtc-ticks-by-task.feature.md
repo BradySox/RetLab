@@ -1,0 +1,1 @@
+* **[Mission Generation]** A new flight's DTC tab starts with ticks for its task: the front line only on CAS, every known SAM on SEAD and DEAD, the long-range SAMs on CAP, the SAMs within 40 NM of the route on strike, CAS and escort. Save as my default keeps your own ticks for that aircraft and task.
