@@ -1100,10 +1100,19 @@ cross-campaign leakage). Old saves migrate via a `__setstate__` `setdefault`. Co
 flight as **one card per system** (sites aggregated), modelled on the per-system threat cards in
 professional campaign Intelligence Briefings (design note `retlab-campaign-doc-ideas-harvest.md`).
 `build_threat_intel_cards()` groups enemy `SamGroundObject` / `EwrGroundObject` by system and each
-card pairs the **live** campaign numbers — engagement range (MEZ), detection range, HARM **ALIC**
-code (`AlicCodes`), live/dead site counts, and bullseye cues — with a **curated reference** from the
-new `game/data/threat_reference.py` (`ThreatReference` = guidance type, engagement ceiling, and a
-**"how to defeat"** tactics note), keyed by the same DCS unit ids as `AlicCodes`. A card's **name and
+card pairs the **live** campaign numbers — engagement range, search-radar range, live/dead site
+counts, and bullseye cues — with a catalog entry from `game/data/threat_reference.py`
+(`ThreatReference` = NATO name, guidance, ceiling, RWR symbol, and a "how to beat it" line), keyed by
+the DCS unit ids of the system's radars and launchers.
+**Rebuilt 2026-10-07** after a flown page briefed an SA-10 as a heat-seeker: the catalog lacked
+the Flap Lid-B, so the old scan borrowed the stats of the site's SA-13 guard; the HARM ALIC code
+came from whichever radar was listed first; four hand-typed ceilings were wrong. Now: ceilings are
+each missile's `H_max` from `CoreMods\tech\TechWeaponPack\Database\Weapons`; RWR symbols replace
+the HARM code and come from `AN_ALR_SymbolsBase.lua`; the "how to beat it" lines follow the
+squadron's Soviet SAMs guide, and a system that guide does not cover (the Western SAMs) carries no
+line. Only units in a site's best identity tier may identify it, highest-ceiling system wins, and
+an uncatalogued best tier borrows nothing. The Hawk's 131,000 ft is DCS's own `H_max`. Row B190.
+A card's **name and
 reference** come from `_system_identity()`, which ranks a site's units by `_CARD_IDENTITY_PRIORITY` so
 the **weapon system** (track radar / TELAR / launcher — the HARM-targetable shooter) is what names and
 describes the card, *not* the co-located search / acquisition / EW radar whose DCS display name reads
@@ -1113,7 +1122,7 @@ TR", not "ST-68U Tin Shield SR" — and it fixes a real bug where an SA-5 site p
 reference ("No weapons") from its acquisition radar despite a 138 nm MEZ. A bare radar site (nothing
 lethal co-located) still honestly names itself. **Recon-fog aware** (§3): a site the player has not identified
 (`known_for(player)` False) contributes only to a per-band "Unidentified MERAD" card — system,
-ring, HARM code and defeat note withheld until the site is engaged. The unidentified cards
+ring, RWR symbol and how-to-beat line withheld until the site is engaged. The unidentified cards
 also **withhold the count**: how many unidentified (often mobile) sites are in theatre is intel we
 wouldn't realistically have, so they drop the "N site(s)" headline and the intro's running total, and
 their detected-contact bearings overflow to an ellipsis (`_unknown_cues_text`) rather than a "+N" total

@@ -131,17 +131,17 @@ def test_known_site_card_carries_live_data_and_curated_reference() -> None:
     assert len(cards) == 1
     card = cards[0]
     # Live data from the campaign model.
-    assert card.system == "SA-6 Kub"
+    assert card.system == 'SA-6 "Gainful"'
     assert card.identified
     assert card.mez_nm == "23"
-    assert card.harm == "108"
+    assert card.rwr == "6"
     assert card.band == "MERAD"
     assert card.live == 1 and card.dead == 0
     assert card.cues == ["000/0"]
-    # Curated v2 enrichment from game.data.threat_reference.
-    assert "Straight Flush" in card.guidance
-    assert card.ceiling == "40,000 ft"
-    assert card.defeat  # a non-empty "how to defeat" note
+    # Catalog entry from game.data.threat_reference (DCS missile H_max: 8 km).
+    assert card.guidance == "Radar"
+    assert card.ceiling == "26,000 ft"
+    assert "26,000 ft" in card.defeat
 
 
 def test_card_names_weapon_system_not_co_located_search_radar() -> None:
@@ -170,12 +170,52 @@ def test_card_names_weapon_system_not_co_located_search_radar() -> None:
 
     assert len(cards) == 1
     card = cards[0]
-    assert card.system == 'SAM SA-5 S-200 "Square Pair" TR'
-    assert "SR" not in card.system.split()  # not the "... Tin Shield SR" search radar
-    # Curated reference resolves to the SA-5, not the EWR ("no weapons") entry.
-    assert "Square Pair" in card.guidance
-    assert "No weapons" not in card.defeat
+    assert card.system == 'SA-5 "Gammon"'
+    assert card.guidance == "Radar"
+    assert card.ceiling == "131,000 ft"
+    assert card.rwr == "5 (TS)"
+    assert "Cannot shoot" not in card.defeat
     assert card.mez_nm == "138"
+
+
+def test_guard_units_never_lend_their_stats() -> None:
+    # The 2026-10-07 bug: an SA-10 with a Flap Lid-B the catalog lacked took its SA-13
+    # escort's heat-seeker card. A same-tier Tor must not win either.
+    sa10 = _multi_unit_sam(
+        band="Long-range SAM",
+        mez_nm=65,
+        units=[
+            ("SA-13", UnitClass.LAUNCHER, AirDefence.Strela_10M3.id),
+            ("Tor", UnitClass.TELAR, AirDefence.Tor_9A331.id),
+            ("Big Bird", UnitClass.SEARCH_RADAR, AirDefence.S_300PS_64H6E_sr.id),
+            ("Flap Lid-B", UnitClass.TRACK_RADAR, AirDefence.S_300PS_5H63C_30H6_tr.id),
+            ("TEL", UnitClass.LAUNCHER, AirDefence.S_300PS_5P85C_ln.id),
+        ],
+    )
+    cards, _ = build_threat_intel_cards(_game([sa10]), _flight())
+
+    card = cards[0]
+    assert card.system == 'SA-10 "Grumble"'
+    assert card.guidance == "Radar"
+    assert card.ceiling == "82,000 ft"
+    assert card.rwr == "10 (BB, CS, TS)"
+
+
+def test_uncatalogued_system_borrows_nothing() -> None:
+    site = _multi_unit_sam(
+        band="Medium-range SAM",
+        mez_nm=20,
+        units=[
+            ("Mystery TR", UnitClass.TRACK_RADAR, "not-a-real-id"),
+            ("SA-13", UnitClass.LAUNCHER, AirDefence.Strela_10M3.id),
+        ],
+    )
+    cards, _ = build_threat_intel_cards(_game([site]), _flight())
+
+    card = cards[0]
+    assert card.system == "Mystery TR"
+    assert card.guidance == "—" and card.ceiling == "—" and card.rwr == "—"
+    assert card.defeat == ""
 
 
 def test_bare_search_radar_still_names_itself() -> None:
@@ -196,11 +236,12 @@ def test_bare_search_radar_still_names_itself() -> None:
     cards, _ = build_threat_intel_cards(_game([radar]), _flight())
 
     assert len(cards) == 1
-    assert cards[0].system == 'SAM SA-10 S-300 "Grumble" Big Bird SR'
+    assert cards[0].system == '64N6E "Big Bird"'
+    assert cards[0].rwr == "BB"
 
 
 def test_undiscovered_site_is_fogged_to_its_band() -> None:
-    # Recon fog: an unidentified site leaks neither system, range, HARM nor defeat
+    # Recon fog: an unidentified site leaks neither system, range, RWR symbol nor beat
     # note — only its intel-tier band — and bumps the "fly TARPS" count.
     sam = _sam(friendly=False, known=False, band="Long-range SAM", mez_nm=40)
     cards, unidentified = build_threat_intel_cards(_game([sam]), _flight())
@@ -210,7 +251,7 @@ def test_undiscovered_site_is_fogged_to_its_band() -> None:
     card = cards[0]
     assert card.system == "Unidentified LORAD"
     assert not card.identified
-    assert card.mez_nm == "—" and card.harm == "—" and card.defeat == ""
+    assert card.mez_nm == "—" and card.rwr == "—" and card.defeat == ""
     assert card.live == 1
 
 
@@ -278,11 +319,11 @@ def test_ewr_card_reports_detection_range_and_defeat_note() -> None:
 
     assert len(cards) == 1
     card = cards[0]
-    assert card.system == "1L13 EWR"
+    assert card.system == '1L13 "Box Spring"'
     assert card.mez_nm == "—"
     assert card.detect_nm == "80"
-    assert card.harm == "101"
-    assert "blind" in card.defeat.lower()
+    assert card.rwr == "S"
+    assert "cannot shoot" in card.defeat.lower()
 
 
 def test_intro_flags_unidentified_sites_but_withholds_the_count() -> None:
@@ -314,7 +355,7 @@ def test_unidentified_card_shows_bearings_without_a_count() -> None:
         ceiling="—",
         mez_nm="—",
         detect_nm="—",
-        harm="—",
+        rwr="—",
         live=12,
         dead=0,
         cues=cues,
