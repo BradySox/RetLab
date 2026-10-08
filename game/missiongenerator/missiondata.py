@@ -63,6 +63,7 @@ class TankerInfo(GroupInfo):
     orbit_start: Optional[Point] = None
     orbit_end: Optional[Point] = None
     recovery: bool = False
+    theater: bool = False
 
 
 @dataclass

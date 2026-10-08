@@ -81,10 +81,10 @@ class WaypointGenerator:
         # slots. A single-player mission spawns its lone player flight at the
         # planned start time regardless of never_delay_player_flights.
         self.multiplayer = multiplayer
-        #: Set by create_waypoints when no tanker can service this flight. The
-        #: caller needs it too: a REFUEL waypoint is a fuel source to the bingo
+        #: REFUEL waypoints create_waypoints left out of the mission. The caller
+        #: needs them too: a REFUEL waypoint is a fuel source to the bingo
         #: estimator, so a dropped one must leave that list as well.
-        self.refuel_dropped = False
+        self.dropped_refuels: list[FlightWaypoint] = []
 
     def create_waypoints(self) -> tuple[timedelta, list[FlightWaypoint]]:
         for waypoint in self.flight.points:
@@ -101,31 +101,32 @@ class WaypointGenerator:
         # (generation, not planning, so the planner's timing is untouched):
         # onto a real orbit when one can serve this flight, gone when none can
         # or when the jet gets home without it.
-        drop_refuel = self.gets_home_without_the_tanker()
-        if drop_refuel:
-            self.refuel_dropped = True
+        # A stop before the push was asked for on the flight, so it is kept whether
+        # or not the jet gets home without it.
+        layout = getattr(self.flight.flight_plan, "layout", None)
+        pre_push = getattr(layout, "pre_push_refuel", None)
+        unneeded = self.gets_home_without_the_tanker()
         for point in self.flight.points:
             if point.waypoint_type is not FlightWaypointType.REFUEL:
                 continue
-            rendezvous = self.resolve_refuel_position(point.position)
-            if rendezvous is None:
-                drop_refuel = self.refuel_dropped = True
+            is_pre_push = point is pre_push
+            rendezvous = self.resolve_refuel_position(point.position, is_pre_push)
+            if rendezvous is None or (unneeded and not is_pre_push):
+                self.dropped_refuels.append(point)
             else:
                 # The layout owns this waypoint and both lists here iterate it,
                 # so the cockpit, the kneeboard and the map move together.
                 point.position = rendezvous
-        if drop_refuel:
+        if self.dropped_refuels:
             # Also drop it from the kneeboard list, or the card numbers a
             # steerpoint the jet does not have and every later row is off by one.
-            waypoints = [
-                w for w in waypoints if w.waypoint_type is not FlightWaypointType.REFUEL
-            ]
+            waypoints = [w for w in waypoints if not self.refuel_was_dropped(w)]
 
         filtered_points: list[FlightWaypoint] = []
         for point in self.flight.points:
             if point.only_for_player and not self.flight.client_count:
                 continue
-            if point.waypoint_type is FlightWaypointType.REFUEL and drop_refuel:
+            if self.refuel_was_dropped(point):
                 continue
             if isinstance(self.flight.state, InFlight):
                 if self.flight.flight_type in [
@@ -381,7 +382,12 @@ class WaypointGenerator:
                 points.insert(i + n, anchor)
             i += segments
 
-    def resolve_refuel_position(self, planned: Point) -> Optional[Point]:
+    def refuel_was_dropped(self, waypoint: FlightWaypoint) -> bool:
+        return any(waypoint is dropped for dropped in self.dropped_refuels)
+
+    def resolve_refuel_position(
+        self, planned: Point, pre_push: bool = False
+    ) -> Optional[Point]:
         """Where the REFUEL waypoint belongs, or None to drop it entirely.
 
         ``mission_data.tankers`` is the generated truth -- the tankers that exist
@@ -397,7 +403,11 @@ class WaypointGenerator:
         # never the object. A bare truthiness test would match every tanker and
         # quietly turn this into a no-op.
         return refuel_rendezvous(
-            self.flight.unit_type, self.flight.blue.is_blue, planned, tankers
+            self.flight.unit_type,
+            self.flight.blue.is_blue,
+            planned,
+            tankers,
+            theater_only=pre_push,
         )
 
     #: Landing reserves the dry margin must clear before a refuel waypoint is

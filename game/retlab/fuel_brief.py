@@ -172,11 +172,17 @@ def _as_generated(
     tankers = planned_tankers(flight)
     if tankers is None:
         return waypoints
+    layout = getattr(getattr(flight, "flight_plan", None), "layout", None)
+    pre_push = getattr(layout, "pre_push_refuel", None)
     resolved = []
     for waypoint in waypoints:
         if waypoint.waypoint_type is FlightWaypointType.REFUEL:
             rendezvous = refuel_rendezvous(
-                flight.unit_type, flight.blue.is_blue, waypoint.position, tankers
+                flight.unit_type,
+                flight.blue.is_blue,
+                waypoint.position,
+                tankers,
+                theater_only=waypoint is pre_push,
             )
             if rendezvous is None:
                 continue

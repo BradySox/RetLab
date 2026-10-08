@@ -196,7 +196,10 @@ def update_package_waypoints(
         for f in flight.package.flights:
             if f is flight:
                 continue
+            own_refuel = getattr(f.flight_plan.layout, "pre_push_refuel", None)
             for wpt in f.flight_plan.iter_waypoints():
+                if wpt is own_refuel:
+                    continue
                 if wpt.waypoint_type == waypoint.waypoint_type or (
                     "INGRESS" in wpt.waypoint_type.name
                     and "INGRESS" in waypoint.waypoint_type.name

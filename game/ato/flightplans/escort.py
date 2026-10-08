@@ -118,6 +118,7 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
                 )
 
         refuel = self._build_refuel(builder)
+        pre_push_refuel = self._build_pre_push_refuel(builder, hold)
 
         ingress_nav: list[FlightWaypoint] = []
         egress_nav: list[FlightWaypoint] = []
@@ -132,8 +133,13 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
                 waypoint.only_for_player = True
 
         departure = builder.takeoff(self.flight.departure)
+        nav_to_start = departure.position
+        if pre_push_refuel is not None:
+            nav_to_start = pre_push_refuel.position
+        elif hold is not None:
+            nav_to_start = hold.position
         nav_to = builder.nav_path(
-            hold.position if hold else departure.position,
+            nav_to_start,
             join.position,
             builder.get_cruise_altitude,
         )
@@ -147,6 +153,7 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
         return FormationAttackLayout(
             departure=departure,
             hold=hold,
+            pre_push_refuel=pre_push_refuel,
             nav_to=nav_to,
             join=join,
             ingress=ingress,

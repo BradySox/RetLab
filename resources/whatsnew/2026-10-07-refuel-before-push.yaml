@@ -1,0 +1,10 @@
+date: 2026-10-07
+title: Refuel before the push
+change: >-
+  A flight's Waypoints tab has a Refuel before the push box. Ticked, the
+  flight tanks at a theater tanker between Hold and Join and leaves Hold
+  earlier to make it; the TOT stays put. The stop after the strike stays
+  only if the jet cannot get home without it.
+watch: >-
+  The ticked flight plugs in at the tanker, AI included, and still makes
+  the Join on time.

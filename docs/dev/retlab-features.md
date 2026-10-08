@@ -2163,6 +2163,23 @@ defect that reached a build, most of them found by flying.
 
 ### Refuelling
 
+- **Refuel before the push (built 2026-10-07, DM call, not flown — row B189).** A
+  per-flight box on the Waypoints tab (`Flight.refuel_before_push`, default off) puts a
+  REFUEL waypoint between Hold and Join (`FormationAttackLayout.pre_push_refuel`, strike-
+  family and escort plans that hold). It sits on the nearest **theater** tanker's track
+  (`pre_push_refuel_point`, `refuel_rendezvous(theater_only=True)`): a package tanker is
+  timed to arrive after the strike, so it is never a candidate, and with no theater tanker
+  that serves the jet there is no stop and the box is greyed out. Timing: the leg out of
+  the stop carries `4 x size + 1` minutes, the package tanker's own figure, and
+  `push_time` walks Hold → stop → Join, so Hold departs early and the TOT does not move.
+  The stop after the strike is dropped when the fuel walk with only the early top-off
+  lands above the reserve (`FormationAttackBuilder._post_refuel_unneeded`, a second build);
+  otherwise both stay. Generation never drops the early stop as unneeded (the player asked
+  for it), only when no theater tanker resolves; `WaypointGenerator.dropped_refuels`
+  replaced the all-or-nothing `refuel_dropped` flag. AI: the refuel task stops at **0.9**
+  on the early stop instead of 0.5, because every jet is above half before the push and
+  would otherwise never plug in. Dragging the early stop moves only that flight, not the
+  package's refuel point. Tests `tests/ato/flightplans/test_refuel_before_push.py`.
 - **A refuel waypoint on a flight that does not need gas (fixed 2026-09-17, DM call).** The
   planner still emits a REFUEL waypoint whenever the coalition owns a tanker-capable
   squadron anywhere in theater, and `_build_refuel` says in its own comment that it is not

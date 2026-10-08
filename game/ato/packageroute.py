@@ -116,6 +116,9 @@ def moves_package(flight: Flight, waypoint: FlightWaypoint) -> bool:
     found = find(flight, waypoint)
     if found is not None:
         return in_step(package, flight, found[0])
+    if waypoint is getattr(flight.flight_plan.layout, "pre_push_refuel", None):
+        # This flight's own stop at a theater tanker, not the package's.
+        return False
     kind = waypoint.waypoint_type
     return kind in PACKAGE_POINT_TYPES or "INGRESS" in kind.name
 

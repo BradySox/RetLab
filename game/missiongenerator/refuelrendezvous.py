@@ -43,6 +43,7 @@ class PlannedTanker:
     orbit_start: Optional["Point"]
     orbit_end: Optional["Point"]
     recovery: bool
+    theater: bool = False
 
 
 TankerLike = Union["TankerInfo", PlannedTanker]
@@ -57,6 +58,7 @@ def planned_tankers(flight: "Flight") -> Optional[list[PlannedTanker]]:
     from game.ato.flighttype import FlightType
     from game.ato.flightplans.refuelingflightplan import orbit_leg_end
     from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
+    from game.ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
 
     ato = getattr(getattr(flight, "coalition", None), "ato", None)
     if ato is None:
@@ -77,6 +79,7 @@ def planned_tankers(flight: "Flight") -> Optional[list[PlannedTanker]]:
                     orbit_start=start.position if start is not None else None,
                     orbit_end=end.position if end is not None else None,
                     recovery=isinstance(plan, RecoveryTankerFlightPlan),
+                    theater=isinstance(plan, TheaterRefuelingFlightPlan),
                 )
             )
     return tankers
@@ -104,17 +107,23 @@ def refuel_rendezvous(
     receiver_is_blue: bool,
     planned: "Point",
     tankers: Iterable[TankerLike],
+    theater_only: bool = False,
 ) -> Optional["Point"]:
     """The orbit point to send ``receiver`` to, or None if no tanker can serve it.
 
     None means the waypoint has no rendezvous behind it and should be dropped --
     which subsumes the "no tanker flying at all" case, and additionally covers a
     probe-only receiver whose side is flying nothing but a boom tanker.
+
+    ``theater_only`` is for a refuel before the push: a package's own tanker is
+    timed to arrive after the strike, so only a theater tanker is up that early.
     """
     best: Optional["Point"] = None
     best_distance = 0.0
     for tanker in tankers:
         if not _serves(tanker, receiver, receiver_is_blue):
+            continue
+        if theater_only and not getattr(tanker, "theater", False):
             continue
         start = getattr(tanker, "orbit_start", None)
         if start is None:

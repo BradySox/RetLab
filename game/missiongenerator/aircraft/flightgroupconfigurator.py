@@ -12,7 +12,6 @@ from dcs.unitgroup import FlyingGroup
 
 from game.ato import Flight, FlightType
 from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
-from game.ato.flightwaypointtype import FlightWaypointType
 from game.callsigns import callsign_for_support_unit
 from game.data.weapons import Pylon, Weapon
 from game.lasercodes.lasercode import LaserCode
@@ -149,10 +148,7 @@ class FlightGroupConfigurator:
         bingo_waypoints = [
             waypoint
             for waypoint in self.flight.flight_plan.waypoints
-            if not (
-                waypoint_generator.refuel_dropped
-                and waypoint.waypoint_type is FlightWaypointType.REFUEL
-            )
+            if not waypoint_generator.refuel_was_dropped(waypoint)
         ]
         bingo_estimator = BingoEstimator(
             self.flight.unit_type.fuel_consumption,
@@ -353,6 +349,9 @@ class FlightGroupConfigurator:
                     orbit_end=orbit_end.position if orbit_end else None,
                     recovery=isinstance(
                         self.flight.flight_plan, RecoveryTankerFlightPlan
+                    ),
+                    theater=isinstance(
+                        self.flight.flight_plan, TheaterRefuelingFlightPlan
                     ),
                 )
             )
