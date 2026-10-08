@@ -1,7 +1,10 @@
 # RetLab — SAM site realism directions (design notes)
 
 > **§60 was removed 2026-09-29 (DM call): every SAM site is back to one guidance radar.**
-> Mentions of §60 doubling below are history. Direction B (regiment-by-authoring) stands.
+> Mentions of §60 doubling below are history.
+> **The CLAUDE.md SAM-belt standard was dropped 2026-10-08 (DM call).** Direction B
+> (regiment-by-authoring) is an option, not a rule: Red Tide and Baltic Fury use it, Anatolian
+> Reach and Iron Gate place single sites, and each campaign's note says which.
 
 **Status: DESIGN ONLY — no code.** Follow-on to feature **§60** (SAM guidance-radar redundancy). §60
 gave every SAM layout a second engagement radar so a single HARM stops being a functional site kill;
@@ -75,9 +78,8 @@ prefer the **regiment-by-authoring** pattern in new campaigns. **Guardrail:** if
 regiment construct for a strategic system, revert §60's doubling for that system so radars aren't
 double-counted. Record which systems are "regiment-modeled" vs "§60-doubled" the day that starts.
 
-> **This verdict is now a campaign-authoring STANDARD** (CLAUDE.md → Conventions, "SAM belts: legacy →
-> §60 doubling, strategic → regiment-by-authoring", 2026-07-12) so every new campaign's air-defense
-> laydown applies it by default. Edit both together if the policy changes.
+> This verdict was a CLAUDE.md campaign-authoring standard from 2026-07-12 until it was dropped
+> 2026-10-08 (DM call). Layout is now each campaign's call, recorded in its own note.
 
 ---
 

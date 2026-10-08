@@ -58,7 +58,7 @@ FEATURES: tuple[Feature, ...] = (
     Feature("jamming_c130j", "JAMMING flight type", 2, plugin_id="c130j"),
     Feature(
         "tarps_recon_fog",
-        "TARPS recon + BDA fog-of-war",
+        "Recon intel fog",
         3,
         settings_fields=(
             "recon_intel_fog",
@@ -563,7 +563,7 @@ FEATURES: tuple[Feature, ...] = (
         # mission download. The F-14B(U) takes the same seam with its own
         # sections. Supersedes the retired §11.
         "dtc_data_prepopulation",
-        "Native DTC data pre-population (F/A-18C + F-16C + F-14B(U))",
+        "Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D)",
         74,
         settings_fields=("dtc_data_cartridges",),
     ),

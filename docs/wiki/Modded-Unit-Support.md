@@ -313,10 +313,8 @@ Note: since v1.6.0 the compiled layout binary cache carries a content signature,
 layouts change the stale binary is detected and regenerated automatically. You no longer
 need to manually delete the cache file after editing layouts.
 
-**RetLab:** new SAM layouts follow the fork's site-redundancy standard — legacy-system
-layouts field **two** guidance radars (the anti-single-HARM rule; the shared `.miz`
-templates carry the second radar position), while strategic systems prefer the
-regiment-by-authoring pattern at the campaign layer instead. See
+**RetLab:** a SAM layout fields one guidance radar; the two-radar rule was removed
+2026-09-29. How sites are grouped is a campaign-layer choice; see
 [Campaign maintenance](Campaign-maintenance).
 
 ## Step 8: Update the radar db

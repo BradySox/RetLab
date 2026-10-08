@@ -39,7 +39,7 @@ same lint + test once, through `build.yml`, which triggers on `pull_request` onl
 The release asset `retlab-latest.zip` (`retribution_main.exe`) is what the
 squadron downloads; it always reflects current `main`. The permanent download URL is
 https://github.com/BradySox/RetLab/releases/tag/latest. A separate `release.yml` (from
-upstream) triggers on semver tags (`v1.0.0`) for pinned campaign builds and does NOT affect
+upstream) triggers on any tag push (meant for `v<X.Y.Z>-retlab`) for pinned campaign builds and does NOT affect
 `latest`. Build/SHA are stamped into `resources/buildnumber` + `resources/gitsha` at build
 time (not in the repo).
 
@@ -67,4 +67,4 @@ Notes learned the hard way:
   harness catches "script errors at runtime and the feature silently never starts"; actual
   DCS behavior (AI, physics, feel) still needs an in-game pass. See
   `docs/dev/retlab-ingame-pass-checklist.md` for the tracker. When touching a plugin that
-  has harness coverage (currently `vietnamops`), run/extend its tests.
+  has harness coverage (most do; see `tests/lua/`), run/extend its tests.

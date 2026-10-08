@@ -182,3 +182,16 @@ def test_carrier_is_a_control_point(tmp_path: Path) -> None:
     assert any(
         cp.name == "Naval-1" for cp in theater.controlpoints
     ), "the carrier did not register; check the .miz hull is a Stennis under CJTF Blue"
+
+
+def test_every_red_base_is_on_the_road_network(tmp_path: Path) -> None:
+    """The .miz drew one road; a red base with none cannot be reinforced or
+    resupplied, and the convoys BAI hunts never reach it."""
+    _, theater = _theater(tmp_path)
+    red = [
+        cp
+        for cp in theater.controlpoints
+        if cp.starting_coalition.is_red and not cp.is_fleet
+    ]
+    stranded = sorted(cp.name for cp in red if not cp.convoy_routes)
+    assert not stranded, "red bases with no road: %s" % ", ".join(stranded)

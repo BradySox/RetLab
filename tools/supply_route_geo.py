@@ -912,12 +912,109 @@ BATCH2_RED_REAR: dict[str, tuple[type, list[Route]]] = {
 }
 
 
+# --- Syria - Anatolian Reach: the red road network. The .miz draws one road
+# (Incirlik <-> Kahramanmaras); these join every other red field and FOB to it.
+# Corridor points sampled every ~45 km along OSRM's driving route over OSM roads.
+AR_INCIRLIK = (221208, -35240)
+AR_CHUKUROVA = (210327, -67503)
+AR_KONYA = (343087, -282944)
+AR_KONYA_FOB = (277124, -268632)
+AR_GAZIPASA = (158145, -319393)
+AR_KAHRAMANMARAS = (276715, 101896)
+AR_ADIYAMAN = (296265, 236004)
+AR_SANLIURFA = (264719, 273812)
+AR_DIYARBAKIR = (314792, 388197)
+AR_GULECHOBA = (327713, 366610)
+AR_AZAZ_FOB = (193371, 68860)
+AR_ALEPPO = (125577, 123125)
+AR_BASSEL_AL_ASSAD = (42237, 5836)
+
+ANATOLIAN_REACH_ROUTES = [
+    Route(
+        "Chukurova -> Incirlik  (O-51 east past Adana)",
+        AR_CHUKUROVA,
+        [(36.983, 35.111), (36.995, 35.283)],
+        AR_INCIRLIK,
+    ),
+    Route(
+        "Konya -> Konya FOB  (south out of Konya toward Cumra)",
+        AR_KONYA,
+        [(37.798, 32.523), (37.580, 32.653)],
+        AR_KONYA_FOB,
+    ),
+    Route(
+        "Konya FOB -> Gazipasa  (south over the Taurus to the coast)",
+        AR_KONYA_FOB,
+        [(37.174, 32.538), (36.964, 32.384), (36.710, 32.451), (36.518, 32.271)],
+        AR_GAZIPASA,
+    ),
+    Route(
+        "Konya -> Chukurova  (D330 east through Karapinar and Eregli, then the"
+        " Cilician Gates at Pozanti)",
+        AR_KONYA,
+        [
+            (37.822, 32.834),
+            (37.711, 33.280),
+            (37.656, 33.736),
+            (37.582, 34.150),
+            (37.618, 34.595),
+            (37.437, 34.883),
+            (37.142, 34.842),
+        ],
+        AR_CHUKUROVA,
+    ),
+    Route(
+        "Kahramanmaras -> Adiyaman  (D360 east through Golbasi)",
+        AR_KAHRAMANMARAS,
+        [(37.449, 37.210), (37.604, 37.502), (37.752, 37.766), (37.710, 38.133)],
+        AR_ADIYAMAN,
+    ),
+    Route(
+        "Adiyaman -> Sanliurfa  (round the west end of the Ataturk reservoir)",
+        AR_ADIYAMAN,
+        [(37.707, 38.142), (37.453, 38.322), (37.292, 38.680)],
+        AR_SANLIURFA,
+    ),
+    Route(
+        "Sanliurfa -> Diyarbakir  (D885 north-east through Siverek)",
+        AR_SANLIURFA,
+        [(37.612, 39.118), (37.774, 39.453), (37.898, 39.830)],
+        AR_DIYARBAKIR,
+    ),
+    Route(
+        "Diyarbakir -> Gulechoba  (the short road west)",
+        AR_DIYARBAKIR,
+        [(37.912, 40.087), (37.925, 40.002)],
+        AR_GULECHOBA,
+    ),
+    Route(
+        "Kahramanmaras -> Azaz FOB  (south through Turkoglu and Islahiye)",
+        AR_KAHRAMANMARAS,
+        [(37.289, 36.790), (37.020, 36.646)],
+        AR_AZAZ_FOB,
+    ),
+    Route(
+        "Azaz FOB -> Aleppo  (south through Reyhanli and the Bab al-Hawa crossing)",
+        AR_AZAZ_FOB,
+        [(36.522, 36.377), (36.278, 36.572), (36.131, 36.855)],
+        AR_ALEPPO,
+    ),
+    Route(
+        "Aleppo -> Bassel Al-Assad  (the M4 west through Idlib and Jisr al-Shughur)",
+        AR_ALEPPO,
+        [(36.037, 36.940), (35.826, 36.627), (35.812, 36.298), (35.647, 36.020)],
+        AR_BASSEL_AL_ASSAD,
+    ),
+]
+
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
     "caucasus_trail_fixes": (Caucasus, CAUCASUS_TRAIL_FIXES),
     "iraq_inherent_resolve": (Iraq, IRAQ_IR_ROUTES),
     "iraq_desert_storm": (Iraq, IRAQ_DS91_ROUTES),
+    "anatolian_reach": (Syria, ANATOLIAN_REACH_ROUTES),
 }
 # Every batch-1/batch-2 campaign is directly addressable too (spaces -> underscores;
 # a campaign in both batches resolves to its batch-2 red routes -- regenerate batch-1

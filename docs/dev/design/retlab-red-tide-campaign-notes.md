@@ -433,7 +433,7 @@ considered and declined.
    **Rear S-300 hubs → 3-battalion regiments (2026-07-12, user feature-lock OVERRIDE).** The
    single-site LORAD hubs died to one HARM / one turn (a played turn-1 debrief showed the whole
    forward IADS — SA-6 STR, SA-2 Fan Song, SA-3 Low Blow, a P-14 EWR — gone in the opening sortie).
-   Per the CLAUDE.md "SAM belts: strategic → regiment-by-authoring" STANDARD, the three **rear**
+   Per the CLAUDE.md SAM-belt standard of the time (dropped 2026-10-08; the hubs stand), the three **rear**
    S-300 hubs (**Sperenberg, Kastrup, Schönefeld**) are clustered into **3-battalion regiments +
    a shared EWR**: two extra `S-300PS 5P85C ln` LORAD markers per hub (cloned from the existing
    validated marker via pydcs, positioned on the segment between the hub's existing LORAD and MERAD
