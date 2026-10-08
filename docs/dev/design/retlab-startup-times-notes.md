@@ -195,6 +195,14 @@ late by its queue wait.
   (or starting on the dot), never pre-activated.
 - Does not move: `conditions.start_time`, TOTs, takeoff times, waypoint and kneeboard times.
   They are absolute clock times and stay correct.
+- **Except ASAP support (DM call 2026-10-08).** An ASAP Refueling, AEW&C or BARCAP package
+  re-runs ASAP from the early start (`retime_asap_support`), so tankers, AWACS and the first
+  CAP wave launch with the mission. Test 55 prep: a "Refuel before the push" Hornet started
+  the mission at 07:43 and reached the KC-135 box at 08:13, while the tanker waited for 08:00
+  and reached the box at 08:21. These packages are left out of the earliest-startup search,
+  since their own startup is the start; otherwise a re-timed tanker would hold the next
+  generation early after the flight that needed it was gone. ASAP is re-run on every
+  generation, so a support package's TOT tracks the mission start both ways.
 - The §47 turn clock and weather keep marching from `conditions.start_time`; the next turn
   is unaffected. The briefing popup header, the ATIS time and the sun times keep the turn
   clock.
