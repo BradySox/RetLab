@@ -887,7 +887,9 @@ def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
     if flight.dtc_options.long_range_rings_only:
         sites = [s for s in sites if s.range_m >= LONG_RANGE_RING_NM * 1852.0]
     radius_nm = flight.dtc_options.threat_ring_radius_nm
-    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    route = [
+        (w.position.x, w.position.y) for w in flight.waypoints if is_route_waypoint(w)
+    ]
     if radius_nm is None or not route:
         return sites
     limit = radius_nm * 1852.0

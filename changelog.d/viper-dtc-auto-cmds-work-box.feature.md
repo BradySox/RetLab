@@ -1,0 +1,1 @@
+* **[Mission Generation]** The F-16C data cartridge carries the jet's own auto countermeasure program for every threat when Countermeasure programs is ticked, draws a box on a CAS or SEAD flight's working area on the HSD, and gives the front line's HSD points to the borders when Front line is unticked.

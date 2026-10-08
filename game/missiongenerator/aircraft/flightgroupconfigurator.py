@@ -36,6 +36,7 @@ from .waypoints import WaypointGenerator
 from ...ato.flightmember import FlightMember
 from ...ato.flightplans.aewc import AewcFlightPlan
 from ...ato.flightplans.packagerefueling import PackageRefuelingFlightPlan
+from ...ato.flightplans.uizonedisplay import UiZoneDisplay
 from ...ato.flightplans.refuelingflightplan import orbit_leg_end
 from ...ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
 from ...radio.datalink import (
@@ -194,6 +195,11 @@ class FlightGroupConfigurator:
             saved_points=list(self.flight.saved_points),
             saved_drawings=list(self.flight.saved_drawings),
             mission_start=self.time,
+            work_zone=(
+                flight_plan.ui_zone()
+                if isinstance(flight_plan, UiZoneDisplay)
+                else None
+            ),
         )
 
         self.register_escort_leash()
