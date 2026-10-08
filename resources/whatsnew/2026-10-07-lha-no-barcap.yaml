@@ -1,0 +1,9 @@
+date: 2026-10-07
+title: No separate CAP over an LHA beside a carrier
+change: >-
+  An LHA within 25 NM of a friendly carrier no longer gets its own
+  BARCAP. The carrier's CAP covers both ships, which frees those
+  fighters for other work. An LHA on its own keeps its CAP.
+watch: >-
+  The ATO lists BARCAP over the carrier only, not over the LHA
+  sailing with it.

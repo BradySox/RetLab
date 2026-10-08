@@ -1870,6 +1870,14 @@ in-game pass (the F-4E OCA case now shows a pre/post-strike tanker + a non-negat
 > The code is deleted; rebuild it from git history if it is ever wanted again. See
 > [the divergence audit](design/retlab-autoplanner-upstream-divergence-audit.md).
 
+### No BARCAP over an LHA beside a carrier (2026-10-07)
+
+Upstream treats every friendly ship as vulnerable and gives it `2 * barcap_rounds` of BARCAP. A carrier and an LHA
+sailing together therefore drew two stacks over nearly one point (DM report, 2026-10-07).
+`lha_covered_by_carrier` in `game/commander/theaterstate.py` drops an LHA from `barcaps_needed` when a friendly
+carrier is within `LHA_CARRIER_CAP_COVER` (25 NM, DM call). A lone LHA keeps its BARCAP; the LHA's Harriers are
+untouched and can still be picked for the carrier's CAP. Tests: `tests/commander/test_lha_barcap_cover.py`. Row B188.
+
 ## 7. Auto-hide mobile SAMs on MFD
 
 - Task-level (`game/armedforces/forcegroup.py`): `hide_on_mfd` field,
