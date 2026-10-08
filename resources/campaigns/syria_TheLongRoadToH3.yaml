@@ -99,6 +99,9 @@ settings:
   #  Set max frontline width to 30 km
   max_frontline_width: 30
   squadron_start_full: true
+  # A red SA-5's 138 NM ring covers Incirlik; the stock 80/70 NM buffers put support off the map.
+  aewc_threat_buffer_min_distance: 20
+  tanker_threat_buffer_min_distance: 20
 squadrons:
 ####################### BLUEFOR
   Blue CV:
