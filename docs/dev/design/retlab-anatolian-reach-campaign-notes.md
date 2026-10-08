@@ -1,6 +1,7 @@
 # Syria — Anatolian Reach (campaign notes)
 
-**Status: BUILT 2026-08-26, flown once (turn 2), not balance-tested.**
+**Status: BUILT 2026-08-26, flown once (turn 2, under MANTIS), not balance-tested.
+Never flown under Skynet; row B195 owns the long session.**
 Owning test: `tests/retlab/test_anatolian_reach.py`.
 Files: `resources/campaigns/anatolian_reach.yaml` + `.miz`.
 
@@ -113,7 +114,8 @@ the engine stops an S-400 in a 2004 campaign. Excluded deliberately: SA-21/S-400
 
 Turn 2, 36.9 minutes, 2004-06-01 at 22:36 local (night — see below).
 
-Worked: MANTIS built the red IADS (8 SAM, 13 EWR groups); both halves of the
+Worked: MANTIS built the red IADS (8 SAM, 13 EWR groups; Skynet has run it since
+2026-09-12, so this half needs re-flying); both halves of the
 alliance flew; Akrotiri stayed support-only; blue SEAD **killed an S-300PS track
 radar 10 nm from Incirlik**; the carrier killed two offshore platforms; QRA
 scrambled from Bassel Al-Assad and Chukurova, scored 4 hits and was wiped out;
@@ -127,17 +129,27 @@ against a predicted starvation failure that did not occur.
 
 - **The long-range design is only half-tested.** A Hatzerim–Incirlik round trip
   is ~700 nm; the session ran 37 minutes. The kills that landed came from §89
-  pre-rolled flights already airborne. Needs a long session.
+  pre-rolled flights already airborne, and §89 was removed 2026-09-07, so a
+  new session starts every flight on the ground. Needs a long session (B195).
 - **Balance is unmeasured.** USA-Israel 2000 is 1999–2000 kit against S-300PS and
   MiG-31s. Untested beyond one short night.
-- **Supply routes are one road** (Incirlik–Kahramanmaras, 41 waypoints against
-  the 3–5 guidance). Konya/Gazipasa and the Syrian gates are unconnected.
+- **Supply routes: the red network was joined 2026-10-08.** The `.miz` draws one
+  road (Incirlik–Kahramanmaras, 41 waypoints); the yaml's `supply_routes:` adds
+  eleven more so every red field and FOB is connected (Konya–Cilician Gates–
+  Chukurova, Konya FOB–Gazipasa, Kahramanmaras–Adiyaman–Sanliurfa–Diyarbakir–
+  Gulechoba, Kahramanmaras–Azaz FOB–Aleppo–Bassel Al-Assad). Corridors come
+  from OSRM driving routes over OSM roads, sampled every ~45 km, via
+  `tools/supply_route_geo.py anatolian_reach`; all points read as land. Locked by
+  `test_every_red_base_is_on_the_road_network`. Blue has no road (no ground war).
+- **"Azaz FOB" is not at Azaz.** It sits at 36.78 N 36.60 E, in Hatay near
+  Kirikhan, about 40 km west of the town. Its road to Aleppo therefore runs
+  through Reyhanli and Bab al-Hawa. Moving it is a `.miz` edit.
 - **Night is not a bug.** §47 marches the clock 3–7 hours per turn and
   `Conditions.advance` never consults `night_day_missions` — that setting governs
   turn 1 only. A full day cycles every 4–8 turns, so expect roughly a third of
   missions in darkness. Left unpinned on the DM's call.
-- **`CLAUDE.md:893` disagrees with this campaign.** The standard prefers
+- **The CLAUDE.md SAM-belt standard disagrees with this campaign.** It prefers
   regiment-by-authoring for strategic belts; the S-300s here are single sites, on
-  an explicit DM call this session. Undocumented deviation until that line is
-  amended.
+  an explicit DM call. The DM is having that rule rebuilt separately (2026-10-08);
+  until then this is an undocumented deviation.
 - Red engages civilian airliners (two lost in the first turn). Cosmetic.
