@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 from PIL import ImageFont
 from dcs.mapping import Point
 
-from game.data.alic import AlicCodes
 from game.data.threat_reference import ThreatReference, reference_for
 from game.data.units import UnitClass
 from game.theater import TheaterGroundObject, TheaterUnit
@@ -32,18 +31,6 @@ _AD_BAND_SHORT = {
     "AAA": "AAA",
     "Early-warning radar": "EWR",
 }
-
-
-def _threat_harm_code(tgo: TheaterGroundObject) -> Optional[int]:
-    """First HARM ALIC code among the site's live units, or None if none is coded."""
-    for unit in tgo.units:
-        if not unit.alive:
-            continue
-        try:
-            return AlicCodes.code_for(unit)
-        except KeyError:
-            continue
-    return None
 
 
 # Which of a SAM/EWR site's units names its threat card and supplies the curated
@@ -77,12 +64,11 @@ def _system_identity(
 ) -> Tuple[Optional[str], Optional[ThreatReference]]:
     """Display name + curated reference identifying a site as its weapon system.
 
-    Picks the highest-priority unit (weapon system over search/EW radar — see
-    ``_CARD_IDENTITY_PRIORITY``) for the card name, and the first curated reference
-    found scanning units in that same order for the stat block. Live units win ties
-    over dead ones, so a partially-attrited site still names from a survivor; the name
-    is otherwise stable across losses so live and dead sites of one system share a card.
-    Returns ``(None, None)`` only when the site has no units at all.
+    Only units in the site's best ``_CARD_IDENTITY_PRIORITY`` tier may identify it, and
+    among their catalog entries the highest-ceiling system wins. A guard unit in a lower
+    tier never lends its stats: an SA-10 whose Flap Lid was uncatalogued once took its
+    SA-13 escort's heat-seeker card. An uncatalogued best tier names the card by DCS
+    display name with no reference. Returns ``(None, None)`` only for an empty site.
     """
     units = list(tgo.units)
     if not units:
@@ -100,22 +86,19 @@ def _system_identity(
         return priority, 0 if getattr(unit, "alive", False) else 1
 
     ordered = sorted(units, key=rank)
+    best_tier = rank(ordered[0])[0]
+    tier = [unit for unit in ordered if rank(unit)[0] == best_tier]
 
-    name: Optional[str] = None
+    refs = [ref for ref in (reference_for(unit.type.id) for unit in tier) if ref]
+    if refs:
+        ref = max(refs, key=lambda r: r.ceiling_ft or 0)
+        return ref.name, ref
+
     for unit in ordered:
         candidate = getattr(getattr(unit, "unit_type", None), "display_name", None)
         if candidate:
-            name = candidate
-            break
-    if name is None:
-        name = ordered[0].type.name
-
-    ref: Optional[ThreatReference] = None
-    for unit in ordered:
-        ref = reference_for(unit.type.id)
-        if ref is not None:
-            break
-    return name, ref
+            return candidate, None
+    return ordered[0].type.name, None
 
 
 def _bullseye_brg_range(bullseye: Bullseye, position: Point) -> str:
@@ -136,7 +119,7 @@ class ThreatCard:
     ceiling: str
     mez_nm: str
     detect_nm: str
-    harm: str
+    rwr: str
     live: int
     dead: int
     cues: List[str]
@@ -151,7 +134,6 @@ class _KnownAccum:
     dead: int = 0
     mez_m: float = 0.0
     det_m: float = 0.0
-    harm: Optional[str] = None
     ref: Optional[ThreatReference] = None
     cues: List[str] = field(default_factory=list)
 
@@ -163,18 +145,25 @@ class _UnknownAccum:
     cues: List[str] = field(default_factory=list)
 
 
+def _ceiling_text(ref: Optional[ThreatReference]) -> str:
+    if ref is None or not ref.ceiling_ft:
+        return "—"
+    about = "about " if ref.approximate_ceiling else ""
+    return f"{about}{ref.ceiling_ft:,} ft"
+
+
 def build_threat_intel_cards(
     game: "Game", flight: FlightData
 ) -> Tuple[List[ThreatCard], int]:
     """Per-system threat cards for the enemy air-defense laydown (recon-fog aware).
 
-    Sites are aggregated by system: each identified system becomes one card with a
-    curated stat block (guidance, ceiling, defeat note from
-    ``game.data.threat_reference``) over its live numbers (MEZ, detection, HARM
-    ALIC) plus the live/dead site counts and bullseye cues. Recon fog (design §3): a
-    site the player has not identified (``known_for`` False) contributes only to a
-    per-band "Unidentified MERAD" card — its system, ring and HARM code are withheld
-    until a TARPS overflight reveals it. Cards sort live-most-lethal → unidentified.
+    Sites are aggregated by system: each identified system becomes one card with its
+    catalog entry (guidance, ceiling, RWR symbol, how to beat it, from
+    ``game.data.threat_reference``) over its live engagement and search ranges, the
+    live/dead site counts and bullseye cues. Recon fog (design §3): a site the player
+    has not identified (``known_for`` False) contributes only to a per-band
+    "Unidentified MERAD" card with its bullseye cues until it is engaged. Cards sort
+    live-most-lethal → unidentified.
     Returns the cards plus the count of unidentified sites (for the intro line).
     """
     player = flight.friendly
@@ -208,9 +197,6 @@ def build_threat_intel_cards(
         site.cues.append(cue)
         site.mez_m = max(site.mez_m, tgo.max_threat_range().meters)
         site.det_m = max(site.det_m, tgo.max_detection_range().meters)
-        if site.harm is None:
-            code = _threat_harm_code(tgo)
-            site.harm = str(code) if code is not None else None
         if site.ref is None:
             site.ref = ref
 
@@ -223,7 +209,7 @@ def build_threat_intel_cards(
                 band=site.band,
                 identified=True,
                 guidance=ref.guidance if ref else "—",
-                ceiling=f"{ref.ceiling_ft:,} ft" if ref and ref.ceiling_ft else "—",
+                ceiling=_ceiling_text(ref),
                 mez_nm=(
                     f"{meters(site.mez_m).nautical_miles:.0f}"
                     if site.mez_m > 0
@@ -234,11 +220,11 @@ def build_threat_intel_cards(
                     if site.det_m > 0
                     else "—"
                 ),
-                harm=site.harm or "—",
+                rwr=ref.rwr if ref else "—",
                 live=site.live,
                 dead=site.dead,
                 cues=site.cues,
-                defeat=ref.defeat if ref else "",
+                defeat=ref.beat if ref else "",
                 sort_range_m=site.mez_m,
             )
         )
@@ -254,7 +240,7 @@ def build_threat_intel_cards(
             ceiling="—",
             mez_nm="—",
             detect_nm="—",
-            harm="—",
+            rwr="—",
             live=acc.count,
             dead=0,
             cues=acc.cues,
@@ -269,13 +255,11 @@ def build_threat_intel_cards(
 class ThreatIntelBriefPage(KneeboardPage):
     """Enemy air-defense dossier for the player — one card per system.
 
-    Adapts the per-system "threat card" of professional campaign Intelligence
-    Briefings to the dynamic campaign: each identified SAM/EWR system gets a card
-    with a curated stat block (guidance, ceiling, **how to defeat**) over its live
-    numbers (MEZ, detection, HARM ALIC), site counts and bullseye cues. Recon-fog
-    aware (design §3): undiscovered sites collapse into per-band "Unidentified"
-    cards until a TARPS overflight reveals them. Cards pack down the page and
-    overflow onto continuation pages.
+    Each identified SAM/EWR system gets a card: guidance, ceiling, RWR symbol,
+    engagement and search ranges, site counts, bullseye cues and how to beat it.
+    Recon-fog aware (design §3): undiscovered sites collapse into per-band
+    "Unidentified" cards until engaged. Cards pack down the page and overflow onto
+    continuation pages.
     """
 
     def __init__(
@@ -298,7 +282,7 @@ class ThreatIntelBriefPage(KneeboardPage):
         return f"{self.flight.callsign} Threat Intel Brief{custom}{cont}"
 
     def _intro(self) -> str:
-        intro = "Enemy air-defense laydown. MEZ in nm; BE = bullseye bearing/range."
+        intro = "Enemy air-defense laydown. Ranges in NM; BE = bullseye bearing/range."
         if self.unidentified:
             # No total count: how many unidentified (often mobile) sites are in
             # theatre is intel we wouldn't realistically have (design §3).
@@ -354,21 +338,26 @@ class ThreatIntelBriefPage(KneeboardPage):
     def _render_card(self, writer: KneeboardPageWriter, card: ThreatCard) -> None:
         body = self._body_font()
         # System name in emphasis; the writer's four-colour scheme --
-        # amber = the threat envelope (MEZ/Detect), blue = the HARM code + bullseye cues.
+        # amber = the threat envelope (range/search), blue = the RWR symbol + bullseye cues.
         writer.text(card.system, font=self._heading_font(), fill=writer.col_emphasis)
         writer.rule(gap_below=4)
         if card.identified:
-            writer.text(
-                f"Guidance: {card.guidance}    Ceiling: {card.ceiling}", font=body
+            writer.text_runs(
+                [
+                    (
+                        f"Guidance: {card.guidance}   Ceiling: {card.ceiling}   RWR ",
+                        None,
+                    ),
+                    (card.rwr, writer.col_nav),
+                ],
+                font=body,
             )
             writer.text_runs(
                 [
-                    ("MEZ ", None),
-                    (f"{card.mez_nm} nm", writer.col_caution),
-                    ("   Detect ", None),
-                    (f"{card.detect_nm} nm", writer.col_caution),
-                    ("   HARM ", None),
-                    (card.harm, writer.col_nav),
+                    ("Range ", None),
+                    (f"{card.mez_nm} NM", writer.col_caution),
+                    ("   Search ", None),
+                    (f"{card.detect_nm} NM", writer.col_caution),
                     ("   Band ", None),
                     (card.band, None),
                 ],
@@ -395,7 +384,7 @@ class ThreatIntelBriefPage(KneeboardPage):
                 font=body,
             )
             if card.defeat:
-                writer.text(f"DEFEAT: {card.defeat}", font=body, wrap=True)
+                writer.text(f"How to beat it: {card.defeat}", font=body, wrap=True)
         else:
             # Engaging a site is the ONLY thing that reveals it since the
             # 2026-08-18 §3 rework; recon finds hidden command posts and

@@ -1,0 +1,10 @@
+date: 2026-10-07
+title: Threat Intel Brief rebuilt
+change: >-
+  Each SAM card on the Threat Intel Brief kneeboard now shows the NATO
+  name, DCS's own ceiling, the RWR symbol and how to beat that system.
+  The HARM number is gone, and a site's guard units no longer lend it
+  their stats.
+watch: >-
+  An SA-10 card reads Radar, 82,000 ft, RWR 10, and the RWR symbols
+  match what your RWR shows over the target.

@@ -233,8 +233,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   ("On station 45 min planned; fuel supports ~50 min before bingo").
 - A SITREP page reports last turn: both sides' losses (the enemy's as claimed), base changes,
   pilots recovered.
-- A Threat Intel Brief gives one card per enemy air-defence system — guidance, ceiling, MEZ,
-  HARM code, defeat note. It respects recon fog: un-engaged sites show only a threat tier.
+- A Threat Intel Brief gives one card per enemy air-defence system — NATO name, guidance, ceiling,
+  range, RWR symbol, how to beat it. It respects recon fog: un-engaged sites show only a threat tier.
 - Mission code words are visible to planners before generation and on the kneeboard in the
   cockpit.
 - **Set as default for &lt;task&gt;** in the payload editor pins a loadout for that airframe and

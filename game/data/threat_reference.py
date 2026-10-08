@@ -1,213 +1,253 @@
-"""Curated air-defence reference data for the Threat Intel Brief kneeboard.
+"""Air-defence system catalog for the Threat Intel Brief kneeboard.
 
-Retribution knows a site's *live* numbers (engagement/detection range, HARM ALIC
-code, alive/dead) but not the doctrinal characteristics a real intelligence
-briefing carries — guidance type, engagement ceiling, and how to defeat the
-system. This module supplies that curated layer, keyed by the DCS air-defence
-unit id of a system's radar/launcher (the same ids ``AlicCodes`` uses). A site is
-matched by scanning its units, so any one of a system's coded units resolves the
-reference. Systems without an entry fall back to live data only.
-
-Content is general, publicly-documented system characteristics — deliberately
-concise to fit a kneeboard card. Ceilings are approximate engagement ceilings in
-feet.
+One entry per system, keyed by the DCS unit ids of its radars and launchers.
+Ceilings are each missile's ``H_max`` in
+``CoreMods\\tech\\TechWeaponPack\\Database\\Weapons``; RWR symbols are from
+``Scripts\\Aircrafts\\_Common\\Cockpit\\AN_ALR_SymbolsBase.lua``. The "how to beat
+it" lines follow the squadron's Soviet SAMs guide; a system that guide does not
+cover carries no line rather than unchecked advice. Engagement and search ranges
+are not here: the brief reads them live from the site.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict, Optional, Tuple
 
 from dcs.vehicles import AirDefence
 
 
 @dataclass(frozen=True)
 class ThreatReference:
+    name: str
     guidance: str
     ceiling_ft: Optional[int]
-    defeat: str
+    rwr: str
+    beat: str
+    approximate_ceiling: bool = False
 
 
-# Reusable references shared by every coded unit id of a system (radar + launcher
-# both point at the same entry, so the lookup hits regardless of which unit the
-# site reports).
 _SA2 = ThreatReference(
-    "Command radar (Fan Song)",
-    88000,
-    "Long reach but slow, single-target and easy to defeat kinematically: drag it "
-    "cold then notch/dive, or mask in terrain. SEAD with HARM from outside the ring "
-    "— the Fan Song is fragile once located.",
+    'SA-2 "Guideline"',
+    "Radar",
+    82000,
+    "2 (S)",
+    "The missile is big and cannot turn hard. On a launch put the site at your 3 or "
+    "9 o'clock, chaff, and pull hard as it gets close. Below about 1,000 ft its "
+    "radar loses you.",
 )
 _SA3 = ThreatReference(
-    "Command radar (Low Blow)",
+    'SA-3 "Goa"',
+    "Radar",
     59000,
-    "Short-legged and low-altitude; outrange it and it can't touch you. Notch the "
-    "Low Blow or terrain-mask; HARM the radar. Often co-located with an SA-2.",
-)
-_SA6 = ThreatReference(
-    "Semi-active radar (Straight Flush)",
-    40000,
-    "Lethal in the heart of its ring and highly mobile — assume it moved. Stay low "
-    "in terrain on ingress and pop for the shot, or stand off with HARM/standoff "
-    "PGMs. Defeat a launch by notching beam-on and diving.",
-)
-_SA8 = ThreatReference(
-    "Command radar, self-contained",
-    16000,
-    "Mobile, quick-reacting, short range. Stay above ~16,000 ft or outside ~6 nm. "
-    "Spoofs poorly — chaff + a hard beam/dive notch breaks the track; HARM works "
-    "but the small radar relocates fast.",
-)
-_SA10 = ThreatReference(
-    "Track-via-missile (Big Bird / Flap Lid)",
-    90000,
-    "Strategic, very long range and high ceiling — do NOT enter the ring without "
-    "dedicated SEAD. Standoff PGMs / cruise the radars, or route around. Inside the "
-    "ring, last-ditch: drag to bleed the missile then notch beam-on at low altitude.",
-)
-_SA11 = ThreatReference(
-    "Semi-active radar (Snow Drift / Fire Dome)",
-    72000,
-    "Fast, long-range and mobile — a top SEAD priority. Stand off outside ~20 nm and "
-    "HARM the Snow Drift; if engaged, notch beam-on and dive hard. Each TELAR can "
-    "guide independently, so suppression must be thorough.",
-)
-_SA13 = ThreatReference(
-    "IR-homing (passive)",
-    11500,
-    "No radar to warn you or HARM — visual/IR only. Stay above ~12,000 ft or outside "
-    "~4 nm; flares + a beam turn defeat a shot. Treat as a pop-up; kill with "
-    "standoff PGMs or guns once located.",
-)
-_SA15 = ThreatReference(
-    "Command radar, self-contained",
-    20000,
-    "Very mobile and quick — designed to kill PGMs as well as aircraft. Don't loiter "
-    "in the ring. Saturate or stand off with HARM/standoff weapons; a hard beam/dive "
-    "notch can defeat a single shot.",
-)
-_SA19 = ThreatReference(
-    "Radar SACLOS + IR, guns & missiles",
-    11500,
-    "Dual missile+gun threat, radar-directed and very mobile. Stay above ~12,000 ft "
-    "and outside ~5 nm — deadly down low. Notch the radar and flare; standoff PGMs "
-    "from altitude.",
-)
-_SA9 = ThreatReference(
-    "IR-homing (passive)",
-    11000,
-    "Passive IR, no warning — visual only. Stay high/standoff; flares + a beam turn "
-    "defeat the shot.",
+    "3 (S)",
+    "Short range: route around it. On a launch turn side-on, chaff, and pull late. "
+    "It sees low flyers better than the SA-2.",
 )
 _SA5 = ThreatReference(
-    "Command / SARH radar (Square Pair)",
-    95000,
-    "Very long range and high ceiling, but a big, slow missile with a long flyout — "
-    "a SEAD problem, not a maneuver one. Stay out of the ring or HARM the Square Pair "
-    "from standoff; if shot at, drag to bleed it then notch beam-on low.",
+    'SA-5 "Gammon"',
+    "Radar",
+    131000,
+    "5 (TS)",
+    "Slow to react and the missile is huge: turn side-on and dive. Below about "
+    "1,000 ft near the site it cannot shoot. Keep tankers and AWACS outside its ring.",
 )
-_MANPAD = ThreatReference(
-    "IR-homing, man-portable (passive)",
-    11000,
-    "No radar warning — pure IR, and everywhere near the front line. Stay above "
-    "~10,000 ft over troops; flares plus a beam turn defeat a shot. HARM can't touch "
-    "it — just deny it the low, slow pass.",
+_SA6 = ThreatReference(
+    'SA-6 "Gainful"',
+    "Radar",
+    26000,
+    "6",
+    "Stay above 26,000 ft and it cannot reach you. On a launch turn side-on, chaff "
+    "hard, and get low behind terrain. Its only radar is the Straight Flush: HARM it.",
+)
+_SA8 = ThreatReference(
+    'SA-8 "Gecko"',
+    "Radar",
+    16400,
+    "8",
+    "Stay above 16,400 ft or more than 6 NM away. On a launch turn side-on and chaff.",
+)
+_SA10 = ThreatReference(
+    'SA-10 "Grumble"',
+    "Radar",
+    82000,
+    "10 (BB, CS, TS)",
+    "Do not enter the ring without a SEAD plan. If you must, fly very low behind "
+    "terrain; the Clam Shell hunts low flyers. HARMs on the radars open the door.",
+)
+_SA11 = ThreatReference(
+    'SA-11 "Gadfly"',
+    "Radar",
+    72000,
+    "11 (SD)",
+    "Altitude will not save you. Stay outside the ring, fly low behind terrain, or "
+    "bring SEAD. Every launcher has its own radar and needs its own HARM or bomb.",
+)
+_SA9 = ThreatReference(
+    'SA-9 "Gaskin"',
+    "Heat",
+    11500,
+    "none",
+    "No warning. Stay above 11,500 ft. Down low, flare over troops and do not hang "
+    "around.",
+)
+_SA13 = ThreatReference(
+    'SA-13 "Gopher"',
+    "Heat",
+    11500,
+    "13 (ranging radar only)",
+    "No launch warning: 13 means one is near, not a missile in the air. Stay above "
+    "11,500 ft; if you must go low, flare early and often.",
+)
+_SA15 = ThreatReference(
+    'SA-15 "Gauntlet"',
+    "Radar",
+    19700,
+    "15",
+    "Stay above 19,700 ft and outside 6.5 NM. It shoots down HARMs and JDAMs: use "
+    "several at once or stand off outside its range.",
+)
+_SA19 = ThreatReference(
+    'SA-19 "Grison"',
+    "Radar + guns",
+    11500,
+    "19",
+    "Stay above 11,500 ft and roll in from high. Never make low gun or rocket passes "
+    "near one.",
+)
+_IGLA = ThreatReference(
+    "SA-18 Igla MANPADS",
+    "Heat",
+    11500,
+    "none",
+    "Assume every group of enemy troops has one. Stay above 11,500 ft; on low passes "
+    "flare before you reach the troops, not after the launch.",
 )
 _SHILKA = ThreatReference(
-    "Radar-directed AAA (Gun Dish)",
-    8000,
-    "Radar-laid 23 mm — murderous below ~8,000 ft, harmless above it. Simply stay "
-    "high; if you must go low, jink and don't fly predictable strafe passes.",
+    'ZSU-23-4 "Shilka"',
+    "Radar gun",
+    6500,
+    "A",
+    "Harmless above about 6,500 ft. Stay high and make no low passes near it.",
+    approximate_ceiling=True,
 )
-_GEPARD = ThreatReference(
-    "Radar-directed AAA",
-    9000,
-    "Accurate twin 35 mm to ~9,000 ft. Stay above it; avoid straight, level "
-    "low-altitude passes within ~3 nm.",
-)
-_ROLAND = ThreatReference(
-    "Command radar / EO",
-    18000,
-    "Short-range point defence, quick-reacting. Stay above ~18,000 ft or outside "
-    "~6 nm; chaff + beam notch the radar version. Often guards high-value targets.",
-)
-_HAWK = ThreatReference(
-    "Semi-active radar (High Power)",
-    45000,
-    "Long-range Western SAM — respect the ring. HARM the High Power / CWAR radars "
-    "from standoff; if engaged, notch beam-on and dive. Less mobile than Soviet kit.",
-)
-_PATRIOT = ThreatReference(
-    "Track-via-missile",
-    80000,
-    "Strategic, very long range/high ceiling — route around or dedicate SEAD. Not a "
-    "threat you defeat by maneuver inside the ring; stay out of it.",
-)
-_NASAMS = ThreatReference(
-    "Active radar (AMRAAM)",
-    50000,
-    "Fire-and-forget AMRAAM shots — no SARH to notch through the whole flyout. Deny "
-    "the track: stay outside ~15 nm, drag/notch the active missile late, kill the "
-    "MPQ-64 radar with HARM/standoff.",
-)
-_RAPIER = ThreatReference(
-    "SACLOS (optical / Blindfire radar)",
-    10000,
-    "Short-range point defence; the optical version gives no RWR warning. Stay above "
-    "~10,000 ft or outside ~4 nm; HARM only bites the Blindfire-radar variant.",
-)
-_EWR = ThreatReference(
-    "Early-warning search radar",
-    None,
-    "No weapons — but it cues the whole IADS. Kill it (HARM-targetable) to blind the "
-    "network, or stay below its radar horizon by flying low.",
-)
-_DOG_EAR = ThreatReference(
-    "SHORAD search radar",
-    None,
-    "Acquisition radar that cues short-range SAMs — no weapon of its own. Killing it "
-    "blinds the SHORAD it feeds.",
+_HAWK = ThreatReference("MIM-23 Hawk", "Radar", 131000, "HK", "")
+_PATRIOT = ThreatReference("MIM-104 Patriot", "Radar", 79500, "P", "")
+_NASAMS = ThreatReference("NASAMS", "Radar", None, "NS", "")
+_ROLAND = ThreatReference("Roland", "Radar", 19700, "RO", "")
+_RAPIER = ThreatReference("Rapier", "Optical or radar", 9800, "RT (RP)", "")
+_STINGER = ThreatReference("FIM-92 Stinger MANPADS", "Heat", None, "none", "")
+_GEPARD = ThreatReference("Gepard", "Radar gun", None, "A", "")
+_VULCAN = ThreatReference("M163 Vulcan", "Radar gun", None, "A", "")
+
+_SEARCH_BEAT = (
+    "Cannot shoot. It finds you for the SAMs and fighters. Hills block it: fly low "
+    "behind terrain."
 )
 
+
+def _search_radar(name: str, rwr: str) -> ThreatReference:
+    return ThreatReference(name, "Search radar", None, rwr, _SEARCH_BEAT)
+
+
+_BOX_SPRING = _search_radar('1L13 "Box Spring"', "S")
+_TALL_RACK = _search_radar('55G6 "Tall Rack"', "S")
+_TALL_KING = _search_radar('P-14 "Tall King"', "5")
+_FLAT_FACE = _search_radar('P-19 "Flat Face"', "S")
+_BIG_BIRD = _search_radar('64N6E "Big Bird"', "BB")
+_CLAM_SHELL = _search_radar('5N66M "Clam Shell"', "CS")
+_TIN_SHIELD = _search_radar('ST-68U "Tin Shield"', "TS")
+_SNOW_DRIFT = _search_radar('9S18M1 "Snow Drift"', "SD")
+_DOG_EAR = _search_radar('9S80 "Dog Ear"', "DE")
+
+
+_SYSTEMS: Tuple[Tuple[ThreatReference, Tuple[str, ...]], ...] = (
+    (_SA2, (AirDefence.SNR_75V.id, AirDefence.S_75M_Volhov.id, AirDefence.RD_75.id)),
+    (_SA3, (AirDefence.snr_s_125_tr.id, AirDefence.x_5p73_s_125_ln.id)),
+    (_SA5, (AirDefence.RPC_5N62V.id, AirDefence.S_200_Launcher.id)),
+    (_SA6, (AirDefence.Kub_1S91_str.id, AirDefence.Kub_2P25_ln.id)),
+    (_SA8, (AirDefence.Osa_9A33_ln.id,)),
+    (
+        _SA10,
+        (
+            AirDefence.S_300PS_40B6M_tr.id,
+            AirDefence.S_300PS_5H63C_30H6_tr.id,
+            AirDefence.S_300PS_5P85C_ln.id,
+            AirDefence.S_300PS_5P85D_ln.id,
+        ),
+    ),
+    (_SA11, (AirDefence.SA_11_Buk_LN_9A310M1.id,)),
+    (_SA9, (AirDefence.Strela_1_9P31.id,)),
+    (_SA13, (AirDefence.Strela_10M3.id,)),
+    (_SA15, (AirDefence.Tor_9A331.id,)),
+    (_SA19, (AirDefence.x_2S6_Tunguska.id,)),
+    (
+        _IGLA,
+        (
+            AirDefence.SA_18_Igla_manpad.id,
+            AirDefence.SA_18_Igla_S_manpad.id,
+            AirDefence.Igla_manpad_INS.id,
+            AirDefence.SA_18_Igla_comm.id,
+            AirDefence.SA_18_Igla_S_comm.id,
+        ),
+    ),
+    (_SHILKA, (AirDefence.ZSU_23_4_Shilka.id,)),
+    (
+        _HAWK,
+        (
+            AirDefence.Hawk_tr.id,
+            AirDefence.Hawk_sr.id,
+            AirDefence.Hawk_cwar.id,
+            AirDefence.Hawk_ln.id,
+        ),
+    ),
+    (_PATRIOT, (AirDefence.Patriot_str.id, AirDefence.Patriot_ln.id)),
+    (
+        _NASAMS,
+        (
+            AirDefence.NASAMS_Radar_MPQ64F1.id,
+            AirDefence.NASAMS_LN_B.id,
+            AirDefence.NASAMS_LN_C.id,
+        ),
+    ),
+    (_ROLAND, (AirDefence.Roland_ADS.id, AirDefence.Roland_Radar.id)),
+    (
+        _RAPIER,
+        (
+            AirDefence.rapier_fsa_launcher.id,
+            AirDefence.rapier_fsa_blindfire_radar.id,
+            AirDefence.rapier_fsa_optical_tracker_unit.id,
+        ),
+    ),
+    (
+        _STINGER,
+        (
+            AirDefence.Soldier_stinger.id,
+            AirDefence.Stinger_comm.id,
+            AirDefence.Stinger_comm_dsr.id,
+        ),
+    ),
+    (_GEPARD, (AirDefence.Gepard.id,)),
+    (_VULCAN, (AirDefence.Vulcan.id,)),
+    (_BOX_SPRING, (AirDefence.x_1L13_EWR.id,)),
+    (_TALL_RACK, (AirDefence.x_55G6_EWR.id,)),
+    (_TALL_KING, (AirDefence.P14_SR.id,)),
+    (_FLAT_FACE, (AirDefence.p_19_s_125_sr.id,)),
+    (_BIG_BIRD, (AirDefence.S_300PS_64H6E_sr.id,)),
+    (_CLAM_SHELL, (AirDefence.S_300PS_40B6MD_sr.id,)),
+    (
+        _TIN_SHIELD,
+        (AirDefence.RLS_19J6.id, AirDefence.S_300PS_40B6MD_sr_19J6.id),
+    ),
+    (_SNOW_DRIFT, (AirDefence.SA_11_Buk_SR_9S18M1.id,)),
+    (_DOG_EAR, (AirDefence.Dog_Ear_radar.id,)),
+)
 
 THREAT_REFERENCE: Dict[str, ThreatReference] = {
-    AirDefence.SNR_75V.id: _SA2,
-    AirDefence.snr_s_125_tr.id: _SA3,
-    AirDefence.p_19_s_125_sr.id: _SA3,
-    AirDefence.RPC_5N62V.id: _SA5,
-    AirDefence.Kub_1S91_str.id: _SA6,
-    AirDefence.Osa_9A33_ln.id: _SA8,
-    AirDefence.S_300PS_40B6M_tr.id: _SA10,
-    AirDefence.S_300PS_40B6MD_sr.id: _SA10,
-    AirDefence.S_300PS_64H6E_sr.id: _SA10,
-    AirDefence.SA_11_Buk_LN_9A310M1.id: _SA11,
-    AirDefence.SA_11_Buk_SR_9S18M1.id: _SA11,
-    AirDefence.Strela_10M3.id: _SA13,
-    AirDefence.Strela_1_9P31.id: _SA9,
-    AirDefence.Tor_9A331.id: _SA15,
-    AirDefence.x_2S6_Tunguska.id: _SA19,
-    AirDefence.ZSU_23_4_Shilka.id: _SHILKA,
-    AirDefence.Gepard.id: _GEPARD,
-    AirDefence.Roland_ADS.id: _ROLAND,
-    AirDefence.Roland_Radar.id: _ROLAND,
-    AirDefence.Hawk_tr.id: _HAWK,
-    AirDefence.Hawk_sr.id: _HAWK,
-    AirDefence.Hawk_cwar.id: _HAWK,
-    AirDefence.Patriot_str.id: _PATRIOT,
-    AirDefence.NASAMS_Radar_MPQ64F1.id: _NASAMS,
-    AirDefence.rapier_fsa_launcher.id: _RAPIER,
-    AirDefence.rapier_fsa_blindfire_radar.id: _RAPIER,
-    AirDefence.x_1L13_EWR.id: _EWR,
-    AirDefence.x_55G6_EWR.id: _EWR,
-    AirDefence.RLS_19J6.id: _EWR,
-    AirDefence.Dog_Ear_radar.id: _DOG_EAR,
-    AirDefence.SA_18_Igla_manpad.id: _MANPAD,
-    AirDefence.SA_18_Igla_S_manpad.id: _MANPAD,
-    AirDefence.Igla_manpad_INS.id: _MANPAD,
-    AirDefence.Soldier_stinger.id: _MANPAD,
+    unit_id: ref for ref, unit_ids in _SYSTEMS for unit_id in unit_ids
 }
 
 
 def reference_for(unit_type_id: str) -> Optional[ThreatReference]:
-    """Curated reference for a DCS air-defence unit id, or None if uncatalogued."""
+    """Catalog entry for a DCS air-defence unit id, or None if uncatalogued."""
     return THREAT_REFERENCE.get(unit_type_id)

@@ -1,0 +1,1 @@
+* **[Kneeboard]** The Threat Intel Brief names each SAM by NATO name and shows DCS's own ceiling, its RWR symbol and a "how to beat it" line for that system. An SA-10 no longer takes the heat-seeker card of the SA-13 guarding it, and the HARM number is gone.
