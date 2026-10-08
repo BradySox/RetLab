@@ -1,0 +1,1 @@
+* **[Campaigns]** New Caucasus campaign, Abchazian Blitz: Georgia and a European air force against Russia's Southern Military District in 2018, with its two factions and six squadrons. Adopted from upstream #976.
