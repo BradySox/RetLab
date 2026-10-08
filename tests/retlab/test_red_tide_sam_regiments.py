@@ -1,10 +1,10 @@
-"""Red Tide stands its three rear S-300 hubs up as regiments (SAM-belt STANDARD).
+"""Red Tide stands its three rear S-300 hubs up as regiments.
 
 Sperenberg, Kastrup and Schoenefeld each field THREE clustered long-range (S-300)
 fire units plus a shared EWR, so range-mode advanced-IADS nets them into a
 regiment that degrades gracefully under SEAD instead of dying to one HARM/one
-turn (the CLAUDE.md "SAM belts: strategic -> regiment-by-authoring" standard,
-applied to Red Tide 2026-07-12 under the user's feature-lock override).
+turn (a Red Tide design call, 2026-07-12, made under the user's feature-lock
+override).
 
 Marker-level lock (mirrors test_red_tide_motorpool): a future red_tide.miz
 re-save that drops the clustered battalions or the hub EWRs fails here. The

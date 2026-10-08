@@ -125,10 +125,9 @@ Modes: **Basic** (auto-association, no comms/power) is default. **Advanced** req
 > spawns. The compiled build carries HDSUC and CurrentHill SAM profiles. See
 > `docs/dev/design/retlab-skynet-return-notes.md`.
 >
-> Two fork conventions when laying out a new campaign's air defences:
-> - **Legacy/mobile systems** (SA-2/3/6, Hawk, generic launcher sites) — a lone site is fine.
-> - **Strategic belts** (S-300/S-400/Patriot) — prefer **several single-radar fire units plus a
->   shared EWR** and let Skynet net them, rather than one doubled fat site.
+> Air-defence layout is each campaign's call: a long-range system (S-300/S-400/Patriot) can sit
+> as a single site, or as several fire units around a shared EWR that Skynet nets into one
+> regiment (Red Tide, Baltic Fury). Record which in the campaign's design note.
 
 ## Motorpools
 

@@ -1,6 +1,6 @@
 """AGENTS.md is a byte-identical mirror of CLAUDE.md below the title line.
 
-The two files are the same 12,000-word guide addressed to two different agent
+The two files are the same guide addressed to two different agent
 harnesses. Keeping them in step is a documented manual ritual -- `cp CLAUDE.md
 AGENTS.md`, then edit line 1 back -- performed on 385 commits so far with nothing
 checking it. A missed sync silently leaves one harness reading stale rules, which
@@ -20,9 +20,9 @@ AGENTS_MD = REPO_ROOT / "AGENTS.md"
 
 
 def _title_and_body(path: Path) -> tuple[str, str]:
-    # newline="" keeps the file's own CRLF intact -- rewriting these with LF is
-    # its own known way to produce a spurious whole-file diff.
-    text = path.read_text(encoding="utf-8")
+    # Bytes, not read_text: text mode turns CRLF into LF, so a `sed -i` that
+    # flattened one file's line endings would still compare equal.
+    text = path.read_bytes().decode("utf-8")
     title, _, body = text.partition("\n")
     return title, body
 
