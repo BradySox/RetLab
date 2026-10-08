@@ -14,7 +14,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | --- | --- | --- | --- |
 | §1 | QRA intercept reserve | `intercept` | — |
 | §2 | JAMMING flight type | `c130j` | — |
-| §3 | TARPS recon + BDA fog-of-war | — | `recon_intel_fog`, `scar_command_post_intel` |
+| §3 | Recon intel fog | — | `recon_intel_fog`, `scar_command_post_intel` |
 | §4 | UI transparency | — | — |
 | §5 | Player target location precision | — | — |
 | §6 | Air-defense planning rework | — | — |
@@ -85,7 +85,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §71 | Expanded F-4E Weapons Pack (AGM-78/-88 Weasel fits) | — | — |
 | §72 | Carrier deck decorations (campaign A deck dressing) | — | `carrier_deck_decorations` |
 | §73 | Per-airframe default loadout for a task | — | — |
-| §74 | Native DTC data pre-population (F/A-18C + F-16C + F-14B(U)) | — | `dtc_data_cartridges` |
+| §74 | Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D) | — | `dtc_data_cartridges` |
 | §75 | Custom victory conditions | — | `alternate_victory_domination`, `alternate_victory_attrition` |
 | §76 | CTLD paratroopers (fixed-wing air assault) | `ctld` | — |
 | §77 | Escort jamming (Growler / Prowler) | `growler` | `max_escort_jammers`, `single_sead_escort_flavour` |

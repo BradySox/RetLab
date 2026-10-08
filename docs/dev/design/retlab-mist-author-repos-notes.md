@@ -31,9 +31,10 @@ value read out of DCS is a fact and a fact is not his to license; his compiled f
 If we ever want a file wholesale, ask him — he is reachable and has answered questions in
 public for a decade.
 
-**Already handled by accident.** Retiring MIST (2026-07-10, the since-deleted shim note; MIST is back as of 2026-09-12)
-deleted the only GPL-3 file in the tree. That was done for maintenance reasons; it was also
-the right licence call.
+**No longer true.** Retiring MIST (2026-07-10) deleted the only GPL-3 file in the tree. MIST
+came back on 2026-09-12 (#1012, the Skynet return): the tree again ships upstream's
+`resources/plugins/base/mist_4_5_126.lua`, as upstream does. The rule above still governs
+everything else of his.
 
 **Tidied 2026-08-20.** `resources/plugins/base/mist_moose_shim.lua` described itself as
 "replicated verbatim" from MIST in six places, and its design note in one more. API

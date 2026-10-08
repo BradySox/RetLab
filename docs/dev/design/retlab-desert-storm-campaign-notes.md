@@ -179,9 +179,8 @@ ZSU-57-2/Shilka. The NASAMS/Patriot/S-300PS units in the miz are **band markers 
 design** (the loader's vocabulary for "medium/long SAM here"), not anachronisms — do
 not "fix" them.
 
-Note the SAM-belt standard tension deliberately left alone: Iraq 1991 fields no
-strategic SAM (its best is the SA-6), so the regiment-by-authoring pattern doesn't
-apply — the legacy sites are single sites like every other campaign.
+Iraq 1991 fields no strategic SAM (its best is the SA-6), so every site is a single
+site; the two LORAD markers fall back to MERAD sites.
 
 ## The feature stack (preseeds)
 
