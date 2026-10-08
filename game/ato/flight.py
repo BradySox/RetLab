@@ -146,7 +146,7 @@ class Flight(
         self.initialize_fuel()
         # A tanker's track speed, set on the waypoints tab; None flies the aircraft's own.
         self.orbit_speed_kias: Optional[int] = None
-        # Tank at a theater tanker between the hold and the join (waypoints tab).
+        # Tank at a theater tanker before the push, or before a CAP's station.
         self.refuel_before_push = False
         # RetLab (§43): seed a genuinely fresh player-side flight's fuel + cockpit
         # properties (condition/wear/spawn/...) from the per-aircraft "save as
