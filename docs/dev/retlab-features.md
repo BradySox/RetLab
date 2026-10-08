@@ -1884,7 +1884,7 @@ in-game pass (the F-4E OCA case now shows a pre/post-strike tanker + a non-negat
 Upstream treats every friendly ship as vulnerable and gives it `2 * barcap_rounds` of BARCAP. A carrier and an LHA
 sailing together therefore drew two stacks over nearly one point (DM report, 2026-10-07).
 `lha_covered_by_carrier` in `game/commander/theaterstate.py` drops an LHA from `barcaps_needed` when a friendly
-carrier is within `LHA_CARRIER_CAP_COVER` (25 NM, DM call). A lone LHA keeps its BARCAP; the LHA's Harriers are
+carrier is within `LHA_CARRIER_CAP_COVER` (80 NM, DM call 2026-10-08; first set at 25 NM). A lone LHA keeps its BARCAP; the LHA's Harriers are
 untouched and can still be picked for the carrier's CAP. Tests: `tests/commander/test_lha_barcap_cover.py`. Row B188.
 
 ## 7. Auto-hide mobile SAMs on MFD

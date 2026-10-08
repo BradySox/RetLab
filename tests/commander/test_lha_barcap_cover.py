@@ -20,13 +20,13 @@ class _Ship:
 
 def test_lha_next_to_a_carrier_is_covered() -> None:
     carrier = _Ship(0, is_carrier=True)
-    lha = _Ship(3.3, is_lha=True)
+    lha = _Ship(60, is_lha=True)
     assert lha_covered_by_carrier(lha, [carrier, lha])  # type: ignore[arg-type,list-item]
 
 
 def test_lone_lha_keeps_its_cap() -> None:
     carrier = _Ship(0, is_carrier=True)
-    lha = _Ship(40, is_lha=True)
+    lha = _Ship(100, is_lha=True)
     assert not lha_covered_by_carrier(lha, [carrier, lha])  # type: ignore[arg-type,list-item]
     assert not lha_covered_by_carrier(lha, [lha])  # type: ignore[arg-type,list-item]
 

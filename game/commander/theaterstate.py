@@ -58,7 +58,7 @@ _RoundsKeyT = TypeVar("_RoundsKeyT")
 
 
 #: An LHA this close to a friendly carrier flies under the carrier's CAP.
-LHA_CARRIER_CAP_COVER = nautical_miles(25)
+LHA_CARRIER_CAP_COVER = nautical_miles(80)
 
 
 def lha_covered_by_carrier(cp: ControlPoint, friendly: list[ControlPoint]) -> bool:
