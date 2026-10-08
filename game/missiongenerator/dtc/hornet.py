@@ -10,22 +10,28 @@ Sections emitted (schema mined from ``CoreMods/aircraft/FA-18C/DTC``):
   sequence with per-leg altitude/speed/ETA, and ``NAV_SETTINGS`` that auto-tune
   the recovery TACAN / ICLS / ACLS (the §65 boat card, closing the loop) and
   the FPAS home waypoint.
-* ``SA`` -- FLOT line(s) from the live front; the flight's OWN orbit as the
-  first, pre-selected CAP_PTS racetrack (its patrol track, or a stand-in at
-  the hold point) followed by the tanker/AEW&C orbits; and viewer-fogged
-  enemy SAM rings as MEZ threats ("Custom" type; radius NM).
-* ``TCN`` -- deliberately empty in v1 (the boat's TACAN already auto-tunes via
-  NAV_SETTINGS; a stations list needs channel->frequency pairing, deferred).
+* ``SA`` -- the SA page draws ONE item per class, the selected one (the
+  cockpit's ``SA.lua``): the flight's own orbit (CAP), the nearest land border
+  (FAOR, dashed), the next border or else the front line (FLOT, solid), the
+  package's lane from the IP over the target (CORRIDORS), and viewer-fogged
+  enemy SAM rings (MEZ, all of them).
+* ``TCN`` -- the TACAN stations: the friendly boats, the home, arrival and
+  divert fields, then the map's other ground TACANs nearest the route first.
 
 Limits honored from the ME editor: 59 waypoints, 9 CAP points, 3 FAOR + 3
-FLOT lines of 7 points, 40 MEZ threats.
+FLOT lines of 7 points, one corridor of 14, 40 MEZ threats, 10 TACANs.
 """
 
 from __future__ import annotations
 
+import math
+
 from typing import TYPE_CHECKING, Any, Optional
 
+from game.ato.flighttype import FlightType
+from game.dcs.beacons import Beacon, Beacons
 from game.missiongenerator.dtc.cartridge import DtcCartridge
+from game.missiongenerator.dtc.viper import BORDER_CORRIDOR_M
 from game.ato.savedpoints import SavedPoint
 from game.missiongenerator.dtc.savedpoints import (
     closed_ring,
@@ -36,6 +42,8 @@ from game.missiongenerator.dtc.savedpoints import (
 )
 from game.missiongenerator.dtc.common import (
     SupportTrack,
+    decimate_open,
+    land_border_runs,
     leg_altitude,
     red_land_boundary,
     support_boxes,
@@ -62,11 +70,13 @@ MAX_WAYPOINTS = 59
 MAX_CAP_POINTS = 9
 MAX_LINE_POINTS = 7
 MAX_FLOT_LINES = 3
-#: FAOR takes the tanker boxes: the SA page draws only the SELECTED CAP point's
-#: racetrack, so the tanker is invisible until you pick it. Only FAOR line 1
-#: draws too (flown 2026-09-13), so it is the nearest usable tanker.
+#: Only FAOR line 1 draws (SA.lua); it is the nearest border, else the tanker box.
 MAX_FAOR_LINES = 3
 MAX_MEZ_THREATS = 40
+#: The SA page draws one corridor of up to 14 points (``CORRIDORS.lua``).
+MAX_CORRIDOR_POINTS = 14
+#: The editor refuses an 11th TACAN station (``TCN/TACAN.lua``).
+MAX_TACAN_STATIONS = 10
 
 #: Stock preset frequencies (MHz) for channels 1-20 of both AN/ARC-210s, from
 #: the module's COMM1/COMM2 defaults -- kept for channels we don't assign.
@@ -367,6 +377,130 @@ def _line_points(
     ]
 
 
+def _ship_tacan(carrier: CarrierInfo) -> Optional[dict[str, Any]]:
+    """A boat's station, keyed the way the editor keys a ship's ActivateBeacon
+    task: the unit's id and the route point that carries it (point 1)."""
+    group = carrier.ship_group
+    if not group.units or not group.points:
+        return None
+    unit = group.units[0]
+    position = group.points[0].position
+    return {
+        "callsign": carrier.callsign,
+        "channel": carrier.tacan.number,
+        "modeChannel": carrier.tacan.band.value,
+        "display_name": f"{unit.name}_P1",
+        "elevation": 0,
+        "unitId": unit.id,
+        "unitPointNum": 1,
+        "x": position.x,
+        "y": position.y,
+    }
+
+
+def _ground_tacan(beacon: Beacon) -> Optional[dict[str, Any]]:
+    """A ground station, keyed by the beacon's own name as the editor keys it."""
+    if not beacon.is_tacan or beacon.channel is None or beacon.x is None:
+        return None
+    station: dict[str, Any] = {
+        "callsign": beacon.callsign,
+        "channel": beacon.channel,
+        "display_name": beacon.name,
+        "elevation": beacon.elevation or 0,
+        "x": beacon.x,
+        "y": beacon.y,
+    }
+    if beacon.hertz is not None:
+        station["frequency"] = beacon.hertz
+    return station
+
+
+def _field_tacans(game: Game, airfield_name: str) -> list[dict[str, Any]]:
+    """The field's own ground TACANs, from the terrain's beacon data."""
+    stations: list[dict[str, Any]] = []
+    for airport in game.theater.terrain.airports.values():
+        if airport.name != airfield_name:
+            continue
+        for beacon_data in airport.beacons:
+            try:
+                beacon = Beacons.with_id(beacon_data.id, game.theater)
+            except KeyError:
+                continue
+            station = _ground_tacan(beacon)
+            if station is not None:
+                stations.append(station)
+    return stations
+
+
+def _build_tcn(
+    flight: FlightData, mission_data: MissionData, game: Game
+) -> list[dict[str, Any]]:
+    """The jet's TACAN station list: our boats, the home, arrival and divert
+    fields, then every other TACAN on the map nearest the route first (DM
+    2026-10-08), to the editor's 10. Tankers cannot be listed: the editor
+    takes only ships and ground beacons."""
+    stations: list[dict[str, Any]] = []
+
+    def add(station: Optional[dict[str, Any]]) -> None:
+        if station is not None and all(
+            s["display_name"] != station["display_name"] for s in stations
+        ):
+            stations.append(station)
+
+    for carrier in mission_data.carriers:
+        if carrier.blue.is_blue == flight.friendly.is_blue:
+            add(_ship_tacan(carrier))
+    for runway in (flight.departure, flight.arrival, flight.divert):
+        if runway is not None:
+            for station in _field_tacans(game, runway.airfield_name):
+                add(station)
+    route = [w.position for w in flight.waypoints if is_route_waypoint(w)]
+    others = [
+        station
+        for station in map(_ground_tacan, Beacons.iter_theater(game.theater))
+        if station is not None
+    ]
+    if route:
+        others.sort(
+            key=lambda s: min(math.hypot(s["x"] - p.x, s["y"] - p.y) for p in route)
+        )
+    for station in others:
+        add(station)
+    return stations[:MAX_TACAN_STATIONS]
+
+
+def _attack_lane(flight: FlightData) -> list[tuple[float, float]]:
+    """The package's path from the IP over the target to the split: the legs a
+    package flies together (§106). Empty for a flight with no IP."""
+    points: list[tuple[float, float]] = []
+    for waypoint in flight.waypoints:
+        name = waypoint.waypoint_type.name
+        if not points and not name.startswith("INGRESS_"):
+            continue
+        points.append((waypoint.position.x, waypoint.position.y))
+        if name == "SPLIT":
+            break
+    return points if len(points) >= 2 else []
+
+
+def _build_corridors(flight: FlightData) -> list[dict[str, Any]]:
+    """The SA page's one corridor: the attack lane, drawn as a 10 NM lane."""
+    lane = decimate_open(_attack_lane(flight), MAX_CORRIDOR_POINTS)
+    if not lane:
+        return []
+    return [
+        {
+            "id": "CORR_1",
+            "num": 1,
+            "note": "ATTACK",
+            "points": [
+                {"id": f"CORR_1_PT_{i}", "x": x, "y": y}
+                for i, (x, y) in enumerate(lane, start=1)
+            ],
+        }
+    ]
+
+
 def _build_sa(
     flight: FlightData, mission_data: MissionData, game: Game
 ) -> dict[str, Any]:
@@ -390,48 +524,57 @@ def _build_sa(
             break
         caps.append(_saved_cap_point(orbit, len(caps) + 1))
 
-    flot_lines: list[dict[str, Any]] = []
-    # The boundary gives up lines to the player's drawings, down to one.
+    # Only the selected FAOR and FLOT line draw, so each slot leads with its
+    # one job (DM 2026-10-08): the nearest border dashed, the next border
+    # solid. The front line is only worth a slot to CAS (same call).
+    # The bullseye is a waypoint but not a place the flight goes.
+    route = [
+        (w.position.x, w.position.y) for w in flight.waypoints if is_route_waypoint(w)
+    ]
+    borders = (
+        land_border_runs(game, route, BORDER_CORRIDOR_M) if options.borders else []
+    )
+
+    faor_lines: list[dict[str, Any]] = []
+    faor_shapes = [
+        (name, decimate_open(points, MAX_LINE_POINTS)) for name, points in borders[:1]
+    ]
+    if options.friendly_orbits:
+        faor_shapes += support_boxes(mission_data, MAX_FAOR_LINES, flight)
+    for name, points in faor_shapes[:MAX_FAOR_LINES]:
+        line_num = len(faor_lines) + 1
+        faor_lines.append(
+            {
+                "id": f"FAOR_{line_num}",
+                "num": line_num,
+                "note": name,
+                "points": _line_points("FAOR", line_num, points),
+            }
+        )
+
+    second_border = [
+        (name, decimate_open(points, MAX_LINE_POINTS)) for name, points in borders[1:2]
+    ]
+    flot_shapes: list[tuple[str, list[tuple[float, float]]]] = []
+    # The front line gives up lines to the player's drawings (§102), down to one.
     drawn = player_shapes(flight, orbits_as_boxes=False)
-    boundary_lines = max(1, MAX_FLOT_LINES - len(drawn))
-    if options.flot_and_zones:
-        for name, points in red_land_boundary(game, boundary_lines, MAX_LINE_POINTS):
-            line_num = len(flot_lines) + 1
-            flot_lines.append(
-                {
-                    "id": f"FLOT_{line_num}",
-                    "num": line_num,
-                    "note": name,
-                    "points": _line_points("FLOT", line_num, points),
-                }
-            )
-    # The player's drawings (§102) take the FLOT lines the boundary left.
+    if options.flot_and_zones and flight.flight_type is FlightType.CAS:
+        boundary_lines = max(1, MAX_FLOT_LINES - len(second_border) - len(drawn))
+        flot_shapes += red_land_boundary(game, boundary_lines, MAX_LINE_POINTS)
+    flot_shapes += second_border
     for name, points, closed in drawn:
-        if len(flot_lines) >= MAX_FLOT_LINES:
-            break
+        flot_shapes.append((name, closed_ring(points) if closed else points))
+    flot_lines: list[dict[str, Any]] = []
+    for name, points in flot_shapes[:MAX_FLOT_LINES]:
         line_num = len(flot_lines) + 1
-        corners = closed_ring(points) if closed else points
         flot_lines.append(
             {
                 "id": f"FLOT_{line_num}",
                 "num": line_num,
                 "note": name,
-                "points": _line_points("FLOT", line_num, corners),
+                "points": _line_points("FLOT", line_num, points),
             }
         )
-
-    faor_lines: list[dict[str, Any]] = []
-    if options.friendly_orbits:
-        for callsign, points in support_boxes(mission_data, MAX_FAOR_LINES, flight):
-            line_num = len(faor_lines) + 1
-            faor_lines.append(
-                {
-                    "id": f"FAOR_{line_num}",
-                    "num": line_num,
-                    "note": callsign,
-                    "points": _line_points("FAOR", line_num, points),
-                }
-            )
 
     threats: list[dict[str, Any]] = []
     if options.threat_rings:
@@ -452,7 +595,7 @@ def _build_sa(
 
     return {
         "CAP_PTS": caps,
-        "CORRIDORS": [],
+        "CORRIDORS": _build_corridors(flight) if options.route else [],
         "FAOR_FLOT": {"FAOR": faor_lines, "FLOT": flot_lines},
         "MEZ_THRTS": threats,
         "SETTINGS": _sa_settings(),
@@ -500,7 +643,7 @@ def build_hornet_cartridge(
     terrain = game.theater.terrain.name
     options = flight.dtc_options
     data: dict[str, Any] = {
-        "TCN": [],
+        "TCN": _build_tcn(flight, mission_data, game) if options.nav_aids else [],
         "type": HORNET_UNIT_TYPE,
         "name": name,
         "terrain": terrain,

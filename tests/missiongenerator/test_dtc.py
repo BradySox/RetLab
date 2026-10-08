@@ -259,7 +259,7 @@ def _game(
         blue=_coalition(blue_ids),
         red=_coalition(red_ids),
         theater=SimpleNamespace(
-            terrain=SimpleNamespace(name="Caucasus"),
+            terrain=SimpleNamespace(name="Caucasus", airports={}),
             timezone=timezone(timedelta(hours=4)),
             conflicts=lambda: [],
             controlpoints=controlpoints or [],
@@ -391,6 +391,11 @@ def _hornet_fixture() -> tuple[Any, Any, Any]:
         tacan=SimpleNamespace(number=71, band=SimpleNamespace(value="X")),
         icls_channel=11,
         link4_freq=_freq(336.4),
+        blue=SimpleNamespace(is_blue=True),
+        ship_group=SimpleNamespace(
+            units=[SimpleNamespace(name="CVN-71 Theodore Roosevelt", id=17)],
+            points=[SimpleNamespace(position=Pt(-90000, 40000))],
+        ),
     )
     flight = _flight(
         waypoints=[takeoff, target, landing],
@@ -1081,6 +1086,7 @@ def test_flot_populates_when_a_front_exists(monkeypatch: pytest.MonkeyPatch) -> 
     and GEO_LINES (Viper) was never exercised. flot_segments itself mirrors the
     trusted F10 frontline drawing; this locks the builders consuming it."""
     flight, mission_data, game = _hornet_fixture()
+    flight.flight_type = FlightType.CAS  # the Hornet's front line is CAS-only
     segments = [
         ("Front A", [(1000.0, 2000.0), (3000.0, 4000.0)]),
         ("Front B", [(5000.0, 6000.0), (7000.0, 8000.0)]),
@@ -3104,3 +3110,125 @@ def test_viper_tags_each_hsd_line_on_the_dest_page(
     assert tags["Front line"]["text"] == "FLT"
     # Each country's tag sits on its own side of the y = 50 km frontier.
     assert tags["Syria"]["y"] < 50000.0 < tags["Iraq"]["y"]
+
+
+#: Shares the frontier x=200 km, y 0-50 km with _NORTH.
+_EAST = [(200000.0, 0.0), (200000.0, 50000.0), (300000.0, 50000.0), (300000.0, 0.0)]
+
+
+def _hornet_sa(flight: Any, mission_data: Any, game: Any) -> Any:
+    return json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]["SA"]
+
+
+def test_hornet_draws_the_nearest_border_dashed_and_the_next_one_solid(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The SA page draws one FAOR and one FLOT line, the selected ones (the
+    cockpit's SA.lua): DM 2026-10-08 gave both to borders, nearest first."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.waypoints = [
+        _waypoint("A", FlightWaypointType.NAV, 150000, -30000, 7000, None),
+        _waypoint("B", FlightWaypointType.NAV, 150000, 120000, 7000, None),
+    ]
+    game.theater.neutral_border_zones = [
+        SimpleNamespace(country="Alpha", border=_NORTH),
+        SimpleNamespace(country="Bravo", border=_SOUTH),
+        SimpleNamespace(country="Charlie", border=_EAST),
+    ]
+    segments = [("Front", [(1000.0, 2000.0), (3000.0, 4000.0)])]
+    monkeypatch.setattr(
+        "game.missiongenerator.dtc.common.flot_segments", lambda g: segments
+    )
+    sa = _hornet_sa(flight, mission_data, game)
+    faor = sa["FAOR_FLOT"]["FAOR"]
+    assert [line["note"] for line in faor] == ["Alpha-Bravo", "ARCO"]
+    flot = sa["FAOR_FLOT"]["FLOT"]
+    assert [line["note"] for line in flot] == ["Alpha-Charlie"]
+
+    # CAS keeps the front line first; the second border follows it.
+    flight.flight_type = FlightType.CAS
+    flot = _hornet_sa(flight, mission_data, game)["FAOR_FLOT"]["FLOT"]
+    assert [line["note"] for line in flot] == ["FLOT", "Alpha-Charlie"]
+
+    # Borders off: the tanker box is the dashed line again.
+    flight.flight_type = FlightType.STRIKE
+    flight.dtc_options = DtcOptions(borders=False)
+    sa = _hornet_sa(flight, mission_data, game)
+    assert [line["note"] for line in sa["FAOR_FLOT"]["FAOR"]] == ["ARCO"]
+    assert sa["FAOR_FLOT"]["FLOT"] == []
+
+
+def test_hornet_lane_runs_from_the_ip_over_the_target_to_the_split() -> None:
+    flight, mission_data, game = _hornet_fixture()
+    assert _hornet_sa(flight, mission_data, game)["CORRIDORS"] == []  # no IP
+
+    flight.waypoints = [
+        _waypoint("TAKEOFF", FlightWaypointType.TAKEOFF, 0, 0, 0, None),
+        _waypoint("JOIN", FlightWaypointType.JOIN, 10000, 10000, 7000, None),
+        _waypoint("IP", FlightWaypointType.INGRESS_STRIKE, 40000, 50000, 7000, None),
+        _waypoint("TGT", FlightWaypointType.TARGET_POINT, 60000, 80000, 0, None),
+        _waypoint("SPLIT", FlightWaypointType.SPLIT, 40000, 90000, 7000, None),
+        _waypoint("LANDING", FlightWaypointType.LANDING_POINT, 0, 0, 0, None),
+    ]
+    (lane,) = _hornet_sa(flight, mission_data, game)["CORRIDORS"]
+    assert lane["id"] == "CORR_1"
+    assert [(p["x"], p["y"]) for p in lane["points"]] == [
+        (40000, 50000),
+        (60000, 80000),
+        (40000, 90000),
+    ]
+    assert [p["id"] for p in lane["points"]] == [
+        "CORR_1_PT_1",
+        "CORR_1_PT_2",
+        "CORR_1_PT_3",
+    ]
+
+
+def test_hornet_tacan_list_carries_the_boat_then_the_fields() -> None:
+    """Ships are keyed by unit id and route point, as the editor keys an
+    ActivateBeacon task; fields come from the terrain's beacon data, the
+    flight's own first, then the rest of the map's."""
+    flight, mission_data, game = _hornet_fixture()
+    game.theater.terrain.airports = {
+        25: SimpleNamespace(
+            name="Kutaisi",
+            beacons=[SimpleNamespace(id="airfield25_3")],
+        )
+    }
+    tcn = json.loads(build_hornet_cartridge(flight, mission_data, game, "H").to_json())[
+        "data"
+    ]["TCN"]
+    assert tcn[0] == {
+        "callsign": "Mother",
+        "channel": 71,
+        "modeChannel": "X",
+        "display_name": "CVN-71 Theodore Roosevelt_P1",
+        "elevation": 0,
+        "unitId": 17,
+        "unitPointNum": 1,
+        "x": -90000,
+        "y": 40000,
+    }
+    assert (tcn[1]["display_name"], tcn[1]["callsign"], tcn[1]["channel"]) == (
+        "Kutaisi",
+        "KTS",
+        44,
+    )
+    assert tcn[1]["x"] != 0 and tcn[1]["y"] != 0
+    # Then every other TACAN on the map (Caucasus has six), nearest the route
+    # first, with no repeats.
+    names = [t["display_name"] for t in tcn]
+    assert len(names) == len(set(names)) == 7
+    route = [(w.position.x, w.position.y) for w in flight.waypoints]
+    distances = [
+        min(math.hypot(t["x"] - x, t["y"] - y) for x, y in route) for t in tcn[2:]
+    ]
+    assert distances == sorted(distances)
+
+    flight.dtc_options = DtcOptions(nav_aids=False)
+    data = json.loads(
+        build_hornet_cartridge(flight, mission_data, game, "H").to_json()
+    )["data"]
+    assert data["TCN"] == []
