@@ -37,7 +37,8 @@ SECTIONS: tuple[Section, ...] = (
         NAVIGATION,
         {
             HORNET_UNIT_TYPE: "The route as named waypoints on sequence 1, with the"
-            " planned leg speeds and times.",
+            " planned leg speeds and times, and the package's lane from the IP over"
+            " the target to the split on the SA page.",
             VIPER_UNIT_TYPE: "The route as steerpoints from 1 (20 at most) with times"
             " on target. Saved points and support anchors follow it, up to 24."
             " A CAS or SEAD flight's working area is an HSD box, tagged CAS or SD.",
@@ -69,8 +70,10 @@ SECTIONS: tuple[Section, ...] = (
         NAVIGATION,
         {
             HORNET_UNIT_TYPE: "Pre-tunes the recovery TACAN (the boat's whole card on"
-            " a carrier flight), sets the FPAS home waypoint and makes the bullseye"
-            " the air-to-air waypoint.",
+            " a carrier flight), sets the FPAS home waypoint, makes the bullseye"
+            " the air-to-air waypoint, and lists the boats, your home, arrival and"
+            " divert fields, then the map's other TACANs nearest your route, 10 in"
+            " all.",
         },
     ),
     Section(
@@ -89,7 +92,7 @@ SECTIONS: tuple[Section, ...] = (
         "Front line",
         PICTURE,
         {
-            HORNET_UNIT_TYPE: "On the SA page.",
+            HORNET_UNIT_TYPE: "On the SA page, CAS flights only.",
             VIPER_UNIT_TYPE: "An HSD line: 4 points when National borders are"
             " drawn (3 beside a CAS flight's working-area box), otherwise what"
             " your drawings and the tanker box leave.",
@@ -102,6 +105,9 @@ SECTIONS: tuple[Section, ...] = (
         "National borders",
         PICTURE,
         {
+            HORNET_UNIT_TYPE: "Land borders within 40 NM of your route on the SA"
+            " page: the nearest dashed, the next solid unless the front line"
+            " takes it.",
             VIPER_UNIT_TYPE: "Land borders within 40 NM of your route as HSD lines,"
             " the nearest two first, 12 points at most. They come before everything else on the HSD"
             " but your drawings.",
@@ -113,7 +119,8 @@ SECTIONS: tuple[Section, ...] = (
         PICTURE,
         {
             HORNET_UNIT_TYPE: "Racetracks on the SA page, this flight's own first,"
-            " and a box on the tanker you can take gas from.",
+            " and a box on the tanker you can take gas from when no border takes"
+            " the dashed line.",
             VIPER_UNIT_TYPE: "Steerpoints after the saved points, and a box on the"
             " tanker you can use.",
             TOMCAT_UNIT_TYPE: "Reference points and a plot-line box on the tanker.",

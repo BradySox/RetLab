@@ -7757,6 +7757,19 @@ package-mates share the comm plan and SA picture):
   AWACS. `support_boxes` now takes the flight and boxes only the `REFUELING` orbits its
   `AircraftType.can_refuel_from` admits, ordered by distance from the flight's target
   (`usable_tanker_tracks`); the AWACS gets no box on any airframe.
+- **The Hornet SA page: one item per class, one job each (2026-10-08, DM).** The
+  cockpit's own `SA.lua` allocates one CAP racetrack, one corridor (14 points), one
+  FAOR line and one FLOT line (7 points each) and 40 MEZ rings, so only the selected
+  entry of each list draws. FAOR (dashed) is now the nearest land border within 40 NM
+  of the route, else the tanker box; FLOT (solid) is the next border; the front line
+  takes FLOT only on CAS. The corridor is the package's lane from the IP over the
+  target to the split. `TCN` lists the friendly boats (unit id + route point 1, as the
+  editor keys an `ActivateBeacon` task), the home, arrival and divert fields' ground
+  TACANs, then the map's other TACANs nearest the route, to the editor's 10. That
+  needed beacon positions: `resources/dcs/beacons/*.json` now carry
+  `x`/`y`/`elevation` from each terrain's `beacons.lua`. Tankers cannot be listed; the
+  editor takes ships and ground beacons only. Row B192. Rationale and the study of
+  four paid Hornet campaigns' cartridges: design note, 2026-10-08 section.
 - **CMDS (Viper, default OFF)** — `MAN1` dispenses flares only and `MAN5` chaff only, so
   one button answers an IR shot and another a radar one; the three AUTO programs and BYP
   keep the module's own values, written whole because `CMDS.lua` indexes every program
@@ -8071,6 +8084,20 @@ integers carry no stated unit, so the CSAR beacon slot (G33) waits on a flown
 round-trip. Old saves are safe: `DtcOptions.__setstate__` defaults any field the
 pickle predates. In-game pass: checklist **B105** — the risk it exists for is the
 DTU loader indexing a partition the cartridge omits.
+
+**Ticks by task and the saved default (added 2026-10-08, DM calls).** A new flight's
+`DtcOptions` comes from `DtcOptions.for_task(flight_type)`
+(`game/ato/dtcoptions.py`): the front line is ticked on CAS alone; SEAD, DEAD, SEAD
+Escort and SEAD Sweep write every known site; BARCAP, TARCAP, Intercept and Sweep
+write only sites whose ring is `LONG_RANGE_RING_NM` (15 NM) or wider
+(`long_range_rings_only`); strike, BAI, CAS, OCA, anti-ship, Armed Recon and fighter
+Escort write sites within `ROUTE_RING_RADIUS_NM` (40 NM) of the route. Everything
+else starts as before. `Flight.__init__` then overlays the player's saved default for
+that airframe and task (`game/retlab/dtc_defaults.py`, `Retribution/dtc_defaults.json`,
+keyed `"<dcs id>|<task>"`, blue fresh flights only, a broken file is a no-op), written
+by the DTC tab's **Save as my default** button. The on/off override is never saved.
+Flights already in a save keep their ticks. Tests `tests/retlab/test_dtc_defaults.py`,
+`tests/test_dtc_tab.py`. In-game pass: checklist **B194**.
 
 ## §75 — Custom victory conditions
 

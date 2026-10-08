@@ -879,8 +879,13 @@ def country_code(country: str) -> str:
 
 def threat_sites_for(game: Game, flight: FlightData) -> list[ThreatSite]:
     """The known sites this flight's cartridge draws: every one, or only those
-    whose ring comes within the DTC tab's distance of the route (§102)."""
+    whose ring comes within the DTC tab's distance of the route (§102), and on
+    the tab's say only the long-range ones."""
+    from game.ato.dtcoptions import LONG_RANGE_RING_NM
+
     sites = known_enemy_threat_sites(game, flight.friendly)
+    if flight.dtc_options.long_range_rings_only:
+        sites = [s for s in sites if s.range_m >= LONG_RANGE_RING_NM * 1852.0]
     radius_nm = flight.dtc_options.threat_ring_radius_nm
     route = [
         (w.position.x, w.position.y) for w in flight.waypoints if is_route_waypoint(w)

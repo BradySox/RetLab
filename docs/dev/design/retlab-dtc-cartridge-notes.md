@@ -1241,6 +1241,54 @@ ordered by distance from the flight's target, and the AWACS gets no box on any
 airframe. Every builder passes its flight to `support_boxes`; without one (the
 geometry tests) it still boxes every support orbit.
 
+## The Hornet SA page draws one of each (2026-10-08)
+
+**Evidence.** `Mods/aircraft/FA-18C/Cockpit/Scripts/Multipurpose_Display_Group/Common/indicator/Pages/MPD/SA/SA.lua`
+builds the page's elements up front: one CAP racetrack, one corridor of 14 segments
+(drawn as a lane, left and right), one FAOR line of 7 segments (dashed), one FLOT line
+of 7 segments (solid), and 40 MEZ rings with labels. Whatever the cartridge holds, only
+the selected CAP point, corridor, FAOR line and FLOT line can draw. This settles the
+two flown observations above (one CAP, one FAOR box) and extends them to FLOT and the
+corridor.
+
+**What four paid Hornet campaigns do with the same slots** (campaigns A, F, I and J;
+two more ship no cartridge). 65 cartridges, all on the Syria map:
+
+- None put the route in the cartridge (`NAV_PTS` empty); the miz route is the route.
+- The lines carry borders and airspace: restricted areas, no-fly boxes, a named border,
+  a fire-support or battlefield coordination line, a target area, an area of
+  responsibility. Campaign I loads two FLOT lines and up to three FAOR boxes per
+  cartridge, though only one of each can draw.
+- Corridors are named ingress and egress lanes, and once a cruise-missile lane.
+- The CAP list is the tanker, a marshal stack, a rendezvous or an EW orbit; campaign I
+  lists every theater orbit with an `AAR`/`AEW`/`CAP` prefix and selects the tanker.
+- MEZ rings use the module's typed threats (`SAM SA-6 'Gainful'`) with the type's own
+  radius, plus a few `Custom` rings named `AAA`, `SHRD` or `SR`.
+- `TCN` lists the boat and one or two fields (carrier `TRU`/`P6S`, `AKR`, `DAN`).
+- `ALR67` and `SA.SETTINGS` are the module defaults in all but a handful.
+
+**The call (DM, 2026-10-08):** each slot gets one job. FAOR is the nearest land border
+within 40 NM of the route (`land_border_runs`, thinned to 7 points), falling back to the
+usable tanker box when no border is near. FLOT is the next border; the front line takes
+it only on CAS, because a front line is noise to anyone not working it (same call, made
+for both jets). The corridor is the package's lane: the flight's waypoints from the
+first `INGRESS_*` through the `SPLIT`, thinned to 14. `TCN` carries the boats of the
+flight's side, the departure, arrival and divert fields' ground TACANs, then every other
+ground TACAN on the map nearest the route first (DM follow-up: there are few per map),
+to the editor's 10 (`TACAN.lua` refuses an 11th). Caucasus has 6, Syria 11, Sinai 16,
+Nevada 21, Germany 28.
+
+**TCN keys.** A ship station is matched to its `ActivateBeacon` task by `unitId` and
+`unitPointNum`, with `display_name` `<unit name>_P<point>` (`TCN/TACAN.lua`
+`add_TACAN_Group`); a ground station by `display_name`, the beacon's own name. Both carry
+`x`/`y`/`elevation`. The fields' positions come from each terrain's `beacons.lua`,
+backfilled into `resources/dcs/beacons/*.json` and written by `import_beacons.py` from
+now on. Tankers cannot be listed: `isNavyTacan` admits ships only.
+
+**Open:** whether the jet uses the TCN list for anything beyond the DTC page (row B192
+checks the symbol); whether the pilot can step the selected FAOR/FLOT/corridor in the
+cockpit, which would make the lists past entry 1 useful.
+
 ## Per-airframe tab and player content (2026-09-22, §102)
 
 The DTC tab now offers only the sections each jet carries, and adds load timing, a
@@ -1319,3 +1367,23 @@ outside a cockpit, so we write both, exactly as the editor would. Row B193 flies
 DTC tab's starting ticks carry that (#1158); the builder follows the tick, and an
 unticked front line's points go to the borders. The working box ranks after borders and before the tanker
 box; beside both the front line keeps 3 points.
+
+## Ticks by task, and the saved default (2026-10-08)
+
+Until now every flight started with the same ticks, and the only task-based content
+was a CAP flight's own orbit. The DM's calls:
+
+- **Automatic by task, editable.** `DtcOptions.for_task` sets a new flight's starting
+  ticks, and the tab shows them, so any flight can still be changed by hand.
+- **Front line on CAS only.** Every other flight starts with it unticked.
+- **SAM rings by task.** SEAD/DEAD-type flights: every known site. CAP-type: rings of
+  15 NM or wider, the systems that reach a fighter at altitude. Strike, CAS and
+  escort: within 40 NM of the route. The 15 NM cut is ours (DM picked "long-range";
+  the number was not specified).
+- **Escorts split by job.** A SEAD escort is a SEAD flight (every site); a fighter
+  escort gets the route rule like the package it covers.
+- **Save as my default.** Per airframe and task, global, outside the save, like §43.
+  It replaces the task ticks wholesale (everything but the on/off override), so a
+  saved default made before a new section exists falls back to that section's task
+  tick for the missing key.
+
