@@ -12,7 +12,6 @@ from dcs.unitgroup import FlyingGroup
 
 from game.ato import Flight, FlightType
 from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
-from game.ato.flightwaypointtype import FlightWaypointType
 from game.callsigns import callsign_for_support_unit
 from game.data.weapons import Pylon, Weapon
 from game.lasercodes.lasercode import LaserCode
