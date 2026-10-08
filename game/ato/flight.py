@@ -188,7 +188,11 @@ class Flight(
         # Planner controls for the native DTC cartridge (§74): per-flight
         # on/off override + which sections the cartridge carries. Only
         # meaningful for DTC-capable client airframes; harmless elsewhere.
-        self.dtc_options = DtcOptions()
+        self.dtc_options = DtcOptions.for_task(flight_type)
+        if roster is None:
+            from game.retlab.dtc_defaults import apply_dtc_defaults
+
+            apply_dtc_defaults(self)
 
         # Manual-timing state for player flights. When manually_timed is True the flight's
         # waypoint times are user-owned: they form a forward chain from manual_takeoff_time

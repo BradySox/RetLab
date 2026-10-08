@@ -133,7 +133,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   kneeboard page with the cockpit's own numbers.
 - The DTC tab shows only what your aircraft's cartridge carries. You choose load at spawn
   or by hand, which kinds of waypoint go into the jet, and whether SAM rings are limited to
-  the ones near your route.
+  the ones near your route or the long-range ones.
+- A new flight's DTC tab starts with ticks for its task: the front line only on CAS, every
+  known SAM on SEAD and DEAD, the SAMs with a 15 NM or wider ring on CAP, and the SAMs
+  within 40 NM of the route on strike, CAS and escort. **Save as my default** keeps your
+  own ticks for that aircraft and task, in every campaign.
 - The F-14B(U) cartridge is built differently, because plan 1 of its navigation page is
   already the mission route. It leaves that alone and adds the front line as map lines, the
   bullseye, divert, tanker, AWACS and CAP anchors and the confirmed SAM sites as reference

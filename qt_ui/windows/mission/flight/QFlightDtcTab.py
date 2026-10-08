@@ -21,12 +21,14 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QSpinBox,
     QVBoxLayout,
     QWidget,
 )
 
 from game import Game
+from game.ato.dtcoptions import LONG_RANGE_RING_NM
 from game.ato.flight import Flight
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.dtc.sections import GROUPS, SECTIONS, sections_for
@@ -99,8 +101,9 @@ class QFlightDtcTab(QFrame):
         layout = QVBoxLayout()
         intro = QLabel(
             "This flight's DCS data cartridge. Only what this aircraft's cartridge"
-            " can hold is listed. Changes apply the next time the mission is"
-            " generated."
+            " can hold is listed. A new flight starts with the ticks for its task,"
+            " or with your saved default for this aircraft and task. Changes apply"
+            " the next time the mission is generated."
         )
         intro.setWordWrap(True)
         layout.addWidget(intro)
@@ -123,6 +126,7 @@ class QFlightDtcTab(QFrame):
             box = self._group_box(group)
             if box is not None:
                 contents.addWidget(box)
+        contents.addWidget(self._defaults_box())
         self.contents_group.setLayout(contents)
         layout.addWidget(self.contents_group)
 
@@ -186,6 +190,7 @@ class QFlightDtcTab(QFrame):
                 column.addWidget(self._waypoint_picker())
             elif section.attr == "threat_rings":
                 column.addLayout(self._threat_radius_row())
+                column.addLayout(self._long_range_row())
         box.setLayout(column)
         return box
 
@@ -253,7 +258,86 @@ class QFlightDtcTab(QFrame):
         row.addStretch()
         return row
 
+    def _long_range_row(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setContentsMargins(22, 0, 0, 0)
+        self.long_range_only = QCheckBox(
+            f"Only sites whose ring is {LONG_RANGE_RING_NM} NM or wider"
+        )
+        self.long_range_only.setChecked(self.flight.dtc_options.long_range_rings_only)
+        self.long_range_only.toggled.connect(self._write_long_range)
+        row.addWidget(self.long_range_only)
+        row.addStretch()
+        return row
+
+    @property
+    def _task_label(self) -> str:
+        unit_type = getattr(self.flight, "unit_type", None)
+        name = getattr(unit_type, "display_name", None) or str(unit_type)
+        return f"{name} {self.flight.flight_type.value}"
+
+    def _defaults_box(self) -> QGroupBox:
+        box = QGroupBox("Your default")
+        column = QVBoxLayout()
+        column.addWidget(
+            self._note(
+                f"Save these ticks for every new {self._task_label} flight, in"
+                " every campaign. Flights already planned keep theirs. The"
+                " on/off choice at the top is not saved."
+            )
+        )
+        row = QHBoxLayout()
+        self.save_default_btn = QPushButton(f"Save as my {self._task_label} default")
+        self.save_default_btn.clicked.connect(self._on_save_default)
+        self.clear_default_btn = QPushButton("Clear my default")
+        self.clear_default_btn.clicked.connect(self._on_clear_default)
+        row.addWidget(self.save_default_btn)
+        row.addWidget(self.clear_default_btn)
+        row.addStretch()
+        column.addLayout(row)
+        self.default_status = self._note("")
+        column.addWidget(self.default_status)
+        box.setLayout(column)
+        self._refresh_default_state()
+        return box
+
+    def _refresh_default_state(self) -> None:
+        from game.retlab import dtc_defaults
+
+        dcs_id = self._dcs_id
+        saved = dcs_id is not None and dtc_defaults.has_default_for(
+            dcs_id, self.flight.flight_type
+        )
+        self.clear_default_btn.setEnabled(saved)
+        self.save_default_btn.setEnabled(dcs_id is not None)
+        self.default_status.setText(
+            "Your saved default is in use for new flights."
+            if saved
+            else "No saved default: new flights start with the task's ticks."
+        )
+
     # ------------------------------------------------------------------ writes
+
+    def _write_long_range(self, checked: bool) -> None:
+        self.flight.dtc_options.long_range_rings_only = checked
+
+    def _on_save_default(self) -> None:
+        from game.retlab import dtc_defaults
+
+        if self._dcs_id is None:
+            return
+        dtc_defaults.save_default_for(
+            self._dcs_id, self.flight.flight_type, self.flight.dtc_options
+        )
+        self._refresh_default_state()
+
+    def _on_clear_default(self) -> None:
+        from game.retlab import dtc_defaults
+
+        if self._dcs_id is None:
+            return
+        dtc_defaults.clear_default_for(self._dcs_id, self.flight.flight_type)
+        self._refresh_default_state()
 
     def _waypoint_picker_note(self) -> str:
         from game.missiongenerator.dtc.tomcat import TOMCAT_UNIT_TYPE

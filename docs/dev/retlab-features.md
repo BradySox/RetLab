@@ -8045,6 +8045,20 @@ round-trip. Old saves are safe: `DtcOptions.__setstate__` defaults any field the
 pickle predates. In-game pass: checklist **B105** — the risk it exists for is the
 DTU loader indexing a partition the cartridge omits.
 
+**Ticks by task and the saved default (added 2026-10-08, DM calls).** A new flight's
+`DtcOptions` comes from `DtcOptions.for_task(flight_type)`
+(`game/ato/dtcoptions.py`): the front line is ticked on CAS alone; SEAD, DEAD, SEAD
+Escort and SEAD Sweep write every known site; BARCAP, TARCAP, Intercept and Sweep
+write only sites whose ring is `LONG_RANGE_RING_NM` (15 NM) or wider
+(`long_range_rings_only`); strike, BAI, CAS, OCA, anti-ship, Armed Recon and fighter
+Escort write sites within `ROUTE_RING_RADIUS_NM` (40 NM) of the route. Everything
+else starts as before. `Flight.__init__` then overlays the player's saved default for
+that airframe and task (`game/retlab/dtc_defaults.py`, `Retribution/dtc_defaults.json`,
+keyed `"<dcs id>|<task>"`, blue fresh flights only, a broken file is a no-op), written
+by the DTC tab's **Save as my default** button. The on/off override is never saved.
+Flights already in a save keep their ticks. Tests `tests/retlab/test_dtc_defaults.py`,
+`tests/test_dtc_tab.py`. In-game pass: checklist **B194**.
+
 ## §75 — Custom victory conditions
 
 Design note: [`docs/dev/design/retlab-victory-conditions-notes.md`](design/retlab-victory-conditions-notes.md)

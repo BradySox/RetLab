@@ -1,0 +1,11 @@
+date: 2026-10-08
+title: DTC cartridge by task
+change: >-
+  A new flight's DTC tab starts with ticks for its task. The front line is on
+  only for CAS. SEAD and DEAD get every known SAM, CAP gets only the SAMs with
+  a ring 15 NM or wider, and strike, CAS and escort get the SAMs within 40 NM
+  of the route. Save as my default on the DTC tab keeps your own ticks for that
+  aircraft and task, in every campaign.
+watch: >-
+  A CAP flight's map has no short-range SAM rings, and a flight you saved a
+  default for starts with your ticks next turn.
