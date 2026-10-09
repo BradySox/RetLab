@@ -1,0 +1,11 @@
+date: 2026-10-09
+title: Minutes on the tanker
+change: >-
+  Under Refuel before the push (and Refuel before station) on the
+  Waypoints tab, Minutes on the tanker sets how long the stop is
+  planned to take, 1 to 60 minutes. It starts at 4 minutes a jet plus
+  1; Reset puts that back. The flight leaves Hold (or takes off)
+  earlier to make room; the TOT stays put.
+watch: >-
+  A flight given more minutes still makes the Join on time after
+  tanking.

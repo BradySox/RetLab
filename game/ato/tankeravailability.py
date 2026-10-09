@@ -105,6 +105,17 @@ def post_refuel_unneeded(flight: "Flight", layout: Any) -> bool:
     return post_refuel_shortfall(flight, layout) is None
 
 
+def auto_tanking_minutes(flight: "Flight") -> int:
+    """The package tanker's own figure: 4 min a jet, plus 1."""
+    return 4 * flight.roster.max_size + 1
+
+
 def tanking_time(flight: "Flight") -> timedelta:
-    """Time on the boom: the package tanker's 4 min a jet, plus 1."""
-    return timedelta(minutes=4 * flight.roster.max_size + 1)
+    """Time on the boom at the stop before the push or station.
+
+    The player's minutes when set on the Waypoints tab, else the automatic figure.
+    """
+    minutes = getattr(flight, "tanking_minutes", None)
+    if minutes is None:
+        minutes = auto_tanking_minutes(flight)
+    return timedelta(minutes=minutes)

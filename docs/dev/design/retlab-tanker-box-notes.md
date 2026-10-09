@@ -91,6 +91,9 @@ BARCAP and TARCAP get the same as **Refuel before station** (2026-10-08, row B19
 The second stop (after the strike, or a TARCAP's off station) stays only when the fuel walk
 with the first top-off lands under the reserve, and the tab then names the shortfall
 (2026-10-09, DM call: keep it and say why, rather than always drop it; row B200).
+**Minutes on the tanker** (2026-10-09, DM call, row B202) sets the time planned for the
+stop before the push or station only, 1-60 min, starting at 4 a jet plus 1. The stop after
+the strike gets no time allowance, as before. AI jets tank until full regardless.
 
 ### Verified
 

@@ -148,6 +148,8 @@ class Flight(
         self.orbit_speed_kias: Optional[int] = None
         # Tank at a theater tanker before the push, or before a CAP's station.
         self.refuel_before_push = False
+        # Minutes on the boom at that stop; None uses 4 a jet plus 1.
+        self.tanking_minutes: Optional[int] = None
         # RetLab (§43): seed a genuinely fresh player-side flight's fuel + cockpit
         # properties (condition/wear/spawn/...) from the per-aircraft "save as
         # default" store. Only when roster is None -- a brand-new flight, never a
@@ -343,6 +345,8 @@ class Flight(
             state["orbit_speed_kias"] = None
         if "refuel_before_push" not in state:
             state["refuel_before_push"] = False
+        if "tanking_minutes" not in state:
+            state["tanking_minutes"] = None
         # The box was a per-flight choice until every theater tanker flew one.
         state.pop("tanker_box", None)
         self.__dict__.update(state)

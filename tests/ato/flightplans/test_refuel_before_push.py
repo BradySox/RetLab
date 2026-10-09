@@ -196,3 +196,25 @@ def test_ai_fills_up_before_the_push(pre_push: bool, stop: float) -> None:
     point_builder.waypoint = waypoint
     point_builder.flight = SimpleNamespace(flight_plan=SimpleNamespace(layout=layout))
     assert point_builder._stop_fuel() == stop
+
+
+def test_typed_minutes_replace_the_automatic_figure() -> None:
+    plan = _Plan(_layout(with_refuel=True), size=4)
+    assert plan.tanking_time == timedelta(minutes=17)
+    cast(Any, plan.flight).tanking_minutes = 25
+    assert plan.tanking_time == timedelta(minutes=25)
+    # Hold -> tanker 20 NM, 25 min on the boom, tanker -> join 20 NM.
+    assert plan.push_time == JOIN_TIME - _leg(20) - timedelta(minutes=25) - _leg(20)
+    cast(Any, plan.flight).tanking_minutes = None
+    assert plan.tanking_time == timedelta(minutes=17)
+
+
+def test_an_old_flight_reads_as_automatic_minutes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from game.ato import flight as flight_module
+
+    monkeypatch.setattr(flight_module, "Uninitialized", lambda *_: None)
+    flight = Flight.__new__(Flight)
+    flight.__setstate__({"squadron": SimpleNamespace(settings=None), "roster": None})
+    assert flight.tanking_minutes is None

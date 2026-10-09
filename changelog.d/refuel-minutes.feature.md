@@ -1,0 +1,1 @@
+* **[Mission Planning]** Next to **Refuel before the push** and **Refuel before station**, **Minutes on the tanker** sets how long the stop is planned to take (1 to 60 min). It starts at 4 minutes a jet plus 1; **Reset** puts that back. Only the departure moves; the TOT and station times stay put.
