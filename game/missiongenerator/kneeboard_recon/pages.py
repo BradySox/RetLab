@@ -22,7 +22,6 @@ from typing import (
 from PIL import Image, ImageDraw
 from dcs.mapping import LatLng, Point as DcsPoint
 from dcs.terrain.terrain import Airport, Terrain
-from suntime import Sun, SunTimeException  # type: ignore
 
 from game.missiongenerator.kneeboard_page import KneeboardPage, save_kneeboard_image
 
@@ -65,6 +64,7 @@ from game.ato.starttype import StartType
 from game.data.units import UnitClass
 from game.theater.controlpoint import ControlPoint
 from game.theater.frontline import FrontLine
+from game.weather.daylight import sun_times
 from game.theater.theatergroundobject import (
     BuildingGroundObject,
     EwrGroundObject,
@@ -712,49 +712,12 @@ class AirfieldDeparturePage(_RecordingPage):
     def _sun_times(
         self, latlng: Any
     ) -> Tuple[Optional[datetime.time], Optional[datetime.time]]:
-        sun = Sun(latlng.lat, latlng.lng)
-        # suntime requires datetime; passing date raises TypeError inside utcoffset().
         start = self.game.conditions.start_time
         tz = getattr(self.game.theater, "timezone", None)
-        try:
-            if tz is not None:
-                # suntime returns the UTC moment of sunrise/set on the input
-                # date's UTC day. For east-of-Greenwich locations the LOCAL
-                # sunrise falls on the PRIOR UTC day (Marianas +10 May 21
-                # local sunrise = May 20 ~20:00 UTC); for west-of-Greenwich
-                # locations the LOCAL sunset can fall on the NEXT UTC day.
-                # Compute the right UTC date independently for each event by
-                # converting a representative local hour to UTC.
-                sr_local = datetime.datetime(
-                    start.year, start.month, start.day, 6, 0, tzinfo=tz
-                )
-                ss_local = datetime.datetime(
-                    start.year, start.month, start.day, 18, 0, tzinfo=tz
-                )
-                sr_utc_date = sr_local.astimezone(datetime.timezone.utc).date()
-                ss_utc_date = ss_local.astimezone(datetime.timezone.utc).date()
-                rise_utc = sun.get_sunrise_time(
-                    datetime.datetime(
-                        sr_utc_date.year, sr_utc_date.month, sr_utc_date.day
-                    )
-                )
-                set_utc = sun.get_sunset_time(
-                    datetime.datetime(
-                        ss_utc_date.year, ss_utc_date.month, ss_utc_date.day
-                    )
-                )
-            else:
-                dt = datetime.datetime(start.year, start.month, start.day)
-                rise_utc = sun.get_sunrise_time(dt)
-                set_utc = sun.get_sunset_time(dt)
-        except SunTimeException:
+        rise, sunset = sun_times(latlng, start.date(), tz)
+        if rise is None or sunset is None:
             return None, None
-        # suntime returns tz-aware UTC datetimes. Convert to theater-local
-        # time via astimezone — never add utcoffset by hand (would leave the
-        # value tagged UTC while really showing local).
-        if tz is not None:
-            return rise_utc.astimezone(tz).time(), set_utc.astimezone(tz).time()
-        return rise_utc.time(), set_utc.time()
+        return rise.time(), sunset.time()
 
     def _compute_threshold_pixel(
         self, projector: Projector, airport: Airport, x0: int, y0: int

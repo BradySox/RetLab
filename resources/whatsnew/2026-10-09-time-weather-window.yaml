@@ -1,0 +1,12 @@
+date: 2026-10-09
+title: Sunrise, sunset and more weather in the Time & Weather window
+change: >-
+  The Time & Weather window shows sunrise and sunset for the middle of
+  the map, how long the mission starts before or after them, and how
+  much of the moon is lit. A new column sets temperature (°F),
+  altimeter (inHg), turbulence, fog and a dust storm. Fog and dust need
+  "Use DCS' automatic fog setting" unticked. ACCEPT no longer re-rolls the air
+  and fog you did not touch.
+watch: >-
+  Change the time and watch the sunrise and sunset lines move. Turn
+  automatic fog off, set fog, and check it is there in the mission.

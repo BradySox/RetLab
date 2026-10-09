@@ -5484,6 +5484,37 @@ per-turn rotation + memoryless weather exactly. Requires day-and-night missions 
 - **Interval is fixed-band, not a setting.** The 3–7 h advance is a module constant; exposing it as a tunable
   is a trivial follow-up if the pacing wants tuning after an in-game pass.
 
+### The Time & Weather window (2026-10-09)
+
+Works with or without `continuous_campaign_clock`.
+
+- **Sun and moon.** Under the date box: sunrise and sunset in theater-local time, where the
+  start falls against them, and the moon's lit fraction and phase. Measured at
+  `theater_middle` (the mean of the non-off-map bases). `game/weather/daylight.py` holds
+  `sun_times`, which the recon Departure kneeboard page now also uses.
+  - suntime's clock time is right but its **date can slip a day** (Guam's sunset came back on
+    the prior day), so `sun_times` pins both to the asked-for local date.
+  - The moon is the mean-phase method from a reference new moon; under a day of drift.
+- **Air & Visibility column** (`qt_ui/widgets/conditions/QAtmosphereAdjustmentWidget.py`):
+  temperature (°F), altimeter (inHg, the DCS editor's 720–790 mmHg range), turbulence as
+  Light/Moderate/Heavy (8/22/40 in DCS's 0.1 m/s units), fog, and a dust storm
+  (`Weather.dust`, a class default so old saves load; never rolled).
+- **ACCEPT keeps what was not edited.** The dialog rebuilds the weather object, which used to
+  re-roll temperature, altimeter, turbulence and fog every time. Each control now hands the
+  turn's own value back unless it was changed.
+- **DCS's fog rules** (read from `MissionEditor/modules/me_weather.lua`, `fixFog`):
+  - pydcs writes miz version 20, so the legacy `enable_fog` block is converted to manual fog
+    (`fog2` mode 4). It was always written `enable_fog = false`, so Retribution's fog never
+    reached a mission with automatic fog off. `EnvironmentGenerator.set_fog` now switches it on
+    when automatic fog is off.
+  - Dust survives only with every kind of fog off, automatic fog included. `set_dust` writes
+    it only then, and the window greys both out while `use_auto_fog` is on and makes them
+    exclusive. Row B203.
+- Wind rows read 6,600 ft and 26,200 ft (DCS's 2,000 m and 8,000 m levels).
+
+Tests: `tests/weather/test_daylight.py`, `tests/test_mission_fog_and_dust.py`,
+`tests/qt_ui/test_atmosphere_adjustment.py`.
+
 ## §48 — Commitment ceiling (will-coupled war budget) — REMOVED (2026-07-21)
 
 **REMOVED 2026-07-21 (the will-economy drop).** The commitment ceiling
