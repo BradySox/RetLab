@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+from shapely.geometry import Point as ShapelyPoint
 
 from game import persistency
 from game.campaignloader.campaign import Campaign
@@ -71,6 +72,9 @@ AKROTIRI_SUPPORT_ONLY = {
 }
 
 AKROTIRI_AIRFIELD_ID = 44
+
+#: The Konya belt's marker names (re-laid 2026-10-08 on real ground).
+BELT_SITES = ("Konya Seydisehir", "Konya Beysehir", "Konya Bozkir")
 
 
 def _data() -> dict[str, Any]:
@@ -197,9 +201,9 @@ def test_every_red_base_is_on_the_road_network(tmp_path: Path) -> None:
     assert not stranded, "red bases with no road: %s" % ", ".join(stranded)
 
 
-def test_konya_zone_holds_the_western_belt(tmp_path: Path) -> None:
-    """The belt 100-157 nm west of Konya is nearer Gazipasa; only the red Konya
-    influence zone keeps it on Konya, so it falls when Konya does (DM call)."""
+def test_konya_zone_holds_the_belt(tmp_path: Path) -> None:
+    """The Bozkir site is nearer the Konya FOB; only the red Konya influence zone
+    keeps the belt on Konya, so it falls when Konya does (DM call)."""
     _, theater = _theater(tmp_path)
     belt: dict[str, list[str]] = {}
     for cp in theater.controlpoints:
@@ -210,7 +214,26 @@ def test_konya_zone_holds_the_western_belt(tmp_path: Path) -> None:
             + presets.short_range_sams
             + presets.ewrs
         ):
-            if "Konya West" in loc.original_name:
+            if any(s in loc.original_name for s in BELT_SITES):
                 belt.setdefault(cp.name, []).append(loc.original_name)
-    assert set(belt) == {"Konya"}, "western belt bound elsewhere: %s" % belt
-    assert len(belt["Konya"]) == 8
+    assert set(belt) == {"Konya"}, "Konya belt bound elsewhere: %s" % belt
+    assert len(belt["Konya"]) == 4
+
+
+def test_konya_belt_is_on_the_land_map(tmp_path: Path) -> None:
+    """The first belt sat west of the land map's edge (a misread template row)."""
+    _, theater = _theater(tmp_path)
+    konya = theater.control_point_named("Konya")
+    presets = konya.preset_locations
+    belt = [
+        loc
+        for loc in presets.long_range_sams + presets.medium_range_sams + presets.ewrs
+        if any(s in loc.original_name for s in BELT_SITES)
+    ]
+    assert belt and theater.landmap is not None
+    off = [
+        loc.original_name
+        for loc in belt
+        if not theater.landmap.inclusion_zones.contains(ShapelyPoint(loc.x, loc.y))
+    ]
+    assert not off, "Konya belt markers off the land map: %s" % off

@@ -113,7 +113,7 @@ the engine stops an S-400 in a 2004 campaign. Excluded deliberately: SA-21/S-400
 ## Air-defense additions (2026-10-08)
 
 The Syrian end was thin: Aleppo, Bassel Al-Assad and the Azaz FOB carried six
-air-defense sites and one radar between them. 22 band markers were added, all in
+air-defense sites and one radar between them. 18 band markers were added, all in
 the CJTF Red block:
 
 | Where | Added | Binds to |
@@ -122,19 +122,29 @@ the CJTF Red block:
 | Aleppo | MERAD north, south, Kuweires, Jirah, Tabqa; EWR north, Minakh, Tabqa | Aleppo |
 | Tal Siman | MERAD, EWR | Sanliurfa |
 | Gaziantep | MERAD | Azaz FOB |
-| West of Konya | LORAD, 4 MERAD, 2 SHORAD, EWR, 99-157 nm out | Konya |
+| South-west of Konya | LORAD, MERAD and EWR at Seydisehir-Beysehir (44-48 nm); MERAD at Bozkir (50 nm) | Konya |
 
 - **Positions came from two DCS user-file Syria missions**, a Turkish F-16 strike
   mission (Skynet laydown) and `SY_Envio_v3`. Neither file names an author or a
   licence, so only the site positions were used. The markers are our own.
-- **The western belt guards Konya's sea approach.** A carrier strike on Konya
-  passes north of Antalya, 30-40 nm east of it. The map has no airfield out
-  there, so it belongs to Konya and falls with it (DM call).
-- **A red `Konya` influence zone holds that belt.** Without it, five of the eight
-  markers bound Gazipasa, a few nm nearer. The quad runs 29.2-32.72 E,
-  37.15-38.25 N and stops west of the Konya FOB, so every existing marker keeps
-  its base (checked: all 113 earlier bindings unchanged). Locked by
-  `test_konya_zone_holds_the_western_belt`.
+  The Konya belt is the exception: see the next bullet.
+- **The first Konya belt was a misread template row (re-laid 2026-10-08).**
+  `SY_Envio_v3`'s nine late-activated template groups sit in one dead-straight
+  line off the map; the mission's real sites are copies of them. Read as a
+  "western belt", they became eight markers 99-157 nm west of Konya, ~11 nm
+  apart, all west of the land map's 31.3 E edge. Re-laid on the DM's call as two
+  groups on the carrier's approach from the south, trimmed to four markers.
+- **The Konya belt sits on flat valley floor.** Spots were picked from SRTM 90 m
+  heights at under 1 degree of slope, since a launcher past 5 degrees never
+  raises: the S-300 on the plain north of Seydisehir (37.500 N 31.800 E), a MERAD
+  east of Beysehir (37.630 N 31.834 E), the EWR between them (37.577 N 31.899 E)
+  and a MERAD north-west of Bozkir (37.223 N 32.229 E). DCS's own heights were not
+  checked; the row confirms it.
+- **A red `Konya` influence zone holds that belt.** Without it the Bozkir site
+  binds the Konya FOB (28 nm against Konya's 50). The quad runs 31.55-32.72 E,
+  37.15-38.25 N and stops west of the Konya FOB; every other marker keeps its base
+  (checked by diffing all 131 bindings). Locked by
+  `test_konya_zone_holds_the_belt`.
 - **Six markers sat within 3.5 km of an airfield** and were moved 3.5 km beside the
   runway: the Bassel LORAD (461 m from the field), Gaziantep, Kuweires, Jirah,
   Tal Siman and the Tabqa EWR.
