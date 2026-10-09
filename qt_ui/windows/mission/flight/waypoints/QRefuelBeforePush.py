@@ -17,7 +17,7 @@ from game.ato.flightplans.barcap import BarCapFlightPlan
 from game.ato.flightplans.formationattack import FormationAttackLayout
 from game.ato.flightplans.planningerror import PlanningError
 from game.ato.flightplans.tarcap import TarCapFlightPlan
-from game.ato.tankeravailability import early_refuel_point
+from game.ato.tankeravailability import early_refuel_point, post_refuel_shortfall
 
 
 def is_cap(flight: Flight) -> bool:
@@ -56,6 +56,19 @@ def no_tanker_reason(flight: Flight) -> Optional[str]:
     return None
 
 
+def kept_stop_text(flight: Flight) -> Optional[str]:
+    """Why the second tanker stop is still on the route, or None when it is not."""
+    if not flight.refuel_before_push:
+        return None
+    shortfall = post_refuel_shortfall(flight, flight.flight_plan.layout)
+    if shortfall is None:
+        return None
+    return (
+        f"The second Refuel stayed: without it this jet lands {shortfall:,.0f} lb "
+        "under its reserve."
+    )
+
+
 class QRefuelBeforePush(QWidget):
     """Plan the flight's tanker stop between the hold and the join."""
 
@@ -80,8 +93,9 @@ class QRefuelBeforePush(QWidget):
             text = (
                 "Ticked, the flight tanks at a theater tanker between Takeoff and "
                 "Race-track start, and takes off earlier to make it; the station "
-                "times stay put. AI flights fill to 90%. Changing this rebuilds "
-                "the route and resets manual timing."
+                "times stay put. A TARCAP keeps its stop coming off station only "
+                "if the jet cannot get home without it. AI flights fill to 90%. "
+                "Changing this rebuilds the route and resets manual timing."
             )
         else:
             text = (
@@ -102,7 +116,18 @@ class QRefuelBeforePush(QWidget):
         description.setSizePolicy(policy)
         layout.addWidget(description)
 
+        self.kept = QLabel()
+        self.kept.setWordWrap(True)
+        self.kept.setSizePolicy(policy)
+        layout.addWidget(self.kept)
+        self._update_kept()
+
         self.checkbox.toggled.connect(self._on_toggled)
+
+    def _update_kept(self) -> None:
+        text = kept_stop_text(self.flight)
+        self.kept.setText(f"<small><strong>{text}</strong></small>" if text else "")
+        self.kept.setVisible(text is not None)
 
     def _on_toggled(self, checked: bool) -> None:
         self.flight.refuel_before_push = checked
@@ -118,4 +143,5 @@ class QRefuelBeforePush(QWidget):
             return
         if no_tanker_reason(self.flight) is not None:
             self.checkbox.setEnabled(checked)
+        self._update_kept()
         self.changed.emit()

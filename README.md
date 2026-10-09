@@ -156,10 +156,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   and carrier recovery tankers keep the two-point racetrack.
 - A flight's **Waypoints** tab has **Refuel before the push**: the flight tanks at a theater
   tanker between Hold and Join, and leaves Hold earlier to make it; the TOT stays put. The
-  stop after the strike stays only if the jet cannot get home without it. AI flights fill
-  to 90% there.
+  stop after the strike stays only if the jet cannot get home without it, and the tab
+  then says how many lb short it would be. AI flights fill to 90% there.
 - BARCAP and TARCAP flights get **Refuel before station** on the same tab: the flight tanks
-  at a theater tanker on its way out, and the race-track times stay put.
+  at a theater tanker on its way out, and the race-track times stay put. A TARCAP's stop
+  coming off station follows the same rule.
 - Cold-start allowances follow the airframe where the time is known — a Viper aligns on a
   stored heading in seconds, a Phantom waits on its gyros. Everything else uses the
   campaign-wide setting.

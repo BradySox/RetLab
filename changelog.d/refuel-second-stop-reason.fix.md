@@ -1,0 +1,1 @@
+* **[Mission Planning]** With **Refuel before station** ticked, a TARCAP drops its refuel coming off station when the first top-off gets it home, as strike flights already did. A flight that keeps its second refuel says why on the Waypoints tab: how many lb under its reserve it would land without it.

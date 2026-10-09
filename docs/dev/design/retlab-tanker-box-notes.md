@@ -88,6 +88,9 @@ A receiver can tank at the box before its package pushes: the Waypoints tab's
 **Refuel before the push** (features doc, Refuelling). Only a theater tanker is
 used, because a package tanker comes on station after the strike. Row B189.
 BARCAP and TARCAP get the same as **Refuel before station** (2026-10-08, row B191).
+The second stop (after the strike, or a TARCAP's off station) stays only when the fuel walk
+with the first top-off lands under the reserve, and the tab then names the shortfall
+(2026-10-09, DM call: keep it and say why, rather than always drop it; row B200).
 
 ### Verified
 

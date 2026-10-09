@@ -1,0 +1,11 @@
+date: 2026-10-09
+title: Why a second refuel stays
+change: >-
+  With Refuel before the push or Refuel before station ticked, a flight
+  that still keeps its refuel after the strike or station now says why
+  under the tick box: how many lb under its reserve it would land
+  without it. A TARCAP now drops that second refuel when it does not
+  need it, as strike flights already did.
+watch: >-
+  Tick the box on a few flights. Most lose the second Refuel; the ones
+  that keep it show the line.
