@@ -23,6 +23,7 @@ from game.ato.flightplans.theaterrefueling import (
     TANKER_BOX_DEPTH,
     Builder,
     TheaterRefuelingFlightPlan,
+    deconflicted_altitude,
 )
 from game.ato.flightplans.waypointbuilder import WaypointBuilder
 from game.ato.flightwaypoint import FlightWaypoint
@@ -309,6 +310,10 @@ def test_the_planner_builds_a_30_by_15_nm_box(monkeypatch: pytest.MonkeyPatch) -
     flight.coalition = SimpleNamespace(
         game=SimpleNamespace(settings=settings),
         opponent=SimpleNamespace(threat_zone=threats),
+        ato=SimpleNamespace(packages=[flight.package]),
+        doctrine=SimpleNamespace(
+            min_combat_altitude=feet(1000), max_combat_altitude=feet(35000)
+        ),
     )
     builder = Builder.__new__(Builder)
     builder.flight = flight  # type: ignore[assignment]
@@ -321,3 +326,81 @@ def test_the_planner_builds_a_30_by_15_nm_box(monkeypatch: pytest.MonkeyPatch) -
     assert b.distance_to_point(c) == pytest.approx(nautical_miles(15).meters, abs=1)
     # The box extends away from the threat (west, toward -y).
     assert c.y < b.y
+    assert box.patrol_start.alt == ALT
+
+
+# ------------------------------------------------------- altitude between packages
+# Anatolian Reach turn 1: the carrier's KC-135 and Akrotiri's MPRS tanker, in two
+# packages, flew overlapping boxes at the same 24,000 ft.
+
+FLOOR, CEILING = feet(1000), feet(35000)
+
+
+def test_a_lone_tanker_keeps_its_altitude() -> None:
+    assert deconflicted_altitude(ALT, [], FLOOR, CEILING) == ALT
+
+
+def test_a_taken_altitude_moves_the_tanker_up_2000_ft() -> None:
+    assert deconflicted_altitude(ALT, [feet(24000)], FLOOR, CEILING) == feet(26000)
+
+
+def test_a_close_altitude_counts_as_taken() -> None:
+    assert deconflicted_altitude(ALT, [feet(25000)], FLOOR, CEILING) == feet(22000)
+
+
+def test_the_ceiling_sends_it_down_instead() -> None:
+    taken = [feet(24000)]
+    assert deconflicted_altitude(ALT, taken, FLOOR, feet(25000)) == feet(22000)
+
+
+def test_three_tankers_stack_2000_ft_apart() -> None:
+    taken = [feet(24000), feet(26000), feet(22000)]
+    assert deconflicted_altitude(ALT, taken, FLOOR, CEILING) == feet(28000)
+
+
+def test_the_planner_steps_clear_of_another_packages_tanker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from game.ato.flightplans import theaterrefueling
+
+    class _Builder(_FakeWaypointBuilder):
+        def __init__(self, _: Any) -> None:
+            pass
+
+        get_patrol_altitude = ALT
+
+    monkeypatch.setattr(theaterrefueling, "WaypointBuilder", _Builder)
+    other_plan = TheaterRefuelingFlightPlan.__new__(TheaterRefuelingFlightPlan)
+    other_plan.layout = _box()
+    other = SimpleNamespace(
+        flight_type=FlightType.REFUELING, laid_out_flight_plan=other_plan
+    )
+    threats = SimpleNamespace(
+        closest_boundary=lambda _: _p(0, nautical_miles(200).meters),
+        threatened=lambda _: False,
+    )
+    flight = SimpleNamespace(flight_type=FlightType.REFUELING)
+    flight.departure = flight.arrival = SimpleNamespace(position=_p(-100000, 0))
+    flight.divert = None
+    flight.package = SimpleNamespace(
+        target=SimpleNamespace(position=_p(0, 0)), flights=[flight]
+    )
+    flight.coalition = SimpleNamespace(
+        game=SimpleNamespace(
+            settings=SimpleNamespace(tanker_threat_buffer_min_distance=70)
+        ),
+        opponent=SimpleNamespace(threat_zone=threats),
+        ato=SimpleNamespace(
+            packages=[SimpleNamespace(flights=[other]), flight.package]
+        ),
+        doctrine=SimpleNamespace(
+            min_combat_altitude=FLOOR, max_combat_altitude=CEILING
+        ),
+    )
+    builder = Builder.__new__(Builder)
+    builder.flight = flight  # type: ignore[assignment]
+
+    box = builder.layout()
+
+    assert box.patrol_start.alt == feet(26000)
+    assert all(w.alt == feet(26000) for w in box.box_corners)

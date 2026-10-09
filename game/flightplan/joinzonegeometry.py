@@ -113,16 +113,18 @@ class JoinZoneGeometry:
         self.preferred_lines = preferred_lines
 
     def find_best_join_point(self) -> Point:
-        # Choose the best available geometry for nearest point computation.
-        # Prefer preferred_lines when available; fall back to permissible_zones.
-        if not self.preferred_lines.is_empty:
-            search_geometry = self.preferred_lines
-        elif not self.permissible_zones.is_empty:
-            search_geometry = self.permissible_zones
-        else:
+        # The safe spot nearest the IP. Preferring the threat-edge lines outright
+        # sent a package 75 NM off course when the only edge on the join ring was
+        # a far corner of it (Anatolian Reach turn 1, a Konya target from the boat).
+        candidates = [
+            shapely.ops.nearest_points(geometry, self.ip)[0]
+            for geometry in (self.preferred_lines, self.permissible_zones)
+            if not geometry.is_empty
+        ]
+        if not candidates:
             # No usable geometry; fall back deterministically to the IP position.
             join = self.ip
             return self._target.new_in_same_map(join.x, join.y)
 
-        join, _ = shapely.ops.nearest_points(search_geometry, self.ip)
+        join = min(candidates, key=lambda point: point.distance(self.ip))
         return self._target.new_in_same_map(join.x, join.y)

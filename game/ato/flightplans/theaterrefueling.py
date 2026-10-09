@@ -5,7 +5,7 @@ from typing import Type
 from dcs import Point
 
 from game.ato.flighttype import FlightType
-from game.utils import Distance, Heading, meters, nautical_miles
+from game.utils import Distance, Heading, feet, meters, nautical_miles
 from .ibuilder import IBuilder
 from .patrolling import PatrollingLayout, step_back_from_threat
 from .refuelingflightplan import RefuelingFlightPlan, TankerBoxLayout
@@ -32,6 +32,31 @@ TANKER_BOX_LENGTH = nautical_miles(30)
 #: second tanker's box starts behind the first one's back leg.
 TANKER_BOX_DEPTH = nautical_miles(15)
 
+#: Vertical gap between every theater tanker on a side. The spacing above only
+#: separates tankers in one package; two packages' boxes can still cross.
+TANKER_ALTITUDE_SEPARATION = feet(2000)
+
+
+def deconflicted_altitude(
+    preferred: Distance,
+    taken: list[Distance],
+    floor: Distance,
+    ceiling: Distance,
+) -> Distance:
+    """The altitude nearest ``preferred``, higher first, clear of ``taken``.
+
+    Steps in ``TANKER_ALTITUDE_SEPARATION``; ``preferred`` when no step fits.
+    """
+    gap = TANKER_ALTITUDE_SEPARATION.feet
+    for step in range(8):
+        for sign in (1, -1) if step else (1,):
+            candidate = feet(preferred.feet + sign * step * gap)
+            if not floor <= candidate <= ceiling:
+                continue
+            if all(abs(candidate.feet - other.feet) > gap - 1 for other in taken):
+                return candidate
+    return preferred
+
 
 class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
     def _orbit_index(self) -> int:
@@ -47,6 +72,20 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
             if flight.flight_type is FlightType.REFUELING:
                 index += 1
         return 0
+
+    def _other_tanker_altitudes(self) -> list[Distance]:
+        altitudes = []
+        for package in self.coalition.ato.packages:
+            for flight in package.flights:
+                if (
+                    flight is self.flight
+                    or flight.flight_type is not FlightType.REFUELING
+                ):
+                    continue
+                plan = flight.laid_out_flight_plan
+                if isinstance(plan, TheaterRefuelingFlightPlan):
+                    altitudes.append(plan.layout.patrol_start.alt)
+        return altitudes
 
     def layout(self) -> TankerBoxLayout:
         racetrack_half_distance = TANKER_BOX_LENGTH.meters / 2
@@ -103,7 +142,12 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
             racetrack_start,
             racetrack_end,
             back,
-            builder.get_patrol_altitude,
+            deconflicted_altitude(
+                builder.get_patrol_altitude,
+                self._other_tanker_altitudes(),
+                self.coalition.doctrine.min_combat_altitude,
+                self.coalition.doctrine.max_combat_altitude,
+            ),
         )
 
     def _box_layout(
