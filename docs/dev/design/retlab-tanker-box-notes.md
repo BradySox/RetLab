@@ -40,6 +40,11 @@ loops the lap.
   second tanker steps back `TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH` (30 NM), so the boxes
   never overlap. Shrunk from 40 x 20 NM on 2026-09-29 (DM: "downsized a little", after test
   47 showed it working); the cockpit box is drawn from the route, so it follows.
+- **Altitude between packages.** The spacing above only separates tankers in one package.
+  Every theater tanker on a side also takes its own altitude, 2,000 ft from every other
+  (`deconflicted_altitude`: its planned altitude, then up or down in 2,000 ft steps, higher
+  first, inside the doctrine's combat band). Added 2026-10-08 after Anatolian Reach turn 1
+  put the carrier's KC-135 and Akrotiri's MPRS tanker in overlapping boxes at 24,000 ft.
 - **Route.** `BOX 1` (PATROL_TRACK, the patrol start) → `BOX 2`, `BOX 3`, `BOX 4` (NAV corners)
   → `BOX END` (PATROL, on BOX 1's position) → home. Layout: `TankerBoxLayout`.
 - **Loop.** `BOX END` carries `ControlledTask(SwitchWaypoint(END → BOX 2))` with the start

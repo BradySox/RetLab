@@ -1,0 +1,1 @@
+* **[Mission Planning]** A package's join and split points are the safe spot nearest its attack start, so a long-range package no longer flies a dogleg to the edge of a distant threat ring to join up.
