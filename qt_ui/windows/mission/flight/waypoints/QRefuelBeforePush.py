@@ -3,9 +3,12 @@ from typing import Optional
 from PySide6.QtCore import Signal
 from PySide6.QtWidgets import (
     QCheckBox,
+    QHBoxLayout,
     QLabel,
     QMessageBox,
+    QPushButton,
     QSizePolicy,
+    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
@@ -17,7 +20,11 @@ from game.ato.flightplans.barcap import BarCapFlightPlan
 from game.ato.flightplans.formationattack import FormationAttackLayout
 from game.ato.flightplans.planningerror import PlanningError
 from game.ato.flightplans.tarcap import TarCapFlightPlan
-from game.ato.tankeravailability import early_refuel_point, post_refuel_shortfall
+from game.ato.tankeravailability import (
+    auto_tanking_minutes,
+    early_refuel_point,
+    post_refuel_shortfall,
+)
 
 
 def is_cap(flight: Flight) -> bool:
@@ -88,20 +95,35 @@ class QRefuelBeforePush(QWidget):
         self.checkbox.setChecked(flight.refuel_before_push)
         layout.addWidget(self.checkbox)
 
+        row = QHBoxLayout()
+        row.addWidget(QLabel("Minutes on the tanker"))
+        self.minutes = QSpinBox()
+        self.minutes.setRange(1, 60)
+        self.minutes.setSuffix(" min")
+        self.minutes.setValue(self._shown_minutes())
+        row.addWidget(self.minutes)
+        self.reset = QPushButton("Reset")
+        self.reset.setToolTip("Back to 4 minutes a jet, plus 1")
+        row.addWidget(self.reset)
+        row.addStretch()
+        layout.addLayout(row)
+
         reason = no_tanker_reason(flight)
         if cap:
             text = (
                 "Ticked, the flight tanks at a theater tanker between Takeoff and "
                 "Race-track start, and takes off earlier to make it; the station "
-                "times stay put. A TARCAP keeps its stop coming off station only "
+                "times stay put. Minutes on the tanker is the time planned for the "
+                "stop, 4 a jet plus 1 until you type one. A TARCAP keeps its stop coming off station only "
                 "if the jet cannot get home without it. AI flights fill to 90%. "
                 "Changing this rebuilds the route and resets manual timing."
             )
         else:
             text = (
                 "Ticked, the flight tanks at a theater tanker between Hold and "
-                "Join, and leaves Hold earlier to make it; the TOT stays put. The "
-                "stop after the strike is kept only if the jet cannot get home "
+                "Join, and leaves Hold earlier to make it; the TOT stays put. "
+                "Minutes on the tanker is the time planned for the stop, 4 a jet "
+                "plus 1 until you type one. The stop after the strike is kept only if the jet cannot get home "
                 "without it. AI flights fill to 90%. Changing this rebuilds the "
                 "route and resets manual timing."
             )
@@ -121,8 +143,34 @@ class QRefuelBeforePush(QWidget):
         self.kept.setSizePolicy(policy)
         layout.addWidget(self.kept)
         self._update_kept()
+        self._update_minutes_enabled()
 
         self.checkbox.toggled.connect(self._on_toggled)
+        self.minutes.valueChanged.connect(self._on_minutes)
+        self.reset.clicked.connect(self._on_reset)
+
+    def _shown_minutes(self) -> int:
+        minutes = self.flight.tanking_minutes
+        return auto_tanking_minutes(self.flight) if minutes is None else minutes
+
+    def _update_minutes_enabled(self) -> None:
+        on = self.flight.refuel_before_push
+        self.minutes.setEnabled(on)
+        self.reset.setEnabled(on and self.flight.tanking_minutes is not None)
+
+    def _on_minutes(self, value: int) -> None:
+        # Only the clock moves (Hold or takeoff leaves earlier); no route rebuild.
+        self.flight.tanking_minutes = value
+        self._update_minutes_enabled()
+        self.changed.emit()
+
+    def _on_reset(self) -> None:
+        self.flight.tanking_minutes = None
+        self.minutes.blockSignals(True)
+        self.minutes.setValue(self._shown_minutes())
+        self.minutes.blockSignals(False)
+        self._update_minutes_enabled()
+        self.changed.emit()
 
     def _update_kept(self) -> None:
         text = kept_stop_text(self.flight)
@@ -144,4 +192,5 @@ class QRefuelBeforePush(QWidget):
         if no_tanker_reason(self.flight) is not None:
             self.checkbox.setEnabled(checked)
         self._update_kept()
+        self._update_minutes_enabled()
         self.changed.emit()

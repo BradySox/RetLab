@@ -2170,7 +2170,9 @@ defect that reached a build, most of them found by flying.
   (`pre_push_refuel_point`, `refuel_rendezvous(theater_only=True)`): a package tanker is
   timed to arrive after the strike, so it is never a candidate, and with no theater tanker
   that serves the jet there is no stop and the box is greyed out. Timing: the leg out of
-  the stop carries `4 x size + 1` minutes, the package tanker's own figure, and
+  the stop carries `4 x size + 1` minutes, the package tanker's own figure, or the
+  player's **Minutes on the tanker** (`Flight.tanking_minutes`, 1-60, None = automatic;
+  2026-10-09, row B202; it moves only the clock, so no route rebuild), and
   `push_time` walks Hold → stop → Join, so Hold departs early and the TOT does not move.
   The stop after the strike is dropped when the fuel walk with only the early top-off
   lands above the reserve (`tankeravailability.post_refuel_unneeded`, a second build);

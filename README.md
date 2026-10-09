@@ -157,7 +157,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - A flight's **Waypoints** tab has **Refuel before the push**: the flight tanks at a theater
   tanker between Hold and Join, and leaves Hold earlier to make it; the TOT stays put. The
   stop after the strike stays only if the jet cannot get home without it, and the tab
-  then says how many lb short it would be. AI flights fill to 90% there.
+  then says how many lb short it would be. AI flights fill to 90% there. **Minutes on the
+  tanker** sets how long the stop is planned to take; it starts at 4 minutes a jet plus 1.
 - BARCAP and TARCAP flights get **Refuel before station** on the same tab: the flight tanks
   at a theater tanker on its way out, and the race-track times stay put. A TARCAP's stop
   coming off station follows the same rule.
