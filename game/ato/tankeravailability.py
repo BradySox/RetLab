@@ -23,7 +23,7 @@ another flight's ``flight_plan``, which would risk recursion.
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Optional, TYPE_CHECKING
+from typing import Any, Optional, TYPE_CHECKING
 
 from game.ato.flighttype import FlightType
 
@@ -72,6 +72,37 @@ def early_refuel_point(flight: "Flight", planned: "Point") -> Optional["Point"]:
     return refuel_rendezvous(
         flight.unit_type, flight.blue.is_blue, planned, tankers, theater_only=True
     )
+
+
+def post_refuel_shortfall(flight: "Flight", layout: Any) -> Optional[float]:
+    """Pounds under its reserve the flight lands if it skips its second tanker stop.
+
+    None when the stop is not needed, or the route lacks one of the two stops (the
+    one before the push or station, and the one after). DM 2026-10-07: the second
+    stop is kept only when the first top-off does not get the jet home.
+    """
+    from game.retlab.fuel_brief import fuel_brief_for
+
+    post = getattr(layout, "refuel", None)
+    if post is None or getattr(layout, "pre_push_refuel", None) is None:
+        return None
+    layout.refuel = None
+    try:
+        brief = fuel_brief_for(flight)
+    finally:
+        layout.refuel = post
+    if brief is None or brief.margin_lbs >= 0:
+        return None
+    return -brief.margin_lbs
+
+
+def post_refuel_unneeded(flight: "Flight", layout: Any) -> bool:
+    """Whether the stop after the strike or station can be dropped."""
+    if getattr(layout, "refuel", None) is None:
+        return False
+    if getattr(layout, "pre_push_refuel", None) is None:
+        return False
+    return post_refuel_shortfall(flight, layout) is None
 
 
 def tanking_time(flight: "Flight") -> timedelta:

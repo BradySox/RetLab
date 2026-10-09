@@ -2173,8 +2173,9 @@ defect that reached a build, most of them found by flying.
   the stop carries `4 x size + 1` minutes, the package tanker's own figure, and
   `push_time` walks Hold → stop → Join, so Hold departs early and the TOT does not move.
   The stop after the strike is dropped when the fuel walk with only the early top-off
-  lands above the reserve (`FormationAttackBuilder._post_refuel_unneeded`, a second build);
-  otherwise both stay. Generation never drops the early stop as unneeded (the player asked
+  lands above the reserve (`tankeravailability.post_refuel_unneeded`, a second build);
+  otherwise both stay, and the tab names the shortfall in lb under the tick box
+  (`post_refuel_shortfall`, row B200). Generation never drops the early stop as unneeded (the player asked
   for it), only when no theater tanker resolves; `WaypointGenerator.dropped_refuels`
   replaced the all-or-nothing `refuel_dropped` flag. AI: the refuel task stops at **0.9**
   on the early stop instead of 0.5, because every jet is above half before the push and
@@ -2185,8 +2186,9 @@ defect that reached a build, most of them found by flying.
   Takeoff and Race-track start (`BarCapLayout`, `TarCapLayout.pre_push_refuel`, built by
   `barcap.station_refuel` from a point 75% of the way to station). The leg out of it
   carries the tanking time in `PatrollingFlightPlan`, so takeoff moves earlier and the
-  station times do not move. Station time is not stretched (DM unsure, kept). TARCAP keeps
-  its stock after-station stop. `early_refuel_point` and `tanking_time` moved to
+  station times do not move. Station time is not stretched (DM unsure, kept). TARCAP drops
+  its after-station stop by the same fuel rule as the strike's (2026-10-09, DM call; it
+  had kept it unconditionally), through the same second build in `tarcap.Builder`. `early_refuel_point` and `tanking_time` moved to
   `tankeravailability.py` for both. Tests `test_refuel_before_station.py`.
 - **A refuel waypoint on a flight that does not need gas (fixed 2026-09-17, DM call).** The
   planner still emits a REFUEL waypoint whenever the coalition owns a tanker-capable

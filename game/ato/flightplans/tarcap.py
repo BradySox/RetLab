@@ -12,7 +12,10 @@ from .patrolling import PatrollingFlightPlan, PatrollingLayout
 from .tacticaloverlay import TacticalOverlay, TacticalOverlayDisplay, cap_overlay
 from .barcap import station_refuel
 from .waypointbuilder import WaypointBuilder
-from game.ato.tankeravailability import serviceable_tanker_planned
+from game.ato.tankeravailability import (
+    post_refuel_unneeded,
+    serviceable_tanker_planned,
+)
 
 if TYPE_CHECKING:
     from ..flightwaypoint import FlightWaypoint
@@ -131,6 +134,17 @@ class TarCapFlightPlan(PatrollingFlightPlan[TarCapLayout], TacticalOverlayDispla
 
 
 class Builder(CapBuilder[TarCapFlightPlan, TarCapLayout]):
+    #: Set for the second build when the tanker stop before station covers the
+    #: whole sortie, so the stop coming off station is dropped.
+    _drop_post_refuel = False
+
+    def regenerate(self, dump_debug_info: bool = False) -> None:
+        self._drop_post_refuel = False
+        super().regenerate(dump_debug_info)
+        if post_refuel_unneeded(self.flight, getattr(self.built, "layout", None)):
+            self._drop_post_refuel = True
+            super().regenerate()
+
     def layout(self) -> TarCapLayout:
         location = self.package.target
 
@@ -149,9 +163,12 @@ class Builder(CapBuilder[TarCapFlightPlan, TarCapLayout]):
         nav_from_origin = orbit1p
 
         # TARCAP's refuel is doctrinal -- top off coming off station, not a
-        # fuel-driven decision -- but it still needs a tanker to exist.
-        if self.package.waypoints is not None and serviceable_tanker_planned(
-            self.flight
+        # fuel-driven decision -- but it still needs a tanker to exist. A stop
+        # before station replaces it when that top-off gets the jet home.
+        if (
+            not self._drop_post_refuel
+            and self.package.waypoints is not None
+            and serviceable_tanker_planned(self.flight)
         ):
             refuel = builder.refuel(
                 self.flight.refuel_waypoint_position(self.package.waypoints.refuel)

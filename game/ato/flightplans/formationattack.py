@@ -26,6 +26,7 @@ from ..flightwaypoint import FlightWaypoint
 from ..flightwaypointtype import FlightWaypointType
 from ..tankeravailability import (
     early_refuel_point,
+    post_refuel_unneeded,
     serviceable_tanker_planned,
     tanking_time,
 )
@@ -332,20 +333,7 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
 
     def _post_refuel_unneeded(self) -> bool:
         """Whether the flight gets home on the pre-push top-off alone (DM 2026-10-07)."""
-        from game.retlab.fuel_brief import fuel_brief_for
-
-        plan = self.built
-        layout = getattr(plan, "layout", None)
-        post = getattr(layout, "refuel", None)
-        if post is None or getattr(layout, "pre_push_refuel", None) is None:
-            return False
-        assert isinstance(layout, FormationAttackLayout)
-        layout.refuel = None
-        try:
-            brief = fuel_brief_for(self.flight)
-        finally:
-            layout.refuel = post
-        return brief is None or brief.margin_lbs >= 0
+        return post_refuel_unneeded(self.flight, getattr(self.built, "layout", None))
 
     def _build_pre_push_refuel(
         self, builder: WaypointBuilder, hold: Optional[FlightWaypoint]
