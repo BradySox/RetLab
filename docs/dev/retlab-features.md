@@ -11439,26 +11439,37 @@ has the scoring table.
 
 ## §109 — Outside AI reads red's turn
 
-A read-only REST API under `/retribution-ai/*` on the map server, for an AI on the same PC
-(Claude Code, for example). It reads red's turn and reports what looks wrong; it changes
-nothing. Developer tools > Copy AI connect link copies the URL with its token. Ported from
-juanjux/dcs-escalation (LGPL-3). Built 2026-10-09, not flown (row B201). Stage 1 of 3: the
-write actions and MCP are agreed, not started.
+A REST API under `/retribution-ai/*` on the map server, for an AI on the same PC (Claude
+Code, for example). It reads red's turn and reports what looks wrong. With Developer tools
+> Outside AI plans red ticked, it also plans red: packages, TOTs, front stances, buying and
+selling, with notes saved in the campaign. Developer tools > Copy AI connect link copies
+the URL with its token. Ported from juanjux/dcs-escalation (LGPL-3). Stage 1 built
+2026-10-09 (row B201), stage 2a the same day (row B204); 2b (loadouts, waypoints,
+transfers, ships, repairs, squadron moves) and MCP are agreed, not started.
 
 **Design note:** [retlab-llm-opfor-notes.md](design/retlab-llm-opfor-notes.md) has the DM
 call that reversed the 2026-08-24 "no LLM" rule, the stages and what was left out.
 
 ### Files
 
-- `game/agent/views.py`, `service.py`, `mapimage.py`; briefings in `resources/agent/`.
+- `game/agent/views.py`, `service.py`, `mapimage.py`, `planner.py`, `schemas.py`;
+  briefings in `resources/agent/`.
+- `game/commander/missionproposals.py`, `packagebuilder.py`, `game/squadrons/airwing.py`:
+  `preferred_squadron`.
+- `game/game.py` (`opfor_ai_enabled`, `opfor_ai_notes`), `game/coalition.py`
+  (`initialize_turn` stands red's planner down), `qt_ui/widgets/QTopPanel.py` (Take Off
+  fallback).
 - `game/server/retributionai/routes.py`; mounted in `game/server/app.py`.
 - `game/server/security.py`: token by `X-API-Key` header or `?token=`.
-- `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
-- `tests/agent/test_read_api.py`.
+- `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`, `set_opfor_ai`.
+- `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
 
 ### Constraints
 
 - Red only, enforced in `service.opfor_only`. Blue's ATO is never served.
-- Reads never mutate game state.
+- Reads never mutate game state. Writes need the toggle on (`service._writable_game`).
+- With the toggle on, red's scripted missions and buying stop, and with them red's
+  automatic repairs (§68) until 2b. If red has no packages at Take Off, the scripted
+  planner plans red's missions.
 - Only the AI routes need the token; the map server's routes are unchanged.
-- No setting. The API does nothing until someone uses the link.
+- No setting: the toggle is saved on the `Game`.

@@ -389,6 +389,14 @@ class QTopPanel(QFrame):
         if self.check_no_missing_pilots():
             return
 
+        from game.agent.service import run_fallback_if_needed
+
+        if run_fallback_if_needed(self.game):
+            self.game.message(
+                "Red planned by the game",
+                "The outside AI planned no red missions, so the game's own planner did.",
+            )
+
         if self.sim_controller.started:
             now = self.sim_controller.current_time_in_sim
         else:

@@ -1,0 +1,130 @@
+"""The outside AI's write path: gated on the toggle, red only, and the engine hands red's
+turn over to it."""
+
+from types import SimpleNamespace
+from typing import Any, Iterator, cast
+from unittest.mock import MagicMock
+
+import pytest
+
+from game.agent import planner, schemas, service
+from game.ato.flighttype import FlightType
+from game.coalition import Coalition
+from game.server import GameContext
+from game.theater.player import Player
+
+
+@pytest.fixture
+def live_game() -> Iterator[Any]:
+    game = SimpleNamespace(opfor_ai_enabled=False, opfor_ai_notes={})
+    previous = getattr(GameContext, "_game_model", None)
+    GameContext.set_model(cast(Any, SimpleNamespace(game=game)))
+    yield game
+    if previous is not None:
+        GameContext.set_model(previous)
+
+
+def test_writes_are_refused_until_the_toggle_is_on(live_game: Any) -> None:
+    with pytest.raises(service.WritesOffError):
+        service.clear_packages("red")
+    with pytest.raises(service.WritesOffError):
+        service.merge_notes({"plan": "x"})
+    assert service.notes() == {}
+    live_game.opfor_ai_enabled = True
+    assert service.merge_notes({"plan": "hold"}) == {"plan": "hold"}
+    assert service.replace_notes({"a": "1"}) == {"a": "1"}
+    assert service.delete_note("a") == {}
+
+
+def test_blue_writes_are_refused_even_with_the_toggle_on(live_game: Any) -> None:
+    live_game.opfor_ai_enabled = True
+    with pytest.raises(service.SideNotAllowedError):
+        service.clear_packages("blue")
+    with pytest.raises(service.SideNotAllowedError):
+        service.buy_aircraft("blue", "id", 1)
+
+
+@pytest.mark.parametrize(
+    "name, expected",
+    [
+        ("STRIKE", FlightType.STRIKE),
+        ("cap", FlightType.BARCAP),
+        ("SEAD escort", FlightType.SEAD_ESCORT),
+        ("Anti-ship", FlightType.ANTISHIP),
+        ("oca_runway", FlightType.OCA_RUNWAY),
+    ],
+)
+def test_task_names_a_model_reaches_for(name: str, expected: FlightType) -> None:
+    assert planner._flight_type(name) is expected
+
+
+def test_unknown_task_and_escort_are_named() -> None:
+    with pytest.raises(ValueError, match="unknown task"):
+        planner._flight_type("bombing run")
+    with pytest.raises(ValueError, match="unknown escort"):
+        planner._escort_type("wingman")
+
+
+def _coalition(player: Player, ai_on: bool) -> Any:
+    fake = MagicMock()
+    fake.player = player
+    fake.game.opfor_ai_enabled = ai_on
+    return fake
+
+
+@pytest.mark.parametrize(
+    "player, ai_on, planned",
+    [
+        (Player.RED, False, True),
+        (Player.RED, True, False),
+        (Player.BLUE, True, True),
+    ],
+)
+def test_the_scripted_planner_stands_down_for_red_only(
+    player: Player, ai_on: bool, planned: bool
+) -> None:
+    coalition = _coalition(player, ai_on)
+    Coalition.initialize_turn(coalition, is_turn_0=False, events=MagicMock())
+    assert coalition.plan_missions.called is planned
+    assert coalition.plan_procurement.called is planned
+
+
+def test_take_off_fallback_runs_only_when_the_ai_planned_nothing() -> None:
+    game = MagicMock()
+    game.opfor_ai_enabled = True
+    game.red.ato.packages = []
+    assert service.run_fallback_if_needed(game)
+    game.red.plan_missions.assert_called_once()
+
+    game.red.plan_missions.reset_mock()
+    game.red.ato.packages = [object()]
+    assert not service.run_fallback_if_needed(game)
+    game.opfor_ai_enabled = False
+    game.red.ato.packages = []
+    assert not service.run_fallback_if_needed(game)
+    game.red.plan_missions.assert_not_called()
+
+
+def test_a_stance_is_only_set_on_reds_own_front(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    blue_cp = SimpleNamespace(
+        id="b", name="Blue base", captured=Player.BLUE, stances={}
+    )
+    red_cp = SimpleNamespace(id="r", name="Red base", captured=Player.RED, stances={})
+    by_id = {"b": blue_cp, "r": red_cp}
+    game: Any = SimpleNamespace()
+    monkeypatch.setattr(planner, "_resolve_cp", lambda g, cp_id: by_id[cp_id])
+    refused = planner.set_stance(game, "red", "b", "r", "push")
+    assert not refused.ok and "not yours" in (refused.error or "")
+    no_front = planner.set_stance(game, "red", "r", "b", "push")
+    assert not no_front.ok and "no front" in (no_front.error or "")
+    red_cp.stances["b"] = None
+    done = planner.set_stance(game, "red", "r", "b", "push")
+    assert done.ok and red_cp.stances["b"].name == "AGGRESSIVE"
+
+
+def test_package_spec_defaults() -> None:
+    spec = schemas.PackageSpec(target_id="x", flights=[schemas.FlightSpec(task="CAS")])
+    assert spec.tot_minutes is None and not spec.ignore_range
+    assert spec.flights[0].count == 2

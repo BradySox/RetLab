@@ -78,6 +78,7 @@ class AirWing:
         preferred_type: Optional[AircraftType] = None,
         ignore_range: bool = False,
         refuel_methods: Optional[frozenset[AirRefuelType]] = None,
+        preferred_squadron: Optional[Squadron] = None,
     ) -> list[Squadron]:
         airfield_cache = ObjectiveDistanceCache.get_closest_airfields(location)
         best_aircraft = AircraftType.priority_list_for_task(task)
@@ -93,6 +94,7 @@ class AirWing:
                     not preferred_type
                     or s.aircraft.variant_id == preferred_type.variant_id
                 )
+                and (preferred_squadron is None or s is preferred_squadron)
                 and self._tanker_serves_methods(s.aircraft, refuel_methods)
             ]
             for squadron in squadrons:
@@ -162,6 +164,7 @@ class AirWing:
         preferred_type: Optional[AircraftType] = None,
         ignore_range: bool = False,
         refuel_methods: Optional[frozenset[AirRefuelType]] = None,
+        preferred_squadron: Optional[Squadron] = None,
     ) -> Optional[Squadron]:
         for squadron in self.best_squadrons_for(
             location,
@@ -172,6 +175,7 @@ class AirWing:
             preferred_type,
             ignore_range,
             refuel_methods,
+            preferred_squadron,
         ):
             return squadron
         return None
