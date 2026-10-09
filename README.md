@@ -310,6 +310,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   jamming site is briefed on the kneeboard once you have engaged it.
 - **What's New.** A toolbar button lists the recent changes in the build you are running,
   newest first, each with a line saying what to look for in the next mission.
+- **AI review of the enemy's turn.** Developer tools > Copy AI connect link gives an AI that
+  can read web pages on your PC (Claude Code, for example) a read-only view of red's turn:
+  forces, packages, routes, the air-defense network, last turn's losses and a map picture.
+  Say "review the turn" and it reports what looks wrong in red's plan. It cannot change
+  anything, and it never sees your own packages. Ported from juanjux/dcs-escalation.
 - **Target priorities.** Tell the auto-planner where to push and what to chase. Mark an enemy
   base emphasized, deprioritized or ignored from its base dialog; mark a single target the
   same way from its own dialog; and set a priority per kind of target — air defense,

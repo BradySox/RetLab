@@ -1,0 +1,11 @@
+date: 2026-10-09
+title: An outside AI can review the enemy's turn
+change: >-
+  Developer tools > Copy AI connect link copies a link for an AI that can
+  read web pages on this PC, such as Claude Code. Paste it, say "review the
+  turn", and the AI reads red's whole turn (forces, packages, routes, the
+  air-defense network, last turn's losses and a map picture) and reports
+  what looks wrong. It cannot change anything.
+watch: >-
+  The AI's findings quote real values from your turn, and each one checks
+  out when you open that package or base in the game.

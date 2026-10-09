@@ -900,6 +900,13 @@ FEATURES: tuple[Feature, ...] = (
         "Flight report cards",
         108,
     ),
+    Feature(
+        # Read-only REST API under /retribution-ai for an outside AI reviewing red's
+        # turn (game/agent/); docs/dev/design/retlab-llm-opfor-notes.md.
+        "llm_opfor_reader",
+        "Outside AI reads red's turn",
+        109,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

@@ -153,8 +153,9 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
   edited on the map, never by typed coordinates; rows B150/B151)
 - **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103),
-  `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; **no LLM runs
-  in this fork**; read its guardrails first), `retlab-falcon-bms-campaign-notes.md` (study),
+  `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; read its
+  guardrails first), `retlab-llm-opfor-notes.md` (§109: the outside AI that reads red's turn;
+  the 2026-10-09 DM call that reversed "no LLM runs in this fork"), `retlab-falcon-bms-campaign-notes.md` (study),
   `retlab-region-priorities-notes.md` (§93), `retlab-substrate-inventory-notes.md` (R0, done),
   `retlab-substrate-HANDOFF.md` (start here to continue the substrate work),
   `retlab-aircraft-task-rebalance-rubric.md`, `retlab-victory-conditions-notes.md`,
@@ -447,6 +448,7 @@ linked design note.
 106. **Package route and map route editing** — routes are edited on the map (drag, double-click to add, right-click to delete); the join-to-IP and target-to-split legs belong to the package, so an edit there lands on every flight.
 107. **Briefing screen picture** — RetLab's own load-screen picture; drop `briefing.png` or `briefing.jpg` into `Saved Games\DCS\Retribution` to use yours.
 108. **Flight report cards** — the debrief grades every blue flight that flew, yours first, from §91's records. A record, never a reward.
+109. **Outside AI reads red's turn** — a read-only REST API under `/retribution-ai/*` for an AI on the same PC; it reports what looks wrong in red's plan and changes nothing. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; write actions and MCP are staged after it.
 
 ### Retired, removed or shelved — do not restore
 

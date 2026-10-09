@@ -16,6 +16,7 @@ from . import (
     mapzones,
     navmesh,
     qt,
+    retributionai,
     savedpoints,
     supplyroutes,
     tgos,
@@ -48,6 +49,7 @@ app.include_router(maptiles.router)
 app.include_router(mapzones.router)
 app.include_router(navmesh.router)
 app.include_router(qt.router)
+app.include_router(retributionai.router)
 app.include_router(savedpoints.router)
 app.include_router(supplyroutes.router)
 app.include_router(tgos.router)
