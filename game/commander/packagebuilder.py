@@ -88,6 +88,7 @@ class PackageBuilder:
             this_turn=True,
             preferred_type=plan.preferred_type,
             ignore_range=ignore_range,
+            preferred_squadron=plan.preferred_squadron,
             refuel_methods=self._required_refuel_methods(plan),
         )
         if squadron is None:

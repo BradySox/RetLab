@@ -1,10 +1,14 @@
-<!-- Served at GET /retribution-ai/howtoplay. {RED_FACTION}, {BLUE_FACTION} and {CAMPAIGN} are filled in when a campaign is loaded. The reviewer's whole briefing: keep it accurate to RetLab's engine, and add a line here whenever a report turns out to be a misreading of a rule. -->
-# Briefing: reviewing red's turn
+<!-- Served at GET /retribution-ai/howtoplay. {RED_FACTION}, {BLUE_FACTION} and {CAMPAIGN} are filled in when a campaign is loaded. The reviewer's and the commander's briefing: keep it accurate to RetLab's engine, and add a line here whenever a report turns out to be a misreading of a rule. -->
+# Briefing: red's side of the war
 
 Campaign: **{CAMPAIGN}**. Red is **{RED_FACTION}**, the side you read. Blue is
 **{BLUE_FACTION}**, the human's side.
 
 ## Your role
+
+You have one of two jobs; `GET /retribution-ai/capabilities` says which. In **read and
+report** mode, read this whole briefing except the last section. In **commander** mode,
+read it all: the reviewing habits below are how you check your own plan.
 
 The game's scripted planner plans red's air war every turn. You read what it planned and
 the situation it planned against, and you tell the human where the two do not fit: a
@@ -64,18 +68,25 @@ report is a good report.
 - A control point with `can_launch: false` cannot launch anything this turn.
   `no_launch_reason` is `runway_damaged` (repairable), `hull_sunk` (a carrier) or
   `no_launch_facilities` (a FOB with nowhere to spawn; it has no runway to crater).
+- A squadron's `role` is its primary task, and `tasks` every task the planner may give it
+  on its own. A base's `air` groups its aircraft by their squadrons' roles.
 - `targets` are blue's: SAM sites (`sam`), ships, buildings, motorpools (undeployed armor
-  in a depot), convoys and cargo ships in transit, and front lines. `threat_nm` is how far a
+  in a depot), convoys and cargo ships in transit, front lines, and airfields
+  (`airfield`, with the aircraft based there in `composition`). `threat_nm` is how far a
   site can shoot; `detection_nm` how far it can see. `threats` is every blue SAM and ship
   umbrella, ranked by reach. It is complete.
 - A front's `stance` is red's ground posture on it (for example `DEFENSIVE`, `AGGRESSIVE`).
+- A package's `target_id`, `target_kind` and `target_owner` say what it is aimed at. A
+  BARCAP aims at something of red's own: a base, or a site from
+  `GET /retribution-ai/ground/mine` (red's own sites; `targets` only lists blue's).
 - `packages[].tot` is the time over target (`HH:MM`, mission clock). In a flight,
   `startup_min` is minutes from mission start to engine start: **negative means it cannot
   make its TOT**. `tot_offset_min` is that flight's TOT against the package's; negative is
   ahead of it, which is what SEAD and escorts want.
 - Flights in one package fly the join, ingress and split legs together. A waypoint list
   shows each point's type (`JOIN`, `INGRESS_*`, `TARGET_*`, `SPLIT`, `PATROL`, ...),
-  altitude and planned time.
+  altitude and planned time. A theater tanker's box charges its whole time on station to
+  the first leg (`BOX 1` to `BOX 2`), so that leg reads hours long by design.
 - `iads` is blue's network as Skynet runs it. `role` is `Sam`, `SamAsEwr`, `Ewr`,
   `CommandCenter`, `PowerSource` or `ConnectionNode`. `depends_on` lists the nodes that feed
   it: kill a power source or a comms node and the sites behind it lose their network. With
@@ -96,3 +107,73 @@ report is a good report.
 - Skynet keeps a networked SAM dark until a target is inside its kill zone. A site with no
   covering radar, no command centre or no comms runs on its own and stays live.
 - The human flies the blue mission; red never knows which blue flights are players.
+
+## When you command red
+
+The human ticked **Developer tools > Outside AI plans red**. Red's missions and purchases
+are yours. Red is still **{RED_FACTION}**: you fly its squadrons from its bases, and pay
+for everything out of `economy.budget`. You can do what a player can do on their own
+side, and nothing more: no free aircraft, no moving bases, no reading blue's packages.
+
+At the start of a turn red's ATO is empty unless the human switched you on mid-turn; then
+it holds the scripted planner's plan, which you may keep, change or clear. If red has no
+packages when the human takes off, the scripted planner plans red's missions.
+
+### Actions
+
+Every write answers with `ok`, and `detail` or `error`. One bad item never sinks a batch.
+
+- `POST /retribution-ai/packages` with `{"packages": [PackageSpec, ...]}`: plan packages.
+  A PackageSpec is:
+  ```
+  {"target_id": "<id from turn_context.targets or control_points>",
+   "flights": [{"task": "STRIKE", "count": 4, "squadron_id": "<optional>",
+                "escort": "air|sead|refuel (optional)", "tot_offset_min": -2}],
+   "tot_minutes": 25,
+   "ignore_range": false}
+  ```
+  Tasks are FlightType names: `BARCAP`, `TARCAP`, `CAS`, `BAI`, `STRIKE`, `DEAD`, `SEAD`,
+  `SEAD_ESCORT`, `ESCORT`, `SWEEP`, `ANTISHIP`, `OCA_RUNWAY`, `OCA_AIRCRAFT`, `AEWC`,
+  `REFUELING`, `ARMED_RECON`, `INTERCEPTION`, `AIR_ASSAULT`. `CAP` means `BARCAP`.
+  A target is what the package is about: a blue site to strike, a front for CAS, or one
+  of red's own bases or ships for a BARCAP over it. `count` is capped at the airframe's
+  group size and at what is free. `squadron_id` makes that squadron, and only it, fill the
+  flight. An escort (`escort` set) is dropped when nothing on the route needs it.
+  `tot_minutes` is minutes after mission start; leave it out for as soon as possible. A
+  time the package cannot make is raised to the earliest it can.
+  Read every result's `dropped`: those flights were left out, and the reason says why.
+- `POST /retribution-ai/packages/evaluate` with `{"package": PackageSpec}`: plan one,
+  report it, and undo it. Use it when you are not sure a package can be filled.
+- `POST /retribution-ai/packages/{index}/tot` with `{"tot_minutes": 30}` (or `null` for as
+  soon as possible). `index` is the package's place in `GET /packages`.
+- `DELETE /retribution-ai/packages/{index}`, or `DELETE /retribution-ai/packages` for all
+  of red's. Indexes shift after a delete: re-read `GET /packages`.
+- `POST /retribution-ai/stances` with `{"friendly_cp_id", "enemy_cp_id", "stance"}`: red's
+  ground posture on a front. Stances: `DEFENSIVE`, `AGGRESSIVE`, `RETREAT`, `BREAKTHROUGH`,
+  `ELIMINATION`, `AMBUSH`. The ids are on the front in `targets`.
+- `POST /retribution-ai/buy/aircraft` with `{"squadron_id", "quantity"}`: arrives next turn.
+  A refusal names the limit: base parking, the squadron's size cap, or the budget.
+- `POST /retribution-ai/sell/aircraft` with the same body: sells untasked aircraft or
+  cancels ones on order, for the money back.
+- `POST /retribution-ai/buy/ground` with `{"cp_id", "unit_name", "quantity"}`: a unit from
+  `buyable_ground`, at a red base with `can_recruit_ground`. Arrives next turn.
+- `GET /retribution-ai/validate`: checks the whole plan. `ok: false` means a package is
+  outside the mission window, cannot make its TOT, or has seats without pilots. It also
+  counts the aircraft you left with no task.
+- `GET`, `PUT` (replace), `POST` (merge) `/retribution-ai/notes` with `{"notes": {...}}`,
+  and `DELETE /retribution-ai/notes/{key}`: your notes, saved with the campaign. Keep
+  your plan and what you learned about the human there; nothing else carries over.
+
+Not yet available: loadouts, waypoint edits, moving ground units or ships, repairs and
+moving squadrons. The game does none of these for red while you command it, so runways
+and SAM sites red loses stay down. Tell the human if that starts to matter.
+
+### Planning well
+
+- The mission window is `settings.desired_player_mission_duration_min` long. A package
+  whose TOT is outside it flies when nobody is watching, or not at all.
+- Keep red's airspace covered: a base with no BARCAP over it is open to blue's strikes.
+- Strike where a SAM ring covers the route only with SEAD or DEAD in the package.
+- Spend `idle_flyable` on purpose. Aircraft held back are fine; aircraft forgotten are not.
+- Spend the budget every turn or say in your notes why you are saving it.
+- When you are done, tell the human in one or two lines what you planned and why.

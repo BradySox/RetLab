@@ -4,6 +4,7 @@ from typing import Optional
 
 from game.ato.flighttype import FlightType
 from game.dcs.aircrafttype import AircraftType, AirRefuelType
+from game.squadrons import Squadron
 from game.theater import MissionTarget
 
 
@@ -38,6 +39,10 @@ class ProposedFlight:
     escort_type: Optional[EscortType] = field(default=None)
 
     preferred_type: Optional[AircraftType] = field(default=None)
+
+    #: Only this squadron may fill the flight. The outside AI (§109) names one; a
+    #: type alone let a second squadron of the same airframe take its place.
+    preferred_squadron: Optional[Squadron] = field(default=None)
 
     #: Refuelling methods a tanker filling this proposal must provide. Only
     #: meaningful for REFUELING. Set when the caller knows which method it is trying

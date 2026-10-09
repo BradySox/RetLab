@@ -1,7 +1,8 @@
 # Outside AI for red: read and report first, commander later · §109
 
-**Status:** stage 1 (read and report) built 2026-10-09, not flown (row B201). Stages 2 and
-3 agreed, not started.
+**Status:** stage 1 (read and report) built 2026-10-09, not flown (row B201). Stage 2a
+(the AI plans red) built 2026-10-09, not flown (row B204). Stages 2b and 3 agreed, not
+started.
 
 ## The call, and what it reverses
 
@@ -23,11 +24,28 @@ tool, not evidence that the HTN plans badly.
 | Stage | What | Status |
 |---|---|---|
 | 1 | Read API under `/retribution-ai/*` (REST), the `/start` and `/howtoplay` briefings, Developer tools > Copy AI connect link | Built 2026-10-09 |
-| 2 | Write actions (packages, buys, stances, transfers, ship moves, repairs), behind a setting that is off by default. The scripted planner fills red at Take Off when the AI has not planned | Agreed, not started |
+| 2a | Packages (create, evaluate, delete, TOT), front stances, buying and selling aircraft and ground units, the AI's notes saved with the campaign, Developer tools > Outside AI plans red, the Take Off fallback | Built 2026-10-09 |
+| 2b | Loadouts, waypoint edits, ground transfers, ship moves, repairs, squadron moves | Agreed, not started |
 | 3 | MCP at `/mcp` for the claude.ai app; the toolbar activity icon and the Take Off lock while the AI works | Agreed, not started |
 
-DM's answers on 2026-10-09: port Juan's code (2a); red sees blue as the scripted planner
-does, never blue's ATO (4a); the old planner fills in if the AI does not finish (5a).
+DM's answers on 2026-10-09: port Juan's code; red sees blue as the scripted planner does,
+never blue's ATO; the old planner fills in if the AI does not finish. For stage 2: split
+2a/2b; the switch is a Developer tools toggle, not a setting; with it on the AI does all
+of red's buying (Juan keeps red's auto-buying running); the AI gets notes saved with the
+campaign.
+
+## Stage 2a: who plans red
+
+- **Toggle off** (default): nothing changes. Writes answer 403.
+- **Toggle on**: `Coalition.initialize_turn` skips red's `plan_missions` and
+  `plan_procurement`. Red's ATO starts each turn empty and its budget is the AI's.
+  `plan_procurement` also carried red's runway and SAM repairs (§68), so those stop until
+  2b gives the AI a repair action.
+- **Take Off** (`QTopPanel.launch_mission`): when the toggle is on and red has no
+  packages, `service.run_fallback_if_needed` runs `red.plan_missions` and logs a line. Only
+  missions: unspent money carries over.
+- Any mid-turn `Game.initialize_turn(for_red=True)` clears red's ATO, the AI's included,
+  as it clears the scripted one.
 
 ## Source and licence
 
@@ -36,9 +54,10 @@ like this tree, so code may be copied with credit; each ported file names its so
 design docs are `ai-docs/00`-`07` in that repo. Read
 [retlab-juanjux-fork-watch-notes.md](retlab-juanjux-fork-watch-notes.md) for how he uses it.
 
-What was left out of his reads, because RetLab has no such system: pilot morale and leave,
-High Command, rebuild countdowns, the derived IADS state (`state_map`), `stored_context`
-(it needs a save field; stage 2), and his per-campaign token (we use the per-process key).
+What was left out, because RetLab has no such system: pilot morale, leave and crews, High
+Command, rebuild countdowns, the derived IADS state (`state_map`), per-package rationale,
+air-assault "remain", and his per-campaign token (we use the per-process key). His
+`stored_context` is our `Game.opfor_ai_notes`.
 Cruise-missile stock is left out because reading it seeds the magazines (a write).
 
 ## Shape
@@ -52,8 +71,15 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `game/server/retributionai/routes.py`: REST shims. Mounted in `game/server/app.py`.
 - `game/server/security.py`: `ApiKeyManager.verify` accepts `X-API-Key` or `?token=`.
   Only the AI routes depend on it; the map server's own routes stay open, as before.
-- `qt_ui/windows/QLiberationWindow.py`: Developer tools > Copy AI connect link.
-- Tests: `tests/agent/test_read_api.py`.
+- `game/agent/planner.py`, `schemas.py`: the write path over `PackageFulfiller` and the
+  purchase adapters. `ProposedFlight.preferred_squadron` (read by
+  `AirWing.best_squadrons_for`) is the one engine change: a named squadron, and only it,
+  fills the flight; Juan found a type alone let a sister squadron take its place.
+- `game/game.py`: `opfor_ai_enabled`, `opfor_ai_notes` (saved; `__setstate__` defaults).
+- `game/coalition.py`: the `initialize_turn` branch.
+- `qt_ui/windows/QLiberationWindow.py`: Developer tools > Copy AI connect link and
+  Outside AI plans red. `qt_ui/widgets/QTopPanel.py`: the Take Off fallback.
+- Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
 
 ## Constraints
 
@@ -61,6 +87,9 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
   in his commit `a9d5c5be`. Everything else about blue is served as ground truth, because
   that is what red's scripted planner reads.
 - Reads never mutate. Anything that seeds or caches game state stays out of a read.
+- Writes need the toggle on, checked in `service._writable_game`.
+- The AI plans through the engine's own planners and purchase adapters, never by building
+  flights or waypoints itself, so its plan is one the scripted planner could have made.
 - The server binds `::1`. The link is for an AI on the same PC; a web AI needs a tunnel,
   which is stage 3's problem.
 - The token is per process: the link dies when Retribution closes.

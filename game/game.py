@@ -181,6 +181,10 @@ class Game:
         self.date = date(start_date.year, start_date.month, start_date.day)
         self.game_stats = GameStats()
         self.notes = ""
+        # §109: an outside AI plans red when on (Developer tools menu), and keeps its
+        # own notes between turns. Saved with the campaign so a reload keeps the brain.
+        self.opfor_ai_enabled = False
+        self.opfor_ai_notes: dict[str, str] = {}
         # Player-imported kneeboard images injected into client flights at mission
         # generation (managed in the UI; see game/customkneeboard.py).
         self.custom_kneeboards: list[CustomKneeboard] = []
@@ -233,6 +237,8 @@ class Game:
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("custom_kneeboards", [])
         state.setdefault("last_sitrep", None)
+        state.setdefault("opfor_ai_enabled", False)
+        state.setdefault("opfor_ai_notes", {})
         state.setdefault("last_flight_cards", [])
         state.setdefault("client_map_layers", None)
         state.setdefault("super_gaggle_commitment", None)

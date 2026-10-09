@@ -122,6 +122,8 @@ class SquadronView(BaseModel):
     name: str
     aircraft: str
     base: str
+    role: str  # the squadron's primary task
+    tasks: list[str]  # every task the planner may give it on its own
     owned: Optional[int] = None
     # untasked/flyable are literal zeros once it owns aircraft: "none free" is news.
     untasked: Optional[int] = None
@@ -154,6 +156,9 @@ class FlightView(BaseModel):
 class PackageView(BaseModel):
     index: int
     target: str
+    target_id: str
+    target_kind: str  # base / ground_object / front / convoy / ship_convoy
+    target_owner: Optional[str] = None  # red / blue: a BARCAP target is red's own
     task: Optional[str]
     tot: Optional[str]
     desc: Optional[str] = None
@@ -163,7 +168,7 @@ class PackageView(BaseModel):
 class TargetView(BaseModel):
     id: str
     name: str
-    kind: str  # sam / ship / building / motorpool / front / convoy / cargo_ship
+    kind: str  # sam / ship / building / motorpool / front / convoy / cargo_ship / airfield
     suggested_task: str
     pos: list[float]
     category: Optional[str] = None  # buildings only
@@ -412,18 +417,15 @@ def _factories(cp: ControlPoint) -> Optional[dict[str, str]]:
 
 
 def _air_intel(cp: ControlPoint) -> Optional[dict[str, dict[str, int]]]:
-    """Aircraft present, by the airframe's default DCS task: the base's Intel tab."""
-    try:
-        allocations = cp.allocated_aircraft(_all_parking())
-    except Exception:
-        return None
+    """Aircraft on hand, by each squadron's primary task. The airframe's DCS default
+    task filed SEAD Vipers and strike Phantoms alike under CAP."""
     by_role: dict[str, dict[str, int]] = {}
-    for unit_type, count in allocations.present.items():
-        if not count:
+    for squadron in cp.squadrons:
+        if not squadron.owned_aircraft:
             continue
-        task = unit_type.dcs_unit_type.task_default
-        role = task.name if task is not None else "Other"
-        by_role.setdefault(str(role), {})[unit_type.display_name] = count
+        role = by_role.setdefault(squadron.primary_task.value, {})
+        name = squadron.aircraft.display_name
+        role[name] = role.get(name, 0) + squadron.owned_aircraft
     return by_role or None
 
 
@@ -525,6 +527,8 @@ def build_squadron(sq: Squadron, player: Optional[Player] = None) -> SquadronVie
         name=str(sq),
         aircraft=sq.aircraft.display_name,
         base=sq.location.name,
+        role=sq.primary_task.value,
+        tasks=sorted(t.value for t in sq.auto_assignable_mission_types),
         owned=owned or None,
         untasked=sq.untasked_aircraft if owned else None,
         flyable=_squadron_flyable(sq, grounded) if owned else None,
@@ -648,6 +652,16 @@ def _build_transport_targets(game: Game, player: Player) -> list[TargetView]:
     return out
 
 
+def _aircraft_on_hand(cp: ControlPoint) -> Optional[dict[str, int]]:
+    """What an OCA/Aircraft strike here could catch on the ground."""
+    on_hand: dict[str, int] = {}
+    for squadron in cp.squadrons:
+        if squadron.owned_aircraft:
+            name = squadron.aircraft.display_name
+            on_hand[name] = on_hand.get(name, 0) + squadron.owned_aircraft
+    return on_hand or None
+
+
 def build_targets(game: Game, side: str) -> list[TargetView]:
     from game.commander.objectivefinder import ObjectiveFinder
 
@@ -663,6 +677,19 @@ def build_targets(game: Game, side: str) -> list[TargetView]:
     for motorpool in finder.motorpool_targets():
         targets.append(_build_target(game, motorpool, "motorpool", "BAI"))
     targets.extend(_build_transport_targets(game, player))
+    for cp in game.theater.controlpoints:
+        if cp.captured == player.opponent and cp.runway_is_destroyable:
+            targets.append(
+                TargetView(
+                    id=str(cp.id),
+                    name=cp.name,
+                    kind="airfield",
+                    suggested_task="OCA_RUNWAY",
+                    pos=_latlng(game, cp.position.x, cp.position.y),
+                    composition=_aircraft_on_hand(cp),
+                    damage=None if cp.runway_is_operational() else "runway closed",
+                )
+            )
     for front in game.theater.conflicts():
         friendly_cp = front.red_cp if player.is_red else front.blue_cp
         enemy_cp = front.blue_cp if player.is_red else front.red_cp
@@ -694,6 +721,29 @@ def build_own_sams(game: Game, side: str) -> list[TargetView]:
         for go in cp.ground_objects
         if not go.is_dead() and isinstance(go, IadsGroundObject)
     ]
+
+
+def build_own_ground_objects(game: Game, side: str) -> list[TargetView]:
+    """This side's own sites, so a package aimed at one (a BARCAP over a SAM site)
+    can be read. turn_context.targets is only ever the enemy's."""
+    from game.theater.theatergroundobject import IadsGroundObject, ShipGroundObject
+
+    player = player_for_side(side)
+    out: list[TargetView] = []
+    for cp in game.theater.controlpoints:
+        if cp.captured != player:
+            continue
+        for go in cp.ground_objects:
+            if go.is_dead():
+                continue
+            if isinstance(go, IadsGroundObject):
+                kind = "sam"
+            elif isinstance(go, ShipGroundObject):
+                kind = "ship"
+            else:
+                kind = "building" if go.category else "ground"
+            out.append(_build_target(game, go, kind, "BARCAP"))
+    return out
 
 
 def build_threats(targets: list[TargetView]) -> list[ThreatView]:
@@ -935,11 +985,46 @@ def build_flight(flight: Flight) -> FlightView:
     )
 
 
+def _target_kind(target: Any) -> str:
+    from game.theater import ControlPoint, FrontLine, TheaterGroundObject
+    from game.transfers import CargoShip
+
+    if isinstance(target, ControlPoint):
+        return "base"
+    if isinstance(target, TheaterGroundObject):
+        return "ground_object"
+    if isinstance(target, FrontLine):
+        return "front"
+    if isinstance(target, CargoShip):
+        return "cargo_ship"
+    return "convoy"
+
+
+def _target_id(target: Any) -> str:
+    # Convoys and cargo ships have no id; turn_context names them instead.
+    target_id = getattr(target, "id", None)
+    return str(target_id) if target_id is not None else str(target.name)
+
+
+def _target_owner(target: Any) -> Optional[str]:
+    from game.theater import ControlPoint, TheaterGroundObject
+
+    if isinstance(target, ControlPoint):
+        return target.captured.name.lower()
+    if isinstance(target, TheaterGroundObject):
+        return target.control_point.captured.name.lower()
+    return None
+
+
 def build_package(index: int, package: Package) -> PackageView:
     tot = package.time_over_target
+    target = package.target
     return PackageView(
         index=index,
-        target=package.target.name,
+        target=target.name,
+        target_id=_target_id(target),
+        target_kind=_target_kind(target),
+        target_owner=_target_owner(target),
         task=_enum_str(package.primary_task),
         tot=tot.strftime("%H:%M") if tot else None,
         desc=package.package_description or None,
@@ -963,8 +1048,13 @@ def build_waypoints(game: Game, flight: Flight) -> list[dict[str, Any]]:
         }
         if waypoint.name:
             entry["name"] = waypoint.name
-        if waypoint.tot is not None:
-            entry["tot"] = waypoint.tot.strftime("%H:%M:%S")
+        # The plan's own schedule; waypoint.tot is only written at mission generation.
+        plan = flight.flight_plan
+        tot = plan.effective_tot_for_waypoint(waypoint) or (
+            plan.chained_tot_for_waypoint(waypoint)
+        )
+        if tot is not None:
+            entry["tot"] = tot.strftime("%H:%M:%S")
         waypoints.append(entry)
     return waypoints
 
