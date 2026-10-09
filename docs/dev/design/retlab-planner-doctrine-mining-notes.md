@@ -7,6 +7,11 @@
 > "Long term I don't want the LLM planning red, I wanna use the LLM to teach the
 > model/Retribution to plan better." — DM, 2026-08-24
 
+> **REVERSED 2026-10-09 (DM call).** An outside AI now reads red's turn and reports defects
+> (§109), and may later plan red behind a setting. This programme's method is unchanged:
+> each finding is fixed as ordinary planner code. See
+> [retlab-llm-opfor-notes.md](retlab-llm-opfor-notes.md).
+
 **No LLM runs in this fork, ever, under this programme.** Not in the planner, not behind a
 setting, not opt-in. The LLM already did its job on someone else's machine: it played six
 campaigns as red and produced a written account of what a competent commander has to do to

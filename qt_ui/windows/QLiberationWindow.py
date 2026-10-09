@@ -258,6 +258,9 @@ class QLiberationWindow(QMainWindow):
         self.importTemplatesAction = QAction("Import Layouts", self)
         self.importTemplatesAction.triggered.connect(self.import_templates)
 
+        self.copyAiConnectLinkAction = QAction("Copy AI connect link", self)
+        self.copyAiConnectLinkAction.triggered.connect(self.copy_ai_connect_link)
+
         self.enable_game_actions(False)
 
     def enable_game_actions(self, enabled: bool):
@@ -315,6 +318,7 @@ class QLiberationWindow(QMainWindow):
 
         tools_menu = self.menu.addMenu("&Developer tools")
         tools_menu.addAction(self.importTemplatesAction)
+        tools_menu.addAction(self.copyAiConnectLinkAction)
 
         help_menu = self.menu.addMenu("&Help")
         help_menu.addAction(self.openDiscordAction)
@@ -693,6 +697,20 @@ class QLiberationWindow(QMainWindow):
 
     def import_templates(self):
         LAYOUTS.import_templates()
+
+    def copy_ai_connect_link(self) -> None:
+        from game.agent import service
+
+        url = service.connect_url()
+        QGuiApplication.clipboard().setText(url)
+        QMessageBox.information(
+            self,
+            "AI connect link copied",
+            "Paste this link to an AI that can read web pages on this PC (Claude "
+            'Code, for example), then tell it "review the turn". It reads the '
+            "enemy's turn and reports problems; it cannot change anything.\n\n"
+            "The link works until Retribution closes.\n\n" + url,
+        )
 
     def showLogsDialog(self):
         self.logs_dialog = QLogsWindow(self)

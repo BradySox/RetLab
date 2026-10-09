@@ -11401,3 +11401,29 @@ has the scoring table.
 - AI fuel is never graded. With `ai_unlimited_fuel` on it is constant (§91).
 - A grade is a record. Nothing in the campaign reads it.
 - No setting.
+
+## §109 — Outside AI reads red's turn
+
+A read-only REST API under `/retribution-ai/*` on the map server, for an AI on the same PC
+(Claude Code, for example). It reads red's turn and reports what looks wrong; it changes
+nothing. Developer tools > Copy AI connect link copies the URL with its token. Ported from
+juanjux/dcs-escalation (LGPL-3). Built 2026-10-09, not flown (row B201). Stage 1 of 3: the
+write actions and MCP are agreed, not started.
+
+**Design note:** [retlab-llm-opfor-notes.md](design/retlab-llm-opfor-notes.md) has the DM
+call that reversed the 2026-08-24 "no LLM" rule, the stages and what was left out.
+
+### Files
+
+- `game/agent/views.py`, `service.py`, `mapimage.py`, `docs/start.md`, `docs/howtoplay.md`.
+- `game/server/retributionai/routes.py`; mounted in `game/server/app.py`.
+- `game/server/security.py`: token by `X-API-Key` header or `?token=`.
+- `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
+- `tests/agent/test_read_api.py`.
+
+### Constraints
+
+- Red only, enforced in `service.opfor_only`. Blue's ATO is never served.
+- Reads never mutate game state.
+- Only the AI routes need the token; the map server's routes are unchanged.
+- No setting. The API does nothing until someone uses the link.

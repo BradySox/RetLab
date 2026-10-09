@@ -1,0 +1,1 @@
+* **[UI]** Developer tools > Copy AI connect link gives an outside AI (Claude Code, for example) a read-only view of the enemy's turn, so it can report problems in red's plan. It cannot change anything. Ported from juanjux/dcs-escalation.

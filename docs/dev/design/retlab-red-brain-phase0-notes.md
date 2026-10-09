@@ -305,6 +305,13 @@ check whether our planner can express them at all, and measure exactly one. Full
 quoted doctrine in
 [retlab-juanjux-fork-watch-notes.md](retlab-juanjux-fork-watch-notes.md).
 
+## 2026-10-09 — an outside AI is being built anyway, as a tool
+
+The DM reversed the August "no LLM" call after reading juanjux's README: RetLab now ports
+his outside-AI API, read and report first (§109,
+[retlab-llm-opfor-notes.md](retlab-llm-opfor-notes.md)). That is a decision about tooling
+and play, not a measurement. Nothing in it reopens seam 7 or edits the card above.
+
 ## The correction this note also carries
 
 `CLAUDE.md` described seams "2, 5 and 7" as *accepted, not started*. Seam 7 has been **dropped**

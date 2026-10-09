@@ -122,8 +122,9 @@ smarter, this replaces the HTN. Read
 [retlab-retribution-long-view.md](retlab-retribution-long-view.md) seam 7 before
 proposing anything here.
 
-Nothing about this is adopted. It is recorded so seam 7 has a worked precedent to
-argue with.
+Adopted 2026-10-09 on a DM call, read-only first: §109 ports his read layer, and the
+write actions and MCP are staged after it. See
+[retlab-llm-opfor-notes.md](retlab-llm-opfor-notes.md).
 
 ### How he actually uses it — an engine QA harness (CORRECTED 2026-08-24, twice)
 
@@ -573,8 +574,8 @@ Ours only ever widens. That is a planner-behaviour call, not data — decide it 
 
 ### He has, we do not — blocked by our own calls
 
-- LLM-controlled OPFOR (REST + MCP): no LLM runs in this fork under the doctrine-mining
-  programme.
+- LLM-controlled OPFOR (REST + MCP): being ported since 2026-10-09 (DM call), read-only
+  first (§109, [retlab-llm-opfor-notes.md](retlab-llm-opfor-notes.md)).
 - Per-leg fuel costing with automatic tanker insertion: §46 was reverted 2026-08-09,
   DECIDED, never re-litigate.
 - Live Pilots (morale, relationships, ranks that change skill): §96/§97 are a record,
