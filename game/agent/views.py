@@ -6,7 +6,7 @@ IADS state. Pure functions over a `Game`, so they test without the server or Qt.
 
 Payloads go to the model every turn, so they are frugal: coordinates are bare
 `[lat, lng]`, TOT is `HH:MM`, and a field that would be zero or empty is None so the
-transport drops it. The briefing (`docs/howtoplay.md`) says once that absent means 0.
+transport drops it. The briefing (`resources/agent/howtoplay.md`) says once that absent means 0.
 Red sees blue as the scripted red planner does (ground truth), never blue's ATO.
 Design note: docs/dev/design/retlab-llm-opfor-notes.md.
 """

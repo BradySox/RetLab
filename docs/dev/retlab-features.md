@@ -11415,7 +11415,7 @@ call that reversed the 2026-08-24 "no LLM" rule, the stages and what was left ou
 
 ### Files
 
-- `game/agent/views.py`, `service.py`, `mapimage.py`, `docs/start.md`, `docs/howtoplay.md`.
+- `game/agent/views.py`, `service.py`, `mapimage.py`; briefings in `resources/agent/`.
 - `game/server/retributionai/routes.py`; mounted in `game/server/app.py`.
 - `game/server/security.py`: token by `X-API-Key` header or `?token=`.
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.

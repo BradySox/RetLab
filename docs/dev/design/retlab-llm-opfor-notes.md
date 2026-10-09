@@ -47,7 +47,7 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `game/agent/service.py`: the one layer every transport calls. `opfor_only` refuses any
   side but red there, not in a router, so a second transport cannot forget it.
 - `game/agent/mapimage.py`: a Pillow schematic of the same views; no tiles, no network.
-- `game/agent/docs/start.md`, `howtoplay.md`: the AI's briefings. Ours, not Juan's: his
+- `resources/agent/start.md`, `howtoplay.md`: the AI's briefings. Ours, not Juan's: his
   playbook (122 KB) teaches a commander; ours teaches a reviewer what a finding is.
 - `game/server/retributionai/routes.py`: REST shims. Mounted in `game/server/app.py`.
 - `game/server/security.py`: `ApiKeyManager.verify` accepts `X-API-Key` or `?token=`.

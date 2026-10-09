@@ -154,7 +154,9 @@ def connect_url() -> str:
     return f"{_server_base()}/retribution-ai/start?token={ApiKeyManager.KEY}"
 
 
-_DOCS_DIR = Path(__file__).parent / "docs"
+# Under resources/ so the PyInstaller build ships them; read relative to the cwd,
+# as resources/whatsnew is.
+_DOCS_DIR = Path("resources/agent")
 _LEADING_COMMENT = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 
 
