@@ -12,6 +12,7 @@ from types import SimpleNamespace
 from typing import Any, cast
 
 from game.ato.flightstate import StartUp, WaitingForStart
+from game.ato.flighttype import FlightType
 from game.ato.starttype import StartType
 from game.sim.missionsimulation import MissionSimulation
 from game.sim.missionstart import EARLY_START_CAP, early_start_shift
@@ -130,3 +131,73 @@ def test_past_the_cap_flights_clamp_as_before() -> None:
     # Pre-activated as today: already under way when the mission begins.
     assert isinstance(too_early.state, StartUp)
     assert too_early.state.completion_time == TURN - timedelta(minutes=43)
+
+
+class _AsapPackage(SimpleNamespace):
+    """An ASAP package whose one flight starts at whatever ``now`` ASAP was run at."""
+
+    asap_from: datetime | None
+
+    def set_tot_asap(self, now: datetime) -> None:
+        self.asap_from = now
+        self.time_over_target = now + timedelta(minutes=20)
+        for flight in self.flights:
+            flight.flight_plan.startup_time = lambda: now
+
+
+def _asap(task: FlightType) -> Any:
+    package = _AsapPackage(
+        auto_asap=True, primary_task=task, flights=[], asap_from=None
+    )
+    flight = _flight(TURN)
+    flight.package = package
+    package.flights.append(flight)
+    package.set_tot_asap(TURN)
+    package.asap_from = None
+    return package
+
+
+def _game_of(packages: list[Any]) -> Any:
+    return SimpleNamespace(
+        conditions=SimpleNamespace(start_time=TURN),
+        settings=SimpleNamespace(),
+        blue=SimpleNamespace(ato=SimpleNamespace(packages=packages)),
+        red=SimpleNamespace(ato=SimpleNamespace(packages=[])),
+    )
+
+
+def test_asap_support_launches_at_the_early_start() -> None:
+    """Test 55 prep: a pre-push refuel started the mission 16 min early while the
+    tanker waited for the turn clock, so the strike reached an empty box."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=16))])
+    tanker = _asap(FlightType.REFUELING)
+    awacs = _asap(FlightType.AEWC)
+    cap = _asap(FlightType.BARCAP)
+    dead = _asap(FlightType.DEAD)
+    game = _game_of([early, tanker, awacs, cap, dead])
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert sim.time == TURN - timedelta(minutes=16)
+    for support in (tanker, awacs, cap):
+        assert support.asap_from == sim.time
+    assert dead.asap_from is None
+
+
+def test_asap_support_never_holds_the_start_early_itself() -> None:
+    """Re-timed support starts before the turn clock; once the flight that needed
+    the early start is gone, the next generation is back on the turn clock."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=16))])
+    cap = _asap(FlightType.BARCAP)
+    packages = [early, cap]
+    game = _game_of(packages)
+    MissionSimulation(game).begin_simulation()
+    assert cap.flights[0].flight_plan.startup_time() == TURN - timedelta(minutes=16)
+
+    packages.remove(early)
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert sim.time == TURN
+    assert cap.asap_from == TURN

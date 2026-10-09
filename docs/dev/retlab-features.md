@@ -11178,6 +11178,9 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
   nobody inside the window is clamped. Past the cap, flights clamp as before.
 - `conditions.start_time`, TOTs and the §47 clock and weather do not move. Only the
   simulated and generated mission start does.
+- Except ASAP support: an ASAP Refueling, AEW&C or BARCAP package re-runs ASAP from the
+  early start (`retime_asap_support`, every generation), so the tanker is up before a flight
+  that started early to reach it. Those packages never set the start themselves.
 - The Take Off past-start warning compares against the earlier start.
 - DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
 - Not §89's pre-roll: nothing is simulated or placed mid-sortie.

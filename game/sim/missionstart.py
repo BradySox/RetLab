@@ -12,15 +12,20 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Iterable, Optional, TYPE_CHECKING
 
+from game.ato.flighttype import FlightType
 from game.ato.starttype import StartType
 
 if TYPE_CHECKING:
     from game import Game
-    from game.ato import Flight
+    from game.ato import Flight, Package
 
 #: Past this, flights clamp to mission start as before rather than the mission
 #: running half an hour of empty sky.
 EARLY_START_CAP = timedelta(minutes=30)
+
+#: ASAP support launches at the mission's own start, early or not, so a tanker is up
+#: before the flights that start early to reach it (DM call 2026-10-08).
+_SUPPORT_TASKS = frozenset({FlightType.REFUELING, FlightType.AEWC, FlightType.BARCAP})
 
 #: Air starts join mid-route and need no spawn lead.
 _GROUND_STARTS = (StartType.COLD, StartType.WARM, StartType.RUNWAY)
@@ -49,12 +54,36 @@ def early_start_shift(turn_start: datetime, flights: Iterable[Flight]) -> timede
     return min(turn_start - earliest, EARLY_START_CAP)
 
 
-def _all_flights(game: Game) -> Iterable[Flight]:
+def launches_with_mission(package: Package) -> bool:
+    return (
+        getattr(package, "auto_asap", False)
+        and getattr(package, "primary_task", None) in _SUPPORT_TASKS
+    )
+
+
+def _all_packages(game: Game) -> Iterable[Package]:
     for coalition in (game.blue, game.red):
-        for package in coalition.ato.packages:
+        yield from coalition.ato.packages
+
+
+def _flights_that_set_the_start(game: Game) -> Iterable[Flight]:
+    # ASAP support is timed off the start, so it cannot also set it.
+    for package in _all_packages(game):
+        if not launches_with_mission(package):
             yield from package.flights
 
 
 def mission_start_time(game: Game) -> datetime:
     turn_start = game.conditions.start_time
-    return turn_start - early_start_shift(turn_start, _all_flights(game))
+    return turn_start - early_start_shift(turn_start, _flights_that_set_the_start(game))
+
+
+def retime_asap_support(game: Game, mission_start: datetime) -> None:
+    """Re-run ASAP for support packages from the mission start, not the turn clock.
+
+    Recomputed every generation, so removing whatever started the mission early
+    puts support back on the turn clock.
+    """
+    for package in _all_packages(game):
+        if launches_with_mission(package):
+            package.set_tot_asap(mission_start)
