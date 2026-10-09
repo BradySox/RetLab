@@ -1,5 +1,6 @@
 import logging
 import pickle
+import threading
 from dataclasses import dataclass
 from functools import cached_property
 from pathlib import Path
@@ -13,6 +14,10 @@ from dcs.terrain.terrain import Terrain
 from shapely import LineString
 from shapely.geometry import MultiPolygon, Polygon
 import shapely as shp
+
+# A GEOS prepared geometry is not thread-safe: two map-server requests querying
+# the same zones at once crashed the app with an access violation on load.
+_PREPARED_LOCK = threading.Lock()
 
 
 @dataclass(frozen=True)
@@ -48,7 +53,8 @@ class Landmap:
 
     def land_inbetween(self, a: Point, b: Point) -> bool:
         line = LineString([[a.x, a.y], [b.x, b.y]])
-        return self.inclusion_zones.intersects(line)
+        with _PREPARED_LOCK:
+            return self.inclusion_zones.intersects(line)
 
 
 def load_landmap(filename: Path) -> Optional[Landmap]:
@@ -69,7 +75,8 @@ def poly_contains(x: float, y: float, poly: Union[MultiPolygon, Polygon]) -> boo
     # decorator / inspect.signature overhead) — ~5x faster than poly.contains(Point(x, y)).
     # is_on_land / is_in_sea call this thousands of times during FLOT + ground-object
     # generation, where it was the top hotspot in a mission-generation profile.
-    return bool(shp.contains_xy(poly, x, y))
+    with _PREPARED_LOCK:
+        return bool(shp.contains_xy(poly, x, y))
 
 
 def to_miz(landmap: Landmap, terrain: Terrain, mission_filename: str) -> None:
