@@ -1,0 +1,1 @@
+* **[Campaign]** Syria - Anatolian Reach: 16 more air-defense sites and 6 more early-warning radars. Northern Syria gets a ring around Aleppo, Latakia, Tabqa and Tal Siman, Gaziantep gets a site, and Konya gets an outer ring about 100 NM west that guards the approach from the sea.

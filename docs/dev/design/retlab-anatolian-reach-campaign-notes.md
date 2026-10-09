@@ -43,7 +43,7 @@ ships** (`tools`-free, read with the loader's own rules) put that 4× over:
 always small: Syria median 2 blue airfields, max 6.
 
 Final: **14 airfields, 17 control points** (4 blue / 13 red), 120 objective
-groups. Comparable to Desert Trident (13) and Full Map (13); under the Syria
+groups (142 since the 2026-10-08 air-defense additions). Comparable to Desert Trident (13) and Full Map (13); under the Syria
 ceiling of 17.
 
 ## The three decisions that are load-bearing
@@ -109,6 +109,40 @@ the engine stops an S-400 in a 2004 campaign. Excluded deliberately: SA-21/S-400
   therefore has no ground front, which is the same conclusion HolyOrangeJuice
   reached on this map — WRL Battle for Syria North is subtitled *"Frontlines
   Removed"*.
+
+## Air-defense additions (2026-10-08)
+
+The Syrian end was thin: Aleppo, Bassel Al-Assad and the Azaz FOB carried six
+air-defense sites and one radar between them. 22 band markers were added, all in
+the CJTF Red block:
+
+| Where | Added | Binds to |
+|---|---|---|
+| Latakia | LORAD beside Bassel, MERAD 12 nm north, EWR 27 nm north | Bassel Al-Assad |
+| Aleppo | MERAD north, south, Kuweires, Jirah, Tabqa; EWR north, Minakh, Tabqa | Aleppo |
+| Tal Siman | MERAD, EWR | Sanliurfa |
+| Gaziantep | MERAD | Azaz FOB |
+| West of Konya | LORAD, 4 MERAD, 2 SHORAD, EWR, 99-157 nm out | Konya |
+
+- **Positions came from two DCS user-file Syria missions**, a Turkish F-16 strike
+  mission (Skynet laydown) and `SY_Envio_v3`. Neither file names an author or a
+  licence, so only the site positions were used. The markers are our own.
+- **The western belt guards Konya's sea approach.** A carrier strike on Konya
+  passes north of Antalya, 30-40 nm east of it. The map has no airfield out
+  there, so it belongs to Konya and falls with it (DM call).
+- **A red `Konya` influence zone holds that belt.** Without it, five of the eight
+  markers bound Gazipasa, a few nm nearer. The quad runs 29.2-32.72 E,
+  37.15-38.25 N and stops west of the Konya FOB, so every existing marker keeps
+  its base (checked: all 113 earlier bindings unchanged). Locked by
+  `test_konya_zone_holds_the_western_belt`.
+- **Six markers sat within 3.5 km of an airfield** and were moved 3.5 km beside the
+  runway: the Bassel LORAD (461 m from the field), Gaziantep, Kuweires, Jirah,
+  Tal Siman and the Tabqa EWR.
+- **Two of the source's Turkish sites were already here.** Its Sanliurfa Hawk and
+  Incirlik Rapier sit within 3 nm of existing markers, so they were skipped, as
+  was the US Patriot at Incirlik.
+- **SA-2 sites became MERAD markers; the SA-5 at Kuweires was dropped.** Its
+  only marker is LORAD, which spawns a second S-300 26 nm from Aleppo's.
 
 ## What the first flown turn established
 

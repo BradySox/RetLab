@@ -195,3 +195,22 @@ def test_every_red_base_is_on_the_road_network(tmp_path: Path) -> None:
     ]
     stranded = sorted(cp.name for cp in red if not cp.convoy_routes)
     assert not stranded, "red bases with no road: %s" % ", ".join(stranded)
+
+
+def test_konya_zone_holds_the_western_belt(tmp_path: Path) -> None:
+    """The belt 100-157 nm west of Konya is nearer Gazipasa; only the red Konya
+    influence zone keeps it on Konya, so it falls when Konya does (DM call)."""
+    _, theater = _theater(tmp_path)
+    belt: dict[str, list[str]] = {}
+    for cp in theater.controlpoints:
+        presets = cp.preset_locations
+        for loc in (
+            presets.long_range_sams
+            + presets.medium_range_sams
+            + presets.short_range_sams
+            + presets.ewrs
+        ):
+            if "Konya West" in loc.original_name:
+                belt.setdefault(cp.name, []).append(loc.original_name)
+    assert set(belt) == {"Konya"}, "western belt bound elsewhere: %s" % belt
+    assert len(belt["Konya"]) == 8
