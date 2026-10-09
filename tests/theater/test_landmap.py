@@ -118,3 +118,34 @@ def test_load_landmap_rebuilds_prepared_index(tmp_path: Path) -> None:
     assert theater.is_on_land(_pt(x=3.0, y=3.0)) is True
     assert theater.is_on_land(_pt(x=1.5, y=1.5)) is False
     assert theater.is_in_sea(_pt(x=8.5, y=8.5)) is True
+
+
+def test_poly_contains_survives_concurrent_first_queries() -> None:
+    """The map server answers requests on several threads; two of them querying
+    a freshly prepared zone set at once crashed the app on save load (GEOS
+    access violation). Without the lock this kills the test process."""
+    import random
+    import threading
+
+    import shapely as shp
+
+    for _ in range(10):
+        squares = [
+            Polygon([(i * 10, j * 10), (i * 10 + 8, j * 10), (i * 10 + 8, j * 10 + 8)])
+            for i in range(40)
+            for j in range(40)
+        ]
+        zones = MultiPolygon(squares)
+        shp.prepare(zones)
+        barrier = threading.Barrier(8)
+
+        def query() -> None:
+            barrier.wait()
+            for _ in range(1000):
+                poly_contains(random.uniform(0, 400), random.uniform(0, 400), zones)
+
+        threads = [threading.Thread(target=query) for _ in range(8)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
