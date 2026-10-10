@@ -2172,6 +2172,16 @@ defect that reached a build, most of them found by flying.
 
 ### Refuelling
 
+- **Theater tanker track (2026-10-09, DM call; row B206).** Every theater tanker flies a
+  40 NM racetrack (`TANKER_TRACK_LENGTH`, `theaterrefueling.py`) on DCS's own Orbit task.
+  The four-corner tanker box that flew from 2026-09-28 was removed: a KC-135 banks 45
+  degrees alone, 25 with a jet joined up and 15 with one on the boom, so in contact it
+  overshot the 30 x 15 NM box's corners and never flew level. On the app map the track's
+  first point moves the whole track and its second swings it around the first
+  (`move_track`); the tooltip says which. A save made with a box loads as a racetrack
+  (`TankerBoxLayout` survives as a loader only). Tankers of different packages stay
+  2,000 ft apart. Measurements and the retry conditions:
+  `design/retlab-tanker-box-notes.md`.
 - **Refuel before the push (built 2026-10-07, DM call, not flown — row B189).** A
   per-flight box on the Waypoints tab (`Flight.refuel_before_push`, default off) puts a
   REFUEL waypoint between Hold and Join (`FormationAttackLayout.pre_push_refuel`, strike-

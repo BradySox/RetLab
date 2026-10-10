@@ -139,8 +139,9 @@ One line each; the status is the note's own. Read the note, not this line, befor
   airlift**), `retlab-het-convoy-notes.md` (scoping only),
   `retlab-observer-gated-artillery-notes.md` (scoping only),
   `retlab-front-movement-arrows-notes.md` (built 2026-09-23, row B139)
-- **Tankers** — `retlab-tanker-box-notes.md` (per-flight orbit speed and the four-point box
-  every theater tanker flies; flown once, test 47; rows B152/B153/B170)
+- **Tankers** — `retlab-tanker-box-notes.md` (per-flight orbit speed, the 40 NM racetrack
+  every theater tanker flies, and why the four-corner box was removed 2026-10-09; rows
+  B152/B206)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (§94; the `aiReactionExempt`
   protocol any plugin setting reaction-on-threat must use)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract
@@ -335,6 +336,9 @@ linked design note.
 - **One undrivable member pins a whole group.** A route push moves a DCS group as a unit, so a
   static emplacement in it yields no movement and a ground-AI levelling storm. This is why
   §85's missile-battery support section is trucks only.
+- **A tanker track is DCS's own racetrack orbit, never a waypoint route.** A KC-135 banks
+  45 degrees alone, 25 with a jet joined up and 15 with one on the boom; on a 30 x 15 NM
+  route box it never flew level in contact (2026-10-09). `retlab-tanker-box-notes.md`.
 - **Movers must last 90 minutes.** Any player-interactable mover is paced so an intercept is
   still possible late in a mission.
 - **Never spawn phantom units.** Every scripted force is a real, tracked unit whose loss records

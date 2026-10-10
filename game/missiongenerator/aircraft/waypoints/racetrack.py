@@ -14,7 +14,6 @@ from dcs.task import (
 
 from game.ato import FlightType
 from game.ato.flightplans.patrolling import PatrollingFlightPlan
-from game.ato.flightplans.refuelingflightplan import TankerBoxLayout
 from ._helper import create_stop_orbit_trigger
 from .pydcswaypointbuilder import PydcsWaypointBuilder
 
@@ -47,11 +46,6 @@ class RaceTrackBuilder(PydcsWaypointBuilder):
         # engage targets if available and orbit if they find nothing to shoot.
         if self.flight.flight_type is FlightType.REFUELING:
             self.configure_refueling_actions(waypoint)
-
-        if isinstance(flight_plan.layout, TankerBoxLayout):
-            # No orbit: the route itself is the track; RaceTrackEndBuilder loops it.
-            self.set_waypoint_tot(waypoint, flight_plan.patrol_start_time)
-            return
 
         # The engage task must precede the orbit task (see note above), so an AI
         # that finds targets shoots and only orbits when there's nothing to hit.

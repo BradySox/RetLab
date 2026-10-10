@@ -226,8 +226,8 @@ at STPT 24 so 25 stays the bullseye, the Hornet flags one TGT per sequence, the
 fronts chain into one continuous boundary (the B115 gate lifted by that call;
 upstream's fronts are straight, so the carve chains straight bars), and the tanker
 boxes ride Hornet FAOR and Viper GEO L2-L4 (**sized 2026-09-29** to the F10 marker's
-half-width from the tanker's orbit speed, and a four-point tanker box draws its own
-corners; before, it drew a 7 x 5 NM square because BOX END sits on BOX 1). **Upstream's boxes are the nearest
+half-width from the tanker's orbit speed; the four-corner drawing added with it went
+when the tanker box route was removed 2026-10-09). **Upstream's boxes are the nearest
 tankers of any type** (DM call, same day): upstream has no boom/probe model (the
 fork's is the held #243 answer, inventory item 28), so a Hornet's one visible box
 can be a boom tanker, the 2026-09-13 defect; the PR states it. **Not carried:**

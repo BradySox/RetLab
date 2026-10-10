@@ -9,7 +9,7 @@ from starlette.responses import Response
 
 from game import Game
 from game.ato import Flight, packageroute, routeedit
-from game.ato.flightplans.refuelingflightplan import move_box
+from game.ato.flightplans.theaterrefueling import move_track
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.server import GameContext
@@ -73,7 +73,7 @@ def set_position(
 
     waypoint = flight.flight_plan.waypoints[waypoint_idx - 1]
     to = Point.from_latlng(LatLng(position.lat, position.lng), game.theater.terrain)
-    if move_box(flight.flight_plan.layout, waypoint, to):
+    if move_track(flight.flight_plan, waypoint, to):
         _package_model(flight).update_tot()
         _publish([flight])
         return

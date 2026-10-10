@@ -150,20 +150,21 @@ Tacview. **~15 min.**
 - **Pass criterion:** every flight has the point where it was dragged, and the package
   forms up at the join and flies it as one.
 
-### 7 · A tanker flies its box at the speed you set — `B152`, `B153`
+### 7 · You can fill up on one leg of the tanker's racetrack — `B152`, `B206`
 
-**Why this is a card.** Both are off by default, so nothing flies them unless someone
-sets them. Tests and a headless generation pin the route, the loop and the speeds;
-only DCS shows whether the AI tanks through the corners and leaves on time. Note:
+**Why this is a card.** The four-corner box was removed 2026-10-09 because the tanker
+never flew level with a jet on the boom. The racetrack is measured without a receiver
+only; nobody has tanked on it in a recording. Note:
 [`retlab-tanker-box-notes.md`](../design/retlab-tanker-box-notes.md).
 
 **Try:** any campaign with a KC-135 theater tanker. Open the tanker flight → **Waypoints** →
-tick **Set orbit speed**, set **270** (the box is always on). Fly a jet that can take the boom. Join the tanker, then stay near it for a lap. **~20 min.**
+tick **Set orbit speed**, set **270**. On the map, drag the track's first point, then its
+second. Fly a jet that can take the boom, and join as the tanker rolls out of a turn. **~20 min.**
 
-- **Record:** the tanker's KIAS on a straight leg; whether it flies all four corners and
-  goes round again; whether you can stay in contact through a corner; when it leaves.
-- **Pass criterion:** 265-275 KIAS, four corners flown more than once, refueling works on
-  the box, and it goes home within one lap of its on-station end.
+- **Record:** the tanker's KIAS on a straight leg; minutes wings level between turns; its
+  bank in a turn with you on the boom; whether you filled up on one leg.
+- **Pass criterion:** 265-275 KIAS, about 6 minutes level per leg, a full top-off without
+  riding a turn, and the track on the F10 map where you dragged it.
 
 ## Done
 

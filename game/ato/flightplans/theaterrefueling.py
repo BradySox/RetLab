@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import TYPE_CHECKING, Type
 
 from dcs import Point
 
@@ -8,8 +8,11 @@ from game.ato.flighttype import FlightType
 from game.utils import Distance, Heading, feet, meters, nautical_miles
 from .ibuilder import IBuilder
 from .patrolling import PatrollingLayout, step_back_from_threat
-from .refuelingflightplan import RefuelingFlightPlan, TankerBoxLayout
+from .refuelingflightplan import RefuelingFlightPlan
 from .waypointbuilder import WaypointBuilder
+
+if TYPE_CHECKING:
+    from ..flightwaypoint import FlightWaypoint
 
 
 class TheaterRefuelingFlightPlan(RefuelingFlightPlan):
@@ -25,15 +28,13 @@ class TheaterRefuelingFlightPlan(RefuelingFlightPlan):
 #: airspace at the same altitude.
 TANKER_ORBIT_SPACING = nautical_miles(15)
 
-#: The tanker box's front leg, across the threat axis. Shrunk from 40 NM (DM 2026-09-29).
-TANKER_BOX_LENGTH = nautical_miles(30)
-
-#: How far a tanker box extends back from its front leg. Added to the spacing so a
-#: second tanker's box starts behind the first one's back leg.
-TANKER_BOX_DEPTH = nautical_miles(15)
+#: The racetrack's length, across the threat axis. Upstream's value. A four-corner
+#: box flew here from 2026-09-28 to 2026-10-09 and never levelled out with a jet
+#: on the boom; see docs/dev/design/retlab-tanker-box-notes.md before trying again.
+TANKER_TRACK_LENGTH = nautical_miles(40)
 
 #: Vertical gap between every theater tanker on a side. The spacing above only
-#: separates tankers in one package; two packages' boxes can still cross.
+#: separates tankers in one package; two packages' tracks can still cross.
 TANKER_ALTITUDE_SEPARATION = feet(2000)
 
 
@@ -56,6 +57,45 @@ def deconflicted_altitude(
             if all(abs(candidate.feet - other.feet) > gap - 1 for other in taken):
                 return candidate
     return preferred
+
+
+def move_track(flight_plan: object, waypoint: FlightWaypoint, to: Point) -> bool:
+    """Drag a theater tanker's racetrack on the map.
+
+    The start point moves the whole track; the end point swings it around the
+    start at its own length. False for any other point, which the caller moves
+    alone.
+    """
+    if not isinstance(flight_plan, TheaterRefuelingFlightPlan):
+        return False
+    start, end = flight_plan.layout.patrol_start, flight_plan.layout.patrol_end
+    if waypoint is start:
+        dx, dy = to.x - start.position.x, to.y - start.position.y
+        for point in (start, end):
+            point.position = point.position.new_in_same_map(
+                point.position.x + dx, point.position.y + dy
+            )
+        return True
+    if waypoint is end:
+        length = start.position.distance_to_point(end.position)
+        if length < 1 or start.position.distance_to_point(to) < 1:
+            return True
+        end.position = start.position.point_from_heading(
+            start.position.heading_between_point(to), length
+        )
+        return True
+    return False
+
+
+def track_drag_note(flight_plan: object, waypoint: FlightWaypoint) -> str:
+    """What dragging this point does, for the map tooltip; empty off the track."""
+    if not isinstance(flight_plan, TheaterRefuelingFlightPlan):
+        return ""
+    if waypoint is flight_plan.layout.patrol_start:
+        return "Drag: moves the whole track"
+    if waypoint is flight_plan.layout.patrol_end:
+        return "Drag: swings the track around its start"
+    return ""
 
 
 class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
@@ -87,8 +127,8 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
                     altitudes.append(plan.layout.patrol_start.alt)
         return altitudes
 
-    def layout(self) -> TankerBoxLayout:
-        racetrack_half_distance = TANKER_BOX_LENGTH.meters / 2
+    def layout(self) -> PatrollingLayout:
+        racetrack_half_distance = TANKER_TRACK_LENGTH.meters / 2
 
         location = self.package.target
 
@@ -115,11 +155,10 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         # rather than forwards so an extra tanker can never be pushed into the
         # threat zone the buffer above just cleared -- which for a threatened
         # anchor means further past the edge, not back toward it.
-        spacing = TANKER_ORBIT_SPACING + TANKER_BOX_DEPTH
         orbit_distance = step_back_from_threat(
             orbit_distance,
             threatened=threatened,
-            step=spacing * self._orbit_index(),
+            step=TANKER_ORBIT_SPACING * self._orbit_index(),
         )
 
         racetrack_center = location.position.point_from_heading(
@@ -135,61 +174,24 @@ class Builder(IBuilder[TheaterRefuelingFlightPlan, PatrollingLayout]):
         )
 
         builder = WaypointBuilder(self.flight)
-        # Back from the threat, as step_back_from_threat reads it.
-        back = orbit_heading if threatened else orbit_heading.opposite
-        return self._box_layout(
-            builder,
-            racetrack_start,
-            racetrack_end,
-            back,
-            deconflicted_altitude(
-                builder.get_patrol_altitude,
-                self._other_tanker_altitudes(),
-                self.coalition.doctrine.min_combat_altitude,
-                self.coalition.doctrine.max_combat_altitude,
-            ),
+        altitude = deconflicted_altitude(
+            builder.get_patrol_altitude,
+            self._other_tanker_altitudes(),
+            self.coalition.doctrine.min_combat_altitude,
+            self.coalition.doctrine.max_combat_altitude,
         )
+        racetrack = builder.race_track(racetrack_start, racetrack_end, altitude)
 
-    def _box_layout(
-        self,
-        builder: WaypointBuilder,
-        front_start: Point,
-        front_end: Point,
-        back: Heading,
-        altitude: Distance,
-    ) -> TankerBoxLayout:
-        depth = TANKER_BOX_DEPTH.meters
-        corners = [
-            front_end,
-            front_end.point_from_heading(back.degrees, depth),
-            front_start.point_from_heading(back.degrees, depth),
-        ]
-        box_corners = []
-        for number, position in enumerate(corners, start=2):
-            corner = builder.nav(position, altitude)
-            corner.name = f"BOX {number}"
-            corner.pretty_name = f"Tanker box {number}"
-            corner.description = "Tanker box corner"
-            box_corners.append(corner)
-        start = builder.race_track_start(front_start, altitude)
-        start.name = "BOX 1"
-        start.pretty_name = "Tanker box start"
-        start.description = "Fly the box through the next corners"
-        end = builder.race_track_end(front_start, altitude)
-        end.name = "BOX END"
-        end.pretty_name = "Tanker box end"
-        end.description = "Back to box 2 until on-station time is up"
-        return TankerBoxLayout(
+        return PatrollingLayout(
             departure=builder.takeoff(self.flight.departure),
             nav_to=builder.nav_path(
-                self.flight.departure.position, front_start, altitude
+                self.flight.departure.position, racetrack_start, altitude
             ),
             nav_from=builder.nav_path(
-                front_start, self.flight.arrival.position, altitude
+                racetrack_end, self.flight.arrival.position, altitude
             ),
-            patrol_start=start,
-            patrol_end=end,
-            box_corners=box_corners,
+            patrol_start=racetrack[0],
+            patrol_end=racetrack[1],
             arrival=builder.land(self.flight.arrival),
             divert=builder.divert(self.flight.divert),
             bullseye=builder.bullseye(),

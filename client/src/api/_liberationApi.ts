@@ -531,6 +531,7 @@ export type Waypoint = {
   timing: string;
   deletable?: boolean;
   package_point?: boolean;
+  drag_note?: string;
 };
 export type Flight = {
   id: string;

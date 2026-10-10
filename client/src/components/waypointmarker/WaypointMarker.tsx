@@ -68,6 +68,7 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
         `${waypoint.altitude_ft.toFixed()} ft ${waypoint.altitude_reference}<br />` +
         waypoint.timing +
         (waypoint.package_point ? "<br />Moves for the whole package" : "") +
+        (waypoint.drag_note ? `<br />${waypoint.drag_note}` : "") +
         (waypoint.deletable ? "<br />Right-click: delete" : ""),
     );
   });
