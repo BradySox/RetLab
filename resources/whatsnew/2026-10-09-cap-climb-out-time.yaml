@@ -1,0 +1,12 @@
+date: 2026-10-09
+title: A CAP over its own field gets time to climb
+change: >-
+  A CAP, AWACS or tanker that takes off from the ground and patrols over
+  its own field was planned on station a few seconds after takeoff. Its
+  first leg now takes at least 2 minutes of join-up plus the climb at
+  3,000 ft/min, about 10 minutes to 30,000 ft. Flights with a long first
+  leg keep their times.
+watch: >-
+  Open a CAP that patrols over its own base and check that RACETRACK
+  START is about 10 minutes after TAKEOFF. In the mission, see whether
+  the flight is at altitude by then.

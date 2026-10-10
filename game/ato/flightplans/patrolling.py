@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from typing import Any, TYPE_CHECKING, TypeGuard, TypeVar
 
 from game.ato.flightplans.standard import StandardFlightPlan, StandardLayout
+from game.ato.flightwaypointtype import FlightWaypointType
+from game.ato.starttype import StartType
 from game.ato.tankeravailability import tanking_time
 from game.typeguard import self_type_guard
 from game.utils import Distance, Speed, nautical_miles
@@ -36,6 +38,18 @@ class PatrollingLayout(StandardLayout):
 
 
 LayoutT = TypeVar("LayoutT", bound=PatrollingLayout)
+
+# What a ground-started flight needs before it can be on station at altitude: DCS
+# AI levels off until the last wingman is airborne (about 2 minutes), then climbs.
+# The rate errs slow so the flight is early, not late (DM call 2026-10-09).
+JOIN_UP_TIME = timedelta(minutes=2)
+CLIMB_RATE_FT_PER_MIN = 3000.0
+
+
+def climb_out_time(departure: FlightWaypoint, first: FlightWaypoint) -> timedelta:
+    """Join-up plus the climb from the field to the first waypoint's altitude."""
+    gain_ft = max(first.alt.feet - departure.alt.feet, 0.0)
+    return JOIN_UP_TIME + timedelta(minutes=gain_ft / CLIMB_RATE_FT_PER_MIN)
 
 
 def step_back_from_threat(
@@ -118,7 +132,18 @@ class PatrollingFlightPlan(StandardFlightPlan[LayoutT], UiZoneDisplay, ABC):
         total = super().total_time_between_waypoints(a, b)
         if a is getattr(self.layout, "pre_push_refuel", None):
             return total + tanking_time(self.flight)
+        if self._climbs_out_on(a):
+            # Distance over speed puts a CAP over its own field on station seconds
+            # after takeoff; the leg out of the field is never shorter than the climb.
+            return max(total, climb_out_time(a, b))
         return total
+
+    def _climbs_out_on(self, a: FlightWaypoint) -> bool:
+        return (
+            a is self.layout.departure
+            and a.waypoint_type is FlightWaypointType.TAKEOFF
+            and getattr(self.flight, "start_type", None) is not StartType.IN_FLIGHT
+        )
 
     def fuel_burn_distance_between_points(
         self, a: FlightWaypoint, b: FlightWaypoint
