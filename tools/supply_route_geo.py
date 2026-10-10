@@ -1008,6 +1008,152 @@ ANATOLIAN_REACH_ROUTES = [
 ]
 
 
+# --- Kola - Northern Flank 1985: the one coast road from Narvik to Murmansk, and
+# --- the sea lanes either side of it. Endpoints are the airfield control points.
+# --- Design note: docs/dev/design/retlab-northern-flank-campaign-notes.md
+NF_BODO = (-66959.0, -348337.0)
+NF_EVENES = (60209.0, -239417.0)
+NF_ANDOYA = (151540.0, -254452.0)
+NF_BARDUFOSS = (118871.0, -160678.0)
+NF_ALTA = (221466.0, 27686.0)
+NF_BANAK = (234846.0, 88379.0)
+NF_KIRKENES = (216628.0, 280055.0)
+NF_KOSHKA_YAVR = (172272.0, 338839.0)
+NF_SEVEROMORSK = (164318.0, 430556.0)
+NF_OLENYA = (68387.0, 451986.0)
+NF_MONCHEGORSK = (46868.0, 437313.0)
+
+NORTHERN_FLANK_ROUTES = [
+    Route(
+        "Evenes -> Bardufoss  (E10 to Bjerkvik, then the E6 north over Gratangen and through Setermoen)",
+        NF_EVENES,
+        [(68.55, 17.56), (68.70, 17.90), (68.86, 18.35), (68.98, 18.52)],
+        NF_BARDUFOSS,
+    ),
+    Route(
+        "THE FRONT -- Bardufoss -> Alta  (E6: Nordkjosbotn, Skibotn and the Lyngen position, round Kafjord to Storslett, Burfjord, Talvik)",
+        NF_BARDUFOSS,
+        [
+            (69.13, 19.05),
+            (69.22, 19.55),
+            (69.39, 20.27),
+            (69.49, 20.83),
+            (69.60, 20.53),
+            (69.77, 21.03),
+            (69.94, 22.05),
+            (70.03, 22.30),
+            (70.05, 23.00),
+        ],
+        NF_ALTA,
+    ),
+    Route(
+        "Alta -> Banak  (E6 over Sennalandet to Skaidi, Olderfjord, then south down the Porsanger shore)",
+        NF_ALTA,
+        [(70.16, 23.95), (70.43, 24.50), (70.48, 25.06), (70.25, 24.95)],
+        NF_BANAK,
+    ),
+    Route(
+        "Banak -> Kirkenes  (E6 south to Karasjok, down the Tana valley on the Norwegian bank to Tana bru, Varangerbotn, Neiden)",
+        NF_BANAK,
+        [
+            (69.47, 25.51),
+            (69.93, 26.42),
+            (70.20, 28.19),
+            (70.17, 28.56),
+            (69.70, 29.38),
+        ],
+        NF_KIRKENES,
+    ),
+    Route(
+        "Kirkenes -> Koshka Yavr  (the border road: Storskog, Nikel, Zapolyarny, Luostari)",
+        NF_KIRKENES,
+        [(69.65, 30.15), (69.41, 30.22), (69.42, 30.80), (69.40, 31.00)],
+        NF_KOSHKA_YAVR,
+    ),
+    Route(
+        "Koshka Yavr -> Severomorsk-1  (the Pechenga road: Titovka, the Zapadnaya Litsa, Murmansk, then north up the bay)",
+        NF_KOSHKA_YAVR,
+        [
+            (69.40, 31.50),
+            (69.53, 31.95),
+            (69.42, 32.45),
+            (69.20, 32.85),
+            (68.97, 33.08),
+        ],
+        NF_SEVEROMORSK,
+    ),
+    Route(
+        "Severomorsk-1 -> Olenya  (back through Murmansk and Kola, then the M18 south to Olenegorsk)",
+        NF_SEVEROMORSK,
+        [(68.97, 33.08), (68.88, 33.02), (68.50, 33.20), (68.14, 33.25)],
+        NF_OLENYA,
+    ),
+    Route(
+        "Olenya -> Monchegorsk  (Olenegorsk and the M18 round Lake Imandra)",
+        NF_OLENYA,
+        [(68.14, 33.25), (68.05, 33.20)],
+        NF_MONCHEGORSK,
+    ),
+]
+
+# Rendered with the same tool; rename the emitted key to ``shipping_lanes:``.
+NORTHERN_FLANK_LANES = [
+    Route(
+        "Bodo -> Evenes  (up the Vestfjord and into the Ofotfjord)",
+        NF_BODO,
+        [
+            (67.50, 14.40),
+            (67.95, 15.00),
+            (68.25, 15.80),
+            (68.38, 16.40),
+            (68.45, 16.72),
+        ],
+        NF_EVENES,
+    ),
+    Route(
+        "Bodo -> Andoya  (round the Lofoten wall and up the outer coast)",
+        NF_BODO,
+        [
+            (67.40, 13.60),
+            (67.55, 12.00),
+            (68.30, 13.00),
+            (68.90, 14.20),
+            (69.35, 15.60),
+        ],
+        NF_ANDOYA,
+    ),
+    Route(
+        "Severomorsk-1 -> Kirkenes  (out of the Kola Bay, round Rybachy, into the Varangerfjord)",
+        NF_SEVEROMORSK,
+        [
+            (69.35, 33.55),
+            (69.75, 33.20),
+            (70.05, 32.20),
+            (70.05, 31.00),
+            (69.95, 30.30),
+            (69.82, 30.10),
+        ],
+        NF_KIRKENES,
+    ),
+    Route(
+        "Kirkenes -> Banak  (round Vardo and the Nordkinn, into the Porsangerfjord)",
+        NF_KIRKENES,
+        [
+            (69.82, 30.10),
+            (69.95, 30.30),
+            (70.45, 31.50),
+            (70.95, 30.00),
+            (71.30, 27.70),
+            (71.15, 26.30),
+            (70.95, 26.30),
+            (70.60, 25.60),
+            (70.30, 25.20),
+        ],
+        NF_BANAK,
+    ),
+]
+
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
@@ -1015,6 +1161,8 @@ CAMPAIGNS = {
     "iraq_inherent_resolve": (Iraq, IRAQ_IR_ROUTES),
     "iraq_desert_storm": (Iraq, IRAQ_DS91_ROUTES),
     "anatolian_reach": (Syria, ANATOLIAN_REACH_ROUTES),
+    "northern_flank_1985": (Kola, NORTHERN_FLANK_ROUTES),
+    "northern_flank_1985_lanes": (Kola, NORTHERN_FLANK_LANES),
 }
 # Every batch-1/batch-2 campaign is directly addressable too (spaces -> underscores;
 # a campaign in both batches resolves to its batch-2 red routes -- regenerate batch-1

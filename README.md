@@ -406,6 +406,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Operation Inherent Resolve | Iraq | Battle of Mosul, 2016–17 |
 | Umm al-Ma'arik | Iraq | Desert Storm 1991, fought from the H-3 strips inward |
 | Second Island Chain | Marianas | 2027 China fight up the chain from Guam |
+| Northern Flank 1985 | Kola | The coast road from Narvik to Murmansk, and the sea beside it |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -436,6 +437,10 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   Badger regiment. Both fleets trade cruise missiles from finite magazines. The islands aren't
   connected, so no ground front forms — islands change hands by air assault, helicopter off the
   LHA or C-130J paradrop.
+- **Northern Flank 1985** — the Soviets hold Kirkenes, Banak and Alta and push down the one
+  coast road toward Bardufoss. Sweden and Finland are neutral and defend their borders, so
+  nobody flies round the front. A carrier in the Norwegian Sea, the Northern Fleet out of
+  Murmansk, Soviet supply ships to sink and Backfires hunting the boat. Stock DCS units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

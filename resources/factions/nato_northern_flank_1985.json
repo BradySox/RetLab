@@ -1,0 +1,85 @@
+{
+  "country": "Combined Joint Task Forces Blue",
+  "name": "NATO Northern Flank 1985",
+  "authors": "RetLab",
+  "description": "<p>NATO's northern flank in 1985: the Norwegian brigade in Troms, the US Marine and UK/Netherlands reinforcements, USAF squadrons flown in to the Norwegian bases, and a US Navy carrier group in the Norwegian Sea. Stock DCS units only.</p>",
+  "locales": [
+    "en_US"
+  ],
+  "aircrafts": [
+    "A-10A Thunderbolt II",
+    "A-6E Intruder",
+    "AH-64D Apache Longbow",
+    "B-52H Stratofortress",
+    "C-130J-30",
+    "CH-47D",
+    "F-14A Tomcat (Block 135-GR Late)",
+    "F-14B Tomcat",
+    "F-15C Eagle",
+    "F-16CM Fighting Falcon (Block 50)",
+    "F-4E-45MC Phantom II",
+    "F-5E Tiger II",
+    "F/A-18C Hornet (Lot 20)",
+    "S-3B Viking",
+    "SH-60B Seahawk",
+    "UH-1H Iroquois"
+  ],
+  "awacs": [
+    "E-2C Hawkeye",
+    "E-3A"
+  ],
+  "tankers": [
+    "KC-135 Stratotanker",
+    "KC-135 Stratotanker MPRS",
+    "A-6E Tanker"
+  ],
+  "frontline_units": [
+    "Leopard 1A3",
+    "M60A3 \"Patton\"",
+    "M113",
+    "AAVP-7A1 'Amtrac'",
+    "LAV-25",
+    "M1045 HMMWV (BGM-71 TOW)",
+    "M1043 HMMWV (M2 HMG)",
+    "M163 Vulcan Air Defense System",
+    "M48 Chaparral"
+  ],
+  "artillery_units": [
+    "M109A6 Paladin"
+  ],
+  "logistics_units": [
+    "Truck M818 6x6",
+    "Refueler M978 HEMTT"
+  ],
+  "infantry_units": [
+    "Infantry M249",
+    "Infantry M4",
+    "MANPADS Stinger"
+  ],
+  "missiles": [],
+  "preset_groups": [
+    "Hawk",
+    "Rapier"
+  ],
+  "naval_units": [
+    "FFG Oliver Hazard Perry",
+    "CG Ticonderoga",
+    "CVN-71 Theodore Roosevelt",
+    "CV-59 Forrestal"
+  ],
+  "air_defense_units": [
+    "EWR AN/FPS-117 Radar",
+    "M163 Vulcan Air Defense System",
+    "M48 Chaparral",
+    "Roland 2 (Marder Chassis)",
+    "EWR AN/FPS-117 Control Shelter",
+    "C2 Fire Control Bunker"
+  ],
+  "carrier_names": [
+    "CVN-71 Theodore Roosevelt"
+  ],
+  "helicopter_carrier_names": [],
+  "requirements": {},
+  "has_jtac": false,
+  "doctrine": "coldwar"
+}
