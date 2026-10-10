@@ -1,0 +1,1 @@
+* **[Flight Planning]** A CAP, AWACS or tanker that takes off from the ground is no longer planned on station seconds after takeoff when its station is over its own field. The leg out of the field takes at least 2 minutes of join-up plus the climb at 3,000 ft/min.

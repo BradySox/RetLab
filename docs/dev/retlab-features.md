@@ -1431,6 +1431,15 @@ Design notes: `docs/dev/design/retlab-air-defense-planning-notes.md` (read this 
   (`PlanRefueling.asap`) and every AEW&C station (`PlanAewc.asap`, which the
   planner had ignored; only the first AWACS was ASAP). Tankers had been on the
   random strike spread, so a tanker could arrive 50 min into a 60 min mission.
+- Climb-out floor (2026-10-09, row B205): the leg out of the TAKEOFF waypoint of a
+  ground-started patrol plan (`PatrollingFlightPlan`: BARCAP, TARCAP, AEW&C, tanker,
+  King) takes at least `JOIN_UP_TIME` (2 min) plus the climb to the next waypoint at
+  `CLIMB_RATE_FT_PER_MIN` (3,000), in `game/ato/flightplans/patrolling.py`. Upstream
+  times every leg as distance over speed, so a CAP over its own field was on station
+  6 seconds after takeoff (Anatolian Reach turn 1). A floor, not an addition: a long
+  first leg is unchanged. Formation and strike plans are untouched (DM call). The
+  numbers are an estimate, erring early; B205 measures them. `InFlight` spends the
+  same leg time so the turn simulation keeps pace.
 - BARCAP volume is upstream's flat allocation: `2 * barcap_rounds` for a fleet CP,
   `barcap_rounds` otherwise, over `ObjectiveFinder.vulnerable_control_points()`
   (upstream's airfield-proximity rule with its unseeded per-call aggressiveness roll).

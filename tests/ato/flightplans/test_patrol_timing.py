@@ -1,3 +1,4 @@
+import math
 from datetime import datetime, timedelta
 from types import SimpleNamespace
 
@@ -5,11 +6,16 @@ import pytest
 from dcs import Point
 from dcs.terrain import Caucasus
 
-from game.ato.flightplans.patrolling import PatrollingFlightPlan, PatrollingLayout
+from game.ato.flightplans.patrolling import (
+    PatrollingFlightPlan,
+    PatrollingLayout,
+    climb_out_time,
+)
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
+from game.ato.starttype import StartType
 from game.dcs.aircrafttype import FuelConsumption
-from game.utils import Distance, Speed, knots, kph, nautical_miles
+from game.utils import Distance, Speed, feet, knots, kph, nautical_miles
 
 T0 = datetime(2020, 1, 1, 12, 0, 0)
 
@@ -144,3 +150,50 @@ def test_non_patrol_legs_burn_the_straight_leg_only() -> None:
     assert plan.fuel_burn_distance_between_points(
         pe, plan.layout.patrol_start
     ).nautical_miles == pytest.approx(0.0)
+
+
+def _climbing_plan(start_type: StartType, station_ft: float) -> _FixedPatrolPlan:
+    plan = _make_patrol_plan()
+    plan.flight.start_type = start_type
+    plan.layout.departure.alt = feet(2000)
+    plan.layout.patrol_start.alt = feet(station_ft)
+    return plan
+
+
+def test_a_cap_over_its_own_field_is_not_on_station_seconds_after_takeoff() -> None:
+    # Anatolian Reach turn 1: Su-27s took off at 15:08:30 and were "on station" at
+    # 30,000 ft six seconds later. 2 min join-up + 28,000 ft at 3,000 ft/min.
+    plan = _climbing_plan(StartType.WARM, 30000)
+    leg = plan.total_time_between_waypoints(
+        plan.layout.departure, plan.layout.patrol_start
+    )
+    assert leg == climb_out_time(plan.layout.departure, plan.layout.patrol_start)
+    assert leg == pytest.approx(timedelta(minutes=2 + 28000 / 3000))
+    assert plan.takeoff_time() == T0 - timedelta(
+        seconds=math.floor(leg.total_seconds())
+    )
+
+
+def test_a_long_first_leg_keeps_its_travel_time() -> None:
+    # The climb-out is a floor: a leg already longer than it does not grow.
+    plan = _climbing_plan(StartType.WARM, 2000)
+    leg = plan.total_time_between_waypoints(
+        plan.layout.departure, plan.layout.patrol_start
+    )
+    assert leg == timedelta(minutes=2)
+
+
+def test_an_air_start_has_no_climb_out() -> None:
+    plan = _climbing_plan(StartType.IN_FLIGHT, 30000)
+    leg = plan.total_time_between_waypoints(
+        plan.layout.departure, plan.layout.patrol_start
+    )
+    assert leg == timedelta(minutes=2)
+
+
+def test_only_the_leg_out_of_the_field_carries_the_climb() -> None:
+    plan = _climbing_plan(StartType.COLD, 30000)
+    pe = plan.layout.patrol_end
+    assert plan.total_time_between_waypoints(pe, plan.layout.arrival) == timedelta(
+        minutes=2
+    )
