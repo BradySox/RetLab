@@ -94,10 +94,13 @@ class InFlight(FlightState, ABC):
         return index <= self.waypoint_index
 
     def travel_time_between_waypoints(self) -> timedelta:
-        if self.current_waypoint.waypoint_type is FlightWaypointType.REFUEL:
-            # Spend the planned tanker stop on this leg too, or the simulated
-            # flight runs minutes ahead of its planned (and DCS-written) ETAs
-            # for the rest of the sortie.
+        if self.current_waypoint.waypoint_type in (
+            FlightWaypointType.REFUEL,
+            FlightWaypointType.TAKEOFF,
+        ):
+            # Spend the planned tanker stop (and a patrol's climb-out) on this leg
+            # too, or the simulated flight runs minutes ahead of its planned (and
+            # DCS-written) ETAs for the rest of the sortie.
             return self.flight.flight_plan.total_time_between_waypoints(
                 self.current_waypoint, self.next_waypoint
             )
