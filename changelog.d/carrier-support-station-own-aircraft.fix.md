@@ -1,0 +1,1 @@
+* **[Campaign AI]** A carrier gets its own AWACS or tanker station only when a squadron aboard can fly it. A carrier with none no longer has a second A-50 or IL-78 flown from the nearest land base onto nearly the same track as the land station.

@@ -1591,6 +1591,14 @@ Tests: `tests/test_objectivefinder_barcap.py`, `tests/test_barcap_threat_weighti
 >    wing whose only land-side tanker lives off-map gets no theater tanker station
 >    (RetakeTheFalklands blue: the KC-135 at "From US" flies neither before nor after;
 >    before, the carrier was listed twice instead).
+>    **A carrier with no AEW&C or tanker aboard gets no station of its own (2026-10-10,
+>    DM call).** Each carrier was a target whether or not it based the aircraft, so a red
+>    carrier's station was flown from the nearest land field, beside that field's own
+>    land station. Read across the 76 bundled campaigns: five doubled up (Retake the
+>    Falklands' two A-50 tracks started 0.1 NM apart; Caucasus Multi Russia flew two A-50s
+>    and two IL-78s within 25 NM). `_carriers_flying_their_own` in `theaterstate.py` keeps
+>    a carrier only when a squadron aboard is `capable_of` the task; the land station
+>    covers the rest. A carrier that bases an E-2 or a tanker is unchanged.
 >    **Known limitation of the step:** it moves along the line to the NEAREST zone edge
 >    only, so in built-up multi-lobe geometry a later slot can step into a second lobe.
 >    Reviewed 2026-09-17 and not acted on: it needs a station whose slot 0 already fails

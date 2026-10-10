@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, TypeVar, Union, Dict
 
+from game.ato.flighttype import FlightType
 from game.commander.battlepositions import BattlePositions
 from game.commander.objectivefinder import ObjectiveFinder
 from game.db import GameDb
@@ -401,8 +402,24 @@ class TheaterState(WorldState["TheaterState"]):
         )
 
 
+def _carriers_flying_their_own(
+    finder: ObjectiveFinder, task: FlightType
+) -> list[MissionTarget]:
+    """Friendly carriers with a squadron aboard that can fly ``task``.
+
+    A carrier with none had its station flown from the nearest land field,
+    beside that field's own: Retake the Falklands put two A-50 tracks 0.1 NM
+    apart, and five bundled campaigns doubled up this way (2026-10-10).
+    """
+    return [
+        cp
+        for cp in finder.friendly_control_points()
+        if cp.is_carrier and any(s.capable_of(task) for s in cp.squadrons)
+    ]
+
+
 def _refueling_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
-    """One tanker station per friendly carrier, plus one land station.
+    """One tanker station per carrier that bases a tanker, plus one land station.
 
     The stock single station was the CP nearest the enemy and asked nothing about
     basing, which stranded both of a flown Caucasus wing's tankers: the KC-135
@@ -411,15 +428,13 @@ def _refueling_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
     boat -- the same shape AEW&C already uses -- and the land station goes to the
     most forward field that can actually put a tanker there.
     """
-    targets: list[MissionTarget] = [
-        cp for cp in finder.friendly_control_points() if cp.is_carrier
-    ]
+    targets = _carriers_flying_their_own(finder, FlightType.REFUELING)
     _append_land_anchor(targets, finder.tanker_land_anchor())
     return targets
 
 
 def _aewc_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
-    """One AEW&C target per friendly carrier, plus one land anchor.
+    """One AEW&C target per carrier that bases an AEW&C, plus one land anchor.
 
     With an active front the land anchor is the rear-safe field hosting an
     AWACS, and the orbit is laid out relative to it -- the FLOT-anchored
@@ -433,9 +448,7 @@ def _aewc_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
     the aircraft flies the theater to reach its own orbit (test 9: Ben Gurion
     picked, the only land E-3A at Akrotiri 164 NM away).
     """
-    targets: list[MissionTarget] = [
-        cp for cp in finder.friendly_control_points() if cp.is_carrier
-    ]
+    targets = _carriers_flying_their_own(finder, FlightType.AEWC)
     if any(True for _ in finder.front_lines()):
         _append_land_anchor(targets, finder.aewc_land_anchor())
     else:
