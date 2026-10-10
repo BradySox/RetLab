@@ -1,0 +1,14 @@
+# The Northern Fleet group that comes out of the Kola Bay in Northern Flank 1985.
+# Every slot of the Naval Group layout is filled here on purpose: an empty slot is
+# filled from the faction roster, which would put a landing ship or a submarine
+# in the gun line.
+name: Northern Fleet Surface Group
+tasks:
+  - Navy
+units:
+  - Battlecruiser 1144.2 Pyotr Velikiy
+  - Cruiser 1164 Moskva
+  - Frigate 1135M Rezky
+  - Corvette 1124.4 Grish
+layouts:
+  - Naval Group

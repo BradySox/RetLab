@@ -1,0 +1,9 @@
+# The naval-infantry lift behind the Northern Fleet group in Northern Flank 1985.
+# Two landing ships and nothing else: the surface group is its escort.
+name: Northern Fleet Landing Group
+tasks:
+  - Navy
+units:
+  - LS Ropucha
+layouts:
+  - Naval Two Ship

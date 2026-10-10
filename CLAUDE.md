@@ -114,6 +114,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
 | Afghanistan — Enduring Resolve (COIN) | `retlab-coin-HANDOFF.md` — **start here for COIN** |
 | Caucasus — Iron Gate | `retlab-iron-gate-campaign-notes.md` |
 | Nevada — Red Flag 81-2 | `retlab-red-flag-81-campaign-notes.md` |
+| Kola — Northern Flank 1985 | `retlab-northern-flank-campaign-notes.md` — Sweden and Finland hold nothing; Luostari has no jet stands |
 | Vietnam set | `retlab-vietnam-retribution-HANDOFF.md`, `retlab-vietnam-retribution-notes.md`, `retlab-vietnam-ops-notes.md`, `retlab-vietnam-red-tempo-notes.md` |
 | Iraq map 2.9.28 content | `retlab-iraq-map-2928-notes.md` — authoring plan, not yet built |
 
