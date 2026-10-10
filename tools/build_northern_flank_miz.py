@@ -44,7 +44,6 @@ to ``exercise_able_archer.miz``. Never hand-edit ``northern_flank_1985.miz``.
 
 from __future__ import annotations
 
-import math
 import sys
 from pathlib import Path
 from typing import Any, Iterable, Optional

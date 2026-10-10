@@ -111,10 +111,11 @@ squadrons:
         - VFA-87
       aircraft_type: F/A-18C Hornet (Lot 20)
       size: 12
+    # Carrier tanking is the A-6's in this fork; the S-3B Tanker is not rostered.
     - primary: Refueling
       aircraft:
-        - VS-24 (Tanker)
-      aircraft_type: S-3B Tanker
+        - VA-34 (Tanker)
+      aircraft_type: A-6E Tanker
       size: 4
     - primary: AEW&C
       aircraft:

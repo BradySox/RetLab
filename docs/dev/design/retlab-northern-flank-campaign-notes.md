@@ -43,7 +43,7 @@ Twelve control points on one road.
 
 | Side | Base | Stands | Used | Squadrons |
 |---|---|---|---|---|
-| Blue | **Carrier** (CVN-71) | 90 | 53 | F-14A 12 + 12, A-6E 10, F/A-18C 12, S-3B tanker 4, E-2C 3 |
+| Blue | **Carrier** (CVN-71) | 90 | 53 | F-14A 12 + 12, A-6E 10, F/A-18C 12, A-6E tanker 4, E-2C 3 |
 | Blue | **Bodo** | 94 | 16 | F-15C 12, KC-135 2, E-3A 2 |
 | Blue | **Evenes** | 57 | 25 | F-16CM 12, F/A-18C 12, KC-135 MPRS 1 |
 | Blue | **Andoya** | 68 | 21 | F-4E 12, S-3B 4, B-52H 3, C-130J 2 |
@@ -173,7 +173,9 @@ mountains between them.
 ### Mod-gated airframes in a stock campaign
 
 The A-7E, EA-6B, A-6A, Su-15 and Tu-128 are all behind mod toggles, and the T-62 is not a
-unit the faction loader knows. None is in either faction. `test_both_factions_are_stock_dcs`
+unit the faction loader knows. None is in either faction. The S-3B Tanker is stock but
+is rostered by no shipped faction (`test_s3b_viking_sea_control.py`); the carrier tanker
+is the A-6E. `test_both_factions_are_stock_dcs`
 applies every mod toggle off and asserts nothing is stripped.
 
 ---
@@ -205,7 +207,7 @@ naval layout has no landing-ship slot.
 ## Anachronisms, accepted
 
 - **CVN-71** was commissioned in October 1986. It is the Nimitz-class hull DCS has, and the air
-  wing on it is close to the real CVW-8 of the period (VF-41, VA-35, VS-24).
+  wing on it is close to the real CVW-8 of the period (VF-41, VA-35).
 - **F/A-18C Lot 20, F-16CM Block 50, AH-64D** for the F/A-18A, F-16A and AH-64A (DM call).
 - **Kirov and Slava** are the DCS hulls *Pyotr Velikiy* and *Moskva*.
 - **M109A6** stands in for the M109A3; **M60A3** for Norwegian M48A5s and Marine M60A1s.
