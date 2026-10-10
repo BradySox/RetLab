@@ -225,8 +225,6 @@ class SupportTrack:
     aircraft_type: Any = None
     #: The orbit's planned altitude, metres MSL (0 when the plan is AGL).
     altitude_m: float = 0.0
-    #: A tanker box's corners, in route order; None on a racetrack.
-    box: Optional[tuple[tuple[float, float], ...]] = None
     #: How far the drawn box reaches either side of the flown track. None means
     #: :data:`SUPPORT_ORBIT_DIAMETER_M` / 2.
     half_width_m: Optional[float] = None
@@ -252,11 +250,7 @@ def racetrack_ends(
     flight: FlightData,
 ) -> tuple[Optional[Point], Optional[Point]]:
     """The PATROL_TRACK -> PATROL waypoint pair (same rule as the §45 F10
-    orbit drawings).
-
-    A tanker box ends back on its start, so its pair is the front leg instead:
-    BOX 1 -> BOX 2, where receivers meet it.
-    """
+    orbit drawings)."""
     start: Optional[Point] = None
     end: Optional[Point] = None
     for waypoint in flight.waypoints:
@@ -264,24 +258,7 @@ def racetrack_ends(
             start = waypoint.position
         elif waypoint.waypoint_type == FlightWaypointType.PATROL:
             end = waypoint.position
-    corners = box_corners(flight)
-    if corners is not None:
-        return corners[0], corners[1]
     return start, end
-
-
-def box_corners(flight: FlightData) -> Optional[list[Point]]:
-    """A tanker box's corners (PATROL_TRACK through the last one before PATROL),
-    or None for a two-point racetrack."""
-    corners: list[Point] = []
-    for waypoint in flight.waypoints:
-        if waypoint.waypoint_type == FlightWaypointType.PATROL_TRACK:
-            corners = [waypoint.position]
-        elif waypoint.waypoint_type == FlightWaypointType.PATROL:
-            break
-        elif corners:
-            corners.append(waypoint.position)
-    return corners if len(corners) >= 3 else None
 
 
 def _support_half_width(flight: FlightData) -> Optional[float]:
@@ -345,7 +322,6 @@ def _tracks_of_types(
         start, end = racetrack_ends(flight)
         if start is None or end is None:
             continue
-        corners = box_corners(flight)
         tracks.append(
             SupportTrack(
                 callsign=short_callsign(flight.callsign),
@@ -354,9 +330,6 @@ def _tracks_of_types(
                 end=end,
                 aircraft_type=flight.aircraft_type,
                 altitude_m=_orbit_altitude(flight),
-                box=(
-                    tuple((p.x, p.y) for p in corners) if corners is not None else None
-                ),
                 half_width_m=_support_half_width(flight),
             )
         )
@@ -514,10 +487,6 @@ def support_boxes(
             if track.half_width_m is not None
             else SUPPORT_ORBIT_DIAMETER_M / 2
         )
-        if track.box is not None and len(track.box) == SUPPORT_BOX_POINTS - 1:
-            corners = _grown_box(track.box, half_width)
-            boxes.append((track.callsign, corners + [corners[0]]))
-            continue
         half_length = track.length_m / 2 + half_width
         course = math.radians(track.course)
         # Along the orbit's own course, and across it. DCS x is north, y east,
@@ -539,24 +508,6 @@ def support_boxes(
         ]
         boxes.append((track.callsign, corners + [corners[0]]))
     return boxes
-
-
-def _grown_box(
-    corners: tuple[tuple[float, float], ...], margin: float
-) -> list[tuple[float, float]]:
-    """A tanker box's four corners, each pushed out by ``margin`` along both of
-    its edges (square corners), so the turns at each corner stay inside it."""
-    grown = []
-    for index, (x, y) in enumerate(corners):
-        offset_x = offset_y = 0.0
-        for neighbour in (corners[index - 1], corners[(index + 1) % len(corners)]):
-            edge = math.dist((x, y), neighbour)
-            if edge < 1.0:
-                continue
-            offset_x += (x - neighbour[0]) / edge * margin
-            offset_y += (y - neighbour[1]) / edge * margin
-        grown.append((x + offset_x, y + offset_y))
-    return grown
 
 
 def _chain_bars(bars: list[list[tuple[float, float]]]) -> list[tuple[float, float]]:

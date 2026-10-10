@@ -8748,7 +8748,12 @@ never used in the app or flown.
   double-click that zooms the map instead of adding a point; the browser's own menu on a
   right-click.
 
-### B152 — A tanker flies its track at the set orbit speed · upstream #869 · ☐ UNTESTED
+### B152 — A tanker flies its track at the set orbit speed · upstream #869 · ◐ PARTIAL (2026-10-09, Kola Tacview; was ☐ UNTESTED)
+
+**2026-10-09** (Kola, KC-135 at 20,000 ft, **280 KIAS** set, on the tanker box since removed) — the value reached the mission and the tanker flew it.
+- The `.miz` carried 192.7 m/s on the track points: 374.6 KTAS, which is 280 KIAS at 20,000 ft.
+- Tacview ground speed: 369 kt on the 325-degree leg and 384 kt on the 145-degree leg, 376 kt mean.
+- Still owed: the cockpit reading beside the tanker (the pass is in KIAS), and a saved default reaching a new flight.
 
 Built 2026-09-28 from upstream issue #869; made per flight the same day (DM: "never a
 theatre option. Per airframe"). A tanker flight's Payload tab → **Set orbit speed**
@@ -8765,7 +8770,13 @@ ignores it; a tanker is capped at its top speed. Unit-tested
   waypoint); a speed far off 270 (the TAS conversion is wrong for DCS's atmosphere); a new
   KC-135 flight not picking up a saved default.
 
-### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ◐ PARTIAL (2026-09-29, test 47; was ☐ UNTESTED)
+### B153 — A theater tanker flies and tanks around its four-point box · tanker box · ✖ REMOVED
+
+**History:** removed 2026-10-09 (DM call) after the tanking half failed in flight. Kola, KC-135 at 20,000 ft and about 375 kt, a human F-16 on the boom (Tacview `Tacview-20261009-190403-DCS-Host-Cost of Living Adjustment`):
+- The KC-135 banked 45 degrees alone, 25 with a jet joined up and 15 with a jet in contact. At 15 degrees it needs about 8 NM a corner, so it overshot the 30 x 15 NM box's corners and S-turned back.
+- The receiver was close aboard for 8 minutes. The tanker was wings level for under a minute of that; the last 6 minutes 15 seconds were one continuous turn (left, right, left).
+- The loop and the corners worked as built (three laps). Leaving for home was again not reached.
+- Theater tankers fly a 40 NM racetrack again; the pass owed is row B206. Was ◐ PARTIAL (2026-09-29, test 47).
 
 **2026-09-29, test 47** (Persian Gulf turn 1, 59 min, a build before #1097) — **the flight half passes; the cockpit shows the fail signature #1097 fixed.**
 - Both theatre tankers flew the box: the KC-135 (Al Dhafra, 40 x 20 NM) and the carrier's A-6E. Each passed every corner in order, cutting each by 4–5 km, and went round about three times (KC-135: BOX 2 at t=786, 1754, 2729). The SwitchWaypoint loop fired every lap.
@@ -9013,7 +9024,9 @@ Built 2026-09-29 after an F-16C DEAD on an S-300PS site planned 18 target steerp
 - **Setup:** a player F-16C or F/A-18C DEAD flight on a SAM site with Target intel precision on Exact, and a player F-14B(U) Strike flight with JDAMs. Generate a turn.
 - **Pass:** each flight has one target steerpoint at the site; the Strike kneeboard page lists every building with coordinates under that one STPT; the Tomcat's JDAM page still has one point per building; the briefing's waypoint times show whole seconds.
 - **Fail signatures:** a steerpoint per unit (an old save's plan: re-plan the flight); the Tomcat's JDAM points all on the site center; the package arriving at the split earlier than its planned time (the dwell stopped counting units).
-### B170 — Every theater tanker flies the box, with no box to tick · tanker box · ☐ UNTESTED
+### B170 — Every theater tanker flies the box, with no box to tick · tanker box · ✖ REMOVED
+
+**History:** removed 2026-10-09 with the box itself (row B153); no pass owed. The orbit speed's place on the Waypoints tab is row B152, and a save made with a box loading as a racetrack is row B206. Was ☐ UNTESTED.
 
 Built 2026-09-29 on the DM's ask: the box stops being a setting, and the orbit speed moves
 from the Payload tab to the Waypoints tab. The Payload tab's **Fly a box (experimental)** is

@@ -2485,56 +2485,6 @@ def test_support_box_follows_the_orbit_course(monkeypatch: pytest.MonkeyPatch) -
     assert ys == [-(10000.0 + half_width), 10000.0 + half_width]
 
 
-def _box_tanker(speed_kt: Optional[float] = None) -> Any:
-    """A theater tanker flying the four-point box: a 40 NM front leg east, 20 NM
-    deep to the south, BOX END back on BOX 1."""
-    from game.utils import knots
-
-    leg, depth = 40 * 1852.0, 20 * 1852.0
-    corners = [
-        ("BOX 1", FlightWaypointType.PATROL_TRACK, 0.0, 0.0),
-        ("BOX 2", FlightWaypointType.NAV, 0.0, leg),
-        ("BOX 3", FlightWaypointType.NAV, -depth, leg),
-        ("BOX 4", FlightWaypointType.NAV, -depth, 0.0),
-        ("BOX END", FlightWaypointType.PATROL, 0.0, 0.0),
-    ]
-    flight = _flight(
-        callsign="Texaco 1",
-        flight_type=FlightType.REFUELING,
-        clients=0,
-        waypoints=[
-            _waypoint(name, kind, x, y, 6000, None) for name, kind, x, y in corners
-        ],
-    )
-    if speed_kt is not None:
-        flight.patrol_speed = knots(speed_kt)
-    return flight
-
-
-def test_a_tanker_box_draws_the_box_it_flies() -> None:
-    """Brady 2026-09-29, F-16 HSD: the box tanker drew as a 7 x 5 NM square.
-    BOX END sits on BOX 1, so the old start/end pair was a point and fell to
-    the 2 NM floor. The cockpit box must cover the 40 x 20 NM route."""
-    mission_data = _mission_data([_box_tanker()])
-    ((callsign, points),) = support_boxes(mission_data, 3)
-    assert callsign == "TEXAC"
-    assert len(points) == SUPPORT_BOX_POINTS
-    assert points[0] == points[-1]
-    margin = SUPPORT_ORBIT_DIAMETER_M / 2
-    xs = sorted({round(x, 3) for x, _ in points})
-    ys = sorted({round(y, 3) for _, y in points})
-    assert xs == [round(-20 * 1852.0 - margin, 3), round(margin, 3)]
-    assert ys == [round(-margin, 3), round(40 * 1852.0 + margin, 3)]
-
-
-def test_a_tanker_box_track_is_its_front_leg() -> None:
-    """Points and CAP stations read the track as BOX 1 -> BOX 2, where receivers
-    meet the tanker, not a zero-length leg with a due-north course."""
-    (track,) = support_tracks(_mission_data([_box_tanker()]))
-    assert track.course == pytest.approx(90.0)
-    assert track.length_m == pytest.approx(40 * 1852.0)
-
-
 def test_support_box_width_matches_the_f10_marker() -> None:
     """With the orbit speed known, the cockpit box is the F10 marker's size.
     Test 36 flew KC-135s 17.7-19.0 km off a racetrack's centreline, far

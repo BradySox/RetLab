@@ -1,0 +1,13 @@
+date: 2026-10-09
+title: Theater tankers fly a racetrack again
+change: >-
+  Every theater tanker flies a 40 NM racetrack instead of the 30 x 15 NM box.
+  With a jet on the boom the tanker could not make the box's corners and never
+  flew level. On the map, drag the track's first point to move the whole track,
+  or its second point to swing the track around the first. The tanker's Set
+  orbit speed stays on the Waypoints tab.
+watch: >-
+  A new turn's theater tanker shows RACETRACK START and RACETRACK END on its
+  Waypoints tab. Join it as it rolls out of a turn: it should fly wings level
+  for about 6 minutes before the next one.
+row: B206

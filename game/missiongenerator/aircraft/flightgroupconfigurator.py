@@ -37,7 +37,6 @@ from ...ato.flightmember import FlightMember
 from ...ato.flightplans.aewc import AewcFlightPlan
 from ...ato.flightplans.packagerefueling import PackageRefuelingFlightPlan
 from ...ato.flightplans.uizonedisplay import UiZoneDisplay
-from ...ato.flightplans.refuelingflightplan import orbit_leg_end
 from ...ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
 from ...radio.datalink import (
     DataLinkRegistry,
@@ -339,7 +338,7 @@ class FlightGroupConfigurator:
                 tacan = self.flight.tacan
             layout = self.flight.flight_plan.layout
             orbit_start = getattr(layout, "patrol_start", None)
-            orbit_end = orbit_leg_end(layout)
+            orbit_end = getattr(layout, "patrol_end", None)
             self.mission_data.tankers.append(
                 TankerInfo(
                     group_name=str(self.group.name),

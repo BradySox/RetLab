@@ -3,6 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from game.ato import Flight, FlightWaypoint, packageroute, routeedit
+from game.ato.flightplans.theaterrefueling import track_drag_note
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.server.leaflet import LeafletPoint
 
@@ -35,6 +36,8 @@ class FlightWaypointJs(BaseModel):
     deletable: bool = False
     #: Dragging it moves it for every flight in the package.
     package_point: bool = False
+    #: What a drag does when it is not a plain move (a theater tanker's track).
+    drag_note: str = ""
 
     class Config:
         title = "Waypoint"
@@ -95,4 +98,5 @@ class FlightWaypointJs(BaseModel):
             timing=timing_info(flight, waypoint_idx),
             deletable=routeedit.is_deletable(flight, waypoint),
             package_point=packageroute.moves_package(flight, waypoint),
+            drag_note=track_drag_note(flight.flight_plan, waypoint),
         )

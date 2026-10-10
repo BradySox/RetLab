@@ -85,8 +85,8 @@ report is a good report.
   ahead of it, which is what SEAD and escorts want.
 - Flights in one package fly the join, ingress and split legs together. A waypoint list
   shows each point's type (`JOIN`, `INGRESS_*`, `TARGET_*`, `SPLIT`, `PATROL`, ...),
-  altitude and planned time. A theater tanker's box charges its whole time on station to
-  the first leg (`BOX 1` to `BOX 2`), so that leg reads hours long by design.
+  altitude and planned time. A racetrack's whole time on station sits on the leg between
+  its two points (`PATROL_TRACK` to `PATROL`), so that leg reads an hour or more by design.
 - `iads` is blue's network as Skynet runs it. `role` is `Sam`, `SamAsEwr`, `Ewr`,
   `CommandCenter`, `PowerSource` or `ConnectionNode`. `depends_on` lists the nodes that feed
   it: kill a power source or a comms node and the sites behind it lose their network. With

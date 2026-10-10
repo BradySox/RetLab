@@ -418,6 +418,15 @@ REMOVED: tuple[Removed, ...] = (
         r"|target_recon_extra_threat_search_nmi",
     ),
     Removed(
+        # The cockpit and F10 "tanker box" (the outline drawn around a tanker's
+        # racetrack) is live; only the four-corner ROUTE is gone.
+        "the four-corner tanker box route",
+        "2026-10-09",
+        r"30 x 15 NM box|40 x 20 NM box|four-point box|four-corner box|BOX END"
+        r"|Fly a box|flies (a|the|its) box",
+        allow=("removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",
