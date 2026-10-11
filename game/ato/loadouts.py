@@ -9,7 +9,7 @@ from typing import Iterator, Optional, TYPE_CHECKING, Type, Dict, Any
 from dcs.unittype import FlyingType
 
 from game.ato.flighttype import FlightType
-from game.data.weapons import Pylon, Weapon, WeaponType, is_obsolete_store
+from game.data.weapons import Pylon, Weapon, WeaponType
 from game.dcs.aircrafttype import AircraftType
 from game.factions.faction import Faction
 from game.persistency import prefer_liberation_payloads
@@ -311,12 +311,7 @@ class Loadout:
                 )
                 continue
             name = payload["name"]
-            unit_id = aircraft.dcs_unit_type.id
-            pylons = {
-                k: p
-                for k, p in payload["pylons"].items()
-                if not is_obsolete_store(unit_id, p["num"], p["CLSID"])
-            }
+            pylons = payload["pylons"]
             try:
                 yield Loadout(
                     name,
@@ -491,12 +486,6 @@ class Loadout:
                     # The mod backing this fit isn't enabled; fall through to the
                     # regular loadout name for the task.
                     continue
-                # A saved preset can still name a store DCS has since retired.
-                payload = [
-                    (i, d)
-                    for i, d in payload
-                    if not is_obsolete_store(dcs_unit_type.id, i, d["clsid"])
-                ]
                 if target:
                     payload = cls.adjust_payload_for_target(payload, target)
                 pylons = {i: {"CLSID": d["clsid"]} for i, d in payload}

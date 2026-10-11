@@ -18,7 +18,7 @@ from game.data.gunammunition import (
     GAU8_AMMUNITION,
     GAU8_DEFAULT_AMMUNITION,
 )
-from game.data.weapons import Pylon, Weapon, is_obsolete_store
+from game.data.weapons import Pylon, Weapon
 from game.lasercodes.lasercode import LaserCode
 from game.missiongenerator.logisticsgenerator import LogisticsGenerator
 from game.missiongenerator.missiondata import MissionData, AwacsInfo, TankerInfo
@@ -484,18 +484,6 @@ class FlightGroupConfigurator:
 
         for pylon_number, weapon in loadout.pylons.items():
             if weapon is None:
-                continue
-            if is_obsolete_store(
-                self.flight.unit_type.dcs_unit_type.id, pylon_number, weapon.clsid
-            ):
-                # A loadout set before the store was retired: fly the station empty
-                # rather than carry a weapon the aircraft cannot release.
-                logging.warning(
-                    "%s: %s on station %d is obsolete in DCS; left empty",
-                    self.flight,
-                    weapon.name,
-                    pylon_number,
-                )
                 continue
             pylon = Pylon.for_aircraft(self.flight.unit_type, pylon_number)
             settings = self._merge_laser_code(

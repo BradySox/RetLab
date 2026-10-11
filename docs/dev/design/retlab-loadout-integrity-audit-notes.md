@@ -356,7 +356,6 @@ In-game pass = checklist **B36**.
 ## 2026-10-11 addendum — the bundled bombers
 
 Scope: B-52H, B-1B, Tu-22M3, Tu-95MS, Tu-142, Tu-160, H-6J. Mod bombers were not read.
-The report that started it: B-52 bay Harpoons never launch.
 
 **Sources.** Under `E:\DCS World\CoreMods\tech\`: `HeavyMetalCore\Database\Aircraft\`
 holds `B_52H.lua` and `B_1B.lua`, and `Currenthill Assets Pack\Database\Aircraft\` holds
@@ -366,20 +365,24 @@ pylons were read from the public datamine (one file per unit under
 `_G/db/Units/Planes/Plane/`).
 
 **Result.** Every shipped preset resolves, and every store sits on a station DCS allows.
-pydcs's pylon tables match DCS's for all seven. One store is wrong in pydcs:
+pydcs's pylon tables match DCS's for all seven.
 
-- `{46ACDCF8-5451-4E26-BDDB-E78D5830E93C}` (8 x AGM-84A, B-52H station 2, the bay). ED's
-  file marks it `obsolete = true` with the comment "harpoon cannot be launched from bay".
-  The Mission Editor hides it; pydcs exports it; the loadout editor offered it. The shipped
-  `Retribution Anti-ship` never used it (8 x AGM-84D on the wing racks), but a saved preset
-  could, and the eight bay missiles came home.
-- It is the only `obsolete` store in DCS: one hit in the install, one in the datamine.
+### The B-52H bay Harpoon rack works — do not strip it
 
-**Fix.** `OBSOLETE_PYLON_STORES` in `game/data/weapons.py`, keyed by unit id and station.
-`Pylon.for_aircraft` leaves the store out (editor, date fallback), `Loadout` drops it when
-a preset is read, and `setup_payload` leaves the station empty for a loadout already in a
-save. Nothing else anti-ship fits the bay, so it flies empty. Tests:
-`tests/test_obsolete_pylon_stores.py`, including one that reads the install when present.
+`{46ACDCF8-5451-4E26-BDDB-E78D5830E93C}` (8 x AGM-84A, station 2, the bay) is marked
+`obsolete = true` in ED's `B_52H.lua`, with the comment "harpoon cannot be launched from
+bay". It is the only `obsolete` store in DCS. **The comment is out of date.** In the flown
+test of 2026-10-11 (Tacview 16:07, mission date 2005) four AI B-52Hs each carried
+8 x AGM-84D on the wing racks and this rack in the bay, and each fired all 16: the wing
+AGM-84D first (they flew up to 89 NM), the bay AGM-84A three to six minutes later (they
+flew about 68 NM).
+
+A change that hid the rack from the editor and emptied the bay at generation was written
+from ED's comment alone and withdrawn the same day, before merge.
+`test_b52h_bay_harpoon_rack_stays_equippable` in `tests/data/test_weapons.py` pins it.
+
+The shipped `Retribution Anti-ship` preset carries the 8 wing missiles and leaves the bay
+empty. Adding the bay rack would double it to 16; that is an open call.
 
 ### Open: a date restriction can leave a bomber unarmed
 
@@ -405,7 +408,7 @@ fields it that early. The B-52H, B-1B and Tu-22M3 all fall back to bombs they ca
 Attack Group: CAS, SEAD, Antiship Strike, AFAC. Bombing: Ground Attack, Pinpoint Strike,
 Runway Attack, AFAC. Engage Targets In Zone: CAS, SEAD, Antiship Strike. `configure_task`
 falls back to the airframe's default role when it has none of the wanted ones. None of
-these has been flown:
+these has been flown, and the Harpoon rack above shows a file's word is not a flown result:
 
 | Airframe | Task | Role it gets | Store | Action |
 |---|---|---|---|---|
