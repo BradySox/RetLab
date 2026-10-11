@@ -1,6 +1,6 @@
 {
     "nameInUI": "Ballistic missile strikes",
-    "descriptionInUI": "Lets a player call a ballistic missile strike from a friendly launcher (Scud-B, 9K720 Iskander, ATACMS and the like) onto a marker on the F10 map. Put a marker on the target, then pick the battery, the marker and the number of rounds from the F10 radio menu, Ballistic Missile Strike. A battery refuses a target outside its range or inside its minimum range, and says why. The launchers are the campaign's own units, so a destroyed launcher fires nothing and rounds are not replaced in the mission. Inert when your side has no launcher.",
+    "descriptionInUI": "Lets a player call a ballistic missile strike from a friendly launcher (Scud-B, 9K720 Iskander, ATACMS and the like) onto a marker on the F10 map. Put a marker on the target, then pick the battery, the marker and the number of rounds from the F10 radio menu, Ballistic Missile Strike. Name the marker and the menu lists it by that name. Every missile launcher your side has is listed, so a cruise missile or attack drone launcher (CJ-10, Iskander-K, Shahed) is on the menu too. A battery refuses a target outside its range or inside its minimum range, and says why. The launchers are the campaign's own units, so a destroyed launcher fires nothing and rounds are not replaced in the mission. Inert when your side has no launcher.",
     "defaultValue": false,
     "specificOptions": [
         {

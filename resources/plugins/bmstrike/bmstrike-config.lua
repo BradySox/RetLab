@@ -66,8 +66,7 @@ if dcsRetribution then
                 for _, side in pairs({coalition.side.RED, coalition.side.BLUE}) do
                     for _, unit in pairs(coalition.getPlayers(side) or {}) do
                         local unitName = unit:getName()
-                        if BMS.Observers[unitName] == nil then
-                            AddBMObserver(unitName)
+                        if AddBMObserver(unitName) then
                             env.info("DCSRetribution|Ballistic Missile Strike plugin - Registered observer " .. unitName)
                         end
                     end
