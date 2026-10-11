@@ -47,10 +47,20 @@ def opfor_only(fn: _F) -> _F:
     return cast(_F, wrapper)
 
 
+class NoCampaignError(RuntimeError):
+    """Raised when no campaign is loaded."""
+
+
 def _require_game() -> Game:
     from game.server import GameContext
 
-    return GameContext.require()
+    try:
+        game = GameContext.get()
+    except AttributeError:  # no model set yet
+        game = None
+    if game is None:
+        raise NoCampaignError("no campaign is loaded")
+    return game
 
 
 @opfor_only
@@ -115,6 +125,7 @@ def human_notes() -> dict[str, str]:
 
 def capabilities() -> dict[str, Any]:
     game = _require_game()
+    writable = game.settings.outside_ai_plans_red and not _mission_started()
     return {
         "name": "RetLab OPFOR AI",
         "mode": (
@@ -147,7 +158,7 @@ def capabilities() -> dict[str, Any]:
                 "buy/ground",
                 "notes (PUT replace, POST merge, DELETE one key)",
             ]
-            if game.settings.outside_ai_plans_red
+            if writable
             else []
         ),
     }
@@ -160,6 +171,14 @@ class WritesOffError(PermissionError):
     """Raised when the AI writes while Outside AI plans red is off."""
 
 
+def _mission_started() -> bool:
+    """True from Take Off (or once the human runs the sim clock) to the next turn."""
+    from game.server import GameContext
+
+    sim = getattr(GameContext.get_model(), "sim_controller", None)
+    return bool(getattr(getattr(sim, "game_loop", None), "started", False))
+
+
 def _writable_game() -> Game:
     game = _require_game()
     if not game.settings.outside_ai_plans_red:
@@ -167,6 +186,12 @@ def _writable_game() -> Game:
             "red is planned by the game's own planner: the human has not ticked "
             "Settings > Campaign Management > Outside AI plans red, so this API is "
             "read-only"
+        )
+    if _mission_started():
+        # The mission is built from the plan as it stood at Take Off.
+        raise WritesOffError(
+            "the mission has started, so this turn's plan is closed; plan again "
+            "next turn"
         )
     return game
 
@@ -236,15 +261,34 @@ def notes() -> dict[str, str]:
     return dict(_require_game().opfor_ai_notes)
 
 
+# The notes are pickled into every save and autosave.
+NOTES_MAX_CHARS = 64_000
+
+
+class NotesTooLargeError(ValueError):
+    """Raised when the AI's notes would pass NOTES_MAX_CHARS."""
+
+
+def _sized(notes: dict[str, str]) -> dict[str, str]:
+    size = sum(len(k) + len(v) for k, v in notes.items())
+    if size > NOTES_MAX_CHARS:
+        raise NotesTooLargeError(
+            f"notes would be {size} characters; the limit is {NOTES_MAX_CHARS}. "
+            f"Nothing was saved"
+        )
+    return notes
+
+
 def replace_notes(data: dict[str, str]) -> dict[str, str]:
     game = _writable_game()
-    game.opfor_ai_notes = {str(k): str(v) for k, v in data.items()}
+    game.opfor_ai_notes = _sized({str(k): str(v) for k, v in data.items()})
     return dict(game.opfor_ai_notes)
 
 
 def merge_notes(data: dict[str, str]) -> dict[str, str]:
     game = _writable_game()
-    game.opfor_ai_notes.update({str(k): str(v) for k, v in data.items()})
+    merged = {**game.opfor_ai_notes, **{str(k): str(v) for k, v in data.items()}}
+    game.opfor_ai_notes = _sized(merged)
     return dict(game.opfor_ai_notes)
 
 
@@ -256,12 +300,12 @@ def delete_note(key: str) -> dict[str, str]:
 
 def run_fallback_if_needed(game: Game) -> bool:
     """At Take Off: if the AI cleared red's plan and planned nothing in its place, the
-    scripted planner flies red's missions so the turn is never empty. True when it ran.
-    """
+    scripted planner flies red's missions so the turn is never empty. True when it
+    planned something."""
     if not game.settings.outside_ai_plans_red or game.red.ato.packages:
         return False
     game.red.plan_missions(game.conditions.start_time)
-    return True
+    return bool(game.red.ato.packages)
 
 
 # --- connect URL and briefings ---

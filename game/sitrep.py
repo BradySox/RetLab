@@ -161,7 +161,16 @@ class Sitrep:
             supply_lines=list(supply_lines or []),
             naval_lines=list(naval_lines or []),
             loss_causes=(
-                tally(kill_causes, debriefing.unit_map) if kill_causes else {}
+                tally(
+                    kill_causes,
+                    debriefing.unit_map,
+                    {
+                        id(capture.control_point): capture.captured_by_player.opponent
+                        for capture in captures
+                    },
+                )
+                if kill_causes
+                else {}
             ),
         )
 

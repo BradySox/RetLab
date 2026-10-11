@@ -145,17 +145,19 @@ class GroundUnitPurchaseAdapter(PurchaseAdapter[GroundUnitType]):
         coalition: Coalition,
         game: Game,
         inventory_changed: Optional[Callable[[], None]] = None,
+        opfor_planner: bool = False,
     ) -> None:
         super().__init__(coalition)
         self.control_point = control_point
         self.game = game
         self.inventory_changed = inventory_changed
+        # Red's own planner (the outside AI, §109) buys for red without the cheat;
+        # the UI never passes it, so the human still needs the cheat ticked.
+        self.opfor_planner = opfor_planner
 
     def _authorized(self) -> bool:
         owner = self.control_point.captured
-        return owner.is_blue or (
-            owner.is_red and self.game.settings.enable_enemy_buy_sell
-        )
+        return owner.is_blue or (owner.is_red and self._enemy_transaction_allowed)
 
     def buy(self, item: GroundUnitType, quantity: int) -> None:
         if not self._authorized():
@@ -189,7 +191,9 @@ class GroundUnitPurchaseAdapter(PurchaseAdapter[GroundUnitType]):
     @property
     def _enemy_transaction_allowed(self) -> bool:
         """Whether OPFOR ground unit transactions are currently permitted."""
-        return bool(getattr(self.game.settings, "enable_enemy_buy_sell", False))
+        return self.opfor_planner or bool(
+            getattr(self.game.settings, "enable_enemy_buy_sell", False)
+        )
 
     @property
     def _purchase_allowed(self) -> bool:
