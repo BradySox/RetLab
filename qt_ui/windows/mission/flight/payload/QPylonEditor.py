@@ -34,7 +34,6 @@ class QPylonEditor(QWidget):
         self.flight_member = flight_member
         self.pylon = pylon
         self.game = game
-        self.has_added_clean_item = False
         self.show_training = False
 
         # Create layout
@@ -87,11 +86,15 @@ class QPylonEditor(QWidget):
         with block_signals(self.weapon_combo):
             self.weapon_combo.clear()
             self.weapon_combo.addItem("None", None)
+            # "Clean" is a fitted but empty pylon, not "None" (no pylon). pydcs leaves
+            # <CLEAN> out of Pylon.allowed, so there is no per-pylon data for it: it is
+            # offered everywhere, as Pylon.can_equip accepts it everywhere.
+            clean = Weapon.with_clsid("<CLEAN>")
+            if clean is not None:
+                self.weapon_combo.addItem(clean.name, clean)
             for weapon in self.allowed_weapons:
                 if self.show_training or not weapon.is_training_or_non_combat:
                     self.weapon_combo.addItem(weapon.name, weapon)
-            if self.has_added_clean_item:
-                self.weapon_combo.addItem("Clean", Weapon.with_clsid("<CLEAN>"))
             if current is not None:
                 index = self.weapon_combo.findData(current)
                 if index < 0:
@@ -155,23 +158,7 @@ class QPylonEditor(QWidget):
         weapon = loadout.pylons.get(self.pylon.number)
         if weapon is None:
             return None
-        # TODO: Fix pydcs to support the <CLEAN> "weapon".
-        # These are not exported in the pydcs weapon map, which causes the pydcs pylon
-        # exporter to fail to include them in the supported list. Since they aren't
-        # known to be compatible (and we can't show them as compatible for *every*
-        # pylon, because they aren't), we won't have populated a "Clean" weapon when
-        # creating the selection list, so it's not selectable. To work around this, add
-        # the item to the list the first time it's encountered for the pylon.
-        #
-        # A similar hack exists in Pylon to support forcibly equipping this even when
-        # it's not known to be compatible.
-        if weapon.clsid == "<CLEAN>":
-            if not self.has_added_clean_item:
-                self.weapon_combo.addItem("Clean", weapon)
-                self.has_added_clean_item = True
-        elif (
-            weapon.is_training_or_non_combat and self.weapon_combo.findData(weapon) < 0
-        ):
+        if weapon.is_training_or_non_combat and self.weapon_combo.findData(weapon) < 0:
             # A filtered store from a preset: list it so set_from can select it.
             self.weapon_combo.addItem(weapon.name, weapon)
         return weapon

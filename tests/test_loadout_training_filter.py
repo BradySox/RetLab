@@ -239,6 +239,20 @@ def test_clean_pylon_survives_filter_changes(setup_editor: Any) -> None:
         assert data.member.loadout.pylons[1] == clean
 
 
+def test_clean_is_offered_on_a_pylon_that_never_carried_it(setup_editor: Any) -> None:
+    """It used to appear only after a preset that already used it was shown."""
+    clean = Weapon.with_clsid("<CLEAN>")
+    assert clean is not None
+    data = setup_editor
+    combo = data.editor.weapon_combo
+    assert combo.currentData() == data.live
+    index = combo.findData(clean)
+    assert index >= 0
+    combo.setCurrentIndex(index)
+    assert data.member.loadout.pylons[1] == clean
+    assert combo.findData(clean) == index
+
+
 def test_show_training_still_respects_date_restrictions(setup_editor: Any) -> None:
     from qt_ui.windows.mission.flight.payload.QPylonEditor import QPylonEditor
 

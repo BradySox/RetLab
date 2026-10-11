@@ -21,6 +21,9 @@ drawings, Tomcat/Apache wiring and the DTC options are ours.
   - **DTC** — the Edit Flight `QFlightDtcTab`, rebuilt (§5).
 - **The map** — the crosshair button at top left reads any spot. Its popup saves the spot
   as a kind, or starts a drawing. A layer shows every saved point, orbit and drawing.
+  A point is a pin in its kind's colour: hover for the name, click to rename or delete,
+  drag to move (an orbit's pin moves the whole racetrack). The window and the map
+  refresh each other (§6a).
 - Points and drawings live on the **squadron**, not the flight.
 
 ## 2. Kinds
@@ -132,6 +135,27 @@ Also noted: Hornet `text_note` is capped at 5 characters by the editor
 - **Not ported:** his #348 Qt half (unit-card coordinates) and his UI restyle
   (`qt_ui/windows/playable/style.py` carries the few controls the window needs).
 
+## 6a. Map pins (2026-10-10, his #519)
+
+- Every `SavedPoint` has an `id` (UUID, left out of equality). `points_of` gives one to
+  a point from an older save. The map edits by id, never by index: an index shifts when
+  another point is deleted.
+- `PATCH` and `DELETE /saved-points/{flight}/points/{id}`. Every saved-point and drawing
+  route takes only a flight a player sits in on blue's ATO: 404 for an unknown flight,
+  403 otherwise (the old check was `client_count` alone, 400).
+- A move looks the ground height up again and stores it as the point's elevation. With
+  no answer from the lookup the old elevation stays.
+- `game/server/savedpoints/notifications.py:publish_points_changed` puts
+  `saved_points_updated` on the event stream and emits Qt's `saved_points_changed`.
+  Every edit calls it, from the map or the window. The client turns the stream event
+  into the layer's existing `CHANGED_EVENT`; the 5 s poll stays as a fallback.
+- The window refreshes on the signal, keeps its selection, and skips the refresh while
+  a cell is being edited. Rename and delete check the point is still in the list.
+- Differences from his: pins take the place of our kind-coloured dots instead of
+  adding yellow ones; the pin's position and icon objects are kept stable, because
+  our poll would otherwise snap a pin back mid-drag; drawings publish too; his
+  server tests use `TestClient`, ours call the routes (no `httpx` here).
+
 ## 7. The elevation lookup reaches the network
 
 `game/elevation.py` fetches Mapzen terrarium tiles from AWS open data (no key, no
@@ -162,6 +186,7 @@ Offline it returns nothing. Only tile indices are sent. His design, kept.
 - **B136** — the DTC options: hand-load leaves the cartridge unloaded until selected; a
   skipped type is gone from the jet with the numbers closed up; drawings and orbits show
   on each jet's page.
+- **B211** — the map pins: rename, delete and drag, and the window following.
 
 Headless coverage: `tests/missiongenerator/test_dtc.py` (the §102 block),
 `tests/test_dtc_tab.py`, `tests/test_saved_points.py`, `tests/test_a10cdu.py`,

@@ -1,0 +1,12 @@
+date: 2026-10-10
+title: Four fixes in the new game wizard and the loadout editor
+change: >-
+  Clicking a day on the wizard's start-date calendar now sets that date;
+  it used to do nothing while Use preset was ticked. Adding a unit to a
+  faction no longer re-ticks the units you had unticked. A mod aircraft
+  installed while RetLab is open shows its liveries without a restart.
+  The loadout editor lists Clean on every pylon.
+watch: >-
+  In a new game, click a calendar day and the Use preset box unticks.
+  Untick a faction unit, add another, and the first stays unticked. On
+  any pylon, the store list has Clean just under None.

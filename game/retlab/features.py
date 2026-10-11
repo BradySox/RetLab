@@ -441,7 +441,7 @@ FEATURES: tuple[Feature, ...] = (
         # Link 4 on a random UHF, a fresh random ATC each mission, the boat
         # named "0796 | ..."). game/data/carrier_comms.py curates a per-hull
         # boat card (hull-number TACAN + boat ident, hull-keyed ICLS, Link 4
-        # in the ACLS 336 MHz band, a stable ATC) applied with
+        # at 320.x MHz where the F-14 can dial it, a stable ATC) applied with
         # stored-values-win / taken-channel-degrades-to-neighbor precedence in
         # GenericCarrierGenerator, which also names the flagship unit by its
         # hull name and persists every value so the card is stable across

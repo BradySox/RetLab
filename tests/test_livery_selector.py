@@ -144,3 +144,42 @@ def test_same_livery_for_all_copies_the_set_choice_too() -> None:
     roster = SimpleNamespace(members=[lead, wing])
     FlightMembers.use_same_livery_for_all_members(roster)  # type: ignore[arg-type]
     assert (wing.livery, wing.use_livery_set) == (None, True)
+
+
+def test_an_empty_livery_list_is_rescanned_once(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A mod installed while the app is open is missing from the startup scan."""
+    from dcs.liveries.liverycache import LiveryCache
+
+    from qt_ui.widgets.combos import QSquadronLiverySelector as module
+
+    scans: list[int] = []
+    installed: list[_Livery] = []
+
+    cache_type: Any = LiveryCache
+
+    def rescan() -> Any:
+        # pydcs rebuilds the cache when it is asked for after being cleared.
+        if cache_type._cache is None:
+            scans.append(1)
+            installed.append(_Livery("new", "NEW"))
+            cache_type._cache = {"mod": set(installed)}
+        return cache_type._cache
+
+    monkeypatch.setattr(LiveryCache, "_cache", {"mod": set()})
+    monkeypatch.setattr(LiveryCache, "cache", staticmethod(rescan))
+    monkeypatch.setattr(module, "_rescanned_aircraft", set())
+    monkeypatch.setattr(module, "_rescan_is_futile", False)
+    aircraft: Any = SimpleNamespace(
+        variant_id="Mod jet",
+        dcs_unit_type=SimpleNamespace(
+            iter_liveries=lambda: list(installed), livery_name="MODJET"
+        ),
+    )
+
+    assert module.dcs_liveries_for(aircraft) == {_Livery("new", "NEW")}
+    assert scans == [1]
+    installed.clear()
+    assert module.dcs_liveries_for(aircraft) == set()
+    assert scans == [1]
