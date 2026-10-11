@@ -7753,6 +7753,24 @@ groups.
 Tests: `tests/test_loadout_training_filter.py`, including a scan of every pydcs store
 with WP, M156 or Wht Phos in its name. Checklist **B178**.
 
+### GAU-8 ammunition on the Payload tab (2026-10-10)
+
+Ported from juanjux/dcs-escalation #515. An A-10A, A-10C or A-10C II Payload tab has a
+**GAU-8 ammunition** box: Combat Mix, HEI or Target Practice. It is enabled with
+**Use custom loadout**, like the pylons.
+
+- `game/data/gunammunition.py` — the three choices, as one-based indices into the
+  `ammo_type` list in DCS's `CoreMods/aircraft/A-10/A-10A.lua` (the C models inherit it).
+- `Loadout.ammo_type` — `None` means the aircraft's default. Carried through `clone`,
+  `derive_custom`, `degrade_for_date`, named payloads and the §73 task default;
+  `__setstate__` supplies `None` for older saves.
+- `FlightGroupConfigurator.setup_payload` writes it to the unit's `payload.ammo_type`,
+  Combat Mix when unset. Other airframes are not touched.
+- `DcsPayload.to_dict` writes `ammo_type` into a saved payload only when one is set.
+
+Tests: `tests/test_gau8_ammunition.py` (one case reads the local DCS install and skips
+without it), `tests/qt_ui/test_gau8_payload_editor.py`. Checklist **B210**.
+
 ## §74 — Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D)
 
 Design note: [`docs/dev/design/retlab-dtc-cartridge-notes.md`](design/retlab-dtc-cartridge-notes.md)
