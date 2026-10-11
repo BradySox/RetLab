@@ -95,7 +95,139 @@ def test_never_reaching_the_target_names_the_closest_approach() -> None:
         replace(BASE, planned_tot=1800.0, closest_approach_m=40 * 1852.0)
     )
 
-    assert card.faults == ("Never reached the target area (closest 40 NM).",)
+    assert card.faults == ("Never reached the target (closest 40 NM).",)
+    assert card.grade is Grade.BELOW_AVERAGE
+
+
+def test_firing_from_range_is_not_failing_to_arrive() -> None:
+    harpoons = replace(
+        BASE,
+        graded_on_target=True,
+        place="the ingress point",
+        planned_tot=1800.0,
+        closest_approach_m=15 * 1852.0,
+        shots=4,
+    )
+
+    card = grade_flight(harpoons)
+    assert card.faults == ()
+    assert card.lines == ("4 weapons released, 0 hits.",)
+    assert grade_flight(replace(harpoons, shots=0)).faults == (
+        "Never reached the ingress point (closest 15 NM).",
+    )
+
+
+def test_a_mission_that_ends_before_the_tot_is_not_graded_on_timing() -> None:
+    card = grade_flight(
+        replace(
+            BASE,
+            planned_tot=6095.0,
+            closest_approach_m=94 * 1852.0,
+            mission_end=4920.0,
+        )
+    )
+
+    assert card.faults == ()
+    assert card.lines == ("Mission ended before its time on target.",)
+    assert card.grade is Grade.AVERAGE
+
+
+def test_timing_names_where_it_was_measured() -> None:
+    on_station = replace(
+        BASE, place="its station", planned_tot=1800.0, closest_approach_m=0.0
+    )
+
+    assert grade_flight(replace(on_station, arrival=1800.0)).lines == (
+        "On time at its station.",
+    )
+    assert grade_flight(replace(on_station, arrival=2400.0)).faults == (
+        "At its station 10 min late.",
+    )
+
+
+def test_a_ship_sunk_lifts_an_anti_ship_flight() -> None:
+    card = grade_flight(
+        replace(BASE, graded_on_naval_kills=True, naval_kills=1, shots=4, hits=3)
+    )
+    assert card.grade is Grade.AVERAGE
+    on_time = replace(
+        BASE,
+        graded_on_naval_kills=True,
+        naval_kills=1,
+        planned_tot=1800.0,
+        arrival=1800.0,
+        closest_approach_m=0.0,
+    )
+    assert grade_flight(on_time).grade is Grade.ABOVE_AVERAGE
+    # Not for a task that is not graded on it.
+    assert grade_flight(replace(on_time, graded_on_naval_kills=False)).grade is (
+        Grade.AVERAGE
+    )
+
+
+def test_a_ground_kill_lifts_a_cas_flight() -> None:
+    cas = replace(
+        BASE,
+        graded_on_ground_kills=True,
+        planned_tot=1800.0,
+        arrival=1800.0,
+        closest_approach_m=0.0,
+    )
+
+    assert grade_flight(cas).grade is Grade.AVERAGE
+    assert grade_flight(replace(cas, ground_kills=3)).grade is Grade.ABOVE_AVERAGE
+
+
+def test_the_result_is_credited_once() -> None:
+    both = replace(
+        BASE,
+        graded_on_target=True,
+        graded_on_naval_kills=True,
+        target_name="Ship group",
+        target_total=2,
+        target_killed=2,
+        naval_kills=2,
+    )
+
+    assert grade_flight(both).grade is Grade.AVERAGE
+
+
+def test_sead_is_not_faulted_when_the_site_survives() -> None:
+    sead = replace(
+        BASE,
+        graded_on_target=True,
+        target_may_survive=True,
+        target_name="SA-6",
+        target_total=6,
+        shots=4,
+    )
+
+    quiet = grade_flight(sead)
+    assert quiet.faults == ()
+    assert "Package target SA-6: 0 of 6 destroyed." in quiet.lines
+    assert quiet.grade is Grade.AVERAGE
+    one_radar = replace(
+        sead,
+        target_killed=1,
+        hits=1,
+        planned_tot=1800.0,
+        arrival=1800.0,
+        closest_approach_m=0.0,
+    )
+    assert grade_flight(one_radar).grade is Grade.ABOVE_AVERAGE
+
+
+def test_no_hits_is_a_fault_only_for_a_task_graded_on_hits() -> None:
+    bombs = replace(BASE, graded_on_target=True, graded_on_hits=True, shots=4)
+
+    missed = grade_flight(bombs)
+    assert missed.faults == ("Released 4 weapons with no hits.",)
+    assert missed.lines == ()
+    # Standoff tasks, and any flight with a kill to show for it.
+    assert grade_flight(replace(bombs, graded_on_hits=False)).faults == ()
+    killed = grade_flight(replace(bombs, ground_kills=1))
+    assert killed.faults == ()
+    assert "4 weapons released, 0 hits." in killed.lines
 
 
 def test_timing_is_not_graded_without_a_track_or_a_timed_tot() -> None:
@@ -111,6 +243,7 @@ def test_losing_half_the_flight_with_the_target_untouched_is_unsat() -> None:
             target_name="Bridge",
             target_total=1,
             target_killed=0,
+            graded_on_hits=True,
             shots=4,
             hits=0,
             lost=1,
@@ -276,3 +409,103 @@ def test_facts_carry_the_squadron_and_the_package_target() -> None:
     record = _record("Enfield 1-1", _sample(0.0, 0.0))
     facts = facts_for(flight, [record], _debriefing([]), None)
     assert (facts.squadron, facts.package_target) == ("VF-103", "Kutaisi")
+
+
+def _attack_flight(flight_type: FlightType, start: datetime) -> Any:
+    flight = _flight(flight_type, start + timedelta(minutes=40))
+    ingress = SimpleNamespace(position=SimpleNamespace(x=50_000.0, y=0.0))
+    join = SimpleNamespace(position=SimpleNamespace(x=20_000.0, y=0.0))
+    times = {id(ingress): timedelta(minutes=30), id(join): timedelta(minutes=20)}
+    flight.flight_plan.layout = SimpleNamespace(ingress=ingress, join=join)
+    flight.flight_plan.tot_for_waypoint = lambda waypoint: (
+        start + times.get(id(waypoint), timedelta(minutes=40))
+    )
+    return flight
+
+
+def test_an_attack_flight_is_timed_at_its_ingress_point() -> None:
+    start = datetime(2026, 10, 11, 8, 0)
+    flight = _attack_flight(FlightType.ANTISHIP, start)
+    # Fires 10 NM short of the ingress point and turns for home.
+    lead = _record(
+        "Enfield 1-1",
+        _sample(0.0, 0.0),
+        _sample(1800.0, 50_000.0 - 10 * 1852.0),
+        _sample(3000.0, 0.0),
+        shots=4,
+    )
+
+    facts = facts_for(flight, [lead], _debriefing([]), start, 3000.0)
+
+    assert facts.place == "the ingress point"
+    assert (facts.planned_tot, facts.arrival) == (1800.0, 1800.0)
+    assert facts.graded_on_naval_kills and not facts.graded_on_hits
+    assert facts.mission_end == 3000.0
+    assert grade_flight(facts).lines[0] == "On time at the ingress point."
+
+
+def test_an_escort_is_timed_at_the_join_point() -> None:
+    start = datetime(2026, 10, 11, 8, 0)
+    flight = _attack_flight(FlightType.ESCORT, start)
+    lead = _record("Enfield 1-1", _sample(0.0, 0.0), _sample(1200.0, 20_000.0))
+
+    facts = facts_for(flight, [lead], _debriefing([]), start)
+
+    assert facts.place == "the join point"
+    assert (facts.planned_tot, facts.arrival) == (1200.0, 1200.0)
+
+
+def test_a_patrol_is_timed_at_its_station() -> None:
+    start = datetime(2026, 10, 11, 8, 0)
+    flight = _flight(FlightType.BARCAP, start + timedelta(minutes=30))
+    lead = _record("Enfield 1-1", _sample(0.0, 0.0), _sample(1500.0, 100_000.0))
+
+    facts = facts_for(flight, [lead], _debriefing([]), start)
+
+    assert facts.place == "its station"
+    assert grade_flight(facts).lines == ("On time at its station.",)
+
+
+def test_bombs_are_graded_on_hits_and_sead_may_leave_the_site_standing() -> None:
+    start = datetime(2026, 10, 11, 8, 0)
+    record = _record("Enfield 1-1", _sample(0.0, 0.0))
+
+    strike = facts_for(
+        _attack_flight(FlightType.STRIKE, start), [record], _debriefing([]), start
+    )
+    sead = facts_for(
+        _attack_flight(FlightType.SEAD, start), [record], _debriefing([]), start
+    )
+    cas = facts_for(_flight(FlightType.CAS, None), [record], _debriefing([]), start)
+
+    assert strike.graded_on_hits and not strike.target_may_survive
+    assert sead.target_may_survive and not sead.graded_on_hits
+    assert cas.graded_on_ground_kills and not cas.graded_on_target
+
+
+def test_a_flight_still_at_the_point_at_the_planned_time_was_on_time() -> None:
+    start = datetime(2026, 10, 11, 8, 0)
+    flight = _flight(FlightType.STRIKE, start + timedelta(minutes=30))
+    # Takes off inside the radius and is still there 30 minutes later.
+    holding = _record(
+        "Enfield 1-1",
+        _sample(0.0, 100_000.0),
+        _sample(900.0, 101_000.0),
+        _sample(1800.0, 100_000.0),
+        _sample(2400.0, 0.0),
+    )
+    passing = _record(
+        "Enfield 1-1",
+        _sample(0.0, 0.0),
+        _sample(900.0, 100_000.0),
+        _sample(1800.0, 0.0),
+    )
+
+    assert facts_for(flight, [holding], _debriefing([]), start).arrival == 1800.0
+    assert facts_for(flight, [passing], _debriefing([]), start).arrival == 900.0
+
+
+def test_one_weapon_is_singular() -> None:
+    assert grade_flight(replace(BASE, shots=1, hits=1)).lines == (
+        "1 weapon released, 1 hit.",
+    )

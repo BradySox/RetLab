@@ -11637,7 +11637,8 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 ## §108 — Flight report cards
 
 After a mission, the Qt debrief shows one graded card per blue flight that got airborne,
-human-crewed flights first: timing at the TOT waypoint, the package target, kills, weapons,
+human-crewed flights first: timing (at the ingress point for an attack flight, the join for an
+escort, the station for a patrol), the package target, kills, weapons,
 losses, and a human pilot's fuel on landing against the airframe's reserve. Grades are Unsat, Below average, Average and
 Above average. Built 2026-09-29, not flown (row B158). A card is titled with its task and
 package target, then its squadron and aircraft (2026-10-11; it was the raw DCS group name).
@@ -11658,6 +11659,11 @@ has the scoring table.
 
 - Planned TOT is measured from `mission_start_time` (§104's early start), because record
   times count from mission start.
+- An attack flight is timed at its ingress point and an escort at the join, within 12 NM.
+  Do not move this back to the target: a standoff shooter never goes there, and test 55
+  faulted 11 of 23 flights for it (2026-10-11).
+- A flight whose planned time is after the mission ended gets no timing grade.
+- Anti-ship and SEAD are never faulted for firing with no hits.
 - Fuel is graded only after a landing, in pounds against the airframe's `min_safe`
   reserve (15% of internal fuel where none is measured).
 - AI fuel is never graded. With `ai_unlimited_fuel` on it is constant (§91).

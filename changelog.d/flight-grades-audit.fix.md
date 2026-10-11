@@ -1,0 +1,3 @@
+* **[Debriefing]** A flight report card times an attack flight at its ingress point and an escort at the join point. It measured both within 5 NM of the target, so every flight that fired from range was marked "Never reached the target area", and so were its escorts.
+* **[Debriefing]** A flight whose time on target was after the mission ended is no longer faulted for missing it.
+* **[Debriefing]** A ship sunk counts for an Anti-ship flight and a ground kill for a CAS flight. Anti-ship and SEAD flights are not faulted for firing with no hits, and a SEAD flight is not faulted when the site survives.
