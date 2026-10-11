@@ -60,6 +60,25 @@ missiles and may have been short of SAMs.
 Tasks are written per ordnance class as before (anti-ship missiles, guided, unguided), so a
 flight on the Strike fallback loadout is dealt too.
 
+## After the last weapon (2026-10-11, DM call)
+
+In the same run the four B-52Hs fired from about 83 NM and then flew on down the route.
+They ended 9 NM from where the Kuznetsov started, at 18,000 ft, alive only because the
+ships' SAMs were busy with Harpoons. The route is ingress, target point, split, and
+nothing told the AI to stop.
+
+`configure_anti_ship` now sets `OptRTBOnOutOfAmmo(All)`, the option DEAD flights already
+carry. Not flown yet: row **B225**.
+
+- **`All`, not `ASM`.** A flight with no weapon of the named class counts as out of it at
+  spawn and goes home at once (why CAP uses `Cannon` for gunfighters). An anti-ship flight
+  on the Strike fallback fit carries bombs only.
+- The gun was already taken from AI anti-ship flights (`mission_uses_gun=False`), so `All`
+  can be reached.
+- **Not covered:** a flight that keeps a weapon it will not use on a ship. A Hornet with
+  Sidewinders left still flies the whole route. The other fix considered, a route that
+  skips the target point for stand-off flights, would cover it and is a larger change.
+
 ## Choices and why
 
 - **Two on a capital ship before one on an escort (DM, option 1b).** The auto-planner's
