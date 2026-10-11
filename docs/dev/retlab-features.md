@@ -265,7 +265,12 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   `countryId` emits (upstream emits neither — both existed solely to feed the backstop).
   **The by-design consequence, accepted upstream and here: a coalition whose EWR/SAM-as-EWR
   network is wiped out loses GCI detection and stops scrambling** — no radar, no GCI. With no
-  detection source the plugin logs and builds no dispatcher rather than erroring. Runtime +
+  detection source the plugin logs and builds no dispatcher rather than erroring.
+  **Since 2026-10-11 the side's own AWACS counts as a detection source** (DM call after
+  test 55): `ewr_group_names` appends each `dcsRetribution.AWACs` group of the dispatcher's
+  coalition. Test 55's blue had two E-2Cs and no ground radar, logged `no detection sources
+  for BLUE`, and its eight alert jets at Vaziani could not scramble. A side with neither a
+  radar nor an AWACS still stops scrambling. Row B222. Runtime +
   generation only, so **existing saves are fixed by the next regeneration** — no new game.
   Tests: `tests/lua/test_intercept_filter.py` gained a `mist.dynAdd` recorder asserting the
   plugin spawns **nothing** and a wiped-out-network case asserting it builds no dispatcher and

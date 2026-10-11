@@ -180,7 +180,11 @@ def _intercept_record(airbase: str, squadron_id: str) -> dict[str, str]:
     }
 
 
-def _load(harness: DcsPluginHarness, ewr_names: list[str]) -> Any:
+def _load(
+    harness: DcsPluginHarness,
+    ewr_names: list[str],
+    awacs: list[dict[str, str]] | None = None,
+) -> Any:
     """Load the real plugin with one BLUE alert base and the given EWR net."""
     harness.add_airbase({"name": "Test AFB", "x": 0.0, "z": 0.0, "elev": 100.0})
     for name in ewr_names:
@@ -198,6 +202,8 @@ def _load(harness: DcsPluginHarness, ewr_names: list[str]) -> Any:
     config.IADS = harness.to_lua(
         {"BLUE": {"Ewr": [{"dcsGroupName": name} for name in ewr_names]}}
     )
+    if awacs is not None:
+        config.AWACs = harness.to_lua(awacs)
     harness.lua.execute(MOOSE_FAKE)
     script = (REPO_ROOT / PLUGIN).read_text(encoding="utf-8")
     # The chunk's return value is the plugin's test hook (inert in DCS, which
@@ -218,7 +224,7 @@ def test_escaped_prefix_matches_where_raw_fails() -> None:
 
 
 def test_the_detection_list_is_the_escaped_iads_network() -> None:
-    """FilterPrefixes receives the escaped IADS EWR network — and only that."""
+    """With no AWACS up, FilterPrefixes receives the escaped IADS EWR network."""
     harness = DcsPluginHarness()
     _load(harness, ewr_names=["0041 | LION (EWR)", "0114 | LORIKEET (S-300)"])
     harness.advance_to(BUILD_DELAY_S + 1)
@@ -251,10 +257,10 @@ def test_nothing_is_spawned_onto_the_airfield() -> None:
 
 
 def test_a_wiped_out_radar_network_simply_stops_scrambling() -> None:
-    """No EWR net => no detection source => no dispatcher, and no crash.
+    """No EWR net and no AWACS => no detection source => no dispatcher, no crash.
 
     This is the deliberate consequence of dropping the backstop: QRA sees what
-    its radar network sees.
+    its radars see.
     """
     harness = DcsPluginHarness()
     _load(harness, ewr_names=[])
@@ -263,6 +269,47 @@ def test_a_wiped_out_radar_network_simply_stops_scrambling() -> None:
 
     dispatchers = harness.to_python(harness.lua.globals().InterceptTest.dispatchers)
     assert not dispatchers
+
+
+def test_a_side_with_an_awacs_and_no_ground_radar_still_scrambles() -> None:
+    """Test 55: blue had two E-2Cs, no EWR, and eight alert jets that never could
+    launch. The side's own AWACS is a detection source; the enemy's is not.
+    """
+    harness = DcsPluginHarness()
+    _load(
+        harness,
+        ewr_names=[],
+        awacs=[
+            {"dcsGroupName": "Vaziani AEW&C|3|E-2C|", "coalition": "blue"},
+            {"dcsGroupName": "Anapa AEW&C|25|A-50|", "coalition": "red"},
+        ],
+    )
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    prefixes = harness.to_python(harness.lua.globals().InterceptTest.filterPrefixes)
+    assert prefixes == ["Vaziani AEW&C|3|E-2C|"]
+    matches = harness.lua.globals().InterceptTest.mooseMatches
+    assert matches("Vaziani AEW&C|3|E-2C|", prefixes[0])
+    dispatchers = harness.to_python(harness.lua.globals().InterceptTest.dispatchers)
+    assert len(dispatchers) == 1
+
+
+def test_the_awacs_joins_the_ground_radars_once() -> None:
+    harness = DcsPluginHarness()
+    _load(
+        harness,
+        ewr_names=["0041 | LION (EWR)"],
+        awacs=[
+            {"dcsGroupName": "Magic", "coalition": "blue"},
+            {"dcsGroupName": "Magic", "coalition": "blue"},
+        ],
+    )
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    prefixes = harness.to_python(harness.lua.globals().InterceptTest.filterPrefixes)
+    assert prefixes == ["0041 | LION %(EWR%)", "Magic"]
 
 
 def test_escape_leaves_dash_for_moose() -> None:
