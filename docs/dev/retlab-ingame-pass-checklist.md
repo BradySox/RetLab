@@ -8338,7 +8338,8 @@ plan, and onto a kneeboard page numbered the same way.
 - **Pass:** the kneeboard's "saved points" page lists the point with a number N. In the
   jet, STPT N is that point (name and position), SEQ1 is still the route, and stepping to
   SEQ2 (Hornet) shows only the saved points. Viper: the tanker/AWACS anchors now follow
-  the saved points. A-10: the CDU's EXTRA plan holds the point with a ground elevation.
+  the saved points. A-10: the CDU's EXTRA plan holds the point with its elevation (the
+  A-10's own row is B209).
 - **Fail signatures:** the point is missing in the jet (Route section off, or the
   cartridge did not load); STPT N is a different point (the kneeboard and cartridge
   numbering drifted); the Hornet's route sequence lost its legs (our filled `NAV_ROUTE`

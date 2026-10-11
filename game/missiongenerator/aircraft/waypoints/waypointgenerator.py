@@ -19,6 +19,7 @@ from game.ato import Flight, FlightWaypoint, FlightType
 from game.ato.flightstate import InFlight, WaitingForStart
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
+from game.missiongenerator.a10cdu import enable_route_vnav
 from game.retlab.range_fuel import flight_external_fuel_lbs
 from game.missiongenerator.aircraft.waypoints.cargostop import CargoStopBuilder
 from game.missiongenerator.missiondata import MissionData
@@ -192,6 +193,7 @@ class WaypointGenerator:
 
         self.ensure_in_flight_route_has_locked_time()
         self._resolve_locked_speed_time_conflicts()
+        enable_route_vnav(self.flight, self.group)
 
         # Set here rather than when the FlightData is created so they waypoints
         # have their TOTs and fuel minimums set. Once we're more confident in our fuel

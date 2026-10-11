@@ -11141,7 +11141,8 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/missiongenerator/dtc/savedpoints.py` — cockpit numbering for points and route
   rows, the waypoint skip, the player shapes. Shared by all four builders and the kneeboard.
 - `game/missiongenerator/dtc/common.py:threat_sites_for` — the near-the-route SAM filter.
-- `game/missiongenerator/a10cdu.py` — the A-10's CDU state.
+- `game/missiongenerator/a10cdu.py` — the A-10's saved points as CDU state (the route
+  is left to DCS), and 3D VNAV on a player A-10's route.
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
 - `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
@@ -11166,6 +11167,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Hornet/Viper/Apache points need the Flight plan section (those cartridges replace the
   whole navigation set).
 - Skips are waypoint-type names, never indices.
+- The A-10's CDU file holds saved points only, never the route: written there, the
+  aircraft swapped planned altitudes for terrain heights and every number moved up
+  one (2026-10-10, juanjux #510/#511, flown there). Design note §8.
 - The picker leaves a click on an interactive shape to that shape, except a `map-area`
   one (hover-only: §98's country polygons). Without the exception, neutral border
   defense's borders cover every country and the picker answered only at sea (fixed
@@ -11192,10 +11196,11 @@ The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`
 `tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
 `coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
 
-### Needs an in-game pass — B135, B136
+### Needs an in-game pass — B135, B136, B209
 
 B135: the cockpit numbering and sequence 2. B136: hand-load, skipped waypoints, and
-orbits and drawings on each jet's page.
+orbits and drawings on each jet's page. B209: the A-10's route altitudes and saved
+point numbers.
 
 ### Deferred
 

@@ -1,0 +1,13 @@
+date: 2026-10-10
+title: The A-10's navigation computer keeps the route's altitudes and numbers
+change: >-
+  A player A-10C with saved points had every route waypoint in its CDU at
+  ground height instead of the planned altitude, and its own start
+  position listed twice, so each CDU number was one above the F10 map
+  and the kneeboard. The CDU now gets the route from DCS and only the
+  saved points from RetLab. A saved point keeps the elevation entered
+  for it, and the route uses 3D VNAV. Ported from juanjux/dcs-escalation.
+watch: >-
+  In an A-10C with a saved point, CDU waypoint N is waypoint N on the
+  F10 map, a cruise waypoint shows its planned altitude, and the saved
+  point is one past the last route waypoint in the EXTRA flight plan.
