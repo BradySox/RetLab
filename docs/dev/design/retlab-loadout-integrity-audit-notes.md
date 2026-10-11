@@ -352,3 +352,70 @@ that the jets this was actually asked for still carry it. Both were confirmed to
 when reverted.
 
 In-game pass = checklist **B36**.
+
+## 2026-10-11 addendum — the bundled bombers
+
+Scope: B-52H, B-1B, Tu-22M3, Tu-95MS, Tu-142, Tu-160, H-6J. Mod bombers were not read.
+
+**Sources.** Under `E:\DCS World\CoreMods\tech\`: `HeavyMetalCore\Database\Aircraft\`
+holds `B_52H.lua` and `B_1B.lua`, and `Currenthill Assets Pack\Database\Aircraft\` holds
+`CHAP_Tu95MS.lua` (ED's bundled copy; the DCS id is still `Tu-95MS`). The H-6J is in
+`CoreMods\aircraft\ChinaAssetPack`. The Tu-22M3, Tu-142 and Tu-160 are compiled, so their
+pylons were read from the public datamine (one file per unit under
+`_G/db/Units/Planes/Plane/`).
+
+**Result.** Every shipped preset resolves, and every store sits on a station DCS allows.
+pydcs's pylon tables match DCS's for all seven.
+
+### The B-52H bay Harpoon rack works — do not strip it
+
+`{46ACDCF8-5451-4E26-BDDB-E78D5830E93C}` (8 x AGM-84A, station 2, the bay) is marked
+`obsolete = true` in ED's `B_52H.lua`, with the comment "harpoon cannot be launched from
+bay". It is the only `obsolete` store in DCS. **The comment is out of date.** In the flown
+test of 2026-10-11 (Tacview 16:07, mission date 2005) four AI B-52Hs each carried
+8 x AGM-84D on the wing racks and this rack in the bay, and each fired all 16: the wing
+AGM-84D first (they flew up to 89 NM), the bay AGM-84A three to six minutes later (they
+flew about 68 NM).
+
+A change that hid the rack from the editor and emptied the bay at generation was written
+from ED's comment alone and withdrawn the same day, before merge.
+`test_b52h_bay_harpoon_rack_stays_equippable` in `tests/data/test_weapons.py` pins it.
+
+The shipped `Retribution Anti-ship` preset carries the 8 wing missiles and leaves the bay
+empty. Adding the bay rack would double it to 16; that is an open call.
+
+### Open: a date restriction can leave a bomber unarmed
+
+Not fixed; waiting on a call. With **Restrict weapons by campaign date** on, a store past
+the campaign date is swapped for the first fallback its station can carry, and removed
+when there is none. Each of these bombers carries one missile family and nothing older
+fits its stations, so the whole fit is removed. Measured with `degrade_for_date` at each
+campaign's own start date, shipped presets only:
+
+| Campaign | Date | Airframe | Task | Carries |
+|---|---|---|---|---|
+| Red Tide | 1988 | Tu-95MS | Strike | nothing (Kh-555 is 2004) |
+| Northern Flank 1985 | 1985 | Tu-95MS | Strike | nothing |
+| Northern Flank 1985 | 1985 | Tu-142 | Anti-ship | nothing (Kh-35 is 2003) |
+| Desert Storm | 1991 | H-6J | Strike, DEAD, BAI, Anti-ship | the data-link pod only |
+
+The Tu-160 (Kh-65, 1992) empties the same way before 1992; no date-restricted campaign
+fields it that early. The B-52H, B-1B and Tu-22M3 all fall back to bombs they can carry.
+
+### Open: an attack action the role does not list
+
+`MissionEditor\modules\me_action_db.lua` lists the actions each DCS role may perform.
+Attack Group: CAS, SEAD, Antiship Strike, AFAC. Bombing: Ground Attack, Pinpoint Strike,
+Runway Attack, AFAC. Engage Targets In Zone: CAS, SEAD, Antiship Strike. `configure_task`
+falls back to the airframe's default role when it has none of the wanted ones. None of
+these has been flown, and the Harpoon rack above shows a file's word is not a flown result:
+
+| Airframe | Task | Role it gets | Store | Action |
+|---|---|---|---|---|
+| Tu-160 | BAI, DEAD | Pinpoint Strike (its only role) | 12 x Kh-65 | Attack Group, not in that role's list |
+| Tu-95MS | DEAD (secondary) | SEAD | 8 x Kh-101 | Attack Group with a cruise missile |
+| H-6J | BAI, DEAD | CAS | 6 x KD-20 | Attack Group with a cruise missile |
+
+### Left alone on purpose
+
+The B-52H and B-1B OCA/Aircraft presets carry the GBU-31(V)3 penetrator; #81 kept them.

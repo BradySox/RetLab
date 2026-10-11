@@ -5,9 +5,9 @@ from types import SimpleNamespace
 from typing import cast
 
 import pytest
-from dcs.planes import F_16C_50, FA_18C_hornet
+from dcs.planes import B_52H, F_16C_50, FA_18C_hornet
 
-from game.data.weapons import Weapon, WeaponGroup, WeaponType
+from game.data.weapons import Pylon, Weapon, WeaponGroup, WeaponType
 from game.ato.loadouts import Loadout
 from game.ato.flighttype import FlightType
 from game.dcs.aircrafttype import AircraftType
@@ -256,6 +256,16 @@ def test_valid_payload_ignores_empty_stations() -> None:
     # A genuinely unknown (dead) CLSID still invalidates the loadout.
     dead = {1: {"CLSID": _AIM9M_CLSID}, 2: {"CLSID": "{NOT_A_REAL_CLSID}"}}
     assert Loadout.valid_payload(dead) is False
+
+
+def test_b52h_bay_harpoon_rack_stays_equippable() -> None:
+    # ED's B_52H.lua marks this rack obsolete ("harpoon cannot be launched from
+    # bay"), but it launches: four AI B-52Hs fired 8 each in the 2026-10-11 test.
+    # Do not strip it. See retlab-loadout-integrity-audit-notes.md.
+    aircraft = cast(AircraftType, SimpleNamespace(dcs_unit_type=B_52H))
+    bay_harpoons = Weapon.with_clsid("{46ACDCF8-5451-4E26-BDDB-E78D5830E93C}")
+    assert bay_harpoons is not None
+    assert Pylon.for_aircraft(aircraft, 2).can_equip(bay_harpoons)
 
 
 def test_antiship_falls_back_to_strike_loadout_names() -> None:
