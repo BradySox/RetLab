@@ -3140,6 +3140,44 @@ def test_viper_boxes_a_cas_working_area_and_trims_the_front_to_three(
     assert "CAS" in [d["text"] for d in data["DEST"]]
 
 
+def test_viper_front_line_keeps_its_set_beside_two_borders_a_box_and_a_tanker(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Two borders, the CAS box and a tanker box would fill all four line sets;
+    the tanker box gives way, because a CAS flight is working the front."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.aircraft_type = _aircraft("F-16C_50")
+    flight.flight_type = FlightType.CAS
+    flight.waypoints = [
+        _waypoint("A", FlightWaypointType.NAV, 150000, -30000, 7000, None),
+        _waypoint("B", FlightWaypointType.NAV, 150000, 120000, 7000, None),
+    ]
+    flight.work_zone = _zone([(150000.0, 70000.0), (150000.0, 90000.0)], 10)
+    game.theater.neutral_border_zones = [
+        SimpleNamespace(country="Alpha", border=_NORTH),
+        SimpleNamespace(country="Bravo", border=_SOUTH),
+        SimpleNamespace(country="Charlie", border=_EAST),
+    ]
+    _straight_front(monkeypatch)
+
+    def notes() -> list[str]:
+        cartridge = build_viper_cartridge(flight, mission_data, game, "V")
+        geo = json.loads(cartridge.to_json())["data"]["MPD"]["GEO_LINES"]
+        assert len(geo) <= 25
+        return [p["note"] for p in geo]
+
+    drawn = notes()
+    assert {"Alpha-Bravo", "Alpha-Charlie", "CAS"} <= set(drawn)
+    assert drawn.count("FLOT") == 3
+    assert "ARCO" not in drawn
+
+    # With one border there is a set for the tanker as well.
+    game.theater.neutral_border_zones.pop()
+    drawn = notes()
+    assert drawn.count("FLOT") == 3
+    assert drawn.count("ARCO") == SUPPORT_BOX_POINTS
+
+
 def test_viper_boxes_a_sead_working_area_without_a_front_line(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -3272,6 +3310,25 @@ def test_hornet_lane_runs_from_the_ip_over_the_target_to_the_split() -> None:
         "CORR_1_PT_2",
         "CORR_1_PT_3",
     ]
+
+
+@pytest.mark.parametrize(
+    "ingress", [FlightWaypointType.INGRESS_CAS, FlightWaypointType.INGRESS_SWEEP]
+)
+def test_hornet_draws_no_lane_when_no_split_follows_the_ip(
+    ingress: FlightWaypointType,
+) -> None:
+    """CAS and Sweep have no split, so the lane ran on to landing and divert."""
+    flight, mission_data, game = _hornet_fixture()
+    flight.waypoints = [
+        _waypoint("TAKEOFF", FlightWaypointType.TAKEOFF, 0, 0, 0, None),
+        _waypoint("IP", ingress, 40000, 50000, 7000, None),
+        _waypoint("TGT", FlightWaypointType.TARGET_POINT, 60000, 80000, 0, None),
+        _waypoint("EGRESS", FlightWaypointType.EGRESS, 40000, 90000, 7000, None),
+        _waypoint("LANDING", FlightWaypointType.LANDING_POINT, 0, 0, 0, None),
+        _waypoint("DIVERT", FlightWaypointType.DIVERT, 5000, 5000, 0, None),
+    ]
+    assert _hornet_sa(flight, mission_data, game)["CORRIDORS"] == []
 
 
 def test_hornet_tacan_list_carries_the_boat_then_the_fields() -> None:
