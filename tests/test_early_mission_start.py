@@ -11,10 +11,13 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 from typing import Any, cast
 
+import pytest
+
 from game.ato.flightstate import StartUp, WaitingForStart
 from game.ato.flighttype import FlightType
 from game.ato.starttype import StartType
 from game.sim.missionsimulation import MissionSimulation
+from game.sim import missionstart
 from game.sim.missionstart import EARLY_START_CAP, early_start_shift
 
 TURN = datetime(2026, 9, 23, 12, 0, 0)
@@ -201,3 +204,169 @@ def test_asap_support_never_holds_the_start_early_itself() -> None:
 
     assert sim.time == TURN
     assert cap.asap_from == TURN
+
+
+TRANSIT = timedelta(minutes=20)
+HANDOVER = timedelta(minutes=45)
+
+
+class _TransitTotEstimator:
+    def __init__(self, package: Any) -> None:
+        self.package = package
+
+    def earliest_tot(self, now: datetime) -> datetime:
+        return now + TRANSIT
+
+
+@pytest.fixture(autouse=True)
+def _stub_tot_estimator(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(missionstart, "TotEstimator", _TransitTotEstimator)
+
+
+def _cap_station(relief_after: timedelta = HANDOVER) -> tuple[Any, Any]:
+    """A station's ASAP first wave and the relief the scheduler chained to it."""
+    station = object()
+    first = _asap(FlightType.BARCAP)
+    first.target = station
+    relief = SimpleNamespace(
+        auto_asap=False,
+        primary_task=FlightType.BARCAP,
+        target=station,
+        time_over_target=first.time_over_target + relief_after,
+        flights=[],
+    )
+    flight = _flight(TURN)
+    flight.package = relief
+    flight.flight_plan.startup_time = lambda: relief.time_over_target - TRANSIT
+    relief.flights.append(flight)
+    return first, relief
+
+
+def _startups(*packages: Any) -> list[datetime]:
+    return [f.flight_plan.startup_time() for p in packages for f in p.flights]
+
+
+def test_a_relief_cap_wave_moves_with_its_first_wave() -> None:
+    """The first wave launched with the early start and its relief stayed on the
+    turn clock: a 20 min early start left the station empty for 20 min."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=20))])
+    first, relief = _cap_station()
+    other_first, other_relief = _cap_station()
+    packages = [early, first, relief, other_first, other_relief]
+    game = _game_of(packages)
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert sim.time == TURN - timedelta(minutes=20)
+    for lead, wave in ((first, relief), (other_first, other_relief)):
+        assert wave.time_over_target - lead.time_over_target == HANDOVER
+
+    # Removing what started the mission early puts the whole station back.
+    packages.remove(early)
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    assert sim.time == TURN
+    assert relief.time_over_target == TURN + TRANSIT + HANDOVER
+
+
+def test_a_relief_wave_never_holds_the_start_early_itself() -> None:
+    """A relief due minutes after the first wave starts before the turn clock once
+    shifted. It is timed off the start, so it must not set the next one."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=20))])
+    first, relief = _cap_station(relief_after=timedelta(minutes=5))
+    packages = [early, first, relief]
+    game = _game_of(packages)
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    assert _startups(relief) == [TURN - timedelta(minutes=15)]
+
+    packages.remove(early)
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    assert sim.time == TURN
+    assert _startups(relief) == [TURN + timedelta(minutes=5)]
+
+
+def test_a_relief_wave_is_never_timed_before_it_can_fly() -> None:
+    # Chained tighter than its transit allows: the shift stops at the earliest
+    # TOT from the mission start, since nothing else starts the mission for it.
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=20))])
+    first, relief = _cap_station()
+    relief.time_over_target = TURN + TRANSIT
+    game = _game_of([early, first, relief])
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert relief.time_over_target == sim.time + TRANSIT
+    assert min(_startups(relief)) >= sim.time
+
+
+def _queued_behind(tanker: Any, jump: timedelta) -> Any:
+    """A flight the runway queue starts ``jump`` before the turn clock once the
+    tanker ahead of it launches early."""
+    flight = _flight(TURN)
+    flight.flight_plan.startup_time = lambda: (
+        TURN - jump if tanker.flights[0].flight_plan.startup_time() < TURN else TURN
+    )
+    return SimpleNamespace(flights=[flight])
+
+
+def test_the_start_is_taken_again_after_support_is_retimed() -> None:
+    """Retimed support jumped the runway queue after the start was fixed, and the
+    jet behind it got a startup up to 2.3 min before the mission began."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=16))])
+    tanker = _asap(FlightType.REFUELING)
+    queued = _queued_behind(tanker, timedelta(minutes=18))
+    game = _game_of([early, tanker, queued])
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert sim.time == TURN - timedelta(minutes=18)
+    assert tanker.asap_from == sim.time
+    assert min(_startups(early, tanker, queued)) >= sim.time
+
+
+def test_the_second_look_at_the_start_keeps_the_cap() -> None:
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=29))])
+    tanker = _asap(FlightType.REFUELING)
+    queued = _queued_behind(tanker, timedelta(minutes=33))
+    game = _game_of([early, tanker, queued])
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    assert sim.time == TURN - EARLY_START_CAP
+    assert tanker.asap_from == sim.time
+
+
+def test_queue_jump_and_relief_shift_settle_together() -> None:
+    """No startup before the start and no CAP gap, and a second generation of the
+    same plan changes nothing."""
+    early = SimpleNamespace(flights=[_flight(TURN - timedelta(minutes=16))])
+    tanker = _asap(FlightType.REFUELING)
+    queued = _queued_behind(tanker, timedelta(minutes=18))
+    first, relief = _cap_station()
+    game = _game_of([early, tanker, queued, first, relief])
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+
+    def picture() -> tuple[Any, ...]:
+        return (
+            sim.time,
+            first.time_over_target,
+            relief.time_over_target,
+            *_startups(early, tanker, queued, first, relief),
+        )
+
+    settled = picture()
+    assert sim.time == TURN - timedelta(minutes=18)
+    assert min(_startups(early, tanker, queued, first, relief)) >= sim.time
+    assert relief.time_over_target - first.time_over_target == HANDOVER
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    assert picture() == settled

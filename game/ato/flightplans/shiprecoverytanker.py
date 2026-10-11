@@ -23,6 +23,10 @@ def recovery_station_time(settings: Any) -> timedelta:
 class RecoveryTankerFlightPlan(RefuelingFlightPlan):
     honors_orbit_speed = False
 
+    @property
+    def patrol_duration(self) -> timedelta:
+        return recovery_station_time(self.flight.coalition.game.settings)
+
     @staticmethod
     def builder_type() -> Type[Builder]:
         return Builder

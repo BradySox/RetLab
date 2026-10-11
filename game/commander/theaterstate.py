@@ -430,7 +430,7 @@ def _refueling_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
     """
     targets = _carriers_flying_their_own(finder, FlightType.REFUELING)
     _append_land_anchor(targets, finder.tanker_land_anchor())
-    return targets
+    return targets or _nearest_ship_station(finder, FlightType.REFUELING)
 
 
 def _aewc_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
@@ -453,7 +453,36 @@ def _aewc_targets(finder: ObjectiveFinder) -> list[MissionTarget]:
         _append_land_anchor(targets, finder.aewc_land_anchor())
     else:
         _append_land_anchor(targets, finder.forward_aewc_land_anchor())
-    return targets
+    return targets or _nearest_ship_station(finder, FlightType.AEWC)
+
+
+def _nearest_ship_station(
+    finder: ObjectiveFinder, task: FlightType
+) -> list[MissionTarget]:
+    """The station for a wing with no land field and no carrier basing ``task``.
+
+    Such a wing got no station at all, so a tanker or AWACS based off-map or on
+    an LHA sat the campaign out. It flies over the friendly ship nearest the
+    base of a squadron that can fly it; none when no squadron can.
+    """
+    ships = [cp for cp in finder.friendly_control_points() if cp.is_fleet]
+    bases = [
+        squadron.location
+        for squadron in finder.game.coalition_for(
+            finder.is_player
+        ).air_wing.iter_squadrons()
+        if squadron.capable_of(task) and squadron.untasked_aircraft > 0
+    ]
+    if not ships or not bases:
+        return []
+    return [
+        min(
+            ships,
+            key=lambda ship: min(
+                ship.position.distance_to_point(base.position) for base in bases
+            ),
+        )
+    ]
 
 
 def _append_land_anchor(

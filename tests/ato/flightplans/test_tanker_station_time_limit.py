@@ -43,3 +43,36 @@ def test_the_recovery_station_keeps_the_old_bound(minutes: int, expected: int) -
     )
     assert recovery_station_time(settings) == timedelta(minutes=expected)
     assert RECOVERY_STATION_TIME_CAP == timedelta(minutes=150)
+
+
+def test_the_recovery_tanker_stays_no_longer_than_its_station_allows() -> None:
+    """At 300 minutes the station sat 50 NM out while the plan, the DCS stop
+    condition and the scheduler's spacing all still used the full setting."""
+    from game.ato.flightplans.refuelingflightplan import RefuelingFlightPlan
+    from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
+
+    settings = SimpleNamespace(desired_tanker_on_station_time=timedelta(minutes=300))
+    plan = SimpleNamespace(
+        flight=SimpleNamespace(
+            coalition=SimpleNamespace(game=SimpleNamespace(settings=settings))
+        )
+    )
+    recovery = RecoveryTankerFlightPlan.patrol_duration.fget  # type: ignore[attr-defined]
+    theater = RefuelingFlightPlan.patrol_duration.fget  # type: ignore[attr-defined]
+    assert recovery(plan) == timedelta(minutes=150)
+    assert theater(plan) == timedelta(minutes=300)
+
+
+def test_every_reader_of_the_recovery_station_time_is_bounded() -> None:
+    import inspect
+
+    from game.commander.missionscheduler import MissionScheduler
+    from game.missiongenerator.aircraft.aircraftbehavior import AircraftBehavior
+
+    for reader in (
+        MissionScheduler.schedule_missions,
+        AircraftBehavior.configure_recovery,
+    ):
+        source = inspect.getsource(reader)
+        assert "recovery_station_time(" in source
+        assert "desired_tanker_on_station_time" not in source
