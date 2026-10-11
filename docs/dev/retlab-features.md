@@ -2755,6 +2755,20 @@ defect that reached a build, most of them found by flying.
   Blue plans before red arranges the turn's transports, so blue sees only the red
   transports made at turn end (a delivered ground order, a §35 or §50 convoy). Red plans
   after blue and sees all of blue's.
+- **Every anti-ship flight attacked the same ship (changed 2026-10-11, DM call).** Each
+  flight got `AttackGroup` on the target's DCS groups, the carrier's own group first, and
+  the AI picks one hull at a time; a 2026-10-11 run put 128 of 160 Harpoons at one carrier
+  and none at three of its four escorts. `game/missiongenerator/aircraft/antishipdeal.py`
+  now deals the coalition's anti-ship flights across the living ships of a sea group, and
+  `AntiShipIngressBuilder` writes one `AttackUnit` task per ship ahead of the old group
+  tasks, starting at the flight's own ship.
+  - Line: the escort with the longest-reach SAM, each carrier, then the rest by SAM reach.
+  - The top SAM ship and each carrier take 2 flights, every other ship 1, then wrap.
+  - Dealt across every package on that sea group, ordered by package TOT. Both sides.
+  - A cargo ship target is unchanged.
+  Rationale, the run's numbers and what is not addressed (launch timing, the §108 grade for
+  a standoff shooter): `docs/dev/design/retlab-antiship-deal-notes.md`. Tests:
+  `tests/missiongenerator/aircraft/test_antishipdeal.py`. Row **B219**.
 
 ### Debrief and reporting
 
