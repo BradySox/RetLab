@@ -39,7 +39,7 @@ below that is Unsat.
 | Task | Timing point | Radius |
 |---|---|---|
 | Strike, BAI, DEAD, SEAD, Anti-ship, OCA, Armed Recon | the ingress point, against the planned ingress time | 12 NM |
-| Escort, SEAD Escort | the join point, against the planned join time | 12 NM |
+| Escort, SEAD Escort, Escort Jammer | the join point, against the planned join time | 12 NM |
 | BARCAP, TARCAP, AEW&C, tanker, jamming | the station (`tot_waypoint`) | 5 NM |
 | Everything else | `tot_waypoint` | 5 NM |
 

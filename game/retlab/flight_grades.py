@@ -58,7 +58,9 @@ ATTACK_TASKS = frozenset(
 STANDOFF_TASKS = frozenset({FlightType.ANTISHIP, FlightType.SEAD})
 #: Tasks timed at the join point: an escort follows its package from there and
 #: never needs to see the target.
-ESCORT_TASKS = frozenset({FlightType.ESCORT, FlightType.SEAD_ESCORT})
+ESCORT_TASKS = frozenset(
+    {FlightType.ESCORT, FlightType.SEAD_ESCORT, FlightType.ESCORT_JAMMER}
+)
 #: Tasks graded on air kills.
 AIR_TASKS = frozenset(
     {
