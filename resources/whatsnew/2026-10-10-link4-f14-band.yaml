@@ -1,0 +1,13 @@
+date: 2026-10-10
+title: Tomcats can dial the carrier's Link 4
+change: >-
+  Each carrier's Link 4 moved from 336.1-336.9 MHz to 320.1-320.9 MHz,
+  keeping its last digit (Stennis 336.4 is now 320.4). The F-14's data
+  link panel only dials 300.0 to 324.9 MHz, so the old numbers could not
+  be set in a Tomcat. Hornets are unaffected and the DTC loads the new
+  number. An existing campaign picks up the new number on its next
+  mission.
+watch: >-
+  The CV Operations Data kneeboard page shows Link 4 as 320.x. In an
+  F-14, the RIO can dial that number on the data link panel and the
+  carrier's ACLS and data link picture come up.

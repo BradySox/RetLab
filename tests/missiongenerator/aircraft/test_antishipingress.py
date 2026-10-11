@@ -35,6 +35,7 @@ from game.theater import NavalControlPoint, TheaterGroundObject
 from game.theater.controlpoint import ControlPoint
 from game.theater.presetlocation import PresetLocation
 from game.theater.theatergroundobject import MotorpoolGroundObject
+from game.transfers import MultiGroupTransport
 from game.utils import Heading
 
 
@@ -110,6 +111,24 @@ def test_warns_when_no_attackable_group(caplog: pytest.LogCaptureFixture) -> Non
 
     assert not [t for t in waypoint.tasks if isinstance(t, AttackGroup)]
     assert any("no attackable target group" in rec.message for rec in caplog.records)
+
+
+def test_cargo_ship_target_gets_an_attack_task() -> None:
+    """A cargo ship is a transport, not a ground object; its mission group is
+    named after it. Without this the flight flew to the ingress and turned back."""
+    target = MagicMock(spec=MultiGroupTransport)
+    target.name = "Cargo ship 3"
+    miz_group = MagicMock()
+    miz_group.id = 7
+
+    builder, waypoint = _build_builder(
+        target, lambda name: miz_group if name == "Cargo ship 3" else None
+    )
+    builder.add_tasks(waypoint)
+
+    attacks = [task for task in waypoint.tasks if isinstance(task, AttackGroup)]
+    assert attacks
+    assert all(task.params["groupId"] == 7 for task in attacks)
 
 
 def _motorpool_target(unit_positions: list[Point]) -> MotorpoolGroundObject:

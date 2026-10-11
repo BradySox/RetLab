@@ -5,6 +5,7 @@ from dcs.point import MovingPoint
 from dcs.task import AttackGroup, Expend, OptFormation, WeaponType
 
 from game.theater import NavalControlPoint, TheaterGroundObject
+from game.transfers import MultiGroupTransport
 from .pydcswaypointbuilder import PydcsWaypointBuilder
 
 
@@ -25,6 +26,9 @@ class AntiShipIngressBuilder(PydcsWaypointBuilder):
         elif isinstance(target, TheaterGroundObject):
             for group in target.groups:
                 group_names.append(group.group_name)
+        elif isinstance(target, MultiGroupTransport):
+            # A cargo ship: its mission group is named after it.
+            group_names.append(target.name)
         else:
             logging.error(
                 "Unexpected target type for Anti-Ship mission: %s",

@@ -2698,6 +2698,24 @@ defect that reached a build, most of them found by flying.
   package, not a lost campaign. This is checklist row **B50** failing in the worst
   available way.
 
+- **The planner never targeted enemy convoys or cargo ships (fixed 2026-10-10).**
+  `ObjectiveFinder.convoys()` and `cargo_ships()` asked the planner's *own* coalition for
+  transports heading to the enemy's front-line base, which is always empty, so
+  `InterdictReinforcements` had nothing to plan for either side. Both now read the
+  opponent's transfers, and `cargo_ships()` honours `perf_disable_cargo_ships` as
+  `convoys()` honours its twin. The bug is upstream's and Liberation's too. Three fixes
+  rode with it: `AntiShipIngressBuilder` had no branch for a cargo ship (a
+  `MultiGroupTransport`, whose mission group carries its name), so an anti-ship flight
+  sent at one got no attack task; `CargoStopBuilder` wrote an airfield id for a carrier or
+  LHA stop, where a ship is landed on by unit id as `LandingPointBuilder` does; and buying
+  or selling a ground object red was targeting re-planned both sides, because
+  `QGroundObjectMenu` passed a `Player` (always truthy) as `for_red` / `for_blue`.
+  Ported from rmac7664/dcs-retribution (`fix/upstream-airlift-refunds`); its refund and
+  transfer-label fixes were already ours (PR #395). Tests:
+  `tests/commander/test_enemy_transport_targets.py`,
+  `tests/missiongenerator/aircraft/test_cargostop.py`, `test_antishipingress.py`. Row
+  **B212**.
+
 ### Debrief and reporting
 
 - **Destroyed strike targets never reaching the campaign — the results commit used a stale
@@ -7013,9 +7031,19 @@ pydcs ship type id) gives every vanilla hull a signature data set — TACAN **ch
 number** where that's legal for a surface transmit/receive beacon (channels 2–30 and 47–63 X
 are excluded by DCS datalink constraints, so Forrestal 59 → 64X and Tarawa hull 1 → 41X) with
 a **boat-name ident** (TRO/ABE/GWN/STN/HST/FID/TAR/KUZ), **hull-keyed ICLS** (CVN-71 → 11 …
-CVN-75 → 15, Forrestal 9, Tarawa 1), **Link 4 in the real ACLS 336 MHz band** (336.1–336.9,
-one per hull), and a **stable ATC UHF** (304–312, one per hull). Mod carriers without an
+CVN-75 → 15, Forrestal 9, Tarawa 1), **Link 4 at 320.1–320.9 MHz** (one per hull), and a
+**stable ATC UHF** (304–312, one per hull). Mod carriers without an
 entry keep the legacy allocator path end to end.
+
+**Link 4 moved out of the 336 MHz band 2026-10-10.** The F-14's Data Link Control Panel
+dials 300.0–324.9 MHz only (Heatblur manual), so a Tomcat could not tune the 336.1–336.9
+the table carried, which was the mission editor's default. Each hull keeps its last digit
+(Stennis 336.4 → 320.4). The fallback allocator (`RadioRegistry.alloc_link4`) and the
+*Set LINK4* dialog are held to the same band. A save that stored one of the old curated
+values is given the new one, at load (`Migrator`) and at generation (`_resolve_link4`,
+`is_retired_curated_link4`); any other stored value still wins. Found through
+red-one1/dcs-retribution's `fix/carrier-datalink-f14-frequency`, whose allocator range is
+ported. Not flown: row **B213**.
 
 **Precedence.** Values from the table are defaults, not mandates, resolved in
 `GenericCarrierGenerator._resolve_{atc,tacan,link4,icls}` (`tgogenerator.py`): a value
@@ -7073,7 +7101,7 @@ mission of any existing campaign (already-persisted channels on an old save win 
 so an in-progress campaign keeps its known numbers).
 
 **Tests.** `tests/test_carrier_comms.py`: table invariants (unique TACAN/ATC/ICLS/Link 4,
-T/R-legal channels, 336-band Link 4, 3-letter idents, ACLS-capable hulls carry full deck
+T/R-legal channels, Link 4 inside the F-14's band, 3-letter idents, ACLS-capable hulls carry full deck
 data), the `IclsAllocator`, the curated → stored → fallback precedence for all four
 resolvers, the nearest-neighbor TACAN degrade, and the flagship-name collision guard.
 
@@ -11180,7 +11208,10 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
 - `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
-  panel (`DrawPanel.tsx`) and the map layer (`SavedPointsLayer.tsx`).
+  panel (`DrawPanel.tsx`), the map layer (`SavedPointsLayer.tsx`) and its editable pins
+  (`SavedPointPin.tsx`).
+- `game/server/savedpoints/notifications.py` — one call that tells the map and the open
+  window a point changed.
 
 ### What it does
 
@@ -11193,6 +11224,10 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
   numbers (`point_numbers`, the same function the kneeboard uses).
 - Kneeboard: a "saved points" page with the cockpit's numbers; the route table prints
   `-` on a skipped row.
+- Map pins (2026-10-10, juanjux #519): each saved point is a pin in its kind's colour.
+  Click to rename or delete, drag to move; an orbit's pin moves the racetrack. The map
+  and the window refresh each other. Points are edited by a persistent id. Design note
+  §6a.
 
 ### Constraints — do not undo
 
@@ -11210,6 +11245,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
   2026-09-27; the first fix put the class in `pathOptions`, which react-leaflet applies
   through `setStyle` and Leaflet ignores there, so it never reached the DOM. Cased shapes
   now pass `className` as a creation prop: fixed again 2026-09-28).
+- The map edits a point by its id, never its index, and every edit calls
+  `publish_points_changed`. A new place that changes points must call it too, or the
+  map and the window drift until the 5 s poll.
 
 ### §74 schema fixes (2026-09-22)
 
@@ -11227,8 +11265,10 @@ design note §5a has each DCS file:line source:
 The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`,
 `tests/test_saved_points.py`, `tests/test_a10cdu.py`, `tests/test_coordinates.py`,
 `tests/test_coordinate_parsing.py`, `tests/test_elevation.py`,
-`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
-`coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
+`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`,
+`tests/server/test_saved_point_pins.py`, `tests/qt_ui/test_saved_point_sync.py`, and the client's
+`coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing;
+`SavedPointPins.test.tsx` for the pins).
 
 ### Needs an in-game pass — B135, B136, B209
 

@@ -34,6 +34,8 @@ from PySide6.QtWidgets import (
 )
 
 from game.ato.savedpoints import PointKind, remove_point
+from game.server.savedpoints.notifications import publish_points_changed
+from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 from qt_ui.windows.playable.style import (
     CAPTION,
     CARD_BG,
@@ -551,6 +553,13 @@ class PlayableAircraftDialog(QDialog):
         self.setLayout(layout)
 
     def _wire(self) -> None:
+        self._points_signal = GameUpdateSignal.get_instance()
+        if self._points_signal is not None:
+            # Queued: a map edit is published from the server's thread.
+            self._points_signal.saved_points_changed.connect(
+                self.refresh_points, Qt.ConnectionType.QueuedConnection
+            )
+            self.finished.connect(self._stop_refreshing)
         self.aircraft_view.selectionModel().currentChanged.connect(
             lambda *_: self.show_selected()
         )
@@ -694,6 +703,30 @@ class PlayableAircraftDialog(QDialog):
         # The aircraft row's count follows the same room.
         self.aircraft_view.viewport().update()
 
+    def _stop_refreshing(self, _result: int = 0) -> None:
+        """A closed window is kept alive by its parent; it stops redrawing here."""
+        signal, self._points_signal = self._points_signal, None
+        if signal is not None:
+            signal.saved_points_changed.disconnect(self.refresh_points)
+
+    def refresh_points(self) -> None:
+        """Redraw after an edit made on the map, keeping the aircraft, the open tab
+        and the selected point if it still exists."""
+        # The window's own edits come back here as well. Redrawing would close a
+        # cell the player has tabbed into; the edit being typed redraws when it lands.
+        if self.points_view.state() == QAbstractItemView.State.EditingState:
+            return
+        current = self.current_point()
+        point = current.point if current is not None else None
+        self.show_points()
+        for row in range(self.points_model.rowCount()):
+            index = self.points_model.index(row, 0)
+            entry = self.points_model.at(index)
+            if entry is not None and not entry.is_header and entry.point is point:
+                self.points_view.setCurrentIndex(index)
+        self.aircraft_model.layoutChanged.emit()
+        self.headline.show_figures(*data.figures(data.aircraft_of(self.game)))
+
     def _show_drawings(self, one: Optional[data.Aircraft]) -> None:
         self.drawings_view.clear()
         drawings = [] if one is None else list(one.flight.saved_drawings)
@@ -738,6 +771,7 @@ class PlayableAircraftDialog(QDialog):
 
         remove_drawing(one.flight, row)
         self.show_points()
+        publish_points_changed()
 
     def drawing_menu_at(self, where: QPoint) -> None:
         item = self.drawings_view.itemAt(where)
@@ -885,6 +919,7 @@ class PlayableAircraftDialog(QDialog):
         )
         self.show_points()
         self.aircraft_model.layoutChanged.emit()
+        publish_points_changed()
 
     def copy_everything(self) -> None:
         one = self.selected
@@ -900,6 +935,7 @@ class PlayableAircraftDialog(QDialog):
         self.clipboard.paste_into(one)
         self.show_points()
         self.aircraft_model.layoutChanged.emit()
+        publish_points_changed()
 
     def current_point(self) -> Optional[PointRow]:
         row = self.points_model.at(self.points_view.currentIndex())
@@ -954,9 +990,16 @@ class PlayableAircraftDialog(QDialog):
         one = self.selected
         if row is None or one is None or row.index is None:
             return
-        remove_point(one.flight, row.index)
+        # By identity: a map deletion may have shifted the indices before its
+        # queued refresh reached this window.
+        index = next(
+            (i for i, point in enumerate(one.points) if point is row.point), None
+        )
+        if index is not None:
+            remove_point(one.flight, index)
         self.show_points()
         self.aircraft_model.layoutChanged.emit()
+        publish_points_changed()
 
     def point_menu_at(self, where: QPoint) -> None:
         index = self.points_view.indexAt(where)

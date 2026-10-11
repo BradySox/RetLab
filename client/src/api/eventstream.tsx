@@ -1,4 +1,5 @@
 import { AppDispatch } from "../app/store";
+import { announceChange } from "../components/coordinatepicker/receivers";
 import { gameUnloaded } from "./actions";
 import Combat from "./combat";
 import { endCombats, newCombats, updateCombats } from "./combatSlice";
@@ -48,6 +49,7 @@ interface GameUpdateEvents {
   deleted_flights: string[];
   selected_flight: string | null;
   deselected_flight: boolean;
+  saved_points_updated?: boolean;
   updated_front_lines: FrontLine[];
   deleted_front_lines: string[];
   updated_tgos: Tgo[];
@@ -65,6 +67,22 @@ export const handleStreamedEvents = (
   dispatch: AppDispatch,
   events: GameUpdateEvents
 ) => {
+  // Saved points hang off the player's flights, so a change to either redraws them.
+  if (
+    events.saved_points_updated ||
+    events.new_flights.length > 0 ||
+    events.updated_flights.length > 0 ||
+    events.deleted_flights.length > 0 ||
+    events.reset_on_map_center != null ||
+    events.new_turn ||
+    events.game_unloaded
+  ) {
+    announceChange({
+      unloaded: events.game_unloaded,
+      reset: events.reset_on_map_center != null || events.new_turn,
+    });
+  }
+
   if (Object.keys(events.updated_flight_positions).length) {
     dispatch(
       updateFlightPositions(Object.entries(events.updated_flight_positions))

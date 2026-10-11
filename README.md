@@ -134,6 +134,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   and Vipers after the route on sequence 2, the F-14B(U) on flight plan 3, the Apache on
   route BRAVO, the A-10 in its navigation computer. Every aircraft gets them on a
   kneeboard page with the cockpit's own numbers.
+- Each saved point is a pin on the map: click it to rename or delete it, drag it to move
+  it. The My aircraft window follows.
 - The DTC tab shows only what your aircraft's cartridge carries. You choose load at spawn
   or by hand, which kinds of waypoint go into the jet, and whether SAM rings are limited to
   the ones near your route or the long-range ones.

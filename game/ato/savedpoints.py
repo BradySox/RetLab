@@ -26,6 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import TYPE_CHECKING, Any, Iterable
+from uuid import UUID, uuid4
 
 if TYPE_CHECKING:
     from game.ato.flight import Flight
@@ -83,6 +84,9 @@ class SavedPoint:
     #: An orbit's racetrack: from the point, along this heading, this long.
     heading_deg: int = 90
     length_nm: float = DEFAULT_ORBIT_LENGTH_NM
+    #: What the map edits a point by: an index shifts when another point is deleted.
+    #: Left out of equality, so two points written down alike still compare equal.
+    id: UUID = field(default_factory=uuid4, compare=False)
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("heading_deg", 90)
@@ -174,6 +178,10 @@ def points_of(flight: Flight) -> list[SavedPoint]:
     for point in flight.__dict__.pop("saved_points", None) or []:
         if point not in points:
             points.append(point)
+    # A save from before points had an id: given one here, and the save keeps it.
+    for point in points:
+        if not hasattr(point, "id"):
+            point.id = uuid4()
     return points
 
 

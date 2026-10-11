@@ -654,6 +654,14 @@ Each was checked live in RetLab main @ `01a0b3a4d` before it was ported.
 | #453 | Ships range-wired to power stations and comms towers ashore. | As his, plus the late-enrol repair skips ships. |
 | #501 (deck half) | A sunk carrier or LHA still took relocations, transfers and new squadrons. | `_has_usable_flight_deck` + the `can_operate` edits. The High Command half is not taken (watched, not decided). |
 
+### Adopted here 2026-10-10 — Saved-point map pins (§102)
+
+#519 taken while still open on his side (DM call): saved points as map pins with
+rename, delete and drag, persistent point ids, and the map and the window refreshing
+each other. Ours replace the existing kind-coloured dots instead of adding yellow
+pins, and keep the 5 s poll. If he changes #519 before merging it, re-read it. Row
+B211; `retlab-my-aircraft-notes.md` §6a.
+
 ## Running the watch
 
 Cheap pass, a few minutes:
