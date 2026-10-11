@@ -1,0 +1,1 @@
+* **[Data]** The MiG-29A (full module) loadout presets use the module's own store ids. DCS already swapped the old ones at mission load, so the jet carries the same weapons; Take Off no longer logs "Pylon N cannot equip" for it.

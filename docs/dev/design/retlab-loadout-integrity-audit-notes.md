@@ -455,3 +455,33 @@ The Tu-95MS was never DEAD-capable: its yaml lists DEAD under `secondary_tasks` 
 ### Left alone on purpose
 
 The B-52H and B-1B OCA/Aircraft presets carry the GBU-31(V)3 penetrator; #81 kept them.
+
+## 2026-10-11 addendum — the MiG-29A module, and why "cannot equip" is not "unarmed"
+
+Test 55 (Vectron's Claw turn 1): the app logged `Pylon N cannot equip R-73` and
+`... R-27R` 48 times at Take Off, for four red flights of the full MiG-29A module (pydcs id
+`MiG-29 Fulcrum`), and no MiG-29 fired a missile in 82 minutes. That was first read as
+eight unarmed jets. It was wrong.
+
+- `MiG-29 Fulcrum.lua` shipped (upstream #579) as a copy of the Flaming Cliffs MiG-29A file,
+  with that jet's CLSIDs. pydcs lists only the module's own ids on its pylons, hence the log.
+- The module carries `replace_deprecated_loadout_with`, a table mapping each old id to its
+  new one (`CoreMods\aircraft\MiG-29-Fulcrum\MiG-29-Fulcrum.lua`, line 54), and
+  `MissionEditor\modules\me_mission.lua` applies it when a mission loads. All six ids the file
+  used are in it.
+- DCS's loaded copy of the next mission (`Temp\DCS\tempMission.miz`) showed the MiG-29 CAPs
+  with `{MISSILE_R-73_APU-73}` and `{MISSILE_R-27R_APU-470}`.
+- Not checked: whether a dedicated server, which has no mission-editor loader, does the swap.
+
+The file now uses the ids that table maps to, so nothing changes in the jet (DM call,
+2026-10-11): R-73, R-27R, B-8M1 S-8OFP2, FAB-500 M-62, S-24B and BetAB-500ShP.
+`tests/retlab/test_mig29_fulcrum_loadouts.py` holds every preset store to its pylon. A
+flight planned before the change keeps the stores it was planned with.
+
+**Rule that came out of it:** pydcs's pylon tables and the "cannot equip" line describe
+pydcs's data. Before calling a preset broken, read the module's Lua in the DCS install for
+the store id and for `replace_deprecated_loadout_with`, and read `tempMission.miz` for what
+DCS loaded. A scan of every preset against pydcs's pylons that day found 465 stores on 49
+airframes; 36 were this file's and DCS accepts all 36. One the install does back up: the
+Mi-24P's outboard pylons (2 and 5) take `{2x9M120_Ataka_V_with_adapter}`, the Escort preset
+puts the wingtip store `{2x9M120_Ataka_V}` there, and the Hind has no swap table.
