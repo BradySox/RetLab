@@ -70,12 +70,20 @@ report is a good report.
   `no_launch_facilities` (a FOB with nowhere to spawn; it has no runway to crater).
 - A squadron's `role` is its primary task, and `tasks` every task the planner may give it
   on its own. A base's `air` groups its aircraft by their squadrons' roles.
+- A squadron's `can_add` is how many more aircraft it can order now: its base's free
+  parking of the right size, then its own size cap (`max_ac`). The budget is separate.
+  0 means a buy will be refused.
 - `targets` are blue's: SAM sites (`sam`), ships, buildings, motorpools (undeployed armor
-  in a depot), convoys and cargo ships in transit, front lines, and airfields
+  in a depot), garrisons (ground groups holding a front-line base against capture),
+  convoys and cargo ships in transit, front lines, and airfields
   (`airfield`, with the aircraft based there in `composition`). `threat_nm` is how far a
   site can shoot; `detection_nm` how far it can see. `threats` is every blue SAM and ship
   umbrella, ranked by reach. It is complete.
 - A front's `stance` is red's ground posture on it (for example `DEFENSIVE`, `AGGRESSIVE`).
+  Its `capture_blocked_by` counts blue's ground groups still inside the capture zone of
+  the blue base behind it (1.6 NM around the field). The base cannot be taken while any
+  is alive, and the scripted planner never orders `BREAKTHROUGH` until it reads 0. Each
+  is in `targets` with kind `garrison` and that base's name in `base`: BAI kills them.
 - A package's `target_id`, `target_kind` and `target_owner` say what it is aimed at. A
   BARCAP aims at something of red's own: a base, or a site from
   `GET /retribution-ai/ground/mine` (red's own sites; `targets` only lists blue's).

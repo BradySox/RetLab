@@ -1,0 +1,1 @@
+* **[Campaign AI]** The AI connect link says whether the enemy base behind each front can be captured yet, lists the ground groups that still block it as targets, and says how many more aircraft each red squadron can order. (ideas from Hussar2477)

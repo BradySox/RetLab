@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from types import SimpleNamespace
 from typing import Any, cast
+from unittest.mock import patch
 
 import pytest
 from fastapi import HTTPException
@@ -187,3 +188,60 @@ def test_a_loadout_is_the_one_the_mission_is_built_with() -> None:
         "Anti-ship",
         {2: "Kh-31A"},
     )
+
+
+def _room(parking: int, limits: bool, max_size: int, owned: int, pending: int) -> int:
+    squadron: Any = SimpleNamespace(
+        location=SimpleNamespace(unclaimed_parking=lambda _type: parking),
+        settings=SimpleNamespace(enable_squadron_aircraft_limits=limits),
+        max_size=max_size,
+        owned_aircraft=owned,
+        pending_deliveries=pending,
+        aircraft=SimpleNamespace(
+            dcs_unit_type=SimpleNamespace(helicopter=False, flyable=True)
+        ),
+    )
+    with patch("game.theater.controlpoint.ParkingType.from_squadron", lambda *_: None):
+        return views._squadron_room(squadron)
+
+
+def test_a_squadrons_room_is_parking_then_its_cap() -> None:
+    assert _room(parking=5, limits=False, max_size=12, owned=12, pending=0) == 5
+    assert _room(parking=5, limits=True, max_size=12, owned=10, pending=1) == 1
+    assert _room(parking=0, limits=True, max_size=12, owned=4, pending=0) == 0
+    # Over its cap after a transfer in: never negative.
+    assert _room(parking=5, limits=True, max_size=12, owned=14, pending=0) == 0
+
+
+def test_every_red_squadron_says_how_many_aircraft_it_can_add(
+    campaign_game: Any,
+) -> None:
+    squadrons = views.build_turn_context(campaign_game, "red").air_wing
+    assert squadrons
+    assert all(isinstance(sq.can_add, int) and sq.can_add >= 0 for sq in squadrons)
+    assert "can_add" in squadrons[0].model_dump(exclude_none=True)
+
+
+def test_a_front_counts_the_garrison_blocking_capture_and_lists_it(
+    campaign_game: Any,
+) -> None:
+    from game.commander.battlepositions import BattlePositions
+
+    targets = views.build_targets(campaign_game, "red")
+    fronts = [t for t in targets if t.kind == "front"]
+    garrisons = {t.id: t for t in targets if t.kind == "garrison"}
+    assert fronts
+    blocking_ids: set[str] = set()
+    for front in fronts:
+        enemy_cp = next(
+            cp
+            for cp in campaign_game.theater.controlpoints
+            if str(cp.id) == front.enemy_cp_id
+        )
+        blocking = BattlePositions.for_control_point(enemy_cp).blocking_capture
+        assert front.capture_blocked_by == len(blocking)
+        blocking_ids |= {str(group.id) for group in blocking}
+    # Every blocker can be aimed at, once, with BAI; nothing else is called a garrison.
+    assert set(garrisons) == blocking_ids
+    assert all(t.suggested_task == "BAI" for t in garrisons.values())
+    assert len([t for t in targets if t.kind == "garrison"]) == len(garrisons)
