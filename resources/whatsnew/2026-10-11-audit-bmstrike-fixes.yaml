@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: Ballistic missile strike menu fixes
+change: >-
+  With the Ballistic missile strikes plugin ticked: a flight has one
+  Ballistic Missile Strike radio menu, and it keeps working when one of
+  its pilots dies or leaves. A marker is listed by the name you type on
+  it. Marks drawn by other scripts are no longer listed as targets. A
+  launcher destroyed during a fire mission is no longer reported as
+  rounds fired. A side with more than seven batteries gets a More
+  batteries page.
+watch: >-
+  Name an F10 marker, press Refresh target list, and the marker is
+  listed under that name.

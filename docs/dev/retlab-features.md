@@ -11749,8 +11749,10 @@ Not flown here or, as far as its history shows, there: row **B215**.
 
 **What the player does.** Put a marker on the target. F10 radio menu > Ballistic Missile
 Strike > the battery > the marker > a number of rounds. *Refresh target list* picks up
-markers placed since the menu was drawn; *Battery status* lists rounds, range window and
-state; *Check fire* ends a mission in progress. Any occupied player slot gets the menu.
+markers placed or renamed since the menu was drawn; *Battery status* lists rounds, range
+window and state; *Check fire* ends a mission in progress. Any occupied player slot gets
+the menu. The menu is the flight's: one per DCS group, working for as long as any member
+is alive.
 
 **Files.**
 
@@ -11770,7 +11772,14 @@ state; *Check fire* ends a mission in progress. Any occupied player slot gets th
 - One `FireAtPoint` inside a `ControlledTask` with a duration, so the task ends by itself.
   A supervisor reads the ammo count every 10 s: it reports rounds complete, re-issues the
   order once if a salvo stalls, and ends the mission when nothing has fired inside the
-  timeout.
+  timeout. Rounds away are the ammo drop on each launcher still alive, so a launcher
+  destroyed mid-mission is not counted as a salvo.
+- A target is a mark a player made (the event carries a unit, or a player group id),
+  listed by the text typed on it, else by MGRS. The text arrives in
+  `S_EVENT_MARK_CHANGE`. Marks drawn by other scripts are left out. The newest 8 show.
+- No menu passes ten items, which is all F10 shows: the root holds seven batteries and a
+  *More batteries* page for the rest, sorted by callsign, and a marker offers at most ten
+  round counts.
 - DCS gives a script neither range limit. The maximum comes from the unit definition; the
   minimum is a table in the script (`BMS.MinRangeByType`), because a launcher handed a
   target inside its minimum accepts the task and never fires. The Iranian pack's four
@@ -11797,7 +11806,12 @@ the two launcher switches above.
 **Gotchas.**
 
 - Every `UnitClass.MISSILE` unit with a `threat_range` is listed, so a cruise missile or
-  drone launcher (CJ-10, Iskander-K, Shahed-136) appears on the menu too.
+  drone launcher (CJ-10, Iskander-K, Shahed-136, Shahed 238) appears on the menu too.
+  The unit data has no field that tells a ballistic launcher from the others, so the
+  plugin description says so instead of the list being filtered (2026-10-11).
+- Whether DCS always sets `initiator` on a player's mark event in multiplayer is not
+  confirmed; the script also accepts a positive `groupID`. A player marker missing from
+  the menu on a server is this check (row B215).
 - A missile battery group carries its §85 support trucks; only missile-category ammunition
   is counted, so they do not show as rounds.
 - A unit type missing from `BMS.MinRangeByType` has no minimum check. It is caught by the
@@ -11805,6 +11819,8 @@ the two launcher switches above.
 
 **Tests.** `tests/missiongenerator/test_ballistic_missile_lua_data.py` (the launcher
 list), `tests/lua/test_bmstrike_runtime.py` (both scripts on Lua 5.1: one round onto a
-marker, the reload timer, both range refusals, own-side-only wake and reserve). The
+marker, the reload timer, both range refusals, own-side-only wake and reserve, a salvo
+counted round by round, a launcher destroyed mid-mission, a two-ship with either pilot
+gone, a renamed marker, a script-made mark, and the ten-item menu limit). The
 harness gained `Unit:getAmmo`, the inner task of a `ControlledTask`, and the two map-mark
 events.

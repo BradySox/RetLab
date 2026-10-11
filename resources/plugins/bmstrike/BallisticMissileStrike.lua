@@ -12,7 +12,7 @@
 
 -- Script control functions:
 --AddBMBattery(GroupName, Callsign, MaxRangeMeters)		--register a launcher group; ignored if it carries no missiles
---AddBMObserver(UnitName)								--register a unit that may call strikes
+--AddBMObserver(UnitName)								--register a unit whose group may call strikes
 
 ----------------------------------------------------------------
 
@@ -20,7 +20,8 @@ env.info("DCSRetribution|Ballistic Missile Strike plugin - Imported")
 
 BMS = {}
 BMS.Batteries = {}											--[groupName] = {callsign = ..., maxRange = ..., minRange = ...}
-BMS.Observers = {}											--[unitName] = {id = groupID, active = true, rootPath = ...}
+BMS.Observers = {}											--[groupName] = {id = groupID, active = true, rootPath = ...}
+BMS.ObserverUnits = {}										--[unitName] = true, the units whose groups get the menu
 BMS.Marks = {[1] = {}, [2] = {}}							--map markers, per coalition
 BMS.Missions = {}											--[groupName] = fire mission in progress
 BMS.Cooldowns = {}											--[groupName] = mission time the battery is ready again
@@ -40,6 +41,8 @@ BMS.MaxMarksListed = 8										--keep the radio menu navigable
 BMS.WeaponFlag = 3221225470									--Weapon.flag.Auto: a TEL carries nothing else
 BMS.RoundSpeedMps = 1000									--only used for the "impact in" estimate
 BMS.MenuName = "Ballistic Missile Strike"
+
+local MENU_ITEMS = 10										--F10 shows ten items a menu; an eleventh is unreachable
 
 -- Ballistic missiles have a minimum range as well as a maximum one, and DCS
 -- exposes neither to the scripting engine. A launcher handed a target inside
@@ -76,6 +79,19 @@ local function IsRound(desc)
 	return desc.category == Weapon.Category.MISSILE
 end
 
+local function UnitRounds(unit)
+	local total = 0
+	local ammo = unit:getAmmo()
+	if ammo then
+		for a = 1, #ammo do
+			if IsRound(ammo[a].desc) then
+				total = total + ammo[a].count
+			end
+		end
+	end
+	return total
+end
+
 local function CountRounds(GroupName)
 	local group = Group.getByName(GroupName)
 	if not group then
@@ -83,16 +99,40 @@ local function CountRounds(GroupName)
 	end
 	local total = 0
 	for _, unit in pairs(group:getUnits() or {}) do
-		local ammo = unit:getAmmo()
-		if ammo then
-			for a = 1, #ammo do
-				if IsRound(ammo[a].desc) then
-					total = total + ammo[a].count
-				end
-			end
-		end
+		total = total + UnitRounds(unit)
 	end
 	return total
+end
+
+local function RoundsByUnit(GroupName)
+	local rounds = {}
+	local group = Group.getByName(GroupName)
+	if group then
+		for _, unit in pairs(group:getUnits() or {}) do
+			rounds[unit:getName()] = UnitRounds(unit)
+		end
+	end
+	return rounds
+end
+
+-- A destroyed launcher takes its rounds with it, so only a drop on a launcher
+-- that is still alive is a launch.
+local function CountLaunched(mission)
+	local group = Group.getByName(mission.battery)
+	if not group then
+		return 0
+	end
+	local launched = 0
+	for _, unit in pairs(group:getUnits() or {}) do
+		local name = unit:getName()
+		local now = UnitRounds(unit)
+		local before = mission.unitRounds[name]
+		if before and now < before then
+			launched = launched + (before - now)
+		end
+		mission.unitRounds[name] = now
+	end
+	return launched
 end
 
 local function RoundName(GroupName)
@@ -148,9 +188,21 @@ function AddBMBattery(GroupName, Callsign, MaxRangeMeters)
 end
 
 function AddBMObserver(UnitName)
-	if BMS.Observers[UnitName] == nil then
-		BMS.Observers[UnitName] = {}
+	if BMS.ObserverUnits[UnitName] then
+		return false
 	end
+	BMS.ObserverUnits[UnitName] = true
+	return true
+end
+
+-- The menu belongs to the group, so any member still alive keeps it working
+-- after the pilot it was first built for dies or leaves.
+local function ObserverGroup(GroupName)
+	local group = Group.getByName(GroupName)
+	if not group or #(group:getUnits() or {}) == 0 then
+		return nil
+	end
+	return group
 end
 
 local function MaxRangeFor(GroupName)
@@ -166,12 +218,36 @@ end
 
 ----- Map markers -----
 
+-- Marks other scripts draw carry neither a unit nor a player group; listing
+-- them would push the players' own targets off the newest-8 list.
+local function IsPlayerMark(event)
+	return event.initiator ~= nil or (event.groupID ~= nil and event.groupID > 0)
+end
+
 local function OnMarkAdded(event)
+	local mark = {idx = event.idx, text = event.text, pos = event.pos}
 	if event.coalition == 1 or event.coalition == 2 then
-		table.insert(BMS.Marks[event.coalition], event)
+		table.insert(BMS.Marks[event.coalition], mark)
 	else													--not coalition specific, visible to both
-		table.insert(BMS.Marks[1], event)
-		table.insert(BMS.Marks[2], event)
+		table.insert(BMS.Marks[1], mark)
+		table.insert(BMS.Marks[2], mark)
+	end
+end
+
+-- DCS adds a mark empty; the text a player types arrives as a change.
+local function OnMarkChanged(event)
+	local known = false
+	for c = 1, 2 do
+		for _, mark in pairs(BMS.Marks[c]) do
+			if mark.idx == event.idx then
+				mark.text = event.text
+				mark.pos = event.pos or mark.pos
+				known = true
+			end
+		end
+	end
+	if not known then
+		OnMarkAdded(event)
 	end
 end
 
@@ -252,7 +328,7 @@ local function TaskBattery(mission)
 		},
 	})
 	mission.tasked = timer.getTime()
-	mission.taskBaseline = CountRounds(mission.battery)
+	mission.deliveredAtTask = mission.delivered
 	return true
 end
 
@@ -306,7 +382,13 @@ end
 BMSEventHandler = {}
 function BMSEventHandler:onEvent(event)
 	if event.id == world.event.S_EVENT_MARK_ADDED then
-		OnMarkAdded(event)
+		if IsPlayerMark(event) then
+			OnMarkAdded(event)
+		end
+	elseif event.id == world.event.S_EVENT_MARK_CHANGE then
+		if IsPlayerMark(event) then
+			OnMarkChanged(event)
+		end
 	elseif event.id == world.event.S_EVENT_MARK_REMOVED then
 		OnMarkRemoved(event)
 	elseif event.id == world.event.S_EVENT_SHOT then
@@ -321,19 +403,19 @@ end
 world.addEventHandler(BMSEventHandler)
 
 local function Fire(arg)
-	local unitName, groupName, markIdx, rounds = arg[1], arg[2], arg[3], arg[4]
+	local observerName, groupName, markIdx, rounds = arg[1], arg[2], arg[3], arg[4]
 
-	local unit = Unit.getByName(unitName)
-	if not unit then
+	local observerGroup = ObserverGroup(observerName)
+	if not observerGroup then
 		return
 	end
-	local coalitionId = unit:getCoalition()
+	local coalitionId = observerGroup:getCoalition()
 
 	local group = Group.getByName(groupName)
 	local battery = BMS.Batteries[groupName]
 	if not group or not battery then
 		trigger.action.outTextForCoalition(coalitionId, "Strike request failed: that battery is no longer in action.", 15)
-		BMS.BuildMenu(unitName)
+		BMS.BuildMenu(observerName)
 		return
 	end
 	local callsign = battery.callsign
@@ -354,14 +436,14 @@ local function Fire(arg)
 	local mark = FindMark(coalitionId, markIdx)
 	if not mark then
 		trigger.action.outTextForCoalition(coalitionId, callsign .. ": that target marker no longer exists, out.", 15)
-		BMS.BuildMenu(unitName)
+		BMS.BuildMenu(observerName)
 		return
 	end
 
 	local available = CountRounds(groupName)
 	if available == 0 then
 		trigger.action.outTextForCoalition(coalitionId, callsign .. ": negative, no rounds remaining, out.", 15)
-		BMS.BuildMenu(unitName)
+		BMS.BuildMenu(observerName)
 		return
 	end
 	if rounds > available then
@@ -373,7 +455,7 @@ local function Fire(arg)
 	local launcher = (group:getUnits() or {})[1]
 	if not launcher then
 		trigger.action.outTextForCoalition(coalitionId, callsign .. ": battery is out of action, out.", 15)
-		BMS.BuildMenu(unitName)
+		BMS.BuildMenu(observerName)
 		return
 	end
 
@@ -394,7 +476,7 @@ local function Fire(arg)
 		battery = groupName,
 		callsign = callsign,
 		coalition = coalitionId,
-		observer = unitName,
+		observer = observerName,
 		point = {x = mark.pos.x, z = mark.pos.z},
 		label = MarkLabel(mark),
 		range = range,
@@ -402,7 +484,7 @@ local function Fire(arg)
 		delivered = 0,					--rounds that have actually left the launcher
 		shots = 0,						--shot events seen, for the immediate "round N of M" call
 		retasks = 0,
-		ammoAtStart = available,
+		unitRounds = RoundsByUnit(groupName),
 		started = timer.getTime(),
 	}
 	BMS.Missions[groupName] = mission
@@ -419,16 +501,16 @@ local function Fire(arg)
 	Say(mission, "fire mission acknowledged, " .. rounds .. " round(s) of " .. RoundName(groupName)
 		.. " on " .. mission.label .. ", " .. NM(range)
 		.. " NM, launcher erecting, stand by, out.")
-	BMS.BuildMenu(unitName)
+	BMS.BuildMenu(observerName)
 end
 
 local function CheckFire(arg)
-	local unitName, groupName = arg[1], arg[2]
+	local observerName, groupName = arg[1], arg[2]
 	local mission = BMS.Missions[groupName]
 	if not mission then
-		local unit = Unit.getByName(unitName)
-		if unit then
-			trigger.action.outTextForCoalition(unit:getCoalition(), "No fire mission in progress for that battery.", 10)
+		local observerGroup = ObserverGroup(observerName)
+		if observerGroup then
+			trigger.action.outTextForCoalition(observerGroup:getCoalition(), "No fire mission in progress for that battery.", 10)
 		end
 		return
 	end
@@ -438,7 +520,8 @@ end
 ----- Fire mission supervisor -----
 
 -- Ammo count is the authority on what actually launched: shot events can be
--- missed, and a launcher that accepts a task does not always fire.
+-- missed, and a launcher that accepts a task does not always fire. It is read
+-- per living launcher (CountLaunched), so a destroyed one is not a salvo.
 local function Supervise()
 	local now = timer.getTime()
 	for groupName, mission in pairs(BMS.Missions) do
@@ -449,19 +532,21 @@ local function Supervise()
 			BMS.BuildMenu(mission.observer)
 		else
 			local ammoNow = CountRounds(groupName)
-			local delivered = mission.ammoAtStart - ammoNow
-			if delivered > mission.delivered then
-				mission.delivered = delivered
+			local launched = CountLaunched(mission)
+			if launched > 0 then
+				mission.delivered = mission.delivered + launched
 				mission.lastShot = now
 			end
-			local sinceTask = (mission.taskBaseline or mission.ammoAtStart) - ammoNow
+			local sinceTask = mission.delivered - mission.deliveredAtTask
 
 			if mission.delivered >= mission.requested then
 				EndMission(mission, "rounds complete, " .. mission.delivered .. " away on "
 					.. mission.label .. ", end of mission, out.")
+			elseif ammoNow == 0 and mission.delivered == 0 then
+				EndMission(mission, "battery is out of action, no rounds away, end of mission, out.")
 			elseif ammoNow == 0 then
-				EndMission(mission, "rounds complete, " .. mission.delivered
-					.. " away, launcher empty, end of mission, out.")
+				EndMission(mission, mission.delivered .. " of " .. mission.requested
+					.. " rounds away on " .. mission.label .. ", no rounds left, end of mission, out.")
 			elseif sinceTask == 0 and now - mission.tasked > BMS.LaunchTimeoutSeconds then
 				if mission.delivered == 0 then
 					EndMission(mission, "unable to fire on " .. mission.label
@@ -491,12 +576,12 @@ timer.scheduleFunction(Supervise, nil, timer.getTime() + 10)
 
 ----- Radio menu -----
 
-local function BatteryStatus(unitName)
-	local unit = Unit.getByName(unitName)
-	if not unit then
+local function BatteryStatus(observerName)
+	local observerGroup = ObserverGroup(observerName)
+	if not observerGroup then
 		return
 	end
-	local coalitionId = unit:getCoalition()
+	local coalitionId = observerGroup:getCoalition()
 	local lines = {}
 	for groupName, battery in pairs(BMS.Batteries) do
 		local group = Group.getByName(groupName)
@@ -518,17 +603,18 @@ local function BatteryStatus(unitName)
 	if #lines == 0 then
 		table.insert(lines, "No ballistic missile batteries available.")
 	end
-	trigger.action.outTextForGroup(unit:getGroup():getID(), table.concat(lines, "\n"), 20)
+	table.sort(lines)
+	trigger.action.outTextForGroup(observerGroup:getID(), table.concat(lines, "\n"), 20)
 end
 
-function BMS.BuildMenu(unitName)
-	local observer = BMS.Observers[unitName]
-	local unit = Unit.getByName(unitName)
-	if not observer or not observer.id or not unit then
+function BMS.BuildMenu(observerName)
+	local observer = BMS.Observers[observerName]
+	local observerGroup = ObserverGroup(observerName)
+	if not observer or not observer.id or not observerGroup then
 		return
 	end
 	local groupID = observer.id
-	local coalitionId = unit:getCoalition()
+	local coalitionId = observerGroup:getCoalition()
 
 	-- Remove by the path DCS handed back, never by name. A non-table path
 	-- resolves to the menu root, which wipes every other script's items too.
@@ -539,51 +625,68 @@ function BMS.BuildMenu(unitName)
 	observer.rootPath = root
 
 	-- Rebuilding is how a player picks up markers placed since the menu was drawn.
-	missionCommands.addCommandForGroup(groupID, "Refresh target list", root, BMS.BuildMenu, unitName)
-	missionCommands.addCommandForGroup(groupID, "Battery status", root, BatteryStatus, unitName)
+	missionCommands.addCommandForGroup(groupID, "Refresh target list", root, BMS.BuildMenu, observerName)
+	missionCommands.addCommandForGroup(groupID, "Battery status", root, BatteryStatus, observerName)
 
 	local marks = BMS.Marks[coalitionId] or {}
 	local first = math.max(1, #marks - BMS.MaxMarksListed + 1)
 
-	local batteries = 0
+	local listed = {}
 	for groupName, battery in pairs(BMS.Batteries) do
 		local group = Group.getByName(groupName)
 		if group and group:getCoalition() == coalitionId then
 			local available = CountRounds(groupName)
 			if available > 0 then
-				batteries = batteries + 1
-				-- Use the path returned by DCS rather than rebuilding it from the
-				-- display name, so two batteries sharing a name cannot collide.
-				local batteryMenu = missionCommands.addSubMenuForGroup(groupID,
-					battery.callsign .. " (" .. available .. ")", root)
-				local mission = BMS.Missions[groupName]
-				if mission then
-					missionCommands.addCommandForGroup(groupID,
-						"Engaged: " .. mission.delivered .. "/" .. mission.requested .. " on " .. mission.label,
-						batteryMenu, BMS.BuildMenu, unitName)
-					missionCommands.addCommandForGroup(groupID, "Check fire", batteryMenu, CheckFire, {unitName, groupName})
-				elseif #marks == 0 then
-					missionCommands.addCommandForGroup(groupID, "Mark a target on the F10 map first", batteryMenu, BMS.BuildMenu, unitName)
-				else
-					local maxRounds = math.min(available, BMS.MaxRoundsPerMission)
-					for i = first, #marks do
-						local mark = marks[i]
-						local markMenu = missionCommands.addSubMenuForGroup(groupID, MarkLabel(mark), batteryMenu)
-						for qty = 1, maxRounds do
-							local label = qty .. " round(s)"
-							if qty > 1 and qty == available then
-								label = label .. " - full salvo"
-							end
-							missionCommands.addCommandForGroup(groupID, label, markMenu, Fire, {unitName, groupName, mark.idx, qty})
-						end
+				table.insert(listed, {name = groupName, callsign = battery.callsign, rounds = available})
+			end
+		end
+	end
+	table.sort(listed, function(a, b)
+		if a.callsign ~= b.callsign then
+			return a.callsign < b.callsign
+		end
+		return a.name < b.name
+	end)
+
+	local parent, used = root, 2
+	for i, entry in ipairs(listed) do
+		-- The last slot of a full menu pages on while batteries remain.
+		if used == MENU_ITEMS - 1 and i < #listed then
+			parent = missionCommands.addSubMenuForGroup(groupID, "More batteries", parent)
+			used = 0
+		end
+		used = used + 1
+		local groupName, available = entry.name, entry.rounds
+		-- Use the path returned by DCS rather than rebuilding it from the
+		-- display name, so two batteries sharing a name cannot collide.
+		local batteryMenu = missionCommands.addSubMenuForGroup(groupID,
+			entry.callsign .. " (" .. available .. ")", parent)
+		local mission = BMS.Missions[groupName]
+		if mission then
+			missionCommands.addCommandForGroup(groupID,
+				"Engaged: " .. mission.delivered .. "/" .. mission.requested .. " on " .. mission.label,
+				batteryMenu, BMS.BuildMenu, observerName)
+			missionCommands.addCommandForGroup(groupID, "Check fire", batteryMenu, CheckFire, {observerName, groupName})
+		elseif #marks == 0 then
+			missionCommands.addCommandForGroup(groupID, "Mark a target on the F10 map first", batteryMenu, BMS.BuildMenu, observerName)
+		else
+			local maxRounds = math.min(available, BMS.MaxRoundsPerMission, MENU_ITEMS)
+			for m = first, #marks do
+				local mark = marks[m]
+				local markMenu = missionCommands.addSubMenuForGroup(groupID, MarkLabel(mark), batteryMenu)
+				for qty = 1, maxRounds do
+					local label = qty .. " round(s)"
+					if qty > 1 and qty == available then
+						label = label .. " - full salvo"
 					end
+					missionCommands.addCommandForGroup(groupID, label, markMenu, Fire, {observerName, groupName, mark.idx, qty})
 				end
 			end
 		end
 	end
 
-	if batteries == 0 then
-		missionCommands.addCommandForGroup(groupID, "No ballistic missile batteries available", root, BMS.BuildMenu, unitName)
+	if #listed == 0 then
+		missionCommands.addCommandForGroup(groupID, "No ballistic missile batteries available", root, BMS.BuildMenu, observerName)
 	end
 end
 
@@ -621,16 +724,28 @@ end
 -- A slot reports no unit until a player occupies it, so the menu has to be
 -- built on a poll rather than once at mission start.
 local function CheckObservers()
-	for unitName, observer in pairs(BMS.Observers) do
+	for unitName, _ in pairs(BMS.ObserverUnits) do
 		local unit = Unit.getByName(unitName)
-		if unit and observer.active == nil then
-			observer.active = true
-			observer.id = unit:getGroup():getID()
-			if BMS.PreHeatLaunchers or BMS.ReserveForPlayers then
-				PreHeat(unit:getCoalition())
+		local group = unit and unit:isExist() and unit:getGroup()
+		if group then
+			local groupName = group:getName()
+			local observer = BMS.Observers[groupName]
+			if not observer then
+				observer = {}
+				BMS.Observers[groupName] = observer
 			end
-			BMS.BuildMenu(unitName)
-		elseif unit == nil then
+			if observer.active == nil then
+				observer.active = true
+				observer.id = group:getID()
+				if BMS.PreHeatLaunchers or BMS.ReserveForPlayers then
+					PreHeat(group:getCoalition())
+				end
+				BMS.BuildMenu(groupName)
+			end
+		end
+	end
+	for groupName, observer in pairs(BMS.Observers) do
+		if not ObserverGroup(groupName) then
 			observer.active = nil
 		end
 	end
