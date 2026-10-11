@@ -1,0 +1,1 @@
+* **[Mission Generation]** A carrier's Link 4 is now 320.1 to 320.9 MHz instead of 336.1 to 336.9. The F-14's data link panel dials 300.0 to 324.9 MHz only, so a Tomcat could not tune the old numbers. A Link 4 picked at random, and the Set LINK4 dialog, stay inside the same range. A save carrying one of the old numbers gets the new one. (range fix from red-one1)

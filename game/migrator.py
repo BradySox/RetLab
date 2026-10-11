@@ -14,7 +14,9 @@ from game.ato.flightplans.formation import FormationLayout
 from game.ato.flightplans.waypointbuilder import WaypointBuilder
 from game.ato.packagewaypoints import PackageWaypoints
 from game.ato.starttype import StartType
+from game.data.carrier_comms import is_retired_curated_link4
 from game.data.doctrine import MODERN_DOCTRINE, COLDWAR_DOCTRINE, WWII_DOCTRINE
+from game.radio.Link4Container import Link4Container
 from game.theater import ParkingType, SeasonalConditions, Airfield
 from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
 
@@ -128,6 +130,10 @@ class Migrator:
                 try_set_attr(cp, "icls_channel")
                 try_set_attr(cp, "icls_name")
                 try_set_attr(cp, "link4")
+                if isinstance(cp, Link4Container) and is_retired_curated_link4(
+                    cp.link4
+                ):
+                    cp.link4 = None
             try_set_attr(cp, "convoy_spawns", {})
             try_set_attr(cp, "ground_spawns", [])
             try_set_attr(cp, "ground_spawns_roadbase", [])
