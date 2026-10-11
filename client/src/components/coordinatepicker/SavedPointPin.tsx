@@ -3,7 +3,7 @@
 //
 // Ported from juanjux/dcs-escalation (LGPL-3.0). The pin is filled with its kind's
 // colour, and an orbit's pin moves the whole racetrack.
-import { HTTP_URL } from "../../api/backend";
+import { HTTP_URL, withToken } from "../../api/backend";
 import "./SavedPointPin.css";
 import {
   KIND_LABEL,
@@ -66,7 +66,7 @@ async function mutate(
   body?: object,
 ) {
   const response = await fetch(
-    `${HTTP_URL}saved-points/${receiver.id}/points/${point.id}`,
+    withToken(`${HTTP_URL}saved-points/${receiver.id}/points/${point.id}`),
     {
       method,
       headers: { "Content-Type": "application/json" },

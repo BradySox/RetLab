@@ -4,7 +4,7 @@ import { TileLayer, useMap } from "react-leaflet";
 import { BasemapLayer } from "react-esri-leaflet";
 import L, { LatLngBoundsExpression } from "leaflet";
 
-import backend, { HTTP_URL } from "../../api/backend";
+import backend, { HTTP_URL, withToken } from "../../api/backend";
 import reloadGameState from "../../api/gamestate";
 import { setHighlightEmitters } from "../../api/mapSlice";
 import { useAppDispatch } from "../../app/hooks";
@@ -680,7 +680,9 @@ export default function MapLayersControl() {
       {activeLocalSet ? (
         <TileLayer
           key={`local:${activeLocalSet.name}`}
-          url={`${HTTP_URL}map-tiles/${activeLocalSet.name}/{z}/{x}/{y}.png`}
+          url={withToken(
+            `${HTTP_URL}map-tiles/${activeLocalSet.name}/{z}/{x}/{y}.png`,
+          )}
           minNativeZoom={activeLocalSet.min_zoom}
           maxNativeZoom={activeLocalSet.max_zoom}
           maxZoom={19}

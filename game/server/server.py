@@ -1,3 +1,4 @@
+import logging
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
@@ -9,6 +10,7 @@ from uvicorn import Config
 
 from game.server import EventStream
 from game.server.app import app
+from game.server.security import TokenRedactingFilter
 from game.server.settings import ServerSettings
 from game.sim import GameUpdateEvents
 
@@ -25,6 +27,10 @@ class ServerStartupError(RuntimeError):
 class Server(uvicorn.Server):
     def __init__(self, port: Optional[int]) -> None:
         settings = ServerSettings.get(port)
+        for name in ("uvicorn.access", "uvicorn.error"):
+            logger = logging.getLogger(name)
+            if not any(isinstance(f, TokenRedactingFilter) for f in logger.filters):
+                logger.addFilter(TokenRedactingFilter())
         super().__init__(
             Config(
                 app=app,

@@ -16,6 +16,10 @@ Then, run `npm start` to start the development server. Launch the Qt UI with
 `--new-map --dev` to connect the webview to the development server, or navigate
 to http://localhost:3000 in your browser.
 
+The backend refuses a request without its key. The Qt webview is handed the key in
+its URL (`?server=...&key=...`). A page opened in your own browser has none, so its
+requests answer 403; use the Qt webview.
+
 ## Regenerating the API stubs
 
 The backend uses FastAPI which exposes `/openapi.json`. This is consumed by
@@ -26,8 +30,12 @@ If you make a change to the API surface the typescript API will need to be
 regenerated. To do this, first launch Liberation (to start the backend) and run
 
 ```powershell
+$env:RETLAB_AI_TOKEN = "<token>"
 npm run regenerate-api
 ```
+
+`/openapi.json` needs a key. The token is the `token=` value of Developer tools >
+Copy AI connect link; it changes every time Liberation starts.
 
 See https://redux-toolkit.js.org/rtk-query/usage/code-generation for more
 information.

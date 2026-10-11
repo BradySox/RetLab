@@ -1,0 +1,1 @@
+* **[Campaign]** Every route on the map server needs a key. The map's own routes, which serve blue's plan, were open to anything on the PC, the outside AI included; they now take a key only the map page holds, and the API index at `/docs` is off.

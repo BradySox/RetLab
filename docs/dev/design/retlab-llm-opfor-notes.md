@@ -81,6 +81,34 @@ Two reviews of the Kola campaign through the link found the link itself misrepor
   rewrites "we", "our", "ally", "enemy" and "OPFOR" to Blue and Red. "friendly" is left:
   `ControlPoint.capture_equipment` uses it for whichever side owns the base.
 
+## The map's routes are keyed (2026-10-11)
+
+As first built, only the AI's routes needed the token. The map's own routes
+(`GET /flights/` and the rest) were open on the same port, so "blue's ATO is never
+served" held for the AI's routes alone, and `/docs` listed every route.
+
+- Every router in `game/server/app.py` now carries a key check. `/docs` and `/redoc`
+  are off; `/openapi.json` needs the AI's key.
+- The map's key is not the AI's. One shared key would have let the AI's own token read
+  `/flights/`.
+- The client sends the key as a header from axios and RTK Query, and as `?token=`
+  where a header cannot go: map tiles, the websocket and the plain `fetch` calls
+  (`withToken` in `client/src/api/backend.ts`).
+- `TokenRedactingFilter` keeps `token=` values out of uvicorn's request log.
+- **A stale client build leaves the map's routes open.** `client/build` is untracked
+  and never rebuilt on launch, so a source checkout can run a bundle from before the
+  key; refusing it would blank the map. `ApiKeyManager.check_map_client` looks for
+  `X-API-Key` in the bundle at start and, when it is missing, opens the map's routes
+  for that run and logs a warning. The release build always ships a matching bundle.
+  The AI's routes are never opened this way.
+- Flown in an offscreen `QWebEngineView` against the real server on 2026-10-11: the
+  rebuilt client loads the game, the tiles list and the saved points with 200s and
+  opens the event stream; a wrong key gets 403 on all of them; the pre-key bundle
+  gets its map through the fallback.
+- Tests: `tests/server/test_api_key_on_every_route.py` calls every route through the
+  app with no key and with the AI's key; `tests/agent/test_blue_plan_never_served.py`
+  does the same on a real campaign and scans the answers for blue's flight ids.
+
 ## Source and licence
 
 Ported from `juanjux/dcs-escalation` (`game/agent/`, `game/server/retributionai/`), LGPL-3
@@ -103,8 +131,11 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `resources/agent/start.md`, `howtoplay.md`: the AI's briefings. Ours, not Juan's: his
   playbook (122 KB) teaches a commander; ours teaches a reviewer what a finding is.
 - `game/server/retributionai/routes.py`: REST shims. Mounted in `game/server/app.py`.
-- `game/server/security.py`: `ApiKeyManager.verify` accepts `X-API-Key` or `?token=`.
-  Only the AI routes depend on it; the map server's own routes stay open, as before.
+- `game/server/security.py`: every route on the server needs a key, as `X-API-Key` or
+  `?token=`. There are two. `ApiKeyManager.KEY` is the AI's (Copy AI connect link) and
+  opens `/retribution-ai/*` and `/openapi.json` only. `ApiKeyManager.MAP_KEY` is the map
+  page's, passed by `QLiberationMap` as `&key=` beside `server=`, and opens the map's
+  own routes and the event stream. See *The map's routes are keyed* below.
 - `game/agent/planner.py`, `schemas.py`: the write path over `PackageFulfiller` and the
   purchase adapters. `ProposedFlight.preferred_squadron` (read by
   `AirWing.best_squadrons_for`) is the one engine change: a named squadron, and only it,
@@ -132,6 +163,7 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
   flights or waypoints itself, so its plan is one the scripted planner could have made.
 - The server binds `::1`. The link is for an AI on the same PC; a web AI needs a tunnel,
   which is stage 3's problem.
-- The token is per process: the link dies when Retribution closes.
+- The token is per process: the link dies when Retribution closes. So does the map's
+  key; a browser on the dev server needs `&key=` in its URL (`client/README.md`).
 - Keep `howtoplay.md` true to the engine. When a report turns out to misread a rule, add
   the rule to the briefing's last section.

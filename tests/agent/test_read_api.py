@@ -41,13 +41,16 @@ def test_token_by_header_or_query() -> None:
         assert raised.value.status_code == 403
 
 
-def test_every_ai_route_needs_the_token_and_the_map_routes_do_not() -> None:
+def test_every_ai_route_needs_the_ais_token_and_the_map_routes_the_maps() -> None:
     assert [d.dependency for d in router.dependencies] == [ApiKeyManager.verify]
     ai_paths = {r.path for r in app.routes if hasattr(r, "path")}
     assert "/retribution-ai/turn_context" in ai_paths
-    # The map server's own routes were open before this and stay open.
+    # Blue's plan is behind the map's key; tests/server pins every route.
     tgos = next(r for r in app.routes if getattr(r, "path", "") == "/tgos/")
-    assert not getattr(tgos, "dependencies", [])
+    assert [d.dependency for d in getattr(tgos, "dependencies", [])] == [
+        ApiKeyManager.verify_map
+    ]
+    assert ApiKeyManager.KEY != ApiKeyManager.MAP_KEY
 
 
 def test_the_briefing_names_only_routes_that_exist() -> None:

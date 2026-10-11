@@ -1,7 +1,7 @@
 """REST transport for the outside AI: thin shims over ``game.agent.service``.
 
-Every route needs the token (``?token=`` or ``X-API-Key``); the map server's own
-routes do not, and stay as they were. Reads serialise with ``exclude_none``.
+Every route needs the token (``?token=`` or ``X-API-Key``), as every route on this
+server does. Reads serialise with ``exclude_none``.
 """
 
 from typing import Any, Optional
