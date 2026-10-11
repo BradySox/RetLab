@@ -268,6 +268,36 @@ def test_b52h_bay_harpoon_rack_stays_equippable() -> None:
     assert Pylon.for_aircraft(aircraft, 2).can_equip(bay_harpoons)
 
 
+def test_no_weapon_group_falls_back_in_a_circle() -> None:
+    # R530F EM and R530F IR named each other. A Mirage 2000C carrying the S-530D
+    # before 1988 could equip neither, so the fallback search never ended.
+    WeaponGroup.load_all()
+    for group in WeaponGroup._by_name.values():
+        seen = {group.name}
+        current = group.fallback
+        while current is not None:
+            assert current.name not in seen, f"{group.name} loops at {current.name}"
+            seen.add(current.name)
+            current = current.fallback
+
+
+def test_fallback_walk_ends_even_if_the_data_loops() -> None:
+    first = WeaponGroup("loop-a", WeaponType.UNKNOWN, 2000, "loop-b")
+    second = WeaponGroup("loop-b", WeaponType.UNKNOWN, 2000, "loop-a")
+    weapon = Weapon(clsid="{loop-a}", weapon_group=first)
+    first.weapons.append(weapon)
+    second.weapons.append(Weapon(clsid="{loop-b}", weapon_group=second))
+    WeaponGroup._by_name.update({"loop-a": first, "loop-b": second})
+    try:
+        assert [w.clsid for w in weapon.fallbacks] == [
+            "{loop-a}",
+            "{loop-a}",
+            "{loop-b}",
+        ]
+    finally:
+        del WeaponGroup._by_name["loop-a"], WeaponGroup._by_name["loop-b"]
+
+
 def test_antiship_falls_back_to_strike_loadout_names() -> None:
     names = list(Loadout.default_loadout_names_for(FlightType.ANTISHIP))
     # The jet's own anti-ship presets are still preferred first (the §71

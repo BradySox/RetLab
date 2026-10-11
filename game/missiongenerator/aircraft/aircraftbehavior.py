@@ -630,9 +630,9 @@ class AircraftBehavior:
         # No preferred or fallback match. Upstream raised here for AI flights
         # (clients already degraded to task_default), but the raise fires at
         # generation time and costs the whole mission for one flight — and
-        # upstream data ships claims pydcs can't express (the Tu-160's DEAD and
-        # BAI, the Gazelles' CSAR, four Fighter-sweep claimants: 21 pairs
-        # fleet-wide, locked by tests/test_aircraft_task_generation.py). The
+        # upstream data ships claims pydcs can't express (the Gazelles' CSAR,
+        # three Fighter-sweep claimants: 15 pairs fleet-wide on 2026-10-11,
+        # locked by tests/test_aircraft_task_generation.py). The
         # group task is only the AI's coarse role; the waypoint tasks carry the
         # real mission, so degrade the role and fly it.
         task_default = flight.unit_type.dcs_unit_type.task_default

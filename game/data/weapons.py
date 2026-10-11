@@ -195,7 +195,11 @@ class Weapon:
     def fallbacks(self) -> Iterator[Weapon]:
         yield self
         fallback: Optional[WeaponGroup] = self.weapon_group
-        while fallback is not None:
+        # Two groups that name each other must end the walk, not loop it: a jet
+        # that could carry neither hung mission generation (R530F EM/IR, 2026-10).
+        seen: set[str] = set()
+        while fallback is not None and fallback.name not in seen:
+            seen.add(fallback.name)
             yield from fallback.weapons
             fallback = fallback.fallback
 

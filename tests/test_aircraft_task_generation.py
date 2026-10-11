@@ -1,7 +1,8 @@
 """Every yaml task claim must survive AircraftBehavior.configure_task.
 
 Airframe yamls (and upstream's data) claim tasks the pydcs unit type cannot
-express — the Tu-160 claims DEAD but pydcs only exports Pinpoint Strike. Before
+express — the Tu-160 claimed DEAD (until 2026-10-11) but pydcs only exports
+Pinpoint Strike. Before
 the degrade in configure_task, any such auto-planned tasking raised
 RuntimeError at generation time and cost the whole mission. This walks every
 (airframe, claimed task) pair through the real configure_task and asserts a
@@ -102,7 +103,7 @@ def test_every_claimed_task_generates(fleet: list[AircraftType]) -> None:
 
 
 def test_tu160_dead_degrades_to_pinpoint_strike(fleet: list[AircraftType]) -> None:
-    # The reproduced crash: upstream data claims DEAD on the Tu-160, pydcs
+    # The reproduced crash: upstream data claimed DEAD on the Tu-160, pydcs
     # exports only Pinpoint Strike, and generation raised for the AI flight.
     tu160 = next(a for a in fleet if a.display_name == "Tu-160 Blackjack")
     preferred, fallbacks = TASK_MAPPING[FlightType.DEAD]
