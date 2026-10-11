@@ -6751,6 +6751,21 @@ across missions, and its curated `MODEX_AIRCRAFT_IDS` doesn't cover the filer's 
 
 ---
 
+**Tomcat squadron callsigns (2026-10-10).** The 18 F-14 squadron files under
+`resources/squadrons/F-14*` carry the squadron's real radio callsign in the existing
+`callsign:` field (`SquadronDef.callsign`): VF-11 Ripper, VF-14 Camelot, VF-21 Freelance,
+VF-32 Gypsy, VF-33 Tarbox, VF-41 FastEagle, VF-101 Gunfighter, VF-102 Dback, VF-103
+Victory, VF-111 Sundowner, VF-142 Dakota, VF-143 Dog, VF-211 Nickel. Each squadron's
+flights default to it, numbered in the order they are fragged, and it shows on the F10
+map, labels, kneeboard and briefing. **DCS cannot voice a callsign it does not ship**, so
+AWACS, ATC and AI wingmen do not say the name; Red Tide's "Voodoo" squadrons behave the
+same (DM call 2026-10-10: the text matters more). One word each, because every stock DCS
+callsign is one word and the name is written straight into the unit's callsign: VF-41's
+"Fast Eagle" is "FastEagle". VMF-29 is left on stock callsigns. The callsign list is from
+rmac7664/dcs-retribution (`feature/f14-callsigns`); its own callsign plumbing is not
+taken, the fork already had the field. `tests/test_tomcat_squadron_callsigns.py`. Row
+**B216**.
+
 ## §63 — Ship-launched cruise missile raids
 
 DCS warships with land-attack cruise missiles — the vanilla Burke's Tomahawks, the
