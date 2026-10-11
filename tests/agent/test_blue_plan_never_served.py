@@ -7,6 +7,10 @@ blue's ATO swapped for a tripwire, and again with marker values planted on blue'
 packages, flights and budget that must not appear in any response. A GET route
 added later is picked up from the router; one this test cannot call fails it.
 
+The map's own routers do serve blue's plan, to the map. The last tests call every
+GET route of every router through the app with the AI's token and with none: the
+map's routes must refuse both.
+
 The idea is from Hussar2477/dcs-retribution's ``llm-ai-opponent`` branch.
 """
 
@@ -22,6 +26,8 @@ from fastapi.encoders import jsonable_encoder
 
 from game.server import GameContext
 from game.server.retributionai.routes import router
+from game.server.security import ApiKeyManager
+from tests.server import asgi
 
 PACKAGE_MARKER = "ZZBLUEPACKAGE"
 FLIGHT_MARKER = "ZZBLUEFLIGHT"
@@ -161,3 +167,42 @@ def test_markers_planted_on_blue_reach_no_response(game: Any) -> None:
         if marker in text and marker not in label
     ]
     assert leaks == []
+
+
+def _every_get_path(game: Any) -> list[str]:
+    """Every GET route of every router, with real ids where a route takes one."""
+    blue_flight = next(f for p in game.blue.ato.packages for f in p.flights)
+    paths = []
+    for method, path in sorted(set(asgi.http_routes())):
+        if method == "GET":
+            paths.append(path.replace("{flight_id}", str(blue_flight.id)))
+    return [asgi.concrete(path) for path in paths]
+
+
+def test_the_maps_own_routes_do_carry_blues_plan(game: Any) -> None:
+    """The scan below has teeth: with the map's key, blue's flights are served."""
+    blue_flight = next(f for p in game.blue.ato.packages for f in p.flights)
+    status, body = asgi.request(
+        "/flights/", headers={"X-API-Key": ApiKeyManager.MAP_KEY}
+    )
+    assert status == 200
+    assert str(blue_flight.id) in body
+
+
+@pytest.mark.parametrize("key", [ApiKeyManager.KEY, None], ids=["ai token", "no token"])
+def test_no_router_serves_blues_plan_to_the_ais_token_or_to_none(
+    game: Any, key: Any
+) -> None:
+    blue_flights = [f for p in game.blue.ato.packages for f in p.flights]
+    forbidden = [str(flight.id) for flight in blue_flights]
+    headers = {"X-API-Key": key} if key else {}
+    paths = _every_get_path(game)
+    assert any(path.startswith("/flights/") for path in paths)
+    leaks = []
+    for path in paths:
+        status, body = asgi.request(path, headers=headers)
+        if not path.startswith("/retribution-ai/") and path != "/openapi.json":
+            assert status == 403, path
+        # A refusal for a blue flight id may echo the id that was asked for.
+        leaks += [(path, marker) for marker in forbidden if marker in body]
+    assert [leak for leak in leaks if leak[1] not in leak[0]] == []

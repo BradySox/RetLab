@@ -1,5 +1,5 @@
 // The player's aircraft as the saved-points API describes them (§102).
-import { HTTP_URL } from "../../api/backend";
+import { HTTP_URL, withToken } from "../../api/backend";
 
 export interface LatLngJs {
   lat: number;
@@ -64,7 +64,9 @@ export function announceChange(detail?: ChangeDetail): void {
 export async function fetchReceivers(
   signal?: AbortSignal,
 ): Promise<Receiver[]> {
-  const response = await fetch(`${HTTP_URL}saved-points/`, { signal });
+  const response = await fetch(withToken(`${HTTP_URL}saved-points/`), {
+    signal,
+  });
   const body: unknown = response.ok ? await response.json() : null;
   return Array.isArray(body) ? (body as Receiver[]) : [];
 }
@@ -73,7 +75,7 @@ export async function postJson(
   path: string,
   payload: unknown,
 ): Promise<{ ok: boolean; body: unknown }> {
-  const response = await fetch(`${HTTP_URL}${path}`, {
+  const response = await fetch(withToken(`${HTTP_URL}${path}`), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

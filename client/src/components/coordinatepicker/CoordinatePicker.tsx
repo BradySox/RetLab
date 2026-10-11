@@ -19,7 +19,7 @@
 //
 // The formatting is the server's, so the map, the objective dialog and anything added
 // later say the same thing about the same spot.
-import { HTTP_URL } from "../../api/backend";
+import { HTTP_URL, withToken } from "../../api/backend";
 import DrawPanel from "./DrawPanel";
 import PickerToggle from "./PickerToggle";
 import SavePoint from "./SavePoint";
@@ -89,7 +89,7 @@ export default function CoordinatePicker() {
     const { lat, lng } = event.latlng;
     try {
       const response = await fetch(
-        `${HTTP_URL}coordinates/?lat=${lat}&lng=${lng}`,
+        withToken(`${HTTP_URL}coordinates/?lat=${lat}&lng=${lng}`),
       );
       const body = await response.json();
       setCopied(false);

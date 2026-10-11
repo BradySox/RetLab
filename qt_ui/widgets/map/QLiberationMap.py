@@ -7,6 +7,7 @@ from PySide6.QtCore import QUrl
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineSettings
 from PySide6.QtWebEngineWidgets import QWebEngineView
 
+from game.server.security import ApiKeyManager
 from game.server.settings import ServerSettings
 from qt_ui.liberation_install import server_port
 from qt_ui.models import GameModel
@@ -49,12 +50,15 @@ class QLiberationMap(QWebEngineView):
         if dev:
             url = QUrl("http://localhost:3000")
         else:
-            url = QUrl.fromLocalFile(str(Path("client/build/index.html").resolve()))
+            build = Path("client/build").resolve()
+            ApiKeyManager.check_map_client(build)
+            url = QUrl.fromLocalFile(str(build / "index.html"))
         server_settings = ServerSettings.get(server_port())
         host = server_settings.server_bind_address
         if host.startswith("::"):
             host = f"[{host}]"
         port = server_settings.server_port
-        url.setQuery(f"server={host}:{port}")
+        # The key is how the page proves its requests are the map's own.
+        url.setQuery(f"server={host}:{port}&key={ApiKeyManager.MAP_KEY}")
         self.page.load(url)
         self.setPage(self.page)

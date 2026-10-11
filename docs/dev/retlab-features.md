@@ -11691,7 +11691,11 @@ first live reviews on Kola):
   `Game.__setstate__` carries an old save's choice over), `game/game.py`
   (`opfor_ai_notes`), `qt_ui/widgets/QTopPanel.py` (Take Off fallback).
 - `game/server/retributionai/routes.py`; mounted in `game/server/app.py`.
-- `game/server/security.py`: token by `X-API-Key` header or `?token=`.
+- `game/server/security.py`: token by `X-API-Key` header or `?token=`. Every route on
+  the server needs one since 2026-10-11: the AI's key opens the AI's routes, and a
+  separate key that Qt hands the map page opens the map's. A client bundle built before
+  that leaves the map's routes open for the run, with a warning in the log
+  (`tests/server/test_api_key_on_every_route.py`).
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
 - `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
 - `tests/agent/test_write_on_real_campaign.py` runs the write path on the same real
