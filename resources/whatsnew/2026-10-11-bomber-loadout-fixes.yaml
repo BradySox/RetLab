@@ -1,0 +1,14 @@
+date: 2026-10-11
+title: Bombers no longer fly empty under the weapon date limit
+change: >-
+  With Restrict weapons by campaign date on, a bomber whose only
+  missiles are newer than the campaign flew with nothing loaded: the
+  Tu-95MS in Red Tide and Northern Flank 1985, the Tu-142 in Northern
+  Flank 1985, the H-6J in Desert Storm. An aircraft with no weapon in
+  service at the campaign date now keeps its loadout. The B-52H's
+  default anti-ship loadout carries 16 Harpoons (8 on the wings, 8 in
+  the bay). The Tu-160 and H-6J are no longer tasked BAI or DEAD.
+watch: >-
+  In Red Tide, open a red Tu-95MS Strike flight (or watch it in
+  Tacview): it carries Kh-555 and launches them. A B-52H on an
+  anti-ship sortie fires 16 Harpoons, the bay ones last and closer in.

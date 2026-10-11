@@ -171,6 +171,33 @@ class Loadout:
             return False
         return True
 
+    @staticmethod
+    def _is_dated_weapon(weapon: Optional[Weapon]) -> bool:
+        """A store the date data covers that is not a pod.
+
+        Fuel tanks and uncatalogued stores carry no year, so they never count.
+        """
+        if weapon is None or weapon.weapon_group.introduction_year is None:
+            return False
+        return weapon.weapon_group.type not in (
+            WeaponType.TGP,
+            WeaponType.JAMMER,
+            WeaponType.OFFENSIVE_JAMMER,
+        )
+
+    @classmethod
+    def _has_weapon_in_service(
+        cls, unit_type: AircraftType, date: datetime.date, faction: Faction
+    ) -> bool:
+        """Whether any station of the airframe takes a dated weapon of the day."""
+        return any(
+            cls._is_dated_weapon(weapon)
+            and weapon.available_on(date, faction)
+            and cls._weapon_available_for_aircraft(weapon, unit_type, date)
+            for pylon in Pylon.iter_pylons(unit_type)
+            for weapon in pylon.allowed
+        )
+
     def degrade_for_date(
         self,
         unit_type: AircraftType,
@@ -190,6 +217,7 @@ class Loadout:
 
         new_pylons = dict(self.pylons)
         new_settings = self.pylon_settings.copy()
+        stripped: dict[int, Weapon] = {}
         for pylon_number, weapon in self.pylons.items():
             if weapon is None:
                 del new_pylons[pylon_number]
@@ -201,11 +229,24 @@ class Loadout:
                 pylon = Pylon.for_aircraft(unit_type, pylon_number)
                 fallback = self._fallback_for(weapon, pylon, unit_type, date, faction)
                 if fallback is None:
+                    stripped[pylon_number] = weapon
                     del new_pylons[pylon_number]
                     new_settings.pop(pylon_number, None)
                 else:
                     new_pylons[pylon_number] = fallback
                     new_settings.pop(pylon_number, None)
+        if (
+            stripped
+            and not any(self._is_dated_weapon(w) for w in new_pylons.values())
+            and not self._has_weapon_in_service(unit_type, date, faction)
+        ):
+            # Nothing this airframe can carry is in service yet (the Tu-95MS's only
+            # missiles are 2004 and 2012). An unarmed sortie is worse: keep the fit.
+            for pylon_number, weapon in stripped.items():
+                if self._is_dated_weapon(weapon):
+                    new_pylons[pylon_number] = weapon
+                    if pylon_number in self.pylon_settings:
+                        new_settings[pylon_number] = self.pylon_settings[pylon_number]
         loadout = Loadout(
             self.name,
             new_pylons,
