@@ -5,7 +5,8 @@
 --  * Never restore the per-base backstop EWR. DCS has no non-colliding ground
 --    unit, so the mast blocked AI taxi routing (flown Red Tide 2026-08-06;
 --    upstream #782 removed it for the same reason). Detection is the IADS
---    network alone; a side with no EWR losing GCI is by design.
+--    radars plus the side's own AWACS (DM call 2026-10-11, test 55); a side
+--    with neither has no GCI, by design.
 --  * Never call SetSquadronVisible. It forces Moose's ParkDefender branch
 --    (hardcoded Cold takeoff) and clamps the reserve to parking spots. Every
 --    ground spawn fails on a saturated ramp -- in-air is the only method left.
@@ -233,6 +234,16 @@ local function ewr_group_names(coalition_name)
                     end
                 end
             end
+        end
+    end
+    -- Test 55: blue had two E-2Cs and no ground radar, and its QRA could not scramble.
+    for _, awacs in pairs(dcsRetribution.AWACs or {}) do
+        local group_name = awacs.dcsGroupName
+        if group_name and string.upper(tostring(awacs.coalition)) == coalition_name
+            and not seen[group_name]
+        then
+            seen[group_name] = true
+            names[#names + 1] = group_name
         end
     end
     return names
