@@ -22,8 +22,10 @@ def _guarded(fn: Any, *args: Any) -> Any:
         return fn(*args)
     except (service.SideNotAllowedError, service.WritesOffError) as ex:
         raise HTTPException(status.HTTP_403_FORBIDDEN, str(ex))
-    except RuntimeError as ex:  # GameContext.require with no campaign loaded
+    except service.NoCampaignError as ex:
         raise HTTPException(status.HTTP_409_CONFLICT, str(ex))
+    except service.NotesTooLargeError as ex:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, str(ex))
 
 
 @router.get("/start", operation_id="ai_start", response_class=PlainTextResponse)
@@ -38,7 +40,7 @@ def howtoplay() -> str:
 
 @router.get("/capabilities", operation_id="ai_capabilities")
 def capabilities() -> dict[str, Any]:
-    return service.capabilities()
+    return _guarded(service.capabilities)
 
 
 @router.get(

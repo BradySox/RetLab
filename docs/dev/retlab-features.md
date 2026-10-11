@@ -2215,7 +2215,9 @@ defect that reached a build, most of them found by flying.
   two settings, and *Desired tanker on-station time* now goes to 300 minutes like the
   AWACS one, so a longer stay is set by hand. The carrier recovery tanker reads the same
   setting for where its station sits (20 kt times the minutes) and keeps the old
-  150-minute bound (`recovery_station_time`, `shiprecoverytanker.py`).
+  150-minute bound (`recovery_station_time`, `shiprecoverytanker.py`). The bound also
+  covers its planned duration, its DCS stop condition and the scheduler's spacing
+  between recovery tankers (2026-10-11).
 - **Support tracks stay out of neutral airspace (2026-10-10, DM call; row B208).** An
   AEW&C or theater tanker track that touches a country §98 would have intercept its side
   slides along its own length, the smallest move either way that clears the border by
@@ -2718,7 +2720,8 @@ defect that reached a build, most of them found by flying.
   upstream bugs the fork shared.
   - New game wizard: the start-date calendar was disabled while *Use preset* was ticked,
     but the stylesheet draws a disabled calendar like an enabled one, so a click did
-    nothing. It is never disabled now, and a clicked day unticks *Use preset*.
+    nothing. It is never disabled now, and a day picked by click or keyboard unticks
+    *Use preset* (the keyboard since 2026-10-11; `bind_start_date`).
   - New game wizard: adding a unit to a faction rebuilt the tick boxes all ticked.
     `QFactionUnits.updateFaction` keeps the ticks when it rebuilds the same faction.
   - A mod installed while the app is open reported "No available liveries" until restart,
@@ -2747,6 +2750,11 @@ defect that reached a build, most of them found by flying.
   `tests/commander/test_enemy_transport_targets.py`,
   `tests/missiongenerator/aircraft/test_cargostop.py`, `test_antishipingress.py`. Row
   **B212**.
+  A transport bound for a base on two front lines was listed once per front and could
+  draw two packages; both lists now hold each transport once (2026-10-11).
+  Blue plans before red arranges the turn's transports, so blue sees only the red
+  transports made at turn end (a delivered ground order, a §35 or §50 convoy). Red plans
+  after blue and sees all of blue's.
 
 ### Debrief and reporting
 
@@ -6317,13 +6325,15 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
 - **[#960](https://github.com/dcs-retribution/dcs-retribution/pull/960) re-homing.**
   `MotorpoolPopulator._rehome_motorpools` attaches every depot to the nearest land control
   point (FARPs and FOBs included; carriers, LHAs and off-map points never), on every load and
-  on every `ControlPoint.capture`. A depot used to stay with whoever owned it at New Game.
+  on every `ControlPoint.capture`, and once at the end of New Game (`GameGenerator.generate`,
+  2026-10-11) so a depot's owner does not change on the first load. A depot used to stay
+  with whoever owned it at New Game.
   Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
   marker left the campaign and de-duplicates a save that listed one twice. Generated groups
   are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
-  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` (which still binds through
-    the loader's blue-preference and stranded-marker rules) and overrides that owner with
-    the nearest land CP. The loader's binding still decides which side's warning fires.
+  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` and after New Game's
+    `generate_motorpools` (which both bind through the loader's blue-preference and
+    stranded-marker rules) and overrides that owner with the nearest land CP. The loader's binding still decides which side's warning fires.
   - Row B180.
 - **[#959](https://github.com/dcs-retribution/dcs-retribution/pull/959) inventory.**
   The populator became a projection reconciled each call: an unchanged reserve keeps the
@@ -6350,9 +6360,11 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     them. The ingress keeps the fork's per-search-point loop and `search_zone_radius`.
   - Row B182.
 - **[#962](https://github.com/dcs-retribution/dcs-retribution/pull/962) mission generation.**
-  `refresh_motorpool_target_flight_plans` re-plans every motorpool-target flight right after
-  `MotorpoolPopulator.populate()` in mission generation (`Flight.refresh_flight_plan` keeps
-  manual timing), so plans see the vehicles actually parked. BAI gets one `bai_group`
+  `refresh_motorpool_target_flight_plans` runs right after `MotorpoolPopulator.populate()`
+  in mission generation, so plans see the vehicles actually parked. Since 2026-10-11 it
+  does not re-plan: `Flight.refresh_flight_plan_targets` swaps the unit snapshot on the
+  ingress and on a Strike's site waypoint, only when the parked set differs from the one
+  the plan holds, so dragged and inserted waypoints survive Take Off. BAI gets one `bai_group`
   waypoint on the depot; Armed Recon one area waypoint, its engage zone centred on the
   garage and sized to a full grid plus 20 m (`motorpool_full_grid_extent_m`), replacing
   #961's 106 m. The strike ingress adds one `Bombing` per parked vehicle, re-read at
@@ -7945,7 +7957,8 @@ package-mates share the comm plan and SA picture):
   flight plan's `ui_zone()`), drawn with the route: the engagement range either side of
   the track and past each end, tagged `CAS` or `SD`. It ranks after the borders and
   before the tanker box, and beside borders and the box the front line keeps
-  `FRONT_POINTS_WITH_WORK_BOX` = 3 (DM pick). Two of the four paid F-16C campaigns
+  `FRONT_POINTS_WITH_WORK_BOX` = 3 (DM pick). With two borders and the box, the tanker
+  box is left off so the front line keeps a line set (fixed 2026-10-11). Two of the four paid F-16C campaigns
   studied draw a working area this way. The border and threat-ring searches now skip the
   bullseye and divert points, which are not on the route.
 - **Tanker and AEW&C orbits as boxes (2026-09-10).** `support_boxes` draws each
@@ -7969,7 +7982,7 @@ package-mates share the comm plan and SA picture):
   entry of each list draws. FAOR (dashed) is now the nearest land border within 40 NM
   of the route, else the tanker box; FLOT (solid) is the next border; the front line
   takes FLOT only on CAS. The corridor is the package's lane from the IP over the
-  target to the split. `TCN` lists the friendly boats (unit id + route point 1, as the
+  target to the split; a flight with no split after its IP (CAS, Sweep) gets none. `TCN` lists the friendly boats (unit id + route point 1, as the
   editor keys an `ActivateBeacon` task), the home, arrival and divert fields' ground
   TACANs, then the map's other TACANs nearest the route, to the editor's 10. That
   needed beacon positions: `resources/dcs/beacons/*.json` now carry
@@ -11413,6 +11426,12 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
 - Except ASAP support: an ASAP Refueling, AEW&C or BARCAP package re-runs ASAP from the
   early start (`retime_asap_support`, every generation), so the tanker is up before a flight
   that started early to reach it. Those packages never set the start themselves.
+- A station's relief BARCAP waves (not ASAP, same target as an ASAP BARCAP) move by as
+  much as the first wave did, never earlier than they can fly from the mission start, so
+  the scheduler's handover holds. They do not set the start either (2026-10-11).
+- `settle_mission_start` takes the start again after the retime, up to four passes, and
+  keeps the earlier value inside the cap: retimed support reorders a runway queue and
+  moved another flight's startup up to 2.3 min ahead of the start (2026-10-11).
 - The Take Off past-start warning compares against the earlier start.
 - DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
 - Not §89's pre-roll: nothing is simulated or placed mid-sortie.
@@ -11679,6 +11698,10 @@ first live reviews on Kola):
   (`tests/server/test_api_key_on_every_route.py`).
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
 - `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
+- `tests/agent/test_write_on_real_campaign.py` runs the write path on the same real
+  campaign: a failed plan hands back its aircraft and pilots, a create or delete reaches
+  the map, and a buy reports what it bought. The 2026-10-11 audit fixes it pins are
+  listed in the design note.
 - `tests/agent/test_blue_plan_never_served.py` builds a real campaign
   (`tools/_campaign_game.py`, Caucasus - Northern Russia) and calls every GET route for red
   twice: once with blue's ATO swapped for a tripwire that fails on any access, once with
@@ -11730,8 +11753,10 @@ Not flown here or, as far as its history shows, there: row **B215**.
 
 **What the player does.** Put a marker on the target. F10 radio menu > Ballistic Missile
 Strike > the battery > the marker > a number of rounds. *Refresh target list* picks up
-markers placed since the menu was drawn; *Battery status* lists rounds, range window and
-state; *Check fire* ends a mission in progress. Any occupied player slot gets the menu.
+markers placed or renamed since the menu was drawn; *Battery status* lists rounds, range
+window and state; *Check fire* ends a mission in progress. Any occupied player slot gets
+the menu. The menu is the flight's: one per DCS group, working for as long as any member
+is alive.
 
 **Files.**
 
@@ -11751,7 +11776,14 @@ state; *Check fire* ends a mission in progress. Any occupied player slot gets th
 - One `FireAtPoint` inside a `ControlledTask` with a duration, so the task ends by itself.
   A supervisor reads the ammo count every 10 s: it reports rounds complete, re-issues the
   order once if a salvo stalls, and ends the mission when nothing has fired inside the
-  timeout.
+  timeout. Rounds away are the ammo drop on each launcher still alive, so a launcher
+  destroyed mid-mission is not counted as a salvo.
+- A target is a mark a player made (the event carries a unit, or a player group id),
+  listed by the text typed on it, else by MGRS. The text arrives in
+  `S_EVENT_MARK_CHANGE`. Marks drawn by other scripts are left out. The newest 8 show.
+- No menu passes ten items, which is all F10 shows: the root holds seven batteries and a
+  *More batteries* page for the rest, sorted by callsign, and a marker offers at most ten
+  round counts.
 - DCS gives a script neither range limit. The maximum comes from the unit definition; the
   minimum is a table in the script (`BMS.MinRangeByType`), because a launcher handed a
   target inside its minimum accepts the task and never fires. The Iranian pack's four
@@ -11778,7 +11810,12 @@ the two launcher switches above.
 **Gotchas.**
 
 - Every `UnitClass.MISSILE` unit with a `threat_range` is listed, so a cruise missile or
-  drone launcher (CJ-10, Iskander-K, Shahed-136) appears on the menu too.
+  drone launcher (CJ-10, Iskander-K, Shahed-136, Shahed 238) appears on the menu too.
+  The unit data has no field that tells a ballistic launcher from the others, so the
+  plugin description says so instead of the list being filtered (2026-10-11).
+- Whether DCS always sets `initiator` on a player's mark event in multiplayer is not
+  confirmed; the script also accepts a positive `groupID`. A player marker missing from
+  the menu on a server is this check (row B215).
 - A missile battery group carries its §85 support trucks; only missile-category ammunition
   is counted, so they do not show as rounds.
 - A unit type missing from `BMS.MinRangeByType` has no minimum check. It is caught by the
@@ -11786,6 +11823,8 @@ the two launcher switches above.
 
 **Tests.** `tests/missiongenerator/test_ballistic_missile_lua_data.py` (the launcher
 list), `tests/lua/test_bmstrike_runtime.py` (both scripts on Lua 5.1: one round onto a
-marker, the reload timer, both range refusals, own-side-only wake and reserve). The
+marker, the reload timer, both range refusals, own-side-only wake and reserve, a salvo
+counted round by round, a launcher destroyed mid-mission, a two-ship with either pilot
+gone, a renamed marker, a script-made mark, and the ten-item menu limit). The
 harness gained `Unit:getAmmo`, the inner task of a `ControlledTask`, and the two map-mark
 events.

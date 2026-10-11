@@ -253,12 +253,6 @@ class QBaseMenu2(QDialog):
             )
         )
 
-    @property
-    def has_transfer_destinations(self) -> bool:
-        return self.game_model.game.transit_network_for(
-            self.cp.captured
-        ).has_destinations(self.cp)
-
     def update_cheat_runway_state_text(self) -> None:
         if self.cp.runway_can_be_repaired:
             self.cheat_runway_state.setText("CHEAT: Repair runway")

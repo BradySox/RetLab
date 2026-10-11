@@ -1,0 +1,1 @@
+* **[Plugins]** Ballistic missile strikes: a flight has one radio menu that keeps working when a pilot dies or leaves, a marker is listed by the name typed on it, marks drawn by other scripts are not listed, a launcher destroyed mid-mission is no longer reported as rounds fired, and a side with more than seven batteries gets a More batteries page.

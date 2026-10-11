@@ -207,6 +207,20 @@ def _flight_label(spec: schemas.FlightSpec) -> str:
     return " ".join(parts)
 
 
+def _task_problem(
+    side: str, target: MissionTarget, task: FlightType, escort: Optional[str]
+) -> Optional[str]:
+    """Why this task cannot be flown at this target, or None. The planner builds
+    whatever it is handed; the player's own package dialog offers only these."""
+    if escort:
+        return None  # attaches to the package's other flights, not to the target
+    allowed = set(target.mission_types(views.player_for_side(side)))
+    if task in allowed:
+        return None
+    names = ", ".join(sorted(t.name for t in allowed))
+    return f"{task.name} is not a mission for {target.name}; it takes {names}"
+
+
 def _diagnose_flights(
     game: Game, side: str, spec: schemas.PackageSpec
 ) -> list[Optional[str]]:
@@ -226,6 +240,11 @@ def _diagnose_flights(
         except ValueError as exc:
             out.append(str(exc))
             continue
+        if target is not None:
+            wrong = _task_problem(side, target, task, flight.escort)
+            if wrong is not None:
+                out.append(wrong)
+                continue
         count = _clamped_count(game, side, flight)
         if flight.squadron_id:
             try:
@@ -382,11 +401,15 @@ def _apply_tot(package: Package, tot_minutes: Optional[int], now: datetime) -> N
         package.auto_asap = True
         package.set_tot_asap(now)
         return
-    package.auto_asap = False
     floor = earliest_tot_minutes(package)
     if floor is not None and tot_minutes < floor[0]:
         tot_minutes = floor[0]
-    package.time_over_target = now + timedelta(minutes=tot_minutes)
+    try:
+        tot = now + timedelta(minutes=tot_minutes)
+    except OverflowError:
+        raise ValueError(f"tot_minutes {tot_minutes} is out of range")
+    package.auto_asap = False
+    package.time_over_target = tot
 
 
 def _mission_window_min(game: Game) -> int:
@@ -408,11 +431,14 @@ def _push_new_package(package: Package) -> None:
     EventStream.put_nowait(events)
 
 
-def _push_removed_package(package: Package) -> None:
+def _remove_package(game: Game, side: str, package: Package) -> None:
     from game.server import EventStream
     from game.sim import GameUpdateEvents
 
-    EventStream.put_nowait(GameUpdateEvents().delete_flights_in_package(package))
+    # Removing the package empties its flight list, so the event is built first.
+    events = GameUpdateEvents().delete_flights_in_package(package)
+    views.coalition_for_side(game, side).ato.remove_package(package)
+    EventStream.put_nowait(events)
 
 
 def _plan(
@@ -423,14 +449,25 @@ def _plan(
     fulfiller = PackageFulfiller(
         coalition, game.theater, game.db.flights, game.settings
     )
-    with MultiEventTracer() as tracer, _forced_task_assign(game, side, spec):
-        return fulfiller.plan_mission(
-            ProposedMission(target, _proposed(game, side, flights), asap=True),
-            1,
-            game.conditions.start_time,
-            tracer,
-            ignore_range=spec.ignore_range,
-        )
+    flight_db = game.db.flights
+    known = set(flight_db.objects)
+    try:
+        with MultiEventTracer() as tracer, _forced_task_assign(game, side, spec):
+            return fulfiller.plan_mission(
+                ProposedMission(target, _proposed(game, side, flights), asap=True),
+                1,
+                game.conditions.start_time,
+                tracer,
+                ignore_range=spec.ignore_range,
+            )
+    except Exception as exc:
+        # plan_mission scrubs only a PlanningError. Anything else left the flights it
+        # had built holding their aircraft and pilots, in no package the ATO lists.
+        for flight_id in set(flight_db.objects) - known:
+            flight = flight_db.get(flight_id)
+            flight.package.remove_flight(flight)
+        why = str(exc) or type(exc).__name__
+        raise ValueError(f"the planner could not build this package: {why}") from exc
 
 
 def create_packages(
@@ -499,7 +536,14 @@ def evaluate_package(
     now = game.conditions.start_time
     target_name = spec.target_id
     try:
-        target_name = resolve_target(game, spec.target_id).name
+        target = resolve_target(game, spec.target_id)
+        target_name = target.name
+        for flight in spec.flights:
+            wrong = _task_problem(
+                side, target, _flight_type(flight.task), flight.escort
+            )
+            if wrong is not None:
+                raise ValueError(wrong)
         package = _plan(game, side, spec, list(spec.flights))
         if package is None or not package.flights:
             with _forced_task_assign(game, side, spec):
@@ -620,20 +664,16 @@ def set_package_tot(
 def delete_package(game: Game, side: str, index: int) -> schemas.OpResult:
     """Remove a package; its aircraft and pilots go back to their squadrons."""
     try:
-        package = _package_at(game, side, index)
-        views.coalition_for_side(game, side).ato.remove_package(package)
-        _push_removed_package(package)
+        _remove_package(game, side, _package_at(game, side, index))
         return schemas.OpResult(ok=True, detail=f"removed package {index}")
     except ValueError as exc:
         return schemas.OpResult(ok=False, error=str(exc))
 
 
 def clear_packages(game: Game, side: str) -> schemas.OpResult:
-    ato = views.coalition_for_side(game, side).ato
-    packages = list(ato.packages)
+    packages = list(views.coalition_for_side(game, side).ato.packages)
     for package in packages:
-        ato.remove_package(package)
-        _push_removed_package(package)
+        _remove_package(game, side, package)
     return schemas.OpResult(ok=True, detail=f"removed {len(packages)} packages")
 
 
@@ -658,6 +698,29 @@ def _purchase_limits(game: Game, side: str, squadron: Squadron) -> str:
     return "; ".join(parts)
 
 
+def _positive(quantity: int) -> None:
+    if quantity < 1:
+        raise ValueError(f"quantity must be 1 or more, not {quantity}")
+
+
+def _trade_result(
+    verb: str, done: int, asked: int, what: str, budget: float, stopped: Optional[str]
+) -> schemas.OpResult:
+    """The adapters trade one at a time and stop at the first refusal, keeping the
+    ones already through: say how many, since their money has moved."""
+    if stopped is None:
+        return schemas.OpResult(
+            ok=True, detail=f"{verb} {done} {what}; budget now {round(budget)}"
+        )
+    if done == 0:
+        return schemas.OpResult(ok=False, error=stopped)
+    return schemas.OpResult(
+        ok=True,
+        detail=f"{verb} only {done} of the {asked} {what} asked for; budget now "
+        f"{round(budget)}. The rest: {stopped}",
+    )
+
+
 def buy_aircraft(
     game: Game, side: str, squadron_id: str, quantity: int
 ) -> schemas.OpResult:
@@ -665,18 +728,23 @@ def buy_aircraft(
     from game.purchaseadapter import AircraftPurchaseAdapter, TransactionError
 
     try:
+        _positive(quantity)
         squadron = _resolve_squadron(game, side, squadron_id)
         if squadron.location.captured != views.player_for_side(side):
             raise ValueError(f"{squadron.location.name} is not yours")
+        before = squadron.pending_deliveries
+        stopped = None
         try:
             AircraftPurchaseAdapter(squadron.location).buy(squadron, quantity)
         except TransactionError as exc:
-            raise ValueError(f"{exc}: {_purchase_limits(game, side, squadron)}")
-        budget = round(views.coalition_for_side(game, side).budget)
-        return schemas.OpResult(
-            ok=True,
-            detail=f"ordered {quantity} {squadron.aircraft.display_name} for "
-            f"{squadron}; budget now {budget}",
+            stopped = f"{exc}: {_purchase_limits(game, side, squadron)}"
+        return _trade_result(
+            "ordered",
+            squadron.pending_deliveries - before,
+            quantity,
+            f"{squadron.aircraft.display_name} for {squadron}",
+            views.coalition_for_side(game, side).budget,
+            stopped,
         )
     except ValueError as exc:
         return schemas.OpResult(ok=False, error=str(exc))
@@ -689,15 +757,23 @@ def sell_aircraft(
     from game.purchaseadapter import AircraftPurchaseAdapter, TransactionError
 
     try:
+        _positive(quantity)
         squadron = _resolve_squadron(game, side, squadron_id)
-        AircraftPurchaseAdapter(squadron.location).sell(squadron, quantity)
-        budget = round(views.coalition_for_side(game, side).budget)
-        return schemas.OpResult(
-            ok=True,
-            detail=f"sold {quantity} {squadron.aircraft.display_name} from "
-            f"{squadron}; budget now {budget}",
+        before = squadron.pending_deliveries
+        stopped = None
+        try:
+            AircraftPurchaseAdapter(squadron.location).sell(squadron, quantity)
+        except TransactionError as exc:
+            stopped = str(exc)
+        return _trade_result(
+            "sold",
+            before - squadron.pending_deliveries,
+            quantity,
+            f"{squadron.aircraft.display_name} from {squadron}",
+            views.coalition_for_side(game, side).budget,
+            stopped,
         )
-    except (TransactionError, ValueError) as exc:
+    except ValueError as exc:
         return schemas.OpResult(ok=False, error=str(exc))
 
 
@@ -709,6 +785,7 @@ def buy_ground(
 
     coalition = views.coalition_for_side(game, side)
     try:
+        _positive(quantity)
         cp = _resolve_cp(game, cp_id)
         if cp.captured != views.player_for_side(side):
             raise ValueError(f"{cp.name} is not yours")
@@ -720,13 +797,22 @@ def buy_ground(
             raise ValueError(f"{unit_name!r} is not a ground unit this faction buys")
         if not cp.has_ground_unit_source(game):
             raise ValueError(f"{cp.name} cannot recruit ground units")
-        GroundUnitPurchaseAdapter(cp, coalition, game).buy(unit, quantity)
-        return schemas.OpResult(
-            ok=True,
-            detail=f"ordered {quantity} {unit.display_name} at {cp.name}; budget now "
-            f"{round(coalition.budget)}",
+        adapter = GroundUnitPurchaseAdapter(cp, coalition, game, opfor_planner=True)
+        before = adapter.pending_delivery_quantity(unit)
+        stopped = None
+        try:
+            adapter.buy(unit, quantity)
+        except TransactionError as exc:
+            stopped = f"{exc}: budget {round(coalition.budget)}, {unit.price} each"
+        return _trade_result(
+            "ordered",
+            adapter.pending_delivery_quantity(unit) - before,
+            quantity,
+            f"{unit.display_name} at {cp.name}",
+            coalition.budget,
+            stopped,
         )
-    except (TransactionError, ValueError) as exc:
+    except ValueError as exc:
         return schemas.OpResult(ok=False, error=str(exc))
 
 

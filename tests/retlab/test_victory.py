@@ -372,6 +372,16 @@ def test_verdict_win_announces_once() -> None:
     assert "50%" in banners[0][1]
 
 
+def test_a_read_of_the_verdict_announces_nothing() -> None:
+    # The outside AI's turn_context reads the verdict; the banner is the turn's.
+    game = _game(cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)], domination=50)
+    assert victory_verdict(game, announce=False) == "win"
+    assert game.messages == []
+    assert not getattr(game, "victory_announced", None)
+    assert victory_verdict(game) == "win"
+    assert len(game.messages) == 1
+
+
 def test_loss_takes_precedence_over_a_simultaneous_win() -> None:
     authored = VictoryProfile(
         win_when=(VictoryCondition(capture_cps=("A",)),),

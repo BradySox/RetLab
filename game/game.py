@@ -667,7 +667,7 @@ class Game:
         # Autosave progress
         persistency.autosave(self)
 
-    def check_win_loss(self) -> TurnState:
+    def check_win_loss(self, announce: bool = True) -> TurnState:
         # Alternate endings (§75 custom victory conditions) -- ONE evaluator
         # ahead of the stock capture-everything defaults: authored `victory:`
         # blocks + the domination/attrition knobs. Returns None when nothing is
@@ -675,7 +675,7 @@ class Game:
         # remain the universal fallback.
         from game.retlab.victory import victory_verdict
 
-        alternate = victory_verdict(self)
+        alternate = victory_verdict(self, announce)
         if alternate == "loss":
             return TurnState.LOSS
         if alternate == "win":

@@ -331,6 +331,36 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
             self._drop_post_refuel = True
             super().regenerate()
 
+    def refresh_targets(self) -> None:
+        """Re-snapshot the target's live units onto the built plan, in place.
+
+        A motorpool's vehicles are reconciled at mission generation, after the
+        plan was built. Only the snapshot changes, and only when it is stale, so
+        the route (and any hand edit to it) is kept.
+        """
+        plan = self._flight_plan
+        target = self.package.target
+        if plan is None or not isinstance(target, TheaterGroundObject):
+            return
+        layout = plan.layout
+        live = target.strike_targets
+        stale = layout.ingress.targets
+        if len(stale) == len(live) and all(a is b for a, b in zip(stale, live)):
+            return
+        layout.ingress.targets = live
+        if self.flight.flight_type not in SITE_WAYPOINT_TASKS:
+            return
+        targets = self.strike_targets_for(target)
+        fresh = self._target_waypoints(WaypointBuilder(self.flight, targets), targets)
+        old = layout.targets
+        if len(old) == len(fresh) == 1 and (
+            old[0].waypoint_type is fresh[0].waypoint_type
+        ):
+            # Same kind of point: keep the one the player may have moved.
+            old[0].targets = fresh[0].targets
+        else:
+            layout.targets = fresh
+
     def _post_refuel_unneeded(self) -> bool:
         """Whether the flight gets home on the pre-push top-off alone (DM 2026-10-07)."""
         return post_refuel_unneeded(self.flight, getattr(self.built, "layout", None))

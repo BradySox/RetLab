@@ -361,7 +361,9 @@ def build_weather(game: Game) -> WeatherView:
 
 
 def build_situation(game: Game) -> SituationView:
-    state = _CAMPAIGN_STATE_FROM_RED.get(game.check_win_loss().name, "ongoing")
+    # A read: the verdict without the events-feed line the turn boundary posts.
+    verdict = game.check_win_loss(announce=False)
+    state = _CAMPAIGN_STATE_FROM_RED.get(verdict.name, "ongoing")
     return SituationView(
         turn=game.turn,
         date=game.current_day.isoformat(),
@@ -484,7 +486,8 @@ def build_control_point(
         owner=cp.captured.name.lower(),
         pos=_latlng(game, cp.position.x, cp.position.y),
         sqns=sqns or None,
-        parking_free=(park[1] - park[0]) if park else None,
+        # Free parking counts aircraft on order, and the enemy's orders are hidden.
+        parking_free=(park[1] - park[0]) if park and cp.captured == viewer else None,
         parking_total=park[1] if park else None,
         can_recruit_ground=recruit,
         factories=_factories(cp),

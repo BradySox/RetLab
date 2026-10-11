@@ -203,6 +203,17 @@ late by its queue wait.
   since their own startup is the start; otherwise a re-timed tanker would hold the next
   generation early after the flight that needed it was gone. ASAP is re-run on every
   generation, so a support package's TOT tracks the mission start both ways.
+- **Relief CAP waves follow their first wave (2026-10-11).** The scheduler chains a
+  station's relief waves to its ASAP first wave and never flags them ASAP. Only the first
+  wave moved, so a 20-minute early start on a 120-minute mission left every relieved
+  station empty for 20 minutes, and stock Red Tide showed about a minute on four. A relief
+  wave now moves by as much as its first wave did, no earlier than it can fly from the
+  mission start. It is left out of the earliest-startup search for the same reason support
+  is.
+- **The start is taken again after the retime (2026-10-11).** Retimed support takes a
+  runway slot ahead of flights it used to follow, and their startup moved up to 2.3 minutes
+  ahead of the start already chosen. `settle_mission_start` re-reads the start after each
+  retime and keeps the earlier value, inside the cap, for at most four passes.
 - The §47 turn clock and weather keep marching from `conditions.start_time`; the next turn
   is unaffected. The briefing popup header, the ATIS time and the sun times keep the turn
   clock.

@@ -6,6 +6,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Iterator, Optional, TYPE_CHECKING
 
+from game.ato.flightplans.shiprecoverytanker import recovery_station_time
 from game.ato.flighttype import FlightType
 from game.ato.traveltime import TotEstimator
 from game.theater import MissionTarget, NavalControlPoint
@@ -277,7 +278,7 @@ class MissionScheduler:
                     )
 
         # division by 2 is meant to provide some leeway to avoid filtering out too many ETAs
-        duration = self.coalition.game.settings.desired_tanker_on_station_time / 2
+        duration = recovery_station_time(self.coalition.game.settings) / 2
 
         for cp in carrier_etas:
             filtered: list[datetime] = []

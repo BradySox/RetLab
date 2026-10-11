@@ -1272,7 +1272,9 @@ within 40 NM of the route (`land_border_runs`, thinned to 7 points), falling bac
 usable tanker box when no border is near. FLOT is the next border; the front line takes
 it only on CAS, because a front line is noise to anyone not working it (same call, made
 for both jets). The corridor is the package's lane: the flight's waypoints from the
-first `INGRESS_*` through the `SPLIT`, thinned to 14. `TCN` carries the boats of the
+first `INGRESS_*` through the `SPLIT`, thinned to 14; a flight with no `SPLIT` after its
+IP (CAS, Sweep) gets no corridor, because that lane ran on to landing and divert
+(fixed 2026-10-11). `TCN` carries the boats of the
 flight's side, the departure, arrival and divert fields' ground TACANs, then every other
 ground TACAN on the map nearest the route first (DM follow-up: there are few per map),
 to the editor's 10 (`TACAN.lua` refuses an 11th). Caucasus has 6, Syria 11, Sinai 16,
@@ -1366,7 +1368,9 @@ outside a cockpit, so we write both, exactly as the editor would. Row B193 flies
 **Front line on CAS only (DM call, 2026-10-08).** Off a CAS flight it is noise. The
 DTC tab's starting ticks carry that (#1158); the builder follows the tick, and an
 unticked front line's points go to the borders. The working box ranks after borders and before the tanker
-box; beside both the front line keeps 3 points.
+box; beside both the front line keeps 3 points. Two borders, the working box and a
+tanker box would fill all four sets, so the tanker box is left off there and the front
+line keeps its set (fixed 2026-10-11; the tanker anchor is still a steerpoint).
 
 ## Ticks by task, and the saved default (2026-10-08)
 

@@ -177,3 +177,57 @@ def test_a_summary_saved_before_the_feature_serves_no_causes() -> None:
     last_turn = views.build_prev_turns(_game(_sitrep())).last_turn
     assert last_turn is not None
     assert last_turn.red_lost_to is None and last_turn.blue_lost_to is None
+
+
+def test_losses_at_a_base_captured_in_the_mission_stay_with_the_side_that_held_it() -> (
+    None
+):
+    # The sitrep is written after captures commit: the base and everything read
+    # through it already belong to the capturer.
+    base = SimpleNamespace(captured=Player.BLUE)
+    unit_map = _map()
+    unit_map.aircraft["Flanker 1"].flight.departure = base
+    unit_map.sites["SA-10 ln"].theater_unit.ground_object.control_point = base
+    unit_map.front["T-72"].origin = base
+    kills = (
+        KillCause("Flanker 1", "Viper 1", "F-16C_50", "AIM-120C"),
+        KillCause("SA-10 ln", "Viper 1", "F-16C_50", "AGM-88C"),
+        KillCause("T-72", "Abrams", "M-1 Abrams", None),
+        KillCause("Viper 2", "SA-10 ln", "S-300PS 5P85C ln", "5V55"),
+    )
+
+    wrong = tally(kills, unit_map)
+    assert wrong["red"].is_empty
+
+    causes = tally(kills, unit_map, {id(base): Player.RED})
+    assert causes["red"].by_cause == {
+        "aircraft": {"aircraft": 1},
+        "sites": {"aircraft": 1},
+        "front_line": {"ground": 1},
+    }
+    assert causes["blue"].by_cause == {"aircraft": {"sam": 1}}
+
+
+def test_the_sitrep_tallies_with_the_owners_from_before_the_captures() -> None:
+    from datetime import date
+
+    from game.sitrep import Sitrep
+
+    base = SimpleNamespace(captured=Player.BLUE, name="Captured base")
+    unit_map = _map()
+    unit_map.aircraft["Flanker 1"].flight.departure = base
+    losses = SimpleNamespace(aircraft=0, front_line=0, ground_objects=0)
+    debriefing: Any = SimpleNamespace(
+        loss_counts=lambda player: losses,
+        base_captures=[
+            SimpleNamespace(control_point=base, captured_by_player=Player.BLUE)
+        ],
+        state_data=SimpleNamespace(
+            kill_causes=(KillCause("Flanker 1", "Viper 1", "F-16C_50", None),),
+            sortie_records=(),
+        ),
+        unit_map=unit_map,
+    )
+    sitrep = Sitrep.from_debriefing(debriefing, turn=3, day=date(1990, 1, 1))
+    assert sitrep.loss_causes["red"].by_cause == {"aircraft": {"aircraft": 1}}
+    assert sitrep.loss_causes["blue"].is_empty

@@ -109,6 +109,33 @@ served" held for the AI's routes alone, and `/docs` listed every route.
   app with no key and with the AI's key; `tests/agent/test_blue_plan_never_served.py`
   does the same on a real campaign and scans the answers for blue's flight ids.
 
+## What the 2026-10-11 audit changed
+
+The write path had no test on a real campaign; four of these fell out of the first one
+(`tests/agent/test_write_on_real_campaign.py`).
+
+- `buy/ground` was refused unless the enemy buy/sell cheat was ticked.
+  `GroundUnitPurchaseAdapter(opfor_planner=True)` lets this caller buy for red; the UI
+  never passes it.
+- A plan that raised anything but a `PlanningError` (OCA or Air Assault at red's own
+  base) left its flights holding aircraft and pilots in no package. `planner._plan`
+  removes every flight the failed call added to the flight database.
+- A task is checked against `target.mission_types` before planning, as the player's
+  package dialog does. A flight with `escort` set is exempt.
+- Deleting a package sent the map an empty event: the event is now built before the
+  package is emptied.
+- A buy or sale that stops part way answers `ok: true` and says how many went through.
+  A quantity below 1 is refused.
+- Writes are refused once the game loop has started (Take Off, or the human running the
+  sim clock). The lock between the AI's writes and the UI is still stage 3.
+- `parking_free` is served for red's own bases only: it counts aircraft on order.
+- `turn_context` reads the verdict with `check_win_loss(announce=False)`, so a read no
+  longer posts the victory line.
+- The AI's notes are capped at 64,000 characters (`service.NOTES_MAX_CHARS`).
+- Only a missing campaign answers 409; another `RuntimeError` is a 500.
+- Loss causes on a turn a base is captured: `Sitrep` passes `tally` the owner each
+  captured base had during the mission, because it is written after captures commit.
+
 ## Source and licence
 
 Ported from `juanjux/dcs-escalation` (`game/agent/`, `game/server/retributionai/`), LGPL-3
@@ -146,7 +173,8 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `game/coalition.py`: the `initialize_turn` branch.
 - `qt_ui/windows/QLiberationWindow.py`: Developer tools > Copy AI connect link.
   `qt_ui/widgets/QTopPanel.py`: the Take Off fallback.
-- Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`, and
+- Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`,
+  `tests/agent/test_write_on_real_campaign.py` (the write path on a real campaign), and
   `tests/agent/test_blue_plan_never_served.py`, which scans every GET route's response on a
   real campaign for blue's plan.
 - `game/losscauses.py`: last turn's losses by cause, from the killer the base plugin
@@ -158,7 +186,8 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
   in his commit `a9d5c5be`. Everything else about blue is served as ground truth, because
   that is what red's scripted planner reads.
 - Reads never mutate. Anything that seeds or caches game state stays out of a read.
-- Writes need the toggle on, checked in `service._writable_game`.
+- Writes need the toggle on and the mission not started, both checked in
+  `service._writable_game`.
 - The AI plans through the engine's own planners and purchase adapters, never by building
   flights or waypoints itself, so its plan is one the scripted planner could have made.
 - The server binds `::1`. The link is for an AI on the same PC; a web AI needs a tunnel,

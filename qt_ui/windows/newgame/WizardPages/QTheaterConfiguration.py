@@ -1,7 +1,7 @@
 from __future__ import unicode_literals, annotations
 
 from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Callable, List, Optional, Tuple
 
 from PySide6 import QtWidgets, QtGui
 from PySide6.QtCore import Signal, QDate, QPoint, QItemSelectionModel, Qt, QModelIndex
@@ -18,6 +18,7 @@ from PySide6.QtWidgets import (
 from game.campaignloader import Campaign
 from game.campaignloader.campaign import DEFAULT_BUDGET
 from game.theater.theaterloader import TheaterLoader
+from qt_ui.blocksignals import block_signals
 from qt_ui.liberation_install import get_dcs_install_directory
 from qt_ui.widgets.QLiberationCalendar import QLiberationCalendar
 from qt_ui.widgets.spinsliders import CurrencySpinner
@@ -73,6 +74,30 @@ TIME_PERIODS = {
 #: The preset selected when no campaign recommends a date. By name, not a brittle
 #: positional index into the (now chronologically sorted) table.
 DEFAULT_TIME_PERIOD = "Mid-90s - Summer [1995]"
+
+
+def bind_start_date(
+    calendar: QtWidgets.QCalendarWidget, preset: QtWidgets.QCheckBox
+) -> Callable[[QDate | datetime], None]:
+    """Unticks ``preset`` when the user picks a date, by mouse or keyboard.
+
+    Returns the setter for dates the page sets itself, which leave the box alone.
+    """
+
+    def user_picked() -> None:
+        preset.setChecked(False)
+
+    # clicked covers a click on the day already selected, which changes nothing.
+    # The calendar is never disabled: the stylesheet draws a disabled one like an
+    # enabled one, so its clicks silently did nothing.
+    calendar.clicked.connect(user_picked)
+    calendar.selectionChanged.connect(user_picked)
+
+    def set_date(date: QDate | datetime) -> None:
+        with block_signals(calendar):
+            calendar.setSelectedDate(date)
+
+    return set_date
 
 
 class BudgetInputs(QtWidgets.QGridLayout):
@@ -266,11 +291,10 @@ class TheaterConfiguration(QtWidgets.QWizardPage):
         timePeriodPreset.setChecked(True)
         self.calendar = QLiberationCalendar()
         self.calendar.setSelectedDate(QDate())
+        set_start_date = bind_start_date(self.calendar, timePeriodPreset)
 
         def onTimePeriodChanged():
-            self.calendar.setSelectedDate(
-                list(TIME_PERIODS.values())[timePeriodSelect.currentIndex()]
-            )
+            set_start_date(list(TIME_PERIODS.values())[timePeriodSelect.currentIndex()])
 
         timePeriodSelect.currentTextChanged.connect(onTimePeriodChanged)
 
@@ -284,13 +308,6 @@ class TheaterConfiguration(QtWidgets.QWizardPage):
             if timePeriodPreset.isChecked():
                 onTimePeriodChanged()
 
-        def onCalendarDateClicked():
-            # A clicked day is the start date the user wants, so leave preset mode.
-            # The calendar is never disabled: the stylesheet draws a disabled one like
-            # an enabled one, so its clicks silently did nothing.
-            timePeriodPreset.setChecked(False)
-
-        self.calendar.clicked.connect(onCalendarDateClicked)
         timePeriodPreset.stateChanged.connect(onTimePeriodCheckboxChanged)
 
         # Bind selection method for campaign selection
@@ -326,9 +343,7 @@ class TheaterConfiguration(QtWidgets.QWizardPage):
             self.enemy_budget.starting_money.setValue(campaign.recommended_enemy_money)
 
             if (start_date := campaign.recommended_start_date) is not None:
-                self.calendar.setSelectedDate(
-                    QDate(start_date.year, start_date.month, start_date.day)
-                )
+                set_start_date(QDate(start_date.year, start_date.month, start_date.day))
                 timePeriodPreset.setChecked(False)
             else:
                 timePeriodPreset.setChecked(True)

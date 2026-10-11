@@ -248,3 +248,43 @@ def test_a_front_counts_the_garrison_blocking_capture_and_lists_it(
     assert set(garrisons) == blocking_ids
     assert all(t.suggested_task == "BAI" for t in garrisons.values())
     assert len([t for t in targets if t.kind == "garrison"]) == len(garrisons)
+
+
+def test_only_a_missing_campaign_answers_409(monkeypatch: pytest.MonkeyPatch) -> None:
+    from game.server import GameContext
+    from game.server.retributionai import routes
+
+    monkeypatch.setattr(
+        GameContext, "_game_model", SimpleNamespace(game=None), raising=False
+    )
+    for call in (routes.capabilities, routes.settings, routes.notes):
+        with pytest.raises(HTTPException) as raised:
+            call()
+        assert raised.value.status_code == 409
+
+    def broken() -> None:
+        raise RuntimeError("a bug, not a missing campaign")
+
+    with pytest.raises(RuntimeError):
+        routes._guarded(broken)
+
+
+@pytest.mark.parametrize(
+    "bbox",
+    ["nan,0,1,1", "0,0,inf,1", "-inf,-inf,inf,inf", "0,0,0,1", "1,2,3", "95,0,99,1"],
+)
+def test_a_map_box_that_is_not_on_the_globe_is_ignored(bbox: str) -> None:
+    from game.agent import mapimage
+
+    assert mapimage._parse_bbox(bbox) is None
+
+
+def test_a_map_box_is_clamped_to_the_globe(campaign_game: Any) -> None:
+    from game.agent import mapimage
+
+    whole = "-1e308,-1e308,1e308,1e308"
+    assert mapimage._parse_bbox(whole) == (-90.0, -180.0, 90.0, 180.0)
+    assert mapimage._parse_bbox("40,30,45,38") == (40.0, 30.0, 45.0, 38.0)
+    # Unclamped, this walked the graticule loops for as long as it was left to.
+    context = views.build_turn_context(campaign_game, "red")
+    assert mapimage.render(context, whole).startswith(b"\x89PNG")

@@ -1,0 +1,12 @@
+date: 2026-10-11
+title: CAP relief waves keep up with an early mission start
+change: >-
+  When a mission starts early so a queued flight can make its time, the
+  first CAP wave over each base launches with it. The wave that relieves
+  it now moves by the same amount. Before, the relief stayed on the turn
+  clock and the station sat empty for as long as the start was early.
+  The planner also no longer sends two packages at one enemy convoy or
+  cargo ship.
+watch: >-
+  On a mission longer than the CAP duration, the second CAP wave over a
+  base arrives before the first one leaves.
