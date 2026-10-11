@@ -7298,6 +7298,14 @@ strikes push behind** (providers are read-only). The carrier stagger runs after 
 ever delays, so it can push a strike deeper into — never ahead of — its window;
 best-effort by design. Symmetric (each coalition's scheduler coordinates its own ATO).
 
+**CAS is not held past the mission length (2026-10-10, DM call).** CAS is based beside its
+target, so the DEAD it waits on can be the far one. Northern Flank 1985: Su-25s 88 NM from
+the front were held to minute 56 of a 45-minute mission, behind a DEAD package flying 320 NM.
+Across the 76 bundled campaigns 12 of 49 CAS packages were retimed and 4 landed past the
+mission length. `_holds_cas_past_the_mission` refuses a delay that ends after
+`desired_player_mission_duration`; the CAS keeps its own time. Strike, BAI and OCA still
+wait, since going in ahead of the SEAD is the worse outcome for them.
+
 Gated by `sead_strike_coordination` (Air Doctrine → Auto-planner behavior, default **OFF since
 the 2026-08-09 re-convergence**; the planner-suite preset turns it on).
 Tests: `tests/test_sead_strike_coordination.py` (the pure window math end-to-end + the

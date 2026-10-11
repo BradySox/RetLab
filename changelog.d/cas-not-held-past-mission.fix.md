@@ -1,0 +1,1 @@
+* **[Campaign AI]** With SEAD-before-strike coordination on, a front-line CAS flight is no longer held behind a DEAD package that arrives after the mission length. It keeps its own time. Strike and BAI still wait for their SEAD.

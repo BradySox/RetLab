@@ -369,7 +369,9 @@ class MissionScheduler:
                 self.SEAD_WINDOW_LEAD,
                 self.SEAD_WINDOW_DURATION,
             )
-            if new_tot is not None:
+            if new_tot is not None and not self._holds_cas_past_the_mission(
+                package, new_tot, now
+            ):
                 logging.debug(
                     "SEAD window: retimed %s vs %s from %s to %s",
                     package.primary_task,
@@ -378,6 +380,22 @@ class MissionScheduler:
                     new_tot,
                 )
                 package.time_over_target = new_tot
+
+    def _holds_cas_past_the_mission(
+        self, package: Package, new_tot: datetime, now: datetime
+    ) -> bool:
+        """True for a delay that puts CAS over the front after the mission ends.
+
+        CAS is based beside its target, so the DEAD it waits on can be the far
+        one: Northern Flank's Su-25s sat 88 NM from the front and were held to
+        minute 56 of 45 behind a DEAD package flying 320 NM (2026-10-10). Such a
+        CAS keeps its own time. Strike and BAI still wait.
+        """
+        return (
+            package.primary_task is FlightType.CAS
+            and new_tot > package.time_over_target
+            and new_tot > now + self.desired_mission_length
+        )
 
     def _deconflict_carrier_recoveries(self, dca_types: set[FlightType]) -> None:
         """Stagger packages recovering to the same boat (the flown midair fix).

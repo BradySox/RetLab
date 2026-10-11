@@ -1,0 +1,12 @@
+date: 2026-10-10
+title: Front-line CAS no longer waits on a far-off DEAD flight
+change: >-
+  With SEAD-before-strike coordination on, CAS was timed to arrive two
+  minutes behind the DEAD package covering its front, however late that
+  was. On Kola the CAS sat 88 NM from the front and was held to minute
+  56 of a 45-minute mission. CAS now keeps its own time when the wait
+  would run past the mission length.
+watch: >-
+  In the ATO, a front-line CAS package arrives inside the mission
+  length even when the DEAD package against the SAM over that front
+  arrives after it.
