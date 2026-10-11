@@ -1,0 +1,1 @@
+* **[Data]** The F-14 squadrons carry their real radio callsigns (VF-11 Ripper, VF-32 Gypsy, VF-103 Victory, VF-143 Dog and the rest). They show on the F10 map, labels, kneeboard and briefing. DCS's radio voices cannot say a callsign the game does not ship. (callsign list from rmac7664)

@@ -1,0 +1,13 @@
+date: 2026-10-10
+title: Tomcat squadrons fly under their real callsigns
+change: >-
+  Each F-14 squadron now has its real radio callsign: VF-11 Ripper,
+  VF-14 Camelot, VF-32 Gypsy, VF-41 FastEagle, VF-103 Victory, VF-143
+  Dog and the others. A squadron's flights default to it, and you can
+  still change a flight's callsign in the flight window. DCS's radio
+  voices cannot say a callsign the game does not ship, so AWACS, ATC and
+  AI wingmen will not speak the name. Flights already in a saved ATO
+  keep the callsign they have.
+watch: >-
+  A newly planned Tomcat flight shows as Ripper 1-1 (or its squadron's
+  callsign) in the ATO, on the kneeboard and on the F10 map.
