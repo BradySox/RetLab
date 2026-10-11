@@ -2764,6 +2764,12 @@ defect that reached a build, most of them found by flying.
   Blue plans before red arranges the turn's transports, so blue sees only the red
   transports made at turn end (a delivered ground order, a §35 or §50 convoy). Red plans
   after blue and sees all of blue's.
+- **An anti-ship flight flew on to the fleet after its last missile (changed 2026-10-11,
+  DM call).** Four B-52Hs fired from about 83 NM and ended 9 NM from the Kuznetsov.
+  `configure_anti_ship` now sets `OptRTBOnOutOfAmmo(All)`, as DEAD does. `All` and not
+  `ASM`, because a bombs-only fallback fit would count as out of missiles at spawn. A
+  flight that keeps a weapon (a Hornet's Sidewinders) still flies the route. Notes:
+  `retlab-antiship-deal-notes.md`. Test: `test_antiship_rtb_winchester.py`. Row B225.
 - **Every anti-ship flight attacked the same ship (changed 2026-10-11, DM call).** Each
   flight got `AttackGroup` on the target's DCS groups, the carrier's own group first, and
   the AI picks one hull at a time; a 2026-10-11 run put 128 of 160 Harpoons at one carrier

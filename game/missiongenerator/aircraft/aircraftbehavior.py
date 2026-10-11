@@ -310,6 +310,9 @@ class AircraftBehavior:
             group,
             react_on_threat=OptReactOnThreat.Values.EvadeFire,
             roe=OptROE.Values.OpenFire,
+            # Four B-52s that had fired every Harpoon flew on to 9 NM from the fleet
+            # (2026-10-11). All, as DEAD: a flight with any weapon left keeps going.
+            rtb_winchester=OptRTBOnOutOfAmmo.Values.All,
             restrict_jettison=True,
             mission_uses_gun=False,
         )
