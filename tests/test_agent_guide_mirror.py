@@ -55,3 +55,14 @@ def test_both_guides_import_the_same_shared_files() -> None:
     for shared in ("docs/dev/CLAUDE-ci.md",):
         assert f"@{shared}" in claude_text, f"{shared} is no longer imported"
         assert (REPO_ROOT / shared).is_file(), f"{shared} is missing"
+
+
+def test_live_feature_list_names_each_feature_once() -> None:
+    # CLAUDE.md is merge=union: a line both branches changed comes out twice,
+    # which is how 18 trimmed feature lines returned beside their short forms.
+    body = CLAUDE_MD.read_bytes().decode("utf-8")
+    live = body.split("### Live features", 1)[1].split("### Retired", 1)[0]
+    numbers = [line.split(".", 1)[0] for line in live.splitlines() if ". **" in line]
+    assert len(numbers) == len(set(numbers)), sorted(
+        {n for n in numbers if numbers.count(n) > 1}
+    )
