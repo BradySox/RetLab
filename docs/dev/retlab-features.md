@@ -7031,9 +7031,19 @@ pydcs ship type id) gives every vanilla hull a signature data set — TACAN **ch
 number** where that's legal for a surface transmit/receive beacon (channels 2–30 and 47–63 X
 are excluded by DCS datalink constraints, so Forrestal 59 → 64X and Tarawa hull 1 → 41X) with
 a **boat-name ident** (TRO/ABE/GWN/STN/HST/FID/TAR/KUZ), **hull-keyed ICLS** (CVN-71 → 11 …
-CVN-75 → 15, Forrestal 9, Tarawa 1), **Link 4 in the real ACLS 336 MHz band** (336.1–336.9,
-one per hull), and a **stable ATC UHF** (304–312, one per hull). Mod carriers without an
+CVN-75 → 15, Forrestal 9, Tarawa 1), **Link 4 at 320.1–320.9 MHz** (one per hull), and a
+**stable ATC UHF** (304–312, one per hull). Mod carriers without an
 entry keep the legacy allocator path end to end.
+
+**Link 4 moved out of the 336 MHz band 2026-10-10.** The F-14's Data Link Control Panel
+dials 300.0–324.9 MHz only (Heatblur manual), so a Tomcat could not tune the 336.1–336.9
+the table carried, which was the mission editor's default. Each hull keeps its last digit
+(Stennis 336.4 → 320.4). The fallback allocator (`RadioRegistry.alloc_link4`) and the
+*Set LINK4* dialog are held to the same band. A save that stored one of the old curated
+values is given the new one, at load (`Migrator`) and at generation (`_resolve_link4`,
+`is_retired_curated_link4`); any other stored value still wins. Found through
+red-one1/dcs-retribution's `fix/carrier-datalink-f14-frequency`, whose allocator range is
+ported. Not flown: row **B213**.
 
 **Precedence.** Values from the table are defaults, not mandates, resolved in
 `GenericCarrierGenerator._resolve_{atc,tacan,link4,icls}` (`tgogenerator.py`): a value
@@ -7091,7 +7101,7 @@ mission of any existing campaign (already-persisted channels on an old save win 
 so an in-progress campaign keeps its known numbers).
 
 **Tests.** `tests/test_carrier_comms.py`: table invariants (unique TACAN/ATC/ICLS/Link 4,
-T/R-legal channels, 336-band Link 4, 3-letter idents, ACLS-capable hulls carry full deck
+T/R-legal channels, Link 4 inside the F-14's band, 3-letter idents, ACLS-capable hulls carry full deck
 data), the `IclsAllocator`, the curated → stored → fallback precedence for all four
 resolvers, the nearest-neighbor TACAN degrade, and the flagship-name collision guard.
 

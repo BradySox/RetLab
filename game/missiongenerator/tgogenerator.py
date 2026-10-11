@@ -59,7 +59,11 @@ from game.missiongenerator.groundforcepainter import (
     NavalForcePainter,
     GroundForcePainter,
 )
-from game.data.carrier_comms import CARRIER_COMMS_PLANS, CarrierCommsPlan
+from game.data.carrier_comms import (
+    CARRIER_COMMS_PLANS,
+    CarrierCommsPlan,
+    is_retired_curated_link4,
+)
 from game.data.units import MOBILE_AIR_DEFENSE_UNIT_CLASSES
 from game.missiongenerator.carrierdeckdecor import generate_carrier_deck_decorations
 from game.missiongenerator.missiondata import CarrierInfo, MissionData
@@ -1155,10 +1159,12 @@ class GenericCarrierGenerator(GroundObjectGenerator):
         self, comms: Optional[CarrierCommsPlan], carrier_type: Type[ShipType]
     ) -> Optional[RadioFrequency]:
         """Link 4 for ACLS-capable hulls: stored value, else the hull's curated
-        336 MHz-band frequency, else a random UHF. Persisted back."""
+        frequency, else a free one the F-14 can tune. Persisted back."""
         if carrier_type not in LINK4_CARRIERS:
             return None
         link4 = self.control_point.link4
+        if is_retired_curated_link4(link4):
+            link4 = None
         if (
             link4 is None
             and comms is not None
@@ -1167,8 +1173,8 @@ class GenericCarrierGenerator(GroundObjectGenerator):
         ):
             link4 = comms.link4
         if link4 is None:
-            # alloc_uhf reserves the channel itself.
-            link4 = self.radio_registry.alloc_uhf()
+            # alloc_link4 reserves the channel itself.
+            link4 = self.radio_registry.alloc_link4()
         elif link4 not in self.radio_registry.allocated_channels:
             self.radio_registry.reserve(link4)
         self.control_point.link4 = link4
