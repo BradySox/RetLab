@@ -604,6 +604,7 @@ Ours only ever widens. That is a planner-behaviour call, not data — decide it 
 | #348, #350, #356 | the GPS picker and its copy/save popup | #348's Qt half (unit-card coordinates) not taken |
 | #354, #362 | points into the cartridge, numbered after the route | rewritten against our §74 `hornet.py`/`viper.py`; his `dtc.py` (#342) not taken |
 | #364 | the A-10 CDU writer, the elevation lookup | taken whole |
+| #506, #510, #511, #517 | the A-10 CDU fixes: route left to DCS, saved points numbered from the route's end with their own elevation, 3D VNAV | taken 2026-10-10; our navigation-kinds filter kept, his kneeboard `route_numbers` not needed (ours already counts from 0) |
 | #360–#363 | the window | plus our Loadout and DTC tabs; his UI restyle not taken |
 
 Drift-watch: his capacity numbers and CDU format are measured on his install. If he
@@ -633,6 +634,14 @@ and he has flown it. The objective half alone (rated targets, no prizes) sits ne
 #504 and #505 taken: the Loadout editor hides training and non-combat stores until
 asked. His `WP` / `Wht Phos` rocket pattern was not taken (DM call): the §38 FAC(A)
 uses white phosphorus rockets, and `M156` is exempted with them.
+
+### Adopted here 2026-10-10 — GAU-8 ammunition (§73)
+
+#515 taken: the Loadout editor picks Combat Mix, HEI or Target Practice for the A-10A,
+A-10C and A-10C II, carried on `Loadout.ammo_type` and written to the unit's
+`payload.ammo_type`. His editor restyle was not taken; the save path is our §73
+`loadout_defaults.write_payload_entry`. The indices were checked against the local DCS
+install the same day. He had not flown it; row B210.
 
 ## Sweep 2026-10-06 — four fixes adopted
 

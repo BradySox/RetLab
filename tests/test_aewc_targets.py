@@ -15,8 +15,14 @@ from typing import Any
 from game.commander.theaterstate import _aewc_targets
 
 
-def _cp(name: str, carrier: bool = False) -> Any:
-    return SimpleNamespace(name=name, is_carrier=carrier)
+def _cp(name: str, carrier: bool = False, own_support: bool = True) -> Any:
+    # A carrier keeps its own station only when a squadron aboard can fly it.
+    squadrons = (
+        [SimpleNamespace(capable_of=lambda task: True)]
+        if carrier and own_support
+        else []
+    )
+    return SimpleNamespace(name=name, is_carrier=carrier, squadrons=squadrons)
 
 
 def _finder(
@@ -365,3 +371,43 @@ def test_the_tanker_list_is_deduped_the_same_way() -> None:
             tanker_land_anchor=lambda anchor=anchor: anchor,
         )
         assert _refueling_targets(finder) == [boat]  # type: ignore[arg-type]
+
+
+# ---- a carrier with no support aircraft of its own (2026-10-10) ----------------
+
+
+def test_a_carrier_with_no_awacs_aboard_gets_no_station_of_its_own() -> None:
+    # Retake the Falklands: the Liaoning bases no AEW&C, so its station was flown
+    # from Mount Pleasant, 0.1 NM from Mount Pleasant's own.
+    boat, ashore = _cp("Liaoning", carrier=True, own_support=False), _cp("Base")
+    finder = _finder(
+        fronts=[object()], cps=[boat, ashore], farthest=ashore, closest=ashore
+    )
+    assert _aewc_targets(finder) == [ashore]
+
+
+def test_a_carrier_with_no_tanker_aboard_gets_no_station_of_its_own() -> None:
+    from game.commander.theaterstate import _refueling_targets
+
+    boat, bare, ashore = (
+        _cp("CVN", carrier=True),
+        _cp("Kuznetsov", carrier=True, own_support=False),
+        _cp("Base"),
+    )
+    finder = SimpleNamespace(
+        friendly_control_points=lambda: iter([boat, bare, ashore]),
+        tanker_land_anchor=lambda: ashore,
+    )
+    assert _refueling_targets(finder) == [boat, ashore]  # type: ignore[arg-type]
+
+
+def test_the_station_asks_about_the_task_not_any_squadron() -> None:
+    from game.ato.flighttype import FlightType
+
+    fighters = SimpleNamespace(capable_of=lambda task: task is FlightType.BARCAP)
+    boat = SimpleNamespace(name="Kuznetsov", is_carrier=True, squadrons=[fighters])
+    ashore = _cp("Base")
+    finder = _finder(
+        fronts=[object()], cps=[boat, ashore], farthest=ashore, closest=ashore
+    )
+    assert _aewc_targets(finder) == [ashore]

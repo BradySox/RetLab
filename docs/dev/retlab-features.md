@@ -1591,6 +1591,14 @@ Tests: `tests/test_objectivefinder_barcap.py`, `tests/test_barcap_threat_weighti
 >    wing whose only land-side tanker lives off-map gets no theater tanker station
 >    (RetakeTheFalklands blue: the KC-135 at "From US" flies neither before nor after;
 >    before, the carrier was listed twice instead).
+>    **A carrier with no AEW&C or tanker aboard gets no station of its own (2026-10-10,
+>    DM call).** Each carrier was a target whether or not it based the aircraft, so a red
+>    carrier's station was flown from the nearest land field, beside that field's own
+>    land station. Read across the 76 bundled campaigns: five doubled up (Retake the
+>    Falklands' two A-50 tracks started 0.1 NM apart; Caucasus Multi Russia flew two A-50s
+>    and two IL-78s within 25 NM). `_carriers_flying_their_own` in `theaterstate.py` keeps
+>    a carrier only when a squadron aboard is `capable_of` the task; the land station
+>    covers the rest. A carrier that bases an E-2 or a tanker is unchanged.
 >    **Known limitation of the step:** it moves along the line to the NEAREST zone edge
 >    only, so in built-up multi-lobe geometry a later slot can step into a second lobe.
 >    Reviewed 2026-09-17 and not acted on: it needs a station whose slot 0 already fails
@@ -2706,6 +2714,23 @@ defect that reached a build, most of them found by flying.
   upstream's one-per-helicopter, two-per-plane. Not taken: its CTLD-zone change for
   helicopter airlifts to a carrier, LHA or off-map base, which no fork transfer reaches.
   Tests: `tests/test_transport_squadron_change.py`.
+- **The planner never targeted enemy convoys or cargo ships (fixed 2026-10-10).**
+  `ObjectiveFinder.convoys()` and `cargo_ships()` asked the planner's *own* coalition for
+  transports heading to the enemy's front-line base, which is always empty, so
+  `InterdictReinforcements` had nothing to plan for either side. Both now read the
+  opponent's transfers, and `cargo_ships()` honours `perf_disable_cargo_ships` as
+  `convoys()` honours its twin. The bug is upstream's and Liberation's too. Three fixes
+  rode with it: `AntiShipIngressBuilder` had no branch for a cargo ship (a
+  `MultiGroupTransport`, whose mission group carries its name), so an anti-ship flight
+  sent at one got no attack task; `CargoStopBuilder` wrote an airfield id for a carrier or
+  LHA stop, where a ship is landed on by unit id as `LandingPointBuilder` does; and buying
+  or selling a ground object red was targeting re-planned both sides, because
+  `QGroundObjectMenu` passed a `Player` (always truthy) as `for_red` / `for_blue`.
+  Ported from rmac7664/dcs-retribution (`fix/upstream-airlift-refunds`); its refund and
+  transfer-label fixes were already ours (PR #395). Tests:
+  `tests/commander/test_enemy_transport_targets.py`,
+  `tests/missiongenerator/aircraft/test_cargostop.py`, `test_antishipingress.py`. Row
+  **B212**.
 
 ### Debrief and reporting
 
@@ -7315,6 +7340,14 @@ strikes push behind** (providers are read-only). The carrier stagger runs after 
 ever delays, so it can push a strike deeper into — never ahead of — its window;
 best-effort by design. Symmetric (each coalition's scheduler coordinates its own ATO).
 
+**CAS is not held past the mission length (2026-10-10, DM call).** CAS is based beside its
+target, so the DEAD it waits on can be the far one. Northern Flank 1985: Su-25s 88 NM from
+the front were held to minute 56 of a 45-minute mission, behind a DEAD package flying 320 NM.
+Across the 76 bundled campaigns 12 of 49 CAS packages were retimed and 4 landed past the
+mission length. `_holds_cas_past_the_mission` refuses a delay that ends after
+`desired_player_mission_duration`; the CAS keeps its own time. Strike, BAI and OCA still
+wait, since going in ahead of the SEAD is the worse outcome for them.
+
 Gated by `sead_strike_coordination` (Air Doctrine → Auto-planner behavior, default **OFF since
 the 2026-08-09 re-convergence**; the planner-suite preset turns it on).
 Tests: `tests/test_sead_strike_coordination.py` (the pure window math end-to-end + the
@@ -7753,6 +7786,24 @@ groups.
 
 Tests: `tests/test_loadout_training_filter.py`, including a scan of every pydcs store
 with WP, M156 or Wht Phos in its name. Checklist **B178**.
+
+### GAU-8 ammunition on the Payload tab (2026-10-10)
+
+Ported from juanjux/dcs-escalation #515. An A-10A, A-10C or A-10C II Payload tab has a
+**GAU-8 ammunition** box: Combat Mix, HEI or Target Practice. It is enabled with
+**Use custom loadout**, like the pylons.
+
+- `game/data/gunammunition.py` — the three choices, as one-based indices into the
+  `ammo_type` list in DCS's `CoreMods/aircraft/A-10/A-10A.lua` (the C models inherit it).
+- `Loadout.ammo_type` — `None` means the aircraft's default. Carried through `clone`,
+  `derive_custom`, `degrade_for_date`, named payloads and the §73 task default;
+  `__setstate__` supplies `None` for older saves.
+- `FlightGroupConfigurator.setup_payload` writes it to the unit's `payload.ammo_type`,
+  Combat Mix when unset. Other airframes are not touched.
+- `DcsPayload.to_dict` writes `ammo_type` into a saved payload only when one is set.
+
+Tests: `tests/test_gau8_ammunition.py` (one case reads the local DCS install and skips
+without it), `tests/qt_ui/test_gau8_payload_editor.py`. Checklist **B210**.
 
 ## §74 — Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D)
 
@@ -11158,7 +11209,8 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/missiongenerator/dtc/savedpoints.py` — cockpit numbering for points and route
   rows, the waypoint skip, the player shapes. Shared by all four builders and the kneeboard.
 - `game/missiongenerator/dtc/common.py:threat_sites_for` — the near-the-route SAM filter.
-- `game/missiongenerator/a10cdu.py` — the A-10's CDU state.
+- `game/missiongenerator/a10cdu.py` — the A-10's saved points as CDU state (the route
+  is left to DCS), and 3D VNAV on a player A-10's route.
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
 - `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
@@ -11183,6 +11235,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Hornet/Viper/Apache points need the Flight plan section (those cartridges replace the
   whole navigation set).
 - Skips are waypoint-type names, never indices.
+- The A-10's CDU file holds saved points only, never the route: written there, the
+  aircraft swapped planned altitudes for terrain heights and every number moved up
+  one (2026-10-10, juanjux #510/#511, flown there). Design note §8.
 - The picker leaves a click on an interactive shape to that shape, except a `map-area`
   one (hover-only: §98's country polygons). Without the exception, neutral border
   defense's borders cover every country and the picker answered only at sea (fixed
@@ -11209,10 +11264,11 @@ The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`
 `tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
 `coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
 
-### Needs an in-game pass — B135, B136
+### Needs an in-game pass — B135, B136, B209
 
 B135: the cockpit numbering and sequence 2. B136: hand-load, skipped waypoints, and
-orbits and drawings on each jet's page.
+orbits and drawings on each jet's page. B209: the A-10's route altitudes and saved
+point numbers.
 
 ### Deferred
 

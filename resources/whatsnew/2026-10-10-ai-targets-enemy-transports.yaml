@@ -1,0 +1,13 @@
+date: 2026-10-10
+title: The AI goes after enemy convoys and cargo ships
+change: >-
+  The auto-planner on both sides can now plan BAI against an enemy supply
+  convoy and an anti-ship strike against an enemy cargo ship. It never
+  did before, because it was looking at its own side's transports. Only a
+  transport already under way from an earlier turn can be picked. An
+  anti-ship flight sent at a cargo ship now attacks it instead of turning
+  back at the ingress point.
+watch: >-
+  When an enemy convoy or cargo ship is part-way through a journey of
+  more than one turn, the new turn's ATO can show a BAI or Anti-ship
+  package on it, and red can do the same to yours.
