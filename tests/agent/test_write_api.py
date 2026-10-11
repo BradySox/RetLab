@@ -199,8 +199,15 @@ def test_a_start_past_the_early_start_cap_is_a_shortfall() -> None:
     now = datetime(1985, 9, 11, 1, 0)
     tot = now + timedelta(minutes=55)
     assert planner.tot_shortfall(_package(90), now, tot) == (60, "Severomorsk-1")
-    # ASAP support launches with the mission, early or not, so it gets no lead.
-    assert planner.tot_shortfall(_package(57, support=True), now, tot) == (
-        57,
-        "Severomorsk-1",
-    )
+
+
+def test_asap_support_is_never_a_shortfall() -> None:
+    # Kola turn 1, 2026-10-10: later packages lengthened Banak's runway queue after
+    # its first-wave BARCAP was timed, and the check failed the scripted plan. Take
+    # Off re-runs that TOT, so the stale one is not a fault.
+    now = datetime(1985, 9, 10, 9, 0)
+    tot = now + timedelta(minutes=18, seconds=40)
+    assert planner.tot_shortfall(_package(21, support=True), now, tot) is None
+    assert planner.early_start_minutes(_package(21, support=True), now, tot) is None
+    # The same package with a TOT the AI set is held to it.
+    assert planner.tot_shortfall(_package(90), now, tot) == (60, "Severomorsk-1")

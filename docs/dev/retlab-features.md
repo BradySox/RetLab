@@ -11655,7 +11655,9 @@ first live reviews on Kola):
   applied, by weapon name. The planned fit listed weapons the mission never loads.
 - `validate` fails a plan only for an uncrewed seat or a TOT that cannot be made. A start
   the §104 early mission start covers (up to 30 minutes) is a note, as is a TOT after
-  the human's mission length. The scripted planner's own plan produces both.
+  the human's mission length. The scripted planner's own plan produces both. An ASAP
+  BARCAP, AWACS or tanker is never failed on its TOT: Take Off re-runs it from the
+  mission start (`retime_asap_support`).
 - `prev_turns.events` names the sides Blue and Red. The campaign log is written for the
   human, so red's own arrivals read "Enemy reinforcements".
 
@@ -11680,6 +11682,16 @@ first live reviews on Kola):
   response. The routes are read from the router, so a GET added later is covered, and one
   the test cannot call fails it. The PNG map is covered by the tripwire only. Idea from
   Hussar2477/dcs-retribution (`llm-ai-opponent`), 2026-10-10.
+- **Two engine facts on the read-out (2026-10-10).** A front's `capture_blocked_by` is the
+  count of living enemy ground groups inside the enemy base's capture zone
+  (`BattlePositions.for_control_point(...).blocking_capture`, the rule the scripted
+  planner's `BreakthroughAttack` waits on), and each of those groups is a target of kind
+  `garrison` (suggested task BAI), so the AI can aim at what it is told is in the way.
+  A squadron's `can_add` is how many aircraft it can still order: its base's unclaimed
+  parking, then its size cap, as `AircraftPurchaseAdapter.can_buy` counts. Both are
+  literal zeros when zero. The tests read them off a real campaign
+  (`tests/agent/conftest.py`, `campaign_game`). Ideas from Hussar2477/dcs-retribution
+  (`llm-ai-opponent`).
 
 ### Constraints
 
