@@ -64541,7 +64541,10 @@ self:E(self.lid..string.format("Player %s did not land in carrier box zone. Mayb
 end
 end
 else
-if self.carriertype~=AIRBOSS.CarrierType.INVINCIBLE or self.carriertype~=AIRBOSS.CarrierType.HERMES or self.carriertype~=AIRBOSS.CarrierType.TARAWA or self.carriertype~=AIRBOSS.CarrierType.AMERICA or self.carriertype~=AIRBOSS.CarrierType.JCARLOS or self.carriertype~=AIRBOSS.CarrierType.CANBERRA then
+-- RetLab patch (LHA landing error): upstream joined these with `or`, which is always
+-- true, so an AI landing on a ship with no wires errored in _GetWire and skipped
+-- _RecoveredElement. Mirrors upstream develop's Airboss.lua; drop it with the next bump.
+if self.carriertype~=AIRBOSS.CarrierType.INVINCIBLE and self.carriertype~=AIRBOSS.CarrierType.HERMES and self.carriertype~=AIRBOSS.CarrierType.TARAWA and self.carriertype~=AIRBOSS.CarrierType.AMERICA and self.carriertype~=AIRBOSS.CarrierType.JCARLOS and self.carriertype~=AIRBOSS.CarrierType.CANBERRA then
 local coord=EventData.IniUnit:GetCoordinate()
 local dist=coord:Get2DDistance(self:GetCoordinate())
 local wire=self:_GetWire(coord,0)

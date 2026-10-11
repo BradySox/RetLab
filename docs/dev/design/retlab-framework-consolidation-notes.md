@@ -188,6 +188,21 @@ only when the target is a `local` a plugin cannot reach.
 |---|---|---|
 | `civilian_traffic crash guard` (2 sites) | Orphan RAT spawns crashed the sim | Upstream fixes the orphan case |
 | `event 61 spam` | `EVENT:onEvent` is bundle code; upstream develop already carries the same guard | The bundle is bumped past upstream's `if Event.id ~= 61` guard |
+| `LHA landing error` | `AIRBOSS:OnEventLand` is bundle code; upstream develop already joins the tests with `and` | The bundle is bumped past that fix; `tests/lua/test_airboss_lha_landing.py` fails if a bump brings the `or` back |
+
+### `LHA landing error` (2026-10-11, test 55)
+
+`AIRBOSS:OnEventLand` reads the trapped wire for an AI landing unless the ship is one of
+the six with no wires (Invincible, Hermes, Tarawa, America, Juan Carlos, Canberra). The
+bundled build joined the six `~=` tests with `or`, which is true for every ship, so an AI
+landing on LHA-1 reached `_GetWire`, compared a distance against `carrierparam.wire1`
+(nil on those ships) and raised `attempt to compare number with nil`. The error also
+skipped `_RecoveredElement` and `_CheckSectionRecovered` for that aircraft. One hit in
+test 55, when the strike Harrier landed on the Tarawa; it repeats on every AI landing on
+such a ship with the `airboss` plugin on.
+
+**The fix** is upstream develop's: the six tests joined with `and`, marked
+`-- RetLab patch (LHA landing error)`.
 
 ### `event 61 spam` (2026-08-29, re-fixed 2026-09-13)
 
