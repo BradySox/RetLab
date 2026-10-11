@@ -3,9 +3,11 @@
 DCS gives the Hind two ATGM store families: the wingtip rails (pylons 1 and 6)
 take `{2x9M120_Ataka_V}` and its siblings, and the outboard wing pylons (2 and
 5) take the `..._with_adapter` ids (`CoreMods/aircraft/Mi-24P/Mi-24P.lua`,
-`wingtips` and `outboard`). The presets put the wingtip id on all four, and the
-Hind has no `replace_deprecated_loadout_with` table to swap it. Test 55 logged
-"Pylon 2 cannot equip 2 x 9M120 Ataka" for the Escort flight.
+`wingtips` and `outboard`). The presets put the wingtip id on all four. Test 55
+logged "Pylon 2 cannot equip 2 x 9M120 Ataka" for the Escort flight.
+
+This keeps the presets on the stores DCS offers for each pylon. It is not a proven
+fix: DCS's loader keeps a real store on a pylon that does not list it.
 """
 
 from __future__ import annotations
