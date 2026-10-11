@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import date
-from typing import List, Optional, Sequence, TYPE_CHECKING, cast
+from typing import Dict, List, Optional, Sequence, TYPE_CHECKING, cast
 
+from game.losscauses import SideLossCauses, tally
 from game.sortierecord import SortieRecord
 from game.theater.player import Player
 
@@ -84,6 +85,10 @@ class Sitrep:
     #: it a group that went winchester reads as a bug on the next quiet turn.
     #: Rides along with real news. Absent on pre-feature pickled sitreps.
     naval_lines: List[str] = field(default_factory=list)
+    #: What killed each side's losses, keyed "blue" and "red" (`game/losscauses.py`).
+    #: Served to the outside AI only (§109); no kneeboard or debrief line reads it.
+    #: Absent on pre-feature pickled sitreps (read via getattr).
+    loss_causes: Dict[str, SideLossCauses] = field(default_factory=dict)
 
     @property
     def is_empty(self) -> bool:
@@ -137,6 +142,7 @@ class Sitrep:
             for capture in captures
             if capture.captured_by_player == Player.RED
         ]
+        kill_causes = getattr(debriefing.state_data, "kill_causes", ())
         return cls(
             turn=turn,
             day=day,
@@ -154,6 +160,9 @@ class Sitrep:
             ),
             supply_lines=list(supply_lines or []),
             naval_lines=list(naval_lines or []),
+            loss_causes=(
+                tally(kill_causes, debriefing.unit_map) if kill_causes else {}
+            ),
         )
 
     def kneeboard_lines(self) -> List[str]:

@@ -516,6 +516,7 @@ world = {
         S_EVENT_LAND = 4,
         S_EVENT_LANDING_AFTER_EJECTION = 31,
         S_EVENT_MARK_ADDED = 25,
+        S_EVENT_KILL = 28,
         S_EVENT_MARK_REMOVED = 27,
     },
     addEventHandler = function(handler)

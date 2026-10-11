@@ -170,3 +170,64 @@ def test_a_crash_records_where_the_aircraft_came_down() -> None:
     raw = harness.to_python(harness.lua.eval("crash_positions"))
     assert raw == [{"unit": "Eagle 1-2", "x": -73158.0, "z": -322203.0}]
     assert harness.to_python(harness.lua.eval("crash_events")) == ["Eagle 1-2"]
+
+
+def _unit(harness: DcsPluginHarness, name: Any, type_name: str = "") -> Any:
+    return harness.lua.eval(
+        "function(n, t) return {"
+        "  getName = function(self) return n end,"
+        "  getTypeName = function(self) return t end,"
+        "  getCoalition = function(self) return 1 end,"
+        "} end"
+    )(name, type_name)
+
+
+def _kill(harness: DcsPluginHarness, killer: Any, target: Any, weapon: Any) -> None:
+    event = {"id": 28, "initiator": killer, "target": target}
+    if weapon is not None:
+        event["weapon_name"] = weapon
+    harness.fire_event(event)
+    harness.assert_no_lua_errors()
+
+
+def test_a_kill_records_who_did_it_and_with_what() -> None:
+    harness = _load()
+    killer = _unit(harness, "Viper 1-1", "F-16C_50")
+    _kill(harness, killer, _unit(harness, "Flanker 2-1", "Su-27"), "AIM-120C")
+    causes = harness.to_python(harness.lua.eval("kill_causes"))
+    assert causes == [
+        {
+            "target": "Flanker 2-1",
+            "killer": "Viper 1-1",
+            "killer_type": "F-16C_50",
+            "weapon": "AIM-120C",
+        }
+    ]
+    # The victim is still recorded the way every loss channel records it.
+    assert harness.to_python(harness.lua.eval("kill_events")) == ["Flanker 2-1"]
+
+
+def test_a_kill_with_no_weapon_name_still_names_the_killer() -> None:
+    harness = _load()
+    _kill(
+        harness,
+        _unit(harness, "SA-10 #3", "S-300PS 5P85C ln"),
+        _unit(harness, "Hornet 1-2"),
+        None,
+    )
+    causes = harness.to_python(harness.lua.eval("kill_causes"))
+    assert causes == [
+        {
+            "target": "Hornet 1-2",
+            "killer": "SA-10 #3",
+            "killer_type": "S-300PS 5P85C ln",
+        }
+    ]
+
+
+def test_a_kill_by_something_with_no_name_is_not_given_a_cause() -> None:
+    harness = _load()
+    # Scenery reports a number for a name.
+    _kill(harness, _unit(harness, 12345), _unit(harness, "Truck 4"), None)
+    assert not harness.to_python(harness.lua.eval("kill_causes"))
+    assert harness.to_python(harness.lua.eval("kill_events")) == ["Truck 4"]

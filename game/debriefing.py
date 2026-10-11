@@ -21,6 +21,7 @@ from game.missiongenerator.interceptattrition import (
     fielded_qra_by_squadron,
     reconcile_intercept_losses,
 )
+from game.losscauses import KillCause
 from game.sortierecord import SortieRecord, parse_sortie_records
 from game.theater import Airfield, ControlPoint, Player
 
@@ -179,6 +180,10 @@ class StateData:
     #: Maps an aircraft unit name to the (x, z) position DCS reported its crash at.
     crash_positions: Dict[str, tuple[float, float]] = field(default_factory=dict)
 
+    #: Each kill DCS named a killer for; see `game/losscauses.py`. Empty on a state
+    #: file from before the base plugin recorded it.
+    kill_causes: tuple[KillCause, ...] = ()
+
     @classmethod
     def from_json(cls, data: Dict[str, Any], unit_map: UnitMap) -> StateData:
         def clean_unit_list(unit_list: List[Any]) -> List[str]:
@@ -285,6 +290,7 @@ class StateData:
             rescued_pilot_ids=[str(x) for x in data.get("csar_rescued", [])],
             sortie_records=parse_sortie_records(data.get("sortie_records")),
             crash_positions=crash_positions,
+            kill_causes=KillCause.parse(data.get("kill_causes")),
         )
 
 
