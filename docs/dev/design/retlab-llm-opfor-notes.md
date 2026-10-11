@@ -115,7 +115,9 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `game/coalition.py`: the `initialize_turn` branch.
 - `qt_ui/windows/QLiberationWindow.py`: Developer tools > Copy AI connect link.
   `qt_ui/widgets/QTopPanel.py`: the Take Off fallback.
-- Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
+- Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`, and
+  `tests/agent/test_blue_plan_never_served.py`, which scans every GET route's response on a
+  real campaign for blue's plan.
 - `game/losscauses.py`: last turn's losses by cause, from the killer the base plugin
   records in `S_EVENT_KILL`. Kept on `Sitrep.loss_causes`, served on `prev_turns`.
 
