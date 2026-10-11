@@ -89,8 +89,8 @@ MAX_ROUTE_STEERPOINTS = 20
 MAX_GEO_LINE_SETS = 4
 #: GEO_LINES owns steerpoints 31-55 (``GEO_LINES.lua`` refuses a 26th point,
 #: which would land in the pre-planned-threat partition at 56). The 25 are
-#: shared across the four line sets with no per-set cap of their own, so the
-#: boundary takes L1 whole and L2-L4 stay free.
+#: shared across the four line sets with no per-set cap of their own;
+#: ``_build_geo_lines`` splits both between borders, boxes and the front line.
 MAX_GEO_POINTS = 25
 #: What borders and the front line keep however much the player draws (§102).
 MIN_BOUNDARY_POINTS = 10
@@ -824,7 +824,8 @@ def _build_geo_lines(
        most 12 points when the front line is drawn, otherwise what is left.
     3. A box on a CAS or SEAD flight's working area.
     4. A box on each tanker this jet can use, nearest first; only one beside
-       borders and the front line.
+       borders and the front line, and none when that one would take the
+       front line's set.
     5. The boundary with red land (the front line), when ticked (by default
        on CAS flights only, DM call 2026-10-08): 4 points
        beside borders, 3 beside borders and a working box, otherwise what is
@@ -872,7 +873,9 @@ def _build_geo_lines(
         sets_left -= 1
 
     # One tanker box beside borders and the front line, so the front keeps a set.
-    box_sets = min(sets_left, 1) if borders and draw_front else sets_left - front_set
+    box_sets = sets_left - front_set
+    if borders and draw_front:
+        box_sets = min(box_sets, 1)
     boxes = (
         support_boxes(mission_data, box_sets, flight)
         if options.friendly_orbits and box_sets > 0

@@ -7957,7 +7957,8 @@ package-mates share the comm plan and SA picture):
   flight plan's `ui_zone()`), drawn with the route: the engagement range either side of
   the track and past each end, tagged `CAS` or `SD`. It ranks after the borders and
   before the tanker box, and beside borders and the box the front line keeps
-  `FRONT_POINTS_WITH_WORK_BOX` = 3 (DM pick). Two of the four paid F-16C campaigns
+  `FRONT_POINTS_WITH_WORK_BOX` = 3 (DM pick). With two borders and the box, the tanker
+  box is left off so the front line keeps a line set (fixed 2026-10-11). Two of the four paid F-16C campaigns
   studied draw a working area this way. The border and threat-ring searches now skip the
   bullseye and divert points, which are not on the route.
 - **Tanker and AEW&C orbits as boxes (2026-09-10).** `support_boxes` draws each
@@ -7981,7 +7982,7 @@ package-mates share the comm plan and SA picture):
   entry of each list draws. FAOR (dashed) is now the nearest land border within 40 NM
   of the route, else the tanker box; FLOT (solid) is the next border; the front line
   takes FLOT only on CAS. The corridor is the package's lane from the IP over the
-  target to the split. `TCN` lists the friendly boats (unit id + route point 1, as the
+  target to the split; a flight with no split after its IP (CAS, Sweep) gets none. `TCN` lists the friendly boats (unit id + route point 1, as the
   editor keys an `ActivateBeacon` task), the home, arrival and divert fields' ground
   TACANs, then the map's other TACANs nearest the route, to the editor's 10. That
   needed beacon positions: `resources/dcs/beacons/*.json` now carry

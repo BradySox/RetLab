@@ -1,0 +1,2 @@
+* **[Mission Generation]** Hornet DTC: a CAS or Sweep flight gets no attack corridor on the SA page. The corridor ran from the IP on to the landing, divert and bullseye points, because those flights have no split point.
+* **[Mission Generation]** Viper DTC: a CAS flight near two borders with a tanker up keeps the front line on the HSD. The tanker box took the last line set; it is now left off in that case.

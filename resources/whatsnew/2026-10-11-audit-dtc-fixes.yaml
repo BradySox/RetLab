@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: Hornet and Viper cartridges draw the right lines on CAS and Sweep
+change: >-
+  A Hornet CAS or Sweep flight no longer gets an attack corridor on the SA
+  page. Those flights have no split point, so the corridor ran from the IP
+  on to the landing, divert and bullseye points. A Viper CAS flight whose
+  route passes two borders with a tanker up now keeps the front line on
+  the HSD. The tanker's box is left off in that case, and the tanker is
+  still a steerpoint.
+watch: >-
+  In a Hornet on CAS or Sweep, the SA page shows no corridor. In a Viper
+  on CAS near two borders, the HSD shows both borders, the CAS box and
+  the front line tagged FLT.
