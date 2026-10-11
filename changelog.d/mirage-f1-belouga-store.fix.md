@@ -1,0 +1,1 @@
+* **[Data]** The Mirage F1 DEAD and OCA/Aircraft presets carry the BLG-66 Belouga under the store id DCS has (`{BLG66_AC}`). The old id matched no store, so the preset was dropped and the jet flew a fallback fit. Eight Mirage F1 variants.
