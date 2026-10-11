@@ -12,7 +12,12 @@ jest.mock("../tgos/Tgo", () => (props: any) => {
   return null;
 });
 
-function tgo(id: string, category: string, task: string | null): Tgo {
+function tgo(
+  id: string,
+  category: string,
+  task: string | null,
+  known = true
+): Tgo {
   return {
     id,
     name: id,
@@ -27,6 +32,7 @@ function tgo(id: string, category: string, task: string | null): Tgo {
     sidc: "10061000001301000000",
     // GroupTask is a tuple-valued enum, so it serializes as [name, role].
     task: task === null ? undefined : [task, "AntiAir"],
+    known,
     mobile: false,
   };
 }
@@ -39,11 +45,14 @@ const WORLD = [
   tgo("armor-group", "armor", "FrontLine"),
 ];
 
-function render(props: Parameters<typeof TgosLayer>[0]) {
+// As the server sends a site blue has not engaged: no class at all.
+const FOGGED = tgo("fogged-site", "aa", null, false);
+
+function render(props: Parameters<typeof TgosLayer>[0], world: Tgo[] = WORLD) {
   renderWithProviders(<TgosLayer {...props} />, {
     preloadedState: {
       tgos: {
-        tgos: Object.fromEntries(WORLD.map((t) => [t.id, t])),
+        tgos: Object.fromEntries(world.map((t) => [t.id, t])),
       },
     },
   });
@@ -77,6 +86,22 @@ describe("TgosLayer", () => {
     expect(render({ categories: ["aa"], tasks: ["LORAD"] })).not.toContain(
       "taskless-site"
     );
+  });
+
+  it.each([["LORAD"], ["MERAD"], ["SHORAD"], ["AAA"]])(
+    "draws a site blue has not engaged under the %s filter alone",
+    (task) => {
+      // Recon fog: were it drawn under one class row only, the rows would sort it.
+      expect(
+        render({ categories: ["aa"], tasks: [task] }, [...WORLD, FOGGED])
+      ).toContain("fogged-site");
+    }
+  );
+
+  it("keeps the category check for a site blue has not engaged", () => {
+    expect(
+      render({ categories: ["armor"], tasks: ["LORAD"] }, [...WORLD, FOGGED])
+    ).toEqual([]);
   });
 
   it("enforces the category even when the task matches", () => {

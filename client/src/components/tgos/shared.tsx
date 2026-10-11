@@ -55,18 +55,36 @@ export function TgoTooltipContent(props: { tgo: TgoModel }) {
   );
   const transit = formatAggregateInventory(props.tgo.in_transit_units ?? []);
   const units = props.tgo.units;
+  // Recon fog: "None" four times reads as an empty depot, so a depot blue has not
+  // engaged lists nothing. Orders are sent for blue's depots and transfers for
+  // blue's own convoys only, so an enemy depot has no row for either.
+  const known = props.tgo.known !== false;
+  const own = props.tgo.blue;
+  const showTransit = own || (props.tgo.in_transit_units ?? []).length > 0;
 
   return (
     <>
       {`${props.tgo.name} (${props.tgo.control_point_name})`}
       <br />
       {props.tgo.category === "motorpool" ? (
-        <>
-          <InventorySection label="Motorpool reserve" inventory={reserve} />
-          <InventorySection label="Expected next turn" inventory={expected} />
-          <InventorySection label="Unrendered reserve" inventory={unrendered} />
-          <InventorySection label="In transit" inventory={transit} />
-        </>
+        known && (
+          <>
+            <InventorySection label="Motorpool reserve" inventory={reserve} />
+            {own && (
+              <InventorySection
+                label="Expected next turn"
+                inventory={expected}
+              />
+            )}
+            <InventorySection
+              label="Unrendered reserve"
+              inventory={unrendered}
+            />
+            {showTransit && (
+              <InventorySection label="In transit" inventory={transit} />
+            )}
+          </>
+        )
       ) : (
         <SplitLines items={summarizeUnits(units)} />
       )}

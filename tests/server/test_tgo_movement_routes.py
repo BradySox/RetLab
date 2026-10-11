@@ -131,7 +131,7 @@ def test_for_tgo_non_ship_not_mobile(monkeypatch: pytest.MonkeyPatch) -> None:
 def _populated_motorpools(
     reserve: dict[GroundUnitType, int], cap: int, count: int = 1
 ) -> tuple[list[MotorpoolGroundObject], Any]:
-    coalition = SimpleNamespace(transfers=[])
+    coalition = SimpleNamespace(transfers=[], player=Player.BLUE)
     armor = dict(reserve)
     cp = SimpleNamespace(
         name="factory",
@@ -437,6 +437,133 @@ def test_motorpool_in_transit_units_survive_origin_capture(
     assert [(entry.unit_type, entry.count) for entry in transit] == [
         (abrams.variant_id, 1)
     ]
+
+
+def _enemy_motorpool(
+    reserve: dict[GroundUnitType, int], *, engaged: bool
+) -> tuple[MotorpoolGroundObject, Any]:
+    """A red depot under recon fog, with a red order and a red transfer out of it."""
+    motorpools, cp = _populated_motorpools(reserve, cap=10)
+    unit_type = next(iter(reserve))
+    game = cp.coalition.game
+    game.settings.recon_intel_fog = True
+    game.settings.scar_command_post_intel = False
+    cp.captured = Player.RED
+    cp.is_friendly = lambda player: player is Player.RED
+    cp.coalition.player = Player.RED
+    cp.coalition.transfers = [
+        SimpleNamespace(origin=cp, units={unit_type: 2}),
+    ]
+    cp.ground_unit_orders = SimpleNamespace(
+        units={unit_type: 4}, pending_orders=lambda _unit_type: 4
+    )
+    motorpools[0].discovered_by_player = engaged
+    return motorpools[0], cp
+
+
+def test_fogged_enemy_motorpool_is_marked_unknown_and_lists_nothing(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_latlng(monkeypatch)
+    abrams = next(GroundUnitType.for_dcs_type(Armor.M_1_Abrams))
+    tgo, _ = _enemy_motorpool({abrams: 3}, engaged=False)
+
+    js = TgoJs.for_tgo(tgo)
+
+    # `known` is what lets the tooltip print nothing instead of "None" four times.
+    assert js.known is False
+    assert js.reserve_units == []
+    assert js.expected_inventory == []
+    assert js.unrendered_reserve == []
+    assert js.in_transit_units == []
+
+
+def test_engaged_enemy_motorpool_shows_vehicles_but_not_reds_plans(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _patch_latlng(monkeypatch)
+    abrams = next(GroundUnitType.for_dcs_type(Armor.M_1_Abrams))
+    tgo, _ = _enemy_motorpool({abrams: 3}, engaged=True)
+
+    js = TgoJs.for_tgo(tgo)
+
+    assert js.known is True
+    assert len(js.reserve_units) == 3
+    assert js.expected_inventory == []
+    assert js.in_transit_units == []
+
+
+def _air_defense_site(*, engaged: bool, fog: bool = True) -> SamGroundObject:
+    from game.data.groups import GroupTask
+
+    location = PresetLocation(
+        name="l", position=Point(0, 0, None), heading=Heading(0)  # type: ignore[arg-type]
+    )
+    cp = OffMapSpawn(
+        name="c", position=Point(0, 0, None), theater=None, starts_blue=Player.RED  # type: ignore[arg-type]
+    )
+    cp._coalition = SimpleNamespace(  # type: ignore[assignment]
+        player=Player.RED,
+        game=SimpleNamespace(
+            settings=SimpleNamespace(recon_intel_fog=fog, scar_command_post_intel=False)
+        ),
+    )
+    sam = SamGroundObject(
+        name="sam", location=location, control_point=cp, task=GroupTask.MERAD
+    )
+    # Only the group's back-reference and ranges are read; the site has no units.
+    sam.groups = [
+        SimpleNamespace(  # type: ignore[list-item]
+            ground_object=sam,
+            units=[],
+            alive_units=lambda: 1,
+            max_threat_range=lambda: SimpleNamespace(meters=0.0),
+            max_detection_range=lambda: SimpleNamespace(meters=0.0),
+        )
+    ]
+    sam.discovered_by_player = engaged
+    return sam
+
+
+def test_unengaged_air_defense_site_sends_no_class(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The map's LORAD/MERAD/SHORAD/AAA rows filter on `task`: sent for a site blue
+    has not engaged, ticking one row names every fogged site of that class."""
+    _patch_latlng(monkeypatch)
+
+    js = TgoJs.for_tgo(_air_defense_site(engaged=False))
+
+    assert js.known is False
+    assert js.task is None
+
+
+@pytest.mark.parametrize("engaged, fog", [(True, True), (False, False)])
+def test_known_air_defense_site_sends_its_class(
+    monkeypatch: pytest.MonkeyPatch, engaged: bool, fog: bool
+) -> None:
+    _patch_latlng(monkeypatch)
+
+    js = TgoJs.for_tgo(_air_defense_site(engaged=engaged, fog=fog))
+
+    assert js.known is True
+    assert js.task is not None and js.task[0] == "MERAD"
+
+
+def test_fog_overview_sends_the_class_of_an_unengaged_site(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from game.theater import fogofwar
+
+    _patch_latlng(monkeypatch)
+    site = _air_defense_site(engaged=False)
+    fogofwar.set_fog_revealed(True)
+    try:
+        js = TgoJs.for_tgo(site)
+    finally:
+        fogofwar.set_fog_revealed(False)
+
+    assert js.task is not None and js.task[0] == "MERAD"
 
 
 def test_new_transfer_emits_motorpool_tgo_update(

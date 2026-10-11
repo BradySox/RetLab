@@ -235,6 +235,8 @@ class TgoJs(BaseModel):
     dead: bool  # TODO: Event stream
     sidc: str  # TODO: Event stream
     task: Optional[tuple[str, str]]
+    #: False while recon fog hides what is at the site; the client then lists nothing.
+    known: bool = True
     mobile: bool
     destination: Optional[LeafletPoint]
     # COIN concealment: set while this TGO's map presence is an uncertainty area.
@@ -271,7 +273,8 @@ class TgoJs(BaseModel):
         threat_ranges: list[float]
         detection_ranges: list[float]
         units: list[str]
-        if tgo.known_for(Player.BLUE):
+        known = tgo.known_for(Player.BLUE)
+        if known:
             threat_ranges = [group.max_threat_range().meters for group in tgo.groups]
             detection_ranges = [
                 group.max_detection_range().meters for group in tgo.groups
@@ -301,7 +304,7 @@ class TgoJs(BaseModel):
         unrendered_reserve: list[AggregateGroundUnitEntry] = []
         in_transit_units: list[AggregateGroundUnitEntry] = []
         # The reserve is composition: it follows the same fog as `units`.
-        if isinstance(tgo, MotorpoolGroundObject) and tgo.known_for(Player.BLUE):
+        if isinstance(tgo, MotorpoolGroundObject) and known:
             MotorpoolPopulator(
                 tgo.control_point.coalition.game
             ).populate_control_points([tgo.control_point])
@@ -309,19 +312,24 @@ class TgoJs(BaseModel):
             motorpools = motorpools_at(tgo.control_point)
             if motorpools and motorpools[0] is tgo:
                 reserve = reserve_armor_for(tgo.control_point)
-                pending_orders = tgo.control_point.ground_unit_orders.units
-                current_inventory = {
-                    unit_type: tgo.control_point.base.total_units_of_type(unit_type)
-                    for unit_type in set(tgo.control_point.base.armor)
-                    | set(pending_orders)
-                }
-                expected_inventory = TgoJs._aggregate_entries(
-                    {
-                        unit_type: count
-                        + tgo.control_point.ground_unit_orders.pending_orders(unit_type)
-                        for unit_type, count in current_inventory.items()
+                # Orders are the owner's plans, not composition: engaging an
+                # enemy depot reveals what is parked there, no more.
+                if blue:
+                    pending_orders = tgo.control_point.ground_unit_orders.units
+                    current_inventory = {
+                        unit_type: tgo.control_point.base.total_units_of_type(unit_type)
+                        for unit_type in set(tgo.control_point.base.armor)
+                        | set(pending_orders)
                     }
-                )
+                    expected_inventory = TgoJs._aggregate_entries(
+                        {
+                            unit_type: count
+                            + tgo.control_point.ground_unit_orders.pending_orders(
+                                unit_type
+                            )
+                            for unit_type, count in current_inventory.items()
+                        }
+                    )
                 settings = tgo.control_point.coalition.game.settings
                 selected = (
                     select_capped(reserve, settings.motorpool_spawn_cap)
@@ -336,6 +344,10 @@ class TgoJs(BaseModel):
                 )
                 transit: defaultdict[GroundUnitType, int] = defaultdict(int)
                 for coalition in tgo.control_point.coalition.game.coalitions:
+                    # Blue's only: its own transfer out of a depot since captured
+                    # still shows, red's never does.
+                    if not coalition.player.is_blue:
+                        continue
                     for transfer in coalition.transfers:
                         if transfer.origin != tgo.control_point:
                             continue
@@ -358,14 +370,17 @@ class TgoJs(BaseModel):
             detection_ranges=detection_ranges,
             dead=dead,
             sidc=str(tgo.sidc_for(Player.BLUE)),
+            # The class (LORAD/MERAD/SHORAD/AAA) is composition: the map's class
+            # rows filter on it, so sending it would sort the sites blue has not engaged.
             task=(
                 (
                     tgo.groups[0].ground_object.task.description,
                     tgo.groups[0].ground_object.task.role.value,
                 )
-                if tgo.groups and tgo.groups[0].ground_object.task is not None
+                if known and tgo.groups and tgo.groups[0].ground_object.task is not None
                 else None
             ),
+            known=known,
             mobile=mobile,
             destination=destination,
             uncertainty_radius_m=uncertainty[1] if uncertainty else None,

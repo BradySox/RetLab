@@ -105,6 +105,50 @@ describe("TgoTooltip", () => {
     expect(container.innerHTML).not.toContain("In transit:<br>None");
   });
 
+  it("lists nothing for an enemy motorpool blue has not engaged", () => {
+    // As the server sends it under recon fog: every inventory empty, known false.
+    const { container } = render(
+      <TgoTooltip
+        tgo={tgo({
+          blue: false,
+          known: false,
+          reserve_units: [],
+          expected_inventory: [],
+          unrendered_reserve: [],
+          in_transit_units: [],
+        })}
+      />,
+    );
+
+    expect(container.textContent).toContain("Motorpool (Base)");
+    expect(container.textContent).not.toContain("None");
+    expect(container.textContent).not.toContain("Motorpool reserve");
+    expect(container.textContent).not.toContain("Expected next turn");
+    expect(container.textContent).not.toContain("Unrendered reserve");
+    expect(container.textContent).not.toContain("In transit");
+  });
+
+  it("shows an engaged enemy motorpool's vehicles but not red's orders or transfers", () => {
+    const { container } = render(
+      <TgoTooltip
+        tgo={tgo({
+          blue: false,
+          known: true,
+          reserve_units: ["2228 | T-72B"],
+          expected_inventory: [],
+          unrendered_reserve: [],
+          in_transit_units: [],
+        })}
+      />,
+    );
+
+    expect(container.innerHTML).toContain(
+      "Motorpool reserve:<br>2228 | T-72B<br>Unrendered reserve: None",
+    );
+    expect(container.textContent).not.toContain("Expected next turn");
+    expect(container.textContent).not.toContain("In transit");
+  });
+
   it("updates a mobile TGO marker when its streamed destination changes", async () => {
     const firstDestination = { lat: 1, lng: 2 };
     const secondDestination = { lat: 3, lng: 4 };

@@ -144,7 +144,8 @@ Also noted: Hornet `text_note` is capped at 5 characters by the editor
   route takes only a flight a player sits in on blue's ATO: 404 for an unknown flight,
   403 otherwise (the old check was `client_count` alone, 400).
 - A move looks the ground height up again and stores it as the point's elevation. With
-  no answer from the lookup the old elevation stays.
+  no answer from the lookup the elevation is cleared (0, which every reader shows as none):
+  the old spot's elevation is not the new spot's. The pin's popup says a move re-reads it.
 - `game/server/savedpoints/notifications.py:publish_points_changed` puts
   `saved_points_updated` on the event stream and emits Qt's `saved_points_changed`.
   Every edit calls it, from the map or the window. The client turns the stream event
