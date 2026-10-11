@@ -342,23 +342,22 @@ def earliest_tot_minutes(package: Package) -> Optional[tuple[int, str]]:
     return math.ceil(duration[0].total_seconds() / 60), duration[1]
 
 
-def early_start_reach(package: Package) -> timedelta:
-    """How far before the turn clock this package's ground starts may begin (§104)."""
-    return timedelta() if launches_with_mission(package) else EARLY_START_CAP
-
-
 def tot_shortfall(
     package: Package, now: datetime, tot: Optional[datetime]
 ) -> Optional[tuple[int, str]]:
     """(earliest minute, base) when the package cannot make ``tot``. Compared in full
     precision with 30 s of grace: rounding read every ASAP package a minute late. A
     start the early mission start covers is not a shortfall: the scripted planner's
-    own packages land there when a later package lengthens a field's runway queue."""
+    own packages land there when a later package lengthens a field's runway queue.
+    ASAP support has none either: Take Off re-runs its TOT from the mission start
+    (``retime_asap_support``), so the one read here is not the one it flies."""
+    if launches_with_mission(package):
+        return None
     duration = earliest_tot_duration(package)
     if duration is None or tot is None:
         return None
     needed, where = duration
-    needed -= early_start_reach(package)
+    needed -= EARLY_START_CAP
     if tot + timedelta(seconds=30) >= now + needed:
         return None
     return math.ceil(needed.total_seconds() / 60), where

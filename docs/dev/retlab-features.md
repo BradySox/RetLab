@@ -11655,7 +11655,9 @@ first live reviews on Kola):
   applied, by weapon name. The planned fit listed weapons the mission never loads.
 - `validate` fails a plan only for an uncrewed seat or a TOT that cannot be made. A start
   the §104 early mission start covers (up to 30 minutes) is a note, as is a TOT after
-  the human's mission length. The scripted planner's own plan produces both.
+  the human's mission length. The scripted planner's own plan produces both. An ASAP
+  BARCAP, AWACS or tanker is never failed on its TOT: Take Off re-runs it from the
+  mission start (`retime_asap_support`).
 - `prev_turns.events` names the sides Blue and Red. The campaign log is written for the
   human, so red's own arrivals read "Enemy reinforcements".
 

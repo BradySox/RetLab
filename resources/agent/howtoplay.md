@@ -82,7 +82,9 @@ report is a good report.
 - `packages[].tot` is the time over target (`HH:MM`, mission clock). In a flight,
   `startup_min` is minutes from the turn's clock to engine start. The game starts the
   mission up to 30 minutes early for a ground start that needs it, so a small negative
-  number is normal; **below -30 the flight cannot make its TOT**. `weapons` is what the
+  number is normal; **below -30 the flight cannot make its TOT**. A BARCAP, AWACS or
+  tanker package left on its ASAP TOT is timed again at Take Off, so its `tot` and
+  `startup_min` can move a minute or two; one whose TOT you set is held to it. `weapons` is what the
   jet carries in the mission, by pylon, after the campaign's weapon-date rule. `tot_offset_min` is that flight's TOT against the package's; negative is
   ahead of it, which is what SEAD and escorts want.
 - Flights in one package fly the join, ingress and split legs together. A waypoint list
