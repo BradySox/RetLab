@@ -1,0 +1,11 @@
+date: 2026-10-11
+title: B-52 bay Harpoons are gone, because DCS cannot launch them
+change: >-
+  The B-52H's 8 x AGM-84A bay rack is no longer offered in the loadout
+  editor. DCS marks that rack obsolete and the bomber never fires from
+  it. A saved loadout that still names it flies with the bay empty. The
+  eight Harpoons on the wing racks are unchanged.
+watch: >-
+  Open a B-52H flight's loadout: station 2 no longer lists 8 x AGM-84A
+  Harpoon. On an anti-ship sortie, the Harpoons leave from the two wing
+  racks.

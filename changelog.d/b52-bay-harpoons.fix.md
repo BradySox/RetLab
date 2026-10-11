@@ -1,0 +1,1 @@
+* **[UI]** The B-52H's 8 x AGM-84A bay rack is no longer offered in the loadout editor, and a saved loadout that names it flies with the bay empty. DCS marks the rack obsolete and the aircraft cannot launch from it. The wing Harpoon racks are unchanged.

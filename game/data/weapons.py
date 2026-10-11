@@ -434,6 +434,19 @@ class WeaponGroup:
         cls._loaded = True
 
 
+# Stores DCS marks ``obsolete = true`` on a station: its Mission Editor hides them
+# and the aircraft cannot release them, but pydcs still exports them. Keyed by DCS
+# unit id, then station. Only this one exists in DCS (checked 2026-10-11).
+OBSOLETE_PYLON_STORES: dict[str, dict[int, frozenset[str]]] = {
+    # ED's B_52H.lua: "harpoon cannot be launched from bay". The wing racks work.
+    "B-52H": {2: frozenset({"{46ACDCF8-5451-4E26-BDDB-E78D5830E93C}"})},
+}
+
+
+def is_obsolete_store(unit_id: str, station: int, clsid: str) -> bool:
+    return clsid in OBSOLETE_PYLON_STORES.get(unit_id, {}).get(station, frozenset())
+
+
 @dataclass(frozen=True)
 class Pylon:
     number: int
@@ -493,6 +506,10 @@ class Pylon:
                     continue
                 pylon_number, weapon = value
                 if pylon_number != number:
+                    continue
+                if is_obsolete_store(
+                    aircraft.dcs_unit_type.id, number, weapon["clsid"]
+                ):
                     continue
                 allowed_weapon = Weapon.with_clsid(weapon["clsid"])
                 if allowed_weapon is not None:
