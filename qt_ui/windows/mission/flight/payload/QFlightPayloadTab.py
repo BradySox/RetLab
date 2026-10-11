@@ -254,8 +254,6 @@ class QFlightPayloadTab(QFrame):
     #: one again -- the busiest today (the F-4E, 23 properties) fits inside it.
     PROPERTY_LIST_MAX_HEIGHT = 560
 
-    #: The tanker track editor rebuilt the flight plan.
-
     def __init__(self, flight: Flight, game: Game):
         super(QFlightPayloadTab, self).__init__()
         self.flight = flight

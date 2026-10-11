@@ -80,6 +80,14 @@ class QPylonEditor(QWidget):
         """
         self.weapon_combo.setToolTip(self.weapon_combo.currentText())
 
+    def _index_of(self, weapon: Weapon) -> int:
+        # Not findData: it matches a Python object by identity, and a Weapon loaded
+        # from a save is an equal copy of the registered one.
+        for index in range(self.weapon_combo.count()):
+            if self.weapon_combo.itemData(index) == weapon:
+                return index
+        return -1
+
     def _populate_weapons(self, current: Optional[Weapon]) -> None:
         # Rebuilding changes only the choices, never the loadout or its settings.
         # The fitted store is always listed, even when the filter would hide it.
@@ -96,7 +104,7 @@ class QPylonEditor(QWidget):
                 if self.show_training or not weapon.is_training_or_non_combat:
                     self.weapon_combo.addItem(weapon.name, weapon)
             if current is not None:
-                index = self.weapon_combo.findData(current)
+                index = self._index_of(current)
                 if index < 0:
                     self.weapon_combo.addItem(current.name, current)
                     index = self.weapon_combo.count() - 1
@@ -158,7 +166,7 @@ class QPylonEditor(QWidget):
         weapon = loadout.pylons.get(self.pylon.number)
         if weapon is None:
             return None
-        if weapon.is_training_or_non_combat and self.weapon_combo.findData(weapon) < 0:
+        if weapon.is_training_or_non_combat and self._index_of(weapon) < 0:
             # A filtered store from a preset: list it so set_from can select it.
             self.weapon_combo.addItem(weapon.name, weapon)
         return weapon

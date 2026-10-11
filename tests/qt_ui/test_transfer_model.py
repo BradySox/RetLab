@@ -247,6 +247,61 @@ def test_unit_transaction_frame_refreshes_labels_after_transaction(
     assert frame.existing_units_labels["tank"].text() == "1"
 
 
+def test_refresh_keeps_a_subclass_row_text(
+    app: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Airfield Command's "(N idle)" detail survives a buy, a sell and a sim update."""
+    from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
+
+    monkeypatch.setattr(
+        GameUpdateSignal,
+        "get_instance",
+        lambda: SimpleNamespace(updateBudget=lambda _game: None),
+    )
+
+    class DetailFrame(UnitTransactionFrame[str]):
+        def existing_units_text(self, item: str, count: int) -> str:
+            return f"{count} (0 idle)"
+
+    adapter = FakePurchaseAdapter(current=2)
+    frame = DetailFrame(_game_model(SimpleNamespace()), cast(Any, adapter))
+    layout = QGridLayout()
+    frame.add_purchase_row("tank", layout, 0)
+    assert frame.existing_units_labels["tank"].text() == "2 (0 idle)"
+
+    frame.sell("tank", 1)
+
+    assert frame.existing_units_labels["tank"].text() == "1 (0 idle)"
+
+
+def test_sell_button_is_never_shown_without_a_parent(
+    app: QApplication, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A parentless widget made visible is a top-level window until it is laid out."""
+    from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
+
+    monkeypatch.setattr(
+        GameUpdateSignal,
+        "get_instance",
+        lambda: SimpleNamespace(updateBudget=lambda _game: None),
+    )
+    orphans: list[bool] = []
+    set_visible = QPushButton.setVisible
+
+    def recording(button: QPushButton, visible: bool) -> None:
+        orphans.append(visible and button.parent() is None)
+        set_visible(button, visible)
+
+    monkeypatch.setattr(QPushButton, "setVisible", recording)
+    adapter = FakePurchaseAdapter(current=2)
+    frame = UnitTransactionFrame(_game_model(SimpleNamespace()), cast(Any, adapter))
+    layout = QGridLayout()
+    frame.add_purchase_row("tank", layout, 0)
+
+    assert orphans and not any(orphans)
+    assert not frame.purchase_groups["tank"].sell_button.isHidden()
+
+
 def test_unit_transaction_frame_refreshes_labels_after_external_inventory_change(
     app: QApplication, monkeypatch: pytest.MonkeyPatch
 ) -> None:
