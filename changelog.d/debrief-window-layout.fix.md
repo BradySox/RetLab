@@ -1,0 +1,2 @@
+* **[UI]** The Debriefing window is two columns: the mission summary and both sides' lost units on the left, flight report cards on the right. The report cards and lost-units lists were squeezed to two rows each, and the lost-units lists sat in a narrow strip of their box. The banner picture is removed.
+* **[UI]** A flight report card is titled with its task and package target, then its squadron and aircraft. It showed the mission's internal group name.

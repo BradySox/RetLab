@@ -781,6 +781,10 @@ capturable/purchasable status.
 **Mission Impact summary** (`qt_ui/windows/QDebriefingWindow.py`):
 Debrief prepends a `Mission Impact` group above the casualty tables: mission
 end-state, bases captured/lost, runway damage, and loss counts for both sides.
+Since 2026-10-11 the window is two columns (row B218): the summary boxes and the two
+lost-units lists side by side on the left, §108's report cards on the right. Only the
+lost-units lists (past 10 rows) and the cards scroll; `ContentSizedScrollArea` is what
+stops Qt shrinking them to two rows. The banner picture is gone.
 
 **Package context bar** (`qt_ui/windows/mission/QPackageDialog.py`):
 The package summary line now renders primary task, flight count, player slots,
@@ -11635,7 +11639,8 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
 After a mission, the Qt debrief shows one graded card per blue flight that got airborne,
 human-crewed flights first: timing at the TOT waypoint, the package target, kills, weapons,
 losses, and a human pilot's fuel on landing against the airframe's reserve. Grades are Unsat, Below average, Average and
-Above average. Built 2026-09-29, not flown (row B158).
+Above average. Built 2026-09-29, not flown (row B158). A card is titled with its task and
+package target, then its squadron and aircraft (2026-10-11; it was the raw DCS group name).
 
 **Design note:** [retlab-flight-report-cards-notes.md](design/retlab-flight-report-cards-notes.md)
 has the scoring table.
@@ -11646,8 +11651,8 @@ has the scoring table.
   plan, then grades them.
 - `game/sim/missionresultsprocessor.py`: `record_flight_cards` stores the cards on
   `Game.last_flight_cards` at commit, while the flown ATO exists.
-- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`.
-- `tests/retlab/test_flight_grades.py`.
+- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`, one `FlightReportCard` each.
+- `tests/retlab/test_flight_grades.py`, `tests/qt_ui/test_debriefing_window.py`.
 
 ### Constraints
 

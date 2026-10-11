@@ -31,6 +31,19 @@ The grades are Unsat, Below average, Average and Above average.
 A score of +2 or more is Above average, 0 to +1 is Average, −1 to −2 is Below average, and
 below that is Unsat.
 
+## How a card reads
+
+- Line 1: the task and the package target, with the grade at the right
+  (`Anti-ship · Admiral Kuznetsov`, `Unsat`).
+- Line 2, dimmed: the squadron and the aircraft (`VFA-103 "Jolly Rogers" · 4 x F/A-18C`),
+  and `(player)` for a human-crewed flight.
+- Then each fault, then each finding.
+
+Until 2026-10-11 the title was the DCS group name (`Target Task|12|FA-18C_hornet|`).
+A flight's callsign is not an option: pydcs assigns it at generation and the campaign
+does not keep it. A card pickled before this has no squadron or target, and falls back
+to the task alone and the group name.
+
 ## Constraints
 
 - **Timing is measured from `mission_start_time`, not `conditions.start_time`.** §104 can start
@@ -56,8 +69,8 @@ below that is Unsat.
 
 - `game/retlab/flight_grades.py`: `FlightFacts`, `grade_flight`, `facts_for`, `flight_cards`.
 - `game/sim/missionresultsprocessor.py`: `record_flight_cards`.
-- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`.
-- `tests/retlab/test_flight_grades.py`.
+- `qt_ui/windows/QDebriefingWindow.py`: `FlightReportCards`, `FlightReportCard`.
+- `tests/retlab/test_flight_grades.py`, `tests/qt_ui/test_debriefing_window.py`.
 
 ## Deferred
 

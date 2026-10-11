@@ -127,9 +127,10 @@ Three other dialogs surface planner reasoning rather than raw numbers:
   squadron hover text gives primary role, auto-assignability, spare aircraft, base and distance to
   target.
 - **Debrief** — leads with **Mission Impact**: end-state, bases captured and lost, runway damage
-  and loss counts, above the full casualty tables.
+  and loss counts, above the full casualty tables. Each side's lost units are listed side by
+  side, and a graded report card for every flight that flew runs down the right.
 
-![The debrief's Casualty report, leading with a Mission Impact block — mission status, bases lost/captured, runway damage — above the per-side loss lists for both coalitions](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/debrief-mission-impact.png)
+![The debrief's Casualty report: Mission Impact, Campaign consequences and both sides' lost units on the left, flight report cards on the right](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/debrief-mission-impact.png)
 
 ---
 

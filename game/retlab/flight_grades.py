@@ -120,10 +120,13 @@ class FlightFacts:
     #: Internal fuel capacity and measured landing reserve, in pounds.
     fuel_capacity_lb: Optional[float] = None
     reserve_lb: Optional[float] = None
+    squadron: str = ""
+    package_target: str = ""
 
 
 @dataclass(frozen=True)
 class FlightCard:
+    #: The DCS group name. Unique per flight, so it orders the cards.
     name: str
     task: str
     aircraft: str
@@ -131,10 +134,19 @@ class FlightCard:
     grade: Grade
     lines: tuple[str, ...]
     faults: tuple[str, ...]
+    #: Empty on a card pickled before these were recorded.
+    squadron: str = ""
+    target: str = ""
 
     @property
-    def title(self) -> str:
-        return f"{self.name}: {self.task}, {self.aircraft}"
+    def headline(self) -> str:
+        """What the flight was for: its task and the package target."""
+        return f"{self.task} · {self.target}" if self.target else self.task
+
+    @property
+    def detail(self) -> str:
+        """Who flew it. Falls back to the group name on an old card."""
+        return f"{self.squadron or self.name} · {self.aircraft}"
 
 
 def _minutes(seconds: float) -> str:
@@ -233,6 +245,8 @@ def grade_flight(facts: FlightFacts) -> FlightCard:
         grade=grade_for(score),
         lines=tuple(lines),
         faults=tuple(faults),
+        squadron=facts.squadron,
+        target=facts.package_target,
     )
 
 
@@ -302,6 +316,16 @@ def _task_name(flight: Flight) -> str:
         return flight.flight_type.value
 
 
+def _squadron_name(flight: Flight) -> str:
+    squadron = getattr(flight, "squadron", None)
+    return "" if squadron is None else str(squadron)
+
+
+def _package_target_name(flight: Flight) -> str:
+    target = getattr(flight.package, "target", None)
+    return str(getattr(target, "name", "") or "")
+
+
 def facts_for(
     flight: Flight,
     records: Sequence[SortieRecord],
@@ -367,6 +391,8 @@ def facts_for(
         landed_fuel=min(fuel) if fuel else None,
         fuel_capacity_lb=_fuel_capacity_lb(flight),
         reserve_lb=_reserve_lb(flight),
+        squadron=_squadron_name(flight),
+        package_target=_package_target_name(flight),
     )
 
 

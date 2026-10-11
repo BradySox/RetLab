@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: The debrief window fits the screen
+change: >-
+  The Debriefing window is now two columns. The mission summary and
+  both sides' lost units are on the left, and the flight report cards
+  run down the right. The cards and the lost-units lists used to be
+  squeezed to two rows each. The picture at the top is gone. Each
+  report card is titled with its task and target, then its squadron
+  and aircraft, in place of the mission's internal group name.
+watch: >-
+  Fly a turn and accept the results. The lost-units lists sit side by
+  side and fill their boxes, with no scrollbar at 10 rows or fewer.
+  Each card reads like "Strike · Fuel depot" with the grade at the right.
