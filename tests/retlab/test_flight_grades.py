@@ -249,3 +249,30 @@ def test_a_human_still_airborne_at_mission_end_has_no_landing_fuel() -> None:
     )
 
     assert facts_for(flight, [airborne], _debriefing([]), None).landed_fuel is None
+
+
+def test_a_card_leads_with_the_job_and_names_the_squadron() -> None:
+    card = grade_flight(
+        replace(BASE, squadron='VFA-103 "Jolly Rogers"', package_target="Senaki")
+    )
+    assert card.headline == f"{BASE.task} · Senaki"
+    assert card.detail == f'VFA-103 "Jolly Rogers" · {BASE.aircraft}'
+
+
+def test_a_card_from_an_older_save_still_has_a_title() -> None:
+    card = grade_flight(BASE)
+    old = object.__new__(type(card))
+    old.__dict__.update(
+        {k: v for k, v in card.__dict__.items() if k not in ("squadron", "target")}
+    )
+    assert old.headline == BASE.task
+    assert old.detail == f"{BASE.name} · {BASE.aircraft}"
+
+
+def test_facts_carry_the_squadron_and_the_package_target() -> None:
+    flight = _flight(FlightType.BARCAP, None)
+    flight.squadron = "VF-103"
+    flight.package.target = SimpleNamespace(name="Kutaisi")
+    record = _record("Enfield 1-1", _sample(0.0, 0.0))
+    facts = facts_for(flight, [record], _debriefing([]), None)
+    assert (facts.squadron, facts.package_target) == ("VF-103", "Kutaisi")
