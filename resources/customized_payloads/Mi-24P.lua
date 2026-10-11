@@ -22,11 +22,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[5] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[6] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},
@@ -57,11 +57,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[5] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[6] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},
@@ -125,11 +125,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[5] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[6] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},
@@ -160,11 +160,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[5] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[6] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},
@@ -195,11 +195,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[5] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[6] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},
@@ -222,11 +222,11 @@ local unitPayloads = {
 					["num"] = 1,
 				},
 				[3] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 5,
 				},
 				[4] = {
-					["CLSID"] = "{2x9M120_Ataka_V}",
+					["CLSID"] = "{2x9M120_Ataka_V_with_adapter}",
 					["num"] = 2,
 				},
 			},

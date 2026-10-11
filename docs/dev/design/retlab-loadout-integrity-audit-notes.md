@@ -482,6 +482,33 @@ flight planned before the change keeps the stores it was planned with.
 pydcs's data. Before calling a preset broken, read the module's Lua in the DCS install for
 the store id and for `replace_deprecated_loadout_with`, and read `tempMission.miz` for what
 DCS loaded. A scan of every preset against pydcs's pylons that day found 465 stores on 49
-airframes; 36 were this file's and DCS accepts all 36. One the install does back up: the
-Mi-24P's outboard pylons (2 and 5) take `{2x9M120_Ataka_V_with_adapter}`, the Escort preset
-puts the wingtip store `{2x9M120_Ataka_V}` there, and the Hind has no swap table.
+airframes; 36 were this file's and DCS accepts all 36.
+
+### What DCS's loader removes
+
+`MissionEditor\modules\me_mission.lua`, `fixNoValidUnitsPayload`, read 2026-10-11. For
+each pylon entry of each unit:
+
+- The pylon number does not exist on the unit: the entry is removed.
+- The id is in that pylon's `replace_deprecated_loadout_with` table: it is replaced.
+- The id is not a weapon at all (`me_db.weapon_by_CLSID` is nil): the entry is removed.
+- Anything else is kept, including a real store on a pylon whose `Launchers` list does not
+  offer it.
+
+So a store on the wrong pylon is not a bug DCS punishes, and the scan above is not a
+repair list. Of the 465, the ones sorted that day:
+
+| Hits | What | Outcome |
+|---|---|---|
+| 64 | Mirage F1, `{BLG66_BELOUGA}` on eight variants | Not a DCS weapon (Aerges' id is `{BLG66_AC}`; the Lua *variable* is `id_BLG66_BELOUGA`). Fixed, row B224. |
+| 36 | MiG-29A, Flaming Cliffs ids | Swapped by DCS. Rewritten to the new ids anyway. |
+| 12 | Mi-24P, wingtip Ataka on pylons 2 and 5 | Kept by DCS. Moved to the adapter store ED lists there, as a tidy-up, row B223. |
+| 214 | Real stores on unlisted pylons, mostly R-60s on the Su-17M4, Su-24M, MiG-25 and MiG-27K | Left alone (DM call). |
+| 139 | Ids pydcs does not know: mod aircraft, the F-4E expanded pack, Gazelle stores | Not judged. The existing guard in `tests/data/test_weapons.py` lists them. |
+
+A CI check for pylon fit was written and dropped the same day (DM call): the guard that
+every store id resolves already covers what DCS removes.
+
+The public datamine (`Quaggles/dcs-lua-datamine`) carries resolved pylon tables for every
+vanilla unit. Its files label a shared table `<N>{...}` and refer to it as `<table N>`;
+resolve those before reading, or shared launcher and swap tables read as empty.
