@@ -1,0 +1,15 @@
+date: 2026-10-10
+title: Call ballistic missile strikes from the F10 map
+change: >-
+  A new plugin, Ballistic missile strikes, off by default. With it
+  ticked in Plugin Options, put a marker on a target and pick Ballistic
+  Missile Strike from the F10 radio menu: the battery, the marker, the
+  number of rounds. One of your own Scud, Iskander or ATACMS launchers
+  fires. A battery says no, and why, when the target is past its range
+  or inside its minimum range. Rounds are not replaced in the mission.
+watch: >-
+  Playing a faction that fields a ballistic missile launcher, the F10
+  radio menu has Ballistic Missile Strike with your batteries under it.
+  After a call you get fire mission acknowledged, then shot, then
+  splash. The first round can take about ten minutes while the launcher
+  powers up.

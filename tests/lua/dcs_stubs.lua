@@ -222,6 +222,12 @@ function UnitFake:getGroup()
     return self.group
 end
 
+-- Ammunition as DCS reports it: a list of { count, desc = { category, displayName } }.
+-- nil when the unit spec gives none.
+function UnitFake:getAmmo()
+    return self.ammo
+end
+
 -- nil for AI; a per-unit spec {playerName = ...} models a human-crewed slot.
 function UnitFake:getPlayerName()
     return self.playerName
@@ -242,12 +248,20 @@ end
 
 function ControllerFake:setTask(task)
     local point = task and task.params and task.params.point
+    -- A ControlledTask wraps the real one; record what it carries too.
+    local inner = task and task.params and task.params.task
+    local innerParams = inner and inner.params or {}
     table.insert(Harness.records.controllerTasks, {
         group = self.group:getName(),
         taskId = task and task.id,
         targetGroupId = task and task.params and task.params.groupId,
         x = point and point.x,
         y = point and point.y,
+        innerId = inner and inner.id,
+        innerX = innerParams.x,
+        innerY = innerParams.y,
+        expendQty = innerParams.expendQty,
+        weaponType = innerParams.weaponType,
         t = Harness.now,
     })
 end
@@ -380,6 +394,7 @@ function Harness.addGroup(spec)
             attributes = u.attributes,
             velocity = u.velocity,
             playerName = u.playerName,
+            ammo = u.ammo,
             fuel = u.fuel,
             category = u.category,
             side = spec.side,
@@ -500,6 +515,8 @@ world = {
         S_EVENT_EJECTION = 6,
         S_EVENT_LAND = 4,
         S_EVENT_LANDING_AFTER_EJECTION = 31,
+        S_EVENT_MARK_ADDED = 25,
+        S_EVENT_MARK_REMOVED = 27,
     },
     addEventHandler = function(handler)
         table.insert(eventHandlers, handler)
@@ -523,6 +540,9 @@ end
 -- impact: it exists until vanishAt (relative to the virtual clock), then the
 -- tracker resolves its last sampled position as the impact point.
 -------------------------------------------------------------------------------
+Weapon = Weapon or {}
+Weapon.Category = Weapon.Category or { SHELL = 0, MISSILE = 1, ROCKET = 2, BOMB = 3 }
+
 local WeaponFake = {}
 WeaponFake.__index = WeaponFake
 

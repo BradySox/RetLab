@@ -1,0 +1,64 @@
+{
+    "nameInUI": "Ballistic missile strikes",
+    "descriptionInUI": "Lets a player call a ballistic missile strike from a friendly launcher (Scud-B, 9K720 Iskander, ATACMS and the like) onto a marker on the F10 map. Put a marker on the target, then pick the battery, the marker and the number of rounds from the F10 radio menu, Ballistic Missile Strike. A battery refuses a target outside its range or inside its minimum range, and says why. The launchers are the campaign's own units, so a destroyed launcher fires nothing and rounds are not replaced in the mission. Inert when your side has no launcher.",
+    "defaultValue": false,
+    "specificOptions": [
+        {
+            "nameInUI": "Maximum rounds per fire mission",
+            "mnemonic": "maxRoundsPerMission",
+            "defaultValue": 2,
+            "minimumValue": 1,
+            "maximumValue": 12
+        },
+        {
+            "nameInUI": "Reload time between fire missions (s)",
+            "mnemonic": "cooldownSeconds",
+            "defaultValue": 600,
+            "minimumValue": 0,
+            "maximumValue": 3600
+        },
+        {
+            "nameInUI": "Give up if no round is fired within (s)",
+            "mnemonic": "launchTimeoutSeconds",
+            "defaultValue": 900,
+            "minimumValue": 120,
+            "maximumValue": 3600
+        },
+        {
+            "nameInUI": "Aimpoint scatter (ft)",
+            "mnemonic": "impactRadiusFt",
+            "defaultValue": 165,
+            "minimumValue": 0,
+            "maximumValue": 3300
+        },
+        {
+            "nameInUI": "Maximum strike range override (NM, 0 = use each launcher's own range)",
+            "mnemonic": "maxRangeNm",
+            "defaultValue": 0,
+            "minimumValue": 0,
+            "maximumValue": 1080
+        },
+        {
+            "nameInUI": "Wake up friendly launchers at mission start",
+            "mnemonic": "preheatLaunchers",
+            "defaultValue": true
+        },
+        {
+            "nameInUI": "Reserve friendly launchers for players (clear their AI fire tasks)",
+            "mnemonic": "reserveForPlayers",
+            "defaultValue": true
+        }
+    ],
+    "scriptsWorkOrders": [
+        {
+            "file": "BallisticMissileStrike.lua",
+            "mnemonic": "bmstrike"
+        }
+    ],
+    "configurationWorkOrders": [
+        {
+            "file": "bmstrike-config.lua",
+            "mnemonic": "bmstrike-config"
+        }
+    ]
+}
