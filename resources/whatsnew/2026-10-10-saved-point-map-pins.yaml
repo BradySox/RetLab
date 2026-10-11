@@ -1,0 +1,12 @@
+date: 2026-10-10
+title: Saved points are pins you can edit on the map
+change: >-
+  Each point saved for your aircraft is now a pin on the map, in the
+  color of its kind, where it used to be a dot. Click a pin to rename
+  or delete the point. Drag it to move the point; an orbit's pin moves
+  the whole racetrack. A moved point takes the ground elevation of its
+  new spot. The My aircraft window updates at once, and an edit made
+  there updates the pin. Ported from juanjux/dcs-escalation.
+watch: >-
+  Drag a saved point's pin with My aircraft open: the row's coordinates
+  change and the pin stays where you dropped it.

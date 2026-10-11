@@ -11145,7 +11145,10 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - `game/coordinates.py`, `game/elevation.py`, `game/server/coordinates/`,
   `game/server/savedpoints/` — formats, the elevation lookup, the map's API.
 - `client/src/components/coordinatepicker/` — the map point picker, Save with kinds, the draw
-  panel (`DrawPanel.tsx`) and the map layer (`SavedPointsLayer.tsx`).
+  panel (`DrawPanel.tsx`), the map layer (`SavedPointsLayer.tsx`) and its editable pins
+  (`SavedPointPin.tsx`).
+- `game/server/savedpoints/notifications.py` — one call that tells the map and the open
+  window a point changed.
 
 ### What it does
 
@@ -11158,6 +11161,10 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
   numbers (`point_numbers`, the same function the kneeboard uses).
 - Kneeboard: a "saved points" page with the cockpit's numbers; the route table prints
   `-` on a skipped row.
+- Map pins (2026-10-10, juanjux #519): each saved point is a pin in its kind's colour.
+  Click to rename or delete, drag to move; an orbit's pin moves the racetrack. The map
+  and the window refresh each other. Points are edited by a persistent id. Design note
+  §6a.
 
 ### Constraints — do not undo
 
@@ -11166,6 +11173,9 @@ juanjux/dcs-escalation #343–#369 and #360–#363 (LGPL-3.0). Design note:
 - Hornet/Viper/Apache points need the Flight plan section (those cartridges replace the
   whole navigation set).
 - Skips are waypoint-type names, never indices.
+- The map edits a point by its id, never its index, and every edit calls
+  `publish_points_changed`. A new place that changes points must call it too, or the
+  map and the window drift until the 5 s poll.
 - The picker leaves a click on an interactive shape to that shape, except a `map-area`
   one (hover-only: §98's country polygons). Without the exception, neutral border
   defense's borders cover every country and the picker answered only at sea (fixed
@@ -11189,8 +11199,10 @@ design note §5a has each DCS file:line source:
 The §102 block of `tests/missiongenerator/test_dtc.py`, `tests/test_dtc_tab.py`,
 `tests/test_saved_points.py`, `tests/test_a10cdu.py`, `tests/test_coordinates.py`,
 `tests/test_coordinate_parsing.py`, `tests/test_elevation.py`,
-`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`, and the client's
-`coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing).
+`tests/test_playable_aircraft.py`, `tests/test_playable_window.py`,
+`tests/server/test_saved_point_pins.py`, `tests/qt_ui/test_saved_point_sync.py`, and the client's
+`coordinatepicker` suites (`kinds.test.tsx` for kinds, orbits and drawing;
+`SavedPointPins.test.tsx` for the pins).
 
 ### Needs an in-game pass — B135, B136
 
