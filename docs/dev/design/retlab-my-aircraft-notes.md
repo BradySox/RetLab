@@ -173,10 +173,10 @@ Offline it returns nothing. Only tile indices are sent. His design, kept.
 ## 9. Needs an in-game pass
 
 - **B135** — STPT N in the jet is the point the kneeboard numbers N; SEQ1 still the route.
-- **B211** — the map pins: rename, delete and drag, and the window following.
 - **B136** — the DTC options: hand-load leaves the cartridge unloaded until selected; a
   skipped type is gone from the jet with the numbers closed up; drawings and orbits show
   on each jet's page.
+- **B211** — the map pins: rename, delete and drag, and the window following.
 
 Headless coverage: `tests/missiongenerator/test_dtc.py` (the §102 block),
 `tests/test_dtc_tab.py`, `tests/test_saved_points.py`, `tests/test_a10cdu.py`,
