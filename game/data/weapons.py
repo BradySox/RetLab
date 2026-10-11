@@ -464,7 +464,11 @@ class Pylon:
         self, weapon: Weapon, settings: Optional[Dict[str, Any]] = None
     ) -> PydcsWeaponAssignment:
         weapon_data = dict(weapon.pydcs_data)
-        # Add settings if provided and weapon supports them
+        # pydcs keeps the weapon's settings *menu* under this key (a list of option
+        # descriptors). Written to the mission it is a settings table holding none of
+        # the real keys; with no table DCS applies the weapon's defaults (test 55).
+        if isinstance(weapon_data.get("settings"), list):
+            del weapon_data["settings"]
         if settings and weapon.has_settings():
             weapon_data["settings"] = settings
         return self.number, weapon_data

@@ -393,3 +393,35 @@ def test_customized_payload_retribution_names_resolve_to_a_task() -> None:
         "FlightType.value casing exactly (e.g. 'Retribution Fighter sweep', not '...Sweep'):\n"
         + "\n".join(f"  {n} -> {sorted(files)}" for n, files in sorted(dead.items()))
     )
+
+
+def test_pylon_assignment_leaves_out_the_settings_menu_when_none_was_picked() -> None:
+    # Test 55: 112 pylons in one mission carried pydcs's option descriptors as their
+    # settings table, because the weapon data was passed through untouched.
+    weapon = _bare_weapon("{GBU-38}")
+    assert isinstance(weapon.pydcs_data["settings"], list)
+
+    number, data = Pylon(number=4, allowed={weapon}).make_pydcs_assignment(weapon)
+
+    assert number == 4
+    assert data["clsid"] == "{GBU-38}"
+    assert "settings" not in data
+    assert isinstance(weapon.pydcs_data["settings"], list)
+
+
+def test_pylon_assignment_writes_the_settings_that_were_picked() -> None:
+    weapon = _bare_weapon("{GBU-38}")
+    picked = {"NFP_fuze_type_tail": "FMU139CB_LD", "laser_code": 1688}
+
+    _, data = Pylon(number=4, allowed={weapon}).make_pydcs_assignment(weapon, picked)
+
+    assert data["settings"] == picked
+
+
+def test_pylon_assignment_for_a_weapon_with_no_settings_has_none() -> None:
+    weapon = _bare_weapon("{AGM_84D}")
+    assert "settings" not in weapon.pydcs_data
+
+    _, data = Pylon(number=2, allowed={weapon}).make_pydcs_assignment(weapon)
+
+    assert "settings" not in data

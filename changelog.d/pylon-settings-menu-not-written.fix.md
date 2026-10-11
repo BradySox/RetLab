@@ -1,0 +1,1 @@
+* **[Mission Generation]** A pylon with no weapon setting picked no longer carries the weapon's settings menu in the mission file. DCS applies the weapon's defaults, as it does for a mission built in the editor.
