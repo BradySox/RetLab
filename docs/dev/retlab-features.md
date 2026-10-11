@@ -11653,3 +11653,72 @@ first live reviews on Kola):
   at Take Off, the scripted planner plans red's missions again.
 - Only the AI routes need the token; the map server's routes are unchanged.
 - No setting: the toggle is saved on the `Game`.
+
+## §110 — Ballistic missile call-for-fire
+
+A player calls a strike from one of their side's own ballistic missile launchers onto an
+F10 map marker. Plugin `bmstrike`, **default off**, no `Settings` field. Ported
+2026-10-10 from CleeeCATCH/dcs-retribution (author virhed, LGPL-3), commit `eb892b99df`.
+Not flown here or, as far as its history shows, there: row **B215**.
+
+**What the player does.** Put a marker on the target. F10 radio menu > Ballistic Missile
+Strike > the battery > the marker > a number of rounds. *Refresh target list* picks up
+markers placed since the menu was drawn; *Battery status* lists rounds, range window and
+state; *Check fire* ends a mission in progress. Any occupied player slot gets the menu.
+
+**Files.**
+
+- `resources/plugins/bmstrike/BallisticMissileStrike.lua` — the runtime.
+- `resources/plugins/bmstrike/bmstrike-config.lua` — reads the options and registers the
+  launchers and the players.
+- `game/missiongenerator/luagenerator.py` — `ballistic_missile_batteries` lists every
+  `UnitClass.MISSILE` group (theater ground objects and frontline groups) with a callsign
+  and the unit's `threat_range` as its maximum range, emitted as
+  `dcsRetribution.artilleryGroups.ballisticMissiles`.
+
+**How it behaves.**
+
+- The launchers are the campaign's own tracked units firing real weapons. Nothing is
+  spawned, a dead launcher fires nothing, and rounds are counted from `getAmmo()`, so a
+  two-round 9K720 offers one round or the salvo.
+- One `FireAtPoint` inside a `ControlledTask` with a duration, so the task ends by itself.
+  A supervisor reads the ammo count every 10 s: it reports rounds complete, re-issues the
+  order once if a salvo stalls, and ends the mission when nothing has fired inside the
+  timeout.
+- DCS gives a script neither range limit. The maximum comes from the unit definition; the
+  minimum is a table in the script (`BMS.MinRangeByType`), because a launcher handed a
+  target inside its minimum accepts the task and never fires. The Iranian pack's four
+  ballistic launchers (§105) are in it at 75 km, as they fly ED's 9M723.
+- On the first player of a coalition, that coalition's launchers go to alarm state RED
+  (*Wake up friendly launchers*: a 9K720 has a 600 s switch-on delay) and have their task
+  reset (*Reserve friendly launchers for players*), which clears the pre-planned fire
+  task `MissileSiteGenerator` gives a missile site. The other side's launchers are left
+  as generated.
+
+**Options** (Plugin Options): rounds per fire mission (2), reload time (600 s), launch
+timeout (900 s), aimpoint scatter (165 ft), range override (0 = each launcher's own), and
+the two launcher switches above.
+
+**Changed from the source fork.**
+
+- Player-facing ranges read in NM and the two distance options are in ft and NM.
+- Players are found with `coalition.getPlayers`, not by walking every unit of both
+  coalitions every 5 s.
+- The launcher list is a plain function with its own test; the source fork's callsign
+  helper belonged to artillery plugins this fork does not ship.
+- The four Iranian launchers were added to the minimum-range table.
+
+**Gotchas.**
+
+- Every `UnitClass.MISSILE` unit with a `threat_range` is listed, so a cruise missile or
+  drone launcher (CJ-10, Iskander-K, Shahed-136) appears on the menu too.
+- A missile battery group carries its §85 support trucks; only missile-category ammunition
+  is counted, so they do not show as rounds.
+- A unit type missing from `BMS.MinRangeByType` has no minimum check. It is caught by the
+  launch timeout instead, which is 15 minutes.
+
+**Tests.** `tests/missiongenerator/test_ballistic_missile_lua_data.py` (the launcher
+list), `tests/lua/test_bmstrike_runtime.py` (both scripts on Lua 5.1: one round onto a
+marker, the reload timer, both range refusals, own-side-only wake and reserve). The
+harness gained `Unit:getAmmo`, the inner task of a `ControlledTask`, and the two map-mark
+events.

@@ -304,6 +304,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   salvo. Magazines are finite and never rearm. A launch alerts defending SAMs around the
   aimpoint.
   Automatic raids never fly past an enemy SAM site that has point defense.
+- **Ballistic missile strikes.** With the plugin ticked, mark a target and call rounds from one
+  of your own Scud, Iskander or ATACMS launchers. Off by default.
 - **Naval magazines.** Warships can be released to weapons-free a group at a time instead of
   all at once, and anti-ship missiles fired are gone for the rest of the war. A ship group also
   stops after a set number of anti-ship missiles per mission, so a fleet fights a running battle

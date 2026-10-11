@@ -4,7 +4,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import TYPE_CHECKING, Optional
+from typing import Any, Iterable, TYPE_CHECKING, Optional
 
 from dcs import Mission
 from dcs.action import DoScript, DoScriptFile
@@ -49,6 +49,46 @@ from .vietnamopsluadata import populate_vietnam_ops_lua
 if TYPE_CHECKING:
     from game import Game
     from game.theater.iadsnetwork.iadsnetwork import IadsNode
+
+
+def ballistic_missile_batteries(
+    ground_objects: Iterable[Any], frontline_groups: Iterable[Any]
+) -> list[tuple[str, str, int]]:
+    """(group name, callsign, max range in meters) for each missile launcher group.
+
+    For the bmstrike plugin. Launchers are UnitClass.MISSILE, not ARTILLERY. The
+    range is the unit's threat_range; a launcher with none (the V-1 ramp) cannot
+    be tasked in DCS and is left out.
+    """
+    candidates: list[tuple[str, str, Any]] = []
+    for ground_object in ground_objects:
+        for group in ground_object.groups:
+            if not group.units:
+                continue
+            unit_type = group.units[0].unit_type
+            if unit_type is not None and unit_type.unit_class == UnitClass.MISSILE:
+                candidates.append((group.group_name, group.name, unit_type))
+    for frontline_group in frontline_groups:
+        unit_type = frontline_group.unit_type
+        if unit_type.unit_class == UnitClass.MISSILE:
+            candidates.append(
+                (frontline_group.group_name, unit_type.display_name, unit_type)
+            )
+
+    batteries: list[tuple[str, str, int]] = []
+    used_callsigns: set[str] = set()
+    for group_name, display_name, unit_type in candidates:
+        max_range = getattr(unit_type.dcs_unit_type, "threat_range", 0)
+        if not max_range:
+            continue
+        callsign = display_name
+        suffix = 1
+        while callsign in used_callsigns:
+            suffix += 1
+            callsign = f"{display_name} {suffix}"
+        used_callsigns.add(callsign)
+        batteries.append((group_name, callsign, int(max_range)))
+    return batteries
 
 
 class LuaGenerator:
@@ -369,6 +409,18 @@ class LuaGenerator:
         ship_artillery_group_collection = artillery_object.get_or_create_item(
             "shipArtillery"
         )
+        ballistic_missile_group_collection = artillery_object.get_or_create_item(
+            "ballisticMissiles"
+        )
+        for group_name, callsign, max_range in ballistic_missile_batteries(
+            self.game.theater.ground_objects,
+            self.mission_data.player_frontline_groups
+            + self.mission_data.enemy_frontline_groups,
+        ):
+            ballistic_missile_group = ballistic_missile_group_collection.add_item()
+            ballistic_missile_group.add_key_value("groupName", group_name)
+            ballistic_missile_group.add_key_value("callsign", callsign)
+            ballistic_missile_group.add_key_value("maxRangeMeters", str(max_range))
 
         # First add all artillery units that are theater objects (mostly ships)
         for ground_object in self.game.theater.ground_objects:

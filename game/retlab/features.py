@@ -909,6 +909,15 @@ FEATURES: tuple[Feature, ...] = (
         "Outside AI reads red's turn",
         109,
     ),
+    Feature(
+        # Player F10 call-for-fire from the campaign's own ballistic missile
+        # launchers. The `bmstrike` plugin reads the launcher list luagenerator
+        # emits (ballistic_missile_batteries). Plugin toggle only, default off.
+        "ballistic_missile_strikes",
+        "Ballistic missile call-for-fire",
+        110,
+        plugin_id="bmstrike",
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

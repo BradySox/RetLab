@@ -121,5 +121,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §107 | Briefing screen picture | — | — |
 | §108 | Flight report cards | — | — |
 | §109 | Outside AI reads red's turn | — | — |
+| §110 | Ballistic missile call-for-fire | `bmstrike` | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
