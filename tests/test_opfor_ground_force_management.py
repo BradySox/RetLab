@@ -286,7 +286,7 @@ def test_red_transfer_model_maps_rows_and_cancels_red_transfer() -> None:
 
 
 @typing.no_type_check
-def test_legacy_boolean_transfer_owner_is_preserved_and_validated() -> None:
+def test_legacy_boolean_transfer_owner_is_preserved_and_repaired() -> None:
     transfer = SimpleNamespace(player=True)
     blue_coalition = SimpleNamespace(player=Player.BLUE)
     Migrator._normalize_single_transfer_player(transfer, blue_coalition)
@@ -297,8 +297,9 @@ def test_legacy_boolean_transfer_owner_is_preserved_and_validated() -> None:
     Migrator._normalize_single_transfer_player(transfer, red_coalition)
     assert transfer.player is Player.RED
 
-    with pytest.raises(RuntimeError, match="owner"):
-        Migrator._normalize_single_transfer_player(transfer, blue_coalition)
+    # A RED owner filed under BLUE is repaired on load, not fatal.
+    Migrator._normalize_single_transfer_player(transfer, blue_coalition)
+    assert transfer.player is Player.BLUE
 
 
 @typing.no_type_check

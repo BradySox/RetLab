@@ -247,8 +247,10 @@ def test_transfer_migration_rejects_conflicting_collections() -> None:
         migrator._update_transfers()
 
 
-def test_transfer_migration_rejects_conflicting_owner() -> None:
-    """Enum owner conflict with sole container fails with diagnostic."""
+def test_transfer_migration_repairs_conflicting_owner(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """An owner that disagrees with its coalition is repaired, not fatal."""
     blue_transfers = _make_pending(Player.BLUE)
     origin = _cp("Alpha", captured=Player.BLUE)
     destination = _cp("Bravo", captured=Player.BLUE)
@@ -264,8 +266,11 @@ def test_transfer_migration_rejects_conflicting_owner() -> None:
     migrator = Migrator.__new__(Migrator)
     migrator.game = SimpleNamespace(coalitions=[coalition])  # type: ignore[assignment]
 
-    with pytest.raises(RuntimeError):
+    with caplog.at_level("WARNING"):
         migrator._update_transfers()
+
+    assert transfer.player is Player.BLUE
+    assert "repaired" in caplog.text
 
 
 # ---------------------------------------------------------------------------

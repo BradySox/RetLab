@@ -582,15 +582,14 @@ class Flight(
         override = getattr(self, "refuel_point_override", None)
         return override if override is not None else default
 
-    def refresh_flight_plan(self, dump_debug_info: bool = False) -> None:
-        """Rebuild the flight plan from current world state.
+    def refresh_flight_plan_targets(self) -> None:
+        """Update the plan's target snapshot without re-planning the route.
 
-        Unlike :meth:`recreate_flight_plan`, manual timing is preserved.
-        Mission generation uses this for motorpool-target packages, whose
-        ephemeral groups are rendered only at mission generation time, after
-        the plan was first built against empty groups.
+        Mission generation uses this for motorpool-target packages: the depot's
+        vehicles are reconciled with the reserve at mission generation, after the
+        plan was built. Waypoints, hand edits and timing are untouched.
         """
-        self._flight_plan_builder.regenerate(dump_debug_info)
+        self._flight_plan_builder.refresh_targets()
 
     @staticmethod
     def clone_flight(flight: Flight) -> Flight:

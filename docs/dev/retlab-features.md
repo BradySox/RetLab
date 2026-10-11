@@ -6317,13 +6317,15 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
 - **[#960](https://github.com/dcs-retribution/dcs-retribution/pull/960) re-homing.**
   `MotorpoolPopulator._rehome_motorpools` attaches every depot to the nearest land control
   point (FARPs and FOBs included; carriers, LHAs and off-map points never), on every load and
-  on every `ControlPoint.capture`. A depot used to stay with whoever owned it at New Game.
+  on every `ControlPoint.capture`, and once at the end of New Game (`GameGenerator.generate`,
+  2026-10-11) so a depot's owner does not change on the first load. A depot used to stay
+  with whoever owned it at New Game.
   Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
   marker left the campaign and de-duplicates a save that listed one twice. Generated groups
   are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
-  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` (which still binds through
-    the loader's blue-preference and stranded-marker rules) and overrides that owner with
-    the nearest land CP. The loader's binding still decides which side's warning fires.
+  - **Fork interaction:** it runs after `_ensure_motorpool_tgos` and after New Game's
+    `generate_motorpools` (which both bind through the loader's blue-preference and
+    stranded-marker rules) and overrides that owner with the nearest land CP. The loader's binding still decides which side's warning fires.
   - Row B180.
 - **[#959](https://github.com/dcs-retribution/dcs-retribution/pull/959) inventory.**
   The populator became a projection reconciled each call: an unchanged reserve keeps the
@@ -6350,9 +6352,11 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
     them. The ingress keeps the fork's per-search-point loop and `search_zone_radius`.
   - Row B182.
 - **[#962](https://github.com/dcs-retribution/dcs-retribution/pull/962) mission generation.**
-  `refresh_motorpool_target_flight_plans` re-plans every motorpool-target flight right after
-  `MotorpoolPopulator.populate()` in mission generation (`Flight.refresh_flight_plan` keeps
-  manual timing), so plans see the vehicles actually parked. BAI gets one `bai_group`
+  `refresh_motorpool_target_flight_plans` runs right after `MotorpoolPopulator.populate()`
+  in mission generation, so plans see the vehicles actually parked. Since 2026-10-11 it
+  does not re-plan: `Flight.refresh_flight_plan_targets` swaps the unit snapshot on the
+  ingress and on a Strike's site waypoint, only when the parked set differs from the one
+  the plan holds, so dragged and inserted waypoints survive Take Off. BAI gets one `bai_group`
   waypoint on the depot; Armed Recon one area waypoint, its engage zone centred on the
   garage and sized to a full grid plus 20 m (`motorpool_full_grid_extent_m`), replacing
   #961's 106 m. The strike ingress adds one `Bombing` per parked vehicle, re-read at

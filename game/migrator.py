@@ -290,10 +290,16 @@ class Migrator:
         if isinstance(owner, bool):
             transfer.player = coalition.player
         if transfer.player != coalition.player:
-            raise RuntimeError(
-                f"Transfer {transfer} has owner {transfer.player} but is in the "
-                f"{coalition.player} coalition"
+            # An old save can hold one (a split airlift whose origin fell). The
+            # coalition holding the order owns it; new orders are still checked
+            # by PendingTransfers.validate_transfer.
+            logging.warning(
+                "Transfer %s had owner %s but is in the %s coalition; repaired",
+                transfer,
+                transfer.player,
+                coalition.player,
             )
+            transfer.player = coalition.player
 
     @typing.no_type_check
     def _update_factions(self) -> None:
