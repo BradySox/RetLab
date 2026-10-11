@@ -13,6 +13,7 @@ from dcs.unittype import ShipType
 
 from game import Game
 from game.factions.faction import Faction
+from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
 from game.naming import namegen
 from game.scenery_group import SceneryGroup
 from game.theater.airfieldclearance import log_airfield_clearance_conflicts
@@ -197,6 +198,9 @@ class GameGenerator:
             # is valid here. Runs only for new games -- never on save load.
             apply_default_player_stances(self.theater, self.settings)
             GroundObjectGenerator(game, self.generator_settings).generate()
+            # Every load and capture re-homes depots to the nearest land base;
+            # doing it here too keeps a depot's owner from changing on first load.
+            MotorpoolPopulator(game)._rehome_motorpools()
             # Names any authored marker that lands a ground unit on a runway strip
             # or a stand; DCS then holds every AI taxi at that field (§1).
             log_airfield_clearance_conflicts(self.theater)

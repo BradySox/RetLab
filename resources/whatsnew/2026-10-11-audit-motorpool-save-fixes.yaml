@@ -1,0 +1,12 @@
+date: 2026-10-11
+title: Hand-edited routes to a motorpool depot survive Take Off
+change: >-
+  A package aimed at a motorpool depot keeps the waypoints you dragged or
+  inserted when you press Take Off; they used to be rebuilt. A depot now
+  belongs to the nearest land base from turn one, so it no longer changes
+  sides the first time a save is loaded.
+watch: >-
+  Drag a waypoint on a strike against a motorpool depot, press Take Off,
+  and the route in the cockpit is the one you drew. In a new Abchazian
+  Blitz game, the two depots near Sukhumi show the same owner before and
+  after a save and reload.

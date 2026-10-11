@@ -49,6 +49,9 @@ class IBuilder(ABC, Generic[FlightPlanT, LayoutT]):
                 f"{self.flight.departure} to {self.package.target}"
             ) from ex
 
+    def refresh_targets(self) -> None:
+        """Bring the built plan's target snapshot up to date. Never re-plans."""
+
     def _generate_package_waypoints_if_needed(self, dump_debug_info: bool) -> None:
         # Package waypoints are only valid for offensive missions. Skip this if
         # the target is friendly.

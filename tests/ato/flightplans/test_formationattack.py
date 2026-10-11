@@ -355,20 +355,114 @@ def test_refreshed_strike_plan_snapshots_live_motorpool_units(
     assert len(captured[-1]) == 3
 
 
-def test_refresh_flight_plan_keeps_manual_timing() -> None:
-    """refresh_flight_plan regenerates the plan without the manual-timing
-    wipe that recreate_flight_plan performs."""
+def test_refresh_flight_plan_targets_does_not_regenerate() -> None:
+    """Take Off must not re-plan the route: that discarded hand-edited waypoints."""
     takeoff = object()
     flight = cast(Any, Flight.__new__(Flight))
     flight.manually_timed = True
     flight.manual_takeoff_time = takeoff
     flight._flight_plan_builder = MagicMock()
 
-    flight.refresh_flight_plan()
+    flight.refresh_flight_plan_targets()
 
-    flight._flight_plan_builder.regenerate.assert_called_once_with(False)
+    flight._flight_plan_builder.refresh_targets.assert_called_once_with()
+    flight._flight_plan_builder.regenerate.assert_not_called()
     assert flight.manually_timed is True
     assert flight.manual_takeoff_time is takeoff
+
+
+class _SiteWaypointBuilder:
+    """Stands in for WaypointBuilder: a site point with units, else an area."""
+
+    built = 0
+
+    def __init__(self, _flight: object, _targets: object) -> None:
+        type(self).built += 1
+
+    def target_site(self, site: Any, targets: list[Any], _task: str) -> FlightWaypoint:
+        waypoint = FlightWaypoint(
+            "STRIKE SITE", FlightWaypointType.TARGET_POINT, site.position
+        )
+        waypoint.targets = [t.target for t in targets]
+        return waypoint
+
+    def strike_area(self, site: Any) -> FlightWaypoint:
+        return FlightWaypoint(
+            "STRIKE AREA", FlightWaypointType.TARGET_GROUP_LOC, site.position
+        )
+
+
+def _built_strike_builder(
+    monkeypatch: pytest.MonkeyPatch, target: MotorpoolGroundObject
+) -> tuple[Any, Any]:
+    """A Strike builder holding a plan built while the depot was empty."""
+    terrain = Caucasus()
+    flight = _attack_flight(target, FlightType.STRIKE)
+    _SiteWaypointBuilder.built = 0
+    monkeypatch.setattr(
+        "game.ato.flightplans.formationattack.WaypointBuilder", _SiteWaypointBuilder
+    )
+    layout = SimpleNamespace(
+        ingress=FlightWaypoint(
+            "INGRESS", FlightWaypointType.INGRESS_STRIKE, Point(0, 0, terrain)
+        ),
+        targets=[_SiteWaypointBuilder(None, None).strike_area(target)],
+        # A point the player dragged and one they inserted.
+        nav_to=[FlightWaypoint("NAV", FlightWaypointType.NAV, Point(7, 7, terrain))],
+        custom_waypoints=[
+            FlightWaypoint("MINE", FlightWaypointType.CUSTOM, Point(9, 9, terrain))
+        ],
+    )
+    builder = cast(Any, object.__new__(StrikeFlightPlan.builder_type()))
+    builder.flight = flight
+    builder._flight_plan = SimpleNamespace(layout=layout)
+    _SiteWaypointBuilder.built = 0
+    return builder, layout
+
+
+def test_refresh_targets_keeps_hand_edited_waypoints(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The depot filled after the plan was built: the snapshot follows it, the
+    layout and every waypoint outside the target stay the same objects."""
+    target = _motorpool_with_groups(Caucasus(), [])
+    builder, layout = _built_strike_builder(monkeypatch, target)
+    nav, mine, ingress = layout.nav_to[0], layout.custom_waypoints[0], layout.ingress
+
+    _populate_motorpool(target, 3)
+    builder.refresh_targets()
+
+    assert builder._flight_plan.layout is layout
+    assert layout.nav_to == [nav] and layout.custom_waypoints == [mine]
+    assert layout.ingress is ingress
+    assert layout.ingress.targets == target.strike_targets
+    assert [w.name for w in layout.targets] == ["STRIKE SITE"]
+    assert layout.targets[0].targets == target.strike_targets
+
+
+def test_refresh_targets_leaves_a_current_plan_alone(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Same parked vehicles as last time: nothing is rebuilt, and a site point
+    the player moved is kept when only the vehicles on it change."""
+    target = _motorpool_with_groups(Caucasus(), [])
+    builder, layout = _built_strike_builder(monkeypatch, target)
+    _populate_motorpool(target, 3)
+    builder.refresh_targets()
+    site = layout.targets[0]
+    _SiteWaypointBuilder.built = 0
+
+    builder.refresh_targets()
+
+    assert _SiteWaypointBuilder.built == 0
+    assert layout.targets == [site]
+
+    target.strike_targets[0].alive = False
+    builder.refresh_targets()
+
+    assert layout.targets == [site]
+    assert site.targets == target.strike_targets
+    assert len(site.targets) == 2
 
 
 def test_refresh_targets_only_motorpool_packages() -> None:
@@ -397,8 +491,8 @@ def test_refresh_targets_only_motorpool_packages() -> None:
 
     refresh_motorpool_target_flight_plans(cast(Any, game))
 
-    motorpool_flight.refresh_flight_plan.assert_called_once_with()
-    regular_flight.refresh_flight_plan.assert_not_called()
+    motorpool_flight.refresh_flight_plan_targets.assert_called_once_with()
+    regular_flight.refresh_flight_plan_targets.assert_not_called()
 
 
 def _attack_flight(target: Any, flight_type: FlightType) -> Flight:

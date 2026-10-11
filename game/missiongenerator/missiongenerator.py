@@ -78,20 +78,19 @@ def keeps_stored_tacan(cp: TacanContainer) -> bool:
 
 
 def refresh_motorpool_target_flight_plans(game: Game) -> None:
-    """Rebuild flight plans for every package targeting a motorpool.
+    """Update the target snapshot of every plan aimed at a motorpool.
 
-    Motorpool groups are ephemeral: they are rendered only at mission
-    generation, after flight plans were first built (against empty groups)
-    at ATO planning time. Refreshing the affected plans lets their layouts
-    snapshot the freshly rendered units -- e.g. one player-facing waypoint
-    per parked vehicle for a motorpool STRIKE.
+    The populator reconciles a depot's parked vehicles with the reserve at
+    mission generation, after the plans were built. A plan whose snapshot
+    already matches is left alone, and none is re-planned, so a player's
+    dragged or inserted waypoints survive Take Off.
     """
     for coalition in game.coalitions:
         for package in coalition.ato.packages:
             if not isinstance(package.target, MotorpoolGroundObject):
                 continue
             for flight in package.flights:
-                flight.refresh_flight_plan()
+                flight.refresh_flight_plan_targets()
 
 
 class MissionGenerator:
