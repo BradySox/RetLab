@@ -293,7 +293,6 @@ _KNOWN_MOD_STRAGGLER_CLSIDS = frozenset(
         "<CLEAN-200.5>",  # Mi-8MT air-assault ballast marker
         "{2x Mk-82 SWA}",  # F-4E-45MC manufacturer preset
         "{DIS_RKT_90_UG}",  # JF-17 manufacturer preset
-        "{BLG66_BELOUGA}",  # Mirage F1 (Aerges) cluster bomb
         "{KH_59MK2}",  # Su-57 (mod) standoff missile
         "{HOT3D}",  # SA342 Gazelle (mod) ATGM
         "{HOT3G}",  # SA342 Gazelle (mod) ATGM
