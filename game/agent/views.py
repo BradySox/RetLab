@@ -134,6 +134,9 @@ class SquadronView(BaseModel):
     pilots: int
     price: int
     max_ac: Optional[int] = None
+    # Aircraft it can still order: its base's free parking, then its size cap. Not
+    # the budget. A literal zero, like untasked: "no room" is news.
+    can_add: int = 0
     grounded: Optional[bool] = None
     unflyable: Optional[str] = None
 
@@ -169,7 +172,8 @@ class PackageView(BaseModel):
 class TargetView(BaseModel):
     id: str
     name: str
-    kind: str  # sam / ship / building / motorpool / front / convoy / cargo_ship / airfield
+    # sam / ship / building / motorpool / garrison / front / convoy / cargo_ship / airfield
+    kind: str
     suggested_task: str
     pos: list[float]
     category: Optional[str] = None  # buildings only
@@ -179,6 +183,9 @@ class TargetView(BaseModel):
     friendly_cp_id: Optional[str] = None  # fronts: red's side
     enemy_cp_id: Optional[str] = None
     stance: Optional[str] = None  # fronts: red's current stance
+    # Fronts: living enemy ground groups inside the enemy base's capture zone. The
+    # base cannot be taken while any remains. A literal zero means it is open.
+    capture_blocked_by: Optional[int] = None
     group_id: Optional[str] = None  # ships: their naval control point
     iads_role: Optional[str] = None
     composition: Optional[dict[str, int]] = None  # alive units per type
@@ -520,6 +527,16 @@ def idle_flyable_total(game: Game, side: str) -> int:
     )
 
 
+def _squadron_room(sq: Squadron) -> int:
+    """Aircraft the squadron can still order, as AircraftPurchaseAdapter.can_buy counts."""
+    from game.theater.controlpoint import ParkingType
+
+    room = sq.location.unclaimed_parking(ParkingType().from_squadron(sq))
+    if sq.settings.enable_squadron_aircraft_limits:
+        room = min(room, sq.max_size - sq.owned_aircraft - sq.pending_deliveries)
+    return max(0, room)
+
+
 def build_squadron(sq: Squadron, player: Optional[Player] = None) -> SquadronView:
     grounded = _squadron_grounded(sq, player)
     owned = sq.owned_aircraft
@@ -539,6 +556,7 @@ def build_squadron(sq: Squadron, player: Optional[Player] = None) -> SquadronVie
         pilots=sq.number_of_available_pilots,
         price=math.ceil(sq.aircraft.price),
         max_ac=sq.max_size if sq.settings.enable_squadron_aircraft_limits else None,
+        can_add=_squadron_room(sq),
         grounded=grounded or None,
     )
 
@@ -598,7 +616,7 @@ def _build_target(
     if kind == "ship":
         group_id = str(tgo.control_point.id)
         composition = _unit_composition(tgo)
-    elif kind == "sam":
+    elif kind in ("sam", "garrison"):
         composition = _unit_composition(tgo)
     return TargetView(
         id=str(tgo.id),
@@ -664,6 +682,7 @@ def _aircraft_on_hand(cp: ControlPoint) -> Optional[dict[str, int]]:
 
 
 def build_targets(game: Game, side: str) -> list[TargetView]:
+    from game.commander.battlepositions import BattlePositions
     from game.commander.objectivefinder import ObjectiveFinder
 
     player = player_for_side(side)
@@ -691,10 +710,17 @@ def build_targets(game: Game, side: str) -> list[TargetView]:
                     damage=None if cp.runway_is_operational() else "runway closed",
                 )
             )
+    garrisoned: set[str] = set()
     for front in game.theater.conflicts():
         friendly_cp = front.red_cp if player.is_red else front.blue_cp
         enemy_cp = front.blue_cp if player.is_red else front.red_cp
         stance = friendly_cp.stances.get(enemy_cp.id)
+        blocking = BattlePositions.for_control_point(enemy_cp).blocking_capture
+        if str(enemy_cp.id) not in garrisoned:
+            # One base can sit behind two fronts; list its garrison once.
+            garrisoned.add(str(enemy_cp.id))
+            for group in blocking:
+                targets.append(_build_target(game, group, "garrison", "BAI"))
         targets.append(
             TargetView(
                 id=str(front.id),
@@ -705,6 +731,7 @@ def build_targets(game: Game, side: str) -> list[TargetView]:
                 friendly_cp_id=str(friendly_cp.id),
                 enemy_cp_id=str(enemy_cp.id),
                 stance=stance.name if stance is not None else None,
+                capture_blocked_by=len(blocking),
             )
         )
     return targets
