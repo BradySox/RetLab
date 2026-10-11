@@ -381,41 +381,107 @@ A change that hid the rack from the editor and emptied the bay at generation was
 from ED's comment alone and withdrawn the same day, before merge.
 `test_b52h_bay_harpoon_rack_stays_equippable` in `tests/data/test_weapons.py` pins it.
 
-The shipped `Retribution Anti-ship` preset carries the 8 wing missiles and leaves the bay
-empty. Adding the bay rack would double it to 16; that is an open call.
+The shipped `Retribution Anti-ship` preset carried the 8 wing missiles and left the bay
+empty. Since 2026-10-11 (DM call) it carries the bay rack too: 16 Harpoons, the fit flown
+that day.
 
-### Open: a date restriction can leave a bomber unarmed
+### A date restriction never disarms an airframe with no weapon of the day (2026-10-11, DM call)
 
-Not fixed; waiting on a call. With **Restrict weapons by campaign date** on, a store past
-the campaign date is swapped for the first fallback its station can carry, and removed
-when there is none. Each of these bombers carries one missile family and nothing older
-fits its stations, so the whole fit is removed. Measured with `degrade_for_date` at each
-campaign's own start date, shipped presets only:
+With **Restrict weapons by campaign date** on, a store past the campaign date is swapped
+for the first fallback its station can carry, and removed when there is none. Each of
+these bombers carries one missile family and nothing older fits its stations, so the whole
+fit was removed. Measured with `degrade_for_date` at each campaign's own start date,
+shipped presets only:
 
-| Campaign | Date | Airframe | Task | Carries |
+| Campaign | Date | Airframe | Task | Carried before |
 |---|---|---|---|---|
 | Red Tide | 1988 | Tu-95MS | Strike | nothing (Kh-555 is 2004) |
 | Northern Flank 1985 | 1985 | Tu-95MS | Strike | nothing |
 | Northern Flank 1985 | 1985 | Tu-142 | Anti-ship | nothing (Kh-35 is 2003) |
-| Desert Storm | 1991 | H-6J | Strike, DEAD, BAI, Anti-ship | the data-link pod only |
+| Desert Storm | 1991 | H-6J | Strike, Anti-ship | the data-link pod only |
 
-The Tu-160 (Kh-65, 1992) empties the same way before 1992; no date-restricted campaign
-fields it that early. The B-52H, B-1B and Tu-22M3 all fall back to bombs they can carry.
+**The rule** (`Loadout.degrade_for_date`): when the pass leaves no dated weapon on the
+jet, and the airframe has no dated weapon in service on any station
+(`_has_weapon_in_service`), the weapons it removed for want of a fallback go back on. A
+weapon here is a store with a year in `resources/weapons` that is not a targeting or
+jamming pod (`_is_dated_weapon`). A pod past the date is still removed. Every other fit is
+degraded exactly as before.
 
-### Open: an attack action the role does not list
+- It is one rule for every airframe, not a bomber list. Fleet-wide it fires for 7
+  airframes at 1988 and 1991, 8 at 1985 and 13 at 1981: the Tu-95MS, Tu-142, Tu-160, H-6J
+  and [CH] Tu-160M2, and airframes newer than the campaign (RQ-1A, SA 342M, Mirage 2000-5,
+  the Apaches, the OH-58D, the MH-60L DAP, the F-22A). None at 2016 or later.
+- A store with no year (fuel tanks, the H-6J's data-link pod and bombs, WWII bombs) is
+  not counted as a weapon, because the data cannot say what it is. So the H-6J keeps its
+  KD-20 in 1991 although it could carry undated bombs.
+- **Not changed:** an airframe that has period weapons, on a task whose fit has none. The
+  AV-8B's SEAD fit (AGM-122) and the AJS37's OCA/Aircraft fit (BK-90) still strip to
+  nothing in 1985. A first cut of the rule kept those too; it would have put the HARM on
+  an A-7E and the AIM-7M on the AI F-4E in 1968, so it was narrowed before merge.
+- The other fixes considered: back-dating the missiles (changes them for every airframe
+  that carries them), or leaving the sorties empty.
+
+**A fallback loop found on the way.** `R530F EM` and `R530F IR` named each other as
+fallback. `Weapon.fallbacks` walked the chain with no end, so a jet that could equip
+neither (a Mirage 2000C carrying the S-530D before 1988) hung mission generation in the
+fallback search. `R530F IR` no longer names a fallback, the walk stops at a group it has
+already visited, and `test_no_weapon_group_falls_back_in_a_circle` fails on a new loop.
+
+Tests: `tests/ato/test_loadout_date_floor.py`. In-game: row B220.
+
+### Cruise missiles are not sent against groups (2026-10-11, DM call)
 
 `MissionEditor\modules\me_action_db.lua` lists the actions each DCS role may perform.
 Attack Group: CAS, SEAD, Antiship Strike, AFAC. Bombing: Ground Attack, Pinpoint Strike,
 Runway Attack, AFAC. Engage Targets In Zone: CAS, SEAD, Antiship Strike. `configure_task`
-falls back to the airframe's default role when it has none of the wanted ones. None of
-these has been flown, and the Harpoon rack above shows a file's word is not a flown result:
+falls back to the airframe's default role when it has none of the wanted ones.
 
-| Airframe | Task | Role it gets | Store | Action |
-|---|---|---|---|---|
-| Tu-160 | BAI, DEAD | Pinpoint Strike (its only role) | 12 x Kh-65 | Attack Group, not in that role's list |
-| Tu-95MS | DEAD (secondary) | SEAD | 8 x Kh-101 | Attack Group with a cruise missile |
-| H-6J | BAI, DEAD | CAS | 6 x KD-20 | Attack Group with a cruise missile |
+BAI and DEAD order Attack Group. Two bombers flew them with cruise missiles only, and
+neither was ever flown to see a launch:
+
+| Airframe | Task | Role it got | Store |
+|---|---|---|---|
+| Tu-160 | BAI, DEAD | Pinpoint Strike (its only role; Attack Group is not in its list) | 12 x Kh-65 |
+| H-6J | BAI, DEAD | CAS | 6 x KD-20 |
+
+Both tasks were removed from both yamls. The Tu-160 keeps Strike; the H-6J keeps Strike,
+Anti-ship, CAS, OCA/Aircraft and OCA/Runway. Their `Retribution BAI` and `Retribution
+DEAD` presets stay in the payload files and are inert. A campaign that names either
+bomber for DEAD or BAI still gets the squadron; it flies the tasks it has.
+
+The Tu-95MS was never DEAD-capable: its yaml lists DEAD under `secondary_tasks` only, and
+`capable_of` reads `tasks`. Its `Retribution DEAD` preset is inert too.
 
 ### Left alone on purpose
 
 The B-52H and B-1B OCA/Aircraft presets carry the GBU-31(V)3 penetrator; #81 kept them.
+
+## 2026-10-11 addendum — the MiG-29A module, and why "cannot equip" is not "unarmed"
+
+Test 55 (Vectron's Claw turn 1): the app logged `Pylon N cannot equip R-73` and
+`... R-27R` 48 times at Take Off, for four red flights of the full MiG-29A module (pydcs id
+`MiG-29 Fulcrum`), and no MiG-29 fired a missile in 82 minutes. That was first read as
+eight unarmed jets. It was wrong.
+
+- `MiG-29 Fulcrum.lua` shipped (upstream #579) as a copy of the Flaming Cliffs MiG-29A file,
+  with that jet's CLSIDs. pydcs lists only the module's own ids on its pylons, hence the log.
+- The module carries `replace_deprecated_loadout_with`, a table mapping each old id to its
+  new one (`CoreMods\aircraft\MiG-29-Fulcrum\MiG-29-Fulcrum.lua`, line 54), and
+  `MissionEditor\modules\me_mission.lua` applies it when a mission loads. All six ids the file
+  used are in it.
+- DCS's loaded copy of the next mission (`Temp\DCS\tempMission.miz`) showed the MiG-29 CAPs
+  with `{MISSILE_R-73_APU-73}` and `{MISSILE_R-27R_APU-470}`.
+- Not checked: whether a dedicated server, which has no mission-editor loader, does the swap.
+
+The file now uses the ids that table maps to, so nothing changes in the jet (DM call,
+2026-10-11): R-73, R-27R, B-8M1 S-8OFP2, FAB-500 M-62, S-24B and BetAB-500ShP.
+`tests/retlab/test_mig29_fulcrum_loadouts.py` holds every preset store to its pylon. A
+flight planned before the change keeps the stores it was planned with.
+
+**Rule that came out of it:** pydcs's pylon tables and the "cannot equip" line describe
+pydcs's data. Before calling a preset broken, read the module's Lua in the DCS install for
+the store id and for `replace_deprecated_loadout_with`, and read `tempMission.miz` for what
+DCS loaded. A scan of every preset against pydcs's pylons that day found 465 stores on 49
+airframes; 36 were this file's and DCS accepts all 36. One the install does back up: the
+Mi-24P's outboard pylons (2 and 5) take `{2x9M120_Ataka_V_with_adapter}`, the Escort preset
+puts the wingtip store `{2x9M120_Ataka_V}` there, and the Hind has no swap table.

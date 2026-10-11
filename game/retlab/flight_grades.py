@@ -21,11 +21,16 @@ from game.ato.flighttype import FlightType
 if TYPE_CHECKING:
     from game import Game
     from game.ato import Flight
+    from game.ato.flightwaypoint import FlightWaypoint
     from game.debriefing import AirLosses, Debriefing
     from game.sortierecord import SortieRecord
 
 #: A flight "reached the target" when a track sample falls inside this.
 ARRIVAL_RADIUS_M = 5 * 1852.0
+#: The same for an ingress or join point. The AI opens fire on the way in to its
+#: ingress point and turns away short of it: the anti-ship flights of test 55
+#: came no closer than 10 NM.
+RENDEZVOUS_RADIUS_M = 12 * 1852.0
 #: On time within this; the 30 s sample interval is inside it.
 ON_TIME_S = 150.0
 #: Late (or early) past ON_TIME_S but within this is a note, not a fault.
@@ -47,6 +52,14 @@ ATTACK_TASKS = frozenset(
         FlightType.OCA_AIRCRAFT,
         FlightType.ARMED_RECON,
     }
+)
+#: Attack tasks whose weapon can be shot down or decoyed, so firing with no hit
+#: is not the crew's fault.
+STANDOFF_TASKS = frozenset({FlightType.ANTISHIP, FlightType.SEAD})
+#: Tasks timed at the join point: an escort follows its package from there and
+#: never needs to see the target.
+ESCORT_TASKS = frozenset(
+    {FlightType.ESCORT, FlightType.SEAD_ESCORT, FlightType.ESCORT_JAMMER}
 )
 #: Tasks graded on air kills.
 AIR_TASKS = frozenset(
@@ -105,13 +118,25 @@ class FlightFacts:
     naval_kills: int = 0
     graded_on_target: bool = False
     graded_on_air_kills: bool = False
+    #: Anti-ship: a ship sunk counts when the package target is not a site.
+    graded_on_naval_kills: bool = False
+    #: CAS: the front line is not a site, so any ground kill counts.
+    graded_on_ground_kills: bool = False
+    #: Firing with no hit is a fault. False for STANDOFF_TASKS.
+    graded_on_hits: bool = False
+    #: SEAD: a site that goes quiet and survives is not a failure.
+    target_may_survive: bool = False
     early_is_fine: bool = False
+    #: Where the timing was measured: the target, an ingress or join point, a station.
+    place: str = "the target"
     #: Seconds after mission start; None when the plan has no timed TOT.
     planned_tot: Optional[float] = None
-    #: First sample inside ARRIVAL_RADIUS_M; None when it never got there.
+    #: First sample inside the arrival radius; None when it never got there.
     arrival: Optional[float] = None
-    #: Closest sampled approach to the TOT waypoint; None with no track.
+    #: Closest sampled approach to the timing point; None with no track.
     closest_approach_m: Optional[float] = None
+    #: The last moment any aircraft was recorded; None when unknown.
+    mission_end: Optional[float] = None
     target_name: str = ""
     target_total: int = 0
     target_killed: int = 0
@@ -160,39 +185,55 @@ def grade_flight(facts: FlightFacts) -> FlightCard:
     faults: list[str] = []
 
     if facts.planned_tot is not None and facts.closest_approach_m is not None:
-        if facts.arrival is None:
-            nm = facts.closest_approach_m / 1852.0
-            faults.append(f"Never reached the target area (closest {nm:.0f} NM).")
-            score -= 2
-        else:
+        if facts.arrival is not None:
             delta = facts.arrival - facts.planned_tot
             late = delta > 0
             off = delta if late else (0.0 if facts.early_is_fine else -delta)
             if off <= ON_TIME_S:
-                lines.append("On time at the target.")
+                lines.append(f"On time at {facts.place}.")
                 score += 1
             else:
                 word = "late" if late else "early"
-                text = f"At the target {_minutes(off)} {word}."
+                text = f"At {facts.place} {_minutes(off)} {word}."
                 if off <= LATE_FAULT_S:
                     lines.append(text)
                 else:
                     faults.append(text)
                     score -= 1
+        elif facts.mission_end is not None and facts.mission_end < facts.planned_tot:
+            lines.append("Mission ended before its time on target.")
+        elif facts.graded_on_target and facts.shots > 0:
+            # It fired from range, as a standoff weapon is meant to be.
+            pass
+        else:
+            nm = facts.closest_approach_m / 1852.0
+            faults.append(f"Never reached {facts.place} (closest {nm:.0f} NM).")
+            score -= 2
 
+    credited = False
     if facts.graded_on_target and facts.target_total > 0:
         text = (
             f"Package target {facts.target_name}: {facts.target_killed} of "
             f"{facts.target_total} destroyed."
         )
-        if facts.target_killed * 2 >= facts.target_total:
+        if facts.target_may_survive:
             lines.append(text)
-            score += 1
+            credited = facts.target_killed > 0
+        elif facts.target_killed * 2 >= facts.target_total:
+            lines.append(text)
+            credited = True
         elif facts.target_killed > 0:
             lines.append(text)
         else:
             faults.append(f"Package target {facts.target_name} untouched.")
             score -= 1
+    # One point for the result, whichever way it was earned.
+    if facts.graded_on_naval_kills and facts.naval_kills > 0:
+        credited = True
+    if facts.graded_on_ground_kills and facts.ground_kills > 0:
+        credited = True
+    if credited:
+        score += 1
 
     kills = []
     for count, kind in (
@@ -208,11 +249,15 @@ def grade_flight(facts: FlightFacts) -> FlightCard:
         score += 1
 
     if facts.shots:
-        hits = "hit" if facts.hits == 1 else "hits"
-        lines.append(f"{facts.shots} weapons released, {facts.hits} {hits}.")
-        if facts.graded_on_target and facts.shots >= 2 and facts.hits == 0:
+        any_kill = facts.air_kills + facts.ground_kills + facts.naval_kills > 0
+        missed = facts.shots >= 2 and facts.hits == 0 and not any_kill
+        if facts.graded_on_hits and missed:
             faults.append(f"Released {facts.shots} weapons with no hits.")
             score -= 1
+        else:
+            weapons = "weapon" if facts.shots == 1 else "weapons"
+            hits = "hit" if facts.hits == 1 else "hits"
+            lines.append(f"{facts.shots} {weapons} released, {facts.hits} {hits}.")
 
     if facts.lost:
         faults.append(f"Lost {facts.lost} of {facts.size} aircraft.")
@@ -251,8 +296,14 @@ def grade_flight(facts: FlightFacts) -> FlightCard:
 
 
 def _arrival(
-    records: Sequence[SortieRecord], x: float, y: float
+    records: Sequence[SortieRecord], x: float, y: float, radius: float, planned: float
 ) -> tuple[Optional[float], Optional[float]]:
+    """When the flight was at the point, and its closest approach to it.
+
+    The sample inside the radius nearest the planned time, not the first one: a
+    flight that holds or takes off inside the radius and is still there at the
+    planned time was on time, not early.
+    """
     arrival: Optional[float] = None
     closest: Optional[float] = None
     for record in records:
@@ -260,8 +311,8 @@ def _arrival(
             distance = math.hypot(sample.x - x, sample.y - y)
             if closest is None or distance < closest:
                 closest = distance
-            if distance <= ARRIVAL_RADIUS_M and (
-                arrival is None or sample.time < arrival
+            if distance <= radius and (
+                arrival is None or abs(sample.time - planned) < abs(arrival - planned)
             ):
                 arrival = sample.time
     return arrival, closest
@@ -326,11 +377,33 @@ def _package_target_name(flight: Flight) -> str:
     return str(getattr(target, "name", "") or "")
 
 
+def _timing_point(flight: Flight) -> tuple[FlightWaypoint, str, float]:
+    """The waypoint a flight's timing is measured at, its name, and the radius.
+
+    An attack flight is timed at its ingress point and an escort at the join:
+    the target itself is past weapon range for a standoff shooter, and a ship
+    has moved off its planned position by the time anyone arrives.
+    """
+    plan = flight.flight_plan
+    layout = getattr(plan, "layout", None)
+    if flight.flight_type in ATTACK_TASKS:
+        ingress = getattr(layout, "ingress", None)
+        if ingress is not None:
+            return ingress, "the ingress point", RENDEZVOUS_RADIUS_M
+    if flight.flight_type in ESCORT_TASKS:
+        join = getattr(layout, "join", None)
+        if join is not None:
+            return join, "the join point", RENDEZVOUS_RADIUS_M
+    place = "its station" if flight.flight_type in STATION_TASKS else "the target"
+    return plan.tot_waypoint, place, ARRIVAL_RADIUS_M
+
+
 def facts_for(
     flight: Flight,
     records: Sequence[SortieRecord],
     debriefing: Debriefing,
     mission_start: Optional[datetime],
+    mission_end: Optional[float] = None,
 ) -> FlightFacts:
     # getattr: mypy cannot infer Debriefing.air_losses through the import cycle.
     air_losses: AirLosses = getattr(debriefing, "air_losses")
@@ -350,13 +423,14 @@ def facts_for(
     planned_tot: Optional[float] = None
     arrival: Optional[float] = None
     closest: Optional[float] = None
+    place = "the target"
     try:
-        waypoint = flight.flight_plan.tot_waypoint
+        waypoint, place, radius = _timing_point(flight)
         tot = flight.flight_plan.tot_for_waypoint(waypoint)
         if tot is not None and mission_start is not None:
             planned_tot = (tot - mission_start).total_seconds()
             arrival, closest = _arrival(
-                records, waypoint.position.x, waypoint.position.y
+                records, waypoint.position.x, waypoint.position.y, radius, planned_tot
             )
     except Exception:
         logging.debug("No TOT to grade for %s", flight, exc_info=True)
@@ -381,7 +455,13 @@ def facts_for(
         naval_kills=sum(record.naval_kills for record in records),
         graded_on_target=graded_on_target,
         graded_on_air_kills=flight.flight_type in AIR_TASKS,
+        graded_on_naval_kills=flight.flight_type is FlightType.ANTISHIP,
+        graded_on_ground_kills=flight.flight_type is FlightType.CAS,
+        graded_on_hits=graded_on_target and flight.flight_type not in STANDOFF_TASKS,
+        target_may_survive=flight.flight_type is FlightType.SEAD,
         early_is_fine=flight.flight_type in STATION_TASKS,
+        place=place,
+        mission_end=mission_end,
         planned_tot=planned_tot,
         arrival=arrival,
         closest_approach_m=closest,
@@ -424,12 +504,17 @@ def flight_cards(game: Game, debriefing: Debriefing) -> list[FlightCard]:
         logging.exception("Could not work out mission start for flight grades")
         mission_start = None
 
+    # No record says when the mission stopped; the last sweep is within 30 s of it.
+    mission_end = max((record.last_seen for record in records), default=None)
+
     cards = []
     for flight, flight_records in _blue_flights(records, debriefing).values():
         if not any(record.flew for record in flight_records):
             continue
         try:
-            facts = facts_for(flight, flight_records, debriefing, mission_start)
+            facts = facts_for(
+                flight, flight_records, debriefing, mission_start, mission_end
+            )
         except Exception:
             logging.exception("Could not grade %s", flight)
             continue

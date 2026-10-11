@@ -1,0 +1,4 @@
+* **[Mission Generation]** With Restrict weapons by campaign date on, an aircraft with no weapon in service at the campaign date keeps its loadout instead of flying empty. The Tu-95MS (Red Tide, Northern Flank 1985), the Tu-142 (Northern Flank 1985) and the H-6J (Desert Storm) flew with empty pylons.
+* **[Mission Generation]** Fixed a hang in mission generation with Restrict weapons by campaign date on: the R530F EM and R530F IR missiles named each other as fallback, so a Mirage 2000C carrying the S-530D before 1988 never finished its loadout.
+* **[Units/Factions]** The B-52H's default anti-ship loadout carries 16 Harpoons: 8 x AGM-84D on the wing racks and 8 x AGM-84A in the bay. It carried the wing racks only.
+* **[Units/Factions]** The Tu-160 and the H-6J are no longer tasked BAI or DEAD. Their only loadout for those tasks was cruise missiles. Both keep Strike; the H-6J also keeps Anti-ship, CAS, OCA/Aircraft and OCA/Runway.

@@ -195,7 +195,11 @@ class Weapon:
     def fallbacks(self) -> Iterator[Weapon]:
         yield self
         fallback: Optional[WeaponGroup] = self.weapon_group
-        while fallback is not None:
+        # Two groups that name each other must end the walk, not loop it: a jet
+        # that could carry neither hung mission generation (R530F EM/IR, 2026-10).
+        seen: set[str] = set()
+        while fallback is not None and fallback.name not in seen:
+            seen.add(fallback.name)
             yield from fallback.weapons
             fallback = fallback.fallback
 
@@ -464,7 +468,11 @@ class Pylon:
         self, weapon: Weapon, settings: Optional[Dict[str, Any]] = None
     ) -> PydcsWeaponAssignment:
         weapon_data = dict(weapon.pydcs_data)
-        # Add settings if provided and weapon supports them
+        # pydcs keeps the weapon's settings *menu* under this key (a list of option
+        # descriptors). Written to the mission it is a settings table holding none of
+        # the real keys; with no table DCS applies the weapon's defaults (test 55).
+        if isinstance(weapon_data.get("settings"), list):
+            del weapon_data["settings"]
         if settings and weapon.has_settings():
             weapon_data["settings"] = settings
         return self.number, weapon_data

@@ -1,0 +1,16 @@
+date: 2026-10-11
+title: Report card grades are fairer to standoff flights
+change: >-
+  A report card now times an attack flight at its ingress point and an
+  escort at the join point. It used to want every flight within 5 NM of
+  the target, so Harpoon and HARM shooters and their escorts were all
+  marked "Never reached the target area". A flight due on target after
+  the mission ended is not faulted for it. A ship sunk now counts for
+  an Anti-ship flight, and a ground kill for a CAS flight. Anti-ship
+  and SEAD flights are not faulted for firing with no hits.
+watch: >-
+  Fly a turn with an Anti-ship or SEAD package and accept the results.
+  Their cards read "On time at the ingress point" and the escorts read
+  "On time at the join point". End a mission early and a flight that
+  had not reached its time reads "Mission ended before its time on
+  target".

@@ -1221,6 +1221,8 @@ circle would obviously be fake. Nothing to fly. See features doc §79 and §3.
 
 ### B39 — Cross-turn naval magazines · §81 · ◐ PARTIAL
 
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the release half passes again; the carry-over cannot be read.** Seven groups armed. Weapons-free came 131 s to 815 s into the mission, one group at a time. ROACH (Kuznetsov) and its escort each fired 6 P-700s and logged `salvo complete (6 this mission) -- holding`. When the Harpoon raid arrived both logged `under attack -- released weapons-free` and fired the rest: 12 and 20, matching the recording and `naval_magazines_state`. Both ships sank, so there is no next-turn count to check.
+
 **2026-09-23 — new leg: the SITREP line.** `winchester_lines` is now wired. **Pass:** after a mission where a blue group fires anti-ship missiles, the next turn's SITREP (kneeboard band, web LAST TURN, Qt debrief) reads `<group>: N anti-ship missile(s) fired, M left`, or `WINCHESTER` at zero. **Fail:** no line, or a red group listed.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged.** Every mission since test 11 released on schedule and fired no anti-ship missile, so the salvo cap has still not been exercised; Vectron's Claw turn 3 remains the mission that would.
@@ -7049,6 +7051,8 @@ standing patrol; see the design note.
 
 ### B122 — A survivor lands where his own chute came down, not where another crew's did · CSAR (#929 adoption) · ◐ PARTIAL
 
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **passes again.** Four ejections. Three chutes landed on land and `state.json` carries each touchdown to the metre against the recording. The fourth was still under canopy when the mission stopped and kept its ejection point, with no `landed` flag.
+
 **2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **both halves hold for every ejection.** 18 `ejection_events`, all `landed`, 0.3–14.7 km from where the aircraft's track ended; one two-seat F-15E among them. In the turn-2 save every survivor from an ejection sits on his landing point (0–750 m). Separate from this row: nine blue survivors had no ejection record and were placed by the survival roll near their package's target, 23–42 km from the nearest loss of their type — see the test 39 summary.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the per-crew match is still not built and no capture since test 33 exists.
@@ -8305,6 +8309,8 @@ range, on New Game and on loading an older save.
 
 ### B134 — Front-line CAS takes a Harrier SEAD escort, and no Harrier escorts a deep package · §69 · ◐ PARTIAL (2026-09-22, test 38 ATO read; was ☐ UNTESTED)
 
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the plan half passes on a second campaign; the flown half was not reached.** `front_line_sead_escort` on, planner behavior at its default. The one front-line CAS package (2 A-10C, UNOMIG Sector HQ/Sukhumi) carries a 2-ship AV-8B SEAD Escort from LHA-1 with Sidearms and Mavericks; red's front fields Tunguskas. The FROG strike and the anti-ship raid carry no Harrier escort. The mission stopped at 12:52 with the escort 81 NM and the A-10s 94 NM short; their TOT was 13:11.
+
 **2026-09-23, trigger widened — needs a re-read.** Test 39 (Graveyard of Empires, `asdasd.retribution` turn 2) repeated test 38's miss: the CAS package proposed its SEAD Escort, no fixed SAM ring covered FLOT START → FLOT END, and it flew A-10s only while red's front-line SA-19s fired seven 9M311s. The escort is now also needed when the enemy control point deploys radar air defense to the front (a unit type in `UNITS_WITH_RADAR` with an anti-air class: Tunguska, Osa, Tor, Shilka, Gepard and the like; not Strela, Avenger, ZU-23 or 2S38). Re-planned headlessly on that save: the CAS package carries 2 AV-8B SEAD Escorts; no BAI, strike, OCA, DEAD or Armed Recon package carries a Harrier SEAD escort. The front half of **Pass** now reads "whose route is covered by a radar SAM, or whose enemy front carries radar air defense". Re-read the ATO on the next turn with the planner suite on, then fly it.
 
 **2026-09-22, test 38 ATO read** (Long Road to H3 turn 2, `brady.retribution` saved 18:40, main `983ba7a52`, RetLab planner suite on) — **the deep half passes; the front half was not reached, correctly.** DM's read: looks good. From the save: all seven deep SEAD Escorts are Vipers (480th FS) or Hornets (VFA-192, VFA-37) — MOCKINGBIRD and CICADA BAI, the Kharab Ishk Armed Recon, IBIS and FANGTOOTH strikes, SPARROW and QUAGGA DEAD — and no Harrier flies anywhere; VMA-231 sits on LHA-1 with 8 of 8 untasked. The one CAS package (2 Apaches, Gaziantep/Kharab Ishk) proposes the SEAD Escort, but the planner's need check reads only the escorted leg, FLOT START → FLOT END, and no radar SAM covers it: the nearest radar-SAM zone is 10.3 km off and no red radar-SAM site is within 30 km of the front. Re-planned headlessly three times with the same result. VMA-231 is eligible for that package (196 NM, inside the 250 NM mission range). The front half needs a turn with a radar SAM over the FLOT.
@@ -8452,7 +8458,9 @@ headlessly: 2,349 NM inside the ring before, 113 NM after.
   split up at the detour (they should share the package's points); a detour through a
   neighboring country (the navmesh ignores borders).
 
-### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ◐ PARTIAL (2026-09-23, test 40; was ☐ UNTESTED)
+### B142 — A survivor with no ejection comes down where his jet crashed · CSAR (#929 adoption) · ☑ VERIFIED (2026-10-11, test 55; was ◐ PARTIAL)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **both halves pass.** `state.json` has 13 `crash_positions` for 13 `crash_events`, the same names. In the turn-2 save the one survivor with no ejection (a Su-33 destroyed on the Kuznetsov's deck when the ship sank) sits on that jet's crash position to the metre, in the water at the sinking point. The other survivor ejected and sits 1.2 km from his recorded chute landing. Neither is on a package target.
 
 **2026-09-23, test 40** (Afghanistan — Graveyard of Empires turn 2, 55 min, no player, `Desktop\New test\40`) — **the recording half passes; the placement half needs turn 3.** `state.json` carries 32 `crash_positions` for 32 `crash_events`, the same names. Each sits 0–5.1 km from where Tacview shows that group's aircraft hit; the gap is the fall. The survivors on this turn's map were placed by the turn-2 debrief, which ran on the build before #1073, so they still sit where test 39 left them (six F-15E crew 21–27 km from the nearest recorded loss). Open turn 3's map to finish the row.
 
@@ -8499,7 +8507,9 @@ Built 2026-09-23 from the module manuals. Unit-tested. Check whichever you fly; 
 - **Fail signatures:** can't transmit on the flight frequency; pod laser 1688; a UHF frequency on
   a Mustang button; no ST/IP; a TADS cue buried in the hillside.
 
-### B145 — A busy field's later departures spawn early enough to make their takeoff · §104 · ☐ UNTESTED
+### B145 — A busy field's later departures spawn early enough to make their takeoff · §104 · ◐ PARTIAL (2026-10-11, test 55; was ☐ UNTESTED)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the land half passes; the carrier deck is outside the rule.** The mission began 11:30 against a 12:00 turn clock, the 30-minute cap. Vaziani launched 14 F-22s: every lead was airborne before its planned takeoff, and the one flight queued behind the others (BARCAP|19) spawned at +6 min, its planned startup. Nothing spawned at 0:00:00 without a startup at that time. On CVN-72, 24 Hornets shared one startup (12:08:47); DCS released them to the deck over 9 minutes and the last flight was airborne 18 minutes after its planned takeoff. That is the accepted B17 deck behavior, not this row's.
 
 Built 2026-09-23 from test 39: at Kandahar 34 jets spawned inside 10 min and the last got
 off +19 min late; the human waited 12 min for taxi clearance. Always on. Unit-tested;
@@ -8839,7 +8849,9 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
-### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ☐ UNTESTED
+### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ◐ PARTIAL (2026-10-11, test 55; was ☐ UNTESTED)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the same channel on two generations, on a map without the collision.** This turn was generated at 16:07 and again at 17:02: CVN-72 72X, LHA-1 41X, Kuznetsov 36X both times, ICLS and Link 4 unchanged. Caucasus has no hull channel to collide with, so the Persian Gulf and Afghanistan case is still owed.
 
 Built 2026-09-29 from test 47. Where a map owns a carrier's hull channel, the boat's TACAN
 flipped between two neighbours on every generation (CVN-71 on Persian Gulf: 69X, 72X, 69X).
@@ -8852,6 +8864,8 @@ The mission generator reserved the boat's own last value before re-deriving it. 
 - **Also:** a TACAN set by hand in the carrier's base dialog is kept.
 
 ### B157 — A carrier joins its side's Skynet as a radar · §65 / Skynet · ☐ UNTESTED
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **not exercised.** `dcs.log` has no `EW Radar that does not exist` line, but neither side's IADS data named a ship in this campaign (blue: one SHORAD group; red: ten EWR entries, none the Kuznetsov), so nothing reached the renamed-flagship path. Needs a campaign whose IADS network lists a carrier.
 
 Built 2026-09-29 from test 47's `dcs.log` (the line is in tests 43 and 46 too): §65 names
 the flagship by its hull, but the IADS data still sent Skynet the id-prefixed theater unit
@@ -8868,8 +8882,10 @@ Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flow
 - **Setup:** fly any turn with a player strike or SEAD flight and let a few AI packages fly.
   Accept the results. Note your actual time at the target and what you hit.
 - **Pass:** the debrief has a Flight report cards box, your flight first. Your card's timing
-  matches when you were over the target (within about a minute), the package target count
-  matches the map, and shots and hits match what you released.
+  matches when you reached the ingress point (within about a minute; the join point for an
+  escort, the station for a CAP), the package target count matches the map, and shots and
+  hits match what you released. A flight that fired Harpoons or HARMs from range is not
+  marked "Never reached".
 - **Fail signatures:** no box at all (no sortie records reached `state.json`, see §91); every
   flight "Never reached the target area" (the TOT waypoint or mission start is off, check
   §104's early start); timing out by exactly the early-start shift (planned TOT measured from
@@ -8990,7 +9006,9 @@ Shahed 238 launchers replaced the third-party ones (B149), behind the pack's own
   dove in. Each three-round salvo landed within ~0.1 NM of itself; impacts sat 0.02-1.1 NM from
   the targeted carriers, a Patriot site and an armour group (RetLab aims at the field's spot
   plus up to 1.35 NM of scatter). **Passes.**
-### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ☐ UNTESTED
+### B167 — Every SAM site spawns one guidance radar, and SA-5/SA-2 sites twice the launchers · §60 removal · ◐ PARTIAL (2026-10-11, test 55; was ☐ UNTESTED)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **one guidance radar on the sites this campaign has.** Two S-300 sites (one 30N6 or 40B6M each), one SA-6 (one 1S91) and three SA-11 sites (no separate track radar). No SA-5 or SA-2 in this campaign, so the doubled-launcher half is not shown, and nobody looked at the sites for a launcher inside another unit.
 
 Built 2026-09-29 on the DM's call: §60's second guidance radar removed from every SAM layout, and
 the SA-5 layouts doubled to 16 launchers (circle) or 12 (semicircle, and Red Tide's battalions),
@@ -9002,7 +9020,9 @@ the SA-2 Battery layouts to 8 or 12 and the mixed site's SA-2 slot to 6, on thei
 - **Fail signatures:** a launcher spawned into another unit (the extra ring is too close); an SA-5
   that still never fires at close targets (the cause was not the second Square Pair; see test 47's
   SA-5 finding).
-### B165 — Two QRA scrambles from one field in the same second do not collide · §1 · ☐ UNTESTED
+### B165 — Two QRA scrambles from one field in the same second do not collide · §1 · ☑ VERIFIED (2026-10-11, test 55; was ☐ UNTESTED)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **passes.** Red QRA scrambled two pairs from Sochi-Adler. The first pair appeared 30 s apart and the second in the same second (12:48:10) at the same point; both times one jet was at 2,584 ft and the other at 3,076 ft. No jet was lost at spawn: the first pair flew 8 minutes before SM-2s killed them at 32,000-35,000 ft, and the second pair was alive at mission end.
 
 Built 2026-09-29 after test 48 (Kerman: two F-14 wingmen air-started on the same spot and collided). Harness-tested (`tests/lua/test_intercept_filter.py`); never flown.
 
@@ -9050,7 +9070,9 @@ Built 2026-09-29 on the DM's call: new flights default to Pilot loads it. Tested
 - **Setup:** pass a turn with DTC data cartridges on, and take a player Viper or Hornet cold without touching its DTC tab.
 - **Pass:** the flight's DTC tab reads Pilot loads it; in the jet the cartridge is listed on the DTC page and nothing is loaded until you load it; loading it brings in the route and the rest.
 - **Fail signatures:** the cartridge loads itself at spawn (the default did not reach the unit); the cartridge is missing from the jet's list.
-### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ☐ UNTESTED
+### B169 — Tankers, AWACS and the first BARCAP wave are on station from mission start · §6 · ◐ PARTIAL (2026-10-11, test 55; was ☐ UNTESTED)
+
+**2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the first-wave half passes; no relief wave to compare.** In the save every tanker, AWACS and BARCAP package is ASAP. The mission started 30 min early (B197) and all six tankers and AWACS were on their tracks at 11:30; every first BARCAP wave was airborne by 11:40. Each station had one wave (60-minute CAPs), so the relief-wave line is not shown.
 
 Built 2026-09-29 on the DM's call: every auto-planned tanker and AWACS package, and each station's first BARCAP wave, is an ASAP package. Tankers used to be spread at random through the mission. Unit-tested (`tests/commander/test_support_asap.py`, `tests/test_missionscheduler.py`); never flown.
 
