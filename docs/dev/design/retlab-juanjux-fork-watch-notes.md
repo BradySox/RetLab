@@ -634,6 +634,14 @@ and he has flown it. The objective half alone (rated targets, no prizes) sits ne
 asked. His `WP` / `Wht Phos` rocket pattern was not taken (DM call): the §38 FAC(A)
 uses white phosphorus rockets, and `M156` is exempted with them.
 
+### Adopted here 2026-10-10 — GAU-8 ammunition (§73)
+
+#515 taken: the Loadout editor picks Combat Mix, HEI or Target Practice for the A-10A,
+A-10C and A-10C II, carried on `Loadout.ammo_type` and written to the unit's
+`payload.ammo_type`. His editor restyle was not taken; the save path is our §73
+`loadout_defaults.write_payload_entry`. The indices were checked against the local DCS
+install the same day. He had not flown it; row B210.
+
 ## Sweep 2026-10-06 — four fixes adopted
 
 Each was checked live in RetLab main @ `01a0b3a4d` before it was ported.
