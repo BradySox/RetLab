@@ -2690,6 +2690,24 @@ defect that reached a build, most of them found by flying.
   package, not a lost campaign. This is checklist row **B50** failing in the worst
   available way.
 
+- **The planner never targeted enemy convoys or cargo ships (fixed 2026-10-10).**
+  `ObjectiveFinder.convoys()` and `cargo_ships()` asked the planner's *own* coalition for
+  transports heading to the enemy's front-line base, which is always empty, so
+  `InterdictReinforcements` had nothing to plan for either side. Both now read the
+  opponent's transfers, and `cargo_ships()` honours `perf_disable_cargo_ships` as
+  `convoys()` honours its twin. The bug is upstream's and Liberation's too. Three fixes
+  rode with it: `AntiShipIngressBuilder` had no branch for a cargo ship (a
+  `MultiGroupTransport`, whose mission group carries its name), so an anti-ship flight
+  sent at one got no attack task; `CargoStopBuilder` wrote an airfield id for a carrier or
+  LHA stop, where a ship is landed on by unit id as `LandingPointBuilder` does; and buying
+  or selling a ground object red was targeting re-planned both sides, because
+  `QGroundObjectMenu` passed a `Player` (always truthy) as `for_red` / `for_blue`.
+  Ported from rmac7664/dcs-retribution (`fix/upstream-airlift-refunds`); its refund and
+  transfer-label fixes were already ours (PR #395). Tests:
+  `tests/commander/test_enemy_transport_targets.py`,
+  `tests/missiongenerator/aircraft/test_cargostop.py`, `test_antishipingress.py`. Row
+  **B212**.
+
 ### Debrief and reporting
 
 - **Destroyed strike targets never reaching the campaign — the results commit used a stale
