@@ -231,3 +231,27 @@ def test_cas_and_a_strike_mass_into_one_window() -> None:
     _coordinate([sead, cas, strike])
     assert cas.time_over_target == _tot(32)
     assert strike.time_over_target == _tot(32)
+
+
+def test_cas_is_not_held_past_the_mission_length() -> None:
+    # Northern Flank 1985: the DEAD flew 320 NM and arrived after the mission
+    # length, and the CAS based 88 NM from the front was held behind it.
+    dead = _package(FlightType.DEAD, _tot(70), _sam_target())
+    cas = _package(FlightType.CAS, _tot(10), _front_line(IN_RING))
+    _coordinate([dead, cas])
+    assert cas.time_over_target == _tot(10)
+
+
+def test_cas_still_waits_for_a_dead_inside_the_mission_length() -> None:
+    # _coordinate plans a 60-minute mission; the window opens at minute 60.
+    dead = _package(FlightType.DEAD, _tot(58), _sam_target())
+    cas = _package(FlightType.CAS, _tot(10), _front_line(IN_RING))
+    _coordinate([dead, cas])
+    assert cas.time_over_target == _tot(60)
+
+
+def test_a_strike_still_waits_for_a_dead_past_the_mission_length() -> None:
+    dead = _package(FlightType.DEAD, _tot(70), _sam_target())
+    strike = _package(FlightType.STRIKE, _tot(10), _ground_target(IN_RING))
+    _coordinate([dead, strike])
+    assert strike.time_over_target == _tot(72)

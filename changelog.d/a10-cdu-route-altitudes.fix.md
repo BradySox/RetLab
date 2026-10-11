@@ -1,0 +1,1 @@
+* **[Mission Generation]** A player A-10C's CDU keeps each route waypoint's planned altitude and numbers waypoints as the F10 map and kneeboard do. Saved points carry the elevation entered for them, and the route uses 3D VNAV. Ported from juanjux/dcs-escalation.

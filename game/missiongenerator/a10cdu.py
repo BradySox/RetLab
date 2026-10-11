@@ -7,21 +7,22 @@ when the player goes to the DTS page and uploads it by hand.
 What it does have is the state "Prepare Mission" saves. Flying a mission and saving it
 writes the whole cockpit into the .miz, one file per subsystem, and the navigation
 computer's is ``Avionics/<type>/<unit id>/CDU/SETTINGS.lua``. Written from outside it
-is read exactly the same, which gives the saved points everything they need:
+is read exactly the same, which gives the saved points what they need:
 
-* they go in the **waypoint database** rather than on the flight plan, so the mission
-  route is untouched and the MSN flight plan draws no line to them;
-* they get a **flight plan of their own**, so stepping through them is a switch;
-* and the aircraft works out **how high the ground is under each one** itself.
+* they go in the **waypoint database** rather than on the flight plan, so the MSN
+  flight plan draws no line to them;
+* they get a **flight plan of their own**, so stepping through them is a switch.
 
-That last one took finding. The elevation written into the file is ignored -- the CDU
-recomputes it from the terrain -- but only when the digital terrain system is on, and
-that is a switch in this same file. Without ``dtsas_func`` every waypoint in the
-aircraft reads ``EL: *****``, which is what a file with only the waypoints in it gets.
+Only the saved points are written. DCS builds point 0 and the route itself, with each
+waypoint's planned altitude; writing the route here as well made the aircraft replace
+those altitudes with terrain heights and added a second INIT POSIT that pushed every
+number up by one (juanjux/dcs-escalation #510, #511, flown there).
 
 Measured against DCS's own output rather than guessed: elevations are metres, the
 number a waypoint ends up with is its position in the table rather than the
 ``wpt_num`` written beside it, and the aerodromes DCS loads itself occupy 51 to 71.
+
+Ported from juanjux/dcs-escalation (LGPL-3.0).
 """
 
 from __future__ import annotations
@@ -32,11 +33,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Sequence
 
 from dcs.mapping import Point
+from dcs.point import PointProperties, VNav
 
 from game.ato.savedpoints import SavedPoint
 
 if TYPE_CHECKING:
+    from dcs.unitgroup import FlyingGroup
+
     from game import Game
+    from game.ato.flight import Flight
 
 #: The aircraft whose cockpit keeps its navigation computer here.
 AIRCRAFT = {"A-10C", "A-10C_2"}
@@ -57,17 +62,32 @@ EXTRA_PLAN_NAME = "EXTRA"
 
 TAB = "\t"
 
+FEET_TO_METRES = 0.3048
+
 
 def numbers_for(route_length: int, count: int) -> list[int]:
     """The numbers the saved points end up with in the cockpit.
 
     The aircraft numbers a waypoint by where it sits in the table, not by the
-    ``wpt_num`` beside it, so the route fills the first places and the saved points
-    follow. The route counts from 0, which puts the first saved point one past the
-    end of it rather than on it.
+    ``wpt_num`` beside it. DCS creates point 0 itself, so only route points 1 onward
+    occupy table slots; saved points follow the last route point.
     """
-    first = route_length + 1
+    first = max(1, route_length)
     return list(range(first, first + count))
+
+
+def enable_route_vnav(flight: Flight, group: FlyingGroup[Any]) -> None:
+    """Give a player A-10's route the 3D VNAV a Mission Editor route has.
+
+    Applied after the whole route is built, spawn point included. Altitudes and
+    every other waypoint property are left alone.
+    """
+    if not flight.client_count or flight.unit_type.dcs_unit_type.id not in AIRCRAFT:
+        return
+    for waypoint in group.points:
+        if waypoint.properties is None:
+            waypoint.properties = PointProperties()
+        waypoint.properties.vnav = VNav.V3D
 
 
 def _identifier(point: SavedPoint, number: int) -> str:
@@ -84,7 +104,7 @@ def _attributes(depth: int) -> list[str]:
         f'{pad}{TAB}["attr_steer"]=0,',
         f'{pad}{TAB}["attr_angle3d"]=0,',
         f'{pad}{TAB}["attr_scale"]=0,',
-        f'{pad}{TAB}["attr_vnav"]=0,',
+        f'{pad}{TAB}["attr_vnav"]=1,',
         f'{pad}{TAB}["attr_vangle"]=1,',
         pad + "},",
     ]
@@ -111,23 +131,21 @@ def _position(latlng: Any) -> list[str]:
     ]
 
 
-def _waypoint(slot: int, number: int, name: str, latlng: Any) -> list[str]:
-    """One entry of the waypoint database.
-
-    No elevation is written: the aircraft recomputes it from the terrain, which is
-    DCS's own height for the spot rather than the real world's, and that is the
-    number a weapon wants.
-    """
+def _waypoint(slot: int, name: str, latlng: Any, elevation_m: float) -> list[str]:
+    """One entry of the waypoint database, with its MSL elevation in metres."""
+    # CR has to be set for the aircraft to show the elevation at all: without it EL
+    # reads asterisks even with a nonzero value written (flown, escalation #517).
     return (
         [
             f"{TAB * 2}[{slot}]=",
             TAB * 2 + "{",
             f'{TAB * 3}["wpt_cr"]=1,',
             f'{TAB * 3}["wpt_elev_present"]=1,',
-            f'{TAB * 3}["wpt_num"]={number},',
+            f'{TAB * 3}["wpt_num"]={slot},',
             f'{TAB * 3}["wpt_dtot_present"]=0,',
             f'{TAB * 3}["div_present"]=0,',
             f'{TAB * 3}["wpt_id"]="{name}",',
+            f'{TAB * 3}["wpt_elev"]={elevation_m:.6f},',
         ]
         + _attributes(3)
         + _position(latlng)
@@ -159,26 +177,20 @@ def _flight_plan(numbers: Sequence[int]) -> list[str]:
 
 
 def settings(flight: Any, terrain: Any) -> str:
-    """The navigation computer for one aircraft, as its SETTINGS.lua."""
-    route = list(flight.waypoints)
+    """The saved points for one aircraft, as its SETTINGS.lua.
+
+    The route is not written: see the module docstring.
+    """
     saved = [p for p in flight.saved_points if p.kind.is_navigation]
-    numbers = numbers_for(len(route), len(saved))
+    numbers = numbers_for(len(flight.waypoints), len(saved))
 
     entries: list[str] = []
-    for slot, (number, waypoint) in enumerate(enumerate(route), start=1):
-        name = "INIT POSIT" if number == 0 else str(waypoint.display_name)
+    for number, point in zip(numbers, saved):
         entries += _waypoint(
-            slot,
-            number,
-            name.upper()[:NAME_LENGTH],
-            Point(waypoint.position.x, waypoint.position.y, terrain).latlng(),
-        )
-    for place, (number, point) in enumerate(zip(numbers, saved)):
-        entries += _waypoint(
-            len(route) + place + 1,
             number,
             _identifier(point, number),
             Point(point.x, point.y, terrain).latlng(),
+            point.altitude_ft * FEET_TO_METRES,
         )
 
     return "\n".join(
@@ -187,8 +199,7 @@ def settings(flight: Any, terrain: Any) -> str:
             "{",
             f'{TAB}["coords_format"]=0,',
             f'{TAB}["initial_number"]=0,',
-            "\t-- The digital terrain system, which is what gives every waypoint the",
-            "\t-- height of the ground under it. Without it the CDU shows EL: *****.",
+            "\t-- Terrain ranging stays on for points made or edited in the cockpit.",
             f'{TAB}["dtsas_func"]=1,',
             f'{TAB}["dtsas_cr"]=1,',
             f'{TAB}["dtsas_owc"]=100,',

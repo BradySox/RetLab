@@ -63,7 +63,9 @@ so the number on the kneeboard is the jet's:
 - Hornet, Viper, Apache: after the route (the route's cockpit length, skips removed).
   They write the whole navigation set, so points need the **Flight plan** section on.
 - Tomcat: plan 3, numbered from 1; independent of the Flight plan section.
-- A-10: his `numbers_for`.
+- A-10: after the route DCS builds itself. The route is rows 0 to N-1 (0 is the
+  aircraft's own INIT POSIT), so the first saved point is N (`numbers_for`). The CDU
+  file holds the saved points only, each with the altitude typed for it; see §8.
 - A point that did not fit prints `-`. An orbit prints `ORB` with heading and length.
   Drawings are listed on the first page by their first corner.
 
@@ -145,10 +147,18 @@ Offline it returns nothing. Only tile indices are sent. His design, kept.
   the whole navigation set, so saved points alone would erase the route.
 - **Skips are stored as waypoint-type names**, never indices — a re-plan rebuilds the
   waypoints.
+- **The A-10's CDU file never carries the route** (2026-10-10, his #510, #511, #517,
+  flown on his install). Written there, the aircraft replaced each waypoint's planned
+  altitude with the terrain height, and a second INIT POSIT in slot 1 put every CDU
+  number one above the F10 map and the kneeboard. Each saved point keeps `wpt_cr=1`:
+  without it EL reads asterisks whatever elevation is written. A player A-10's route
+  points are set to 3D VNAV (`enable_route_vnav`), as a Mission Editor route has.
 
 ## 9. Needs an in-game pass
 
 - **B135** — STPT N in the jet is the point the kneeboard numbers N; SEQ1 still the route.
+- **B209** — the A-10: planned altitudes on the route, the saved point at the
+  kneeboard's number with its own elevation.
 - **B136** — the DTC options: hand-load leaves the cartridge unloaded until selected; a
   skipped type is gone from the jet with the numbers closed up; drawings and orbits show
   on each jet's page.

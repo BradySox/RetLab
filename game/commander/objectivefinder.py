@@ -281,17 +281,21 @@ class ObjectiveFinder:
     def convoys(self) -> Iterator[Convoy]:
         if self.game.settings.perf_disable_convoys:
             return
+        # The enemy's convoys, heading for its own front-line bases.
         for front_line in self.front_lines():
             yield from self.game.coalition_for(
-                self.is_player
+                self.is_player.opponent
             ).transfers.convoys.travelling_to(
                 front_line.control_point_hostile_to(self.is_player)
             )
 
     def cargo_ships(self) -> Iterator[CargoShip]:
+        if self.game.settings.perf_disable_cargo_ships:
+            return
+        # The enemy's cargo ships, heading for its own front-line bases.
         for front_line in self.front_lines():
             yield from self.game.coalition_for(
-                self.is_player
+                self.is_player.opponent
             ).transfers.cargo_ships.travelling_to(
                 front_line.control_point_hostile_to(self.is_player)
             )

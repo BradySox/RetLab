@@ -1,0 +1,11 @@
+date: 2026-10-10
+title: Pick the A-10's gun ammunition on the Payload tab
+change: >-
+  The Payload tab of an A-10A, A-10C or A-10C II has a GAU-8 ammunition
+  box: Combat Mix, HEI or Target Practice. Tick Use custom loadout to
+  change it. The choice is saved with the payload, so a saved or default
+  loadout keeps it. A flight left alone still loads Combat Mix. Ported
+  from juanjux/dcs-escalation.
+watch: >-
+  On the ramp, the rearm window shows the gun ammunition you picked on
+  the Payload tab.

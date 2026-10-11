@@ -259,6 +259,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - The payload editor hides practice, captive, inert, smoke and illumination stores, TCTS
   pods and travel pods until **Show training and non-combat stores** is ticked. White
   phosphorus marking rockets are always listed.
+- The payload editor picks the A-10's gun ammunition: Combat Mix, HEI or Target Practice.
+  It is saved with the payload.
 - Also: target intel panels, impact-first debriefs, custom kneeboard import, era-gated cockpit
   options.
 
