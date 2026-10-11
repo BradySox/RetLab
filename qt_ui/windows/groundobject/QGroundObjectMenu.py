@@ -499,7 +499,9 @@ class QGroundObjectMenu(QDialog):
             # Replan if the tgo was a target of the redfor
             coalition = self.ground_object.coalition
             self.game.initialize_turn(
-                events, for_red=coalition.player, for_blue=coalition.player.opponent
+                events,
+                for_red=coalition.player.is_blue,
+                for_blue=coalition.player.opponent.is_blue,
             )
         EventStream.put_nowait(events)
         GameUpdateSignal.get_instance().updateGame(self.game)
