@@ -12,10 +12,8 @@ The idea is from Hussar2477/dcs-retribution's ``llm-ai-opponent`` branch.
 
 from __future__ import annotations
 
-import importlib.util
 import inspect
 import json
-from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, Iterator, cast
 
@@ -25,28 +23,17 @@ from fastapi.encoders import jsonable_encoder
 from game.server import GameContext
 from game.server.retributionai.routes import router
 
-CAMPAIGN = "northern_russia"
 PACKAGE_MARKER = "ZZBLUEPACKAGE"
 FLIGHT_MARKER = "ZZBLUEFLIGHT"
 BUDGET_MARKER = 987654321
 
 
-def _build_game(saved_games: str) -> Any:
-    path = Path("tools/_campaign_game.py").resolve()
-    spec = importlib.util.spec_from_file_location("_campaign_game", path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module.build_game(CAMPAIGN, saved_games)
-
-
 @pytest.fixture(scope="module")
-def game(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Any]:
-    built = _build_game(str(tmp_path_factory.mktemp("leak-test")))
+def game(campaign_game: Any) -> Iterator[Any]:
     previous = getattr(GameContext, "_game_model", None)
-    GameContext.set_model(cast(Any, SimpleNamespace(game=built)))
+    GameContext.set_model(cast(Any, SimpleNamespace(game=campaign_game)))
     try:
-        yield built
+        yield campaign_game
     finally:
         GameContext.set_model(cast(Any, previous))
 
