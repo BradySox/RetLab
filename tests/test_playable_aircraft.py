@@ -315,6 +315,14 @@ def test_points_are_numbered_after_the_route_as_the_kneeboard_numbers_them() -> 
     assert one.numbers == [10, 11, 12]
 
 
+def test_the_a10_numbers_its_points_from_the_end_of_the_route() -> None:
+    """DCS builds rows 0 to 10 itself; the CDU file adds the points after them."""
+    one = data.Aircraft(_routed("A-10C_2", 10))
+
+    assert one.route_slots == 11
+    assert one.numbers == [11, 12, 13]
+
+
 def test_the_tomcat_numbers_its_own_plan_from_one() -> None:
     one = data.Aircraft(_routed("F-14BU", 10))
 
