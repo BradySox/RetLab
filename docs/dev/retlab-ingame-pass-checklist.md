@@ -8882,8 +8882,10 @@ Built 2026-09-29. Unit-tested (`test_flight_grades.py`); never read after a flow
 - **Setup:** fly any turn with a player strike or SEAD flight and let a few AI packages fly.
   Accept the results. Note your actual time at the target and what you hit.
 - **Pass:** the debrief has a Flight report cards box, your flight first. Your card's timing
-  matches when you were over the target (within about a minute), the package target count
-  matches the map, and shots and hits match what you released.
+  matches when you reached the ingress point (within about a minute; the join point for an
+  escort, the station for a CAP), the package target count matches the map, and shots and
+  hits match what you released. A flight that fired Harpoons or HARMs from range is not
+  marked "Never reached".
 - **Fail signatures:** no box at all (no sortie records reached `state.json`, see §91); every
   flight "Never reached the target area" (the TOT waypoint or mission start is off, check
   §104's early start); timing out by exactly the early-start shift (planned TOT measured from
