@@ -72,6 +72,9 @@ Two reviews of the Kola campaign through the link found the link itself misrepor
   field's runway queue (§104), which pushes an earlier package's start a minute or two
   before the turn clock; the early mission start covers that, and the check did not know.
   `planner.tot_shortfall` now allows `EARLY_START_CAP`, and the package is a note.
+  The first fix left ASAP support (the first BARCAP wave, AWACS, tankers) with no
+  allowance, and a Kola BARCAP timed before Banak's queue grew still failed the plan.
+  `retime_asap_support` re-runs those TOTs at Take Off, so the check now skips them.
 - A TOT after `desired_player_mission_duration` was a failure. On a map with 300 NM legs
   every scripted raid is late by that measure. It is a note (DM call).
 - `/prev_turns` served the campaign log as written for blue. `views.name_the_sides`
