@@ -59,7 +59,7 @@ from .flightgroupconfigurator import FlightGroupConfigurator
 from .flightgroupspawner import FlightGroupSpawner
 from .modex import ModexAllocator
 from .untaskedculling import airfields_players_see
-from ...radio.datalink import DataLinkRegistry
+from ...radio.datalink import DataLinkRegistry, typed_identifier
 
 if TYPE_CHECKING:
     from game import Game
@@ -600,3 +600,21 @@ class AircraftGenerator:
                     self.radio_registry.reserve(f.frequency)
                 if f.tacan and f.tacan not in self.tacan_registy.allocated_channels:
                     self.tacan_registy.mark_unavailable(f.tacan)
+                self._reserve_typed_datalink_identifiers(f)
+
+    def _reserve_typed_datalink_identifiers(self, flight: Flight) -> None:
+        """Keep the allocator off every STN a player typed in the payload editor."""
+        if not flight.unit_type.dcs_unit_type.datalink_networkable():
+            return
+        for member in flight.iter_members():
+            identifier = typed_identifier(flight.unit_type, member.properties)
+            if identifier is None:
+                continue
+            if identifier in self.datalink_registry.allocated_identifiers:
+                logging.warning(
+                    "Datalink identifier %s is set on more than one aircraft; "
+                    "%s keeps it as typed",
+                    identifier.id,
+                    flight,
+                )
+            self.datalink_registry.mark_unavailable(identifier)

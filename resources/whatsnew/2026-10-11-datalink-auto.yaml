@@ -1,0 +1,14 @@
+date: 2026-10-11
+title: Empty datalink boxes read "Auto"
+change: >-
+  The Voice Callsign Label, Voice Callsign Number and STN boxes in a
+  flight's aircraft settings show "Auto" when empty. The mission
+  generator has always filled a blank box: a unique STN for every jet
+  and a voice callsign from the flight callsign (Squid41 is SD 41).
+  An STN you type is now kept unique, that jet still gets its voice
+  callsign, and Save as default no longer copies an STN onto every
+  new flight of the type.
+watch: >-
+  Open a Hornet or Viper flight's Payload tab: the three DATALINK
+  boxes read "Auto". Type an STN for one jet and generate the mission:
+  no other aircraft carries that STN, and the jet has a voice callsign.
