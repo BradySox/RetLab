@@ -40,6 +40,11 @@ def _parse_bbox(bbox: Optional[str]) -> Optional[tuple[float, float, float, floa
         s, w, n, e = (float(v) for v in bbox.split(","))
     except (ValueError, TypeError):
         return None
+    if not all(math.isfinite(v) for v in (s, w, n, e)):
+        return None
+    # A box far off the globe walked the graticule loops for minutes.
+    s, n = max(s, -90.0), min(n, 90.0)
+    w, e = max(w, -180.0), min(e, 180.0)
     if n <= s or e <= w:
         return None
     return s, w, n, e

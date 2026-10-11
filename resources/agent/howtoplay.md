@@ -162,7 +162,9 @@ Every write answers with `ok`, and `detail` or `error`. One bad item never sinks
   `SEAD_ESCORT`, `ESCORT`, `SWEEP`, `ANTISHIP`, `OCA_RUNWAY`, `OCA_AIRCRAFT`, `AEWC`,
   `REFUELING`, `ARMED_RECON`, `INTERCEPTION`, `AIR_ASSAULT`. `CAP` means `BARCAP`.
   A target is what the package is about: a blue site to strike, a front for CAS, or one
-  of red's own bases or ships for a BARCAP over it. `count` is capped at the airframe's
+  of red's own bases or ships for a BARCAP over it. A task the target does not take is
+  refused, and the refusal lists the ones it does; a flight with `escort` set is not
+  held to that list. `count` is capped at the airframe's
   group size and at what is free. `squadron_id` makes that squadron, and only it, fill the
   flight. An escort (`escort` set) is dropped when nothing on the route needs it.
   `tot_minutes` is minutes after mission start; leave it out for as soon as possible. A
@@ -179,6 +181,9 @@ Every write answers with `ok`, and `detail` or `error`. One bad item never sinks
   `ELIMINATION`, `AMBUSH`. The ids are on the front in `targets`.
 - `POST /retribution-ai/buy/aircraft` with `{"squadron_id", "quantity"}`: arrives next turn.
   A refusal names the limit: base parking, the squadron's size cap, or the budget.
+  A buy or sale that stops part way keeps what went through and answers `ok: true`
+  with `detail` reading "only 2 of the 5": read `detail`, not only `ok`. `quantity`
+  is 1 or more.
 - `POST /retribution-ai/sell/aircraft` with the same body: sells untasked aircraft or
   cancels ones on order, for the money back.
 - `POST /retribution-ai/buy/ground` with `{"cp_id", "unit_name", "quantity"}`: a unit from
@@ -190,6 +195,10 @@ Every write answers with `ok`, and `detail` or `error`. One bad item never sinks
 - `GET`, `PUT` (replace), `POST` (merge) `/retribution-ai/notes` with `{"notes": {...}}`,
   and `DELETE /retribution-ai/notes/{key}`: your notes, saved with the campaign. Keep
   your plan and what you learned about the human there; nothing else carries over.
+
+Writes close when the human presses Take Off (or runs the sim clock): they answer 403
+until the next turn. Your notes hold 64,000 characters in all; a write past that is
+refused with 413 and saves nothing.
 
 Not yet available to you: loadouts, waypoint edits, moving ground units or ships, repairs
 and moving squadrons. The scripted planner still repairs and buys for red at the start of

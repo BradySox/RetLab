@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Any, Iterable, Optional, TYPE_CHECKING
+from typing import Any, Iterable, Optional, TYPE_CHECKING, cast
 
 from game.data.units import UnitClass
 from game.theater.player import Player
@@ -108,18 +108,27 @@ class SideLossCauses:
         return not self.by_cause
 
 
-def _owner(unit_map: "UnitMap", name: str) -> Optional[tuple[Player, str, Any]]:
+def _owner(
+    unit_map: "UnitMap", name: str, owners_before: Optional[dict[int, Player]] = None
+) -> Optional[tuple[Player, str, Any]]:
     """(side, kind of loss, unit class or None) for a unit name, or None."""
+
+    def side_of(control_point: Any) -> Player:
+        # A base captured this mission has changed hands by the time this is read.
+        if owners_before and id(control_point) in owners_before:
+            return owners_before[id(control_point)]
+        return cast(Player, control_point.captured)
+
     flying = unit_map.flight(name)
     if flying is not None:
-        return flying.flight.departure.captured, KIND_AIRCRAFT, None
+        return side_of(flying.flight.departure), KIND_AIRCRAFT, None
     front = unit_map.front_line_unit(name) or unit_map.front_line_unit_from_tic_clone(
         name
     )
     if front is None:
         front = unit_map.motorpool_unit(name)
     if front is not None:
-        return front.origin.captured, KIND_FRONT_LINE, front.unit_type.unit_class
+        return side_of(front.origin), KIND_FRONT_LINE, front.unit_type.unit_class
     convoy = unit_map.convoy_unit(name)
     if convoy is not None:
         return (
@@ -131,7 +140,7 @@ def _owner(unit_map: "UnitMap", name: str) -> Optional[tuple[Player, str, Any]]:
     if theater is not None:
         unit = theater.theater_unit
         unit_class = unit.unit_type.unit_class if unit.unit_type is not None else None
-        return unit.ground_object.control_point.captured, KIND_SITES, unit_class
+        return side_of(unit.ground_object.control_point), KIND_SITES, unit_class
     return None
 
 
@@ -152,9 +161,14 @@ def _top(counter: Counter[str]) -> dict[str, int]:
 
 
 def tally(
-    kill_causes: Iterable[KillCause], unit_map: "UnitMap"
+    kill_causes: Iterable[KillCause],
+    unit_map: "UnitMap",
+    owners_before: Optional[dict[int, Player]] = None,
 ) -> dict[str, SideLossCauses]:
-    """Losses by cause for each side, keyed ``"blue"`` and ``"red"``."""
+    """Losses by cause for each side, keyed ``"blue"`` and ``"red"``.
+
+    ``owners_before`` maps ``id(control point)`` to who held it during the mission,
+    for the bases captured in it: the sitrep is written after captures commit."""
     by_cause: dict[str, dict[str, Counter[str]]] = {"blue": {}, "red": {}}
     killers: dict[str, Counter[str]] = {"blue": Counter(), "red": Counter()}
     weapons: dict[str, Counter[str]] = {"blue": Counter(), "red": Counter()}
@@ -162,7 +176,7 @@ def tally(
     for kill in kill_causes:
         if kill.target in seen:
             continue
-        victim = _owner(unit_map, kill.target)
+        victim = _owner(unit_map, kill.target, owners_before)
         if victim is None:
             continue
         seen.add(kill.target)
@@ -170,7 +184,7 @@ def tally(
         if side.is_neutral:
             continue
         key = "blue" if side.is_blue else "red"
-        killer = _owner(unit_map, kill.killer)
+        killer = _owner(unit_map, kill.killer, owners_before)
         if killer is None:
             cause = UNKNOWN
         elif killer[0] == side:

@@ -530,7 +530,9 @@ def _announce(game: Game, condition: VictoryCondition, defeat: bool) -> None:
         game.message("Victory condition met", text)
 
 
-def victory_verdict(game: Game) -> Optional[Literal["win", "loss"]]:
+def victory_verdict(
+    game: Game, announce: bool = True
+) -> Optional[Literal["win", "loss"]]:
     """The alternate ending, or None while the war goes on.
 
     Backs the single alternate-endings branch in ``Game.check_win_loss`` ahead
@@ -544,11 +546,13 @@ def victory_verdict(game: Game) -> Optional[Literal["win", "loss"]]:
     baseline = ensure_victory_baseline(game)
     for condition in profile.lose_when:
         if condition_met(game, condition, baseline):
-            _announce(game, condition, defeat=True)
+            if announce:
+                _announce(game, condition, defeat=True)
             return "loss"
     for condition in profile.win_when:
         if condition_met(game, condition, baseline):
-            _announce(game, condition, defeat=False)
+            if announce:
+                _announce(game, condition, defeat=False)
             return "win"
     return None
 

@@ -11694,6 +11694,10 @@ first live reviews on Kola):
 - `game/server/security.py`: token by `X-API-Key` header or `?token=`.
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
 - `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
+- `tests/agent/test_write_on_real_campaign.py` runs the write path on the same real
+  campaign: a failed plan hands back its aircraft and pilots, a create or delete reaches
+  the map, and a buy reports what it bought. The 2026-10-11 audit fixes it pins are
+  listed in the design note.
 - `tests/agent/test_blue_plan_never_served.py` builds a real campaign
   (`tools/_campaign_game.py`, Caucasus - Northern Russia) and calls every GET route for red
   twice: once with blue's ATO swapped for a tripwire that fails on any access, once with

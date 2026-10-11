@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: Outside AI plans red - write fixes
+change: >-
+  With Outside AI plans red on, the AI can now buy ground units for red
+  without the enemy buy/sell cheat. A red package the AI deletes leaves
+  the map at once. A plan that fails no longer keeps its aircraft and
+  pilots for the turn. The AI's writes are refused once you press Take
+  Off.
+watch: >-
+  Have the AI delete one of red's packages with the red flight plans
+  layer on: its routes go without a reload. "Red planned by the game"
+  shows at Take Off only when red had no missions and the game planned
+  some.

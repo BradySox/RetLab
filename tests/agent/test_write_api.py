@@ -108,9 +108,14 @@ def test_take_off_fallback_runs_only_when_the_ai_planned_nothing() -> None:
     game = MagicMock()
     game.settings.outside_ai_plans_red = True
     game.red.ato.packages = []
-    assert service.run_fallback_if_needed(game)
+    # Red with nothing to fly plans nothing: no "Red planned by the game" line.
+    assert not service.run_fallback_if_needed(game)
     game.red.plan_missions.assert_called_once()
 
+    game.red.plan_missions.side_effect = lambda now: game.red.ato.packages.append(1)
+    assert service.run_fallback_if_needed(game)
+
+    game.red.plan_missions.side_effect = None
     game.red.plan_missions.reset_mock()
     game.red.ato.packages = [object()]
     assert not service.run_fallback_if_needed(game)
@@ -211,3 +216,32 @@ def test_asap_support_is_never_a_shortfall() -> None:
     assert planner.early_start_minutes(_package(21, support=True), now, tot) is None
     # The same package with a TOT the AI set is held to it.
     assert planner.tot_shortfall(_package(90), now, tot) == (60, "Severomorsk-1")
+
+
+def test_notes_past_the_size_cap_are_refused_and_nothing_is_saved(
+    live_game: Any,
+) -> None:
+    live_game.settings.outside_ai_plans_red = True
+    service.replace_notes({"plan": "hold"})
+    huge = {"dump": "x" * service.NOTES_MAX_CHARS}
+    with pytest.raises(service.NotesTooLargeError):
+        service.merge_notes(huge)
+    with pytest.raises(service.NotesTooLargeError):
+        service.replace_notes(huge)
+    assert service.notes() == {"plan": "hold"}
+
+
+def test_writes_are_refused_once_the_mission_has_started(live_game: Any) -> None:
+    live_game.settings.outside_ai_plans_red = True
+    loop = SimpleNamespace(started=False)
+    model: Any = GameContext.get_model()
+    model.sim_controller = SimpleNamespace(game_loop=loop)
+    assert service.merge_notes({"plan": "hold"}) == {"plan": "hold"}
+    assert service.capabilities()["writes"]
+    loop.started = True
+    with pytest.raises(service.WritesOffError, match="mission has started"):
+        service.merge_notes({"plan": "push"})
+    with pytest.raises(service.WritesOffError, match="mission has started"):
+        service.clear_packages("red")
+    assert service.capabilities()["writes"] == []
+    assert service.notes() == {"plan": "hold"}
