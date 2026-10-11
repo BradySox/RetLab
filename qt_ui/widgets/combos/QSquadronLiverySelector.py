@@ -3,10 +3,62 @@ from typing import Optional
 
 from PySide6.QtWidgets import QComboBox
 
+from dcs.liveries.livery import Livery
+from dcs.liveries.liverycache import LiveryCache
+
+from game.dcs.aircrafttype import AircraftType
 from game.squadrons import Squadron
 
 LIVERY_SET_TEXT = "Use livery-set from squadron's yaml"
 LIVERY_OVERRIDES_TEXT = "Use livery overrides"
+
+#: Aircraft we already rescanned the liveries for, so a mod that genuinely ships no
+#: liveries doesn't trigger a full rescan every time its squadron dialog is opened.
+_rescanned_aircraft: set[str] = set()
+
+#: Set once a rescan turns up nothing new anywhere, at which point further rescans are
+#: just wasted disk I/O for the rest of the session.
+_rescan_is_futile = False
+
+
+def _livery_count() -> int:
+    return sum(len(liveries) for liveries in LiveryCache.cache().values())
+
+
+def dcs_liveries_for(aircraft_type: AircraftType) -> set[Livery]:
+    """The liveries DCS offers for an aircraft.
+
+    The livery scan is a one-shot, process-wide cache built during startup. An aircraft
+    mod that was installed, re-enabled or moved while Retribution was already running is
+    therefore missing from it, and the aircraft looks like it has no liveries at all for
+    the rest of the session. Rescan once per aircraft before believing an empty result.
+    """
+    global _rescan_is_futile
+
+    liveries = set(aircraft_type.dcs_unit_type.iter_liveries())
+    if liveries:
+        return liveries
+
+    key = aircraft_type.variant_id
+    if _rescan_is_futile or key in _rescanned_aircraft:
+        return liveries
+    _rescanned_aircraft.add(key)
+
+    logging.info(
+        "No liveries cached for %s (livery name %s), rescanning DCS liveries",
+        aircraft_type,
+        aircraft_type.dcs_unit_type.livery_name,
+    )
+    before = _livery_count()
+    try:
+        # pydcs has no public way to invalidate the scan.
+        LiveryCache._cache = None
+        _rescan_is_futile = _livery_count() == before
+    except Exception:
+        logging.exception("Rescanning DCS liveries failed")
+        _rescan_is_futile = True
+        return liveries
+    return set(aircraft_type.dcs_unit_type.iter_liveries())
 
 
 class SquadronLiverySelector(QComboBox):
@@ -28,7 +80,7 @@ class SquadronLiverySelector(QComboBox):
 
         liveries = set()
         cc = squadron.coalition.faction.country.shortname
-        aircraft_liveries = set(self.aircraft_type.dcs_unit_type.iter_liveries())
+        aircraft_liveries = dcs_liveries_for(self.aircraft_type)
         if len(aircraft_liveries) == 0:
             logging.info(f"Liveries for {self.aircraft_type} is empty!")
         for livery in aircraft_liveries:

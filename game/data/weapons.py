@@ -445,9 +445,8 @@ class Pylon:
         # it's not compatible with *any* pylon. Just trust the loadout and try to equip
         # it.
         #
-        # A similar hack exists in QPylonEditor to forcibly add "Clean" to the list of
-        # valid configurations for that pylon if a loadout has been seen with that
-        # configuration.
+        # A similar hack exists in QPylonEditor, which offers "Clean" on every pylon for
+        # the same reason.
         return weapon in self.allowed or weapon.clsid == "<CLEAN>"
 
     def equip(
