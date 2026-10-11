@@ -2,11 +2,14 @@ import logging
 from typing import List
 
 from dcs.point import MovingPoint
-from dcs.task import AttackGroup, Expend, OptFormation, WeaponType
+from dcs.task import AttackGroup, AttackUnit, Expend, OptFormation, WeaponType
 
-from game.theater import NavalControlPoint, TheaterGroundObject
+from game.missiongenerator.aircraft.antishipdeal import ships_for_flight
+from game.theater import NavalControlPoint, TheaterGroundObject, TheaterUnit
 from game.transfers import MultiGroupTransport
 from .pydcswaypointbuilder import PydcsWaypointBuilder
+
+ANTI_SHIP_ORDNANCE = (WeaponType.Antiship, WeaponType.Guided, WeaponType.Unguided)
 
 
 class AntiShipIngressBuilder(PydcsWaypointBuilder):
@@ -36,12 +39,10 @@ class AntiShipIngressBuilder(PydcsWaypointBuilder):
             )
             return
 
-        added = 0
-        for ordnance in (
-            WeaponType.Antiship,
-            WeaponType.Guided,
-            WeaponType.Unguided,
-        ):
+        # This flight's own ship first, then the rest of the line. The group
+        # tasks after them are the fallback for whatever is still afloat.
+        added = self.add_attack_unit_tasks(waypoint, group_names)
+        for ordnance in ANTI_SHIP_ORDNANCE:
             added += self.add_attack_group_tasks_for_ordnance(
                 waypoint, group_names, ordnance
             )
@@ -58,6 +59,42 @@ class AntiShipIngressBuilder(PydcsWaypointBuilder):
                 self.flight,
                 group_names or "no groups",
             )
+
+    def add_attack_unit_tasks(
+        self, waypoint: MovingPoint, group_names: List[str]
+    ) -> int:
+        ships = ships_for_flight(self.flight)
+        if not ships:
+            return 0
+        unit_ids = self.miz_unit_ids(group_names)
+        added = 0
+        for ordnance in ANTI_SHIP_ORDNANCE:
+            for ship in ships:
+                unit_id = unit_ids.get(self.miz_unit_name(ship))
+                if unit_id is None:
+                    continue
+                waypoint.tasks.append(
+                    AttackUnit(
+                        unit_id,
+                        weapon_type=ordnance,
+                        group_attack=True,
+                        expend=Expend.All,
+                    )
+                )
+                added += 1
+        return added
+
+    def miz_unit_ids(self, group_names: List[str]) -> dict[str, int]:
+        ids: dict[str, int] = {}
+        for group_name in group_names:
+            miz_group = self.mission.find_group(group_name)
+            if miz_group is not None:
+                ids.update({unit.name: unit.id for unit in miz_group.units})
+        return ids
+
+    def miz_unit_name(self, ship: TheaterUnit) -> str:
+        # The carrier generator renames the flagship to its hull name.
+        return self.mission_data.renamed_units.get(ship.unit_name, ship.unit_name)
 
     def add_attack_group_tasks_for_ordnance(
         self,

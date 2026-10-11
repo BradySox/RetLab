@@ -303,6 +303,10 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 - **Player technique:** Mass weapons — **large numbers are usually needed to overwhelm point
   defences.** AI may split weapons across multiple ships.
 - **AI limitations:** Fires at the IP, then RTBs; no reattack judgment.
+- **RetLab:** AI flights are dealt across the ships of the target group. The first two
+  flights attack the escort with the longest-reach SAM, the next two the carrier, then one
+  flight per remaining ship; extra flights start again from the top. Every anti-ship package
+  on the same group counts. A flight whose ship is already sunk attacks the next in line.
 
 #### OCA/Aircraft
 

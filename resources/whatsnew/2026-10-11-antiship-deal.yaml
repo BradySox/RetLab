@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: Anti-ship flights spread across a ship group
+change: >-
+  Anti-ship flights no longer all attack the same ship. The first two
+  flights take the escort with the longest-reach SAM, the next two take
+  the carrier, and each flight after that takes a different escort. This
+  counts every anti-ship package sent at that group, and it applies to
+  the enemy's anti-ship flights against your ships too. A flight whose
+  ship is already sunk attacks the next one in line.
+watch: >-
+  Send three or more anti-ship flights at an enemy carrier group and
+  watch in Tacview: the first missiles go at the big SAM ship, later
+  flights at the carrier and the escorts, and no ship is left alone.
