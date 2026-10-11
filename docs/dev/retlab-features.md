@@ -11673,6 +11673,13 @@ first live reviews on Kola):
 - `game/server/security.py`: token by `X-API-Key` header or `?token=`.
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
 - `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
+- `tests/agent/test_blue_plan_never_served.py` builds a real campaign
+  (`tools/_campaign_game.py`, Caucasus - Northern Russia) and calls every GET route for red
+  twice: once with blue's ATO swapped for a tripwire that fails on any access, once with
+  marker values planted on blue's packages, flights and budget that must appear in no
+  response. The routes are read from the router, so a GET added later is covered, and one
+  the test cannot call fails it. The PNG map is covered by the tripwire only. Idea from
+  Hussar2477/dcs-retribution (`llm-ai-opponent`), 2026-10-10.
 
 ### Constraints
 
