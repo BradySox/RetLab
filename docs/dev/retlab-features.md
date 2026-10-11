@@ -2718,7 +2718,8 @@ defect that reached a build, most of them found by flying.
   upstream bugs the fork shared.
   - New game wizard: the start-date calendar was disabled while *Use preset* was ticked,
     but the stylesheet draws a disabled calendar like an enabled one, so a click did
-    nothing. It is never disabled now, and a clicked day unticks *Use preset*.
+    nothing. It is never disabled now, and a day picked by click or keyboard unticks
+    *Use preset* (the keyboard since 2026-10-11; `bind_start_date`).
   - New game wizard: adding a unit to a faction rebuilt the tick boxes all ticked.
     `QFactionUnits.updateFaction` keeps the ticks when it rebuilds the same faction.
   - A mod installed while the app is open reported "No available liveries" until restart,

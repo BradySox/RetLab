@@ -1,0 +1,12 @@
+date: 2026-10-11
+title: Pylon weapon settings survive loading a save
+change: >-
+  A fuze or laser code set with a pylon's gear button is kept when you
+  open Edit Flight after loading a save; it used to be wiped, and the
+  store was listed twice. Airfield Command rows keep their idle count
+  and transfer note after a buy or sell. A start date picked on the new
+  game calendar with the arrow keys is now used.
+watch: >-
+  Set a laser code on a pylon, save, restart, load and open Edit Flight:
+  the gear button still shows your code. In Airfield Command, buy an
+  aircraft and the row still reads (N idle).

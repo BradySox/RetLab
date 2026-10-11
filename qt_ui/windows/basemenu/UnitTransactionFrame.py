@@ -71,7 +71,6 @@ class PurchaseGroup(QGroupBox, Generic[TransactionItemType]):
         self.sell_button = QPushButton("-")
         self.sell_button.setProperty("style", "btn-sell")
         self.sell_button.setDisabled(not recruiter.enable_sale(item))
-        self.sell_button.setVisible(recruiter.enable_sale(item))
         self.sell_button.setMinimumSize(16, 16)
         self.sell_button.setMaximumSize(16, 16)
         self.sell_button.setSizePolicy(
@@ -315,7 +314,9 @@ class UnitTransactionFrame(QFrame, Generic[TransactionItemType]):
 
     def update_existing_units(self) -> None:
         for item, label in self.existing_units_labels.items():
-            label.setText(str(self.current_quantity_of(item)))
+            label.setText(
+                self.existing_units_text(item, self.current_quantity_of(item))
+            )
 
     def buy(self, item: TransactionItemType, quantity: int) -> None:
         try:

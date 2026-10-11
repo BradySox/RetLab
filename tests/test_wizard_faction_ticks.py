@@ -69,4 +69,33 @@ def test_the_start_date_calendar_is_never_disabled() -> None:
 
     source = inspect.getsource(QTheaterConfiguration)
     assert "calendar.setDisabled" not in source
-    assert "self.calendar.clicked.connect" in source
+
+
+def test_a_date_picked_by_click_or_keyboard_leaves_preset_mode(qapp: Any) -> None:
+    from PySide6.QtCore import QDate, Qt
+    from PySide6.QtTest import QTest
+    from PySide6.QtWidgets import QCheckBox, QTableView
+
+    from qt_ui.widgets.QLiberationCalendar import QLiberationCalendar
+    from qt_ui.windows.newgame.WizardPages.QTheaterConfiguration import (
+        bind_start_date,
+    )
+
+    calendar = QLiberationCalendar()
+    preset = QCheckBox()
+    preset.setChecked(True)
+    set_date = bind_start_date(calendar, preset)
+
+    # A date the page sets itself (a preset, a campaign's own) keeps the box.
+    set_date(QDate(1995, 6, 1))
+    assert calendar.selectedDate() == QDate(1995, 6, 1)
+    assert preset.isChecked()
+
+    view: Any = calendar.findChild(QTableView)
+    QTest.keyClick(view, Qt.Key.Key_Right)
+    assert calendar.selectedDate() == QDate(1995, 6, 2)
+    assert not preset.isChecked()
+
+    preset.setChecked(True)
+    calendar.clicked.emit(calendar.selectedDate())
+    assert not preset.isChecked()
