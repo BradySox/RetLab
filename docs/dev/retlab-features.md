@@ -2698,6 +2698,22 @@ defect that reached a build, most of them found by flying.
   package, not a lost campaign. This is checklist row **B50** failing in the worst
   available way.
 
+- **Four UI fixes ported from CleeeCATCH/dcs-retribution (2026-10-10).** All four were
+  upstream bugs the fork shared.
+  - New game wizard: the start-date calendar was disabled while *Use preset* was ticked,
+    but the stylesheet draws a disabled calendar like an enabled one, so a click did
+    nothing. It is never disabled now, and a clicked day unticks *Use preset*.
+  - New game wizard: adding a unit to a faction rebuilt the tick boxes all ticked.
+    `QFactionUnits.updateFaction` keeps the ticks when it rebuilds the same faction.
+  - A mod installed while the app is open reported "No available liveries" until restart,
+    because pydcs scans liveries once. `dcs_liveries_for` rescans once per aircraft before
+    believing an empty list, and stops once a rescan finds nothing new.
+  - *Clean* (pylon fitted, nothing on it) was listed only on a pylon whose shown preset
+    already used it. `QPylonEditor` lists it on every pylon, which is what
+    `Pylon.can_equip` already accepted; pydcs carries no per-pylon data for `<CLEAN>`.
+    What DCS does with it on a pylon that cannot be removed is row **B214**.
+  Tests: `tests/test_wizard_faction_ticks.py`, `test_livery_selector.py`,
+  `test_loadout_training_filter.py`.
 - **The planner never targeted enemy convoys or cargo ships (fixed 2026-10-10).**
   `ObjectiveFinder.convoys()` and `cargo_ships()` asked the planner's *own* coalition for
   transports heading to the enemy's front-line base, which is always empty, so

@@ -69,6 +69,9 @@ class QFactionUnits(QScrollArea):
         # Returns a reason to refuse, or None to allow. The wizard passes nothing:
         # there is no campaign yet, so nothing can be in use.
         self.in_use = in_use
+        # Check states to restore when the checkboxes are rebuilt for the same faction,
+        # keyed like self.checkboxes. Empty means "everything starts checked".
+        self._retained_checks: dict[str, bool] = {}
         self._create_checkboxes(show_jtac, show_doctrine)
         self.show_jtac = show_jtac
         self.show_doctrine = show_doctrine
@@ -89,7 +92,11 @@ class QFactionUnits(QScrollArea):
             # Always built and registered: the wizard's save path reads every entry,
             # and one left unshown reads as checked, i.e. kept.
             cb = QCheckBox(str(v))
-            cb.setCheckState(Qt.CheckState.Checked)
+            cb.setCheckState(
+                Qt.CheckState.Checked
+                if self._retained_checks.get(str(v), True)
+                else Qt.CheckState.Unchecked
+            )
             self.checkboxes[str(v)] = cb
             if not self.editable:
                 grid.addWidget(cb, i, 1)
@@ -401,6 +408,15 @@ class QFactionUnits(QScrollArea):
         self.faction_changed.emit(self.faction)
 
     def updateFaction(self, faction: Faction):
+        # Rebuilding the checkboxes for the faction that is already shown (which is what
+        # adding a unit does) must not throw away the units the user unchecked. Switching
+        # to a different faction starts from scratch, since its units are different ones.
+        if faction is self.faction:
+            self._retained_checks = {
+                name: cb.isChecked() for name, cb in self.checkboxes.items()
+            }
+        else:
+            self._retained_checks = {}
         self.faction = faction
         self.content = QWidget()
         self.setWidget(self.content)
