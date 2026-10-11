@@ -7,6 +7,8 @@ export interface LatLngJs {
 }
 
 export interface SavedPointJs {
+  // Stays with the point when another is deleted, which its place in the list does not.
+  id: string;
   kind: string;
   name: string;
   coordinates: string;
@@ -47,14 +49,22 @@ export const KIND_LABEL: Record<string, string> = {
 // Fired after anything is saved, so the map layer redraws without waiting.
 export const CHANGED_EVENT = "retlab-saved-points-changed";
 
-export function announceChange(): void {
-  window.dispatchEvent(new Event(CHANGED_EVENT));
+// What the event stream adds: the campaign was closed, or replaced by another.
+export interface ChangeDetail {
+  unloaded?: boolean;
+  reset?: boolean;
+}
+
+export function announceChange(detail?: ChangeDetail): void {
+  window.dispatchEvent(new CustomEvent(CHANGED_EVENT, { detail }));
 }
 
 // Anything that is not a list of aircraft (an error page, an older server) reads as
 // none, so a popup never throws inside a render.
-export async function fetchReceivers(): Promise<Receiver[]> {
-  const response = await fetch(`${HTTP_URL}saved-points/`);
+export async function fetchReceivers(
+  signal?: AbortSignal,
+): Promise<Receiver[]> {
+  const response = await fetch(`${HTTP_URL}saved-points/`, { signal });
   const body: unknown = response.ok ? await response.json() : null;
   return Array.isArray(body) ? (body as Receiver[]) : [];
 }
