@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QPushButton,
     QDialog,
+    QMessageBox,
     QWidget,
     QSizePolicy,
 )
@@ -22,10 +23,12 @@ from game.ato.closestairfields import ClosestAirfields
 from game.ato.flight import Flight
 from game.ato.flightroster import FlightRoster
 from game.ato.iflightroster import IFlightRoster
+from game.data.airliftcapacity import airlift_capacity, units_fitting_in
 from game.dcs.aircrafttype import AircraftType
 from game.squadrons import Squadron
 from game.squadrons.pilot import Pilot
 from game.theater import ControlPoint, OffMapSpawn
+from game.transfers import reassign_cargo
 from game.utils import nautical_miles
 from qt_ui.models import PackageModel
 
@@ -344,6 +347,17 @@ class QFlightSlotEditor(QGroupBox):
             squadron: Optional[Squadron] = dialog.selector.currentData()
             if not squadron:
                 return
+            cargo = self.flight.cargo
+            if cargo is not None and not units_fitting_in(
+                cargo.units, self.flight.count * airlift_capacity(squadron.aircraft)
+            ):
+                QMessageBox.warning(
+                    self,
+                    "Cannot carry this cargo",
+                    f"{squadron.aircraft} cannot lift the next vehicle in this "
+                    f"transfer. The flight keeps its squadron.",
+                )
+                return
             flight = Flight(
                 self.package_model.package,
                 squadron,
@@ -356,8 +370,23 @@ class QFlightSlotEditor(QGroupBox):
                 channel=self.flight.tacan,
                 callsign_tcn=self.flight.tcn_name,
             )
+            left_behind = 0
+            if cargo is not None:
+                # Before the old flight goes: removing it re-times the package,
+                # which builds this flight's plan, and that needs the transport.
+                old = cargo.transport
+                next_stop = old.destination if old is not None else cargo.destination
+                left_behind = reassign_cargo(self.game, flight, next_stop)
             self.package_model.add_flight(flight)
             self.package_model.delete_flight(self.flight)
+            if left_behind:
+                QMessageBox.information(
+                    self,
+                    "Cargo left behind",
+                    f"{squadron.aircraft} cannot carry the whole load. "
+                    f"{left_behind} vehicle(s) stay at {cargo.position.name} and "
+                    f"go with the next transport.",
+                )
             self.squadron_changed.emit(flight)
 
     def _find_divert_field(

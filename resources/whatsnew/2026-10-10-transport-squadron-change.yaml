@@ -1,0 +1,12 @@
+date: 2026-10-10
+title: You can change a transport flight's squadron
+change: >-
+  Changing the squadron on an airlift flight used to throw an error and
+  leave the cargo with no transport. The new flight now takes over the
+  cargo. If its aircraft carry less, it takes what fits, a message says
+  how many vehicles stay behind, and those go with the next transport. A
+  squadron that cannot lift the cargo at all is refused.
+watch: >-
+  Open an airlift flight, press Change Squadron and pick another
+  transport squadron. The flight changes with no error and its route
+  still runs pickup to drop-off.

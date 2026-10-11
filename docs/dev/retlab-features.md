@@ -2690,6 +2690,23 @@ defect that reached a build, most of them found by flying.
   package, not a lost campaign. This is checklist row **B50** failing in the worst
   available way.
 
+- **Changing a transport flight's squadron crashed the ATO (fixed 2026-10-10).**
+  `QFlightSlotEditor._change_squadron` built the replacement flight with the old flight's
+  cargo, then removed the old flight, and `Package.remove_flight` cleared the cargo's
+  transport. Removing a flight re-times the package, which builds the new flight's plan,
+  and `AirliftFlightPlan` raised `TransferOrder.next_stop called with no transport
+  assigned`. Reproduced on the fork's code before fixing. `reassign_cargo`
+  (`game/transfers.py`) now puts the cargo on the new flight first, trimmed with the
+  lift-slot rule (`units_fitting_in`, `airlift_capacity`); what does not fit is split off
+  and waits for the next transport, and the dialog says how many vehicles stayed. A
+  squadron whose aircraft cannot lift the next vehicle is refused. `remove_flight` only
+  clears a transport that is the flight being removed. `split_transfer` keeps the split
+  part at the cargo's current position instead of its origin. Ported from
+  rmac7664/dcs-retribution (`fix/transport-squadron-change`), whose capacity rule was
+  upstream's one-per-helicopter, two-per-plane. Not taken: its CTLD-zone change for
+  helicopter airlifts to a carrier, LHA or off-map base, which no fork transfer reaches.
+  Tests: `tests/test_transport_squadron_change.py`.
+
 ### Debrief and reporting
 
 - **Destroyed strike targets never reaching the campaign — the results commit used a stale

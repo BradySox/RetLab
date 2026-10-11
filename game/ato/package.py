@@ -149,7 +149,11 @@ class Package(RadioFrequencyContainer):
         self._db.remove(flight.id)
         flight.return_pilots_and_aircraft()
         if flight.cargo is not None:
-            flight.cargo.transport = None
+            # A flight replaced by another (its squadron changed) has already
+            # handed its cargo over; only drop a transport that is this flight.
+            transport = flight.cargo.transport
+            if transport is None or getattr(transport, "flight", flight) is flight:
+                flight.cargo.transport = None
         if not self.flights:
             self.waypoints = None
 
