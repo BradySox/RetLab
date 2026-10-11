@@ -37,11 +37,22 @@ if TYPE_CHECKING:
     from game.transfers import CargoShip, Convoy
 
 MissionTargetType = TypeVar("MissionTargetType", bound=MissionTarget)
+TransportT = TypeVar("TransportT")
 
 #: How far behind the nearest friendly control point an air-assault objective may
 #: sit. Bounds the operation itself, so it does not move with the staging field or
 #: the airframe's legs. See ObjectiveFinder._within_air_assault_reach.
 AIR_ASSAULT_MAX_REACH = nautical_miles(100)
+
+
+def _each_once(transports: Iterable[TransportT]) -> Iterator[TransportT]:
+    # A base facing two of ours sits on two front lines, and the planner sends a
+    # package at every entry it is handed.
+    seen: set[int] = set()
+    for transport in transports:
+        if id(transport) not in seen:
+            seen.add(id(transport))
+            yield transport
 
 
 class ObjectiveFinder:
@@ -282,23 +293,27 @@ class ObjectiveFinder:
         if self.game.settings.perf_disable_convoys:
             return
         # The enemy's convoys, heading for its own front-line bases.
-        for front_line in self.front_lines():
-            yield from self.game.coalition_for(
-                self.is_player.opponent
-            ).transfers.convoys.travelling_to(
+        enemy = self.game.coalition_for(self.is_player.opponent).transfers
+        yield from _each_once(
+            convoy
+            for front_line in self.front_lines()
+            for convoy in enemy.convoys.travelling_to(
                 front_line.control_point_hostile_to(self.is_player)
             )
+        )
 
     def cargo_ships(self) -> Iterator[CargoShip]:
         if self.game.settings.perf_disable_cargo_ships:
             return
         # The enemy's cargo ships, heading for its own front-line bases.
-        for front_line in self.front_lines():
-            yield from self.game.coalition_for(
-                self.is_player.opponent
-            ).transfers.cargo_ships.travelling_to(
+        enemy = self.game.coalition_for(self.is_player.opponent).transfers
+        yield from _each_once(
+            ship
+            for front_line in self.front_lines()
+            for ship in enemy.cargo_ships.travelling_to(
                 front_line.control_point_hostile_to(self.is_player)
             )
+        )
 
     def friendly_control_points(self) -> Iterator[ControlPoint]:
         """Iterates over all friendly control points."""

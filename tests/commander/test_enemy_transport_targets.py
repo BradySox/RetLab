@@ -41,3 +41,14 @@ def test_disabled_transports_are_not_targets() -> None:
     game.settings.perf_disable_cargo_ships = True
     assert list(finder.convoys()) == []
     assert list(finder.cargo_ships()) == []
+
+
+def test_a_transport_bound_for_a_base_on_two_fronts_is_listed_once() -> None:
+    """Each entry draws a package, so a repeat sent two at one convoy."""
+    red_base = SimpleNamespace(name="Red forward base")
+    game = _game(red_base=red_base)
+    front_line = SimpleNamespace(control_point_hostile_to=lambda _player: red_base)
+    game.theater.conflicts = lambda: [front_line, front_line]
+    finder = ObjectiveFinder(game, Player.BLUE)
+    assert list(finder.convoys()) == ["red transport"]
+    assert list(finder.cargo_ships()) == ["red transport"]

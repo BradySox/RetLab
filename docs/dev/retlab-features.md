@@ -2215,7 +2215,9 @@ defect that reached a build, most of them found by flying.
   two settings, and *Desired tanker on-station time* now goes to 300 minutes like the
   AWACS one, so a longer stay is set by hand. The carrier recovery tanker reads the same
   setting for where its station sits (20 kt times the minutes) and keeps the old
-  150-minute bound (`recovery_station_time`, `shiprecoverytanker.py`).
+  150-minute bound (`recovery_station_time`, `shiprecoverytanker.py`). The bound also
+  covers its planned duration, its DCS stop condition and the scheduler's spacing
+  between recovery tankers (2026-10-11).
 - **Support tracks stay out of neutral airspace (2026-10-10, DM call; row B208).** An
   AEW&C or theater tanker track that touches a country §98 would have intercept its side
   slides along its own length, the smallest move either way that clears the border by
@@ -2747,6 +2749,11 @@ defect that reached a build, most of them found by flying.
   `tests/commander/test_enemy_transport_targets.py`,
   `tests/missiongenerator/aircraft/test_cargostop.py`, `test_antishipingress.py`. Row
   **B212**.
+  A transport bound for a base on two front lines was listed once per front and could
+  draw two packages; both lists now hold each transport once (2026-10-11).
+  Blue plans before red arranges the turn's transports, so blue sees only the red
+  transports made at turn end (a delivered ground order, a §35 or §50 convoy). Red plans
+  after blue and sees all of blue's.
 
 ### Debrief and reporting
 
@@ -11413,6 +11420,12 @@ and measurements: `docs/dev/design/retlab-startup-times-notes.md`, "Runway queue
 - Except ASAP support: an ASAP Refueling, AEW&C or BARCAP package re-runs ASAP from the
   early start (`retime_asap_support`, every generation), so the tanker is up before a flight
   that started early to reach it. Those packages never set the start themselves.
+- A station's relief BARCAP waves (not ASAP, same target as an ASAP BARCAP) move by as
+  much as the first wave did, never earlier than they can fly from the mission start, so
+  the scheduler's handover holds. They do not set the start either (2026-10-11).
+- `settle_mission_start` takes the start again after the retime, up to four passes, and
+  keeps the earlier value inside the cap: retimed support reorders a runway queue and
+  moved another flight's startup up to 2.3 min ahead of the start (2026-10-11).
 - The Take Off past-start warning compares against the earlier start.
 - DTC ETAs count from `FlightData.mission_start`, since the start can cross Zulu midnight.
 - Not §89's pre-roll: nothing is simulated or placed mid-sortie.

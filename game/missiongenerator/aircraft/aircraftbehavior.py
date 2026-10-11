@@ -44,7 +44,10 @@ from game.datalinkera import datalink_available
 from game.ato.flightplans.aewc import AewcFlightPlan
 from game.ato.flightplans.formationattack import FormationAttackLayout
 from game.ato.flightplans.packagerefueling import PackageRefuelingFlightPlan
-from game.ato.flightplans.shiprecoverytanker import RecoveryTankerFlightPlan
+from game.ato.flightplans.shiprecoverytanker import (
+    RecoveryTankerFlightPlan,
+    recovery_station_time,
+)
 from game.ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
 from game.missiongenerator.missiondata import MissionData
 from game.settings import AiRadioBehavior
@@ -400,7 +403,7 @@ class AircraftBehavior:
         naval_group = self._get_carrier_group(flight.package)
         last_waypoint = len(naval_group.points)  # last waypoint of the CVN/LHA
 
-        tanker_tos = flight.coalition.game.settings.desired_tanker_on_station_time
+        tanker_tos = recovery_station_time(flight.coalition.game.settings)
         lua_predicate = f"""
                 local lowfuel = false
                 for i, unitObject in pairs(Group.getByName('{group.name}'):getUnits()) do

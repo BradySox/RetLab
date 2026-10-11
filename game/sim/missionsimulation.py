@@ -13,7 +13,7 @@ from game.settings.settings import FastForwardStopCondition, CombatResolutionMet
 from game.unitmap import UnitMap
 from .aircraftsimulation import AircraftSimulation
 from .missionresultsprocessor import MissionResultsProcessor
-from .missionstart import mission_start_time, retime_asap_support
+from .missionstart import settle_mission_start
 from ..profiling import logged_duration
 
 if TYPE_CHECKING:
@@ -39,8 +39,7 @@ class MissionSimulation:
         self.miz_generated_at: float = 0.0
 
     def begin_simulation(self) -> None:
-        self.time = mission_start_time(self.game)
-        retime_asap_support(self.game, self.time)
+        self.time = settle_mission_start(self.game)
         self.aircraft_simulation.begin_simulation(self.time)
 
     def tick(
