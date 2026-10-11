@@ -93,6 +93,13 @@ report is a good report.
   `CommandCenter`, `PowerSource` or `ConnectionNode`. `depends_on` lists the nodes that feed
   it: kill a power source or a comms node and the sites behind it lose their network. With
   `advanced: false` there is no such wiring and only the sites matter.
+- `last_turn.red_lost_to` and `blue_lost_to` say what killed each side's losses: kind of
+  loss (`aircraft`, `front_line`, `sites`), then cause (`aircraft`, `sam`, `aaa`, `ship`,
+  `ground`, `own_side`, `unknown`), then a count. `red_air_killers` and `red_air_weapons`
+  name what shot red's aircraft down and with what. A loss nobody was credited with (a
+  crash, a collision, running out of fuel) is in `red_lost` and not here. Strikers lost to
+  `aircraft` in a package that flew no escort is a finding; so is a SAM that keeps
+  killing the same kind of flight.
 - `prev_turns`: `trend` is each side's aircraft and base armor at the start of each turn;
   `last_turn` is what the last mission cost each side; `events` is the human's campaign
   log with the sides named: Blue is the human, Red is you. "friendly" in a line means the

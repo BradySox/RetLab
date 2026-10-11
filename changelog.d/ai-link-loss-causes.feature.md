@@ -1,0 +1,1 @@
+* **[Campaign AI]** The AI connect link's last-turn page says what killed each side's losses: enemy aircraft, SAM, AAA, ship, ground fire, own side or unknown, and which types and weapons shot aircraft down. The mission now records the killer of each kill. (idea from Hussar2477)

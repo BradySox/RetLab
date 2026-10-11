@@ -11673,6 +11673,19 @@ first live reviews on Kola):
 - `game/server/security.py`: token by `X-API-Key` header or `?token=`.
 - `qt_ui/windows/QLiberationWindow.py`: `copy_ai_connect_link`.
 - `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`.
+- **Loss causes on the last-turn page (2026-10-10).** `prev_turns.last_turn` breaks each
+  side's losses down by what killed them. The base plugin records the killer DCS names in
+  `S_EVENT_KILL` (`kill_causes` in state.json: target, killer, killer type, weapon name);
+  `StateData.kill_causes` parses it; `game/losscauses.py` looks both units up in the unit
+  map and sorts the kill as `aircraft`, `sam`, `aaa`, `ship`, `ground`, `own_side` or
+  `unknown`, per kind of loss (`aircraft`, `front_line`, `sites`); `Sitrep.loss_causes`
+  keeps the result with the turn. Served as `blue_lost_to` / `red_lost_to`, plus
+  `*_air_killers` and `*_air_weapons` (the top five type names). Both sides (DM call
+  2026-10-10: the page already gives both sides' counts). A loss with no kill event (a
+  crash, a collision, fuel) has no cause, so the causes can total fewer than the counts.
+  The AI link only: no kneeboard, debrief or SITREP line reads it. Idea from
+  Hussar2477/dcs-retribution (`llm-ai-opponent`). Tests: `tests/test_loss_causes.py`,
+  `tests/lua/test_dcs_retribution_runtime.py`. Row **B217** is the in-mission half.
 
 ### Constraints
 

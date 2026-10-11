@@ -273,6 +273,16 @@ class LastTurnView(BaseModel):
     blue_captured: Optional[list[str]] = None
     red_captured: Optional[list[str]] = None
     sorties: Optional[str] = None
+    # Losses the mission named a killer for: kind of loss -> cause -> count. Causes
+    # are aircraft / sam / aaa / ship / ground / own_side / unknown. A loss with no
+    # killer (a crash, a collision, fuel) is in the counts above and not here.
+    blue_lost_to: Optional[dict[str, dict[str, int]]] = None
+    red_lost_to: Optional[dict[str, dict[str, int]]] = None
+    # What shot each side's aircraft down, and with what: type name -> count.
+    blue_air_killers: Optional[dict[str, int]] = None
+    red_air_killers: Optional[dict[str, int]] = None
+    blue_air_weapons: Optional[dict[str, int]] = None
+    red_air_weapons: Optional[dict[str, int]] = None
 
 
 class PrevTurnsView(BaseModel):
@@ -1157,6 +1167,9 @@ def build_prev_turns(game: Game, n: int = 3) -> PrevTurnsView:
                 "sites": side.sites,
             }
 
+        # getattr: a sitrep pickled before the field existed has none.
+        causes = getattr(sitrep, "loss_causes", None) or {}
+        blue_causes, red_causes = causes.get("blue"), causes.get("red")
         last_turn = LastTurnView(
             turn=sitrep.turn,
             blue_lost=losses(sitrep.friendly),
@@ -1164,6 +1177,20 @@ def build_prev_turns(game: Game, n: int = 3) -> PrevTurnsView:
             blue_captured=list(sitrep.captured) or None,
             red_captured=list(sitrep.lost) or None,
             sorties=getattr(sitrep, "sortie_line", None),
+            blue_lost_to=(blue_causes.by_cause or None) if blue_causes else None,
+            red_lost_to=(red_causes.by_cause or None) if red_causes else None,
+            blue_air_killers=(
+                (blue_causes.aircraft_killers or None) if blue_causes else None
+            ),
+            red_air_killers=(
+                (red_causes.aircraft_killers or None) if red_causes else None
+            ),
+            blue_air_weapons=(
+                (blue_causes.aircraft_weapons or None) if blue_causes else None
+            ),
+            red_air_weapons=(
+                (red_causes.aircraft_weapons or None) if red_causes else None
+            ),
         )
     events = [
         name_the_sides(f"{info.title}: {info.text}" if info.text else info.title)

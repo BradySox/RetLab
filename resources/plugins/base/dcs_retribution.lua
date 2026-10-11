@@ -8,6 +8,7 @@ crash_events = {} -- killed aircraft will be added via S_EVENT_CRASH event
 dead_events = {} -- killed units will be added via S_EVENT_DEAD event
 unit_lost_events = {} -- killed units will be added via S_EVENT_UNIT_LOST
 kill_events = {} -- killed units will be added via S_EVENT_KILL
+kill_causes = {} -- {target=, killer=, killer_type=, weapon=} per S_EVENT_KILL that names a killer; Python sorts each loss by cause for the AI link (features doc §109)
 base_capture_events = {}
 destroyed_objects_positions = {} -- will be added via S_EVENT_DEAD event
 cruise_missiles_state = {} -- §63 cruisemissiles plugin appends/updates {group=, fired=} per ship group that launched cruise missiles this mission; Python debits the persisted campaign magazine at debrief
@@ -102,6 +103,24 @@ local function messageAll(message)
     mist.message.add(msg)
 end
 
+-- Who killed what, for the loss causes the AI link serves. The killer is named by
+-- unit so Python can look it up in the unit map; its type is kept for a killer the
+-- map does not know (a TIC clone, a late spawn).
+function record_kill_cause(initiator, target, weapon_name)
+    local target_name = target:getName()
+    local killer_name = initiator:getName()
+    if type(target_name) ~= "string" or type(killer_name) ~= "string" then
+        return
+    end
+    local ok, killer_type = pcall(function() return initiator:getTypeName() end)
+    kill_causes[#kill_causes + 1] = {
+        target = target_name,
+        killer = killer_name,
+        killer_type = ok and killer_type or nil,
+        weapon = type(weapon_name) == "string" and weapon_name or nil,
+    }
+end
+
 function write_state()
     local _debriefing_file_location = debriefing_file_location
     if not debriefing_file_location or debriefing_file_location == "" then
@@ -122,6 +141,7 @@ function write_state()
         ["base_capture_events"] = base_capture_events,
 		["unit_lost_events"] = unit_lost_events,
 		["kill_events"] = kill_events,
+        ["kill_causes"] = kill_causes,
         ["mission_ended"] = mission_ended,
         ["destroyed_objects_positions"] = destroyed_objects_positions,
         ["intercept_survivors"] = intercept_survivors or {},
@@ -346,6 +366,7 @@ local function onEvent(event)
         -- one; kill_events above records the victim, as every loss channel does.
         if event.initiator then
             pcall(sortie_recorder_on_kill, event.initiator, event.target)
+            pcall(record_kill_cause, event.initiator, event.target, event.weapon_name)
         end
         dirty_state = true
     end
