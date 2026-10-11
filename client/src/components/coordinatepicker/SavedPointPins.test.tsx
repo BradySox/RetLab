@@ -154,6 +154,18 @@ it("shows whose point it is, where, and how high", () => {
   expect(
     screen.getByText("Drag the pin to move this point."),
   ).toBeInTheDocument();
+  expect(
+    screen.getByText("Moving it re-reads the ground elevation."),
+  ).toBeInTheDocument();
+});
+
+it("shows no elevation for a point that has none", () => {
+  // 0 is "none": what a drag leaves when the ground lookup fails.
+  render(
+    <SavedPointPin point={{ ...point, altitude_ft: 0 }} receiver={receiver} />,
+  );
+  expect(screen.getByText("42N 42E")).toBeInTheDocument();
+  expect(screen.queryByText(/0 ft/)).not.toBeInTheDocument();
 });
 
 it("locks the pin during a move and puts it back when the move fails", async () => {

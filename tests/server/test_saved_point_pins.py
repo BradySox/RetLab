@@ -167,7 +167,7 @@ def test_an_empty_name_keeps_the_old_one(api: Any) -> None:
 
 
 @pytest.mark.parametrize("height", [None, 456])
-def test_a_drag_moves_the_point_and_takes_the_ground_height_when_there_is_one(
+def test_a_drag_moves_the_point_and_rereads_the_ground_height(
     api: Any, monkeypatch: pytest.MonkeyPatch, height: Any
 ) -> None:
     monkeypatch.setattr("game.elevation.elevation_ft", lambda lat, lng: height)
@@ -177,7 +177,8 @@ def test_a_drag_moves_the_point_and_takes_the_ground_height_when_there_is_one(
     actual = Point(api.point.x, api.point.y, api.game.theater.terrain).latlng()
     assert actual.lat == pytest.approx(43)
     assert actual.lng == pytest.approx(43)
-    assert api.point.altitude_ft == (100 if height is None else height)
+    # A failed lookup clears it: the old spot's 100 ft is not the new spot's.
+    assert api.point.altitude_ft == (0 if height is None else height)
     assert body.points[0].position.lat == pytest.approx(43)
     api.notify.assert_called_once()
 

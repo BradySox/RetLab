@@ -603,6 +603,8 @@ export type Tgo = {
   dead: boolean;
   sidc: string;
   task?: [string, string];
+  /** False while recon fog hides what is at the site. `task` is then absent. */
+  known?: boolean;
   mobile: boolean;
   destination?: LatLng;
   /** COIN concealment: set while this TGO renders as an uncertainty circle;

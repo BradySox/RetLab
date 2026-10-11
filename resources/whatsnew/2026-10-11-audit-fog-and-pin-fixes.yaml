@@ -1,0 +1,13 @@
+date: 2026-10-11
+title: Map layer rows and depot tooltips keep the recon fog
+change: >-
+  The LORAD, MERAD, SHORAD and AAA layer rows no longer sort enemy
+  air-defense sites you have not engaged: those sites show whenever the
+  Air defenses layer is on. An enemy motorpool you have not engaged
+  lists nothing in its tooltip, and an engaged one no longer shows
+  red's purchases or transfers. Dragging a saved-point pin re-reads
+  the ground elevation, and clears it when the lookup fails.
+watch: >-
+  With recon fog on, tick only MERAD in the map layers panel: the enemy
+  sites you have not engaged stay on the map. Hover an enemy motorpool
+  you have not struck: the tooltip shows its name only.

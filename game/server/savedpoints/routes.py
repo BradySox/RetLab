@@ -237,8 +237,9 @@ def edit(
         point.name = changes.name.strip()[:24] or point.name
     if at is not None:
         point.x, point.y = at.x, at.y
-        if height is not None:
-            point.altitude_ft = max(0, height)
+        # A failed lookup clears it (0 is "none" everywhere a point is read): the
+        # old spot's elevation at the new spot would aim a weapon at the wrong height.
+        point.altitude_ft = max(0, height or 0)
     publish_points_changed()
     return _describe(game, _player_flight(game, flight_id))
 

@@ -3352,6 +3352,10 @@ dark-themed control: `client/src/components/maplayers/MapLayersControl.tsx` (+ `
   duplicate marker in all four class layers) and a task match never had its category enforced.
   Note `task` serializes as `[name, role]` — `GroupTask` is a tuple-valued enum — hence
   `task[0]`. Tests `client/src/components/tgoslayer/TgosLayer.test.tsx`.
+  **§3 fog (2026-10-11):** `TgoJs.task` is sent only when `known_for(Player.BLUE)`, and
+  `TgoJs.known` says which. A site with `known: false` passes every class filter, so it
+  draws whenever the master is on and the class rows cannot sort it. A known site with no
+  task is still left out of a class filter.
 - **Folded in the old top-left control**: threat zones render via the existing
   `ThreatZonesLayer` (+ `ThreatZoneFilter`) and navmesh via `NavMeshLayer` (both already raw);
   terrain and culling gained raw-layer exports (`Inclusion/Exclusion/SeaZonesLayer`,
@@ -6340,7 +6344,9 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
   same groups and unit ids, so a flight plan aimed at a parked vehicle stays valid. The
   depot tooltip (`TgoTooltipContent`) lists reserve, expected next turn, unrendered reserve
   and in transit; `GameUpdateEvents.update_motorpools_at` refreshes it on every buy, sale,
-  transfer and turn. `TransferOrder` now takes its owner (`player`) and
+  transfer and turn. An enemy depot blue has not engaged (`known: false`) lists nothing; an
+  engaged one lists reserve and unrendered reserve only. Expected next turn is sent for
+  blue-held depots, and in transit counts blue's transfers only. `TransferOrder` now takes its owner (`player`) and
   `PendingTransfers.new_transfer` asserts it, so the fork's convoy seeders (§35, §50) pass
   `coalition.player`.
   - **Fork decisions:** the reserve lists follow `known_for(Player.BLUE)`, the same fog as

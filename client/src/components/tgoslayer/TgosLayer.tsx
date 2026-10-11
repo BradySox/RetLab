@@ -30,6 +30,11 @@ export default function TgosLayer(props: TgosLayerProps) {
     if (taskFilter.length === 0) {
       return true;
     }
+    // A site blue has not engaged carries no class, and must show under every
+    // class filter: showing it under none would let the rows sort it by elimination.
+    if (tgo.known === false) {
+      return true;
+    }
     return tgo.task != null && taskFilter.includes(tgo.task[0]);
   });
   return (

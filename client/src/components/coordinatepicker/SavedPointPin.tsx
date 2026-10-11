@@ -160,7 +160,8 @@ export default function SavedPointPin({
             {receiver.callsign} · {receiver.aircraft}
           </div>
           <div>
-            {point.coordinates} · {point.altitude_ft} ft
+            {point.coordinates}
+            {point.altitude_ft ? ` · ${point.altitude_ft} ft` : ""}
           </div>
           {orbit && (
             <div>
@@ -183,6 +184,9 @@ export default function SavedPointPin({
           </div>
           <div className="saved-point-hint">
             Drag the pin to move this {orbit ? "orbit" : "point"}.
+          </div>
+          <div className="saved-point-hint">
+            Moving it re-reads the ground elevation.
           </div>
           {error && <div role="alert">{error}</div>}
         </form>
