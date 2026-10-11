@@ -321,6 +321,30 @@ class Airlift(Transport):
         )
 
 
+def reassign_cargo(game: Game, flight: Flight, next_stop: ControlPoint) -> int:
+    """Puts ``flight``'s cargo on it, trimmed to what its aircraft can lift.
+
+    For a transport flight that replaces another (its squadron was changed).
+    What does not fit is split off and waits for the next transport. Returns
+    how many vehicles were left behind.
+    """
+    cargo = flight.cargo
+    if cargo is None:
+        return 0
+    slots = flight.count * airlift_capacity(flight.unit_type)
+    carriable = units_fitting_in(cargo.units, slots)
+    carried = cargo
+    left_behind = 0
+    if 0 < carriable < cargo.size:
+        transfers = game.coalition_for(cargo.player).transfers
+        carried = transfers.split_transfer(cargo, carriable)
+        left_behind = cargo.size
+        cargo.transport = None
+        flight.cargo = carried
+    carried.transport = Airlift(carried, flight, next_stop)
+    return left_behind
+
+
 class AirliftPlanner:
     #: Maximum range from for any link in the route of takeoff, pickup, dropoff, and RTB
     #: for a helicopter to be considered for airlift. Total route length is not
@@ -786,6 +810,8 @@ class PendingTransfers:
             units,
             player=transfer.player,
         )
+        # Split where the cargo is now, not back at its origin.
+        new_transfer.position = transfer.position
         self.pending_transfers.append(new_transfer)
         return new_transfer
 

@@ -1,0 +1,2 @@
+* **[Transfers]** Changing a transport flight's squadron no longer fails with "TransferOrder.next_stop called with no transport assigned". The new flight takes the cargo it can lift; the rest waits for the next transport. A squadron whose aircraft cannot lift the cargo is refused. (rmac7664)
+* **[Transfers]** A transfer split part-way along its route keeps the split part where the cargo is, instead of sending it back to its origin. (rmac7664)
