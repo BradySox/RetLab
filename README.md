@@ -174,8 +174,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   trim the route before you fly it.
 - One continuous clock: time advances a few hours per turn and weather evolves from the
   previous turn instead of re-rolling. Requires day-and-night missions.
-- The planner reads that weather — rain and storms ground automatic photo-recon and push
-  low-level CAS and BAI behind all-weather strikes.
+- The planner reads that weather — a thunderstorm pushes low-level CAS and BAI behind
+  all-weather strikes.
 - Optionally fly the real sky: with the ATMOS-X cloud pack and its CLI installed, the turn's
   weather is a live METAR observation instead of a generated one. The campaign keeps its own
   date and time. Falls back to generated weather if the observation cannot be fetched.
@@ -247,7 +247,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 ### Kneeboards and debrief
 
 - The kneeboard is the stock deck with RetLab content folded into it. Mission Info opens on a
-  BLUF: task, target, TOT, code words, compact air and SAM threat picture, loadout summary,
+  BLUF: task, target, TOT, compact air and SAM threat picture, loadout summary,
   SAR drill.
 - The fuel ladder rides in the flight plan with RTB margin called out. It charges the whole
   sortie including on-station orbit, so a CAP row shows patrol speed and an endurance line
@@ -256,8 +256,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   pilots recovered.
 - A Threat Intel Brief gives one card per enemy air-defence system — NATO name, guidance, ceiling,
   range, RWR symbol, how to beat it. It respects recon fog: un-engaged sites show only a threat tier.
-- Mission code words are visible to planners before generation and on the kneeboard in the
-  cockpit.
 - **Set as default for &lt;task&gt;** in the payload editor pins a loadout for that airframe and
   task across campaigns until cleared. Fuel and cockpit settings are already remembered per
   airframe.
@@ -296,7 +294,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   dead.
 - **Victory conditions.** Campaigns can author them: hold objective bases, destroy named
   high-value targets, kill every command post, grind enemy air below a threshold, or deny all
-  operating airfields. Any campaign can enable a domination or attrition ending from settings.
+  operating airfields.
   The map ribbon shows a live checklist. The capture-everything ending always remains.
 - **Cruise missile raids.** Mark a target and call the strike; the nearest warship ripples a
   salvo. Magazines are finite and never rearm. A launch alerts defending SAMs around the

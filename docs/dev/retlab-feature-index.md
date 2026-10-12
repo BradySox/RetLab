@@ -86,7 +86,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §72 | Carrier deck decorations (campaign A deck dressing) | — | `carrier_deck_decorations` |
 | §73 | Per-airframe default loadout for a task | — | — |
 | §74 | Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D) | — | `dtc_data_cartridges` |
-| §75 | Custom victory conditions | — | `alternate_victory_domination`, `alternate_victory_attrition` |
+| §75 | Custom victory conditions | — | — |
 | §76 | CTLD paratroopers (fixed-wing air assault) | `ctld` | — |
 | §77 | Escort jamming (Growler / Prowler) _(retired)_ | — | — |
 | §78 | Sea-supply convoys + coastal anti-ship engagement | — | `cargo_ship_convoys`, `cargo_ship_convoy_max`, `coastal_batteries_engage_ships` |

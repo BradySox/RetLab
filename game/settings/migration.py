@@ -179,6 +179,15 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         "sp_pilot_mode",
         # §77 escort jamming, REMOVED 2026-10-12 (DM call).
         "max_escort_jammers",
+        # Five options the DM never switched on, REMOVED 2026-10-12: cosmetic
+        # base damage, §75's two generic victory sliders, the QRA radio
+        # callouts, the planner's automatic recon flight and package code words.
+        "base_battle_damage",
+        "alternate_victory_domination",
+        "alternate_victory_attrition",
+        "qra_comms_enabled",
+        "auto_add_tarps_recon",
+        "enable_package_code_words",
     ):
         migrated.pop(obsolete_key, None)
 

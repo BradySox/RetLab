@@ -33,7 +33,8 @@ is legacy only and should not be extended.
   per-scramble variation would need a dispatcher GCI hook (deferred). Lua falls back to 2
   if an old save omits the field. Tests: `tests/squadrons/test_intercept_reserve.py`.
 - Campaign doctrine: `game/settings/` exposes
-  `ownfor_default_qra_reserve`, `opfor_default_qra_reserve` and `qra_comms_enabled`.
+  `ownfor_default_qra_reserve` and `opfor_default_qra_reserve` (the `qra_comms_enabled`
+  dispatcher callouts were removed 2026-10-12).
   The radii are constants in `interceptluadata.py`, a **base-defense** posture (lowered
   after playtest feedback that QRA screened forward over the FLOT):
   `QRA_GCI_MAX_RADIUS_NM` **60** (was 100) and `QRA_ENGAGEMENT_RANGE_NM` **38** (was 60).
@@ -508,6 +509,8 @@ command-post reveal),
 flown.
 
 ### The original implementation (historical from here down)
+
+**The automatic recon flight was removed 2026-10-12 (DM call): `auto_add_tarps_recon`, `PackageFulfiller._maybe_plan_tarps_recon` and the §67 rain gate `recon_suppressed`. TARPS is hand-fragged. What follows is the record of how the add-on worked.**
 
 `FlightType.TARPS` adds player-flown F-14 recon. All F-14 variants carry the
 `{F14-TARPS}` pod on station 6 (editor-verified). The auto-planner appends a single
@@ -1173,6 +1176,8 @@ page; overflow flows onto `(cont.)` continuation pages via the page's own card-p
 `tests/missiongenerator/test_threat_intel_kneeboard.py`. In-game pass ☑ VERIFIED 2026-06-26 (H5). *(Per-system
 photos were evaluated and deferred — DCS ships only `.dds` model textures, not portraits; reading
 + converting them at gen-time is fragile for marginal value on a 960px page.)*
+
+**Package code words were removed 2026-10-12 (DM call): the setting, `game/ato/codewords.py`, `Coalition.code_words`, the BLUF line, the Support Info block, the ATO panel table and tooltip, and the PUSH tag on the join waypoint. `game.ato.codewords` is in `REMOVED_MODULES` and `Coalition.__setstate__` drops the saved table. Verified working (row H6) and off in the DM's defaults and every save. What follows is the record.**
 
 **Mission code words + Comms & Brevity card.** A squadron-grown idea, modelled on the Red Flag
 81-2 kneeboards: the whole side shares **one mission-wide code-word table** — a **push word per
@@ -6480,6 +6485,8 @@ time-of-day). `game/retlab/weather_planning.py` is the read — two pure classif
 `game.conditions.weather` plus two planner couplings, both applying to BOTH coalitions (it
 is the same sky):
 
+**Coupling 1 below was removed 2026-10-12 with the automatic recon flight it gated; coupling 2 is the whole of §67 now.**
+
 1. **Recon stays home in the weather.** `recon_suppressed` gates
    `PackageFulfiller._maybe_plan_tarps_recon`: while it is raining or storming the optional
    auto-added recon bird (the Strike/DEAD BDA pass, the Armed Recon overwatch drone) is
@@ -7587,11 +7594,10 @@ the only alternate-endings layer over the stock territory default.)
   (`_PROFILE_CACHE` keyed by campaign name; any lookup/parse failure degrades to "no
   profile" with a log). Parse fails loudly (unknown keys, empty entries, bad
   fractions raise) so a broken campaign dies in tests.
-- **Generic:** two opt-in knobs (Campaign Management → Victory conditions, both
-  default 0 = off): `alternate_victory_domination` (hold ≥ N% of the non-neutral
-  bases → win) and `alternate_victory_attrition` (enemy total owned airframes below
-  N% of campaign start → win, capped at 90). They synthesize the same condition
-  objects and stack with any authored block.
+- **Generic: removed 2026-10-12 (DM call).** Two opt-in sliders
+  (`alternate_victory_domination`, `alternate_victory_attrition`) synthesized a domination
+  and an attrition win on any campaign. Both sat at 0 in the DM's defaults and every save.
+  An authored block can still express either (`territory_above`, `enemy_air_below`).
 
 **Semantics — requirement, not trigger:** a victory entry is a
 *requirement* — EVERY field set on one entry must hold (AND within the entry), and

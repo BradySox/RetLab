@@ -149,9 +149,9 @@ Phase-2 piece, not deferred.
   radius than the AI scramble** (e.g. `gci_max_radius_nm + player_scramble_lead_nm`) so a
   cold-starting human has spool-up + taxi + climb time before the merge. Expose
   `player_scramble_lead_nm` as a setting (or plugin option).
-- A bare fallback already exists for free: the coalition GCI messages emitted when
-  `qra_comms_enabled` is on (`intercept-config.lua:318,358`) — usable before the dedicated
-  player call lands.
+- A bare fallback existed until 2026-10-12: the coalition GCI messages the dispatcher
+  emitted when `qra_comms_enabled` was on. The setting and the messages were removed; the
+  dedicated player scramble cue is the only cue.
 - **Deferred:** scramble timer / scoring ("airborne within N minutes").
 
 ### 3.4 UI — set the manned count

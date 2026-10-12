@@ -170,6 +170,8 @@ knowable. Test 9's "full deck" was 24 on CVN-72 and launched clean, so the ceili
 
 ### B29 — Custom victory conditions (VICTORY chip + alternate endings) · §75 · ◐ PARTIAL
 
+**2026-10-12 — the two generic sliders were REMOVED on the DM's call** (both 0 in his defaults and every save). Only an authored campaign `victory:` block can end a war this way now.
+
 **2026-09-23, test 39 re-read (session `c2acb521`, at the DM's request)** — **the off half again, headless.** Both knobs 0 and no campaign `victory:` block; `victory_sitrep_lines` returns nothing on the turn-2 save. The knob-on half is an app pass.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **app-side; both knobs are 0 in every save**, so no alternate ending has ever been configured. Nothing for a capture to show.
@@ -457,6 +459,8 @@ EWR covering a site is dead, Skynet runs the site autonomous and live from T0.
      the reactive tier was left alone on purpose.
 
 ### G25 — Armed Recon package: recon drone + SEAD Viper escort + 4-ship sweep · §3 · ◐ PARTIAL
+
+**2026-10-12 — the recon drone half was REMOVED on the DM's call.** The planner no longer adds a TARPS flight to any package (`auto_add_tarps_recon` is deleted), so an auto-planned Armed Recon package is the sweep and its escorts. A hand-fragged TARPS flight still flies.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the drone and the SEAD escort are seen; the fixed 4-ship is not what the planner builds now.** Inherent Resolve test 17: `Tikrit Armed Recon` and `Bayji Armed Recon` are each a Mirage 2000C pair plus an RQ-1A TARPS singleton, and the auto-planned Armed Recon flights on Anatolian Reach, Iron Gate (twice) and Desert Trident are pairs too, each with a SEAD Escort where a radar SAM sits on the route. The only four-ship Armed Recon flights in any capture are the DM's hand-built AUROCHS package on test 30. The 4-ship primary in this row's text predates the 2026-08-09 planner re-convergence and reads as stale; re-check the proposer before treating the pair as a fail.
 

@@ -72,8 +72,6 @@ def _game(
     red_air: tuple[int, ...] = (10,),
     blue_air: tuple[int, ...] = (10,),
     turn: int = 5,
-    domination: int = 0,
-    attrition: int = 0,
     campaign_name: Optional[str] = None,
 ) -> Any:
     wings = {Player.RED: _wing(*red_air), Player.BLUE: _wing(*blue_air)}
@@ -81,10 +79,7 @@ def _game(
     game = SimpleNamespace(
         theater=SimpleNamespace(controlpoints=cps or [], ground_objects=tgos or []),
         air_wing_for=lambda player: wings[player],
-        settings=SimpleNamespace(
-            alternate_victory_domination=domination,
-            alternate_victory_attrition=attrition,
-        ),
+        settings=SimpleNamespace(),
         turn=turn,
         campaign_name=campaign_name,
         messages=messages,
@@ -318,42 +313,31 @@ def test_baseline_latches_once() -> None:
     assert _baseline(game).red_air == 10
 
 
-# --- knobs + profile merge ------------------------------------------------------------
+# --- the active profile ---------------------------------------------------------------
 
 
 def test_no_configuration_means_no_profile() -> None:
     assert active_victory_profile(_game()) is None
 
 
-def test_domination_knob_synthesizes_a_win_condition() -> None:
-    game = _game(cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)], domination=80)
-    profile = active_victory_profile(game)
-    assert profile is not None
-    assert profile.win_when[0].territory_above == 0.8
-    assert not profile.lose_when
+def _hold_half_the_bases() -> str:
+    """An authored domination win at 50%, the driver for the verdict tests."""
+    victory_mod._PROFILE_CACHE["Test Campaign"] = VictoryProfile(
+        win_when=(VictoryCondition(territory_above=0.5),),
+    )
+    return "Test Campaign"
 
 
-def test_attrition_knob_synthesizes_a_win_condition() -> None:
-    profile = active_victory_profile(_game(attrition=10))
-    assert profile is not None
-    assert profile.win_when[0].enemy_air_below == 0.1
-
-
-def test_authored_profile_and_knobs_stack() -> None:
+def test_the_authored_profile_is_the_active_one() -> None:
     authored = VictoryProfile(
         description="Test war",
         win_when=(VictoryCondition(capture_cps=("A",)),),
         lose_when=(VictoryCondition(lose_cps=("B",)),),
     )
     victory_mod._PROFILE_CACHE["Test Campaign"] = authored
-    game = _game(campaign_name="Test Campaign", attrition=10)
-    profile = active_victory_profile(game)
-    assert profile is not None
-    assert profile.description == "Test war"
-    assert len(profile.win_when) == 2
-    assert profile.win_when[0].capture_cps == ("A",)
-    assert profile.win_when[1].enemy_air_below == 0.1
-    assert len(profile.lose_when) == 1
+    game = _game(campaign_name="Test Campaign")
+
+    assert active_victory_profile(game) is authored
 
 
 # --- the verdict ----------------------------------------------------------------------
@@ -364,7 +348,10 @@ def test_verdict_none_without_configuration() -> None:
 
 
 def test_verdict_win_announces_once() -> None:
-    game = _game(cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)], domination=50)
+    game = _game(
+        cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)],
+        campaign_name=_hold_half_the_bases(),
+    )
     assert victory_verdict(game) == "win"
     assert victory_verdict(game) == "win"
     banners = [m for m in game.messages if m[0] == "Victory condition met"]
@@ -374,7 +361,10 @@ def test_verdict_win_announces_once() -> None:
 
 def test_a_read_of_the_verdict_announces_nothing() -> None:
     # The outside AI's turn_context reads the verdict; the banner is the turn's.
-    game = _game(cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)], domination=50)
+    game = _game(
+        cps=[_cp("A", Player.BLUE), _cp("B", Player.RED)],
+        campaign_name=_hold_half_the_bases(),
+    )
     assert victory_verdict(game, announce=False) == "win"
     assert game.messages == []
     assert not getattr(game, "victory_announced", None)
@@ -411,12 +401,12 @@ def test_verdict_uses_the_label_in_the_banner() -> None:
 
 def test_check_win_loss_wiring() -> None:
     # Drive the REAL Game.check_win_loss with a duck-typed self: the §75 branch
-    # wins on the domination knob, and with nothing configured the stock
+    # wins on an authored domination entry, and with nothing configured the stock
     # territory checks still rule.
     from game.game import Game, TurnState
 
     cps = [_cp("A", Player.BLUE), _cp("B", Player.RED)]
-    game = _game(cps=cps, domination=50)
+    game = _game(cps=cps, campaign_name=_hold_half_the_bases())
     game.theater.player_points = lambda state_check=False: [cps[0]]
     game.theater.enemy_points = lambda state_check=False: [cps[1]]
     assert Game.check_win_loss(cast(Any, game)) is TurnState.WIN

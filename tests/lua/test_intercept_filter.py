@@ -201,7 +201,6 @@ def _intercept_record(airbase: str, squadron_id: str) -> dict[str, str]:
         "grouping": "2",
         "engagementRangeNm": "38",
         "gciMaxRadiusNm": "60",
-        "commsEnabled": "false",
         "ambushPosture": "false",
         "disengageRadiusNm": "0",
     }

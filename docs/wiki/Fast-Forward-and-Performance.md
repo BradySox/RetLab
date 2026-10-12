@@ -79,7 +79,6 @@ client. So the levers, in order of payoff:
 | Generate infantry squads alongside vehicles | Performance → World detail | Off | Removes ~5 infantry per armor group (MANPAD coverage partially remains) |
 | Ambient suppressive fire | Lua Plugin Options → Troops In Contact | Off | Stops the constant scripted tracer fire on the FLOT — every burst is a network event in MP |
 | Front-line smoke effects | Performance → World detail | Off (or spacing 6000+) | Smoke columns are pure client-side GPU cost, worst exactly where CAS flies |
-| Battle damage at depleted bases (fires, smoke, wreckage) | Mission Generation → Battlefield life | Off | Burning bases look great and cost real FPS for everyone nearby |
 | Generate carcasses for units destroyed in previous turns | Performance → World detail | Off | Wrecks accumulate every turn; a campaign 10+ turns in carries hundreds |
 | Disable untasked OPFOR (and OWNFOR) aircraft at every airfield | Performance → Culling & untasked units | Optional | Parked jets with no flight already spawn only where a player flight uses or passes within 20 NM; this empties those ramps too |
 | Culling of distant units | Performance → Culling & untasked units | Optional, ~70 km | Modest gains (see the caveat above); try it after the rest |

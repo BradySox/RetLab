@@ -1,7 +1,6 @@
-"""The support page (tankers, AWACS, JTAC, code words, airfield directory) and the friendly packages list."""
+"""The support page (tankers, AWACS, JTAC, airfield directory) and the friendly packages list."""
 
 import datetime
-from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING, Tuple
 
@@ -91,22 +90,6 @@ class FriendlyPackagesPage(KneeboardPage):
         return pages
 
 
-@dataclass(frozen=True)
-class CodeWordsBlock:
-    """The side's mission code words, rendered on the Support Info page.
-
-    ``pushes`` is one row per task category present in the ATO: (label, word,
-    is_own_task). The event words follow; ``stop_jam`` only when an EW package
-    exists. Built by the generator so the page stays decoupled from the ATO.
-    """
-
-    theme: str
-    pushes: List[Tuple[str, str, bool]]
-    success: str
-    abort: str
-    stop_jam: Optional[str]
-
-
 class SupportPage(KneeboardPage):
     """A kneeboard page containing information about support units."""
 
@@ -122,7 +105,6 @@ class SupportPage(KneeboardPage):
         jtacs: List[JtacInfo],
         dark_kneeboard: bool,
         airfield_rows: Optional[List[List[str]]] = None,
-        code_words: Optional[CodeWordsBlock] = None,
         zulu_tz: Optional[datetime.tzinfo] = None,
     ) -> None:
         self.flight = flight
@@ -134,7 +116,6 @@ class SupportPage(KneeboardPage):
         self.zulu_tz = zulu_tz
         self.dark_kneeboard = dark_kneeboard
         self.airfield_rows = airfield_rows or []
-        self.code_words = code_words
         # Every other row in this table is a callsign, so this one is too. It
         # used to fall back to the literal "Flight", which read as a placeholder
         # on the one row the reader is looking for (flown 2026-08-17: the page
@@ -308,17 +289,11 @@ class SupportPage(KneeboardPage):
             )
 
         def render_sections(w: KneeboardPageWriter, section_gap: int) -> None:
-            for idx, (heading, cells, hdr) in enumerate(sections):
+            for heading, cells, hdr in sections:
                 w.text(heading, font=w.heading_font)
                 w.rule()
                 w.table(cells, headers=hdr)
                 w.vspace(section_gap)
-                # Code words ride directly under the package comm ladder: the
-                # push/event words are package-coordination data, so they live
-                # next to the frequencies they are called on.
-                if idx == 0 and self.code_words is not None:
-                    self._render_code_words(w)
-                    w.vspace(section_gap)
 
         # When there's no airfield directory below, distribute the leftover
         # vertical space as even gaps so the tables breathe down the page
@@ -330,7 +305,7 @@ class SupportPage(KneeboardPage):
             probe.y = writer.y
             render_sections(probe, 0)
             leftover = (writer.image_size[1] - writer.page_margin) - probe.y
-            n_blocks = len(sections) + (1 if self.code_words is not None else 0)
+            n_blocks = len(sections)
             gap = int(max(12, min(90, leftover // max(1, n_blocks))))
 
         render_sections(writer, gap)
@@ -346,39 +321,6 @@ class SupportPage(KneeboardPage):
                 headers=self.AIRFIELD_HEADERS,
             )
         return overflow
-
-    def _render_code_words(self, w: KneeboardPageWriter) -> None:
-        """The side's code words: a push word per task (yours marked) + event words.
-
-        Colour keys the call: push words blue, SUCCESS green, ABORT red, STOP JAM
-        amber -- so the word you need is found without reading labels. This is the
-        in-cockpit copy of the code words the planners see on the ATO tooltip.
-        """
-        cw = self.code_words
-        assert cw is not None
-        w.text(f"Code Words — {cw.theme}", font=w.heading_font)
-        w.rule()
-        for label, word, own in cw.pushes:
-            runs: List[Tuple[str, Optional[Tuple[int, int, int]]]] = [
-                (f"{label:<10}", w.col_muted),
-                (word, w.col_nav),
-            ]
-            if own:
-                runs.append(("  (you)", w.col_emphasis))
-            w.text_runs(runs, font=w.table_font)
-        w.text_runs(
-            [("SUCCESS   ", w.col_muted), (cw.success, w.col_success)],
-            font=w.table_font,
-        )
-        w.text_runs(
-            [("ABORT     ", w.col_muted), (cw.abort, w.col_danger)],
-            font=w.table_font,
-        )
-        if cw.stop_jam:
-            w.text_runs(
-                [("STOP JAM  ", w.col_muted), (cw.stop_jam, w.col_caution)],
-                font=w.table_font,
-            )
 
     def format_frequency(self, frequency: Optional[RadioFrequency]) -> str:
         if frequency is None:

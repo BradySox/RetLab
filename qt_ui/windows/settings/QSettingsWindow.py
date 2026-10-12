@@ -916,7 +916,7 @@ class PlannerSuiteBar(QGroupBox):
             "One click sets the RetLab planner gates together: stock plans like "
             "upstream DCS Retribution; the RetLab suite turns on overlapping "
             "BARCAP waves, SEAD-window strike timing, one suppression flight per "
-            "package, SEAD escorts for front-line CAS, auto recon flights, "
+            "package, SEAD escorts for front-line CAS, "
             "weather-aware planning, price-weighted AI ground "
             "purchases, the continuous clock, and wider CAS and Armed Recon "
             "engagement ranges. Each can still be changed on its own afterwards."

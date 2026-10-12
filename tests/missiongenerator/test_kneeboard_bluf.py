@@ -4,7 +4,6 @@ import datetime
 from types import SimpleNamespace
 from typing import Any
 
-from game.ato.codewords import MissionCodeWords, PushCategory
 from game.ato.flighttype import FlightType
 from game.missiongenerator.kneeboard import (
     KneeboardGenerator,
@@ -16,17 +15,11 @@ from game.missiongenerator.kneeboard import (
 from game.radio.radios import RadioFrequency
 
 
-def _generator(*, code_words_on: bool) -> KneeboardGenerator:
+def _generator() -> KneeboardGenerator:
     mission = SimpleNamespace(start_time=SimpleNamespace(hour=12))
-    coalition = SimpleNamespace(
-        code_words=MissionCodeWords.generate(),
-        ato=SimpleNamespace(packages=[]),
-    )
+    coalition = SimpleNamespace(ato=SimpleNamespace(packages=[]))
     game = SimpleNamespace(
-        settings=SimpleNamespace(
-            generate_dark_kneeboard=False,
-            enable_package_code_words=code_words_on,
-        ),
+        settings=SimpleNamespace(generate_dark_kneeboard=False),
         coalition_for=lambda friendly: coalition,
     )
     return KneeboardGenerator(mission, game)  # type: ignore[arg-type]
@@ -83,16 +76,13 @@ def _unknown_card() -> ThreatCard:
 
 
 def test_bluf_lines_carry_task_threats_and_sar() -> None:
-    gen = _generator(code_words_on=True)
+    gen = _generator()
     lines = gen._bluf_lines(_flight(), [_live_card()])
 
     task = lines[0]
     assert task.startswith("TASK")
     assert "Bunker complex" in task
     assert "TOT" in task
-
-    push = next(line for line in lines if "PUSH " in line)
-    assert "SUCCESS " in push and "ABORT " in push
 
     # The compact threat picture: an air-threat line (the fake coalition has no
     # opponent, so the loose fallback) + the condensed live SAM systems.
@@ -140,45 +130,21 @@ def test_air_threat_line_names_only_squadrons_the_enemy_owns() -> None:
 def test_bluf_has_no_top_threat_line() -> None:
     # The verbose TOP THREAT prose was dropped in the back-to-upstream rework;
     # the SAM picture is the condensed "system MEZnm" line instead.
-    gen = _generator(code_words_on=False)
+    gen = _generator()
     lines = gen._bluf_lines(_flight(), [_live_card()])
     assert not any("TOP THREAT" in line for line in lines)
 
 
-def test_bluf_push_line_omitted_without_code_words() -> None:
-    gen = _generator(code_words_on=False)
-    lines = gen._bluf_lines(_flight(), [_live_card()])
-    assert not any("PUSH " in line for line in lines)
-
-
 def test_bluf_sam_line_omitted_when_only_unidentified() -> None:
-    gen = _generator(code_words_on=False)
+    gen = _generator()
     lines = gen._bluf_lines(_flight(), [_unknown_card()])
     assert not any("SAM " in line for line in lines)
 
 
 def test_bluf_loadout_line_omitted_without_pylons() -> None:
-    gen = _generator(code_words_on=False)
+    gen = _generator()
     lines = gen._bluf_lines(_flight(), [])
     assert not any(line.startswith("LOADOUT") for line in lines)
-
-
-def test_code_words_block_none_when_feature_off() -> None:
-    gen = _generator(code_words_on=False)
-    assert gen._code_words_block(_flight()) is None
-
-
-def test_code_words_block_marks_own_task_and_carries_event_words() -> None:
-    gen = _generator(code_words_on=True)
-    block = gen._code_words_block(_flight(FlightType.STRIKE))
-    assert block is not None
-    # The flight's own category is present and marked even with an empty ATO.
-    own_rows = [row for row in block.pushes if row[2]]
-    assert len(own_rows) == 1
-    assert own_rows[0][0] == PushCategory.STRIKE.value
-    assert block.success and block.abort
-    # No EW package in the ATO -> no STOP JAM word.
-    assert block.stop_jam is None
 
 
 def test_brief_sam_threats_condenses_top_systems() -> None:

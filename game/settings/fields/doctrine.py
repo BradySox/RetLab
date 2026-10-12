@@ -85,16 +85,6 @@ class DoctrineSettings:
             "where a base only ever defends itself."
         ),
     )
-    qra_comms_enabled: bool = boolean_option(
-        "QRA radio scramble callouts",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        default=True,
-        detail=(
-            "Enables the dispatcher's defender-POV radio/text callouts (scramble, "
-            "wheels up, engaging, RTB) on the coalition F10 menu and radio TTS."
-        ),
-    )
     desired_awacs_mission_duration: timedelta = minutes_option(
         "Desired AWACS on-station time",
         page=CAMPAIGN_DOCTRINE_PAGE,
@@ -150,26 +140,6 @@ class DoctrineSettings:
         detail=(
             "If checked, the auto-planner will include tankers in DEAD packages, "
             "provided the faction has access to them."
-        ),
-    )
-    auto_add_tarps_recon: bool = boolean_option(
-        "Auto-planner adds a recon flight to Strike/DEAD/Armed Recon packages",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        # Stock default (2026-08-09 re-convergence): upstream plans no add-on
-        # recon. RetLab planner suite preset turns this on.
-        default=False,
-        invert=False,
-        detail=(
-            "If checked, the auto-planner appends a single photo-recon flight "
-            "(e.g. F-14 TARPS, or a Predator/Reaper drone on a UAV-fielding "
-            "faction) to Strike and DEAD packages against high-value targets "
-            "(air defenses, factories, command posts, bridges) and to Armed Recon "
-            "packages. What it brings back is a hidden enemy command post within "
-            "3 NM of the package's target, revealed on your map; engaging a site "
-            "is what reveals everything else. Requires a TARPS-capable squadron "
-            "in range; if none is available the flight is simply skipped (the "
-            "package is never scrubbed)."
         ),
     )
     recon_intel_fog: bool = boolean_option(
@@ -368,8 +338,7 @@ class DoctrineSettings:
         default=False,
         detail=(
             "The theater commander accounts for the sky when planning (both "
-            "sides). In rain or thunderstorms the automatic photo-recon add-on "
-            "stays home (cameras photograph cloud deck), and a thunderstorm "
+            "sides). A thunderstorm "
             "pushes low-level visual attack -- front-line CAS, battle-position "
             "BAI, convoy interdiction -- to the back of the offensive plan so "
             "weather-tolerant strikes claim the jets first. Clear skies change "

@@ -4,21 +4,19 @@ The §47 continuous clock gave the campaign an evolving sky, but the theater
 commander never read it: the planner happily fragged TARPS photo recon into a
 thunderstorm and led its offensive plan with low-level visual attack in weather
 that grounds it. This module is the read -- a couple of pure classifiers over
-``game.conditions`` plus the two planner couplings:
+``game.conditions`` plus the planner coupling:
 
-1. **Recon stays home in the weather.** The optional auto-added TARPS bird
-   (Strike/DEAD BDA pass, the Armed Recon overwatch drone) is suppressed while
-   it is raining or storming -- cameras (optical *and* IR) photograph cloud
-   deck, so the sortie banks nothing. Player-planned recon is never touched;
-   this only gates the automatic add-on flight.
-2. **Storms demote low-level visual attack.** In a thunderstorm the offensive
-   HTN methods that live at low level under the weather -- front-line CAS,
-   battle-position BAI, convoy interdiction -- are moved to the tail of the
-   offensive order (soft demotion, the §40/§55 emphasis discipline: nothing is
-   removed, the planner still services them if jets are left after the
-   weather-tolerant taskings claim theirs).
+**Storms demote low-level visual attack.** In a thunderstorm the offensive
+HTN methods that live at low level under the weather -- front-line CAS,
+battle-position BAI, convoy interdiction -- are moved to the tail of the
+offensive order (soft demotion, the §40/§55 emphasis discipline: nothing is
+removed, the planner still services them if jets are left after the
+weather-tolerant taskings claim theirs).
 
-Both couplings apply to BOTH coalitions -- it is the same sky. Night awareness
+A second coupling kept the automatic TARPS add-on home in rain; it went with
+that add-on on 2026-10-12.
+
+It applies to BOTH coalitions -- it is the same sky. Night awareness
 is deliberately absent: the model carries no per-airframe night-capability
 data, so demoting night CAS would wrongly ground an A-10C II alongside an A-1.
 
@@ -82,16 +80,6 @@ def storm(game: "Game") -> bool:
     if isinstance(_weather(game), Thunderstorm):
         return True
     return _archetype_id(game) == "thunderstorm"
-
-
-def recon_suppressed(game: "Game") -> bool:
-    """Should the automatic TARPS add-on stay home this turn?
-
-    True only when the feature is on and the sky is rain/storm. The caller
-    (``PackageFulfiller._maybe_plan_tarps_recon``) treats True as "omit the
-    optional recon flight" -- never a scrub, exactly like a missing squadron.
-    """
-    return _enabled(game) and poor_visibility_weather(game)
 
 
 def demote_weather_hostile_methods(game: "Game", order: Iterable[str]) -> list[str]:

@@ -91,10 +91,10 @@ class BriefingPage(KneeboardPage):
         self.theater = theater
         self.atis_by_name = atis_by_name or {}
         # BLUF (bottom line up front): the few items a pilot needs even if this is
-        # the only kneeboard page they read -- task/TOT, code words, JAM BACKUP,
+        # the only kneeboard page they read -- task/TOT, JAM BACKUP,
         # the compact threat picture, loadout and SAR guidance. Composed by the
         # generator (``_bluf_lines``) and passed in so the page stays decoupled
-        # from the threat/code-word models.
+        # from the threat model.
         self.bluf_lines = bluf_lines or []
         # De-duplication (design §4): drop the weather block when the recon Departure
         # page already carries it. The Friendly Packages list moved to its own page.
@@ -118,7 +118,7 @@ class BriefingPage(KneeboardPage):
             custom_name_title = ""
         writer.title(f"{self.flight.callsign} Mission Info{custom_name_title}")
 
-        # BLUF block: task/target/TOT, push + event code words, JAM BACKUP, the
+        # BLUF block: task/target/TOT, JAM BACKUP, the
         # compact threat picture, loadout and SAR guidance -- the priority items on
         # the page players open to first (design §4). Kept tight so the flight-plan
         # table still fits on this same page.

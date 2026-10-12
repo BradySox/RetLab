@@ -63,41 +63,6 @@ class CampaignManagementSettings:
             "can be enforced alone. Data is curated per airframe and incomplete."
         ),
     )
-    alternate_victory_domination: int = bounded_int_option(
-        "Domination victory (% of bases held)",
-        page=CAMPAIGN_MANAGEMENT_PAGE,
-        section="Victory conditions",
-        default=0,
-        min=0,
-        max=100,
-        detail=(
-            "0 disables (the default). Otherwise, holding at least this percentage "
-            "of the map's non-neutral bases wins the campaign at the turn boundary "
-            "-- a limited war ends when the objective area is held, without the "
-            "total conquest the stock ending demands. Adds to the normal endings, "
-            "never replaces them. Pick a threshold above your starting share or "
-            "the campaign ends immediately -- the VICTORY chip on the map ribbon "
-            "shows the live percentage. Works on any campaign; a campaign's own "
-            "victory conditions stack with it."
-        ),
-    )
-    alternate_victory_attrition: int = bounded_int_option(
-        "Attrition victory (enemy air below % of start)",
-        page=CAMPAIGN_MANAGEMENT_PAGE,
-        section="Victory conditions",
-        default=0,
-        min=0,
-        max=90,
-        detail=(
-            "0 disables (the default). Otherwise, grinding the enemy's total owned "
-            "airframes below this percentage of their campaign-start strength wins "
-            "the campaign -- destroy the enemy's military potential instead of "
-            "capturing every base. Measured against the force at campaign start "
-            "(enemy procurement rebuying airframes counts against you, so the "
-            "fight stays honest); the VICTORY chip on the map ribbon shows the "
-            "live percentage. Adds to the normal endings, never replaces them."
-        ),
-    )
     coin_insurgency: bool = boolean_option(
         "COIN insurgent replenishment",
         page=CAMPAIGN_MANAGEMENT_PAGE,

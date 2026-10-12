@@ -67,7 +67,7 @@ class Package(RadioFrequencyContainer):
         primary = self.primary_flight
         for flight in self.flights:
             if flight.flight_type is FlightType.TARPS and flight is not primary:
-                # The tag-along recon bird (the auto-added TARPS/BDA drone)
+                # The tag-along recon bird (a TARPS flight added to the package)
                 # flies the package's route on its own role-aware ToT offset;
                 # it never sets the shooters' pace. Counting it dragged a
                 # Hornet DEAD package's whole formation to the MQ-9's ~170 kt,

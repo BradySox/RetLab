@@ -1,0 +1,12 @@
+date: 2026-10-12
+title: Five unused options removed
+change: >-
+  Gone from Settings: QRA radio scramble callouts, battle damage at
+  depleted bases, the automatic recon flight the planner added to Strike,
+  DEAD and Armed Recon packages, the Domination and Attrition victory
+  sliders, and package code words. QRA itself, hand-fragged TARPS flights
+  and a campaign's own victory conditions are unchanged.
+watch: >-
+  The kneeboard's Mission Info and Support Info pages carry no code words.
+  The ATO panel shows no code word table. No package gets a recon flight
+  unless you add one.

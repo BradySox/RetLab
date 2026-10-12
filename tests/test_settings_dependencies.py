@@ -197,9 +197,9 @@ def test_long_detail_renders_fully_inline(qapp: Any) -> None:
     # user call): reading a setting must not require hovering it, so the whole
     # detail renders on the page -- and Qt wraps it to the real column width
     # (word wrap + label-column stretch) instead of a fixed 55-char textwrap
-    # that left the window's middle as dead space. Exercised on the Victory
-    # conditions section, whose details are well past the old 150-char limit.
-    page_section = ("Campaign Management", "Victory conditions")
+    # that left the window's middle as dead space. Exercised on the section that
+    # holds the recon fog setting, whose detail is well past the old 150-char limit.
+    page_section = _section_of(Settings(), "recon_intel_fog")
     layout = _layout_for(page_section, Settings())
     assert layout.columnStretch(0) == 1  # the label column absorbs spare width
     checked = 0
