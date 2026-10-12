@@ -1,0 +1,8 @@
+.sector-label {
+  color: #f0f0f0;
+  font: 600 10px/14px system-ui, sans-serif;
+  text-align: center;
+  text-shadow: 0 0 3px #000, 0 0 2px #000;
+  white-space: nowrap;
+  pointer-events: none;
+}

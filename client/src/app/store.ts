@@ -8,6 +8,7 @@ import frontLinesReducer from "../api/frontLinesSlice";
 import iadsNetworkReducer from "../api/iadsNetworkSlice";
 import mapReducer from "../api/mapSlice";
 import neutralBorderReducer from "../api/neutralBorderSlice";
+import territoryReducer from "../api/territorySlice";
 import navMeshReducer from "../api/navMeshSlice";
 import supplyRoutesReducer from "../api/supplyRoutesSlice";
 import tgosReducer from "../api/tgosSlice";
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   frontLines: frontLinesReducer,
   map: mapReducer,
   neutralBorders: neutralBorderReducer,
+  territory: territoryReducer,
   navmeshes: navMeshReducer,
   supplyRoutes: supplyRoutesReducer,
   iadsNetwork: iadsNetworkReducer,

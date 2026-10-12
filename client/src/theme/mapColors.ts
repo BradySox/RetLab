@@ -20,6 +20,11 @@ export const mapColors = {
   friendly: "#0084ff", // your forces: flight paths, threat rings
   enemy: "#c85050", // enemy forces: flight paths, threat rings
   flot: "#fe7d0a", // the front line (FLOT)
+  // §111 territory: blue-grey and orange-brown, so the fill never reads as a
+  // threat ring or a flight path.
+  territoryBlue: "#4f78a8",
+  territoryRed: "#b8743a",
+  sectorEdge: "#1c1c1c",
 
   // --- sensor coverage (SAM/EWR range rings) ---
   detectionFriendly: "#bb89ff", // violet: friendly radar detection range
