@@ -73,7 +73,7 @@ This keeps the two systems cleanly separated:
 | Lives in ATO? | No (throwaway template) | **Yes** (real `Flight` + `Package`) |
 | Spawn | MOOSE air-spawn, on demand | Cold on the alert pad, present at mission start |
 | Controlled by | `AI_A2A_DISPATCHER` | The human |
-| Flight plan / kneeboard / loadout | None | Full, normal pipeline |
+| Flight plan / kneeboard / loadout | None (since 2026-10-12 the template carries the squadron's BARCAP fit; features doc §1) | Full, normal pipeline |
 | Counted in `resource_count`? | Yes | **No** — subtracted out |
 
 The player flight and the AI dispatcher **coexist** at the same base: e.g. a squadron with

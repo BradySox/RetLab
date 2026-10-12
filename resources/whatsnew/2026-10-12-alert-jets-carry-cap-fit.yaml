@@ -1,0 +1,12 @@
+date: 2026-10-12
+title: Alert fighters launch with a real air-to-air loadout
+change: >-
+  Alert (QRA) fighters and the host's scramble jets used to carry whatever
+  DCS loads on that aircraft type by default: inert practice bombs on an
+  F-15E, two short-range missiles on a JF-17, nothing at all on a Mirage F1.
+  They now carry their squadron's normal CAP loadout, with the weapon date
+  limits applied.
+watch: >-
+  When an alert jet scrambles, on either side, look at it in the F2 view or
+  in Tacview: it carries radar and heat-seeking missiles like a CAP flight
+  of the same type.
