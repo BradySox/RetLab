@@ -917,7 +917,7 @@ class PlannerSuiteBar(QGroupBox):
             "upstream DCS Retribution; the RetLab suite turns on overlapping "
             "BARCAP waves, SEAD-window strike timing, one suppression flight per "
             "package, SEAD escorts for front-line CAS, auto recon flights, "
-            "weather-aware planning, escort jammers, price-weighted AI ground "
+            "weather-aware planning, price-weighted AI ground "
             "purchases, the continuous clock, and wider CAS and Armed Recon "
             "engagement ranges. Each can still be changed on its own afterwards."
         )

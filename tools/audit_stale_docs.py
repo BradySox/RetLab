@@ -451,6 +451,15 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(
+        # S77. Not a bare "jamming" or "Growler": the C-130J, GPS jamming and the
+        # EA-18G airframe are all live.
+        "escort jamming, the growler plugin and the Escort Jammer task (S77)",
+        "2026-10-12",
+        r"[Ee]scort jamm\w+|Escort Jammer|escort-jammer|ESCORT_JAMMER"
+        r"|max_escort_jammers|`growler`",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",

@@ -261,7 +261,7 @@ to author and hard to notice until someone flies it — the Marianas lesson, whe
 unreadable".
 
 Overlap is called out separately because **effects do not stack**: a weapon faces
-only the single strongest bubble covering it (the §77 non-stacking rule), so a
+only the single strongest bubble covering it (the non-stacking rule §77 used until its removal), so a
 second overlapping site adds no decision and killing one restores nothing.
 
 Both rules are enforced by tests that walk every campaign's `ground_forces` pins.

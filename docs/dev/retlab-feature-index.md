@@ -80,7 +80,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §66 | Generated-mission archive | — | — |
 | §67 | Weather-aware auto-planning | — | `weather_aware_planning` |
 | §68 | Adaptive procurement (price-weighted buys + SAM repair) | — | `adaptive_procurement`, `auto_repair_air_defenses` |
-| §69 | Cross-package SEAD-before-strike coordination | — | `sead_strike_coordination`, `front_line_sead_escort`, `route_around_sams`, `tarcap_behind_sead` |
+| §69 | Cross-package SEAD-before-strike coordination | — | `sead_strike_coordination`, `front_line_sead_escort`, `route_around_sams`, `tarcap_behind_sead`, `single_sead_escort_flavour` |
 | §70 | COMINT collection (blue-side communications intelligence) _(retired)_ | — | — |
 | §71 | Expanded F-4E Weapons Pack (AGM-78/-88 Weasel fits) | — | — |
 | §72 | Carrier deck decorations (campaign A deck dressing) | — | `carrier_deck_decorations` |
@@ -88,7 +88,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §74 | Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D) | — | `dtc_data_cartridges` |
 | §75 | Custom victory conditions | — | `alternate_victory_domination`, `alternate_victory_attrition` |
 | §76 | CTLD paratroopers (fixed-wing air assault) | `ctld` | — |
-| §77 | Escort jamming (Growler / Prowler) | `growler` | `max_escort_jammers`, `single_sead_escort_flavour` |
+| §77 | Escort jamming (Growler / Prowler) _(retired)_ | — | — |
 | §78 | Sea-supply convoys + coastal anti-ship engagement | — | `cargo_ship_convoys`, `cargo_ship_convoy_max`, `coastal_batteries_engage_ships` |
 | §79 | Decoy suspected-activity zones _(retired)_ | — | — |
 | §80 | Mixed-hull ship groups | — | — |

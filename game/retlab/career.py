@@ -225,7 +225,7 @@ def rank_for(
 def is_combat_sortie(flight_type: Any) -> bool:
     """Whether a task counts as a combat sortie.
 
-    Air-to-air, air-to-ground, or an escort type — the last so an escort jammer
+    Air-to-air, air-to-ground, or an escort type — the last so an escort
     riding into the same threat ring as the strikers is not filed as a transit.
     A tanker orbit is a sortie and is not a combat sortie.
     """

@@ -8,8 +8,9 @@ order E) restored upstream's task-weight numbers across the rebalanced yamls via
 - Task-set *shapes*: fork deletions stay deleted (Intercept everywhere, the F-14s'
   SEAD, the A-10Cs' Strike, bomber DEAD trims, the recon birds' attack tasks).
 - `secondary_tasks:` blocks and the heavy-bomber ARMED_RECON code suppression.
-- The fork task lanes (TARPS, Jamming, Escort Jammer, CSAR) and the EA-18G/EA-6B
-  `SEAD Escort: 400` demotion that wires the Escort Jammer lane.
+- The fork task lanes (TARPS, Jamming, CSAR). The Escort Jammer lane and the EA-18G/EA-6B
+  `SEAD Escort: 400` demotion that wired it went on 2026-10-12; both jets are on upstream's
+  SEAD Escort weights.
 - The S-3B sea-control / A-6E two-variant restructure and its roster wiring.
 - The C-130J-30 task set.
 

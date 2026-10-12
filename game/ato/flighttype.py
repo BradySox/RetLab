@@ -57,11 +57,6 @@ class FlightType(Enum):
     AEWC = "AEW&C"
     TRANSPORT = "Transport"
     SEAD_ESCORT = "SEAD Escort"
-    # Growler-only escort jamming: rides the package join->split like a SEAD
-    # escort; the growler plugin drives the scripted jamming effect at runtime.
-    # Capability comes solely from the yaml `tasks:` block -- only the EA-18G
-    # declares it (user call 2026-07-21: the FA-18E/F never fly this).
-    ESCORT_JAMMER = "Escort Jammer"
     REFUELING = "Refueling"
     FERRY = "Ferry"
     AIR_ASSAULT = "Air Assault"
@@ -132,7 +127,6 @@ class FlightType(Enum):
         return self in {
             FlightType.ESCORT,
             FlightType.SEAD_ESCORT,
-            FlightType.ESCORT_JAMMER,
         }
 
     @property
@@ -175,7 +169,6 @@ class FlightType(Enum):
         return self in {
             FlightType.ESCORT,
             FlightType.SEAD_ESCORT,
-            FlightType.ESCORT_JAMMER,
             FlightType.TARCAP,
         }
 
@@ -204,7 +197,6 @@ class FlightType(Enum):
             FlightType.STRIKE: AirEntity.ATTACK_STRIKE,
             FlightType.SWEEP: AirEntity.FIGHTER,
             FlightType.JAMMING: AirEntity.ELECTRONIC_COMBAT_JAMMER,
-            FlightType.ESCORT_JAMMER: AirEntity.ELECTRONIC_COMBAT_JAMMER,
             FlightType.TARPS: AirEntity.RECONNAISSANCE,
             FlightType.TARCAP: AirEntity.FIGHTER,
             FlightType.TRANSPORT: AirEntity.UTILITY,
@@ -218,6 +210,9 @@ class FlightType(Enum):
 # FlightType(value)) both resolve through here. Add a "legacy value" -> live
 # member entry here ONLY -- do not reintroduce a parallel table in the unpickler.
 _LEGACY_FLIGHT_TYPE_VALUES: dict[str, FlightType] = {
+    # §77 escort jamming, removed 2026-10-12. The jammer flew the SEAD escort
+    # profile with the SEAD Escort fit, so that is what a saved one becomes.
+    "Escort Jammer": FlightType.SEAD_ESCORT,
     # C-130 EW/ISR consolidation: the old generic ISR type became JAMMING.
     "ISR": FlightType.JAMMING,
     # The retired SCRAMBLE QRA type always behaved as a BARCAP (BarCap flight

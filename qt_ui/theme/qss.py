@@ -33,7 +33,7 @@ _A2G = (
 )
 _DEAD = ("DEAD", "SEAD_SWEEP")
 _SEAD = ("SEAD", "SEAD_ESCORT")
-_EW = ("JAMMING", "ESCORT_JAMMER")
+_EW = ("JAMMING",)
 _RECON = ("TARPS",)
 _SUPPORT = (
     "AEWC",

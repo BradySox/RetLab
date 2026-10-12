@@ -102,7 +102,6 @@ setting off costs nothing at runtime.
 |---|---|---|
 | `skynetiads` | on | **Skynet-IADS** (upstream's) — SAM/EWR networking, HARM defence, point defence, mobile-SAM shoot-and-scoot, the advanced comms/power/command graph. The fork's build adds HDSUC and CurrentHill SAM profiles; see [IADS Engine: Skynet](IADS-Engine-Skynet). |
 | `c130j` | on | Turns the player C-130J into an EC-130H Compass Call (jamming) and RC-130H Rivet Joint (ISR/ELINT) platform — `FlightType.JAMMING`. Supersedes the retired generic `ewrj`. |
-| `growler` | on | Escort jamming for the EA-18G and EA-6B: non-stacking spoof bubbles and SAM weapons-hold pulses. Inert unless an escort-jammer flight exists. |
 | `gpsjamming` | on | GPS denial — satellite-guided weapons released inside the bubble land long. Inert unless a live GPS-jamming group is on the map. |
 | `bigeye` | off | BigEye EWR — text threat reports to pilots, prioritised by contact danger. |
 | `lotatc` | off | Exports anti-air sites to LotATC so GCI controllers see the SAM/AAA picture. |

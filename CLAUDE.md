@@ -329,8 +329,6 @@ linked design note.
 - **Never restore the generic `ewrj` fighter-pod jammer** (§2). Superseded by the C-130J.
 - **The C-130J cues; it never lases or designates.** It carries no targeting sensor in DCS.
   Retribution has no FAC(A) task type; §38 does marking through Vietnam Ops.
-- **Never unify §77 escort jamming with the C-130's standoff model.** §77 strengthens as the
-  jammer closes; the C-130's burn-through weakens. Both are intentional and opposite.
 - **Never add a land-attack weapon family to the §81 anti-ship pattern list.** §63 and §81 stay
   correct only because their weapon sets are disjoint.
 - **GPS jamming (§86): at most 3 sites per campaign, non-overlapping.** Bubbles are large and
@@ -410,7 +408,6 @@ linked design note.
 74. **Native DTC data pre-population** — auto-loading cartridges for the Hornet, Viper, F-14B(U) and Apache, with a per-flight DTC tab.
 75. **Custom victory conditions** — authored win/lose blocks plus generic domination and attrition endings.
 76. **CTLD paratroopers** — fixed-wing Air Assault by paradrop, player and AI.
-77. **Escort jamming** — EA-18G and EA-6B only; non-stacking spoof bubbles and SAM weapons-hold pulses.
 78. **Sea-supply convoys + coastal anti-ship** — proportional convoy losses and batteries that actually engage.
 80. **Mixed-hull ship groups** — task groups instead of copies of one hull, family-bounded.
 81. **Cross-turn naval magazines** — staggered weapons-free release and finite anti-ship stock, released on attack.
@@ -470,6 +467,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 57 | Air-droppable minefields | Removed 2026-09-07 |
 | 59 | Ground AI sleep | Removed 2026-09-23 — never observed doing its job in a flown test |
 | 60 | SAM guidance-radar redundancy (two track radars per site) | Removed 2026-09-29 — every SAM site is back to one guidance radar |
+| 77 | Escort jamming (the `growler` plugin and the Escort Jammer task) | Removed 2026-10-12 — the EA-18G and EA-6B fly SEAD and SEAD Escort at upstream's weights |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 |
 | 83 | SP Pilot Mode | Removed 2026-10-12 — verified working 2026-08-05, never switched on since |
