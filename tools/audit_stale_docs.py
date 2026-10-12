@@ -442,6 +442,15 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(
+        # S110. Not a bare "ballistic missile": the Iran pack's missiles and the
+        # YJ-21 are live units.
+        "ballistic missile call-for-fire, the bmstrike plugin (S110)",
+        "2026-10-12",
+        r"\bbmstrike\b|Ballistic missile strikes?|Ballistic Missile Strike"
+        r"|ballistic missile call-for-fire",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",
