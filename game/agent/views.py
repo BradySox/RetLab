@@ -172,7 +172,8 @@ class PackageView(BaseModel):
 class TargetView(BaseModel):
     id: str
     name: str
-    # sam / ship / building / motorpool / garrison / front / convoy / cargo_ship / airfield
+    # sam / ship / building / motorpool / garrison / armor / front / convoy /
+    # cargo_ship / airfield
     kind: str
     suggested_task: str
     pos: list[float]
@@ -629,7 +630,7 @@ def _build_target(
     if kind == "ship":
         group_id = str(tgo.control_point.id)
         composition = _unit_composition(tgo)
-    elif kind in ("sam", "garrison"):
+    elif kind in ("sam", "garrison", "armor"):
         composition = _unit_composition(tgo)
     return TargetView(
         id=str(tgo.id),
@@ -709,6 +710,11 @@ def build_targets(game: Game, side: str) -> list[TargetView]:
         targets.append(_build_target(game, building, "building", "STRIKE"))
     for motorpool in finder.motorpool_targets():
         targets.append(_build_target(game, motorpool, "motorpool", "BAI"))
+    # The armor groups outside a base's capture zone: the scripted planner's own
+    # BAI targets (AttackBattlePositions), so the AI can read a package aimed at one.
+    for cp in finder.enemy_control_points():
+        for group in BattlePositions.for_control_point(cp).defending_front_line:
+            targets.append(_build_target(game, group, "armor", "BAI"))
     targets.extend(_build_transport_targets(game, player))
     for cp in game.theater.controlpoints:
         if cp.captured == player.opponent and cp.runway_is_destroyable:

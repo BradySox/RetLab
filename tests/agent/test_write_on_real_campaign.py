@@ -9,6 +9,7 @@ test puts the campaign back as it found it.
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any, Iterator
 
 import pytest
@@ -173,6 +174,32 @@ def test_a_tot_too_large_to_hold_changes_nothing(game: Any) -> None:
     result = planner.set_package_tot(game, "red", 0, 10**12)
     assert not result.ok and "out of range" in (result.error or "")
     assert (package.time_over_target, package.auto_asap) == (tot, asap)
+
+
+def test_a_package_that_launches_with_the_mission_is_inside_the_window(
+    game: Any,
+) -> None:
+    """Test 56: the ASAP AWACS and tanker, 2 min before the turn clock, were each
+    reported as "TOT +-2 min is after the 45 min the human plans to fly"."""
+    package = _create(game)
+    package.time_over_target = game.conditions.start_time - timedelta(minutes=2)
+    result = planner.validate_plan(game, "red")
+    check = result.packages[0]
+    assert check.tot_minutes_into_mission == -2
+    assert check.within_window
+    assert not any("is after" in note for note in result.notes or [])
+
+
+def test_a_tot_past_the_window_is_still_noted_with_one_sign(game: Any) -> None:
+    package = _create(game)
+    window = game.settings.desired_player_mission_duration
+    package.time_over_target = (
+        game.conditions.start_time + window + timedelta(minutes=5)
+    )
+    result = planner.validate_plan(game, "red")
+    assert not result.packages[0].within_window
+    late = [note for note in result.notes or [] if "is after" in note]
+    assert len(late) == 1 and "TOT +" in late[0] and "+-" not in late[0]
 
 
 def _recruiting_base(game: Any) -> Any:
