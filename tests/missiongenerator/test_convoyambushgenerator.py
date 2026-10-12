@@ -282,11 +282,17 @@ def test_guards_author_nothing(kwargs: dict[str, Any]) -> None:
     assert teams[0].points[0].tasks == []
 
 
-def test_a_convoy_that_was_never_generated_authors_nothing() -> None:
+def test_a_team_whose_convoy_was_never_generated_still_holds_fire() -> None:
     """The transfer completed (or convoy generation is off): nobody can drive into
-    the ambush, so there is nothing to arm -- and no crash."""
+    the ambush, so no spring is authored -- but the team is real and on a blue road,
+    so it is dug in all the same. Left with no options it would be weapons-free."""
     mission, teams = _mission_with(convoy_name=None)
     _run(mission, _build(mission))
 
     assert mission.triggerrules.triggers == []
-    assert teams[0].points[0].tasks == []
+    assert mission.triggers.zones() == []
+    plain = [t for t in teams[0].points[0].tasks if not isinstance(t, ControlledTask)]
+    assert any(
+        isinstance(t, OptROE) and t.value == OptROE.Values.WeaponHold for t in plain
+    )
+    assert any(isinstance(t, OptAlarmState) and t.value == 1 for t in plain)

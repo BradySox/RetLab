@@ -40,9 +40,9 @@ routinely exists):
   teams spread along it, recorded in ``game.convoy_ambush_state`` for the emitter.
 
 The roll covers every blue convoy whatever created it (ambient, §35-style top-ups, the
-player's own transfers). Gated by ``convoy_ambush`` (default ON -- the §49 kill-switch
-precedent). Fully guarded: no blue convoy, or no red control point to source the ambushers
-from => no-op.
+player's own transfers). Gated by :func:`enabled`: ``convoy_ambush`` (default ON) and
+land convoys not disabled for performance. Fully guarded: no blue convoy, or no red
+control point to source the ambushers from => no-op.
 """
 
 from __future__ import annotations
@@ -87,16 +87,16 @@ def seed_convoy_ambushes(game: "Game", events: Any) -> None:
 
     Despawns last turn's surviving ambush teams first (an ambush is a one-mission event --
     cleared or run-past, it does not persist), then rolls each currently-flowing blue
-    convoy against :data:`AMBUSH_CHANCE`. An ambushed convoy gets 1..6 real red teams
+    convoy against :data:`AMBUSH_CHANCE`. An ambushed convoy gets 1..3 real red teams
     spread along the middle of its route, each a ``map_hidden`` TGO -- invisible on the
     campaign map and to both planners, so nothing about the coming fight is telegraphed.
     The pairings (ambush TGO id + convoy name) are recorded on ``game.convoy_ambush_state``
     for the emitter.
 
-    No-op unless ``convoy_ambush`` is on. Guarded: no red control point to give the ambush
-    its allegiance, or no blue convoy with a usable road, and nothing is seeded.
+    No-op unless ambushes are :func:`enabled`. Guarded: no red control point to give the
+    ambush its allegiance, or no blue convoy with a usable road, and nothing is seeded.
     """
-    if not game.settings.convoy_ambush:
+    if not enabled(game):
         # Mid-campaign toggle-off: last turn's map_hidden teams must not be
         # stranded in the theater as invisible, real red units forever.
         prior = getattr(game, "convoy_ambush_state", None)
@@ -152,6 +152,29 @@ def seed_convoy_ambushes(game: "Game", events: Any) -> None:
     state["ambushes"] = ambushes
 
 
+def enabled(game: "Game") -> bool:
+    """Whether ambushes run: the setting is on and the mission will hold land convoys.
+
+    ``perf_disable_convoys`` leaves every convoy out of the mission, so a team seeded
+    with it ticked has nothing to spring on. A save of 2026-10-11 had both ticked and
+    carried three teams within 6 miles of blue bases, for a convoy that never spawned.
+    """
+    settings = game.settings
+    return bool(settings.convoy_ambush) and not getattr(
+        settings, "perf_disable_convoys", False
+    )
+
+
+def stood_down(game: "Game", tgo: Any) -> bool:
+    """Whether *tgo* is an ambush team left over from before ambushes were switched off.
+
+    The team stays in the theater until the next turn sweeps it, and nothing can spring
+    it, so mission generation leaves it out instead of spawning idle red units on a
+    blue supply road.
+    """
+    return bool(getattr(tgo, "map_hidden", False)) and not enabled(game)
+
+
 # --------------------------------------------------------------------------------------
 # Helpers
 # --------------------------------------------------------------------------------------
@@ -183,7 +206,7 @@ def _ambush_points(convoy: Any, count: int) -> list[Any]:
 
     The route polyline from ``convoy_route_to`` is walked by length; each team gets one
     stratified-random slot inside the [:data:`ROUTE_END_MARGIN`, 1 - margin] span --
-    evenly spread down the road with jitter, so a six-team roll reads as a gauntlet of
+    evenly spread down the road with jitter, so a three-team roll reads as a gauntlet of
     separate contacts, never a stack. Interpolates along the road's segments (the
     §35-standard authored corridors have only a handful of waypoints, far fewer than the
     teams they can host). Returns [] for a missing/degenerate road."""

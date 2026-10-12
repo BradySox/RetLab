@@ -11,6 +11,7 @@ them all.)
 
 from __future__ import annotations
 
+from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
@@ -27,6 +28,7 @@ from game.retlab.convoy_ambush import (
     _ambush_points,
     _nearest_cp,
     seed_convoy_ambushes,
+    stood_down,
 )
 
 # ---- fakes -------------------------------------------------------------------------
@@ -538,10 +540,66 @@ def test_road_bearing_campaign_keeps_its_blue_road(stem: str, tmp_path: Any) -> 
     )
 
 
-def test_toggle_off_still_sweeps_last_turns_ambushes(monkeypatch: Any) -> None:
-    """Disabling convoy_ambush mid-campaign must not strand last turn's
+@pytest.mark.parametrize(
+    "hidden, on, no_convoys, expected",
+    [
+        pytest.param(True, False, False, True, id="team outlives its setting"),
+        pytest.param(True, True, True, True, id="land convoys disabled"),
+        pytest.param(True, True, False, False, id="ambushes running"),
+        pytest.param(False, False, False, False, id="not an ambush team"),
+    ],
+)
+def test_a_team_is_stood_down_once_ambushes_are_off(
+    hidden: bool, on: bool, no_convoys: bool, expected: bool
+) -> None:
+    """Switching ambushes off mid-turn leaves that turn's teams in the theater until
+    the next sweep. Mission generation must leave them out: nothing can spring them,
+    and before 2026-10-11 they spawned weapons-free on a blue supply road."""
+    game = _ambush_game(on=on, red_cps=[], convoys=[])
+    game.settings.perf_disable_convoys = no_convoys
+
+    assert stood_down(game, SimpleNamespace(map_hidden=hidden)) is expected
+
+
+def test_no_team_is_seeded_while_land_convoys_are_disabled(monkeypatch: Any) -> None:
+    """An Iraq save of 2026-10-11: Disable land convoys ticked, three teams seeded on
+    the Baghdad road for a convoy the mission never held."""
+    red = _CP("stronghold", False, 0.0)
+    convoy = _route_convoy("Convoy-1", _ROAD)
+    game = _ambush_game(on=True, red_cps=[red], convoys=[convoy])
+    game.settings.perf_disable_convoys = True
+    spawned = _capture_spawns(monkeypatch)
+    # The same rolls that seed a 3-team gauntlet with convoys in the mission.
+    monkeypatch.setattr(
+        convoy_ambush_module, "_RNG", _Rng(rolls=[0.0, 0.5, 0.5, 0.5], ints=[3])
+    )
+
+    seed_convoy_ambushes(game, events=None)
+
+    assert spawned == []
+
+
+def test_the_tgo_generator_asks_before_spawning_a_team() -> None:
+    """The rule above is only as good as its one caller."""
+    source = Path("game/missiongenerator/tgogenerator.py").read_text(encoding="utf-8")
+
+    assert "if stood_down(self.game, ground_object):" in source
+
+
+@pytest.mark.parametrize(
+    "on, no_convoys",
+    [
+        pytest.param(False, False, id="setting off"),
+        pytest.param(True, True, id="land convoys disabled"),
+    ],
+)
+def test_toggle_off_still_sweeps_last_turns_ambushes(
+    monkeypatch: Any, on: bool, no_convoys: bool
+) -> None:
+    """Disabling ambushes mid-campaign must not strand last turn's
     map_hidden teams in the theater as invisible, real red units forever."""
-    game = _ambush_game(on=False, red_cps=[], convoys=[])
+    game = _ambush_game(on=on, red_cps=[], convoys=[])
+    game.settings.perf_disable_convoys = no_convoys
     game.convoy_ambush_state = {"ambushes": [{"tgo_id": "old-1", "convoy": "prev"}]}
 
     despawned: list[str] = []

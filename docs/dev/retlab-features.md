@@ -5745,7 +5745,7 @@ The **mirror of the §35 Vietnam-Ops convoy interdiction.** Interdiction gives t
 to hunt (fly Armed Recon, kill the trucks, deny the enemy reinforcements). This gives the player *friendly*
 convoys that might need protecting: real BLUE supply columns run the roads behind the front, and —
 **sometimes; it is a chance roll, never a certainty** — hidden RED ambush teams dig in along their route:
-one contact, or a gauntlet of five or six down the same road. **Nothing is telegraphed in the Retribution
+one contact, or up to three down the same road. **Nothing is telegraphed in the Retribution
 UI** (reworked 2026-07-06 from the original always-one-ambush + auto-fragged-escort design, per the
 squadron call): the convoy looks like any other friendly convoy, the ambush teams have **no map presence
 at all** (no marker, no §3 uncertainty circle, nothing to right-click or plan against), and **no escort
@@ -5824,11 +5824,11 @@ debug toggle still see ground truth.
   (an ambush is a one-mission event —
   cleared or run-past, it does not persist; reuses `coin._despawn`/`_tgo_by_id`), then **rolls each active
   blue convoy against `AMBUSH_CHANCE` (0.5)**. A convoy that misses the roll drives a quiet road. A convoy
-  that hits gets `randint(MIN_AMBUSHES_PER_ROUTE, MAX_AMBUSHES_PER_ROUTE)` (1..6) teams of
+  that hits gets `randint(MIN_AMBUSHES_PER_ROUTE, MAX_AMBUSHES_PER_ROUTE)` (1..3) teams of
   `AMBUSH_TEAM_SIZE` (4) — each a `map_hidden` red `GroupTask.FRONT_LINE` TGO placed by `_ambush_points`:
   stratified-random slots along the route polyline inside `ROUTE_END_MARGIN` (15 %) of either endpoint,
   **interpolated along the road's segments** (`heading_between_point`/`point_from_heading` — the authored
-  corridors carry only 3–5 waypoints, far fewer than the teams they can host), so a six-team roll reads as
+  corridors carry only 3–5 waypoints, far fewer than the teams they can host), so a three-team roll reads as
   a spread gauntlet of separate contacts, never a stack. Records `{tgo_id, convoy}` pairings on
   `game.convoy_ambush_state` (declared in `Game.__init__`, `setdefault` in `__setstate__` for old saves).
   The dice live in a module-level `_RNG` so tests script them.
@@ -5856,8 +5856,24 @@ must already exist as real groups).** For each live pairing it authors:
   escort split's `stop_if_user_flag` in `joinpoint.configure_escort_tasks`).
 
 A team the convoy never reaches stays dug in and silent — the ambush must remain a surprise the column
-drives into, never a telegraphed objective. A fully-dead team, a missing pairing, or a convoy that was
-not generated this mission (its transfer completed) authors nothing for that pairing.
+drives into, never a telegraphed objective. A fully-dead team or a missing pairing authors nothing for
+that pairing. A team whose convoy was not generated this mission (its transfer completed) gets the
+dug-in state and no trigger.
+
+**Ambushes need land convoys in the mission (fixed 2026-10-11).** `convoy_ambush.enabled` is the one
+gate: `convoy_ambush` on and `perf_disable_convoys` off. Found on an Iraq save with **Disable land
+convoys** ticked:
+
+- `seed_convoy_ambushes` seeded three teams on the Baghdad road for a convoy that never spawned.
+- `_arm_ambush` returned at the convoy lookup, before `_dig_in`, so the teams carried no options at
+  all: weapons-free MT-LBs and riflemen 2.6–6.1 miles from blue bases, with no trigger to spring them.
+- `ground_objects_beside_an_enemy_base` named all three in the load-time placement box. The teams are
+  owned by the nearest red CP (Kirkuk, 150 miles away), which is that guard's mis-binding signature.
+- Switching `convoy_ambush` off mid-turn left the same teams in the mission, for the same reason.
+
+Now: nothing is seeded while ambushes are not `enabled`; `TgoGenerator.generate` skips a team that is
+`stood_down` (seeded before ambushes went off, not yet swept); `_arm_ambush` digs a team in before it
+looks for the convoy; the placement guard skips `map_hidden` and `coin_spawned` objects. Row B226.
 
 **There is no Lua plugin.** Until 2026-08-05 this was the `convoyambush` plugin polling every 15 s and
 walking every unit of every convoy — a re-implementation of the trigger engine DCS already runs, which
@@ -6209,8 +6225,9 @@ directly.
   `tests/missiongenerator/test_kneeboard_bluf.py` against that jet's exact pylons.
 - **Two placement guards, opposite mistakes.** `motorpools_inside_capture_zone` catches a marker
   inside its own CP's 3 km capture radius (parked reserve blocks the base being taken).
-  `ground_objects_beside_an_enemy_base` (added 2026-08-20) catches **any** ground object parked on
-  a hostile CP's doorstep. Both warn from `QLiberationWindow._warn_motorpool_capture_zone` at
+  `ground_objects_beside_an_enemy_base` (added 2026-08-20) catches **any** authored ground object
+  parked on a hostile CP's doorstep; teams spawned at a turn boundary (`map_hidden`, `coin_spawned`)
+  are skipped since 2026-10-11, see §50. Both warn from `QLiberationWindow._warn_motorpool_capture_zone` at
   generation and on save load; neither moves anything, because the marker is the author's call.
 - **The doorstep guard is about marker BINDING, not authoring.**
   `MizCampaignLoader.objective_info` binds by influence *zone*: a point inside an authored zone
