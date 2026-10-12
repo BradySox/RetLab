@@ -41,6 +41,7 @@ COMMIT_STEPS = [
     "commit_damaged_runways",
     "commit_captures",
     "commit_front_line_battle_impact",
+    "commit_sector_war",
     "record_carcasses",
     "commit_super_gaggle",
     "commit_cruise_missiles",
@@ -111,6 +112,9 @@ def test_battle_impact_scored_before_captures_flip_ownership() -> None:
     assert calls.index("commit_front_line_battle_impact") < calls.index(
         "commit_captures"
     ), "front-line scoring must run before bases are captured"
+    assert calls.index("commit_captures") < calls.index(
+        "commit_sector_war"
+    ), "a mission capture must claim its sector before sector captures run"
 
 
 def test_redeployment_leaves_non_frontline_inventory_in_place() -> None:
