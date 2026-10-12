@@ -1,4 +1,4 @@
-"""Sectors and territory (§111, step 1: drawn only).
+"""Sectors, territory and the battles along the border (§111).
 
 Built on Abchazian Blitz, the Sukhumi front of the Reddit map that started it.
 """
@@ -10,17 +10,40 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from unittest.mock import MagicMock
+
 import pytest
+from dcs.coalition import Coalition
+from dcs.mapping import Point
 from dcs.mission import Mission
-from shapely.geometry import Polygon
+from shapely.geometry import LineString, Point as ShapelyPoint, Polygon
 
 from game import persistency
 from game.campaignloader.campaign import Campaign
+from game.data.units import UnitClass
 from game.factions import FACTIONS
+from game.ground_forces.ai_ground_planner import (
+    CombatGroup,
+    CombatGroupRole,
+    GroundPlanner,
+)
+from game.ground_forces.combat_stance import CombatStance
+from game.missiongenerator.countryassigner import CountryAssigner
 from game.missiongenerator.drawingsgenerator import DrawingsGenerator
+from game.missiongenerator.flotgenerator import (
+    FlotGenerator,
+    battle_slots,
+    pick_battles,
+)
+from game.missiongenerator.frontlineconflictdescription import (
+    FrontLineConflictDescription,
+)
+from game.missiongenerator.missiondata import MissionData
+from game.radio.radios import RadioRegistry
 from game.server.sectors.models import SectorsJs, TerritoryJs
 from game.settings import Settings
 from game.theater import sectors
+from game.theater.frontbattles import BattleSite, battles_for, front_battles
 from game.theater.sectors import (
     BLUE,
     RED,
@@ -35,6 +58,7 @@ from game.theater.start_generator import (
     GeneratorSettings,
     ModSettings,
 )
+from game.unitmap import UnitMap
 
 NM = 1852.0
 
@@ -187,3 +211,129 @@ def test_the_web_map_gets_territory_and_sectors(game: Any) -> None:
     assert sector_list.edges
     owners = {sector.owner for sector in sector_list.sectors}
     assert {"blue", "red"} <= owners
+
+
+def test_battles_stand_on_the_drivable_border_one_per_sector(game: Any) -> None:
+    landmap = game.theater.landmap
+    territory = territory_for(game.theater)
+    border = territory.blue.boundary.intersection(territory.red.boundary)
+    for front in game.theater.conflicts():
+        found = front_battles(game.theater, front)
+        assert found.sites, front.name
+        assert len({site.sector for site in found.sites}) == len(found.sites)
+        alongs = [site.along for site in found.sites]
+        assert alongs == sorted(alongs)
+        for site in found.sites:
+            point = ShapelyPoint(site.x, site.y)
+            assert border.distance(point) < 10, site.sector
+            assert landmap.inclusion_zone_only.contains(point), site.sector
+            for offset in (-site.width / 2, 0.0, site.width / 2):
+                x, y = site.point_along(offset)
+                assert landmap.inclusion_zone_only.distance(ShapelyPoint(x, y)) < 10
+
+
+def test_blue_attacks_into_red_ground_at_every_battle(game: Any) -> None:
+    territory = territory_for(game.theater)
+    raster = sector_map_for(game.theater).raster
+    for front in game.theater.conflicts():
+        for site in front_battles(game.theater, front).sites:
+            ahead = Point(site.x, site.y, game.theater.terrain).point_from_heading(
+                site.blue_forward, 2 * NM
+            )
+            behind = Point(site.x, site.y, game.theater.terrain).point_from_heading(
+                site.blue_forward + 180, 2 * NM
+            )
+            assert territory.labels[raster.index_at(ahead.x, ahead.y)] == RED
+            assert territory.labels[raster.index_at(behind.x, behind.y)] == BLUE
+
+
+def test_a_front_fills_no_more_border_than_the_maximum_width(game: Any) -> None:
+    width = game.settings.max_frontline_width * 1000
+    for front in game.theater.conflicts():
+        line = front_battles(game.theater, front).line
+        assert LineString(line).length <= width + 1
+
+
+def test_the_setting_puts_units_back_on_one_line(game: Any) -> None:
+    front = next(iter(game.theater.conflicts()))
+    game.settings.front_line_battles_along_border = False
+    try:
+        assert battles_for(game.theater, front) is None
+    finally:
+        game.settings.front_line_battles_along_border = True
+    assert battles_for(game.theater, front) is not None
+
+
+def test_front_units_are_spread_over_the_battles(game: Any) -> None:
+    front = next(iter(game.theater.conflicts()))
+    for cp in (front.blue_cp, front.red_cp):
+        faction = cp.coalition.faction
+        units: dict[Any, int] = {}
+        for unit_class, count in ((UnitClass.TANK, 16), (UnitClass.IFV, 12)):
+            kinds = [u for u in faction.ground_units if u.unit_class is unit_class]
+            if kinds:
+                units[kinds[0]] = count
+        cp.base.commission_units(units)
+        planner = GroundPlanner(cp, game)
+        planner.plan_groundwar()
+        game.ground_planners[cp.id] = planner
+    mission = Mission(game.theater.terrain)
+    country_assigner = CountryAssigner(game)
+    mission.coalition["blue"] = Coalition("blue")
+    mission.coalition["red"] = Coalition("red")
+    for country in country_assigner.blue_countries:
+        mission.coalition["blue"].add_country(country)
+    for country in country_assigner.red_countries:
+        mission.coalition["red"].add_country(country)
+    generator = FlotGenerator(
+        mission,
+        FrontLineConflictDescription.frontline_cas_conflict(front, game.theater),
+        game,
+        game.ground_planners[front.blue_cp.id].units_per_cp[front.red_cp.id],
+        game.ground_planners[front.red_cp.id].units_per_cp[front.blue_cp.id],
+        CombatStance.AGGRESSIVE,
+        CombatStance.DEFENSIVE,
+        UnitMap(),
+        RadioRegistry(),
+        MissionData(),
+    )
+    generator.generate()
+    assert generator.battle_sites
+    for side in ("blue", "red"):
+        positions = [
+            group.position
+            for country in mission.coalition[side].countries.values()
+            for group in country.vehicle_group
+        ]
+        assert positions, side
+        joined = set()
+        for position in positions:
+            nearest = min(
+                range(len(generator.battle_sites)),
+                key=lambda i: position.distance_to_point(
+                    Point(
+                        generator.battle_sites[i].x,
+                        generator.battle_sites[i].y,
+                        game.theater.terrain,
+                    )
+                ),
+            )
+            joined.add(nearest)
+        assert joined == set(range(len(generator.battle_sites))), side
+
+
+def test_wedges_are_dealt_across_the_battles() -> None:
+    wedges = [CombatGroup(CombatGroupRole.TANK, MagicMock(), 1) for _ in range(5)]
+    member = CombatGroup(CombatGroupRole.SHORAD, MagicMock(), 1)
+    member.anchor = wedges[3]
+    slots = battle_slots([*wedges, member], 2)
+    assert [slots[id(w)][0] for w in wedges] == [0, 1, 0, 1, 0]
+    assert slots[id(member)] == slots[id(wedges[3])]
+    assert all(0 < slots[id(w)][1] < 1 for w in wedges)
+
+
+def test_battles_are_picked_from_end_to_end() -> None:
+    sites = tuple(BattleSite(0, 0, 0, NM, f"S{i}", along=float(i)) for i in range(7))
+    assert [s.sector for s in pick_battles(sites, 3)] == ["S0", "S3", "S6"]
+    assert pick_battles(sites, 9) == list(sites)
+    assert [s.sector for s in pick_battles(sites, 1)] == ["S3"]

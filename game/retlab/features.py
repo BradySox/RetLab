@@ -923,6 +923,7 @@ FEATURES: tuple[Feature, ...] = (
         "sector_war",
         "Sector war",
         111,
+        settings_fields=("front_line_battles_along_border",),
     ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.

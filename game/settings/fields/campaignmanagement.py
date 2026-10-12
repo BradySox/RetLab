@@ -670,6 +670,19 @@ class CampaignManagementSettings:
             "control points, and the front as a whole does not move."
         ),
     )
+    front_line_battles_along_border: bool = boolean_option(
+        "Front line battles spread along the border",
+        CAMPAIGN_MANAGEMENT_PAGE,
+        "Campaign features",
+        default=True,
+        detail=(
+            "Each front's ground units are split into a battle in every sector "
+            "along the border between the two sides' territory, out to Maximum "
+            "frontline width (km) measured along the border. Units only go on "
+            "ground the campaign marks as drivable. With this off they stand on "
+            "one short line across the road between the two bases."
+        ),
+    )
     automate_front_line_stance: bool = boolean_option(
         "Automatically manage front line stances",
         CAMPAIGN_MANAGEMENT_PAGE,

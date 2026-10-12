@@ -44,6 +44,7 @@ from game.ground_forces.combat_stance import CombatStance
 from game.naming import namegen
 from game.radio.radios import RadioRegistry
 from game.theater.controlpoint import ControlPoint, Player
+from game.theater.frontbattles import BattleSite, battles_for
 from game.unitmap import UnitMap
 from game.utils import Heading
 from .aircraft.aircraftpainter import AircraftPainterJtac
@@ -205,6 +206,42 @@ def frontline_offsets(groups: list[CombatGroup], size: int) -> dict[int, float]:
     return offsets
 
 
+def battle_slots(
+    groups: list[CombatGroup], battle_count: int
+) -> dict[int, tuple[int, float]]:
+    """Which battle each group joins, and where across it (0 to 1).
+
+    Armor wedges are dealt out across the battles in turn, so every battle gets
+    a share. A clustered member joins its wedge's battle at the wedge's place;
+    everything else is dealt out the same way after the wedges.
+    """
+    slots: dict[int, tuple[int, float]] = {}
+
+    def deal(dealt: list[CombatGroup]) -> None:
+        per_battle: dict[int, list[CombatGroup]] = {}
+        for index, group in enumerate(dealt):
+            per_battle.setdefault(index % battle_count, []).append(group)
+        for battle, members in per_battle.items():
+            for place, group in enumerate(members):
+                slots[id(group)] = (battle, (place + 0.5) / len(members))
+
+    deal([g for g in groups if g.anchor is None and g.role in WEDGE_ROLES])
+    for g in groups:
+        if g.anchor is not None and id(g.anchor) in slots:
+            slots[id(g)] = slots[id(g.anchor)]
+    deal([g for g in groups if id(g) not in slots])
+    return slots
+
+
+def pick_battles(sites: tuple[BattleSite, ...], count: int) -> list[BattleSite]:
+    """`count` battles spread evenly along the border, ends included."""
+    if count >= len(sites):
+        return list(sites)
+    if count <= 1:
+        return [sites[len(sites) // 2]]
+    return [sites[round(i * (len(sites) - 1) / (count - 1))] for i in range(count)]
+
+
 def follower_advance_distance(stance: CombatStance) -> Optional[int]:
     """Metres an anchored cluster member advances toward the enemy for ``stance``.
 
@@ -240,6 +277,11 @@ def move_formation_for_role(role: CombatGroupRole) -> Optional[PointAction]:
 
 
 class FlotGenerator:
+    # Replaced in __init__. The empty defaults keep an instance built without it
+    # on the single line across the road.
+    battle_sites: list[BattleSite] = []
+    _local: dict[str, Tuple[Point, Heading]] = {}
+
     def __init__(
         self,
         mission: Mission,
@@ -272,6 +314,40 @@ class FlotGenerator:
         self.tic_bound_pause = int(
             self.game.settings.plugins.get("tic.boundPause") or TIC_DEFAULT_BOUND_PAUSE
         )
+        # §111: one battle per sector along the shared border, or None for the
+        # single line across the road between the two bases.
+        battles = battles_for(game.theater, conflict.front_line)
+        self.battle_sites: list[BattleSite] = []
+        if battles is not None:
+            self.battle_sites = pick_battles(
+                battles.sites,
+                self._battle_count(
+                    player_planned_combat_groups, enemy_planned_combat_groups
+                ),
+            )
+        # Group name -> (its point on the border, its own forward heading).
+        self._local: dict[str, Tuple[Point, Heading]] = {}
+        self._battle_groups: dict[int, int] = {}
+
+    @staticmethod
+    def _battle_count(blue: list[CombatGroup], red: list[CombatGroup]) -> int:
+        """As many battles as the side with fewer wedges can fill, so each battle
+        has both sides in it. A side with none leaves the other to fill them."""
+        counts = [
+            sum(1 for g in groups if g.anchor is None and g.role in WEDGE_ROLES)
+            for groups in (blue, red)
+        ]
+        present = [count for count in counts if count]
+        return min(present) if present else 1
+
+    def _local_for(self, dcs_group: VehicleGroup) -> Optional[Tuple[Point, Heading]]:
+        if not self._local:
+            return None
+        return self._local.get(str(dcs_group.name))
+
+    def _forward(self, dcs_group: VehicleGroup, default: Heading) -> Heading:
+        local = self._local_for(dcs_group)
+        return default if local is None else local[1]
 
     def generate(self) -> None:
         # Create player groups at random position
@@ -348,6 +424,14 @@ class FlotGenerator:
         position = FrontLineConflictDescription.frontline_position(
             self.conflict.front_line, self.game.theater, self.game.settings
         )
+        if self._battle_groups:
+            # Over the busiest battle, where CAS is most likely to be needed.
+            busiest = max(self._battle_groups, key=self._battle_groups.__getitem__)
+            site = self.battle_sites[busiest]
+            position = (
+                Point(site.x, site.y, self.game.theater.terrain),
+                position[1],
+            )
 
         freq = self.radio_registry.alloc_uhf()
         # fc3LaserCode forces every JTAC to 1113 so Su-25/A-10A can lase; otherwise
@@ -814,7 +898,8 @@ class FlotGenerator:
         probe = pos.point_from_heading(forward_heading.degrees, 1000.0)
         unit_x = (probe.x - pos.x) / 1000.0
         unit_y = (probe.y - pos.y) / 1000.0
-        front = self.conflict.position
+        local = self._local_for(dcs_group)
+        front = self.conflict.position if local is None else local[0]
         return (front.x - pos.x) * unit_x + (front.y - pos.y) * unit_y
 
     def _tic_step_off(self) -> int:
@@ -966,7 +1051,9 @@ class FlotGenerator:
         if not self.game.settings.perf_moving_units:
             return
 
+        side_heading = forward_heading
         for dcs_group, group in ally_groups:
+            forward_heading = self._forward(dcs_group, side_heading)
             if self.tic_enabled and self._tic_managed_role(group.role):
                 # TIC-managed formations get their orders from waypoint names
                 # (parsed by the TIC script), not from DCS AI tasks/triggers.
@@ -1216,6 +1303,24 @@ class FlotGenerator:
             shifted = self.conflict.position.point_from_heading(
                 self.conflict.heading.degrees, clamped
             )
+        return self._step_back(
+            shifted,
+            distance_from_frontline,
+            spawn_heading,
+            self.conflict.size,
+            self.conflict.heading,
+        )
+
+    def _step_back(
+        self,
+        shifted: Point,
+        distance_from_frontline: int,
+        spawn_heading: Heading,
+        search_size: int,
+        search_heading: Heading,
+    ) -> Point:
+        """Walk back from `shifted` on the front toward the group's depth."""
+        theater = self.conflict.theater
         if not theater.is_on_land(shifted):
             # Degenerate front (e.g. air-only campaign with an arbitrary route).
             # Fall back to the lateral search rather than risk an off-map spawn.
@@ -1224,8 +1329,8 @@ class FlotGenerator:
             )
             return FrontLineConflictDescription.find_ground_position(
                 desired_point,
-                self.conflict.size,
-                self.conflict.heading,
+                search_size,
+                search_heading,
                 theater,
             )
         # Step back from the front toward the requested depth, keeping the lateral
@@ -1267,13 +1372,22 @@ class FlotGenerator:
             )
             fallback = FrontLineConflictDescription.find_ground_position(
                 desired_point,
-                self.conflict.size,
-                self.conflict.heading,
+                search_size,
+                search_heading,
                 theater,
             )
             if theater.is_on_land(fallback):
                 return fallback
         return valid_point
+
+    def _battle_point(
+        self, site: BattleSite, place: float, jitter: int, is_player: Player
+    ) -> Tuple[Point, Heading]:
+        """A group's point on the border in its battle, and its forward heading."""
+        x, y = site.point_along((place - 0.5) * site.width + jitter)
+        point = Point(x, y, self.conflict.theater.terrain)
+        blue_forward = Heading.from_degrees(site.blue_forward)
+        return point, blue_forward if is_player.is_blue else blue_forward.opposite
 
     def _generate_groups(
         self, groups: list[CombatGroup], is_player: Player
@@ -1291,6 +1405,9 @@ class FlotGenerator:
 
         assert self.conflict.size is not None
         along = frontline_offsets(groups, self.conflict.size)
+        slots = (
+            battle_slots(groups, len(self.battle_sites)) if self.battle_sites else {}
+        )
 
         # Pass 1: pre-compute depth and lateral jitter for every wedge. This
         # removes the implicit ordering dependency: members no longer need to
@@ -1330,9 +1447,25 @@ class FlotGenerator:
                 )
                 jitter = random.randint(-CLUSTER_LATERAL_JITTER, CLUSTER_LATERAL_JITTER)
 
-            final_position = self.get_valid_position_for_group(
-                depth, spawn_heading, along_offset=along[id(group)] + jitter
-            )
+            on_border: Optional[Point] = None
+            forward = spawn_heading.opposite
+            if slots:
+                battle, place = slots[id(group)]
+                self._battle_groups[battle] = self._battle_groups.get(battle, 0) + 1
+                on_border, forward = self._battle_point(
+                    self.battle_sites[battle], place, jitter, is_player
+                )
+                final_position = self._step_back(
+                    on_border,
+                    depth,
+                    forward.opposite,
+                    int(self.battle_sites[battle].width),
+                    Heading.from_degrees(self.battle_sites[battle].left_to_right),
+                )
+            else:
+                final_position = self.get_valid_position_for_group(
+                    depth, spawn_heading, along_offset=along[id(group)] + jitter
+                )
 
             g = self._generate_group(
                 is_player,
@@ -1340,7 +1473,7 @@ class FlotGenerator:
                 group.unit_type,
                 group.size,
                 final_position,
-                heading=spawn_heading.opposite,
+                heading=forward,
                 role=group.role,
                 # None (recon/SHORAD/arty/logi) keeps the OffRoad default.
                 move_formation=move_formation_for_role(group.role)
@@ -1351,6 +1484,8 @@ class FlotGenerator:
             else:
                 g.set_skill(Skill(self.game.settings.enemy_vehicle_skill))
             positioned_groups.append((g, group))
+            if on_border is not None:
+                self._local[str(g.name)] = (on_border, forward)
 
             if group.role in [CombatGroupRole.APC, CombatGroupRole.IFV]:
                 tic_formation = None
@@ -1363,7 +1498,7 @@ class FlotGenerator:
                     g,
                     is_player,
                     country,
-                    spawn_heading.opposite,
+                    forward,
                     tic_formation=tic_formation,
                 )
 

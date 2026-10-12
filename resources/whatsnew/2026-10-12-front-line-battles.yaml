@@ -1,0 +1,11 @@
+date: 2026-10-12
+title: Front line battles along the whole border
+change: >-
+  A front's ground units no longer stand on one short line across the road.
+  They are split into a fight in each sector along the border between the
+  two sides, out to the Maximum frontline width. Each fight faces across
+  the border. The number of units is unchanged.
+watch: >-
+  Look for several fights spread along the border on the F10 map, each with
+  both sides in it. Tell us if a group spawns in water or a town, faces the
+  wrong way, or if the mission runs slower.

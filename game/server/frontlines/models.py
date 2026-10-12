@@ -3,17 +3,17 @@ from __future__ import annotations
 from typing import Optional, TYPE_CHECKING
 from uuid import UUID
 
+from dcs.mapping import Point
 from pydantic import BaseModel
 
 from game.missiongenerator.frontlineconflictdescription import (
     FrontLineConflictDescription,
 )
 from game.server.leaflet import LeafletPoint
+from game.theater.frontbattles import battles_for
 from game.utils import Heading, meters
 
 if TYPE_CHECKING:
-    from dcs.mapping import Point
-
     from game import Game
     from game.theater import FrontLine, ConflictTheater
 
@@ -85,9 +85,14 @@ class FrontLineJs(BaseModel):
         # this is the map the player plans on. `polyline` is exactly the two
         # endpoints when the front has no sector depths, so a straight front is
         # byte-identical to what this sent before.
+        extents = [point.latlng() for point in bounds.polyline]
+        battles = battles_for(theater, front_line)
+        if battles is not None and len(battles.line) >= 2:
+            # §111: the stretch of border the battles are fought along.
+            extents = [Point(x, y, theater.terrain).latlng() for x, y in battles.line]
         return FrontLineJs(
             id=front_line.id,
-            extents=[point.latlng() for point in bounds.polyline],
+            extents=extents,
             movement=FrontMovementJs.for_front_line(front_line, bounds.center),
         )
 
