@@ -205,6 +205,20 @@ still planned with the wider ranges. Found by the 2026-09-22 settings audit's up
 Defaults are upstream's 10 / 5 again; the planner suite sets 15 / 10. No campaign preseeded
 either field. `test_fresh_settings_are_stock` now covers both.
 
+### Amendment 2026-10-12 — no SEAD tasking for a jet the date left without an ARM, ungated (DM call)
+
+Test 56 (Iraq, May 2012): a JF-17 pair flew SEAD escort with a jammer pod and two PL-5.
+Its SEAD fit carries LD-10s, dated 2013 in `resources/weapons/standoff/LD-10*.yaml`, and
+`degrade_for_date` removed both with no fallback. Upstream has the same hole: it picks
+the squadron by task capability and degrades the fit at mission generation.
+`Squadron.can_auto_assign_mission` now refuses SEAD, SEAD Escort and SEAD Sweep when
+`restrict_weapons_by_date` is on, the task's default fit has an anti-radiation missile,
+and the dated fit has none (`_date_strips_every_arm`). A fit with no ARM by design
+(decoys, Mavericks) is not affected, and neither is a hand-fragged flight. No setting:
+with weapon dates off it never runs. Who it benches, from a scan of every airframe and
+year: an airframe that predates its own ARM (JF-17 before 2013, Gripen before 2008,
+Tornado before 1990, Su-30/34/35 before 1988, AV-8B before 1986).
+
 ## Levers, if pulling back (superseded by the decision above; kept for the record)
 
 1. "Stock planner" settings preset (the §28 preset machinery exists): flips the whole default-ON table above in one click. Can't touch the ungated items.

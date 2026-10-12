@@ -2904,6 +2904,17 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
 [retlab-cruise-mach-notes.md](design/retlab-cruise-mach-notes.md); checklist B111, verified
 2026-09-27 on the DM's call.)
 
+- **No SEAD tasking for a jet the date left without an ARM (2026-10-12, test 56).**
+  `Squadron.can_auto_assign_mission` refuses SEAD, SEAD Escort and SEAD Sweep when
+  `restrict_weapons_by_date` is on, the task's default fit carries an anti-radiation
+  missile and the dated fit carries none (`_date_strips_every_arm`). The case: Iraq
+  2012, a JF-17 pair escorting a BAI package as SEAD with a jammer pod and two PL-5,
+  its LD-10s (dated 2013) removed with no fallback. Auto-planning and the AI link's
+  package builder only; a hand-fragged flight is not checked. A fit with no ARM by
+  design is left alone. About 0.25 ms a call. Recorded as an ungated planner
+  divergence in `retlab-autoplanner-upstream-divergence-audit.md`. Tests:
+  `tests/squadrons/test_sead_needs_an_arm.py`.
+
 ## 9. TIC — Troops In Contact frontline battle sim (plugin, default ON)
 
 Grendel's TIC v1.1 (MIT, lua globals named `GLSCO*`) replaces vanilla ground AI
