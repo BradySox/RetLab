@@ -308,6 +308,18 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   repairs. Accepted limitation: `Coalition._plan_player_qra` is deliberately unguarded —
   the `generate_flights` runway check already stops the alert flight spawning, so the
   residual is a phantom package in the planning UI only.
+- **Alert templates carry the BARCAP fit (2026-10-12, test 56).** The AI alert template
+  and the §61 host-scramble template are built by
+  `FlightGroupSpawner.create_intercept_template`, which never passes through
+  `FlightGroupConfigurator`, so each kept the payload pydcs picks for the type's default
+  task (`maintask=None`). In test 56 that was four inert practice bombs and a captive
+  Sidewinder on the F-15E pair, two AIM-9X on the F-22 pair, two PL-5 on the JF-17s and
+  empty pylons on the Mirage F1s; every scramble clone copies the template.
+  `_arm_alert_template` now loads each unit with its flight member's loadout (the
+  squadron's BARCAP preset, a §73 pinned fit included), degraded for the campaign date
+  when `restrict_weapons_by_date` is on. An airframe with no BARCAP preset keeps the
+  pydcs default. The template's DCS task is unchanged. Tests:
+  `tests/missiongenerator/test_alert_template_loadout.py`. Row **B227**.
 
 ---
 

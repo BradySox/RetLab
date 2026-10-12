@@ -35,6 +35,7 @@ from game.ato import Flight
 from game.ato.flightstate import InFlight
 from game.ato.starttype import StartType
 from game.ato.traveltime import GroundSpeed
+from game.data.weapons import Pylon
 from game.missiongenerator.missiondata import MissionData
 from game.naming import namegen
 from game.theater import Airfield, ControlPoint, Fob, NavalControlPoint, OffMapSpawn
@@ -215,8 +216,33 @@ class FlightGroupSpawner:
             self._deregister_custom_callsign()
         for point in group.points:
             point.speed = QRA_AIRSTART_SPEED_MS
+        self._arm_alert_template(group)
         group.late_activation = True
         return group
+
+    def _arm_alert_template(self, group: FlyingGroup[Any]) -> None:
+        """Give an alert template the fit its flight would carry in the ATO.
+
+        The template never passes through FlightGroupConfigurator, so it kept the
+        payload pydcs picks for the type's default task: practice bombs on an F-15E,
+        empty pylons on a Mirage F1 (test 56). Every scramble clone copies it.
+        """
+        game = self.flight.coalition.game
+        for unit, member in zip(group.units, self.flight.iter_members()):
+            loadout = member.loadout
+            if game.settings.restrict_weapons_by_date:
+                loadout = loadout.degrade_for_date(
+                    self.flight.unit_type, game.date, self.flight.coalition.faction
+                )
+            weapons = {n: w for n, w in loadout.pylons.items() if w is not None}
+            if not weapons:
+                # No preset for this airframe: the pydcs default beats nothing.
+                continue
+            unit.pylons.clear()
+            for pylon_number, weapon in weapons.items():
+                Pylon.for_aircraft(self.flight.unit_type, pylon_number).equip(
+                    unit, weapon, loadout.pylon_settings.get(pylon_number)
+                )
 
     @property
     def start_type(self) -> StartType:
