@@ -170,6 +170,7 @@ def _land_shape(theater: ConflictTheater) -> BaseGeometry:
 def _countries(theater: ConflictTheater) -> tuple[BaseGeometry, BaseGeometry]:
     """(at war, neutral): the countries holding a base, and those holding none."""
     from game.theater.neutralborder import NEUTRAL
+    from game.theater.terrainborders import load_terrain_borders
 
     at_war = []
     neutral = []
@@ -184,6 +185,20 @@ def _countries(theater: ConflictTheater) -> tuple[BaseGeometry, BaseGeometry]:
                 at_war.append(shape)
         except Exception:
             continue
+    # A campaign that authors its own borders lists its neighbours, not the
+    # country the war is in (COIN has no Afghanistan zone); the map's file does.
+    held = [
+        shapely.Point(cp.position.x, cp.position.y)
+        for cp in land_control_points(theater)
+        if not cp.captured.is_neutral
+    ]
+    for entry in load_terrain_borders(theater.terrain.name):
+        try:
+            shape = Polygon(entry["border"]).buffer(0)
+        except Exception:
+            continue
+        if any(shape.contains(point) for point in held):
+            at_war.append(shape)
     return (
         shapely.union_all(at_war) if at_war else Polygon(),
         shapely.union_all(neutral) if neutral else Polygon(),

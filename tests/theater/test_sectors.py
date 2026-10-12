@@ -216,9 +216,31 @@ def test_a_country_holding_a_base_is_filled_to_its_border(game: Any) -> None:
     assert beyond > 100, "no held ground past the margin around the bases"
 
 
+def test_a_campaign_with_its_own_borders_still_fills_the_country_at_war() -> None:
+    """COIN authors its neighbours only; Afghanistan comes from the map's file."""
+    campaign = Campaign.from_file(
+        Path("resources/campaigns/coin_enduring_resolve.yaml")
+    )
+    loaded = campaign.load_theater(campaign.advanced_iads)
+    assert all(zone.country != "Afghanistan" for zone in loaded.neutral_border_zones)
+    kandahar = next(cp for cp in loaded.controlpoints if cp.name == "Kandahar")
+    base = MagicMock(is_fleet=False, is_offmap=False, is_carrier=False)
+    base.position = kandahar.position
+    base.captured.is_neutral = False
+    theater = MagicMock()
+    theater.neutral_border_zones = loaded.neutral_border_zones
+    theater.terrain.name = loaded.terrain.name
+    theater.controlpoints = [base]
+    at_war, _ = sectors._countries(theater)
+    assert at_war.contains(ShapelyPoint(kandahar.position.x, kandahar.position.y))
+    assert at_war.area > 300_000 * 1_000_000
+
+
 def test_a_map_with_no_borders_keeps_the_margin_around_the_bases(game: Any) -> None:
     theater = MagicMock()
     theater.neutral_border_zones = []
+    theater.terrain.name = "no such map"
+    theater.controlpoints = []
     bases = land_control_points(game.theater)
     region = sectors._war_region(theater, bases)
     reach = sectors.WAR_MARGIN_M

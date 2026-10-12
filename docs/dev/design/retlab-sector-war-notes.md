@@ -40,6 +40,9 @@ them. A second set showed hand-drawn "BATTLE MAP" CAS kneeboard cards built per 
   either side. Off-map spawns and ships are not land bases. On a map with no border data
   (Germany) the 60 NM box is the whole region. Until 2026-10-12 the box was the region
   everywhere, and on Iraq it drew as a plain rectangle with most of the country unfilled.
+  A campaign that authors its own §98 borders lists its neighbours only (COIN has no
+  Afghanistan zone), so a country holding a base is also read from the map's own file in
+  `resources/borders/`.
 - **The grid** is 1 NM cells. A cell costs 1 to cross on drivable ground and 4
   (`MAX_TERRAIN_DIFFICULTY`, §90 rung D) inside an exclusion zone.
 - **Sectors** grow from seeds by multi-source shortest path over that grid, so an edge
