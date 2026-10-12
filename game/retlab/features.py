@@ -911,13 +911,11 @@ FEATURES: tuple[Feature, ...] = (
         109,
     ),
     Feature(
-        # Player F10 call-for-fire from the campaign's own ballistic missile
-        # launchers. The `bmstrike` plugin reads the launcher list luagenerator
-        # emits (ballistic_missile_batteries). Plugin toggle only, default off.
+        # Ported 2026-10-10, REMOVED 2026-10-12 on the DM's call, never flown.
         "ballistic_missile_strikes",
         "Ballistic missile call-for-fire",
         110,
-        plugin_id="bmstrike",
+        retired=True,
     ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.

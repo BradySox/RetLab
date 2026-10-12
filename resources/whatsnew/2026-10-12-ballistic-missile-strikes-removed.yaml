@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: Ballistic missile strikes plugin removed
+change: >-
+  The Ballistic missile strikes plugin, added two days earlier and off by
+  default, is gone: no F10 radio menu to call rounds from a Scud, Iskander
+  or ATACMS launcher onto a map marker. The launchers are still in the
+  campaign as units.
+watch: >-
+  Plugin Options no longer lists Ballistic missile strikes. A save that had
+  it ticked loads normally.

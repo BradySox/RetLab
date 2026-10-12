@@ -437,7 +437,6 @@ linked design note.
 107. **Briefing screen picture** — RetLab's own load-screen picture; drop `briefing.png` or `briefing.jpg` into `Saved Games\DCS\Retribution` to use yours.
 108. **Flight report cards** — the debrief grades every blue flight that flew, yours first, from §91's records. A record, never a reward.
 109. **Outside AI reads red's turn** — a REST API under `/retribution-ai/*` for an AI on the same PC: it reports what looks wrong in red's plan, and with the Outside AI plans red setting ticked (Campaign Management; also on the new game wizard's Campaign options page) it plans red's packages, TOTs, stances and buying, starting from the plan the scripted planner still makes every turn. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; loadouts, waypoints, transfers, ships, repairs and MCP are staged after it.
-110. **Ballistic missile call-for-fire** — a player marks a spot on the F10 map and calls rounds onto it from a friendly Scud, Iskander or ATACMS launcher by radio menu (`bmstrike` plugin, default off). The launchers are the campaign's own units; a battery refuses a target outside its range window and says why. Ported from CleeeCATCH/dcs-retribution; not flown yet (row B215).
 
 ### Retired, removed or shelved — do not restore
 
@@ -472,6 +471,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 |
 | 83 | SP Pilot Mode | Removed 2026-10-12 — verified working 2026-08-05, never switched on since |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
+| 110 | Ballistic missile call-for-fire (`bmstrike`) | Removed 2026-10-12 — ported 2026-10-10, never flown |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush

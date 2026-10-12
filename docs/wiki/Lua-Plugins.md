@@ -123,7 +123,6 @@ setting off costs nothing at runtime.
 | `airboss` | on | MOOSE Airboss — LSO and Marshal voice comms, the recovery window schedule, optional rescue helo and recovery tanker. |
 | `cruisemissiles` | on | Ship-launched land-attack cruise missiles, F10 call-for-fire and auto raids. Inert unless the setting is on. |
 | `navalmagazines` | on | The fleet's finite anti-ship missiles and staggered weapons-free release. Inert unless the setting is on. |
-| `bmstrike` | off | Ballistic missile strikes: an F10 radio menu to call rounds from your own Scud, Iskander or ATACMS launchers onto a map marker. Cruise missile and attack drone launchers are listed too. Inert when your side has no launcher. |
 
 ### Missions, pilots and hosting
 

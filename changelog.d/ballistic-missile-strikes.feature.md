@@ -1,1 +1,0 @@
-* **[Plugins]** Ballistic missile strikes: with the plugin ticked, a player marks a target on the F10 map and calls rounds onto it from one of their side's own Scud, Iskander or ATACMS launchers by radio menu. A battery refuses a target outside its range or inside its minimum range and says why. Off by default. (CleeeCATCH)

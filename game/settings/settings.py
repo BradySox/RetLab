@@ -186,8 +186,8 @@ class Settings(
         # same day: it existed only to swap §72's launch- and recovery-phase deck
         # dressing, and both tiers were cut. The "minefields" plugin went on
         # 2026-09-07 with §57, abandoned rather than resumed; "aisleep" went on
-        # 2026-09-23 with §59. A save made before
-        # each of those still carries the keys.
+        # 2026-09-23 with §59; "bmstrike" on 2026-10-12 with §110. A save made
+        # before each of those still carries the keys.
         for plugin_key in [
             key
             for key in self.plugins
@@ -223,6 +223,8 @@ class Settings(
             or key.startswith("reactivered.")
             or key == "aisleep"
             or key.startswith("aisleep.")
+            or key == "bmstrike"
+            or key.startswith("bmstrike.")
         ]:
             del self.plugins[plugin_key]
 
