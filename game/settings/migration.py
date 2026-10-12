@@ -175,6 +175,8 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         "queue_aware_ground_ops",
         # §50's convoy ambush, REMOVED 2026-10-11 (DM call). Ambient convoys stay.
         "convoy_ambush",
+        # §83 SP Pilot Mode, REMOVED 2026-10-12 (DM call).
+        "sp_pilot_mode",
     ):
         migrated.pop(obsolete_key, None)
 

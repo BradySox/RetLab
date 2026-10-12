@@ -162,7 +162,7 @@ One line each; the status is the note's own. Read the note, not this line, befor
   `retlab-region-priorities-notes.md` (§93), `retlab-substrate-inventory-notes.md` (R0, done),
   `retlab-substrate-HANDOFF.md` (start here to continue the substrate work),
   `retlab-aircraft-task-rebalance-rubric.md`, `retlab-victory-conditions-notes.md`,
-  `retlab-single-player-loop-notes.md`, `retlab-autoplanner-upstream-divergence-audit.md`
+  `retlab-autoplanner-upstream-divergence-audit.md`
   (the full fork-vs-upstream planner diff; read before reverting or carving planner behavior),
   `retlab-cruise-mach-notes.md` (built 2026-09-01; only the F/A-18C is authored),
   `retlab-bullseye-notes.md` (§95), `retlab-flight-report-cards-notes.md` (§108, row B158),
@@ -411,7 +411,6 @@ linked design note.
 78. **Sea-supply convoys + coastal anti-ship** — proportional convoy losses and batteries that actually engage.
 80. **Mixed-hull ship groups** — task groups instead of copies of one hull, family-bounded.
 81. **Cross-turn naval magazines** — staggered weapons-free release and finite anti-ship stock, released on attack.
-83. **SP Pilot Mode** — accept-and-fly-next, an aircraft-first sortie board, and a pre-turn reasons-to-continue brief.
 85. **SAM/missile battery support sections** — refuellers, power and transload in the faction's own kit.
 86. **GPS jamming** — satellite-guided weapons released inside the bubble land long.
 87. **Naval station-keeping racetracks** — anchored ovals so ships hold station under way.
@@ -469,6 +468,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 60 | SAM guidance-radar redundancy (two track radars per site) | Removed 2026-09-29 — every SAM site is back to one guidance radar |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 |
+| 83 | SP Pilot Mode | Removed 2026-10-12 — verified working 2026-08-05, never switched on since |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),

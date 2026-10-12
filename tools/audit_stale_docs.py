@@ -436,6 +436,12 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(
+        "SP Pilot Mode (S83)",
+        "2026-10-12",
+        r"SP Pilot Mode|sp_pilot_mode|fly next\b|sortie board",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",

@@ -267,11 +267,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 
 ### Campaign systems
 
-- **SP Pilot Mode.** The debrief gains an *Accept results & fly next* button that processes the
-  turn and opens a sortie board instead of the map. Pick an aircraft from anything the wing can
-  put up, then a sortie in it — one seat, AI wingmen. The role comes from what the package
-  needs. A pre-turn brief covers evading pilots and their capture odds, enemy C2 damage,
-  victory progress and the next squadron arrival. The map and mission planner are untouched.
 - **Scheduled squadron arrivals.** Campaigns can add *new airframes* on announced turns, so the
   wing you start with is not the wing you end with. Schedules follow air-campaign order:
   air superiority, SEAD/DEAD and enablers first, deep strike once the SAM belt is coming down.

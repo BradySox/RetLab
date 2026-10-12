@@ -659,10 +659,12 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("naval_weapon_release_stagger", "naval_magazines"),
     ),
     Feature(
+        # REMOVED 2026-10-12 on the DM's call: verified working 2026-08-05,
+        # off in his defaults and every save since.
         "sp_pilot_mode",
         "SP Pilot Mode",
         83,
-        settings_fields=("sp_pilot_mode",),
+        retired=True,
     ),
     Feature(
         # REMOVED 2026-08-16 on the DM's call -- "doesn't add much except in very

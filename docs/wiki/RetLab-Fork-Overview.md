@@ -86,9 +86,6 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
   status ribbon and the SITREP, instead of grinding the map flat.
 - Campaigns can schedule **squadron arrivals**: new airframes land on announced turns, so the
   wing you start with is not the wing you end with.
-- **SP Pilot Mode** gives solo players an express lane — accept the debrief, pick an aircraft
-  from the whole wing, take one seat in a sortie the war decided. The map and planner are
-  untouched.
 - Destroying enemy **command posts** degrades its target selection and thins its offensive
   tempo.
 - **GPS jamming** sites deny satellite guidance over an area — a JDAM released inside lands off
