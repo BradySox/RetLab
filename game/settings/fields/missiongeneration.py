@@ -143,13 +143,14 @@ class MissionGenerationSettings:
         detail=(
             "Your own supply convoys run the roads behind the lines, and sometimes -- "
             "it is a chance, never a certainty -- hidden enemy ambush teams dig in "
-            "along the route: one contact, or a gauntlet of five or six down the same "
+            "along the route: one contact, or up to three down the same "
             "road. Nothing is telegraphed: the convoy looks like any other friendly "
             "convoy and no objective or escort package appears in the UI -- the first "
             "sign is the TROOPS IN CONTACT call when an ambush springs, and supporting "
             "the column (or not) is your call. Left unsupported, an ambushed convoy is "
             "ground down and the supplies never arrive. The convoy and the ambushers "
-            "are real, tracked units -- both sides' losses count."
+            "are real, tracked units -- both sides' losses count. Needs land convoys: "
+            "no team is placed while Disable land convoys is ticked."
         ),
     )
     cruise_missile_strikes: bool = boolean_option(

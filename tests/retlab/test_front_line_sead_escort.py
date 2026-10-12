@@ -57,7 +57,9 @@ def _assign(
         location=SimpleNamespace(cptype=SimpleNamespace(name="AIRBASE")),
         aircraft=aircraft,
         can_auto_assign=lambda task: True,
-        settings=SimpleNamespace(front_line_sead_escort=setting),
+        settings=SimpleNamespace(
+            front_line_sead_escort=setting, restrict_weapons_by_date=False
+        ),
     )
     return Squadron.can_auto_assign_mission(
         squadron,  # type: ignore[arg-type]

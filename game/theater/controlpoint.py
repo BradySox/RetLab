@@ -212,6 +212,10 @@ def ground_objects_beside_an_enemy_base(
     violations: list[MotorpoolCaptureViolation] = []
     for cp in points:
         for tgo in cp.ground_objects:
+            # A team spawned at a turn boundary (§50 ambush, COIN cell) is by an
+            # enemy base on purpose and is no marker. Naming a hidden one gives it away.
+            if getattr(tgo, "map_hidden", False) or getattr(tgo, "coin_spawned", False):
+                continue
             own = tgo.position.distance_to_point(cp.position)
             hostile = [p for p in points if not p.is_friendly_to(cp)]
             if not hostile:

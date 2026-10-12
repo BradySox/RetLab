@@ -1,0 +1,1 @@
+* **[Campaign AI]** With weapon dates restricted, the planner no longer sends an aircraft on SEAD, SEAD Escort or SEAD Sweep when the campaign date removes every anti-radiation missile from its fit (a JF-17 before 2013 flew SEAD escort with a jammer pod and two PL-5).
