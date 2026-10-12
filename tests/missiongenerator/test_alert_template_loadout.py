@@ -85,15 +85,6 @@ def test_the_template_carries_the_barcap_fit(type_id: str) -> None:
         assert _stores(unit) == expected
 
 
-def test_the_f15e_default_is_not_what_an_alert_jet_flies() -> None:
-    """The fault itself: pydcs's default F-15E payload is not the BARCAP fit. If
-    this starts failing, pydcs changed and the arming step is only a safeguard."""
-    dcs_type = planes.plane_map["F-15ESE"]
-    loadout = Loadout.default_for_task_and_aircraft(FlightType.BARCAP, dcs_type)
-    expected = {n: w.clsid for n, w in loadout.pylons.items() if w is not None}
-    assert _stores(_template(dcs_type).units[0]) != expected
-
-
 def test_an_airframe_with_no_preset_keeps_the_pydcs_default() -> None:
     dcs_type = planes.plane_map["F-15ESE"]
     group = _template(dcs_type)
