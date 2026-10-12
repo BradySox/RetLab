@@ -250,8 +250,6 @@ def test_radar_air_defense_at_the_front_needs_the_sead_escort(
     armor = {_ground(AirDefence.x_2S6_Tunguska): 2}
     needed = _needed(monkeypatch, armor, setting=True)
     assert needed[EscortType.Sead]
-    # Sead only: the escort jammer stays on the fixed-SAM trigger.
-    assert not needed[EscortType.Jammer]
 
 
 def test_ir_sams_and_guns_at_the_front_do_not(

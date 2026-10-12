@@ -453,9 +453,10 @@ def test_an_escort_is_timed_at_the_join_point() -> None:
 
     assert facts.place == "the join point"
     assert (facts.planned_tot, facts.arrival) == (1200.0, 1200.0)
-    for task in (FlightType.SEAD_ESCORT, FlightType.ESCORT_JAMMER):
-        jammer = facts_for(_attack_flight(task, start), [lead], _debriefing([]), start)
-        assert jammer.place == "the join point"
+    sead_escort = facts_for(
+        _attack_flight(FlightType.SEAD_ESCORT, start), [lead], _debriefing([]), start
+    )
+    assert sead_escort.place == "the join point"
 
 
 def test_a_patrol_is_timed_at_its_station() -> None:

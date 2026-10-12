@@ -33,16 +33,12 @@ if TYPE_CHECKING:
 #: task ``propose_common_escorts`` and ``PlanCas`` propose as an escort must appear
 #: here: a tasking missing from this set turns "no escort was free" into "scrub the
 #: whole package", which is exactly the deadlock the doctrine flag exists to prevent.
-#: ESCORT_JAMMER was the one that got left out when §77 added it (COIN allows the
-#: tasking and flies unescorted, so a Growler that could not be filled killed the
-#: strike outright).
 PRUNABLE_ESCORTS: frozenset[FlightType] = frozenset(
     {
         FlightType.ESCORT,
         FlightType.SEAD_ESCORT,
         FlightType.SEAD_SWEEP,
         FlightType.TARCAP,
-        FlightType.ESCORT_JAMMER,
     }
 )
 
@@ -63,7 +59,6 @@ class PackageFulfiller:
         self.player_missions_asap = settings.auto_ato_player_missions_asap
         self.default_start_type = settings.default_start_type
         self.auto_add_tarps_recon = settings.auto_add_tarps_recon
-        self.max_escort_jammers = settings.max_escort_jammers
         self.single_sead_escort_flavour = settings.single_sead_escort_flavour
         self.front_line_sead_escort = settings.front_line_sead_escort
 
@@ -247,10 +242,6 @@ class PackageFulfiller:
                 list(flight.flight_plan.escorted_waypoints())
             ):
                 threats[EscortType.Sead] = True
-                # A radar-SAM-threatened route also warrants an escort jammer
-                # (Growler): same trigger as SEAD, pruned independently when no
-                # ESCORT_JAMMER-capable squadron exists.
-                threats[EscortType.Jammer] = True
         # §69: front-line units are not TGOs, so ThreatZones never sees their
         # Tunguskas; test 39's CAS flew without the escort it had proposed.
         if self.front_line_sead_escort and self.front_line_has_radar_air_defense(
@@ -329,31 +320,7 @@ class PackageFulfiller:
                     return True
         elif type == EscortType.Refuel:
             return self.air_wing_can_plan(FlightType.REFUELING)
-        elif type == EscortType.Jammer:
-            # Escort jamming is flown only by dedicated jammers (EA-18G Growler /
-            # EA-6B Prowler -- the only airframes that declare the Escort Jammer
-            # task, §77). Plannable if the wing fields one and the per-side cap
-            # isn't already reached.
-            if not self.air_wing_can_plan(FlightType.ESCORT_JAMMER):
-                return False
-            # Balance: cap how many escort jammers a side fields per turn. Escort
-            # jamming is proposed on every radar-SAM-threatened package, so a
-            # strike-heavy turn could otherwise put many in the air. Once the ATO
-            # already holds max_escort_jammers of them, stop adding more.
-            return not self._escort_jammer_cap_reached()
         return False
-
-    def _escort_jammer_cap_reached(self) -> bool:
-        """True once the side's ATO already holds ``max_escort_jammers`` jammers."""
-        if self.max_escort_jammers <= 0:
-            return True
-        planned = sum(
-            1
-            for package in self.ato.packages
-            for flight in package.flights
-            if flight.flight_type is FlightType.ESCORT_JAMMER
-        )
-        return planned >= self.max_escort_jammers
 
     def plan_mission(
         self,

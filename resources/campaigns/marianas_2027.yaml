@@ -280,11 +280,7 @@ squadrons:
       aircraft:
         - F/A-18E Super Hornet
       size: 8
-    # VAQ-136 "Gauntlets" -- a real Growler squadron. Authored SEAD, but the Escort
-    # Jammer role is offered to every capable squadron automatically
-    # (SquadronConfig.auto_assignable) and the EA-18G outranks every other airframe
-    # for it (800), so the det also flies the §77 escort-jamming slot in front of the
-    # strike packages.
+    # VAQ-136 "Gauntlets" -- a real Growler squadron, authored SEAD.
     - primary: SEAD
       secondary: [SEAD Escort]
       name: VAQ-136

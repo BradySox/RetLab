@@ -38,7 +38,6 @@ class MissionTarget:
                 FlightType.ESCORT,
                 FlightType.TARCAP,
                 FlightType.SEAD_ESCORT,
-                FlightType.ESCORT_JAMMER,
                 FlightType.SEAD_SWEEP,
                 FlightType.ARMED_RECON,
                 FlightType.SWEEP,

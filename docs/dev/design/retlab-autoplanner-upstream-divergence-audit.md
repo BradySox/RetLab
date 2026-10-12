@@ -67,7 +67,7 @@ One line each. Ref = the flown/documented reason where one exists.
 
 **Data + loadouts**
 - 212 yamls rebalanced per the rubric; `Intercept` retired from 123 (2 misses below); `secondary_tasks` on 29 blocks auto-assign only.
-- Fork lanes: TARPS 700 on 10 airframes, Escort Jammer on EA-18G/EA-6B, Jamming on the C-130J, CSAR on airlift helos (+code-derived for `cabin_size > 0` helos); heavy bombers stripped of ARMED_RECON.
+- Fork lanes: TARPS 700 on 10 airframes, Jamming on the C-130J (Escort Jammer on EA-18G/EA-6B was removed 2026-10-12), CSAR on airlift helos (+code-derived for `cabin_size > 0` helos); heavy bombers stripped of ARMED_RECON.
 - F-14B(U): upstream ships a byte-copy of the F-14B block; fork rebalanced it (+10 family bump, SEAD out, TARPS in) and fixed the `Retribution Fighter sweep` payload casing upstream still gets wrong (queued carve).
 - Loadouts: ANTISHIP→Strike fallback (upstream flies clean), empty/`<CLEAN>` stations no longer invalidate a preset, Litening date-gated, `(XW)` fits mod-gated.
 - Removed upstream surface: Pretense (flight type + planning state) and plannable INTERCEPTION (QRA reserve replaced it).
@@ -80,7 +80,7 @@ One line each. Ref = the flown/documented reason where one exists.
 | `sead_strike_coordination` | ON | off |
 | `auto_add_tarps_recon` | ON | off |
 | `weather_aware_planning` | ON | off (no-op in clear skies) |
-| `max_escort_jammers` | 4 | 0 (needs a Growler/Prowler anyway) |
+| `max_escort_jammers` (removed 2026-10-12 with §77) | 4 | 0 (needs a Growler/Prowler anyway) |
 | `region_priorities` | OFF | off — §93 (2026-08-20): per-CP blue emphasis weighting `_targets_by_range`; identity while off |
 | `csar_enabled(_red)` | ON | off (#929 brings it upstream anyway) |
 | `adaptive_procurement` | ON | off |

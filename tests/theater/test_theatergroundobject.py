@@ -123,13 +123,12 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         task=None,
     )
     mission_types = list(building.mission_types(for_player=Player.RED))
-    assert len(mission_types) == 10
+    assert len(mission_types) == 9
     assert FlightType.STRIKE in mission_types
     assert FlightType.REFUELING in mission_types
     assert FlightType.ESCORT in mission_types
     assert FlightType.TARCAP in mission_types
     assert FlightType.SEAD_ESCORT in mission_types
-    assert FlightType.ESCORT_JAMMER in mission_types
     assert FlightType.SEAD_SWEEP in mission_types
     assert FlightType.ARMED_RECON in mission_types
     assert FlightType.SWEEP in mission_types
@@ -144,14 +143,13 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         task=None,
     )
     mission_types = list(iads_building.mission_types(for_player=Player.RED))
-    assert len(mission_types) == 11
+    assert len(mission_types) == 10
     assert FlightType.STRIKE in mission_types
     assert FlightType.DEAD in mission_types
     assert FlightType.REFUELING in mission_types
     assert FlightType.ESCORT in mission_types
     assert FlightType.TARCAP in mission_types
     assert FlightType.SEAD_ESCORT in mission_types
-    assert FlightType.ESCORT_JAMMER in mission_types
     assert FlightType.SEAD_SWEEP in mission_types
     assert FlightType.ARMED_RECON in mission_types
     assert FlightType.SWEEP in mission_types
@@ -172,7 +170,7 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
     ]
     for ground_object in naval_objects:
         mission_types = list(ground_object.mission_types(for_player=Player.RED))
-        assert len(mission_types) == 12
+        assert len(mission_types) == 11
         assert FlightType.ANTISHIP in mission_types
         assert FlightType.SEAD in mission_types
         assert FlightType.STRIKE in mission_types
@@ -180,7 +178,6 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         assert FlightType.ESCORT in mission_types
         assert FlightType.TARCAP in mission_types
         assert FlightType.SEAD_ESCORT in mission_types
-        assert FlightType.ESCORT_JAMMER in mission_types
         assert FlightType.SEAD_SWEEP in mission_types
         assert FlightType.ARMED_RECON in mission_types
         assert FlightType.SWEEP in mission_types
@@ -194,7 +191,7 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         task=None,
     )
     mission_types = list(sam.mission_types(for_player=Player.RED))
-    assert len(mission_types) == 13
+    assert len(mission_types) == 12
     assert FlightType.DEAD in mission_types
     assert FlightType.SEAD in mission_types
     assert FlightType.STRIKE in mission_types
@@ -203,7 +200,6 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
     assert FlightType.ESCORT in mission_types
     assert FlightType.TARCAP in mission_types
     assert FlightType.SEAD_ESCORT in mission_types
-    assert FlightType.ESCORT_JAMMER in mission_types
     assert FlightType.SEAD_SWEEP in mission_types
     assert FlightType.ARMED_RECON in mission_types
     assert FlightType.SWEEP in mission_types
@@ -215,7 +211,7 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         control_point=dummy_control_point,
     )
     mission_types = list(ewr.mission_types(for_player=Player.RED))
-    assert len(mission_types) == 12
+    assert len(mission_types) == 11
     assert FlightType.DEAD in mission_types
     assert FlightType.STRIKE in mission_types
     assert FlightType.REFUELING in mission_types
@@ -223,7 +219,6 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
     assert FlightType.ESCORT in mission_types
     assert FlightType.TARCAP in mission_types
     assert FlightType.SEAD_ESCORT in mission_types
-    assert FlightType.ESCORT_JAMMER in mission_types
     assert FlightType.SEAD_SWEEP in mission_types
     assert FlightType.ARMED_RECON in mission_types
     assert FlightType.SWEEP in mission_types
@@ -239,14 +234,13 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
     ]
     for ground_object in site_objects:
         mission_types = list(ground_object.mission_types(for_player=Player.RED))
-        assert len(mission_types) == 11
+        assert len(mission_types) == 10
         assert FlightType.BAI in mission_types
         assert FlightType.STRIKE in mission_types
         assert FlightType.REFUELING in mission_types
         assert FlightType.ESCORT in mission_types
         assert FlightType.TARCAP in mission_types
         assert FlightType.SEAD_ESCORT in mission_types
-        assert FlightType.ESCORT_JAMMER in mission_types
         assert FlightType.SEAD_SWEEP in mission_types
         assert FlightType.ARMED_RECON in mission_types
         assert FlightType.SWEEP in mission_types
@@ -260,14 +254,13 @@ def test_mission_types_enemy(monkeypatch: pytest.MonkeyPatch) -> None:
         task=None,
     )
     mission_types = list(vehicles.mission_types(for_player=Player.RED))
-    assert len(mission_types) == 11
+    assert len(mission_types) == 10
     assert FlightType.BAI in mission_types
     assert FlightType.STRIKE in mission_types
     assert FlightType.REFUELING in mission_types
     assert FlightType.ESCORT in mission_types
     assert FlightType.TARCAP in mission_types
     assert FlightType.SEAD_ESCORT in mission_types
-    assert FlightType.ESCORT_JAMMER in mission_types
     assert FlightType.SEAD_SWEEP in mission_types
     assert FlightType.ARMED_RECON in mission_types
     assert FlightType.SWEEP in mission_types

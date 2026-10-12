@@ -179,7 +179,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "weather_aware_planning",
                     "sead_strike_coordination",
                     "single_sead_escort_flavour",
-                    "max_escort_jammers",
                 ],
             ),
             (
@@ -574,7 +573,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "hq_requests",  # §112
         "weather_aware_planning",  # §67
         "sead_strike_coordination",  # §69
-        "single_sead_escort_flavour",  # §77
+        "single_sead_escort_flavour",  # §69
         "front_line_sead_escort",  # §69
         "route_around_sams",  # §69
         "tarcap_behind_sead",  # §69

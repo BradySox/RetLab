@@ -71,7 +71,7 @@ jobs:
             echo "**Highlights**"
             echo "- **Fog of war** — an enemy site's composition stays hidden until you engage it, and is then known completely and permanently. Recon finds the enemy command posts, which are hidden from the map outright. A **Reveal fog of war** toggle in the map layers panel shows the real picture on demand."
             echo "- **Air defense** — Skynet drives the IADS, a QRA intercept reserve scrambles alert fighters against a raid, and every nation on the map stands its own border batteries and hails you before it fires."
-            echo "- **Electronic warfare** — the JAMMING flight type flies the C-130J as an EC-130H/RC-130H EW + ISR platform; EA-18G and EA-6B escort jamming; GPS jamming that sends satellite-guided weapons long."
+            echo "- **Electronic warfare** — the JAMMING flight type flies the C-130J as an EC-130H/RC-130H EW + ISR platform; GPS jamming that sends satellite-guided weapons long."
             echo "- **Ground war** — a front line that follows the supply lines, costs more to attack than to defend, and bulges where the fighting is, plus TIC frontline firefights with stance-based movement and ambient fire."
             echo "- **Your flying, recorded** — per-flight sortie records feed a campaign SITREP, a per-pilot logbook, and a lifetime profile that survives starting a new campaign."
             echo "- **Rescue** — a player-flown C-130J King finds the survivor by DF cuts on the beacon and passes the picture to a Sandy escort and the helicopter crew."

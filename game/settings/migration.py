@@ -177,6 +177,8 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         "convoy_ambush",
         # §83 SP Pilot Mode, REMOVED 2026-10-12 (DM call).
         "sp_pilot_mode",
+        # §77 escort jamming, REMOVED 2026-10-12 (DM call).
+        "max_escort_jammers",
     ):
         migrated.pop(obsolete_key, None)
 

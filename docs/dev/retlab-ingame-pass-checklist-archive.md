@@ -5824,3 +5824,69 @@ Design: `docs/dev/design/retlab-tanker-box-notes.md`.
 - **Fail signatures:** an old save failing to load or a tanker window erroring on open; a
   theater tanker with a two-point racetrack on a new turn; a package or recovery tanker
   flying a box.
+
+### B31 — Escort jamming (Growler / Prowler + growler plugin) · §77 · ⊘ RETIRED (removed 2026-10-12, DM: stripped)
+
+**2026-10-12 — REMOVED on the DM's call.** Verified below by the 2026-09-16 audit; the plugin was off in his default settings and in all ten of his saves. The plugin and the Escort Jammer task are deleted, so this row can never be run again.
+
+**2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **VERIFIED for the AI runtime, from four missions' logs; the player F10 toggle is the one thing not flown.** Vectron's Claw (tests 1, 2 and 10) and Sinai (test 7) carried `GROWLER|: armed -- N escort jammer(s)` and then the plugin doing its job: 323 `holding down <site> for N s` pulses across SAM, SHORAD, PD, radar-AAA and armor groups carrying a track radar (the eligibility rule is any group with a `SAM TR` unit, so a Shilka or Tunguska inside an armor group is a legitimate target), and 14 `spoofed <missile> (best bubble <jammer>, pk N)` lines, the defensive bubble taking radar missiles off the package. Every jammer flight in every miz is an EA-18G or EA-6B (test 17's Prowlers armed but had nothing in range). The recovery window is visible as the pulses re-arming after their hold. Not seen: a human in the jammer seat turning it on from F10. The old MANTIS alarm-state fail signature no longer applies.
+
+**History:** built 2026-07-21 as graduated tiers, then reduced to dedicated-jammers-only per user call — "only Growlers and Prowlers, no Harriers or anything else with a jammer"; the graduated tiers + the escort_jamming_loose setting are removed. The planner role, the Growler+Prowler-only roster (the two airframes that declare the Escort Jammer task), and the whole Lua policy — grace, spoof bubble, WEAPON_HOLD pulse + OPEN_FIRE restore, radar-SAM-only eligibility, friendly-fire guard, player-off + F10 menu — are pinned in tests/retlab/test_escort_jammer.py + tests/missiongenerator/test_growlerluadata.py + tests/lua/test_growler_runtime.py (incl. an AI-Prowler-pulses-a-SAM case). PASS: an **AI Growler** (fa_18efg mod on) rides a strike package into a radar-SAM ring and a radar missile aimed at a package member disappears mid-flight without an explosion at the launcher (defensive bubble) AND the SAM visibly checks fire in pulses (offensive); repeat with an **AI Prowler** (ea6b mod on) and confirm identical behavior — the plugin is airframe-agnostic; a player jammer sees the F10 "Growler jamming" menu and jamming stays dark until toggled ON; no Harrier/Hornet/Viper/Tomcat/A-10 is ever fragged as an escort jammer. FAIL signatures: any non-Growler/Prowler airframe fragged as an escort jammer (roster gate broken), an AI Prowler that never jams while a Growler does (airframe-specific code path crept in), a SAM never firing at all (hold stuck — restore path broken), the jammer orbiting away from the package (escort plan regression), a friendly missile vanishing (guard broken), or MANTIS alarm-state weirdness near the pulsed site. **Balance:** effects don't stack — a missile faces the single strongest bubble (rolled once, deterministically pinned that a 2nd identical jammer doesn't raise the spoof rate), a suppressed SAM gets a mandatory recoverySec shoot-back window before any jammer can re-hold it (pinned via the hold→release→hold cycle), and a per-side max_escort_jammers cap (default 4, 0=off) counts ATO jammers in can_plan_escort. PASS additions: fly a mass of jammers into a dense IADS and confirm the SAMs still fire in windows (not permanently dead) and every missile isn't spoofed; confirm no more than max_escort_jammers jammer flights are fragged in a turn. FAIL additions: SAMs permanently silent under many jammers (recovery window broken), near-100% missile spoof under overlapping bubbles (stacking not fixed), or more than the cap fragged
+
+**2026-08-16 flights (session `c86c58dd`, two Caucasus turns; Tacview + dcs.log + state.json + the flown save) — PARTIAL: airframes and tasking confirmed, the jamming effect is not provable from a Tacview.** Both recordings carry a full Growler presence flying the right taskings — turn 1 had **14 EA-18G airframes** across `Escort Jammer`, `SEAD Escort` and `SEAD Sweep` packages, turn 2 had 12. They generate, launch and hold station (most flew 35–51 km of track over 70+ minutes, i.e. an orbit; TARANTULA's Escort Jammer pair transited 231 km and left station at T+56 m). What a Tacview cannot show is the spoof bubble itself — no emitter state is recorded — so the non-stacking bubbles and the SAM weapons-hold pulses still need a watched pass with `dcs.log` open.
+
+### B52 — Escort-jammer distribution + the one-SEAD-flavour escort set · §77 · ⊘ RETIRED (removed 2026-10-12, DM: stripped)
+
+**2026-10-12 — REMOVED on the DM's call, the jammer half.** The Escort Jammer task is deleted. The one-SEAD-flavour half (`single_sead_escort_flavour`) is live and unchanged, and is now filed under §69.
+
+**2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **VERIFIED: the distribution half is settled by the only post-fix mission with a jammer wing, and the escort-set rules hold on 16 mizzes.** Test 17 (Inherent Resolve, 2026-08-25, four days after the fix) fragged both EA-6B Escort Jammer pairs onto strike-type packages that carried a threat-gated SEAD Escort (TAURUS BAI and the HVT Mullah Nasir BAI), none onto anything helo-led, and the wing's `max_escort_jammers` cap of 4 was spent there rather than on transports. Across tests 17–33 no package carries both a SEAD Escort and a SEAD Sweep, front-line CAS still gets its own SEAD Sweep (Iron Gate twice, Caucasus 2026, Peace Spring), and DEAD packages take a SEAD Escort only. Not seen: a DEAD package on a jammer-fielding wing (test 17 planned none), which is the cap's territory. The one-SEAD-flavour half was the DM's 2026-08-21 verdict.
+
+**2026-08-21, DM pass `sead-escort-waypoint-bug-548af6` — the ONE-SEAD-FLAVOUR half is good.**
+The jammer-distribution half (does the auto-planner put a Growler on the right package) is
+still open and is what keeps this row from closing.
+
+**History:** built 2026-08-07; the one-SEAD-flavour half **reverted 2026-08-09** by planner
+re-convergence work order B (`c5e7a4f48`, which restored upstream's `SEAD_SWEEP` proposal),
+rebuilt 2026-08-17 behind `single_sead_escort_flavour`. The jammer-distribution half was
+never reverted. Read B75 with this row: the rebuild moved the trim from the proposer to
+the fulfiller, so it now also catches `PlanDead`'s extra `SEAD` flight, and the ungated
+default is upstream's stacking.
+
+> **Where the jammers actually go.** B31 covers whether the §77 runtime works; this row covers
+> whether the auto-planner puts one on the right package. Found by dumping a live save's ATO
+> (Afghanistan, turn 1, `brady.retribution`): blue fragged exactly two Escort Jammer flights and
+> **both went to CH-47F air assaults** — the Growlers launched from Kabul, 89 nm from the assault
+> base, joined ~15 min behind the helos at 21,000 ft, and split for home on the same second as
+> the drop. Meanwhile all seven DEAD packages, the tasking whose whole point is penetrating a
+> live radar-SAM ring, flew with none, because `PlanDead` does not use `propose_common_escorts`
+> and never proposed one. Four changes: `PlanAirAssault` opts out (`propose_common_escorts(jammer=False)`);
+> `PlanDead` opts in; the formation-escort guard in `Squadron.can_auto_assign_mission` now reads
+> `task.is_escort_type` so `ESCORT_JAMMER` inherits the helo/LHA rule that already covered
+> `ESCORT`/`SEAD_ESCORT` (a Growler is carrier-capable but **not** LHA-capable, so no helo-led
+> package — CSAR included — can pull one); and `propose_common_escorts` asks for **one** SEAD
+> flavour (`SEAD_ESCORT`, the one that rides the package's join→split) instead of also asking for
+> `SEAD_SWEEP`, generalising the trim `PlanDead` already had. A fifth, separate bug fixed
+> alongside: `ESCORT_JAMMER` was missing from the escort set a package may lose without being
+> scrubbed (now `PRUNABLE_ESCORTS`), so under COIN/Vietnam doctrine — which allow the tasking
+> **and** fly unescorted — an unavailable Growler killed the whole strike. All five are pinned in
+> `tests/retlab/test_escort_jammer.py` (28), ~~`tests/test_dead_planning.py`~~,
+> `tests/commander/test_motorpool_targeting.py`. What CI cannot judge is the resulting ATO shape.
+
+Play a turn on a Growler- or Prowler-fielding wing against a campaign with several radar SAMs
+(Marianas 2027 or Red Tide), then read the ATO before flying anything.
+
+- **Pass:** Escort Jammer flights sit on DEAD/strike packages that route into a SAM ring. No air
+  assault, CSAR or other helo-led package has one. No package carries both a SEAD Escort and a
+  SEAD Sweep. Front-line CAS still gets its SEAD Sweep (`PlanCas` proposes that one directly).
+  Package sizes look proportionate — no six escort aircraft around a two-ship helo insert.
+- **Fail signatures:**
+  1. **A helo package still has a jammer.** The guard did not take — check the airframe is not
+     LHA-capable (an AV-8B legitimately still escorts helo packages; that is the guard working).
+  2. **DEAD packages still have none while the wing has spare Growlers.** Either
+     `max_escort_jammers` (Air Doctrine, default 4) is already spent by earlier packages, or the
+     route was not judged radar-SAM-threatened — the proposal is still threat-gated.
+  3. **Fewer packages get planned than before.** The one-SEAD-flavour trim frees jets; if the
+     count went *down*, look for a package scrubbing on a missing escort.
+  4. **SEAD support feels thin against a dense IADS.** Halving the SEAD flavours is the trade this
+     row is for — if one SEAD Escort per package is not enough cover, that is the finding, and the
+     answer is to reinstate the sweep for specific callers rather than for all of them.

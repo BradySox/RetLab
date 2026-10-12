@@ -66,7 +66,6 @@ class FlightPlanBuilderTypes:
             FlightType.OCA_RUNWAY: OcaRunwayFlightPlan.builder_type(),
             FlightType.SEAD: SeadFlightPlan.builder_type(),
             FlightType.SEAD_ESCORT: EscortFlightPlan.builder_type(),
-            FlightType.ESCORT_JAMMER: EscortFlightPlan.builder_type(),
             FlightType.SEAD_SWEEP: SeadSweepFlightPlan.builder_type(),
             FlightType.STRIKE: StrikeFlightPlan.builder_type(),
             FlightType.SWEEP: SweepFlightPlan.builder_type(),
