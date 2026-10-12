@@ -319,9 +319,17 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   wraps that handler per dispatcher and passes the event on only when `InAir()` is
   exactly `false`. A real landing is unchanged. Grouping 1 is the worst case; in a pair
   only the last jet to die was credited. Upstream MOOSE has the same handler and has
-  since deleted the class. **Known and not fixed:** when two alert squadrons share a
-  base, Moose's `onafterGCI` picks the first on a distance tie and gives up when it is
-  empty, so the second never launches (Kirkuk's four MiG-29s in test 56). Tests:
+  since deleted the class.
+- **A base's second alert squadron launches when the first is spent (2026-10-12, test
+  56).** Kirkuk held a JF-17 and a MiG-29 alert squadron, 4 jets each; the MiG-29s never
+  launched. Moose's `onafterGCI` picks the squadron nearest the intercept point without
+  reading `ResourceCount`, two squadrons at one base tie and the first in `pairs` order
+  wins, and when `CanGCI` then refuses the empty pick the loop breaks instead of trying
+  another. The plugin wraps `onafterGCI` per dispatcher: for the length of the call it
+  takes the `Gci` table off every squadron with `ResourceCount <= 0` or `Captured`, so
+  the pick falls to one that can launch, then puts it back (also when Moose raises). A
+  pick that takes a squadron's last jet still stops there; the next 30 s detection cycle
+  asks again and reaches the other squadron. Tests for both:
   `tests/lua/test_intercept_filter.py`. Row **B228**.
 
 ---

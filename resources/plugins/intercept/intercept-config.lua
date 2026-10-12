@@ -385,6 +385,28 @@ local function build_dispatcher(coalition_name, records)
             end
             return orig_engine_shutdown(self, EventData)
         end
+        -- Moose picks the nearest squadron without asking whether it has a jet
+        -- left, and gives up when it has none, so a base's second alert squadron
+        -- never launched (Kirkuk's MiG-29s behind the JF-17s, test 56). Hide the
+        -- spent and captured ones for the length of the pick.
+        local orig_onafter_gci = dispatcher.onafterGCI
+        function dispatcher:onafterGCI(...)
+            local hidden = {}
+            for name, squadron in pairs(self.DefenderSquadrons or {}) do
+                local spent = squadron.ResourceCount and squadron.ResourceCount <= 0
+                if squadron.Gci and (spent or squadron.Captured) then
+                    hidden[name] = squadron.Gci
+                    squadron.Gci = nil
+                end
+            end
+            local ok, err = pcall(orig_onafter_gci, self, ...)
+            for name, gci in pairs(hidden) do
+                self.DefenderSquadrons[name].Gci = gci
+            end
+            if not ok then
+                error(err, 0)
+            end
+        end
         -- Spawn interceptors already airborne near the base. See header for the
         -- full method history: every ground spawn (cold/hot/runway) leaves F-16s
         -- stuck on congested ramps like Tiyas; only in-air escapes it. In-air is
