@@ -57,6 +57,18 @@ class CampaignEventJs(BaseModel):
     text: str
 
 
+class HqRequestJs(BaseModel):
+    """One open §112 HQ request, for the ribbon list and the map ring."""
+
+    name: str
+    kind: str
+    base: str
+    tier: str
+    turns_left: int
+    why: str
+    position: LeafletPoint
+
+
 class CampaignStatusJs(BaseModel):
     """The campaign-status ribbon payload.
 
@@ -89,6 +101,8 @@ class CampaignStatusJs(BaseModel):
     #: already-announced intel; the concealed map position stays fogged.
     hvt_name: str | None
     hvt_turns_left: int | None
+    #: §112: the open HQ requests, easy first. Empty when the setting is off.
+    hq_requests: list[HqRequestJs]
 
     @staticmethod
     def from_game(game: Game) -> CampaignStatusJs:
@@ -129,6 +143,7 @@ class CampaignStatusJs(BaseModel):
         hvt_status = active_hvt_status(game)
         if hvt_status is not None:
             hvt_name, hvt_turns_left = hvt_status
+        hq_requests = hq_requests_js(game)
         return CampaignStatusJs(
             campaign_name=game.campaign_name,
             turn=game.turn,
@@ -141,7 +156,34 @@ class CampaignStatusJs(BaseModel):
             sitrep_lines=sitrep_lines,
             hvt_name=hvt_name,
             hvt_turns_left=hvt_turns_left,
+            hq_requests=hq_requests,
         )
+
+
+def hq_requests_js(game: Game) -> list[HqRequestJs]:
+    from game.retlab.hq_requests import enabled, requests_of
+
+    if not enabled(game):
+        return []
+    rows = []
+    for request in requests_of(game).open():
+        tgo = next(
+            (t for t in game.theater.ground_objects if t.id == request.tgo_id), None
+        )
+        if tgo is None:
+            continue
+        rows.append(
+            HqRequestJs(
+                name=request.name,
+                kind=request.kind,
+                base=request.base,
+                tier=request.tier_name,
+                turns_left=request.turns_left(game.turn),
+                why=request.why,
+                position=tgo.position.latlng(),
+            )
+        )
+    return rows
 
 
 class NeutralBorderJs(BaseModel):

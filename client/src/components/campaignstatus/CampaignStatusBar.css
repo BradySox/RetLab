@@ -229,3 +229,8 @@
   color: #e79a86;
 }
 
+
+/* §112: the "why it matters" line under each HQ request. */
+.campaign-status-request-why {
+  color: #9fb0c4;
+}

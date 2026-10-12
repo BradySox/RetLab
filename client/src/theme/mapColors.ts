@@ -25,6 +25,8 @@ export const mapColors = {
   territoryBlue: "#4f78a8",
   territoryRed: "#b8743a",
   sectorEdge: "#1c1c1c",
+  // §112: gold, so an HQ request never reads as a threat ring or a side's color.
+  hqRequest: "#f2c14e",
 
   // --- sensor coverage (SAM/EWR range rings) ---
   detectionFriendly: "#bb89ff", // violet: friendly radar detection range

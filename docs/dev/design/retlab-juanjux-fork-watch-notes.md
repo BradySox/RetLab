@@ -629,6 +629,12 @@ SAM and loaned squadrons bypass §68 procurement. Re-assess once his stack has m
 and he has flown it. The objective half alone (rated targets, no prizes) sits nearer
 §93 region priorities, if it is ever scoped.
 
+**2026-10-12 (DM call):** the order half taken as §112 HQ requests, rebuilt from our own
+code: three requests a turn, one per difficulty third, 2–5 turns, drawn from targets blue's
+auto-planner left alone. Brady: "not sold on the rewards", so no prize, ticket, loan or
+effect. Design: `retlab-hq-priority-targets-notes.md` §9. His prize half stays
+watched, not taken.
+
 ### Adopted here 2026-10-06 — Loadout training filter (§73)
 
 #504 and #505 taken: the Loadout editor hides training and non-combat stores until

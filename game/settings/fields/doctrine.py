@@ -324,6 +324,21 @@ class DoctrineSettings:
             "Why it matters line shows the measure either way."
         ),
     )
+    hq_requests: bool = boolean_option(
+        "HQ requests (targets the auto-planner left alone)",
+        page=CAMPAIGN_DOCTRINE_PAGE,
+        section=GENERAL_SECTION,
+        default=True,
+        detail=(
+            "Each turn HQ asks the players to take out up to three enemy targets "
+            "that the BLUE auto-planner put no package on: one easy, one mid and "
+            "one hard to reach. Each stays open for 2 to 5 turns. They are listed "
+            "under HQ REQUESTS on the map's status bar, ringed on the map, and "
+            "marked on the kneeboard of a flight sent against one. Sites hidden "
+            "on your map are never picked. A request pays nothing; the SITREP "
+            "notes the ones destroyed. Saves from before this setting keep it off."
+        ),
+    )
     c2_decapitation_effects: bool = boolean_option(
         "Command-center kills degrade enemy planning",
         page=CAMPAIGN_DOCTRINE_PAGE,

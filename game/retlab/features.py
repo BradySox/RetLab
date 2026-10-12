@@ -925,6 +925,14 @@ FEATURES: tuple[Feature, ...] = (
         111,
         settings_fields=("front_line_battles_along_border",),
     ),
+    Feature(
+        # The order half of juanjux's High Command, no prizes (game/retlab/hq_requests.py);
+        # docs/dev/design/retlab-hq-priority-targets-notes.md §9.
+        "hq_requests",
+        "HQ requests",
+        112,
+        settings_fields=("hq_requests",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

@@ -89,6 +89,9 @@ class Sitrep:
     #: Served to the outside AI only (§109); no kneeboard or debrief line reads it.
     #: Absent on pre-feature pickled sitreps (read via getattr).
     loss_causes: Dict[str, SideLossCauses] = field(default_factory=dict)
+    #: §112: the HQ requests the mission destroyed. Rides along with real news.
+    #: Absent on pre-feature pickled sitreps (read via getattr).
+    hq_request_lines: List[str] = field(default_factory=list)
 
     @property
     def is_empty(self) -> bool:
@@ -124,6 +127,7 @@ class Sitrep:
         victory_lines: Optional[List[str]] = None,
         supply_lines: Optional[List[str]] = None,
         naval_lines: Optional[List[str]] = None,
+        hq_request_lines: Optional[List[str]] = None,
     ) -> "Sitrep":
         blue = debriefing.loss_counts(Player.BLUE)
         red = debriefing.loss_counts(Player.RED)
@@ -160,6 +164,7 @@ class Sitrep:
             ),
             supply_lines=list(supply_lines or []),
             naval_lines=list(naval_lines or []),
+            hq_request_lines=list(hq_request_lines or []),
             loss_causes=(
                 tally(
                     kill_causes,
@@ -206,6 +211,9 @@ class Sitrep:
         # §81: naval magazine state (getattr for old pickled sitreps).
         for naval_line in getattr(self, "naval_lines", None) or []:
             lines.append(naval_line)
+        # §112 (getattr for old pickled sitreps).
+        for request_line in getattr(self, "hq_request_lines", None) or []:
+            lines.append(request_line)
         # Seam 1: what the flying amounted to (getattr for old pickled sitreps).
         sortie_line = getattr(self, "sortie_line", None)
         if sortie_line:

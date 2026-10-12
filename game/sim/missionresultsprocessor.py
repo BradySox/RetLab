@@ -150,6 +150,7 @@ class MissionResultsProcessor:
         from game.retlab.victory import victory_sitrep_lines
         from game.retlab.supply_report import supply_sitrep_lines
         from game.retlab.naval_magazines import winchester_lines
+        from game.retlab.hq_requests import record_results
 
         self.game.last_sitrep = Sitrep.from_debriefing(
             debriefing,
@@ -160,6 +161,7 @@ class MissionResultsProcessor:
             victory_lines=victory_sitrep_lines(self.game),
             supply_lines=supply_sitrep_lines(self.game),
             naval_lines=winchester_lines(self.game, debriefing),
+            hq_request_lines=record_results(self.game),
         )
 
     def _downed_pilot_sitrep_lines(self) -> list[str]:
