@@ -174,8 +174,7 @@ class Settings(
         # plugins were retired during the MIST -> MOOSE framework consolidation:
         # dismounts was a default-off, FPS-heavy MIST-only plugin with no MOOSE
         # successor, and ewrs is superseded by the MOOSE Ops.INTEL-based "bigeye"
-        # EWR (see docs/dev/design/retlab-dismounts-decision.md and
-        # retlab-ewrs-retirement-decision.md). The "flightcontrol" MOOSE
+        # EWR. The "flightcontrol" MOOSE
         # FLIGHTCONTROL ATC plugin was retired as a half-baked feature. The "arty"
         # (CG ArtySpotter) and "artymbot" (Mbot Call-Artillery) player fire-support
         # scripts were retired as unused: both had been silently dropped from the

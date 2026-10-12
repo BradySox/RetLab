@@ -16,7 +16,7 @@ import sys
 
 from checklist_rows import checklist_text
 
-# Same pairing as tests/test_flycard_board.py and .claude/hooks/session-start.sh.
+# Same pairing as tests/test_flycard_board.py.
 STATUS = re.compile(
     r"(?P<symbol>[☐☑☒⊘✖✗◐✅]) "
     r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED)"

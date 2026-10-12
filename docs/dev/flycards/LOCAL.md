@@ -18,7 +18,7 @@ three-cadence model in
 [`retlab-verification-cadence-notes.md`](../design/retlab-verification-cadence-notes.md)
 predicted exactly this gap and named this card as the fix; it just had not been built.
 
-Conventions follow WATCH.md, and the session-start hook parses both files identically:
+Conventions follow WATCH.md, and `tests/test_flycard_board.py` reads both files the same way:
 the `### ` heading states the observable in plain words, and a `**Try:**` line under it says
 how to arrange the condition. Keep it short — a card nobody finishes is a card nobody reads.
 

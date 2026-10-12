@@ -176,12 +176,13 @@ One line each; the status is the note's own. Read the note, not this line, befor
   read its traps before exporting another terrain), `retlab-atmosx-live-weather-notes.md`
   (adopted from upstream #927)
 - **Framework / tooling** — `retlab-moose-ops-opportunity-map.md`,
+  `retlab-moose-bundle-patches-notes.md` (**read before bumping `Moose.lua`**),
   `retlab-lua-plugin-harness-notes.md`, `retlab-splash-damage-notes.md` (why the Splash
   Damage build is pinned)
 - **Structure / debt** — `retlab-doc-mass-notes.md` (the 2026-08-19 features-doc trim, and
   **how to replace a section without destroying its neighbours**)
-- **Process** — `retlab-verification-cadence-notes.md` (partly built: WATCH, LOCAL, the
-  session hook), `retlab-sim-thread-freeze-notes.md` (**read before chasing a stutter**; test
+- **Process** — `retlab-verification-cadence-notes.md` (partly built: WATCH and LOCAL; the
+  session-start board was removed 2026-10-12), `retlab-sim-thread-freeze-notes.md` (**read before chasing a stutter**; test
   in model time, never wall time), `retlab-dcs-update-2026-08-26-notes.md` (that patch
   triaged, verified against the install the same day), `retlab-dcs-log-noise-notes.md` (read
   before triaging a `dcs.log`), `retlab-dcs-olympus-notes.md`, `retlab-ui-redesign-directions.md`
@@ -195,16 +196,16 @@ One line each; the status is the note's own. Read the note, not this line, befor
 
 Kept for reading old notes and saves; **do not author against them**.
 
-`retlab-ewrs-retirement-decision.md` · `retlab-dismounts-decision.md` ·
-`retlab-ctld-mantis-style-port-scope.md` · `retlab-mission-planning-wiki-rework.md` ·
-`retlab-scenery-import-notes.md` · `turnless.md` · `retlab-wing-growth-notes.md` (§82 removed) ·
-`retlab-framework-consolidation-notes.md` and `retlab-moose-longview.md` (both written while
-MIST was retired) · `retlab-tanker-war-campaign-notes.md` (campaign removed)
+`retlab-scenery-import-notes.md` (`game/campaignloader/scenerycatalog.py` points at it) ·
+`turnless.md` (upstream's)
 
 ### Deleted design notes
 
 18 notes on removed features were deleted 2026-08-20; they are at
 `git show 5db34150f:docs/dev/design/<name>` and keep the pre-rebrand `414th-` prefix.
+8 superseded notes were deleted 2026-10-12 (the EWRS and dismounts retirements, the CTLD port
+scope, the mission-planning wiki draft, wing growth, framework consolidation, the MOOSE long
+view, the Tanker War campaign); they are at `git show 57ab9e720:docs/dev/design/<name>`.
 **Do not keep a note for a removed feature**: record the removal in the features doc §N and
 delete the note, after lifting any **constraint learned from a flown test** into the
 hard-constraints list or a surviving note. The deleted debt register is at

@@ -1,5 +1,9 @@
 # Verification cadence — the fly-card throttle
 
+> **2026-10-12: the session-start hook was removed** (DM call; its board cost about 10 KB of
+> every session). `python tools/checklist_board.py` prints the row board on demand, and
+> WATCH and LOCAL are read directly. Mentions of the hook below are history.
+
 > **STATUS: PARTLY BUILT.** Proposed 2026-08-06. Built since: the **watch list**
 > (`flycards/WATCH.md`), the **local card** (`flycards/LOCAL.md`) and the session-start
 > hook that prints both (build order steps 1–2, and the first line of step 4). Still

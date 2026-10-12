@@ -2,7 +2,7 @@
 
 **Status:** investigation / opportunity map (no code change)
 **Date:** 2026-06-24
-**Parent:** [`retlab-framework-consolidation-notes.md`](retlab-framework-consolidation-notes.md)
+**Parent:** the MIST-to-MOOSE consolidation plan (reversed 2026-09-12; its note was deleted 2026-10-12)
 **Related:** CLAUDE.md §17 (auto-planner unpredictability), [`turnless.md`](turnless.md),
 the MANTIS migration note (deleted 2026-09-12; see [`retlab-skynet-return-notes.md`](retlab-skynet-return-notes.md)).
 
@@ -43,7 +43,7 @@ These execute runtime behavior inside a mission — exactly the Lua side of the 
 flight:
 
 - `MANTIS` — IADS engine 2026-06 to 2026-09-12, then reversed to Skynet ([`retlab-skynet-return-notes.md`](retlab-skynet-return-notes.md)).
-- `CTLD` — logistics (scoped, [`retlab-ctld-mantis-style-port-scope.md`](retlab-ctld-mantis-style-port-scope.md)).
+- `CTLD` — logistics (scoped, then shelved 2026-06-24; the scope note was deleted 2026-10-12).
 - `ATIS` — already shipping as the `MooseAtis` plugin.
 - `INTEL` — already underpins the `bigeye` EWR (the EWRS successor).
 - **New candidates worth piloting:**
@@ -94,7 +94,7 @@ wants to trade Python campaign ownership for a MOOSE runtime engine.
 ## How this maps onto the consolidation roadmap
 
 Add a parallel **"Tier A service-module adoption"** track to
-[`retlab-framework-consolidation-notes.md`](retlab-framework-consolidation-notes.md) — it shares the
+the consolidation plan (reversed 2026-09-12) — it shares the
 same config-bridge pattern (Python generates the data table; a MOOSE Ops module consumes it) and the
 same per-feature in-game-pass discipline. Concretely:
 
