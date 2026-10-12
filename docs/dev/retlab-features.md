@@ -10963,7 +10963,9 @@ count, a destroyed launcher, the range window).
 
 The war region is cut into named sectors about 10 NM across, shaped by the ground. Step 1,
 built 2026-10-12: each side's territory is drawn on the F10 map and the app map, worked out
-from the bases and the fronts. Not flown (row B229).
+from the bases and the fronts. A country holding a base is filled out to its border; the
+first build stopped 60 NM past the outermost bases and drew a rectangle on Iraq. Not flown
+(row B229).
 
 Battles along the border, built 2026-10-12 on Brady's call: each front's ground units are
 split into a battle in each sector along the shared border, out to Maximum frontline width

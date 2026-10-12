@@ -185,6 +185,75 @@ def test_a_country_holding_no_base_is_nobodys(game: Any) -> None:
     assert checked, "no neutral country inside the war region to check"
 
 
+def test_a_country_holding_a_base_is_filled_to_its_border(game: Any) -> None:
+    """The 60 NM margin alone drew a plain rectangle across Iraq."""
+    from game.theater.neutralborder import NEUTRAL
+
+    territory = territory_for(game.theater)
+    raster = sector_map_for(game.theater).raster
+    bases = land_control_points(game.theater)
+    reach = sectors.WAR_MARGIN_M
+    west = min(cp.position.y for cp in bases) - reach
+    east = max(cp.position.y for cp in bases) + reach
+    south = min(cp.position.x for cp in bases) - reach
+    north = max(cp.position.x for cp in bases) + reach
+    at_war = [
+        Polygon(zone.border).buffer(0)
+        for zone in game.theater.neutral_border_zones
+        if len(zone.border) >= 3 and zone.posture_in(game.theater) != NEUTRAL
+    ]
+    assert at_war
+    beyond = 0
+    for index in range(raster.rows * raster.cols):
+        if raster.cost[index] <= 0:
+            continue
+        x, y = raster.center(index)
+        if south <= x <= north and west <= y <= east:
+            continue
+        point = ShapelyPoint(x, y)
+        assert any(shape.distance(point) < 2 * raster.cell for shape in at_war)
+        beyond += territory.labels[index] >= 0
+    assert beyond > 100, "no held ground past the margin around the bases"
+
+
+def test_a_campaign_with_its_own_borders_still_fills_the_country_at_war() -> None:
+    """COIN authors its neighbours only; Afghanistan comes from the map's file."""
+    campaign = Campaign.from_file(
+        Path("resources/campaigns/coin_enduring_resolve.yaml")
+    )
+    loaded = campaign.load_theater(campaign.advanced_iads)
+    assert all(zone.country != "Afghanistan" for zone in loaded.neutral_border_zones)
+    kandahar = next(cp for cp in loaded.controlpoints if cp.name == "Kandahar")
+    base = MagicMock(is_fleet=False, is_offmap=False, is_carrier=False)
+    base.position = kandahar.position
+    base.captured.is_neutral = False
+    theater = MagicMock()
+    theater.neutral_border_zones = loaded.neutral_border_zones
+    theater.terrain.name = loaded.terrain.name
+    theater.controlpoints = [base]
+    at_war, _ = sectors._countries(theater)
+    assert at_war.contains(ShapelyPoint(kandahar.position.x, kandahar.position.y))
+    assert at_war.area > 300_000 * 1_000_000
+
+
+def test_a_map_with_no_borders_keeps_the_margin_around_the_bases(game: Any) -> None:
+    theater = MagicMock()
+    theater.neutral_border_zones = []
+    theater.terrain.name = "no such map"
+    theater.controlpoints = []
+    bases = land_control_points(game.theater)
+    region = sectors._war_region(theater, bases)
+    reach = sectors.WAR_MARGIN_M
+    assert region.bounds == pytest.approx(
+        (
+            min(cp.position.x for cp in bases) - reach,
+            min(cp.position.y for cp in bases) - reach,
+            max(cp.position.x for cp in bases) + reach,
+            max(cp.position.y for cp in bases) + reach,
+        )
+    )
+
+
 def test_a_pocket_is_drawn_without_holes() -> None:
     outer = Polygon([(0, 0), (0, 100), (100, 100), (100, 0)])
     hole = [(40, 40), (40, 60), (60, 60), (60, 40)]
@@ -238,10 +307,10 @@ def test_blue_attacks_into_red_ground_at_every_battle(game: Any) -> None:
     for front in game.theater.conflicts():
         for site in front_battles(game.theater, front).sites:
             ahead = Point(site.x, site.y, game.theater.terrain).point_from_heading(
-                site.blue_forward, 2 * NM
+                site.blue_forward, NM
             )
             behind = Point(site.x, site.y, game.theater.terrain).point_from_heading(
-                site.blue_forward + 180, 2 * NM
+                site.blue_forward + 180, NM
             )
             assert territory.labels[raster.index_at(ahead.x, ahead.y)] == RED
             assert territory.labels[raster.index_at(behind.x, behind.y)] == BLUE
