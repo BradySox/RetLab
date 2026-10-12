@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
-from checklist_rows import ROW_ID, ROWS_DIR, stub
+from checklist_rows import ARCHIVE, ROW_ID, ROWS_DIR, stub
 
 REMOTE = "origin"
 CLAIM_PREFIX = "refs/retlab-claims"
@@ -80,7 +80,12 @@ def _claimed(kind: str) -> list[str]:
 
 def _highest_row(block: str) -> int:
     pattern = re.compile(rf"^### {block}([0-9]+) ", re.M)
-    found = [int(n) for text in _texts(CHECKLIST) for n in pattern.findall(text)]
+    found = [
+        int(n)
+        for path in (CHECKLIST, ARCHIVE.as_posix())
+        for text in _texts(path)
+        for n in pattern.findall(text)
+    ]
     found += [
         int(row[len(block) :])
         for row in _row_file_ids()
