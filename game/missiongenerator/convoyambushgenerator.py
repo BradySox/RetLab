@@ -106,18 +106,24 @@ class ConvoyAmbushGenerator:
         convoy_name = record.get("convoy")
         if not convoy_name:
             return False
-        # The convoy may simply not exist this mission -- its transfer completed, or
-        # convoy generation is disabled for performance. Then nobody can drive into
-        # the ambush and there is nothing to author.
-        convoy_group = self.mission.find_group(str(convoy_name))
-        if convoy_group is None:
-            return False
 
         teams = self._team_groups(tgo)
         if not teams:
             return False
 
+        # Dug in before the convoy lookup: a team with no convoy to spring on must
+        # still hold fire, or it sits weapons-free behind blue's lines all mission.
         flag = f"ambush-{tgo.id}"
+        for team in teams:
+            self._dig_in(team, flag)
+
+        # The convoy may simply not exist this mission -- its transfer completed, or
+        # convoy generation is disabled for performance. Then nobody can drive into
+        # the ambush and no spring is authored.
+        convoy_group = self.mission.find_group(str(convoy_name))
+        if convoy_group is None:
+            return False
+
         zone = self.mission.triggers.add_triggerzone(
             position,
             radius=AMBUSH_TRIGGER_RADIUS_M,
@@ -126,9 +132,6 @@ class ConvoyAmbushGenerator:
             hidden=True,
             name=f"Convoy ambush {index + 1}",
         )
-
-        for team in teams:
-            self._dig_in(team, flag)
 
         trigger = TriggerOnce(Event.NoEvent, f"Convoy ambush {index + 1}")
         trigger.add_condition(TimeAfter(AMBUSH_START_GRACE_S))

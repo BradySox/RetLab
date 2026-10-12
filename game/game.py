@@ -504,7 +504,7 @@ class Game:
         ensure_ambient_convoys(self)
 
         # Convoy ambush (§50): roll each blue convoy for a CHANCE of an ambush --
-        # 1..6 hidden red teams spread along its road (despawning last turn's first).
+        # 1..3 hidden red teams spread along its road (despawning last turn's first).
         # Nothing is telegraphed in the UI (map_hidden TGOs, no auto-fragged escort);
         # the player decides in-mission whether to support the column. No-op unless
         # convoy_ambush is on. Real units both sides -- losses track natively. See
