@@ -917,6 +917,13 @@ FEATURES: tuple[Feature, ...] = (
         110,
         retired=True,
     ),
+    Feature(
+        # Step 1 draws territory and sectors only, no setting (game/theater/sectors.py);
+        # docs/dev/design/retlab-sector-war-notes.md.
+        "sector_war",
+        "Sector war",
+        111,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

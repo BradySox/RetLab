@@ -17,6 +17,7 @@ from game.server.mapzones.models import (
     MapZonesJs,
 )
 from game.server.navmesh.models import NavMeshesJs
+from game.server.sectors.models import SectorsJs, TerritoryJs
 from game.server.supplyroutes.models import SupplyRouteJs
 from game.server.tgos.models import TgoJs
 
@@ -224,6 +225,9 @@ class GameJs(BaseModel):
     campaign_status: CampaignStatusJs
     # country. Empty unless neutral_border_defense is on, which hides the layer.
     neutral_borders: list[NeutralBorderJs]
+    # §111: each side's ground, and the named sectors it is cut into.
+    territory: TerritoryJs
+    sectors: SectorsJs
 
     class Config:
         title = "Game"
@@ -247,4 +251,6 @@ class GameJs(BaseModel):
             ),
             unculled_zones=UnculledZoneJs.from_game(game),
             map_zones=MapZonesJs.from_game(game),
+            territory=TerritoryJs.from_game(game),
+            sectors=SectorsJs.from_game(game),
         )

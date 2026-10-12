@@ -10958,3 +10958,37 @@ ordinary campaign units and are unchanged; missile sites still get their generat
 **To bring it back:** `git show 57ab9e720:resources/plugins/bmstrike/BallisticMissileStrike.lua`,
 and #1202 for the five faults found in the port (one menu per group, renamed marks, the round
 count, a destroyed launcher, the range window).
+
+## §111 — Sector war
+
+The war region is cut into named sectors about 10 NM across, shaped by the ground. Step 1,
+built 2026-10-12: each side's territory is drawn on the F10 map and the app map, worked out
+from the bases and the fronts. The ground war is unchanged. Not flown (row B229).
+
+Steps 2 (sectors decide the fight, a base falls with its sector, new-game setting on by
+default) and 3 (a CAS battle-map kneeboard card per front) are agreed with Brady, not built.
+
+**Design note:** [retlab-sector-war-notes.md](design/retlab-sector-war-notes.md) has the
+choices, the algorithm and the step 2 notes.
+
+### Files
+
+- `game/theater/sectors.py`: the 1 NM grid, sector growth and names, territory, the shape
+  helpers and the caches.
+- `game/missiongenerator/drawingsgenerator.py`: `generate_territory`, drawn first.
+- `game/server/sectors/models.py`: `TerritoryJs` and `SectorsJs` on `/game`.
+- `client/src/components/territorylayer/`, `client/src/api/territorySlice.ts`: the
+  Territory and Sectors layers.
+- `tests/theater/test_sectors.py`, `client/src/components/territorylayer/TerritoryLayer.test.tsx`.
+
+### Constraints
+
+- A DCS drawing has no holes. A pocket is drawn by cutting the shape around it
+  (`hole_free_pieces`), with the edge drawn separately.
+- Every F10 drawing needs its own name: MIST drops a repeated one.
+- The territory border is pinned to the front by sources 1.2 NM either side of the bowed
+  trace. Without them the edge drifts off the drawn front line.
+- A country holding no base on either side (§98's NEUTRAL posture) is nobody's ground.
+- Sectors are rebuilt, not saved. A change to the seeding or naming renames every sector
+  of a running campaign; step 2 must store them.
+- No setting in step 1.

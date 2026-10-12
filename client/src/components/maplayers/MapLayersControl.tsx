@@ -22,6 +22,7 @@ import Iadsnetworklayer from "../iadsnetworklayer";
 import DownedPilotsLayer from "../downedpilotslayer";
 import NavMeshLayer from "../navmesh/NavMeshLayer";
 import NeutralBordersLayer from "../neutralborders";
+import { SectorsLayer, TerritoryLayer } from "../territorylayer";
 import SupplyRoutesLayer from "../supplyrouteslayer";
 import {
   ExclusionZonesLayer,
@@ -49,6 +50,8 @@ type LayerId =
   | "downedPilotsRed"
   | "frontLines"
   | "frontMovement"
+  | "territory"
+  | "sectors"
   | "factories"
   | "ships"
   | "otherGround"
@@ -130,6 +133,9 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     label: "Front movement last turn",
     node: <FrontMovementLayer />,
   },
+  // §111: each side's ground, and the named ~10 NM sectors it is cut into.
+  territory: { label: "Territory", node: <TerritoryLayer /> },
+  sectors: { label: "Sectors", node: <SectorsLayer /> },
   factories: { label: "Factories", node: <TgosLayer categories={["factory"]} /> },
   ships: { label: "Ships", node: <TgosLayer categories={["ship"]} /> },
   otherGround: {
@@ -268,6 +274,8 @@ const GROUPS: GroupDef[] = [
       { id: "downedPilotsBlue" },
       { id: "frontLines" },
       { id: "frontMovement", sub: true, enabledWhen: "frontLines" },
+      { id: "territory" },
+      { id: "sectors", sub: true, enabledWhen: "territory" },
       { id: "neutralBorders" },
       { id: "factories" },
       { id: "ships" },
@@ -371,6 +379,7 @@ const DEFAULT_ON: LayerId[] = [
   "neutralBorders",
   "frontLines",
   "frontMovement",
+  "territory",
   "downedPilotsBlue",
   "enemySamThreat",
   "emitterHighlight",

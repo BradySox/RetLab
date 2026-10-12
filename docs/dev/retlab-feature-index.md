@@ -122,5 +122,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §108 | Flight report cards | — | — |
 | §109 | Outside AI reads red's turn | — | — |
 | §110 | Ballistic missile call-for-fire _(retired)_ | — | — |
+| §111 | Sector war | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

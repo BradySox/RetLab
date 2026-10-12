@@ -706,6 +706,21 @@ export type Game = {
   map_zones: MapZones;
   campaign_status?: CampaignStatus | null;
   neutral_borders?: NeutralBorder[];
+  territory?: Territory;
+  sectors?: Sectors;
+};
+export type Territory = {
+  blue: LatLng[][][];
+  red: LatLng[][][];
+};
+export type Sector = {
+  name: string;
+  owner: string;
+  position: LatLng;
+};
+export type Sectors = {
+  edges: LatLng[][];
+  sectors: Sector[];
 };
 export type MapZones = {
   inclusion: LatLng[][][];

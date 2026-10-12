@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Optional
 
 from dcs import Point
@@ -36,6 +37,11 @@ TANKER_ORBIT_LINE = Rgba(40, 230, 90, 255)
 AEWC_ORBIT_LINE = Rgba(255, 190, 0, 255)
 CAP_ORBIT_LINE = Rgba(0, 200, 255, 255)
 NO_FILL = Rgba(0, 0, 0, 0)
+#: §111 territory: see-through so the terrain and units still read through it.
+TERRITORY_FILL_BLUE = Rgba(70, 110, 170, 70)
+TERRITORY_FILL_RED = Rgba(200, 110, 40, 70)
+TERRITORY_EDGE_BLUE = Rgba(70, 110, 170, 200)
+TERRITORY_EDGE_RED = Rgba(200, 110, 40, 200)
 #: A text box's border takes its text colour, so the label is the job's colour
 #: on a near-opaque dark box.
 SUPPORT_LABEL_FILL = Rgba(10, 15, 20, 210)
@@ -124,6 +130,56 @@ class DrawingsGenerator:
                         line_style=LineStyle.Solid,
                     )
                     shape.name = "path from " + cp.name + " to " + destination.name
+
+    def generate_territory(self) -> None:
+        """Fill each side's ground (§111), under every other drawing.
+
+        A DCS drawing has no holes, so a pocket is drawn by cutting the shape
+        around it into pieces; the edge is drawn separately so the cuts don't show.
+        Every drawing gets its own name: MIST drops a repeated one.
+        """
+        from game.theater.sectors import BLUE, RED, hole_free_pieces, territory_for
+
+        try:
+            territory = territory_for(self.game.theater)
+        except Exception:
+            logging.exception("Territory could not be built; skipping the fill")
+            return
+        terrain = self.game.theater.terrain
+        for side, fill, edge, label in (
+            (BLUE, TERRITORY_FILL_BLUE, TERRITORY_EDGE_BLUE, "Blue"),
+            (RED, TERRITORY_FILL_RED, TERRITORY_EDGE_RED, "Red"),
+        ):
+            pieces = 0
+            edges = 0
+            for polygon in territory.polygons(side):
+                for piece in hole_free_pieces(polygon):
+                    ring = [Point(x, y, terrain) for x, y in piece.exterior.coords[:-1]]
+                    if len(ring) < 3:
+                        continue
+                    shape = self.player_layer.add_freeform_polygon(
+                        ring[0],
+                        [point - ring[0] for point in ring],
+                        color=NO_FILL,
+                        fill=fill,
+                        line_thickness=0,
+                    )
+                    pieces += 1
+                    shape.name = f"{label} territory {pieces}"
+                for ring_coords in [polygon.exterior, *polygon.interiors]:
+                    ring = [Point(x, y, terrain) for x, y in ring_coords.coords]
+                    if len(ring) < 3:
+                        continue
+                    line = self.player_layer.add_line_segments(
+                        ring[0],
+                        [point - ring[0] for point in ring],
+                        color=edge,
+                        line_thickness=3,
+                        line_style=LineStyle.Solid,
+                        closed=True,
+                    )
+                    edges += 1
+                    line.name = f"{label} territory edge {edges}"
 
     def generate_frontlines_drawing(self) -> None:
         """
@@ -299,6 +355,7 @@ class DrawingsGenerator:
             label.name = f"CAP {name} label"
 
     def generate(self) -> None:
+        self.generate_territory()
         self.generate_frontlines_drawing()
         self.generate_routes()
         self.generate_cps_markers()
