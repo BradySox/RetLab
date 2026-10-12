@@ -36,6 +36,9 @@ if TYPE_CHECKING:
     from .operatingbases import OperatingBases
     from .squadrondef import SquadronDef
 
+# The tasks whose fit is pointless without an anti-radiation missile.
+_ARM_TASKS = frozenset({FlightType.SEAD, FlightType.SEAD_ESCORT, FlightType.SEAD_SWEEP})
+
 
 @dataclass
 class Squadron:
@@ -563,6 +566,13 @@ class Squadron:
         if heli and task == FlightType.REFUELING:
             return False
 
+        if (
+            task in _ARM_TASKS
+            and self.settings.restrict_weapons_by_date
+            and self._date_strips_every_arm(task)
+        ):
+            return False
+
         if ignore_range:
             return True
 
@@ -580,6 +590,24 @@ class Squadron:
         return distance_to_target <= max(
             self.aircraft.max_mission_range, max_plane_dist
         )
+
+    def _date_strips_every_arm(self, task: FlightType) -> bool:
+        """This task's fit has anti-radiation missiles and the campaign date removes
+        every one. Test 56: the JF-17's LD-10 is dated 2013, so in 2012 it flew SEAD
+        escort with a jammer pod and two PL-5. A fit with no ARM by design (decoys,
+        Mavericks) is not this."""
+        from game.ato.loadouts import Loadout
+        from game.data.weapons import WeaponType
+
+        loadout = Loadout.default_for_task_and_aircraft(
+            task, self.aircraft.dcs_unit_type
+        )
+        if not loadout.has_weapon_of_type(WeaponType.ARM):
+            return False
+        dated = loadout.degrade_for_date(
+            self.aircraft, self.coalition.game.date, self.coalition.faction
+        )
+        return not dated.has_weapon_of_type(WeaponType.ARM)
 
     def operates_from(self, control_point: ControlPoint) -> bool:
         if not control_point.can_operate(self.aircraft):
