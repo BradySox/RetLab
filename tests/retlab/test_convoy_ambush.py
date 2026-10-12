@@ -586,10 +586,20 @@ def test_the_tgo_generator_asks_before_spawning_a_team() -> None:
     assert "if stood_down(self.game, ground_object):" in source
 
 
-def test_toggle_off_still_sweeps_last_turns_ambushes(monkeypatch: Any) -> None:
-    """Disabling convoy_ambush mid-campaign must not strand last turn's
+@pytest.mark.parametrize(
+    "on, no_convoys",
+    [
+        pytest.param(False, False, id="setting off"),
+        pytest.param(True, True, id="land convoys disabled"),
+    ],
+)
+def test_toggle_off_still_sweeps_last_turns_ambushes(
+    monkeypatch: Any, on: bool, no_convoys: bool
+) -> None:
+    """Disabling ambushes mid-campaign must not strand last turn's
     map_hidden teams in the theater as invisible, real red units forever."""
-    game = _ambush_game(on=False, red_cps=[], convoys=[])
+    game = _ambush_game(on=on, red_cps=[], convoys=[])
+    game.settings.perf_disable_convoys = no_convoys
     game.convoy_ambush_state = {"ambushes": [{"tgo_id": "old-1", "convoy": "prev"}]}
 
     despawned: list[str] = []

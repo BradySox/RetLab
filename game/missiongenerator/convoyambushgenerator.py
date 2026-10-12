@@ -29,9 +29,9 @@ units never arrive; dead ambushers are a real red ground loss). All that is auth
 is *when* a dug-in team opens up. A team whose convoy never reaches it stays dug in and
 silent: the ambush is a surprise the column drives into, never an announced objective.
 
-Fully guarded -- feature off, no recorded pairing, a team whose units are all dead, or a
-convoy that was not generated this mission (its transfer completed) and nothing is
-authored for that pairing.
+Fully guarded -- ambushes off, no recorded pairing, or a team whose units are all dead,
+and nothing is authored for that pairing. A team whose convoy was not generated this
+mission (its transfer completed) is dug in and gets no trigger.
 """
 
 from __future__ import annotations
@@ -46,6 +46,8 @@ from dcs.task import ControlledTask, OptAlarmState, OptROE
 from dcs.translation import String
 from dcs.triggers import Event, TriggerOnce
 from dcs.unitgroup import Group
+
+from game.retlab.convoy_ambush import enabled
 
 if TYPE_CHECKING:
     from game import Game
@@ -79,7 +81,7 @@ class ConvoyAmbushGenerator:
         self.game = game
 
     def generate(self) -> None:
-        if not getattr(self.game.settings, "convoy_ambush", False):
+        if not enabled(self.game):
             return
         state = getattr(self.game, "convoy_ambush_state", None)
         if not isinstance(state, dict):
