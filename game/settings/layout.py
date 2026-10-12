@@ -416,7 +416,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "base_battle_damage",
                     "civilian_air_traffic",
                     "ambient_supply_convoys",
-                    "convoy_ambush",
                     "mission_briefing_popup",
                     "neutral_border_defense",
                 ],
@@ -551,7 +550,6 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "Battlefield life": [
         "ambient_supply_convoys",  # §50
-        "convoy_ambush",  # §50
         "motorpool_enabled",  # §56
         "mission_briefing_popup",  # §58
         "neutral_border_defense",  # §98

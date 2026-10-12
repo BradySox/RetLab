@@ -5,8 +5,7 @@ pull it into airframe-neutral shapes the per-jet builders (:mod:`.hornet`,
 :mod:`.viper`) format. Fog discipline: anything intel-flavored (the threat
 rings) is read through the same viewer leaves the kneeboard uses
 (``known_for(flight.friendly)``), so the cartridge never knows more than the
-player's map -- and ``map_hidden`` objects (§50 ambush teams) are never
-emitted anywhere.
+player's map.
 """
 
 from __future__ import annotations
@@ -648,8 +647,7 @@ def known_enemy_threat_sites(game: Game, viewer: Player) -> list[ThreatSite]:
     first.
 
     The filter mirrors the map: ``known_for(viewer)`` gates intel fog (an
-    un-engaged site never leaks a ring) and ``map_hidden`` (§50 ambush teams) is
-    never emitted.
+    un-engaged site never leaks a ring).
     """
     sites = []
     for cp in game.theater.controlpoints:
@@ -657,8 +655,6 @@ def known_enemy_threat_sites(game: Game, viewer: Player) -> list[ThreatSite]:
             continue
         for tgo in getattr(cp, "ground_objects", []):
             if getattr(tgo, "category", None) != "aa":
-                continue
-            if getattr(tgo, "map_hidden", False):
                 continue
             if not tgo.known_for(viewer):
                 continue

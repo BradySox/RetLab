@@ -415,17 +415,16 @@ def test_a_group_beside_an_enemy_base_is_reported() -> None:
     assert violations[0].control_point == "Enemy"
 
 
-@pytest.mark.parametrize("flag", ["map_hidden", "coin_spawned"])
-def test_a_team_spawned_beside_an_enemy_base_on_purpose_is_not(flag: str) -> None:
-    """HAMSTER, SAILFISH and PELICAN, an Iraq save of 2026-10-11: §50 ambush teams on
-    the Baghdad road, owned by Kirkuk 245 km away. The box named all three on load."""
+def test_a_team_spawned_beside_an_enemy_base_on_purpose_is_not() -> None:
+    """A COIN cell infiltrates beside the base it is working on, owned by a red
+    stronghold far away. That is the feature, not a mis-bound marker."""
     terrain = MagicMock(spec=Terrain)
     owner = _cp_with_motorpool_tgos(
         Point(0.0, 0.0, terrain),
         [("Team", Point(75_000.0, 0.0, terrain))],
         name="Owner",
     )
-    setattr(owner.ground_objects[0], flag, True)
+    owner.ground_objects[0].coin_spawned = True
     enemy = _cp_with_motorpool_tgos(Point(82_000.0, 0.0, terrain), [], name="Enemy")
     enemy.captured = MagicMock()
     enemy.captured.is_blue = False

@@ -447,7 +447,7 @@ Preseeded feature set, and why each earns its place:
   magazines. Sinking a shooter ends its raids. This is the feature the campaign was waiting for.
 - **§78 `cargo_ship_convoys` + `coastal_batteries_engage_ships`** — island logistics sail as
   multi-hull convoys that attrit proportionally, past Silkworm batteries that actually engage.
-- **§50 `ambient_supply_convoys` + `convoy_ambush`** on Guam's two blue road corridors.
+- **§50 `ambient_supply_convoys`** on Guam's two blue road corridors (`convoy_ambush` was removed 2026-10-11).
 - **§70 `comint_collection` + `red_comms_net`** — the PLA net is audible and homeable.
 - **§77 escort jamming** rides along free: VAQ-136's Growlers are authored SEAD, and
   `SquadronConfig.auto_assignable` offers the Escort Jammer role to every capable squadron,

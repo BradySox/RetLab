@@ -173,6 +173,8 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
         "perf_aaa_site_sleep",
         # §104's gate, on PR #1078 only; the runway queue is always on.
         "queue_aware_ground_ops",
+        # §50's convoy ambush, REMOVED 2026-10-11 (DM call). Ambient convoys stay.
+        "convoy_ambush",
     ):
         migrated.pop(obsolete_key, None)
 

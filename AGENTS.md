@@ -259,7 +259,7 @@ truth (`viewer=None`); only the human (BLUE) map/UI are fogged. **One question, 
 place**: `TheaterGroundObject.visibility_for(viewer)` returns HIDDEN / UNKNOWN / KNOWN, and
 `known_for` + `hidden_on_player_map` are its two leaves. `known_for` gates composition and
 threat/detection rings (`recon_intel_fog`); `hidden_on_player_map` fully hides enemy command
-posts (`scar_command_post_intel`) and §50's ambush teams. Nothing else is viewer-aware except
+posts (`scar_command_post_intel`). Nothing else is viewer-aware except
 `standard_identity_for` (COIN's suspect-until-engaged symbol).
 **A site is revealed by engaging it — ordnance on it, or any ground-attack sortie that reaches
 it — and is then known completely and permanently, damage included.** Two other reveals:
@@ -272,8 +272,7 @@ viewer parameter on those, or the old `_for_player`/`_for` method twins.
 (§63), the carrier strike (§44), C2 decapitation (§52), HQ priorities (§103), any future fire
 mission. Use `fogofwar.hidden_from(Player.BLUE, tgo)`, never a bare `hidden_on_player_map`: it
 wraps `fog_intact()`, so a host who ticked the reveal overview cannot get a different target
-than one who did not. Red is never fogged. Keep the §50 `map_hidden` skip separate — it
-applies to both sides.
+than one who did not. Red is never fogged.
 A runtime **overview toggle** (`game/theater/fogofwar.py`, transient/never-pickled)
 short-circuits both fog leaves to ground truth, so the whole render path and intel dialogs
 un-fog with **no** server-model changes. It is a checkbox in `MapLayersControl` (§18), driven
@@ -389,7 +388,7 @@ linked design note.
 44. **Long-range carrier ops** — a deterministic package off a standoff boat, routed to its own tanker.
 45. **Support-package F10 markers** — tanker and AEW&C orbits and CAP stations drawn on the F10 map, with callsign, freq and TACAN.
 47. **Continuous campaign clock & weather** — one marched clock with weather evolving from the previous turn.
-50. **Convoy ambush + ambient supply convoys** — untelegraphed ambush teams on friendly roads, authored as native DCS triggers.
+50. **Ambient supply convoys** — a few real supply columns on both sides' roads every turn.
 52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
 56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
 58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
@@ -473,7 +472,8 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
-and the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12).
+the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush
+with its `map_hidden` flag (2026-10-11; the ambient convoys stay).
 
 ## Repo & Branch Layout
 

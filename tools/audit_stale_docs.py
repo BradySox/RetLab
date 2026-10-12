@@ -427,6 +427,15 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "no longer", "historical"),
     ),
     Removed(
+        # S50's ambush half. Not a bare "ambush": the Vietnam GCI ambush posture,
+        # the TIC Ambush stance and "ambush alley" are all live.
+        "the friendly convoy ambush (S50)",
+        "2026-10-11",
+        r"convoy_ambush|convoy[- ]ambush|hide ambush teams|ambush teams?"
+        r"|Friendly convoy ambushes|map_hidden",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",

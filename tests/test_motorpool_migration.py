@@ -189,6 +189,7 @@ def test_migrate_game_rehomes_motorpools_after_all_migrations() -> None:
         "_release_untasked_flights",
         "_update_weather",
         "_update_tgos",
+        "_remove_convoy_ambush_teams",
         "_ensure_motorpool_tgos",
         "_drop_stray_iads_config_entries",
         "_unwire_iads_ships",

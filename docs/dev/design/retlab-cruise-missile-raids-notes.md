@@ -61,9 +61,7 @@ Every §63 building block already existed:
    loop: commandcenter/comms first (composes with §52 decapitation), then the §53
    war-economy buildings, then anything strikeable — nearest wins ties; ≤ 250 NM planning
    reach; BLUE raids honor the §40 `roe_blocks_target` gate (red raids don't — the ROE is
-   Washington's); never ships (moving targets a point-fire task can't lead), never
-   `map_hidden` §50 ambush teams (naming them would reveal them — the carrier-strike
-   skip).
+   Washington's); never ships (moving targets a point-fire task can't lead).
 5. **The defender hears a launch warning, not targeting intel.** The launching side's cue
    names the target; the defender gets only "LAUNCH WARNING — enemy cruise missile launch
    detected". Real-ish EW fidelity, and it's the gameplay hook: scramble/alert the point

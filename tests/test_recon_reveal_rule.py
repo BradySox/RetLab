@@ -215,13 +215,11 @@ class FakeCommandPost:
         *,
         x: float = 0.0,
         hidden: bool = True,
-        map_hidden: bool = False,
         category: str = "commandcenter",
     ) -> None:
         self.id = uuid4()
         self.name = "Enemy HQ"
         self.category = category
-        self.map_hidden = map_hidden
         self.discovered_by_player = False
         self._hidden = hidden
         self.position = Point(x, 0, None)  # type: ignore[arg-type]
@@ -277,14 +275,6 @@ def test_a_recon_flight_lost_on_the_pass_finds_nothing() -> None:
         Any, SimpleNamespace(surviving_flight_members=lambda flight: 0)
     )
     processor.reveal_scouted_command_posts(debriefing, GameUpdateEvents())
-    assert not post.discovered_by_player
-
-
-def test_ambush_teams_are_never_revealed_by_recon() -> None:
-    """§50's map_hidden teams exist to be a surprise in the mission, not on the
-    map -- recon must not telegraph them."""
-    post = FakeCommandPost(map_hidden=True)
-    _recon_run(post)
     assert not post.discovered_by_player
 
 

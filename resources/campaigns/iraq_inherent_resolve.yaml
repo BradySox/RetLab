@@ -72,7 +72,6 @@ settings:
   # Highway 1 and concealed IS ambush teams dig in along the route (peak "ambush alley");
   # fly CAS/BAI escort or the column is ground down before it arrives. The spring is
   # authored as native DCS trigger rules at generation, so there is no plugin to preseed.
-  convoy_ambush: true
   # The insurgent faction's ERO ZU-23 technicals are HDS Ultimate Compilation content --
   # they resolve only with the mod on (and drop silently without it, so a mod-less
   # install still plays).

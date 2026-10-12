@@ -152,14 +152,14 @@ def test_is_default_is_safe_for_unknown_fields() -> None:
 def test_campaign_preseeds_round_trip_and_ignore_unknown_names() -> None:
     settings = Settings()
     assert settings.campaign_preseeded_fields() == frozenset()
-    settings.record_campaign_preseeds(["convoy_ambush", "bogus_key"])
-    assert settings.campaign_preseeded_fields() == frozenset({"convoy_ambush"})
+    settings.record_campaign_preseeds(["ambient_supply_convoys", "bogus_key"])
+    assert settings.campaign_preseeded_fields() == frozenset({"ambient_supply_convoys"})
 
 
 def test_campaign_preseed_key_is_not_a_setting() -> None:
     """It lives in __dict__, so it must not leak into the settings UI."""
     settings = Settings()
-    settings.record_campaign_preseeds(["convoy_ambush"])
+    settings.record_campaign_preseeds(["ambient_supply_convoys"])
     rendered = {
         name
         for page in settings.pages()

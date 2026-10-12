@@ -3,8 +3,8 @@
 The standardization pass on the §50 convoy layer (squadron call 2026-07-06: "convoys
 present in every miz on both blue and red side ... a few convoys per side, some on the
 same route, some on different routes, randomized"). Where the §35 trail top-up is
-red-only, Vietnam-framed, and budget-driven, and the old §50 blue top-up existed only to
-feed the ambush, this layer is the generic background: every turn each side's convoy flow
+red-only, Vietnam-framed, and budget-driven, this layer is the generic background:
+every turn each side's convoy flow
 is topped up to a small **randomized** target on **randomly chosen DISTINCT** same-side
 road corridors -- one column per road, so a side runs at most as many as it has roads and
 which roads carry traffic varies turn to turn. The roads simply have traffic now.
@@ -18,9 +18,8 @@ columns were never actually two columns; they were one parked blob.)
 Everything is the engine's own convoy machinery (the §35/§37 no-phantom-spawn
 discipline): each column is a real ``coalition.transfers`` transfer that spawns as a
 road-moving group, is a native Armed Recon / BAI target, and reconciles its losses at
-debrief (killed units never arrive). The §50 ambush chance rolls over blue's convoys
-whatever created them, so ambient blue columns are ambushable like any other; red's
-columns are the player's interdiction targets. The §35 Vietnam trail top-up composes: it
+debrief (killed units never arrive). Red's columns are the player's interdiction
+targets. The §35 Vietnam trail top-up composes: it
 runs first and counts toward the ambient target, so a Vietnam campaign's trail war is
 unchanged and ambience only adds columns where the budget still has room.
 
@@ -34,8 +33,8 @@ rear base too thin to skim simply yields no column this turn: the roads carry tr
 wherever the economy supports it and stay quiet where it doesn't, and the engine's organic
 convoys still serve.
 
-Runs once per turn from ``Game.finish_turn`` (after the §35 top-up, before the §50 ambush
-seeding). Gated by ``ambient_supply_convoys`` (default ON -- the §49 kill-switch
+Runs once per turn from ``Game.finish_turn`` (after the §35 top-up). Gated by
+``ambient_supply_convoys`` (default ON -- the §49 kill-switch
 precedent). Fully guarded: a side with no same-side road corridor (island maps, all-red
 graphs) is a silent no-op, and the engine's organic convoys still serve.
 """
@@ -62,8 +61,8 @@ AMBIENT_CONVOY_UNITS = 8
 
 #: Garrison-skim fallback floors (BLUE only; the 2026-07-18 audit's §50 call).
 #: COIN blue laydowns hold their whole force as TGO garrisons (``Base.armor`` = 0),
-#: which silently disabled ambient blue columns — and with them the §50 ambush — on
-#: exactly the two campaigns that preseed it (measured: ZERO blue convoys in 33
+#: which silently disabled ambient blue columns on the two COIN campaigns
+#: (measured: ZERO blue convoys in 33
 #: self-played turns on ER/IR). When the stock skim comes up empty, a few garrison
 #: vehicles move INTO the base's stock so the normal skim path can run: real units,
 #: conservation exact (a mapped unit leaves its group as a stock unit appears), and
@@ -109,7 +108,7 @@ def _top_up_side(game: "Game", coalition: "Coalition") -> None:
     # ``game/transfers.py``), so two transfers on the SAME corridor coalesce into ONE
     # group -- and a large merged column line-spawns into unauthored positions and
     # deadlocks at mission start (the flown S5 regression: a 24-vehicle blue column
-    # parked at Baghdad and never moved, which also blocked the §50 ambush spring).
+    # parked at Baghdad and never moved).
     # Sampling *distinct* corridors caps a side at its road count and keeps every column a
     # separate, driveable group -- so "two columns" means two roads, never one merged
     # blob. (This does trade away the earlier "repeats allowed, some share a road" texture,
@@ -149,7 +148,7 @@ def _garrison_to_stock(cp: "ControlPoint", needed: int) -> int:
     not die) as one stock unit of the same type appears. Guards keep the base
     defensible: the CP keeps ≥ ``GARRISON_SKIM_FLOOR`` garrison vehicles in
     total, every group keeps ≥ ``GARRISON_SKIM_GROUP_KEEP`` alive, and
-    ``coin_spawned`` / ``map_hidden`` groups are never touched. Unmapped unit
+    ``coin_spawned`` groups are never touched. Unmapped unit
     types (no ``GroundUnitType``) are skipped."""
     eligible: list[tuple[Any, Any, Any]] = []
     total_alive = 0
@@ -157,8 +156,6 @@ def _garrison_to_stock(cp: "ControlPoint", needed: int) -> int:
         if getattr(tgo, "category", None) != "armor":
             continue
         if getattr(tgo, "coin_spawned", False):
-            continue
-        if getattr(tgo, "map_hidden", False):
             continue
         for group in getattr(tgo, "groups", []):
             alive = [

@@ -216,8 +216,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 ### Battlefield and world
 
 - Troops In Contact produces prolonged, formation-aware frontline firefights.
-- Supply columns run both sides' road networks. Friendly routes sometimes hide ambush teams;
-  nothing is telegraphed before the TROOPS IN CONTACT call.
+- Supply columns run both sides' road networks.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.
 - Ship groups generate as mixed task groups rather than copies of one hull. Patrol boats never
