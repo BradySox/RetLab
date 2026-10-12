@@ -61,7 +61,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §47 | Continuous campaign clock & weather | — | `continuous_campaign_clock` |
 | §48 | Commitment ceiling (will-coupled war budget) _(retired)_ | — | — |
 | §49 | Mobile missile relocation (the SCUD hunt) _(retired)_ | — | — |
-| §50 | Convoy ambush (a chance, never telegraphed) + ambient supply convoys | — | `convoy_ambush`, `ambient_supply_convoys` |
+| §50 | Ambient supply convoys | — | `ambient_supply_convoys` |
 | §51 | Enemy comms jamming (IADS comms nodes) _(retired)_ | — | — |
 | §52 | Command-center decapitation degrades enemy planning | — | `c2_decapitation_effects` |
 | §53 | War economy _(retired)_ | — | — |

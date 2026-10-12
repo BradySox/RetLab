@@ -35,7 +35,7 @@ class Visibility(Enum):
     """What a viewer can make of a site.
 
     Three states rather than two independent booleans, because the booleans
-    could contradict each other: a `map_hidden` site that a strike had marked
+    could contradict each other: a hidden site that a strike had marked
     discovered read hidden AND known at once. A site you cannot see cannot also
     be a site whose composition you know, and this makes that unrepresentable.
     """

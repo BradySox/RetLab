@@ -4565,7 +4565,9 @@ engaged. The rest of the campaign check stands.
   (idempotence broken). Knobs: `auto_range_fuel_tanks`, `fuel_tanks_over_jammers` (Mission Generation →
   Loadouts).
 
-### S3 — Friendly convoy ambush (a chance, never telegraphed) · §50 · ◐ PARTIAL
+### S3 — Friendly convoy ambush (a chance, never telegraphed) · §50 · ⊘ RETIRED (removed 2026-10-11, DM: stripped)
+
+**2026-10-11 — REMOVED on the DM's call.** The seeding, the trigger generator and the setting are deleted, so this row can never be run again. The spring was never seen to fire in any flown test: the DM flies with **Disable land convoys** ticked, and the two flights that had a convoy were blocked by S5.
 
 **2026-09-23, test 39** (Afghanistan — Graveyard of Empires turn 1 (new game), 89 min, one human (Flash) in the PIG Strike F-15E lead from Kandahar, `Tacview-20260923-191751`, DCS 2.9.29.27468, main `44ecca53c` (#1069), `Desktop\New test\39`) — **not reached.** The trigger was armed (`Convoy ambush 1`, radius 6 km, on `Convoy 001`, blue), and the team (`0093 | KANGAROO`, Tigr-M and AK infantry) stood 69 m from the zone centre. The column drove 51 km and was still 23.5 km from the zone at mission end.
 

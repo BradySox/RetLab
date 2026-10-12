@@ -388,11 +388,6 @@ def _enemy_raid_targets(game: "Game", side: str) -> Iterator["TheaterGroundObjec
                 continue
             if getattr(tgo, "is_control_point", False):
                 continue
-            # A map_hidden TGO (a §50 ambush team) must never be planned against —
-            # naming it would reveal it (the same skip the carrier strike applies).
-            # Checked for both sides: the flag is set on friendly-road teams too.
-            if getattr(tgo, "map_hidden", False):
-                continue
             # Blue's own missiles must not service a target blue cannot see. A
             # hidden command post is meant to be found by flying recon at it
             # (§3/G40), and `commandcenter` is priority 0 here — without this gate

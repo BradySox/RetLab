@@ -151,10 +151,6 @@ class Game:
         # carry), keyed by str(cp.id). Plain primitives so saves stay simple;
         # populated lazily by game.retlab.coin when coin_insurgency is on.
         self.coin_state: dict[str, dict[str, Any]] = {}
-        # §50 convoy escort / ambush: this turn's ambush pairings ({"ambushes": [{tgo_id,
-        # convoy}]}), seeded at finish_turn, read by the emitter + the escort auto-frag.
-        # Plain primitives; populated lazily by game.retlab.convoy_ambush when on.
-        self.convoy_ambush_state: dict[str, Any] = {}
         # §63 cruise missile raids: each LACM ship group's remaining missile stock,
         # keyed by the stable TheaterGroup.group_name — seeded on first sight, debited
         # at the turn boundary from what the plugin reports fired (never at
@@ -247,7 +243,6 @@ class Game:
         state.setdefault("red_tempo_regen_turn", None)
         state.setdefault("red_tempo_announced_window", None)
         state.setdefault("coin_state", {})
-        state.setdefault("convoy_ambush_state", {})
         state.setdefault("cruise_missile_magazines", {})
         state.setdefault("naval_magazines", {})
         state.setdefault("concealment_salt", None)
@@ -502,16 +497,6 @@ class Game:
         from game.retlab.ambient_convoys import ensure_ambient_convoys
 
         ensure_ambient_convoys(self)
-
-        # Convoy ambush (§50): roll each blue convoy for a CHANCE of an ambush --
-        # 1..3 hidden red teams spread along its road (despawning last turn's first).
-        # Nothing is telegraphed in the UI (map_hidden TGOs, no auto-fragged escort);
-        # the player decides in-mission whether to support the column. No-op unless
-        # convoy_ambush is on. Real units both sides -- losses track natively. See
-        # game/retlab/convoy_ambush.py.
-        from game.retlab.convoy_ambush import seed_convoy_ambushes
-
-        seed_convoy_ambushes(self, events)
 
         # COIN C1 (design note retlab-coin-insurgent-replenishment-notes.md §3):
         # insurgent-held strongholds regenerate a free, cache-throttled trickle of

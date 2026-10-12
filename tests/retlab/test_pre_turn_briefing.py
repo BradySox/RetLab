@@ -52,12 +52,10 @@ class FakeTgo:
         concealed: bool = False,
         known: bool = True,
         dead: bool = False,
-        map_hidden: bool = False,
     ) -> None:
         self.control_point = control_point
         self.category = category
         self.concealed = concealed
-        self.map_hidden = map_hidden
         self._known = known
         self._dead = dead
 
@@ -180,18 +178,6 @@ def test_unidentified_contacts_are_counted() -> None:
 def test_an_identified_contact_is_not_an_open_loop() -> None:
     red_cp = FakeControlPoint("Haina", RED)
     red_cp.ground_objects = [FakeTgo(red_cp, concealed=True, known=True)]
-    game = FakeGame(control_points=[red_cp])
-
-    assert build_pre_turn_briefing(game).by_kind("open_loop") == []  # type: ignore[arg-type]
-
-
-def test_hidden_ambush_teams_are_never_surfaced() -> None:
-    """§50 ambush teams are map_hidden by contract -- telegraphing them would
-    undo the whole feature."""
-    red_cp = FakeControlPoint("Haina", RED)
-    red_cp.ground_objects = [
-        FakeTgo(red_cp, concealed=True, known=False, map_hidden=True)
-    ]
     game = FakeGame(control_points=[red_cp])
 
     assert build_pre_turn_briefing(game).by_kind("open_loop") == []  # type: ignore[arg-type]

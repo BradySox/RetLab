@@ -77,7 +77,6 @@ def test_desert_storm_campaign_definition() -> None:
         "restrict_props_by_date",
         "c2_decapitation_effects",
         "auto_repair_air_defenses",
-        "convoy_ambush",
         "host_red_scramble",
     ):
         assert data["settings"][key] is True, key
@@ -85,9 +84,6 @@ def test_desert_storm_campaign_definition() -> None:
     plugins = data["settings"]["plugins"]
     for plugin in ("redscramble",):
         assert plugins[plugin] is True, plugin
-    # §50 is the exception: its ambush spring is authored as native DCS triggers,
-    # so it has no plugin to preseed (and none to accidentally untick).
-    assert "convoyambush" not in plugins
     assert plugins["redscramble.hostPlayers"] == "Flash"
 
 

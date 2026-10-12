@@ -60,15 +60,6 @@ def test_red_tide_preseeds_the_skynetiads_plugin_for_advanced_iads() -> None:
     assert campaign["settings"]["plugins"]["skynetiads"] is True
 
 
-def test_red_tide_enables_convoy_ambushes_without_a_plugin() -> None:
-    settings = _campaign_settings()
-    assert settings["convoy_ambush"] is True
-    # §50's spring is authored as native DCS trigger rules at generation
-    # (ConvoyAmbushGenerator), so there is deliberately no plugin here -- and
-    # therefore no plugin a host can untick to silently kill the feature.
-    assert "convoyambush" not in settings["plugins"]
-
-
 def test_red_tide_does_not_preseed_the_removed_minefields_feature() -> None:
     # §57 was REMOVED 2026-09-07. A preseed naming it would now name nothing, which
     # the declared-option test below cannot see because the plugin is gone entirely.

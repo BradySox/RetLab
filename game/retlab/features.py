@@ -291,12 +291,11 @@ FEATURES: tuple[Feature, ...] = (
         retired=True,
     ),
     Feature(
+        # The convoy ambush half was removed 2026-10-11; the key is kept.
         "convoy_ambush",
-        "Convoy ambush (a chance, never telegraphed) + ambient supply convoys",
+        "Ambient supply convoys",
         50,
-        # No plugin: the ambush spring is authored as native DCS trigger rules at
-        # generation (game/missiongenerator/convoyambushgenerator.py).
-        settings_fields=("convoy_ambush", "ambient_supply_convoys"),
+        settings_fields=("ambient_supply_convoys",),
     ),
     Feature(
         "enemy_comms_jamming",
