@@ -14,10 +14,8 @@ that default:
   baseline, and air denial. Parsed by :func:`parse_victory`, re-derived from the
   campaign YAML by name at load (the phases-S5 rederive-never-pickle rule; the
   module cache degrades to "no profile" on any failure, never a crash).
-* **Generic tier:** two opt-in Settings knobs usable on ANY campaign with zero
-  authoring -- ``alternate_victory_domination`` and
-  ``alternate_victory_attrition`` -- synthesized into the same condition objects
-  and stacked with any authored block.
+* The generic tier (two Settings sliders that synthesized a domination and an
+  attrition win on any campaign) was removed 2026-10-12.
 
 Semantics: a victory entry is a *requirement*, so EVERY field set on one entry
 must hold (AND within the entry) and the ``win_when`` / ``lose_when`` lists are
@@ -39,14 +37,8 @@ from typing import TYPE_CHECKING, Literal, Optional
 
 if TYPE_CHECKING:
     from game import Game
-    from game.settings import Settings
     from game.theater.controlpoint import ControlPoint
     from game.theater.theatergroundobject import TheaterGroundObject
-
-#: The generic attrition knob is capped here: "enemy air below 95% of start"
-#: would end the war on the first kill, which is a losses counter, not a
-#: victory condition.
-MAX_ATTRITION_THRESHOLD = 90
 
 
 @dataclass(frozen=True)
@@ -55,8 +47,7 @@ class VictoryCondition:
 
     EVERY set field must hold for the entry to be met (AND) -- the opposite of
     an any-field trigger, as documented in the module docstring. ``label`` is an
-    optional authored display prefix; the knobs
-    synthesize unlabeled entries (their prose already says everything).
+    optional authored display prefix.
     """
 
     label: Optional[str] = None
@@ -107,8 +98,8 @@ class VictoryBaseline:
 
     Latched on the game the first time :func:`ensure_victory_baseline` runs
     (turn 0 for a new game; first load for a pre-feature save -- the accepted
-    late-baseline migration). Snapshotted unconditionally so a knob flipped
-    on at turn 20 still measures against the earliest state this build saw.
+    late-baseline migration). Snapshotted unconditionally, so every campaign
+    measures against the earliest state this build saw.
     ``red_categories`` counts red ground objects per ``category`` so
     ``destroy_categories`` can prove the target class ever existed.
     """
@@ -225,8 +216,7 @@ def ensure_victory_baseline(game: Game) -> VictoryBaseline:
 
     Called from ``Game.initialize_turn`` so a new game latches at turn 0;
     verdict/overview also call it defensively so a pre-feature save latches on
-    first read. Cheap (three sums + a category walk) and unconditional, so a
-    late-enabled knob still measures honestly.
+    first read. Cheap (three sums + a category walk) and unconditional.
     """
     baseline = getattr(game, "victory_baseline", None)
     if baseline is None:
@@ -305,21 +295,6 @@ def condition_met(
     if condition.enemy_air_denied and _operational_red_airbases(game) > 0:
         return False
     return True
-
-
-# --- the knobs (generic tier) ---------------------------------------------------------
-
-
-def _knob_conditions(settings: Settings) -> tuple[VictoryCondition, ...]:
-    """The Settings-synthesized win conditions (0 = off, the default)."""
-    out = []
-    domination = int(getattr(settings, "alternate_victory_domination", 0) or 0)
-    if 0 < domination <= 100:
-        out.append(VictoryCondition(territory_above=domination / 100))
-    attrition = int(getattr(settings, "alternate_victory_attrition", 0) or 0)
-    if 0 < attrition <= MAX_ATTRITION_THRESHOLD:
-        out.append(VictoryCondition(enemy_air_below=attrition / 100))
-    return tuple(out)
 
 
 # --- parsing + the campaign lookup (rederive-never-pickle) ----------------------------
@@ -485,24 +460,8 @@ def authored_victory_for(game: Game) -> Optional[VictoryProfile]:
 
 
 def active_victory_profile(game: Game) -> Optional[VictoryProfile]:
-    """The authored block + the knob-synthesized conditions, or None.
-
-    The knobs are re-read every call (settings change mid-campaign); the
-    authored block comes from the process cache.
-    """
-    authored = authored_victory_for(game)
-    extra = _knob_conditions(game.settings)
-    if authored is None and not extra:
-        return None
-    if authored is None:
-        return VictoryProfile(win_when=extra)
-    if not extra:
-        return authored
-    return VictoryProfile(
-        description=authored.description,
-        win_when=authored.win_when + extra,
-        lose_when=authored.lose_when,
-    )
+    """The campaign's authored victory block, or None."""
+    return authored_victory_for(game)
 
 
 # --- the verdict (the check_win_loss branch) ------------------------------------------
@@ -536,9 +495,8 @@ def victory_verdict(
     """The alternate ending, or None while the war goes on.
 
     Backs the single alternate-endings branch in ``Game.check_win_loss`` ahead
-    of the stock territory checks: authored ``victory:`` blocks + the
-    domination/attrition knobs, loss precedence throughout (a simultaneous
-    collapse is never a cheap win).
+    of the stock territory checks: authored ``victory:`` blocks, loss
+    precedence throughout (a simultaneous collapse is never a cheap win).
     """
     profile = active_victory_profile(game)
     if profile is None:

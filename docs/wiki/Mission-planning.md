@@ -30,8 +30,8 @@ A few things worth knowing before you frag:
 - **A decapitated enemy plans worse.** Killing an enemy command center degrades that side's
   auto-planner — its opportunistic target order gets noisier and its offensive package ceiling
   shrinks — so striking C2 has a measurable effect on next turn's ATO.
-- **Weather leans the ATO.** Rain and storms suppress the automatic recon add-on, and a
-  thunderstorm pushes low-level visual attack tasks down the offensive order.
+- **Weather leans the ATO.** A thunderstorm pushes low-level visual attack tasks down the
+  offensive order.
 
 ## Mission timing
 

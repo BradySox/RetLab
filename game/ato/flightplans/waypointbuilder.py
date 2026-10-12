@@ -270,22 +270,8 @@ class WaypointBuilder:
             self.get_cruise_altitude,
             alt_type,
             description="Rendezvous with package",
-            pretty_name=self._join_pretty_name(),
+            pretty_name="Join",
         )
-
-    def _join_pretty_name(self) -> str:
-        """ "Join", optionally tagged with this flight's task PUSH code word.
-
-        The join waypoint is the package commit/push point, so echoing the push code
-        word for this flight's task (from the side's mission-wide code-word table) gives
-        planners an in-context reminder in the flight-plan list (and the kneeboard)
-        before the mission is generated. Gated by the code-words feature and never a
-        TARGET_POINT, so it can't leak into the DTC slot tags.
-        """
-        if not self.settings.enable_package_code_words:
-            return "Join"
-        push = self.flight.coalition.code_words.push_for(self.flight.flight_type)
-        return f"Join — PUSH {push}" if push else "Join"
 
     def refuel(self, position: Point) -> FlightWaypoint:
         alt_type: AltitudeReference = "BARO"

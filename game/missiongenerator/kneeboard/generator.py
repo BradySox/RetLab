@@ -7,7 +7,6 @@ from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 
 from dcs.mission import Mission
 
-from game.ato.codewords import PushCategory, present_categories, push_category_for
 from game.ato.flighttype import FlightType
 from game.coordinates import (
     coordinate_format,
@@ -33,7 +32,6 @@ if TYPE_CHECKING:
     from game.customkneeboard import CustomKneeboard
 from .briefing import BriefingPage, _brief_loadout
 from .support import (
-    CodeWordsBlock,
     FriendlyPackagesPage,
     SupportPage,
     build_airfield_directory_rows,
@@ -268,7 +266,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 self.jtacs,
                 self.dark_kneeboard,
                 airfield_rows=airfield_rows,
-                code_words=self._code_words_block(flight),
                 zulu_tz=zulu_tz,
             ),
         ]
@@ -358,8 +355,7 @@ class KneeboardGenerator(MissionInfoGenerator):
     ) -> List[str]:
         """Compose the BLUF lines for the Mission Info page (priority on page one).
 
-        The task line is always present (task, plus target/TOT when applicable);
-        the push line is gated on the code-words feature.
+        The task line is always present (task, plus target/TOT when applicable).
         Then a compact air + SAM threat picture, a one-line ordnance
         summary, and the SAR beacon + if-down drill.
         """
@@ -383,17 +379,6 @@ class KneeboardGenerator(MissionInfoGenerator):
 
         if (hq_request := brief_line(self.game, target)) is not None:
             lines.append(hq_request)
-
-        # Push + event code words (gated by the feature toggle).
-        if self.game.settings.enable_package_code_words:
-            code_words = self.game.coalition_for(flight.friendly).code_words
-            bits: List[str] = []
-            push = code_words.push_for(flight.flight_type)
-            if push:
-                bits.append(f"PUSH {push}")
-            bits.append(f"SUCCESS {code_words.success}")
-            bits.append(f"ABORT {code_words.abort}")
-            lines.append("   ".join(bits))
 
         # Compact threat picture: the enemy's likely CAP fighters + the condensed
         # top live SAM systems ("SA-5 S-200 138nm · SA-11 Buk 27nm · ...").
@@ -429,36 +414,6 @@ class KneeboardGenerator(MissionInfoGenerator):
         lines.append(f"SAR      {sar_bits} — {if_down}")
 
         return lines
-
-    def _code_words_block(self, flight: FlightData) -> Optional[CodeWordsBlock]:
-        """The code-words block for the Support Info page, or None when the
-        feature is off: one push word per task category present in the ATO (the
-        flight's own marked), plus the event words (STOP JAM only with an EW
-        package). The planners see the same words on the ATO package tooltip and
-        the join waypoint; this is the in-cockpit copy.
-        """
-        if not self.game.settings.enable_package_code_words:
-            return None
-        coalition = self.game.coalition_for(flight.friendly)
-        code_words = coalition.code_words
-        own = push_category_for(flight.flight_type)
-        present = present_categories(
-            p.primary_task for p in coalition.ato.packages if p.primary_task is not None
-        )
-        if own is not None:
-            present = present | {own}
-        pushes = [
-            (category.value, code_words.push[category], category is own)
-            for category in PushCategory
-            if category in present
-        ]
-        return CodeWordsBlock(
-            theme=code_words.theme,
-            pushes=pushes,
-            success=code_words.success,
-            abort=code_words.abort,
-            stop_jam=code_words.stop_jam if PushCategory.EW in present else None,
-        )
 
     def _brief_air_threats(self, flight: FlightData) -> str:
         """The enemy's likely CAP fighters, from the squadrons it owns."""

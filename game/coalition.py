@@ -5,7 +5,6 @@ from typing import Any, Optional, TYPE_CHECKING
 
 from game.armedforces.armedforces import ArmedForces
 from game.ato.airtaaskingorder import AirTaskingOrder
-from game.ato.codewords import MissionCodeWords
 from game.campaignloader.defaultsquadronassigner import DefaultSquadronAssigner
 from game.commander import TheaterCommander
 from game.commander.missionscheduler import MissionScheduler
@@ -70,12 +69,6 @@ class Coalition:
         # Finances dialog so the player sees where their income went.
         self.last_turn_expenses: dict[str, float] = {}
 
-        # Mission-wide SRS code words (per-task push table + events), regenerated each
-        # turn and stored so planners and kneeboards share one stable table. See the
-        # ``code_words`` property below.
-        self._code_words: Optional[MissionCodeWords] = None
-        self._code_words_turn: Optional[int] = None
-
         # Late initialized because the two coalitions in the game are mutually
         # dependent, so must be both constructed before this property can be set.
         self._opponent: Optional[Coalition] = None
@@ -93,23 +86,6 @@ class Coalition:
     @property
     def doctrine(self) -> Doctrine:
         return self.faction.doctrine
-
-    @property
-    def code_words(self) -> MissionCodeWords:
-        """Mission-wide SRS code-word table for this side, refreshed each turn.
-
-        Generated once per turn and stored, so it stays stable while a planner builds
-        a briefing and regenerates the mission, and persists in the save; a new turn
-        draws a fresh themed set. ``getattr`` migrates saves from before the field
-        existed. See ``game/ato/codewords.py``.
-        """
-        turn = self.game.turn
-        current = getattr(self, "_code_words", None)
-        if current is None or getattr(self, "_code_words_turn", None) != turn:
-            current = MissionCodeWords.generate()
-            self._code_words = current
-            self._code_words_turn = turn
-        return current
 
     @property
     def coalition_id(self) -> int:
@@ -157,6 +133,11 @@ class Coalition:
                 state["player"] = Player.BLUE
             else:
                 state["player"] = Player.RED
+
+        # Package code words were removed 2026-10-12; a save that used them
+        # holds a placeholder for the deleted MissionCodeWords class here.
+        state.pop("_code_words", None)
+        state.pop("_code_words_turn", None)
 
         # A pre-pin save's bullseye was re-derived every turn and may sit on a
         # boat, which the anchor picker will not do again -- so re-anchor once

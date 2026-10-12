@@ -17,7 +17,7 @@ rest appear when they have something to say, or when their setting is on.
 | # | Page | When |
 |---|---|---|
 | 1 | **Mission Info** | always — the BLUF, flight plan, bullseye, weather |
-| 2 | **Support Info** | always — package flights, radios, AWACS/tanker/JTAC, code words, airfields |
+| 2 | **Support Info** | always — package flights, radios, AWACS/tanker/JTAC, airfields |
 | 3 | **SITREP — Turn N** | previous turn had news, and `generate_sitrep_kneeboard` is on |
 | 4 | **Notes** | the campaign has notes |
 | 5 | **Task page** (e.g. SEAD/Strike Target Info) | the task has one, and it isn't superseded by the recon detail page |
@@ -51,25 +51,26 @@ Each leg's speed prints twice: **GS** (ground speed, knots or km/h by airframe) 
 speed as a Mach number at that row's altitude, still air). Reference steerpoints (divert, bullseye)
 print no Time/GS/Mach — a chained ETA past the landing point is noise, not information.
 
-![The Mission Info kneeboard page: a BLUF block listing task, code words, jam-backup channel, air and SAM threats, loadout and the SAR drill, above the airfield table and a flight plan whose right-hand column shows planned fuel at each steerpoint](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/kneeboard-mission-info-bluf.png)
+![The Mission Info kneeboard page: a BLUF block listing task, jam-backup channel, air and SAM threats, loadout and the SAR drill, above the airfield table and a flight plan whose right-hand column shows planned fuel at each steerpoint](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/kneeboard-mission-info-bluf.png)
 
-*A real generated Mission Info page (Baltic Fury, an F/A-18F on OCA/Runway). The BLUF answers the
+*A real generated Mission Info page (Baltic Fury, an F/A-18F on OCA/Runway), captured before the
+code-word line was removed on 2026-10-12. The BLUF answers the
 brief before the flight plan starts; the plan's right-hand **Fuel** column and the **RTB margin**
 line below it are the retired Fuel Ladder page, folded in where you actually read it.*
 
-### Support Info — comms and the code words
+### Support Info — comms
 
-The package frequency and TOT, the package's flights, AWACS/tanker/JTAC, and the colour-keyed
-**code words** block. The airfield directory is added here when ATIS is in play.
+The package frequency and TOT, the package's flights and AWACS/tanker/JTAC. The airfield
+directory is added here when ATIS is in play.
 
 The top row of the package table is **your own flight on its intra-flight channel**; every other
 flight follows with its own channel.
 
-![The Support Info kneeboard page: the package's flights with callsigns, tasks, types and radio channels, a colour-keyed code-words block, then AEW&C and tanker tables with frequencies, TACAN and time on station](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/kneeboard-support-info.png)
+![The Support Info kneeboard page: the package's flights with callsigns, tasks, types and radio channels, then AEW&C and tanker tables with frequencies, TACAN and time on station](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/kneeboard-support-info.png)
 
-*The same flight's Support Info page. Every other flight in the package with its channel, the
-code words colour-keyed (blue push, green success, red abort — "(you)" marks your own call), then
-the AEW&C and tanker ladders with TACAN and time on station.*
+*The same flight's Support Info page, captured before 2026-10-12: the coloured block under the
+package table was removed and no longer prints. Every other flight in the package with its
+channel, then the AEW&C and tanker ladders with TACAN and time on station.*
 
 ### The threat cards
 
@@ -143,7 +144,7 @@ All five live on the **Kneeboards** settings page.
 The cover page, compact deck and Brief Sheet were removed in the 2026-07-13 pass.
 The deck opens on Mission Info; there is no cover page, no compact 3-4 page mode, and no separate
 Brief Sheet or brevity card. Fuel is the **Fuel** column on the flight plan plus its RTB margin
-call-out, not its own page. Code words live on Support Info.
+call-out, not its own page.
 
 ---
 
@@ -151,5 +152,5 @@ call-out, not its own page. Code words live on Support Info.
 
 - [Getting Started](Getting-Started) — opening the kneeboard in the cockpit
 - [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance) — approximate-mode kneeboard pages
-- [Mission Planning](Mission-planning) — packages, comms, and code words that feed the deck
+- [Mission Planning](Mission-planning) — packages and comms that feed the deck
 - [Combat SAR](Combat-SAR) — the survivor beacon printed on every deck

@@ -91,19 +91,6 @@ cameras rather than a pod, so their TARPS loadout is a clean weaponless fit. Bot
 low-priority Armed Recon fallback. **1968 Yankee Station** fields them at Da Nang and on the
 carriers.
 
-### Auto-planned recon
-
-With **`auto_add_tarps_recon`** on (default), the planner appends one TARPS sortie to **Strike**,
-**DEAD** and **Armed Recon** packages against high-value targets.
-
-- Behind a Strike or DEAD shooter it arrives **2 minutes later**.
-- On Armed Recon it flies **with** the shooters — find-and-overwatch, not post-strike.
-- Needs a TARPS-capable squadron in range. If none is free the recon flight is skipped; the strike
-  is never scrubbed for it.
-- On a drone-fielding faction the recon bird *is* the drone.
-- It never paces the package — a slow drone keeps its own schedule instead of dragging the
-  formation down.
-
 ---
 
 ## Uncertainty circles
@@ -158,7 +145,6 @@ remember.
 |---|---|---|
 | `recon_intel_fog` | ON | Master switch. Hides an un-engaged site's composition and rings |
 | Hidden enemy command posts | ON | Hides enemy command posts entirely until recon finds them |
-| `auto_add_tarps_recon` | ON | Planner appends a recon flight to Strike / DEAD / Armed Recon |
 | Target location precision | EXACT | Offsets steerpoints, hides marks and coords, consolidates the DEAD bullseye |
 | Reveal fog of war (map toggle) | OFF, never saved | Short-circuits all fog to ground truth |
 

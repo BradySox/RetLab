@@ -313,14 +313,14 @@ linked design note.
 64. **Carrier deck spawn policy** — AI clear of the six-pack; players spawn at mission start.
 65. **Curated carrier comms** — per-hull TACAN, ICLS, Link 4 and ATC.
 66. **Generated-mission archive** — a dated copy of every generation.
-67. **Weather-aware auto-planning** — rain grounds recon; storms demote low attack.
+67. **Weather-aware auto-planning** — storms demote low attack.
 68. **Adaptive procurement** — price-weighted buys, optional SAM repair.
 69. **SEAD-before-strike coordination** — strikes retimed behind their suppressor.
 71. **Expanded F-4E Weapons Pack** — AGM-78 fits gated on pylon legality.
 72. **Carrier deck decorations** — deck dressing clear of every parking spot.
 73. **Per-airframe default loadout for a task** — pin a fit across campaigns.
 74. **Native DTC data pre-population** — cartridges for Hornet, Viper, F-14B(U), Apache.
-75. **Custom victory conditions** — authored and generic endings.
+75. **Custom victory conditions** — authored win/lose blocks.
 76. **CTLD paratroopers** — fixed-wing Air Assault by paradrop, player and AI.
 78. **Sea-supply convoys + coastal anti-ship** — proportional convoy losses and batteries that actually engage.
 80. **Mixed-hull ship groups** — task groups, family-bounded.
@@ -390,7 +390,9 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush
-with its `map_hidden` flag (2026-10-11; the ambient convoys stay).
+with its `map_hidden` flag (2026-10-11; the ambient convoys stay). Five options went on
+2026-10-12: the QRA radio callouts, cosmetic base battle damage, the planner's automatic recon
+flight (TARPS is hand-fragged), §75's two generic victory sliders, and package code words.
 
 ## Repo & Branch Layout
 

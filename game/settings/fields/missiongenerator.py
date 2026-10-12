@@ -193,21 +193,6 @@ class MissionGeneratorSettings:
             "until you engage it. On by default."
         ),
     )
-    enable_package_code_words: bool = boolean_option(
-        "Package code words",
-        MISSION_GENERATOR_PAGE,
-        KNEEBOARD_SECTION,
-        default=False,
-        detail=(
-            "Give each package three SRS code words (push / success / abort) and surface "
-            "them so a briefing can be built before generation: a package tooltip in the "
-            "ATO list and a 'PUSH' tag naming the push word on the join waypoint, plus "
-            "the code words "
-            "on the kneeboard (the flight's own words in the Mission Info BLUF and the "
-            "side-wide table on the Support Info page). Human comms aids only — nothing "
-            "scripts off them. Off by default."
-        ),
-    )
     generate_sitrep_kneeboard: bool = boolean_option(
         "Campaign SITREP kneeboard page",
         MISSION_GENERATOR_PAGE,
@@ -568,17 +553,5 @@ class MissionGeneratorSettings:
         "Use DCS' automatic fog setting",
         MISSION_GENERATOR_PAGE,
         GAMEPLAY_SECTION,
-        default=True,
-    )
-    base_battle_damage: bool = boolean_option(
-        "Battle damage at depleted bases (fires, smoke, wreckage)",
-        MISSION_GENERATOR_PAGE,
-        GAMEPLAY_SECTION,
-        detail=(
-            "A base's ground strength drives how battered it looks: a besieged, ground-down "
-            "field gets scattered fires, smoke and destroyed-building wreckage so it reads as "
-            "under siege, while staying fully operational (cosmetic only -- the runway is "
-            "untouched). Costs some FPS; turn off if a heavily-hit base impacts performance."
-        ),
         default=True,
     )

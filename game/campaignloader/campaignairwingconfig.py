@@ -38,9 +38,7 @@ class SquadronConfig:
         # TARPS is a support role that no campaign config lists explicitly and that
         # the "air-to-ground" alias does not cover (it is not an attack task). Offer
         # it to every squadron actually capable of it (the capability filter in
-        # Squadron.set_auto_assignable_mission_types drops it for the rest), so the
-        # auto-planner can pair a recon bird into a package without requiring
-        # per-campaign squadron edits.
+        # Squadron.set_auto_assignable_mission_types drops it for the rest).
         return set(self.secondary) | {self.primary} | {FlightType.TARPS}
 
     @classmethod

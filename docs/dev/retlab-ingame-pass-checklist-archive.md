@@ -2657,6 +2657,8 @@ either way — the row needs a shot deliberately taken at a site that has point 
 
 ### H6 — Mission code words + Comms & Brevity card · §4 · ☑ VERIFIED
 
+**2026-10-12 — the code words half was REMOVED on the DM's call** (verified below, off in his defaults and every save). The setting, the BLUF line, the Support Info block and the ATO table are deleted. Whatever else this row covers is unchanged.
+
 **History:** (2026-06-26, user in-game pass) — **surface superseded 2026-07-13**: the Comms & Brevity card + brevity crib are deleted in the back-to-upstream rework; the code words live in the Mission Info BLUF + a Support Info block (re-check under H12). The planner panel/tooltip/JOIN-tag checks below remain valid.
 - **Setup:** Enable **Package code words** (Mission Generator → Kneeboard) on
   an ATO with a mix of tasks (e.g. a SEAD, a STRIKE, and a CAP package). In the planner, read the

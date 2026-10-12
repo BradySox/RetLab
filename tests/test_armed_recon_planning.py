@@ -1,14 +1,9 @@
-"""Armed Recon package composition: the stock sweep + an auto-added recon drone +
-the (threat-gated) SEAD escort.
+"""Armed Recon package composition: the stock sweep + the (threat-gated) SEAD escort.
 
-Three layers are pinned here:
+Two layers are pinned here:
 - ``PlanArmedRecon.propose_flights`` proposes an ARMED_RECON primary sized by the
   stock 2-4 flight-size roll, plus the common escorts (SEAD/A2A, pruned later if
   unthreatened).
-- ``PackageFulfiller._maybe_plan_tarps_recon`` frags an optional recon flight into
-  an ARMED_RECON package (as it already does for Strike/DEAD). On a drone-fielding
-  faction the auto-assignable TARPS squadron is the drone, so this is the "1 drone
-  in each armed recon package" wiring. It never scrubs the package.
 - ``Builder._stand_off_search_point`` pulls the ARMED RECON fly-over point off the
   target area toward the ingress point (the 2026-07-06 flown finding: the search
   point sat dead-centre on the Shirqat FOB's SA-13/ZU-23 garrison), standing off
@@ -32,11 +27,9 @@ from game.ato.flightplans.armedrecon import (
     SEARCH_STANDOFF_BUFFER,
 )
 from game.ato.flighttype import FlightType
-from game.commander.packagefulfiller import PackageFulfiller
 from game.commander.tasks.primitive.armedrecon import PlanArmedRecon
 from game.theater.controlpoint import Fob
 from game.utils import Distance, meters, nautical_miles
-from game.weather.weather import Thunderstorm
 
 
 def test_armed_recon_proposes_a_rolled_sweep_plus_escorts() -> None:
@@ -62,98 +55,6 @@ def test_armed_recon_proposes_a_rolled_sweep_plus_escorts() -> None:
     escort_tasks = {f.task for f in task.flights if f.escort_type is not None}
     assert FlightType.SEAD_ESCORT in escort_tasks
     assert FlightType.ESCORT in escort_tasks
-
-
-def _fulfiller(
-    auto_add: bool, can_plan_tarps: bool, stormy: bool = False
-) -> PackageFulfiller:
-    ff = PackageFulfiller.__new__(PackageFulfiller)
-    ff.auto_add_tarps_recon = auto_add
-    ff.air_wing_can_plan = lambda mission_type: (  # type: ignore[method-assign]
-        can_plan_tarps and mission_type is FlightType.TARPS
-    )
-    # The §67 weather gate reads self.coalition.game; give the fake a sky.
-    weather = Thunderstorm.__new__(Thunderstorm) if stormy else None
-    ff.coalition = cast(
-        Any,
-        SimpleNamespace(
-            game=SimpleNamespace(
-                settings=SimpleNamespace(weather_aware_planning=True),
-                conditions=SimpleNamespace(weather=weather),
-            )
-        ),
-    )
-    return ff
-
-
-def _armed_recon_builder(planned: list[Any]) -> Any:
-    primary = SimpleNamespace(flight_type=FlightType.ARMED_RECON)
-
-    def plan_flight(proposed: Any, ignore_range: bool) -> bool:
-        planned.append(proposed)
-        return True
-
-    return SimpleNamespace(
-        package=SimpleNamespace(primary_flight=primary),
-        plan_flight=plan_flight,
-    )
-
-
-def test_armed_recon_package_frags_a_recon_drone() -> None:
-    planned: list[Any] = []
-    ff = _fulfiller(auto_add=True, can_plan_tarps=True)
-    builder = _armed_recon_builder(planned)
-    # The Armed Recon target is a control point (no warrants_recon gate applies).
-    mission = SimpleNamespace(location=SimpleNamespace(name="Mosul"))
-
-    ff._maybe_plan_tarps_recon(
-        cast(Any, mission), cast(Any, builder), ignore_range=False
-    )
-
-    assert [p.task for p in planned] == [FlightType.TARPS]
-    assert planned[0].num_aircraft == 1  # a single recon bird / drone
-
-
-def test_recon_drone_skipped_when_the_setting_is_off() -> None:
-    planned: list[Any] = []
-    ff = _fulfiller(auto_add=False, can_plan_tarps=True)
-    builder = _armed_recon_builder(planned)
-    mission = SimpleNamespace(location=SimpleNamespace(name="Mosul"))
-
-    ff._maybe_plan_tarps_recon(
-        cast(Any, mission), cast(Any, builder), ignore_range=False
-    )
-
-    assert planned == []  # gated by auto_add_tarps_recon
-
-
-def test_recon_drone_skipped_when_no_tarps_squadron() -> None:
-    planned: list[Any] = []
-    ff = _fulfiller(auto_add=True, can_plan_tarps=False)
-    builder = _armed_recon_builder(planned)
-    mission = SimpleNamespace(location=SimpleNamespace(name="Mosul"))
-
-    ff._maybe_plan_tarps_recon(
-        cast(Any, mission), cast(Any, builder), ignore_range=False
-    )
-
-    assert planned == []  # no drone/TARPS bird available -> package flies as-is
-
-
-def test_recon_drone_stays_home_in_a_storm() -> None:
-    # §67 weather-aware planning: rain/storm suppresses the automatic recon
-    # add-on (the camera photographs cloud deck). Same non-scrubbing contract
-    # as a missing squadron.
-    planned: list[Any] = []
-    ff = _fulfiller(auto_add=True, can_plan_tarps=True, stormy=True)
-    builder = _armed_recon_builder(planned)
-    mission = SimpleNamespace(location=SimpleNamespace(name="Mosul"))
-
-    ff._maybe_plan_tarps_recon(
-        cast(Any, mission), cast(Any, builder), ignore_range=False
-    )
-
-    assert planned == []
 
 
 _TERRAIN = Caucasus()

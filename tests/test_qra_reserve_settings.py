@@ -9,10 +9,6 @@ def test_opfor_default_qra_reserve_defaults_to_zero() -> None:
     assert Settings().opfor_default_qra_reserve == 0
 
 
-def test_qra_comms_enabled_defaults_to_true() -> None:
-    assert Settings().qra_comms_enabled is True
-
-
 def test_qra_settings_are_user_visible() -> None:
     # Settings.fields() walks dataclass fields whose metadata carries the
     # option-description key; all new settings must be discoverable so the
@@ -25,4 +21,3 @@ def test_qra_settings_are_user_visible() -> None:
     }
     assert "ownfor_default_qra_reserve" in names
     assert "opfor_default_qra_reserve" in names
-    assert "qra_comms_enabled" in names

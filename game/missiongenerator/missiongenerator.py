@@ -384,9 +384,6 @@ class MissionGenerator:
             red_country_id=self.e_country.id,
         ).generate()
 
-        from game.missiongenerator.basedamage import BaseDamageGenerator
-
-        BaseDamageGenerator(self.mission, self.game).generate()
         aircraft_generator.spawn_unused_aircraft()
 
         self.mission_data.flights = aircraft_generator.flights

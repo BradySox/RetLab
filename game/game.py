@@ -663,7 +663,7 @@ class Game:
     def check_win_loss(self, announce: bool = True) -> TurnState:
         # Alternate endings (§75 custom victory conditions) -- ONE evaluator
         # ahead of the stock capture-everything defaults: authored `victory:`
-        # blocks + the domination/attrition knobs. Returns None when nothing is
+        # blocks. Returns None when nothing is
         # configured, so this path costs nothing and the territory checks below
         # remain the universal fallback.
         from game.retlab.victory import victory_verdict

@@ -460,6 +460,16 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(
+        "five unused options: QRA callouts, base damage, auto recon, victory sliders, code words",
+        "2026-10-12",
+        r"auto_add_tarps_recon|Auto-planned recon|enable_package_code_words|code[- ]words?"
+        r"|qra_comms_enabled|QRA radio scramble callouts|base_battle_damage"
+        r"|Battle damage at depleted bases|alternate_victory_\w+"
+        r"|Domination victory|Attrition victory"
+        r"|automatic (photo-)?recon|domination or attrition ending",
+        allow=("removed", "Removed", "no longer", "historical", "captured before"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",
