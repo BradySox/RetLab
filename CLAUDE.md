@@ -438,7 +438,7 @@ linked design note.
 107. **Briefing screen picture** — RetLab's own load-screen picture; drop `briefing.png` or `briefing.jpg` into `Saved Games\DCS\Retribution` to use yours.
 108. **Flight report cards** — the debrief grades every blue flight that flew, yours first, from §91's records. A record, never a reward.
 109. **Outside AI reads red's turn** — a REST API under `/retribution-ai/*` for an AI on the same PC: it reports what looks wrong in red's plan, and with the Outside AI plans red setting ticked (Campaign Management; also on the new game wizard's Campaign options page) it plans red's packages, TOTs, stances and buying, starting from the plan the scripted planner still makes every turn. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; loadouts, waypoints, transfers, ships, repairs and MCP are staged after it.
-111. **Sector war** — the war region is cut into named sectors about 10 NM across (WHISKEY-14), shaped by the ground. Step 1 (built): each side's territory is filled on the F10 map and the app map, worked out from the bases and fronts; the ground war is unchanged. Steps 2 and 3 (sectors decide the fight, a CAS battle-map card) are agreed, not built.
+111. **Sector war** — the war region is cut into named sectors about 10 NM across (WHISKEY-14), shaped by the ground. Step 1 (built): each side's territory is filled on the F10 map and the app map, worked out from the bases and fronts, and each front's units fight a battle in every sector along the shared border (setting on by default). Steps 2 and 3 (sectors decide the fight, a CAS battle-map card) are agreed, not built.
 
 ### Retired, removed or shelved — do not restore
 

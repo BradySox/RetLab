@@ -219,6 +219,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Each side's territory is filled on the F10 map and the campaign map, with the front line
   as the edge between them. The campaign map can also show the named 10 NM sectors the map
   is cut into.
+- Each front's ground units fight a battle in every sector along the shared border, out to
+  the Maximum frontline width, instead of on one short line across the road.
 - Supply columns run both sides' road networks.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.

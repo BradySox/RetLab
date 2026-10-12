@@ -17,6 +17,7 @@ from game.missiongenerator.frontlineconflictdescription import (
 
 # Misc config settings for objects drawn in ME mission file (and F10 map)
 from game.theater import TRIGGER_RADIUS_CAPTURE
+from game.theater.frontbattles import battles_for
 
 if TYPE_CHECKING:
     from game.missiongenerator.aircraft.flightdata import FlightData
@@ -200,6 +201,11 @@ class DrawingsGenerator:
             # map rather than hidden behind a straight line. `polyline` is the
             # two endpoints when the front has no sector depths.
             trace = bounds.polyline
+            battles = battles_for(self.game.theater, front_line)
+            if battles is not None and len(battles.line) >= 2:
+                # §111: the stretch of border the battles are fought along.
+                terrain = self.game.theater.terrain
+                trace = tuple(Point(x, y, terrain) for x, y in battles.line)
             shape = self.player_layer.add_line_segments(
                 trace[0],
                 [point - trace[0] for point in trace],

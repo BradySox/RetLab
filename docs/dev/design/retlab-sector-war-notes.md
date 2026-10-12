@@ -1,7 +1,7 @@
 # Sector war
 
-Status: **step 1 built 2026-10-12** (territory and sectors drawn, row B229). Steps 2 and 3
-agreed, not built. Features doc §111.
+Status: **step 1 built 2026-10-12** (territory and sectors drawn, row B229), plus
+**battles along the border** (row B230). Steps 2 and 3 agreed, not built. Features doc §111.
 
 ## Where it came from
 
@@ -74,9 +74,50 @@ so the cuts do not show. Every drawing gets its own name, because MIST drops a r
 edges between sectors as lines, and each sector's name, owner and seed). Layers: Territory
 (on by default) and Sectors (a sub-row, off by default; names show from zoom 9).
 
+## Battles along the border
+
+Brady, 2026-10-12: "frontline units spread across the entire shared border so that it feels
+like a push instead of one single 10nm front line battle." Two calls on decision cards:
+
+| Question | Answer |
+|---|---|
+| How units sit along the border | A battle per sector (not an even thin line) |
+| How much border a front fills | Up to Maximum frontline width (not the whole border) |
+
+Before this, a front's units stood on one straight line across the road between its two
+bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red Tide
+(Fulda) 2.4 NM, Abchazian Blitz (Sukhumi) 4.3 NM, Iraq Desert Storm (H-3) 43 NM.
+
+`game/theater/frontbattles.py`:
+
+- The shared border is where the two sides' territory shapes meet, merged into lines.
+- A front takes the line nearest its position and the stretch of it centred there, as long
+  as Maximum frontline width (80 km by default) measured along the border. Where the line
+  ends first, the stretch slides to keep its length.
+- The stretch is sampled every quarter mile. A sample counts if it is on drivable ground
+  (inclusion zones minus exclusion and sea) and nearer this front than any other front.
+- Each sector the counted samples pass through holds one battle, on its longest unbroken
+  run, if that run is at least 1 NM. The battle's centre is the run's middle; blue's forward
+  heading is the normal to the border that points into red's ground.
+- A battle's groups spread along the run, following the border, up to 5 NM.
+
+`FlotGenerator`:
+
+- Picks as many battles as the side with fewer armor wedges, evenly from end to end.
+- Deals wedges out across the battles in turn; a cluster member joins its wedge; artillery
+  and the rest are dealt the same way. Each group then steps back to its depth along its
+  own battle's heading, and keeps that heading for every order (TIC and vanilla).
+- Measured with a test force on Red Tide: the two sides' spread went from 2.7 NM to 20 NM
+  across 3 battles. Iraq: 29 NM to 36 NM. Abchazian Blitz: 1 or 2 battles in the 6 NM of
+  drivable coast.
+
+The F10 and app-map front line follows the stretch from the first battle to the last.
+Built and cached with the territory; a few milliseconds per front after it.
+
 ## What step 1 does not do
 
-- No rule changes. The front still slides along the road between two bases.
+- No rule changes. The front still slides along the road between two bases, and the
+  battle result is still one result per front, whatever happens in each battle.
 - No rivers: the landmap has no river data, so a sector edge follows a river only where
   the river is inside an exclusion zone.
 - Sectors are not saved. They are rebuilt from the bases and the landmap, so a change to

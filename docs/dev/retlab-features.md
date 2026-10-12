@@ -10963,7 +10963,13 @@ count, a destroyed launcher, the range window).
 
 The war region is cut into named sectors about 10 NM across, shaped by the ground. Step 1,
 built 2026-10-12: each side's territory is drawn on the F10 map and the app map, worked out
-from the bases and the fronts. The ground war is unchanged. Not flown (row B229).
+from the bases and the fronts. Not flown (row B229).
+
+Battles along the border, built 2026-10-12 on Brady's call: each front's ground units are
+split into a battle in each sector along the shared border, out to Maximum frontline width
+measured along the border, instead of one short line across the road. The battle result
+and the front's movement are unchanged. Setting *Front line battles spread along the
+border*, on by default. Not flown (row B230).
 
 Steps 2 (sectors decide the fight, a base falls with its sector, new-game setting on by
 default) and 3 (a CAS battle-map kneeboard card per front) are agreed with Brady, not built.
@@ -10975,7 +10981,12 @@ choices, the algorithm and the step 2 notes.
 
 - `game/theater/sectors.py`: the 1 NM grid, sector growth and names, territory, the shape
   helpers and the caches.
-- `game/missiongenerator/drawingsgenerator.py`: `generate_territory`, drawn first.
+- `game/missiongenerator/drawingsgenerator.py`: `generate_territory`, drawn first; the
+  front line is drawn along the battle stretch when there is one.
+- `game/theater/frontbattles.py`: each front's stretch of border and its battle sites.
+- `game/missiongenerator/flotgenerator.py`: `battle_slots`, `pick_battles`,
+  `_battle_point`; each group keeps its own forward heading (`_local`).
+- `game/server/frontlines/models.py`: the app map's front line follows the battle stretch.
 - `game/server/sectors/models.py`: `TerritoryJs` and `SectorsJs` on `/game`.
 - `client/src/components/territorylayer/`, `client/src/api/territorySlice.ts`: the
   Territory and Sectors layers.
@@ -10991,4 +11002,10 @@ choices, the algorithm and the step 2 notes.
 - A country holding no base on either side (§98's NEUTRAL posture) is nobody's ground.
 - Sectors are rebuilt, not saved. A change to the seeding or naming renames every sector
   of a running campaign; step 2 must store them.
-- No setting in step 1.
+- Battles only stand on ground the landmap marks drivable. Abchazian Blitz's border near
+  Sukhumi has about 6 NM of it, so that front stays short.
+- There are as many battles as the side with fewer armor wedges can fill, so every battle
+  has both sides in it. Each group faces across the border at its own battle; TIC's
+  distance-to-front reads the group's own point on the border.
+- The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
+- CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.

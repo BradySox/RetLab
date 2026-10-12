@@ -256,6 +256,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "scale_aware_front_line",
                     "terrain_weighted_front_line",
                     "front_line_salients",
+                    "front_line_battles_along_border",
                 ],
             ),
             (
@@ -588,6 +589,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "scale_aware_front_line",  # §90 rung C
         "terrain_weighted_front_line",  # §90 rung D
         "front_line_salients",  # §90 rung E
+        "front_line_battles_along_border",  # §111
     ],
     "Campaign clock & era": [
         "continuous_campaign_clock",  # §47
