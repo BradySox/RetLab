@@ -308,6 +308,21 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   repairs. Accepted limitation: `Coalition._plan_player_qra` is deliberately unguarded —
   the `generate_flights` runway check already stops the alert flight spawning, so the
   residual is a phantom package in the planning UI only.
+- **A shot-down alert jet is not handed back to the pool (2026-10-12, test 56).** Red's
+  JF-17 alert squadron launched 8 single-ship jets from a reserve of 4. The plugin sets
+  `SetDefaultLandingAtEngineShutdown`, so Moose's `OnEventEngineShutdown` returns a
+  defender to the squadron when `not DefenderUnit:InAir()`. DCS raised engine-shutdown
+  for four of the jets milliseconds after they were killed, with the Unit already gone;
+  `UNIT:InAir()` is `nil` then, the test passed, and `RemoveDefenderFromSquadron` put
+  each back (`ResourceCount + 1`). The next 30 s detection cycle launched it again.
+  `debrief.log` shows each relaunch 20 to 30 s after one of those events. The plugin now
+  wraps that handler per dispatcher and passes the event on only when `InAir()` is
+  exactly `false`. A real landing is unchanged. Grouping 1 is the worst case; in a pair
+  only the last jet to die was credited. Upstream MOOSE has the same handler and has
+  since deleted the class. **Known and not fixed:** when two alert squadrons share a
+  base, Moose's `onafterGCI` picks the first on a distance tie and gives up when it is
+  empty, so the second never launches (Kirkuk's four MiG-29s in test 56). Tests:
+  `tests/lua/test_intercept_filter.py`. Row **B228**.
 
 ---
 

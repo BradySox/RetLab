@@ -374,6 +374,17 @@ local function build_dispatcher(coalition_name, records)
             end
             return orig_evaluate_engage(self, detected_item)
         end
+        -- A shot-down jet can raise engine-shutdown while still falling, its Unit
+        -- already gone. Moose reads InAir() == nil as "landed" and hands the jet
+        -- back to the pool: 8 JF-17s flew from a reserve of 4 (test 56).
+        local orig_engine_shutdown = dispatcher.OnEventEngineShutdown
+        function dispatcher:OnEventEngineShutdown(EventData)
+            local unit = EventData and EventData.IniUnit
+            if not unit or unit:InAir() ~= false then
+                return
+            end
+            return orig_engine_shutdown(self, EventData)
+        end
         -- Spawn interceptors already airborne near the base. See header for the
         -- full method history: every ground spawn (cold/hot/runway) leaves F-16s
         -- stuck on congested ramps like Tiyas; only in-air escapes it. In-air is

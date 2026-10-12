@@ -117,6 +117,11 @@ function AI_A2A_DISPATCHER:New(detection)
         table.insert(self.engageCalls, item)
         return "friendlies"
     end
+    obj.shutdownCalls = 0
+    function obj:OnEventEngineShutdown(EventData)
+        -- Moose's own handler: a single-ship defender goes back to the pool.
+        self.shutdownCalls = self.shutdownCalls + 1
+    end
     table.insert(InterceptTest.dispatchers, obj)
     return obj
 end
@@ -397,6 +402,33 @@ def test_dispatcher_evaluation_skips_react_free_clusters() -> None:
     assert dispatcher.EvaluateENGAGE(dispatcher, strike) == "friendlies"
     assert len(dispatcher.gciCalls) == 1
     assert len(dispatcher.engageCalls) == 1
+
+
+def test_a_jet_shot_down_is_not_handed_back_to_the_pool() -> None:
+    """Test 56: DCS raised engine-shutdown for four JF-17s as they fell, their
+    Unit already gone. Moose's handler tests ``not DefenderUnit:InAir()``, and
+    InAir() is nil for a dead unit, so each was booked as landed and relaunched:
+    8 jets from a reserve of 4. Only a jet DCS says is on the ground has landed."""
+    harness = DcsPluginHarness()
+    _load(harness, ewr_names=["0041 | LION (EWR)"])
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    lua = harness.lua
+    dispatcher = lua.globals().InterceptTest.dispatchers[1]
+    event = lua.eval("""
+        function(in_air)
+            return { IniUnit = { InAir = function() return in_air end } }
+        end
+    """)
+
+    dispatcher.OnEventEngineShutdown(dispatcher, event(None))  # dead, falling
+    dispatcher.OnEventEngineShutdown(dispatcher, event(True))  # still flying
+    dispatcher.OnEventEngineShutdown(dispatcher, lua.eval("{}"))  # no unit at all
+    assert dispatcher.shutdownCalls == 0
+
+    dispatcher.OnEventEngineShutdown(dispatcher, event(False))  # parked
+    assert dispatcher.shutdownCalls == 1
 
 
 def test_simultaneous_scrambles_air_start_on_separate_levels() -> None:
