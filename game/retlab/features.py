@@ -911,7 +911,7 @@ FEATURES: tuple[Feature, ...] = (
         "sector_war",
         "Sector war",
         111,
-        settings_fields=("front_line_battles_along_border",),
+        settings_fields=("front_line_battles_along_border", "sector_war"),
     ),
     Feature(
         # The order half of juanjux's High Command, no prizes (game/retlab/hq_requests.py);

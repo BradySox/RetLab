@@ -154,6 +154,7 @@ class TransitNetwork:
 
 class TransitNetworkBuilder:
     def __init__(self, theater: ConflictTheater, for_player: Player) -> None:
+        self.theater = theater
         self.control_points = list(theater.control_points_for(for_player))
         self.network = TransitNetwork()
         self.airports: Set[ControlPoint] = {
@@ -171,10 +172,16 @@ class TransitNetworkBuilder:
         return self.network
 
     def add_transit_links(self, control_point: ControlPoint) -> None:
+        from .sectorwar import road_is_cut
+
         # Prefer road connections.
         for road_connection in control_point.connected_points:
-            if road_connection.is_friendly_to(control_point):
-                self.network.link_road(control_point, road_connection)
+            if not road_connection.is_friendly_to(control_point):
+                continue
+            # §111 step 2: no convoy drives through the enemy's sectors.
+            if road_is_cut(self.theater, control_point, road_connection):
+                continue
+            self.network.link_road(control_point, road_connection)
 
         # Use sea connections if there's no road or rail connection.
         for sea_connection in control_point.shipping_lanes:

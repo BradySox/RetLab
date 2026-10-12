@@ -648,6 +648,19 @@ class CampaignManagementSettings:
             "one short line across the road between the two bases."
         ),
     )
+    sector_war: bool = boolean_option(
+        "Sectors decide the ground war",
+        CAMPAIGN_MANAGEMENT_PAGE,
+        "Campaign features",
+        default=True,
+        detail=(
+            "Each sector belongs to one side. A won front line battle takes the "
+            "enemy's sectors nearest the front, the front line sits where the road "
+            "between the two bases enters enemy sectors, and a base falls when its "
+            "sector is taken. With this off the front line moves with base "
+            "strength. Saves from before this setting keep it off."
+        ),
+    )
     automate_front_line_stance: bool = boolean_option(
         "Automatically manage front line stances",
         CAMPAIGN_MANAGEMENT_PAGE,

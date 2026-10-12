@@ -42,6 +42,7 @@ from .settings import NightMissions, Settings
 from .data.groups import GroupTask
 from .spatialindex import LiveUnitIndex
 from .theater import ConflictTheater, Player
+from .theater.sectorwar import SectorWar, ensure as ensure_sector_war
 from .theater.supply import RECOVERY_MULTIPLIER, SupplyStatus, supply_statuses
 from .theater.theatergroundobject import (
     EwrGroundObject,
@@ -134,6 +135,8 @@ class Game:
         self.last_flight_cards: list[FlightCard] = []
         #: §112: the targets HQ has asked the players to take out.
         self.hq_requests = HqRequests()
+        #: §111 step 2: who holds each sector. Started on turn 0.
+        self.sector_war: Optional[SectorWar] = None
         # Vietnam Ops Super Gaggle (§37): the turn's planned resupply run, drawn from real
         # BLUE squadrons; None when the feature is off or no gaggle is plannable. Losses are
         # charged back to the squadrons at debrief. Replanned each turn in finish_turn.
@@ -245,6 +248,11 @@ class Game:
             if "settings" in state:
                 state["settings"].hq_requests = False
             state["hq_requests"] = HqRequests()
+        # §111 step 2 is on for new games only, like §112.
+        if "sector_war" not in state:
+            if "settings" in state:
+                state["settings"].sector_war = False
+            state["sector_war"] = None
         state.setdefault("client_map_layers", None)
         state.setdefault("super_gaggle_commitment", None)
         # W6 red tempo: pre-feature saves resolve on their next initialize_turn.
@@ -553,6 +561,8 @@ class Game:
 
         move_and_reparent_ships(self.theater.controlpoints)
 
+        ensure_sector_war(self)
+
         if not skipped:
             player_points = self.theater.player_points()
             # Rung A: reinforcement follows the roads. A base the enemy has cut
@@ -612,6 +622,12 @@ class Game:
             control_point.initialize_turn_0(self.laser_code_registry)
             for tgo in control_point.connected_objectives:
                 self.db.tgos.add(tgo.id, tgo)
+
+        # §111 step 2: sector owners come from the fronts as first placed, then
+        # each front moves onto its sector edge.
+        ensure_sector_war(self)
+        for front_line in self.theater.conflicts():
+            front_line.update_position()
 
         # Correct the heading of specifc TGOs, can only be done after init turn 0
         for tgo in self.theater.ground_objects:

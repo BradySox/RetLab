@@ -1,0 +1,1 @@
+* **[Campaign Management]** Sectors decide the ground war in new games: a won front line battle takes the enemy sectors nearest the front, the front line sits on the sector edge, a base falls with its sector, and a road through enemy sectors carries no convoys. Setting: Sectors decide the ground war (on for new games).

@@ -20,6 +20,9 @@ them. A second set showed hand-drawn "BATTLE MAP" CAS kneeboard cards built per 
 | Sector size | About 10 NM |
 | Base capture | A base falls with its sector |
 | Which games | New games, setting on by default (step 2) |
+| Sectors a won battle takes | Scaled by the win: strong 2, clear 1, minor 1 only when the winner attacked |
+| Mission captures (Air Assault, troops in the base zone) | Kept; the base's sector goes with it |
+| A supply road cut by enemy sectors | Carries no convoys, so the base it served loses road supply |
 
 ## Build steps
 
@@ -127,19 +130,43 @@ Built and cached with the territory; a few milliseconds per front after it.
   battle result is still one result per front, whatever happens in each battle.
 - No rivers: the landmap has no river data, so a sector edge follows a river only where
   the river is inside an exclusion zone.
-- Sectors are not saved. They are rebuilt from the bases and the landmap, so a change to
-  this file can rename every sector of a running campaign. Step 2 must store them.
+- Sectors are rebuilt from the bases and the landmap, not saved. Step 2 saves only who holds
+  each one, by name, so a change to the naming would give a running campaign's renamed
+  sectors back to nobody.
 
-## Step 2 notes (not built)
+## Step 2: sectors decide the fight
 
-- The `FrontLine` object stays the interface: 26 files read it (CAS and BAI planning,
-  both commanders, kneeboards, the DTC, the briefing, the web map, the outside AI link).
-  Only its position should come from the sector border.
-- Bases are captured today only by ground units driving into the 3 km zone in a mission
-  (`triggergenerator.py`). Brady chose "falls with its sector", so that path is replaced for
-  sector-war games, not added to.
-- §90's rung A supply tiers become "is there a road to the rear through your own sectors".
-  The warning in `supply.py` still applies: the transit network links every airfield pair.
+Built 2026-10-12. Setting *Sectors decide the ground war*, Campaign features, on for new
+games; a save from before it loads with it off (`Game.__setstate__`). Code:
+`game/theater/sectorwar.py`.
+
+- **Owners are saved** on `game.sector_war`, by sector name, so a landmap fix that renumbers
+  the sectors keeps a running campaign's ground. Turn 0 takes them from the step 1 territory
+  (bases plus the fronts as first placed); after that the fronts follow the sectors, never
+  the other way round. The territory is drawn from the owners.
+- **The front line** sits where its route between the two bases enters red's sectors
+  (`FrontLine._sector_war_progress`), clamped 5 km clear of both bases as before. Cached per
+  owner change: the property is read many times a turn.
+- **A won battle takes sectors** (`MissionResultsProcessor.take_sectors`, after the strength
+  change, which still happens). The result itself is unchanged: one per front. Strong win 2,
+  clear win 1, minor win 1 only when the winner attacked. Each sector taken is the loser's
+  sector nearest the front that touches the winner's ground, within half the Maximum
+  frontline width (at least 15 NM). The turn's messages name the sectors.
+- **A base falls with its sector** (`commit_sector_war`, after the mission's own captures):
+  same capture, prisoners and redeploy as a mission capture. A base taken in the mission
+  takes its sector first, so the two never fight. Every turn the base sectors are synced to
+  their bases.
+- **Supply through your own sectors**: a road link between two friendly bases whose convoy
+  route crosses an enemy sector is left out of that side's transit network
+  (`road_is_cut`). No convoy drives it, and rung A's supply tiers see the base lose road
+  supply. Shipping and airlift links are untouched. Only blue's strength recovers each turn
+  (red never has; `ENEMY_BASE_STRENGTH_RECOVERY` is unused upstream), so for red the effect
+  is the convoys.
+
+Measured on new games with the recommended sizes: two strong wins in a row took Haina on
+Red Tide (Fulda front, 55 NM route); one strong win took Psyrtsha on Abchazian Blitz,
+whose sector already touches the border. No road was cut at the start of Abchazian Blitz,
+Red Tide or Desert Storm.
 
 ## Not checked
 

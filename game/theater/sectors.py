@@ -568,8 +568,11 @@ def build_territory(theater: ConflictTheater, sector_map: SectorMap) -> Territor
         index = raster.land_index_near(cp.position.x, cp.position.y)
         if index is not None:
             sources.append((index, BLUE if cp.captured.is_blue else RED))
-    labels = grow(raster, sources)
+    return territory_from_labels(raster, grow(raster, sources))
 
+
+def territory_from_labels(raster: TerrainRaster, labels: npt.NDArray[Any]) -> Territory:
+    """Each side's drawn shape from who holds each cell."""
     held = _smooth(_cells_to_shape(raster, labels >= 0), raster.cell)
     held = held.intersection(raster.land)
     blue = _smooth(_cells_to_shape(raster, labels == BLUE), raster.cell)
@@ -596,14 +599,24 @@ _CACHE_SIZE = 3
 def _sector_key(theater: ConflictTheater) -> tuple[Any, ...]:
     bases = tuple(
         sorted(
-            (cp.name, round(cp.position.x), round(cp.position.y))
+            (cp.name, str(cp.id), round(cp.position.x), round(cp.position.y))
             for cp in land_control_points(theater)
         )
     )
+    # The ids too: two games of one campaign share names but not base ids.
     return (theater.terrain.name, bases)
 
 
+def _war(theater: ConflictTheater) -> Optional[Any]:
+    from game.theater.sectorwar import war_for
+
+    return war_for(theater)
+
+
 def _territory_key(theater: ConflictTheater) -> tuple[Any, ...]:
+    war = _war(theater)
+    if war is not None:
+        return (_sector_key(theater), "war", war.version)
     owners = tuple(
         sorted((cp.name, cp.captured.value) for cp in land_control_points(theater))
     )
@@ -651,7 +664,11 @@ def territory_for(theater: ConflictTheater) -> Territory:
         found = _territories.get(key)
         if found is None:
             started = time.perf_counter()
-            found = build_territory(theater, sector_map)
+            war = _war(theater)
+            if war is not None:
+                found = war.territory(sector_map)
+            else:
+                found = build_territory(theater, sector_map)
             logging.info(
                 "Territory built: blue %d, red %d shapes in %.1f s",
                 len(found.polygons(BLUE)),

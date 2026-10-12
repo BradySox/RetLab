@@ -217,6 +217,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   is cut into.
 - Each front's ground units fight a battle in every sector along the shared border, out to
   the Maximum frontline width, instead of on one short line across the road.
+- Sectors decide the ground war in new games. A won battle takes the enemy's sectors nearest
+  the front, the front line sits on the sector edge, and a base falls when its sector is
+  taken. A road through enemy sectors carries no convoys.
 - Supply columns run both sides' road networks.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.

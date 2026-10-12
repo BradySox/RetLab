@@ -349,7 +349,7 @@ linked design note.
 107. **Briefing screen picture** — RetLab's, or your own `briefing.png`.
 108. **Flight report cards** — debrief grades from §91. Never a reward.
 109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
-111. **Sector war** — named sectors about 10 NM across; territory fill and a battle in every border sector are built, sectors deciding the fight and the CAS card are agreed, not built.
+111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 
 ### Retired, removed or shelved — do not restore

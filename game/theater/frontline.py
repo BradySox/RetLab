@@ -327,6 +327,9 @@ class FrontLine(MissionTarget):
         The distance from point "a" where the conflict should occur
         according to the current strength of each control point
         """
+        war_progress = self._sector_war_progress()
+        if war_progress is not None:
+            return self._adjust_for_min_dist(war_progress)
         blue_weight = self._weight_of(self.blue_cp)
         red_weight = self._weight_of(self.red_cp)
         if blue_weight <= 0 and red_weight <= 0:
@@ -344,6 +347,26 @@ class FrontLine(MissionTarget):
             share = blue_weight / (blue_weight + red_weight)
             distance = self._distance_for_effort_share(share)
         return self._adjust_for_min_dist(distance)
+
+    def _sector_war_progress(self) -> Optional[float]:
+        """§111 step 2: the front sits where the route enters red's sectors."""
+        from game.theater.sectorwar import war_of
+
+        war = war_of(self.coalition.game)
+        if war is None:
+            return None
+        # Cached per ownership change: this property is read many times a turn.
+        cached = getattr(self, "_war_progress", None)
+        key = (war.version, self.blue_cp.id, self.red_cp.id)
+        if cached is not None and cached[0] == key:
+            return cached[1]
+        try:
+            progress = war.route_progress(self)
+        except Exception:
+            logging.exception("Sector war front position failed")
+            progress = None
+        self._war_progress = (key, progress)
+        return progress
 
     def _adjust_for_min_dist(self, distance: float) -> float:
         """
