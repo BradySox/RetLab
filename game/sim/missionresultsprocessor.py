@@ -538,10 +538,6 @@ class MissionResultsProcessor:
         cannot frag a package at a target with no marker. Without this, only the
         auto-planner (which enumerates on ground truth) could ever find one, so a
         hand-planner could never map the command network.
-
-        Deliberately NOT extended to §50's ``map_hidden`` ambush teams: their whole
-        point is that the first sign of them is the in-mission TROOPS IN CONTACT
-        call.
         """
         radius = nautical_miles(TARPS_POD_RADIUS_NM).meters
         for package in self.game.blue.ato.packages:
@@ -570,7 +566,7 @@ class MissionResultsProcessor:
             for tgo in control_point.connected_objectives:
                 if tgo.category != "commandcenter":
                     continue
-                if tgo.is_friendly(Player.BLUE) or getattr(tgo, "map_hidden", False):
+                if tgo.is_friendly(Player.BLUE):
                     continue
                 if tgo.hidden_on_player_map(Player.BLUE):
                     hidden.append(tgo)

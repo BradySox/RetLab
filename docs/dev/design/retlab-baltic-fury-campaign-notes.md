@@ -190,7 +190,7 @@ as regiments:
 `squadron_start_full`, `restrict_weapons_by_date` + `restrict_props_by_date` (2027 gate),
 `restrict_weapons_by_stock`, cautious blue auto-planner (`ownfor_autoplanner_aggressiveness: 10`,
 `oca_..._min_aircraft_count: 40`), `war_economy` + `fuel_air_readiness`, `red_intent`,
-`c2_decapitation_effects`, `campaign_phases`, `convoy_ambush`,
+`c2_decapitation_effects`, `campaign_phases`, `convoy_ambush` (removed 2026-10-11),
 `artillery_base_harassment` (removed 2026-09-16 with §36), `enemy_comms_jamming`, `host_red_scramble` (gated to
 "Flash"). Plugins pinned: `skynetiads` (was `mantisiads` until 2026-09-12), `convoyambush`, `commsjam`,
 `redscramble`, `vietnamops`, `combatsar`. **Mods:** `f22_raptor`, `fa_18efg`, `fa18ef_tanker`,

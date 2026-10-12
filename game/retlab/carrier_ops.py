@@ -274,13 +274,11 @@ def _nearest_legal_strike_target(
                 continue
             if getattr(tgo, "is_control_point", False):
                 continue
-            # A map_hidden TGO (a §50 convoy-ambush team) must never be planned
-            # against -- naming it in the ATO would reveal it (the same skip
-            # BattlePositions applies). Nor may the package name a site the human
-            # cannot see at all: a hidden command post is found by flying recon at
-            # it (§3/G40), not by the boat picking it out of ground truth. This
-            # planner is BLUE-only, so the viewer is never in question.
-            if getattr(tgo, "map_hidden", False) or hidden_from(Player.BLUE, tgo):
+            # The package may not name a site the human cannot see at all: a
+            # hidden command post is found by flying recon at it (§3/G40), not by
+            # the boat picking it out of ground truth. This planner is BLUE-only,
+            # so the viewer is never in question.
+            if hidden_from(Player.BLUE, tgo):
                 continue
             # §93 region priorities: an IGNORED region is left to manual
             # packages — this planner is BLUE-only, like the fog gate above.

@@ -60,7 +60,7 @@ def test_save_settings_survives_the_campaign_preseed_record() -> None:
     itself. The error named nothing useful; the real fix is encoding the set.
     """
     settings = Settings()
-    settings.record_campaign_preseeds(["convoy_ambush", "coin_insurgency"])
+    settings.record_campaign_preseeds(["ambient_supply_convoys", "coin_insurgency"])
 
     encoded = json.dumps(settings.__dict__, default=settings.default_json)
     decoded = json.loads(encoded, object_hook=settings.obj_hook)
@@ -68,17 +68,17 @@ def test_save_settings_survives_the_campaign_preseed_record() -> None:
     reloaded = Settings()
     reloaded.__setstate__(decoded)
     assert reloaded.campaign_preseeded_fields() == frozenset(
-        {"convoy_ambush", "coin_insurgency"}
+        {"ambient_supply_convoys", "coin_insurgency"}
     )
 
 
 def test_sets_encode_in_a_stable_order() -> None:
     """A settings file must not churn between runs just because a set reordered."""
     settings = Settings()
-    settings.record_campaign_preseeds(["convoy_ambush", "coin_insurgency"])
+    settings.record_campaign_preseeds(["ambient_supply_convoys", "coin_insurgency"])
     assert settings.default_json(settings.campaign_preseeded_fields()) == [
+        "ambient_supply_convoys",
         "coin_insurgency",
-        "convoy_ambush",
     ]
 
 

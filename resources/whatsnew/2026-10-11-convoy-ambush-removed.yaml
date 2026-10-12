@@ -1,0 +1,11 @@
+date: 2026-10-11
+title: Convoy ambushes removed
+change: >-
+  The hidden enemy ambush teams on your supply roads are gone, along with
+  the Friendly convoy ambushes setting. With Disable land convoys ticked
+  they never had a convoy to ambush and stood on your roads free to fire.
+  Supply convoys themselves are unchanged.
+watch: >-
+  With the fog reveal on, no red vehicle group sits on a road between two
+  of your own bases after you pass a turn. A save that held ambush teams
+  loads without them, and without the placement warning that listed them.

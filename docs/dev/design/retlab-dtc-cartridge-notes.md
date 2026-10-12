@@ -146,7 +146,7 @@ point), 15 THREAT_PTS, 20+20 COMM channels.
   native WYPT 0 is where it spawns anyway) and numbers from 1. Both jets.
 - **Recon-fog discipline**: threat rings filter through
   `tgo.known_for(flight.friendly)` (the threat-intel kneeboard's own leaf) +
-  never `map_hidden`. Verified: Red Tide turn 1 → 0 rings; the flown turn-2 save
+  (and, until the §50 ambush was removed on 2026-10-11, never `map_hidden`). Verified: Red Tide turn 1 → 0 rings; the flown turn-2 save
   → exactly the 5 TARPS-confirmed sites of 34. Generation runs inside
   `fogofwar.fog_intact()` (flown 2026-07-19 leak: the §18 reveal overview shorts
   `known_for` to truth for ANY viewer, and a DM generating with it ticked baked

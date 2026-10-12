@@ -58,7 +58,6 @@ def _ship_tgo(
         groups=[SimpleNamespace(group_name=group_name, units=units)],
         units=units,
         is_control_point=False,
-        map_hidden=False,
         hidden_on_player_map=lambda viewer=None: False,
     )
 
@@ -69,11 +68,9 @@ def _target_tgo(
     pos: _Pos,
     *,
     alive: bool = True,
-    hidden: bool = False,
     unseen: bool = False,
 ) -> Any:
-    """*hidden* is §50's map_hidden; *unseen* is "blue cannot see it at all" (a
-    command post behind the §3 fog). The real accessor answers True for both."""
+    """*unseen* is "blue cannot see it at all" (a command post behind the §3 fog)."""
     units = [SimpleNamespace(alive=alive, type=SimpleNamespace(id="Generator"))]
     return SimpleNamespace(
         category=category,
@@ -82,8 +79,7 @@ def _target_tgo(
         groups=[SimpleNamespace(group_name=name, units=units)],
         units=units,
         is_control_point=False,
-        map_hidden=hidden,
-        hidden_on_player_map=lambda viewer=None: hidden or unseen,
+        hidden_on_player_map=lambda viewer=None: unseen,
     )
 
 
@@ -124,7 +120,6 @@ def _carrier_tgo(
         groups=[SimpleNamespace(group_name=group_name, units=units)],
         units=units,
         is_control_point=True,
-        map_hidden=False,
         hidden_on_player_map=lambda viewer=None: False,
     )
 
@@ -221,16 +216,13 @@ def test_raid_honors_the_range_gate() -> None:
     assert plan_cruise_raids(cast(Any, _game([blue_cp, red_cp]))) == []
 
 
-def test_raid_never_targets_ships_hidden_or_dead_objects() -> None:
+def test_raid_never_targets_ships_or_dead_objects() -> None:
     blue_cp, _ = _blue_burke()
     red_cp = _cp(Player.RED)
     red_cp.ground_objects.append(
         _ship_tgo(
             "Red fleet", red_cp, _Pos(5_000.0, 0.0), [_unit(KARAKURT)], "Red Fleet"
         )
-    )
-    red_cp.ground_objects.append(
-        _target_tgo("Ambush team", "armor", _Pos(6_000.0, 0.0), hidden=True)
     )
     red_cp.ground_objects.append(
         _target_tgo("Rubble", "factory", _Pos(7_000.0, 0.0), alive=False)
@@ -590,7 +582,6 @@ def _sam_site(
         groups=groups,
         units=[u for g in groups for u in g.units],
         is_control_point=False,
-        map_hidden=False,
         hidden_on_player_map=lambda viewer=None: unseen,
         max_threat_range=lambda: SimpleNamespace(meters=radius_m),
     )

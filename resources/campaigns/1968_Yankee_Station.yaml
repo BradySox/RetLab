@@ -86,7 +86,6 @@ settings:
   # the trail and concealed ambush teams dig in along the route; fly CAS/BAI escort or an
   # un-escorted column is ground down before it arrives. The spring is authored as native
   # DCS trigger rules at generation, so there is no plugin to preseed.
-  convoy_ambush: true
   vietnam_super_gaggle: true
   vietnam_fac_marking: true
   vietnam_snake_and_nape: true

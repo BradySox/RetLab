@@ -424,7 +424,6 @@ class _GarrisonTgo:
         self.category = category
         self.groups = [_Group(n) for n in group_sizes]
         self.coin_spawned = False
-        self.map_hidden = False
         self.invalidations = 0
 
     def invalidate_threat_poly(self) -> None:

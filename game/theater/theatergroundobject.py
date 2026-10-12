@@ -175,13 +175,6 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         # centre slides FAR along this route instead of a small radial offset:
         # the player knows what highway the device is on, not which stretch.
         self.concealed_route: Optional[list[tuple[float, float]]] = None
-        # Total map hiding: while True, this site never appears on an enemy
-        # viewer's map/UI AT ALL — no marker, no uncertainty circle, nothing to
-        # right-click or plan against — and the AI planners skip it too. Set by
-        # the convoy-ambush teams (§50), whose whole point is that the first
-        # sign of them is the in-mission TROOPS IN CONTACT call. Stronger than
-        # `concealed` (which still draws a suspected-activity circle).
-        self.map_hidden: bool = False
         # Transient COIN spawn marker (HVT convoy, IED security team,
         # infiltration/field cells): these have their own lifecycle and never
         # count toward -- nor are revived by -- the C1 anchor machinery. A
@@ -207,8 +200,6 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         state.setdefault("concealed", False)
         # Old saves predate road-pinned concealment — radial jitter is correct.
         state.setdefault("concealed_route", None)
-        # Old saves predate total map hiding — visible is correct.
-        state.setdefault("map_hidden", False)
         # Old saves predate the COIN transient-spawn marker — not a spawn.
         state.setdefault("coin_spawned", False)
         # Decoy zones were removed 2026-08-18; shed the marker from older saves.
@@ -249,9 +240,6 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
 
         For an enemy viewer, in order:
 
-        * `map_hidden` (the §50 convoy-ambush teams) is hidden unconditionally --
-          no reveal key, no uncertainty circle; its existence is an in-mission
-          discovery only.
         * A SCAR command post is hidden ENTIRELY until revealed (commander
           captured, or the site discovered by strike/scout/TARPS), then fully
           known with exact coordinates (SME 2026-06-18). Its own gate,
@@ -263,8 +251,6 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         """
         if viewer_sees_truth(viewer, self):
             return Visibility.KNOWN
-        if self.map_hidden:
-            return Visibility.HIDDEN
         settings = self.control_point.coalition.game.settings
         if self.category == "commandcenter" and settings.scar_command_post_intel:
             if self._command_post_revealed():
