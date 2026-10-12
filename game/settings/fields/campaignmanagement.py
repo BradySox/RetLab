@@ -566,26 +566,6 @@ class CampaignManagementSettings:
             "red's turn and report."
         ),
     )
-    sp_pilot_mode: bool = boolean_option(
-        "SP Pilot Mode (fly the next turn without planning it)",
-        CAMPAIGN_MANAGEMENT_PAGE,
-        "Campaign features",
-        default=False,
-        detail=(
-            "For single-player: after accepting mission results, offer to fly the "
-            "next turn straight away instead of returning to the map to plan it. "
-            "You pick an AIRCRAFT first -- any type your wing can put up, not just "
-            "the ones the commander happened to frag -- and then a sortie in that "
-            "jet, taking ONE seat with AI wingmen exactly as in multiplayer. The "
-            "role comes from the air war (escort, strike, jamming -- whatever the "
-            "package needs), so the aircraft is your variety choice and the job is "
-            "the war's. Also shows a pre-turn briefing of the reasons this turn "
-            "matters: aviators evading with their capture odds, enemy command "
-            "damage you caused, and victory progress. "
-            "The normal map/ATO planning path is untouched -- this is an express "
-            "lane, not a replacement."
-        ),
-    )
     pilot_career_logbook: bool = boolean_option(
         "Pilot career logbook",
         CAMPAIGN_MANAGEMENT_PAGE,

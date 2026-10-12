@@ -109,7 +109,7 @@ time limit. Four endings — Victory, Stalemate, Timeout, Defeat.
 | Initiative as a scored currency | Tombstone §48 (political will). Do not restore |
 | Victory triggers, four endings | §75 (authored win/lose blocks + domination/attrition endings). Covered |
 | Player as theater commander (sliders) | Fork exposes doctrine through settings + the auto-planner; BMS's per-slider live steering is finer-grained but the turn cadence makes settings equivalent in practice |
-| Time-compress until interesting, then commit | §83 SP Pilot Mode (accept-and-fly-next, reasons-to-continue brief) is the turn-shaped version; seam 5's reporting reframe covers the rest |
+| Time-compress until interesting, then commit | §83 SP Pilot Mode (accept-and-fly-next, reasons-to-continue brief; removed 2026-10-12) was the turn-shaped version; seam 5's reporting reframe covers the rest |
 
 ## 4. The four candidates
 

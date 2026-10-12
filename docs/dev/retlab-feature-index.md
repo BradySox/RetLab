@@ -94,7 +94,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §80 | Mixed-hull ship groups | — | — |
 | §81 | Cross-turn naval magazines | `navalmagazines` | `naval_weapon_release_stagger`, `naval_magazines` |
 | §82 | The Wing Grows _(retired)_ | — | — |
-| §83 | SP Pilot Mode | — | `sp_pilot_mode` |
+| §83 | SP Pilot Mode _(retired)_ | — | — |
 | §84 | Old-stock loadout attrition _(retired)_ | — | — |
 | §85 | SAM battery support section (refuellers + power) | — | — |
 | §86 | GPS jamming (satellite-guided weapons go long) | `gpsjamming` | `gps_jamming` |

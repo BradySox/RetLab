@@ -1364,7 +1364,9 @@ Needs a flight to confirm the fix end to end. The cheap version deliberately rep
 
 **History:** retired 2026-08-16 — §82 was removed on the DM's call ("it doesn't add much except in very specific campaigns"), so the scenario this row tracked no longer runs. It was never flown. See `retlab-features.md` §82 for what was removed.
 
-### B41 — SP Pilot Mode: the pre-turn card + the aircraft-first board · §83 · ☑ VERIFIED
+### B41 — SP Pilot Mode: the pre-turn card + the aircraft-first board · §83 · ⊘ RETIRED (removed 2026-10-12, DM: stripped)
+
+**2026-10-12 — REMOVED on the DM's call.** Verified below on 2026-08-05, then never switched on: off in his default settings and in all ten of his saves. The button, the board, the pre-turn card and the setting are deleted, so this row can never be run again.
 
 **History:** 2026-08-05, user pass `units-runway-generation-bf755e` — "B41 is working and awesome", upgraded from the same day's "half good" first look once the board was actually driven) (was ◐ PARTIAL, 2026-08-05, user app pass `pr-merge-code-audit-7e8b4c` — "half good": the dialog looked good at first pass; still owed = the end-to-end leg — take a sortie through the board, Take off, and confirm the generated mission carries exactly that flight with one client slot, plus the pre-turn card sections against a campaign with real MIA/victory/arrival data) (was ☐ UNTESTED, built 2026-08-03 — an app-side pass, not an in-game one. Both data cores are fully unit-tested (`tests/retlab/test_sp_pilot_mode.py` 20, `tests/retlab/test_pre_turn_briefing.py` 16: the airframe list is not filtered by the ATO, the ladder resolves rung 1 before rung 2, a flight that already carries a client is never offered, seating claims exactly one PLAYER pilot, a join offers only roles the package lacks, and every briefing section is individually guarded). What CANNOT be checked here is the dialog itself — `qt_ui` is not CI type-checked and the container has no GL, so no Qt test could be run against it.
 

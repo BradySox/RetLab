@@ -134,21 +134,6 @@ class QWaitingForMissionResultWindow(QDialog):
         self.proceed.setProperty("style", "btn-success")
         self.proceed.clicked.connect(self.process_debriefing)
         self.actions2_layout.addWidget(self.proceed)
-        # SP Pilot Mode (§83): the express lane. Same turn processing, then the
-        # pre-turn card + the aircraft-first board, so a single-player campaign
-        # goes debrief -> next briefing without a detour through the map. Only
-        # offered when the setting is on; the normal button is untouched.
-        self.proceed_and_fly = QPushButton("Accept results && fly next")
-        self.proceed_and_fly.setProperty("style", "btn-primary")
-        self.proceed_and_fly.clicked.connect(self.process_debriefing_and_fly)
-        self.proceed_and_fly.setToolTip(
-            "Process the turn and go straight to picking your next sortie, "
-            "instead of returning to the map to plan it."
-        )
-        self.proceed_and_fly.setVisible(
-            bool(getattr(self.game.settings, "sp_pilot_mode", False))
-        )
-        self.actions2_layout.addWidget(self.proceed_and_fly)
 
         progress_bar.start()
         self.layout.addLayout(self.gridLayout, 1, 0)
@@ -219,21 +204,6 @@ class QWaitingForMissionResultWindow(QDialog):
             DebriefingFileWrittenSignal.get_instance().sendDebriefing(debriefing)
         except Exception:
             logging.exception("Got an error while sending debriefing")
-
-    def process_debriefing_and_fly(self):
-        """SP Pilot Mode: process the turn, then open the sortie board."""
-        if not self._process_turn():
-            return
-        try:
-            from qt_ui.windows.sp.QSpPilotModeDialog import QSpPilotModeDialog
-
-            # Held on self so it is not garbage-collected while shown (the
-            # window-GC class of bug the §28 UI audit fixed elsewhere).
-            self.sp_dialog = QSpPilotModeDialog(self.game, self)
-            self.sp_dialog.exec_()
-        except Exception:
-            logging.exception("SP Pilot Mode: could not open the sortie board")
-        self.close()
 
     def process_debriefing(self):
         if self._process_turn():

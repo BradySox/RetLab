@@ -249,7 +249,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "continuous_campaign_clock",
                     "long_range_carrier_ops",
                     "motorpool_enabled",
-                    "sp_pilot_mode",
                     "pilot_career_logbook",
                     "lifetime_pilot_profiles",
                     "supply_gated_reinforcement",
@@ -582,12 +581,6 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     "Pilots & careers": [
         "pilot_career_logbook",  # §96
         "lifetime_pilot_profiles",  # §97
-    ],
-    "Single-player flow": [
-        "sp_pilot_mode",  # §83
-        # §89's boolean gates only -- the pre-roll ceiling is an int knob, and
-        # the Features page contract is boolean gates (test_settings_filter);
-        # the cap stays in Campaign Management -> Campaign features.
     ],
     "Ground war": [
         "supply_gated_reinforcement",  # §90 rung A

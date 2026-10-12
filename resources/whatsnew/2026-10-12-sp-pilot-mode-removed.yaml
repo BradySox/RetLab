@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: SP Pilot Mode removed
+change: >-
+  The Accept results and fly next button, the sortie board that followed
+  it, the pre-turn brief and the SP Pilot Mode setting are gone. Accepting
+  results returns you to the map as it always did.
+watch: >-
+  The debrief shows one Accept results button. Campaign Management no
+  longer lists SP Pilot Mode, and an old save with it switched on loads
+  normally.
