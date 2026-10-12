@@ -75,7 +75,8 @@ report is a good report.
   0 means a buy will be refused.
 - `targets` are blue's: SAM sites (`sam`), ships, buildings, motorpools (undeployed armor
   in a depot), garrisons (ground groups holding a front-line base against capture),
-  convoys and cargo ships in transit, front lines, and airfields
+  armor groups further out from a base (`armor`, the scripted planner's own BAI
+  targets), convoys and cargo ships in transit, front lines, and airfields
   (`airfield`, with the aircraft based there in `composition`). `threat_nm` is how far a
   site can shoot; `detection_nm` how far it can see. `threats` is every blue SAM and ship
   umbrella, ranked by reach. It is complete.

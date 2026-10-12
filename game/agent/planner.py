@@ -417,7 +417,9 @@ def _mission_window_min(game: Game) -> int:
 
 
 def _within_window(tot_minutes: Optional[int], window: int) -> bool:
-    return tot_minutes is not None and 0 <= tot_minutes <= window
+    # A TOT before the turn clock is a package that launches with the mission
+    # (ASAP AWACS, tankers, the first CAP): the human flies through all of it.
+    return tot_minutes is not None and tot_minutes <= window
 
 
 def _push_new_package(package: Package) -> None:
@@ -590,14 +592,14 @@ def validate_plan(game: Game, side: str) -> schemas.ValidateResult:
         if not within:
             # The scripted planner's own long-range raids land here; not a fault.
             notes.append(
-                f"#{i} {view.target}: TOT +{tot_min} min is after the {window} min "
+                f"#{i} {view.target}: TOT {tot_min:+d} min is after the {window} min "
                 f"the human plans to fly"
             )
         shortfall = tot_shortfall(package, now, tot)
         early = None
         if shortfall is not None:
             issues.append(
-                f"#{i} {view.target}: TOT +{tot_min} min cannot be made from "
+                f"#{i} {view.target}: TOT {tot_min:+d} min cannot be made from "
                 f"{shortfall[1]}; the earliest is +{shortfall[0]}"
             )
         else:

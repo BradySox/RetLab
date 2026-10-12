@@ -11779,6 +11779,15 @@ first live reviews on Kola):
   literal zeros when zero. The tests read them off a real campaign
   (`tests/agent/conftest.py`, `campaign_game`). Ideas from Hussar2477/dcs-retribution
   (`llm-ai-opponent`).
+- **Two faults test 56 found (2026-10-11).** The target list left out the enemy armor
+  groups outside a base's capture zone (`BattlePositions.defending_front_line`), which
+  are what the scripted planner's `AttackBattlePositions` sends BAI at: red's plan aimed
+  two packages at groups the AI could not see. They are now targets of kind `armor`
+  (suggested task BAI) for every enemy base. And `validate` reported a package that
+  launches with the mission (an ASAP AWACS or tanker, TOT a minute or two before the
+  turn clock) as "TOT +-2 min is after the 45 min the human plans to fly": a TOT before
+  the clock is inside the window, and the notes print one sign. Tests:
+  `tests/agent/test_read_api.py`, `tests/agent/test_write_on_real_campaign.py`.
 
 ### Constraints
 
