@@ -508,7 +508,8 @@ GitHub first.
   lift twice. The evidence to bring the DM is whether `test/1.6` has had a build since
   2026-07-25 (the check is in the ledger; use the unfiltered Actions push view).
 - **Exceptions are the DM's, one at a time**, and do not carry over. The ledger lists them;
-  #966 (the DTC) is open under one. A PR that answers an open issue in the
+  #966 (the DTC) and #977 (the Time & Weather window) are each open under one. A PR that
+  answers an open issue in the
   [upstream issue ledger](docs/dev/retlab-upstreaming-inventory.md#upstream-issue-ledger) may
   be opened — check the issue's timeline for linked PRs first (#951 was a duplicate).
 - **Do not re-carve:** the HDS support (#956 carries it), #873's culling exemption (premise
