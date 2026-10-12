@@ -5246,6 +5246,11 @@ fuel + properties **per airframe**, so every new flight of that type starts pre-
   tank and `update()`s each member's `properties`. Everything is best-effort: a missing store (persistency
   not set up in a headless test), a malformed file, or an airframe with no entry is a silent no-op — it can
   never break flight generation.
+- **Never stored: the datalink identity.** The STN and voice callsign (`DATALINK_PROPERTY_IDS`,
+  `game/radio/datalink.py`) name one jet. Save and apply both drop them (2026-10-11); a stored STN was
+  copied onto every member of every new flight of the type. The generator fills a blank box
+  (`FlightGroupConfigurator.set_datalink`), keeps a typed STN and reserves it before any allocation
+  (`AircraftGenerator._reserve_typed_datalink_identifiers`). An empty box reads "Auto".
 - **UI** — `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py`: a row under the fuel slider with
   **Save as default** (captures the selected member's `properties` + `flight.fuel`) and **Clear default**
   (enabled only when a default exists, via `has_defaults_for`). Both confirm with a `QMessageBox`.

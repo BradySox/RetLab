@@ -35,6 +35,7 @@ import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 from game.persistency import flight_defaults_path
+from game.radio.datalink import DATALINK_PROPERTY_IDS
 
 if TYPE_CHECKING:
     from game.ato.flight import Flight
@@ -88,6 +89,12 @@ def invalidate_cache() -> None:
     _cache = None
 
 
+def _without_datalink(properties: dict[str, Any]) -> dict[str, Any]:
+    """Drop the STN and voice callsign: a default copied to every jet of the type
+    would give them all one identity."""
+    return {k: v for k, v in properties.items() if k not in DATALINK_PROPERTY_IDS}
+
+
 def has_defaults_for(aircraft_id: str) -> bool:
     """Whether a saved default exists for ``aircraft_id`` (drives the Clear button)."""
     return bool(_load().get(aircraft_id))
@@ -102,7 +109,10 @@ def save_defaults_for(
     """Persist ``fuel`` (kg) + ``properties`` (+ a tanker's orbit speed) as the
     default for ``aircraft_id``."""
     data = dict(_load())
-    entry: dict[str, Any] = {"fuel": float(fuel), "properties": dict(properties)}
+    entry: dict[str, Any] = {
+        "fuel": float(fuel),
+        "properties": _without_datalink(properties),
+    }
     if orbit_speed_kias is not None:
         entry["orbit_speed_kias"] = int(orbit_speed_kias)
     data[aircraft_id] = entry
@@ -138,6 +148,8 @@ def apply_flight_defaults(flight: "Flight") -> None:
 
         properties = entry.get("properties")
         if isinstance(properties, dict):
+            # Filtered here too: a store written before the filter may hold an STN.
+            properties = _without_datalink(properties)
             for member in flight.roster.members:
                 member.properties.update(properties)
 

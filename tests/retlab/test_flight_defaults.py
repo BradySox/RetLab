@@ -139,3 +139,32 @@ def test_an_old_saved_tanker_box_is_ignored(store: Path) -> None:
     flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
     assert flight.fuel == 30000.0
     assert not hasattr(flight, "tanker_box")
+
+
+def test_save_leaves_out_the_datalink_identity(store: Path) -> None:
+    flight_defaults.save_defaults_for(
+        HORNET,
+        3000.0,
+        {
+            "condition": 75,
+            "STN_L16": "00123",
+            "VoiceCallsignLabel": "SD",
+            "VoiceCallsignNumber": "41",
+        },
+    )
+    flight = _fake_flight()
+    flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
+    for member in flight.roster.members:
+        assert member.properties == {"condition": 75}
+
+
+def test_apply_ignores_an_stn_in_an_older_store(store: Path) -> None:
+    store.write_text(
+        '{"FA-18C_hornet": {"fuel": 3000.0, "properties":'
+        ' {"condition": 75, "STN_L16": "00123"}}}'
+    )
+    flight_defaults.invalidate_cache()
+    flight = _fake_flight()
+    flight_defaults.apply_flight_defaults(flight)  # type: ignore[arg-type]
+    for member in flight.roster.members:
+        assert member.properties == {"condition": 75}

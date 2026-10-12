@@ -7,7 +7,7 @@ from dcs.unitpropertydescription import UnitPropertyDescription
 
 from game.ato import Flight
 from game.ato.flightmember import FlightMember
-from game.radio.datalink import DataLinkKey
+from game.radio.datalink import DATALINK_PROPERTY_IDS, DataLinkKey
 
 
 class PropertyEditBox(QLineEdit):
@@ -23,6 +23,15 @@ class PropertyEditBox(QLineEdit):
         self.flight = flight
 
         self.setFixedWidth(100)
+        if (
+            prop.identifier in DATALINK_PROPERTY_IDS
+            and flight.unit_type.dcs_unit_type.datalink_networkable()
+        ):
+            self.setPlaceholderText("Auto")
+            self.setToolTip(
+                "Leave blank and the mission generator fills this in. A value "
+                "typed here is kept."
+            )
         self.setText(
             self.flight_member.properties.get(self.prop.identifier, self.prop.default)
         )

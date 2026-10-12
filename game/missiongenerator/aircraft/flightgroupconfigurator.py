@@ -47,6 +47,7 @@ from ...radio.datalink import (
     DataLinkRegistry,
     DataLinkKey,
     DataLinkIdentifier,
+    typed_identifier,
     VOICE_CALLSIGN_LABEL,
     VOICE_CALLSIGN_NUMBER,
     OWNSHIP_CALLSIGN,
@@ -391,7 +392,7 @@ class FlightGroupConfigurator:
             if (code := member.weapon_laser_code) is not None:
                 for laser_code_config in self.flight.unit_type.laser_code_configs:
                     props.update(laser_code_config.property_dict_for_code(code.code))
-            if unit.unit_type.datalink_networkable() and self.no_datalink_set(props):
+            if unit.unit_type.datalink_networkable():
                 self.set_datalink(props, unit.callsign_as_str())
             if self.game.settings.restrict_props_by_date:
                 self.degrade_props_for_date(props)
@@ -419,19 +420,18 @@ class FlightGroupConfigurator:
             if clamped is not None and clamped != current:
                 props[prop.identifier] = clamped
 
-    @staticmethod
-    def no_datalink_set(props: dict[str, bool | float | int | str]) -> bool:
-        for type in DataLinkKey:
-            if type.value in props:
-                return False
-        return True
-
     def set_datalink(
         self, props: dict[str, bool | float | int | str], callsign: str
     ) -> None:
         vcl = callsign[:-2][0] + callsign[:-2][-1]
         vcn = callsign[-2:]
-        identifier = self.datalink_registry.alloc_for_aircraft(self.flight.unit_type)
+        # A typed identifier is kept (AircraftGenerator reserved it before any
+        # allocation); the voice callsign is still filled around it.
+        identifier = typed_identifier(self.flight.unit_type, props)
+        if identifier is None:
+            identifier = self.datalink_registry.alloc_for_aircraft(
+                self.flight.unit_type
+            )
         self.set_datalink_props(props, vcl.upper(), vcn, identifier)
 
     @staticmethod

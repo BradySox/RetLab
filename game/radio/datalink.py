@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, Iterator, Set
+from typing import Dict, Iterator, Mapping, Optional, Set
 
 from game.dcs.aircrafttype import AircraftType
 
@@ -45,6 +45,16 @@ class DataLinkKey(Enum):
 
         raise RuntimeError(f"No range for datalink-type: {self.value}")
 
+    def normalize(self, raw: str) -> str:
+        """A typed identifier in the allocator's own form (zero-padded octal)."""
+        raw = raw.strip().upper()
+        match self.value:
+            case DataLinkKey.LINK16.value:
+                return raw.zfill(5)
+            case DataLinkKey.SADL.value:
+                return raw.zfill(4)
+        return raw
+
     def valid_identifiers(self) -> Iterator["DataLinkIdentifier"]:
         for x in self.range():
             yield x
@@ -71,6 +81,25 @@ class DataLinkIdentifier:
 
     def __hash__(self) -> int:
         return f"{self.id} - {self.type.value}".__hash__()
+
+
+#: Every property the DATALINK group of the payload editor can hold. They name one
+#: jet, so nothing may copy them from one aircraft to another.
+DATALINK_PROPERTY_IDS = frozenset(
+    {VOICE_CALLSIGN_LABEL, VOICE_CALLSIGN_NUMBER, OWNSHIP_CALLSIGN}
+    | {key.value for key in DataLinkKey if key is not DataLinkKey.Unknown}
+)
+
+
+def typed_identifier(
+    ac_type: AircraftType, props: Mapping[str, object]
+) -> Optional[DataLinkIdentifier]:
+    """The identifier the player typed for one aircraft, or None when left blank."""
+    key = DataLinkKey.from_aircraft_type(ac_type)
+    raw = props.get(key.value)
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    return DataLinkIdentifier(key.normalize(raw), key)
 
 
 class OutOfIdentifiersError(RuntimeError):
