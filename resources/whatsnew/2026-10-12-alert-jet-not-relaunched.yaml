@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: An alert squadron launches only the jets it has
+change: >-
+  A shot-down alert (QRA) jet was sometimes counted as landed and parked,
+  and the squadron launched it again. In one test a reserve of 4 JF-17s
+  put 8 in the air. A jet killed in the air now stays lost.
+watch: >-
+  Shoot down every jet an enemy alert squadron scrambles. Once its reserve
+  is gone (the base card shows the number), no more launch from that
+  squadron.

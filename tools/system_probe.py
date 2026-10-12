@@ -203,11 +203,6 @@ def _sample(game: Any) -> dict[str, Any]:
         "hvt_status": _safe(lambda: active_hvt_status(game)),
         "pows": _safe(lambda: len(game.blue.pending_pow_recoveries), 0),
         "convoys": {"blue": convoys_blue, "red": convoys_red},
-        "ambush_pairs": _safe(
-            lambda: len(
-                (getattr(game, "convoy_ambush_state", None) or {}).get("ambushes", [])
-            )
-        ),
         "red_base_armor": _safe(
             lambda: sum(
                 int(cp.base.total_armor)

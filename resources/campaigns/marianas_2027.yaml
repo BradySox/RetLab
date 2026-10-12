@@ -78,7 +78,6 @@ settings:
   # convoys somewhere to run and the ambush roll something to hide beside. Red holds
   # no two bases on one island, so red convoys are a deliberate geography no-op.
   ambient_supply_convoys: true
-  convoy_ambush: true
 
   # -- Blue COMINT off the PLA net (§70), and the net being audible to home on (C1).
 

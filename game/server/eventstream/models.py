@@ -143,8 +143,8 @@ class GameUpdateEventsJs(BaseModel):
             saved_points_updated=events.saved_points_updated,
             updated_front_lines=updated_front_lines,
             deleted_front_lines=events.deleted_front_lines,
-            # Map-hidden sites (unrevealed SCAR command posts, §50 convoy-ambush
-            # teams) must never reach the client — the initial /game pull already
+            # Map-hidden sites (unrevealed SCAR command posts) must never reach
+            # the client — the initial /game pull already
             # skips them in TgoJs.all_in_game, and an update event (e.g. a unit
             # kill reconciled at debrief) must not leak them either.
             updated_tgos=[

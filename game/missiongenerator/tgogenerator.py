@@ -78,7 +78,6 @@ from game.radio.tacan import (
     TacanRegistry,
     TacanUsage,
 )
-from game.retlab.convoy_ambush import stood_down
 from game.runways import RunwayAssigner, RunwayData
 from game.theater import (
     ControlPoint,
@@ -2141,8 +2140,6 @@ class TgoGenerator:
             random.shuffle(self.ground_spawns[cp])
 
             for ground_object in cp.ground_objects:
-                if stood_down(self.game, ground_object):
-                    continue
                 generator: GroundObjectGenerator
                 if isinstance(ground_object, CarrierGroundObject) and isinstance(
                     cp, NavalControlPoint

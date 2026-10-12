@@ -1,0 +1,1 @@
+* **[Campaign]** Removed the friendly convoy ambush: the hidden enemy teams on your supply roads, the **Friendly convoy ambushes** setting and the TROOPS IN CONTACT trigger. Supply convoys themselves are unchanged. A save that still holds ambush teams loads with them deleted.

@@ -116,7 +116,7 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
 
 - [Troops In Contact](Troops-In-Contact) produces prolonged, formation-aware frontline firefights
   with ambient suppressive fire. Formations are distributed along the line, not piled on a spot.
-- Supply convoys run both sides' road networks, and friendly routes sometimes hide ambush teams.
+- Supply convoys run both sides' road networks.
 - Sea shipments sail as convoys of cargo ships past coastal anti-ship batteries that actually
   engage.
 - Ship groups generate as mixed task groups rather than copies of one hull.

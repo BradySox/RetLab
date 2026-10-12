@@ -27,6 +27,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from tests.lua.harness import REPO_ROOT, DcsPluginHarness
 
 PLUGIN = "resources/plugins/intercept/intercept-config.lua"
@@ -103,9 +105,13 @@ function AI_A2A_DISPATCHER:New(detection)
         function spawn:SpawnAtAirbase(airbase, takeoff, alt)
             table.insert(self.alts, alt)
         end
-        self.DefenderSquadrons[name] = { Spawn = { spawn } }
+        self.DefenderSquadrons[name] = {
+            Spawn = { spawn }, ResourceCount = count, Captured = false,
+        }
     end
-    function obj:SetSquadronGci(name, minSpeed, maxSpeed) end
+    function obj:SetSquadronGci(name, minSpeed, maxSpeed)
+        self.DefenderSquadrons[name].Gci = { EngageMinSpeed = minSpeed }
+    end
     function obj:SetSquadronTakeoffInAirAltitude(name, alt) end
     function obj:SetSquadronGrouping(name, n) end
     function obj:SetSquadronLanguage(name, lang) end
@@ -116,6 +122,27 @@ function AI_A2A_DISPATCHER:New(detection)
     function obj:EvaluateENGAGE(item)
         table.insert(self.engageCalls, item)
         return "friendlies"
+    end
+    obj.gciPicks = {}
+    function obj:onafterGCI(From, Event, To, AttackerDetection, DefendersMissing)
+        -- Moose's own pick loops over every squadron that has a Gci table.
+        -- Record which ones it could see, sorted.
+        local seen = {}
+        for name, squadron in pairs(self.DefenderSquadrons) do
+            if squadron.Gci then
+                table.insert(seen, name)
+            end
+        end
+        table.sort(seen)
+        table.insert(self.gciPicks, table.concat(seen, ";"))
+        if AttackerDetection == "boom" then
+            error("moose failed")
+        end
+    end
+    obj.shutdownCalls = 0
+    function obj:OnEventEngineShutdown(EventData)
+        -- Moose's own handler: a single-ship defender goes back to the pool.
+        self.shutdownCalls = self.shutdownCalls + 1
     end
     table.insert(InterceptTest.dispatchers, obj)
     return obj
@@ -184,6 +211,7 @@ def _load(
     harness: DcsPluginHarness,
     ewr_names: list[str],
     awacs: list[dict[str, str]] | None = None,
+    records: list[dict[str, str]] | None = None,
 ) -> Any:
     """Load the real plugin with one BLUE alert base and the given EWR net."""
     harness.add_airbase({"name": "Test AFB", "x": 0.0, "z": 0.0, "elev": 100.0})
@@ -198,7 +226,9 @@ def _load(
         )
     harness.set_retribution_config(plugin_options={})
     config = harness.lua.globals().dcsRetribution
-    config.Intercept = harness.to_lua({"BLUE": [_intercept_record("Test AFB", "sq-1")]})
+    config.Intercept = harness.to_lua(
+        {"BLUE": records or [_intercept_record("Test AFB", "sq-1")]}
+    )
     config.IADS = harness.to_lua(
         {"BLUE": {"Ewr": [{"dcsGroupName": name} for name in ewr_names]}}
     )
@@ -397,6 +427,83 @@ def test_dispatcher_evaluation_skips_react_free_clusters() -> None:
     assert dispatcher.EvaluateENGAGE(dispatcher, strike) == "friendlies"
     assert len(dispatcher.gciCalls) == 1
     assert len(dispatcher.engageCalls) == 1
+
+
+def test_a_jet_shot_down_is_not_handed_back_to_the_pool() -> None:
+    """Test 56: DCS raised engine-shutdown for four JF-17s as they fell, their
+    Unit already gone. Moose's handler tests ``not DefenderUnit:InAir()``, and
+    InAir() is nil for a dead unit, so each was booked as landed and relaunched:
+    8 jets from a reserve of 4. Only a jet DCS says is on the ground has landed."""
+    harness = DcsPluginHarness()
+    _load(harness, ewr_names=["0041 | LION (EWR)"])
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    lua = harness.lua
+    dispatcher = lua.globals().InterceptTest.dispatchers[1]
+    event = lua.eval("""
+        function(in_air)
+            return { IniUnit = { InAir = function() return in_air end } }
+        end
+    """)
+
+    dispatcher.OnEventEngineShutdown(dispatcher, event(None))  # dead, falling
+    dispatcher.OnEventEngineShutdown(dispatcher, event(True))  # still flying
+    dispatcher.OnEventEngineShutdown(dispatcher, lua.eval("{}"))  # no unit at all
+    assert dispatcher.shutdownCalls == 0
+
+    dispatcher.OnEventEngineShutdown(dispatcher, event(False))  # parked
+    assert dispatcher.shutdownCalls == 1
+
+
+def _two_squadrons_at_one_base() -> tuple[DcsPluginHarness, Any, list[str]]:
+    harness = DcsPluginHarness()
+    _load(
+        harness,
+        ewr_names=["0041 | LION (EWR)"],
+        records=[
+            _intercept_record("Test AFB", "aaaaaaaa-jf17"),
+            _intercept_record("Test AFB", "bbbbbbbb-mig29"),
+        ],
+    )
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+    dispatcher = harness.lua.globals().InterceptTest.dispatchers[1]
+    names = sorted(dispatcher.DefenderSquadrons.keys())
+    assert len(names) == 2
+    return harness, dispatcher, names
+
+
+def test_a_spent_squadron_is_hidden_so_the_other_one_at_the_base_launches() -> None:
+    """Test 56: Kirkuk held a JF-17 and a MiG-29 alert squadron. Moose picks the
+    nearest squadron without checking it has a jet left, the two tie on distance,
+    and when the pick is empty it stops. The MiG-29s never launched."""
+    _harness, dispatcher, names = _two_squadrons_at_one_base()
+    first, second = names
+
+    dispatcher.onafterGCI(dispatcher, "s", "GCI", "s", "raid", 2)
+    assert dispatcher.gciPicks[1] == f"{first};{second}"
+
+    dispatcher.DefenderSquadrons[first].ResourceCount = 0
+    dispatcher.onafterGCI(dispatcher, "s", "GCI", "s", "raid", 2)
+    assert dispatcher.gciPicks[2] == second
+    # Hidden only for the length of the pick.
+    assert dispatcher.DefenderSquadrons[first].Gci is not None
+
+    dispatcher.DefenderSquadrons[second].Captured = True
+    dispatcher.onafterGCI(dispatcher, "s", "GCI", "s", "raid", 2)
+    assert dispatcher.gciPicks[3] == ""
+    assert dispatcher.DefenderSquadrons[second].Gci is not None
+
+
+def test_a_failed_pick_still_puts_the_hidden_squadron_back() -> None:
+    _harness, dispatcher, names = _two_squadrons_at_one_base()
+    first = names[0]
+    dispatcher.DefenderSquadrons[first].ResourceCount = 0
+
+    with pytest.raises(Exception, match="moose failed"):
+        dispatcher.onafterGCI(dispatcher, "s", "GCI", "s", "boom", 2)
+    assert dispatcher.DefenderSquadrons[first].Gci is not None
 
 
 def test_simultaneous_scrambles_air_start_on_separate_levels() -> None:

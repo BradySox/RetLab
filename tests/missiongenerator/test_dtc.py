@@ -271,11 +271,10 @@ def _game(
     )
 
 
-def _sam_cp(*, known: bool = True, hidden: bool = False) -> Any:
+def _sam_cp(*, known: bool = True) -> Any:
     tgo = SimpleNamespace(
         name="SAM SA-2 Site",
         category="aa",
-        map_hidden=hidden,
         known_for=lambda viewer: known,
         max_threat_range=lambda: SimpleNamespace(meters=43000.0),
         position=Pt(120000, -30000),
@@ -358,10 +357,8 @@ def test_threat_sites_respect_recon_fog() -> None:
     viewer = SimpleNamespace(is_blue=True)
     known = _game(controlpoints=[_sam_cp(known=True)])
     fogged = _game(controlpoints=[_sam_cp(known=False)])
-    hidden = _game(controlpoints=[_sam_cp(known=True, hidden=True)])
     assert len(known_enemy_threat_sites(known, viewer)) == 1  # type: ignore[arg-type]
     assert known_enemy_threat_sites(fogged, viewer) == []  # type: ignore[arg-type]
-    assert known_enemy_threat_sites(hidden, viewer) == []  # type: ignore[arg-type]
     site = known_enemy_threat_sites(known, viewer)[0]  # type: ignore[arg-type]
     assert site.label == "2"
     assert site.range_m == 43000.0

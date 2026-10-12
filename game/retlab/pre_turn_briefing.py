@@ -158,8 +158,6 @@ def _open_loop_items(game: "Game") -> List[BriefingItem]:
             continue
         if tgo.is_dead():
             continue
-        if getattr(tgo, "map_hidden", False):
-            continue
         if getattr(tgo, "concealed", False) and not tgo.known_for(viewer):
             unidentified += 1
         if tgo.category == "missile" and tgo.known_for(viewer):
