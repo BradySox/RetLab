@@ -308,6 +308,29 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   repairs. Accepted limitation: `Coalition._plan_player_qra` is deliberately unguarded —
   the `generate_flights` runway check already stops the alert flight spawning, so the
   residual is a phantom package in the planning UI only.
+- **A shot-down alert jet is not handed back to the pool (2026-10-12, test 56).** Red's
+  JF-17 alert squadron launched 8 single-ship jets from a reserve of 4. The plugin sets
+  `SetDefaultLandingAtEngineShutdown`, so Moose's `OnEventEngineShutdown` returns a
+  defender to the squadron when `not DefenderUnit:InAir()`. DCS raised engine-shutdown
+  for four of the jets milliseconds after they were killed, with the Unit already gone;
+  `UNIT:InAir()` is `nil` then, the test passed, and `RemoveDefenderFromSquadron` put
+  each back (`ResourceCount + 1`). The next 30 s detection cycle launched it again.
+  `debrief.log` shows each relaunch 20 to 30 s after one of those events. The plugin now
+  wraps that handler per dispatcher and passes the event on only when `InAir()` is
+  exactly `false`. A real landing is unchanged. Grouping 1 is the worst case; in a pair
+  only the last jet to die was credited. Upstream MOOSE has the same handler and has
+  since deleted the class.
+- **A base's second alert squadron launches when the first is spent (2026-10-12, test
+  56).** Kirkuk held a JF-17 and a MiG-29 alert squadron, 4 jets each; the MiG-29s never
+  launched. Moose's `onafterGCI` picks the squadron nearest the intercept point without
+  reading `ResourceCount`, two squadrons at one base tie and the first in `pairs` order
+  wins, and when `CanGCI` then refuses the empty pick the loop breaks instead of trying
+  another. The plugin wraps `onafterGCI` per dispatcher: for the length of the call it
+  takes the `Gci` table off every squadron with `ResourceCount <= 0` or `Captured`, so
+  the pick falls to one that can launch, then puts it back (also when Moose raises). A
+  pick that takes a squadron's last jet still stops there; the next 30 s detection cycle
+  asks again and reaches the other squadron. Tests for both:
+  `tests/lua/test_intercept_filter.py`. Row **B228**.
 
 ---
 
