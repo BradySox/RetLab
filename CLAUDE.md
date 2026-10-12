@@ -585,12 +585,6 @@ that block until upstream fixes it. History: `retlab-splash-damage-notes.md`.
   renders in full, names another setting by its label rather than "above"/"below", and never
   describes a removed feature as live. `tests/settings/test_settings_text.py` guards the
   settings; rules and backlog are in `retlab-ui-consistency-audit-notes.md`.
-- **ADHD-friendly agent output (STANDARD, 2026-07-20).** The reader has ADHD. Follow the
-  vendored [`i-have-adhd`](https://github.com/ayghri/i-have-adhd) skill
-  (`.claude/skills/i-have-adhd/SKILL.md`, MIT, byte-identical to upstream; keep the sibling
-  `LICENSE`) as **always-on**: lead with the next action, number multi-step work, restate
-  state each turn, lists capped at 5, no preamble or closing pleasantries, end with one
-  concrete next action. The skill's own exceptions apply.
 - **When the evidence contradicts the instruction, lead with that and stop (STANDARD,
   2026-08-23 user call).** If a file, manual, log or generated artifact contradicts what was
   asked, the reply opens with that finding and names the source, in two sentences, then asks.
