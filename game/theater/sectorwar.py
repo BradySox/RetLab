@@ -30,7 +30,6 @@ from game.theater.sectors import (
 
 if TYPE_CHECKING:
     from game import Game
-    from game.sim import GameUpdateEvents
     from game.theater import ConflictTheater, ControlPoint, FrontLine
 
 #: A won battle reaches at least this far from the front for sectors to take.
