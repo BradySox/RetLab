@@ -200,7 +200,7 @@ The tech stack, CI gates, release rules and the **removed, do not restore** tabl
 Fork-side, the deeper territory is in the repo, not here:
 `docs/dev/retlab-features.md` (per-feature internals) · `docs/dev/design/` (the design notes,
 read before touching the matching code) · `docs/dev/retlab-ingame-pass-checklist.md` (the
-verification tracker) · `docs/wiki/` (the mirrored upstream wiki with **RetLab:** delta notes).
+verification tracker; settled rows are in its `-archive.md`) · `docs/wiki/` (the mirrored upstream wiki with **RetLab:** delta notes).
 
 ---
 
