@@ -117,3 +117,30 @@ Reporting: an achieved priority is a SITREP line (`game/sitrep.py`, pattern:
   the weight never names one; the auto-planner's existing behaviour toward them is unchanged.
 - The panel line shows whatever the setting, so the measure has a reader even with the planner
   weight off.
+
+## 9. HQ requests, §112 (built 2026-10-12)
+
+The order half of his High Command, without the prizes. Brady's call on 2026-10-12: "I like
+being assigned targets the auto planner won't take, but I'm not sold on the rewards." His
+answers on the cards: three a turn, one per difficulty third; 2 to 5 turns, random; on for
+new games, older saves off.
+
+- **Drawn after blue's auto-planner**, at the end of `Game.initialize_turn`, from visible
+  enemy targets with no blue package. Once per turn (`drawn_on`): a mid-turn blue re-plan
+  (buying a SAM, a capture) keeps the turn's requests.
+- **Candidates:** every target §93 gives a family, except motorpools (their vehicles are drawn
+  afresh each mission, so one is never "destroyed") and anything `hidden_from(BLUE)`.
+- **Difficulty is answered with the cheap route (§6 question 2):** the straight line from the
+  nearest blue base with aircraft, each mile inside a **known** red threat ring counted 3
+  times. Known rings only, under `fog_intact()`, so a request never hints at a ring the map
+  hides. His grid search and fighter term are not taken.
+- **Tiers:** the candidates split into thirds by difficulty. Within a tier, a random pick from
+  the more important half of its §103 family, else any. A request that just ran out comes back
+  only if nothing else in its tier is left (his rule).
+- **Done** when every unit is dead, checked in `record_sitrep` after the losses are committed;
+  the SITREP line is the only consequence. Gone (captured, or killed outside a mission) and
+  expired requests close quietly at the next draw.
+- **Shown:** the ribbon's HQ REQUESTS chip, a gold ring layer (default on, rides every
+  preset), a Target Intel row, a BLUF line on a flight whose package target is a request.
+- **Not taken:** prizes, tickets, loans, effects, his comical lines, base tasks (OCA aircraft,
+  runway, capture), red's requests.

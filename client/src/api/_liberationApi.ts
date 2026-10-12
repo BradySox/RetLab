@@ -682,6 +682,16 @@ export type CampaignStatus = {
   sitrep_lines?: string[];
   hvt_name?: string | null;
   hvt_turns_left?: number | null;
+  hq_requests?: HqRequest[];
+};
+export type HqRequest = {
+  name: string;
+  kind: string;
+  base: string;
+  tier: string;
+  turns_left: number;
+  why: string;
+  position: LatLng;
 };
 export type NeutralBorder = {
   country: string;

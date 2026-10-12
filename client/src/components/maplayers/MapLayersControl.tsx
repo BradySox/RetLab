@@ -18,6 +18,7 @@ import {
 import FlightPlansLayer from "../flightplanslayer";
 import FrontLinesLayer from "../frontlineslayer";
 import FrontMovementLayer from "../frontmovementlayer";
+import HqRequestsLayer from "../hqrequestslayer";
 import Iadsnetworklayer from "../iadsnetworklayer";
 import DownedPilotsLayer from "../downedpilotslayer";
 import NavMeshLayer from "../navmesh/NavMeshLayer";
@@ -47,6 +48,7 @@ type LayerId =
   | "supplyRoutes"
   | "neutralBorders"
   | "downedPilotsBlue"
+  | "hqRequests"
   | "downedPilotsRed"
   | "frontLines"
   | "frontMovement"
@@ -124,6 +126,8 @@ const OVERLAYS: Record<LayerId, { label: string; node: ReactNode }> = {
     label: "Downed pilots",
     node: <DownedPilotsLayer blue={true} />,
   },
+  // §112: the targets HQ asked for. Empty when the setting is off.
+  hqRequests: { label: "HQ requests", node: <HqRequestsLayer /> },
   downedPilotsRed: {
     label: "Downed pilots (enemy)",
     node: <DownedPilotsLayer blue={false} />,
@@ -272,6 +276,7 @@ const GROUPS: GroupDef[] = [
       { id: "aircraft" },
       { id: "combat" },
       { id: "downedPilotsBlue" },
+      { id: "hqRequests" },
       { id: "frontLines" },
       { id: "frontMovement", sub: true, enabledWhen: "frontLines" },
       { id: "territory" },
@@ -381,6 +386,7 @@ const DEFAULT_ON: LayerId[] = [
   "frontMovement",
   "territory",
   "downedPilotsBlue",
+  "hqRequests",
   "enemySamThreat",
   "emitterHighlight",
   "flightBlue",
@@ -390,9 +396,9 @@ const DEFAULT_ON: LayerId[] = [
 // the display options, which are behaviours rather than layers.
 const PRESET_EXEMPT: LayerId[] = ["revealFog", "emitterHighlight"];
 
-// Border and downed-pilot layers ride every preset: they draw nothing on a quiet
+// Border, downed-pilot and HQ request layers ride every preset: they draw nothing on a quiet
 // map, and a hidden border is one you cross.
-const ALWAYS_ON: LayerId[] = ["neutralBorders", "downedPilotsBlue"];
+const ALWAYS_ON: LayerId[] = ["neutralBorders", "downedPilotsBlue", "hqRequests"];
 
 // Presets list only the layers they switch ON; every other layer goes off.
 const PRESETS: Record<string, LayerId[]> = {

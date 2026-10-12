@@ -20,6 +20,7 @@ from game.config import REWARDS
 from game.data.building_data import FORTIFICATION_BUILDINGS
 from game.retlab.cruise_raids import tgo_magazines
 from game.retlab.hq_priorities import why_it_matters
+from game.retlab.hq_requests import intel_line as hq_request_line
 from game.retlab.region_priorities import RegionPriority, family_of
 from game.server import EventStream
 from game.sim.gameupdateevents import GameUpdateEvents
@@ -442,6 +443,9 @@ class QGroundObjectMenu(QDialog):
             why = why_it_matters(self.ground_object, self.game, self.viewer)
             if why is not None:
                 rows.append(("Why it matters", why))
+            request = hq_request_line(self.game, self.ground_object)
+            if request is not None and self.viewer is Player.BLUE:
+                rows.append(("HQ request", request))
         return rows
 
     def update_total_value(self):

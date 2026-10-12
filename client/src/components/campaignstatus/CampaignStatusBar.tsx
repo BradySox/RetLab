@@ -19,6 +19,7 @@ export default function CampaignStatusBar() {
   const status = useAppSelector(selectCampaignStatus);
   const [expanded, setExpanded] = useState(false);
   const [sitrepOpen, setSitrepOpen] = useState(false);
+  const [requestsOpen, setRequestsOpen] = useState(false);
   if (status == null) {
     return null;
   }
@@ -40,6 +41,8 @@ export default function CampaignStatusBar() {
   const victoryWins = victory.filter((row) => !row.defeat);
   const victoryRisks = victory.filter((row) => row.defeat);
   const sitrepLines = status.sitrep_lines ?? [];
+  // §112: the targets HQ asked for, easy first.
+  const hqRequests = status.hq_requests ?? [];
   return (
     <div className="campaign-status-wrap">
       <div className="campaign-status-bar">
@@ -91,6 +94,20 @@ export default function CampaignStatusBar() {
             LAST TURN
             <span className="campaign-status-caret">
               {sitrepOpen ? " ▴" : " ▾"}
+            </span>
+          </button>
+        )}
+        {hqRequests.length > 0 && (
+          <button
+            type="button"
+            className="campaign-status-phase expandable"
+            onClick={() => setRequestsOpen(!requestsOpen)}
+            aria-expanded={requestsOpen}
+            title="Enemy targets HQ wants taken out that the auto-planner left alone"
+          >
+            HQ REQUESTS {hqRequests.length}
+            <span className="campaign-status-caret">
+              {requestsOpen ? " ▴" : " ▾"}
             </span>
           </button>
         )}
@@ -158,6 +175,26 @@ export default function CampaignStatusBar() {
               </div>
             )}
           </div>
+        </div>
+      )}
+      {requestsOpen && hqRequests.length > 0 && (
+        <div className="campaign-status-panel">
+          <div className="campaign-status-sitrep-title">HQ requests</div>
+          <ul className="campaign-status-sitrep-lines">
+            {hqRequests.map((request) => (
+              <li key={request.name}>
+                <strong>{request.name}</strong> ({request.kind}, {request.base})
+                {" — "}
+                {request.tier}, {request.turns_left} turn
+                {request.turns_left === 1 ? "" : "s"} left
+                {request.why !== "" && (
+                  <div className="campaign-status-request-why">
+                    {request.why}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
       {sitrepOpen && sitrepLines.length > 0 && (

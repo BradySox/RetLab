@@ -26,6 +26,7 @@ from game.customkneeboard import CustomKneeboard
 from game.ground_forces.ai_ground_planner import GroundPlanner
 from game.models.game_stats import GameStats
 from game.plugins import LuaPluginManager
+from game.retlab.hq_requests import HqRequests
 from game.sitrep import Sitrep
 from game.utils import Distance
 from . import naming, persistency
@@ -131,6 +132,8 @@ class Game:
         self.last_sitrep: Optional[Sitrep] = None
         #: §108: last mission's report cards, for the debrief.
         self.last_flight_cards: list[FlightCard] = []
+        #: §112: the targets HQ has asked the players to take out.
+        self.hq_requests = HqRequests()
         # Vietnam Ops Super Gaggle (§37): the turn's planned resupply run, drawn from real
         # BLUE squadrons; None when the feature is off or no gaggle is plannable. Losses are
         # charged back to the squadrons at debrief. Replanned each turn in finish_turn.
@@ -237,6 +240,11 @@ class Game:
             state["settings"].outside_ai_plans_red = True
         state.setdefault("opfor_ai_notes", {})
         state.setdefault("last_flight_cards", [])
+        # §112 is on for new games only: a save from before it keeps playing as it was.
+        if "hq_requests" not in state:
+            if "settings" in state:
+                state["settings"].hq_requests = False
+            state["hq_requests"] = HqRequests()
         state.setdefault("client_map_layers", None)
         state.setdefault("super_gaggle_commitment", None)
         # W6 red tempo: pre-feature saves resolve on their next initialize_turn.
@@ -781,6 +789,16 @@ class Game:
                 gplanner = GroundPlanner(cp, self)
                 gplanner.plan_groundwar()
                 self.ground_planners[cp.id] = gplanner
+
+        # §112: after blue's auto-planner, so a request is a target it left alone.
+        if for_blue:
+            from game.retlab.hq_requests import refresh as refresh_hq_requests
+
+            try:
+                refresh_hq_requests(self)
+            except Exception:
+                # A fault here must not stop the turn; the requests wait for the next.
+                logging.exception("Could not draw the HQ requests")
 
         # Update cull zones
         with logged_duration("Computing culling positions"):

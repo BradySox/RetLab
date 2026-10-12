@@ -378,6 +378,12 @@ class KneeboardGenerator(MissionInfoGenerator):
             task_line += f"   TOT {format_kneeboard_time_inline(tot, zulu_tz)}"
         lines.append(task_line)
 
+        # §112: a package sent against an HQ request says so.
+        from game.retlab.hq_requests import brief_line
+
+        if (hq_request := brief_line(self.game, target)) is not None:
+            lines.append(hq_request)
+
         # Push + event code words (gated by the feature toggle).
         if self.game.settings.enable_package_code_words:
             code_words = self.game.coalition_for(flight.friendly).code_words

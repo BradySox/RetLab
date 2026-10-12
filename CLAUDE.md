@@ -157,7 +157,7 @@ One line each; the status is the note's own. Read the note, not this line, befor
   from upstream #957 on 2026-08-30; row B63 verified in test 33)
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
   edited on the map, never by typed coordinates; rows B150/B151)
-- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103),
+- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103, and §112 HQ requests),
   `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; read its
   guardrails first), `retlab-llm-opfor-notes.md` (§109: the outside AI that reads red's turn;
   the 2026-10-09 DM call that reversed "no LLM runs in this fork"), `retlab-falcon-bms-campaign-notes.md` (study),
@@ -439,6 +439,7 @@ linked design note.
 108. **Flight report cards** — the debrief grades every blue flight that flew, yours first, from §91's records. A record, never a reward.
 109. **Outside AI reads red's turn** — a REST API under `/retribution-ai/*` for an AI on the same PC: it reports what looks wrong in red's plan, and with the Outside AI plans red setting ticked (Campaign Management; also on the new game wizard's Campaign options page) it plans red's packages, TOTs, stances and buying, starting from the plan the scripted planner still makes every turn. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; loadouts, waypoints, transfers, ships, repairs and MCP are staged after it.
 111. **Sector war** — the war region is cut into named sectors about 10 NM across (WHISKEY-14), shaped by the ground. Step 1 (built): each side's territory is filled on the F10 map and the app map, worked out from the bases and fronts, and each front's units fight a battle in every sector along the shared border (setting on by default). Steps 2 and 3 (sectors decide the fight, a CAS battle-map card) are agreed, not built.
+112. **HQ requests** — each turn HQ asks the players to take out up to three enemy targets the auto-planner left alone, one easy, one mid and one hard, each open 2 to 5 turns. No prize; the SITREP notes the ones destroyed. On for new games.
 
 ### Retired, removed or shelved — do not restore
 

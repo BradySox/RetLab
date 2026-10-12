@@ -333,6 +333,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   loss cuts the enemy's offensive packages, or the price of the equipment on it, and where it
   ranks among others of its kind. With **HQ priority targets** on, the auto-planner leans
   toward the top third of each kind, more gently than Target priorities. Off by default.
+- **HQ requests.** Each turn HQ asks you to take out up to three enemy targets the
+  auto-planner put no package on: one easy, one mid and one hard to reach, each open for 2 to
+  5 turns. They are listed under HQ REQUESTS on the map's status bar and ringed in gold on the
+  map, and a flight sent against one has an HQ REQUEST line on its kneeboard. There is no
+  prize; the SITREP notes the ones you destroy. On for new games.
 - **Smart threat reaction.** One SAM launch no longer sends every jet in the area defensive.
   AI aircraft fly their route and use chaff and flares; only the flight the missile is
   actually guiding on breaks, and only until that missile is gone. The trade is that a flight

@@ -123,5 +123,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §109 | Outside AI reads red's turn | — | — |
 | §110 | Ballistic missile call-for-fire _(retired)_ | — | — |
 | §111 | Sector war | — | `front_line_battles_along_border` |
+| §112 | HQ requests | — | `hq_requests` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

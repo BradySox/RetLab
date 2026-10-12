@@ -11009,3 +11009,31 @@ choices, the algorithm and the step 2 notes.
   distance-to-front reads the group's own point on the border.
 - The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
 - CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.
+
+## §112 — HQ requests
+
+Each turn HQ asks the players to take out up to three enemy targets the BLUE auto-planner put no
+package on: one easy, one mid and one hard to reach, each open 2 to 5 turns. No prize; the
+SITREP notes the ones destroyed. The order half of juanjux's High Command (Brady, 2026-10-12).
+Setting *HQ requests*, Doctrine page, on for new games; a save from before it loads with it
+off (`Game.__setstate__`). Built 2026-10-12, not flown (row B231).
+
+**Design note:** [retlab-hq-priority-targets-notes.md](design/retlab-hq-priority-targets-notes.md) §9.
+
+### Files
+
+- `game/retlab/hq_requests.py`: candidates, difficulty, tiers, `refresh`, `record_results`,
+  and the kneeboard and panel lines.
+- `game/game.py`: `hq_requests` on the game; `refresh` at the end of `initialize_turn`.
+- `game/sim/missionresultsprocessor.py` + `game/sitrep.py`: `hq_request_lines`.
+- `game/server/game/models.py`: `HqRequestJs` on the campaign status.
+- `client/src/components/campaignstatus/`, `client/src/components/hqrequestslayer/`.
+- `qt_ui/windows/groundobject/QGroundObjectMenu.py`: the HQ request row.
+- `tests/retlab/test_hq_requests.py`, `client/src/components/hqrequestslayer/HqRequestsLayer.test.tsx`.
+
+### Constraints
+
+- Drawn once per turn, after blue's planning. A blue re-plan mid-turn never changes them.
+- Never a site `hidden_from(BLUE)`; difficulty counts only rings blue knows, overview ignored.
+- Motorpools are never requested: their vehicles are drawn afresh, so one never dies.
+- No prize, ticket or loan. RetLab's line is a record, never a reward (§96, §108).
