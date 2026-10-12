@@ -134,7 +134,6 @@ def _tgo(
         position=SimpleNamespace(x=x, y=0.0),
         category=category,
         units=[SimpleNamespace(alive=alive)],
-        map_hidden=False,
         is_control_point=False,
         hidden_on_player_map=lambda viewer=None: unseen,
     )

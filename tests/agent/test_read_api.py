@@ -250,6 +250,33 @@ def test_a_front_counts_the_garrison_blocking_capture_and_lists_it(
     assert len([t for t in targets if t.kind == "garrison"]) == len(garrisons)
 
 
+def test_armor_groups_outside_a_capture_zone_are_listed_once(
+    campaign_game: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The scripted planner sends BAI at these (test 56: CASTOR and MILLIPEDE), so a
+    package aimed at one has to be readable."""
+    from game.commander.battlepositions import BattlePositions
+    from game.theater import ControlPoint
+    from game.theater.player import Player
+    from game.utils import meters
+
+    # This campaign keeps its armor inside the capture zones; shrink them to nothing.
+    monkeypatch.setattr(ControlPoint, "CAPTURE_DISTANCE", meters(0))
+    targets = views.build_targets(campaign_game, "red")
+    armor = [t for t in targets if t.kind == "armor"]
+    expected = {
+        str(group.id)
+        for cp in campaign_game.theater.controlpoints
+        if cp.captured == Player.BLUE
+        for group in BattlePositions.for_control_point(cp).defending_front_line
+    }
+    assert expected
+    assert {t.id for t in armor} == expected
+    assert len(armor) == len(expected)
+    assert all(t.suggested_task == "BAI" and t.composition for t in armor)
+    assert not expected & {t.id for t in targets if t.kind == "garrison"}
+
+
 def test_only_a_missing_campaign_answers_409(monkeypatch: pytest.MonkeyPatch) -> None:
     from game.server import GameContext
     from game.server.retributionai import routes

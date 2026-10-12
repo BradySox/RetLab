@@ -190,7 +190,7 @@ economy — which also makes POWs an **indefinite running sore**, the real POW-p
 story, repatriated on the negotiated win), `c2_decapitation_effects` (§52 — KARI's 4
 command centers degrade red's planning), `auto_repair_air_defenses` (§68 — KARI
 historically repaired between strikes), `comint_collection` + `red_comms_net` (§70
-C0+C1 — bomb-it-or-tap-it on the same nine nets), `convoy_ambush` (§50),
+C0+C1 — bomb-it-or-tap-it on the same nine nets), `convoy_ambush` (§50, removed 2026-10-11),
 `host_red_scramble` + `redscramble.hostPlayers: Flash` (§61), plugins
 `convoyambush` + `rednet` + `redscramble`. (The seven authored Scud batteries are
 stationary: §49 was removed 2026-08-29, so the Great Scud Hunt is a hunt for fixed

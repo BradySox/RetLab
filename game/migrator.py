@@ -48,6 +48,7 @@ class Migrator:
         self._release_untasked_flights()
         self._update_weather()
         self._update_tgos()
+        self._remove_convoy_ambush_teams()
         try_set_attr(self.game.settings, "motorpool_enabled", True)
         try_set_attr(self.game.settings, "motorpool_spawn_cap", 10)
         try_set_attr(self.game.settings, "csar_enabled", True)
@@ -364,6 +365,31 @@ class Migrator:
             # raises AttributeError on pre-feature saves.
             if isinstance(go, ShipGroundObject):
                 try_set_attr(go, "target_position", None)
+
+    def _remove_convoy_ambush_teams(self) -> None:
+        """Delete the hidden ambush teams a save from before 2026-10-11 may hold.
+
+        The convoy ambush (§50) is gone; nothing sweeps its teams any more and
+        nothing hides them, so one left in a save would stand on a blue supply
+        road as an ordinary red group.
+        """
+        state = self.game.__dict__.pop("convoy_ambush_state", None) or {}
+        team_ids = {
+            str(record.get("tgo_id"))
+            for record in state.get("ambushes", [])
+            if isinstance(record, dict)
+        }
+        for cp in self.game.theater.controlpoints:
+            for tgo in list(cp.connected_objectives):
+                hidden = tgo.__dict__.pop("map_hidden", False)
+                if not hidden and str(tgo.id) not in team_ids:
+                    continue
+                cp.connected_objectives.remove(tgo)
+                try:
+                    self.game.db.tgos.remove(tgo.id)
+                except KeyError:
+                    pass
+                logging.info("Removed convoy ambush team %s from the save", tgo.name)
 
     def _ensure_motorpool_tgos(self) -> None:
         from game.data.groups import GroupTask

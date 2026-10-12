@@ -1,0 +1,1 @@
+* **[Campaign AI]** The AI connect link lists the enemy armor groups outside a base's capture zone as targets, so a red package aimed at one can be read. Its plan check no longer reports a package that launches with the mission as arriving after the human's flying time.

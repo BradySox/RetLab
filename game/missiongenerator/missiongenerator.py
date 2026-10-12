@@ -34,7 +34,6 @@ from game.unitmap import UnitMap
 from .atisgenerator import AtisGenerator
 from .briefinggenerator import BriefingGenerator, MissionInfoGenerator
 from .cargoshipgenerator import CargoShipGenerator
-from .convoyambushgenerator import ConvoyAmbushGenerator
 from .convoygenerator import ConvoyGenerator
 from .csargenerator import CsarGenerator
 from .drawingsgenerator import DrawingsGenerator
@@ -172,11 +171,6 @@ class MissionGenerator:
         logging.info("MIZ generation: convoys and cargo ships")
         ConvoyGenerator(self.mission, self.game, self.unit_map).generate()
         CargoShipGenerator(self.mission, self.game, self.unit_map).generate()
-
-        # Convoy ambushes (§50) arm as native DCS triggers, so this must run after
-        # both the ambush teams (ground objects) and the convoys they are set
-        # against exist as real groups in the mission.
-        ConvoyAmbushGenerator(self.mission, self.game).generate()
 
         logging.info("MIZ generation: destroyed units")
         self.generate_destroyed_units()

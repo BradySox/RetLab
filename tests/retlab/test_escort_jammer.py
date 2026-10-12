@@ -311,6 +311,7 @@ def test_helo_package_takes_no_jet_escort_jammer(variant: str) -> None:
         location=SimpleNamespace(cptype=SimpleNamespace(name="AIRBASE")),
         aircraft=jammer,
         can_auto_assign=lambda task: True,
+        settings=SimpleNamespace(restrict_weapons_by_date=False),
     )
 
     def assign(task: FlightType, heli: bool) -> bool:
