@@ -69,33 +69,17 @@ in that order:
 - **Upstream PRs open as drafts** by default; un-draft only on an explicit call.
 - Fork PRs are **squash-merged** (sync merges excepted). Never merge unbidden.
 
-### ⛔ Live constraint: the upstream PR freeze
-
-As of **2026-08-05 (DM-confirmed)** upstream accepts **no NEW PRs** until their next beta
-release. **Updating existing PRs is fine** — merging current upstream in, pushing review fixes,
-re-requesting review. **Never infer the lift from commit activity** — that inference has been
-made and been wrong twice. Only the DM lifts it. Re-check `CLAUDE.md` for current status.
+The **upstream PR freeze** and its exceptions are in `CLAUDE.md`, *Upstream PRs — standing
+rules*. Only the DM lifts it.
 
 ---
 
 ## Rule 3: Code quality gates
 
-- **Python 3.11** (fork pin — upstream says 3.10+). Formatted with **black**.
-- CI black checks the **whole tree** (`.`) including `qt_ui` and `tests`. CI mypy checks
-  **only** `game` and `tests`. A type error in `qt_ui` passes CI; a formatting miss anywhere
-  fails it.
+- The gates and the three local commands to run before every push are in
+  `docs/dev/CLAUDE-ci.md` (Black over the whole tree, mypy over `game` and `tests`, pytest).
 - `qt_ui` is **not** CI type-checked, so anything landed there needs an **in-app eyeball**, not
   just green tests.
-- Lua has a blocking syntax gate (`luac5.1 -p`) plus a headless runtime harness (`tests/lua/`,
-  lupa + a faked DCS sandbox) that runs inside normal pytest.
-- Local verification before every push — three commands, all from the worktree:
-
-```
-black --check .
-mypy game tests
-pytest tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/tests game/plugins/tests -q
-```
-
 - After pulling updates, the client rebuilds in CI — a local `npm run build` is only needed to
   *see* React changes locally.
 
@@ -172,10 +156,7 @@ when it applies.
 - **Mission briefings**: follow the `TheFinalOption_MissionHandoff.docx` template — numbered
   sections, table-first, DCS editor naming conventions, phased build checklists with checkboxes,
   military brevity.
-- **Keep the doc faces in sync.** A feature that lands updates its design note → `retlab-features.md`
-  → `README.md` if player-visible → `CLAUDE.md` if the shape changed → `AGENTS.md` (byte-identical
-  mirror) → a checklist row if it has runtime behaviour. *A push that moves code past its docs is
-  a broken push.*
+- **Keep the doc faces in sync**, in the order `CLAUDE.md` lists under *Keeping docs in sync*.
 - Full formatting detail in `references/doc-standards.md`.
 
 ---
@@ -196,21 +177,12 @@ first, marked "(Recommended)", each with its trade-off.
 
 | Fact | Detail |
 |---|---|
-| Base | upstream `dcs-retribution/dev`; `main` here is the consolidated RetLab build |
-| Feature registry | `game/retlab/features.py` — every numbered §N feature, its setting and plugin. **Register every new feature there**; a test fails CI if it drifts |
 | Fork feature layer | `game/retlab/` — turn-model features, hooked from `finish_turn` / `initialize_turn` / `plan_missions` |
-| IADS engine | **Skynet** (upstream's), with two bridge additions: dead C2 stand-ins and a deferred AWACS add. The MOOSE MANTIS bridge ran 2026-06-24 to 2026-09-12 and is removed; there is no selector |
-| Framework | **MOOSE** for the fork's plugins; **MIST** is upstream's `mist_4_5_126.lua` again (the compat shim went with the MANTIS bridge) |
 | Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts) · `JAMMING` (C-130J standoff EW) · `ESCORT_JAMMER` · `CSAR` (upstream #929's rescue) |
-| CI gates | `lint.yml` (black whole-tree + mypy game/tests) · `test.yml` (pytest incl. 3 out-of-tree dirs) · Lua syntax gate in `lint.yml` (blocking) · `retlab-latest.yml` (rolling pre-release) |
-| Release | rolling `latest` pre-release is *the* release; pinned tags are `v<X.Y.Z>-retlab`. **Never `git push --tags`** |
 | Squadron script stack | separate repo: `tyfoultz/414th-Joint-Fighter-Group`, `bradys-changes` branch |
 
-**Removed — do not restore** (each was deliberate, with save-compat tombstones): the DTC v1
-export, Flight Control ATC, the drop-spawn cheat, the compact kneeboard deck + cover page +
-brief sheet, campaign phases & ROE zones, the political-will economy, the war/munitions economy,
-Red Intent, the blank-canvas campaign maker, minefields, the SCUD-hunt relocation, comms jamming
-and COMINT, airbase harassment, the living battlespace. `CLAUDE.md`'s removed table is the full list.
+The tech stack, CI gates, release rules and the **removed, do not restore** table are in
+`CLAUDE.md`; they are not repeated here.
 
 ---
 
@@ -226,7 +198,7 @@ and COMINT, airbase harassment, the living battlespace. `CLAUDE.md`'s removed ta
 | `references/doc-standards.md` | Document formatting standards with examples | Producing any deliverable document |
 
 Fork-side, the deeper territory is in the repo, not here:
-`docs/dev/retlab-features.md` (per-feature internals) · `docs/dev/design/` (~76 design notes,
+`docs/dev/retlab-features.md` (per-feature internals) · `docs/dev/design/` (the design notes,
 read before touching the matching code) · `docs/dev/retlab-ingame-pass-checklist.md` (the
 verification tracker) · `docs/wiki/` (the mirrored upstream wiki with **RetLab:** delta notes).
 

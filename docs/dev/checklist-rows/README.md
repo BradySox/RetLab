@@ -10,5 +10,5 @@ One file per row, named by its id, so two open PRs adding rows never touch the s
 - A branch that added its row to the end of the main checklist moves it here with
   `python tools/checklist_rows.py move B###`.
 
-Rows from before 2026-09-29 stay in the main file. `tools/checklist_board.py`, the
-session-start hook and the tests read both.
+Rows from before 2026-09-29 stay in the main file. `tools/checklist_board.py` and
+the tests read both.

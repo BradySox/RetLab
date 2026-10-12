@@ -9,8 +9,7 @@ the main file stay there; readers take both.
     python tools/checklist_rows.py new B173     # write the stub file for a claimed id
     python tools/checklist_rows.py move B170    # move a row out of the main file
 
-Every reader of the checklist (the board, the claim tool, the session-start hook,
-the tests) goes through ``checklist_text()`` or the same two paths.
+Every reader of the checklist (the board, the claim tool, the tests) goes through ``checklist_text()`` or the same two paths.
 """
 
 from __future__ import annotations

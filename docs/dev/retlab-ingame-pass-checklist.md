@@ -7632,7 +7632,7 @@ banners as before.
 - **Still thousands of `event ID=61`** — the guard was lost. Grep `Moose.lua` for
   `RetLab patch (event 61 spam)`; a bundle bump drops it silently, and the `.miz` must be
   generated after the fix (unpack it and grep). See
-  `docs/dev/design/retlab-framework-consolidation-notes.md`.
+  `docs/dev/design/retlab-moose-bundle-patches-notes.md`.
 - **A *different* unknown event ID now spams** — DCS added another event MOOSE does
   not carry. Same fix, one more row.
 - **MOOSE plugins stop starting** — the row broke the table. Revert the nine lines;

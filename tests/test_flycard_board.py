@@ -1,4 +1,4 @@
-"""The session-start board must agree with the documents it summarises.
+"""The checklist board and the fly cards must agree with the rows they summarise.
 
 Everything here is a defect that actually shipped. The board is read at the top of
 every session and is the only surface that routes cockpit time, so a board that
@@ -6,7 +6,8 @@ lies costs flights: six rows closed with a marker the parser did not know were
 briefed as outstanding work for two weeks, and two crossed-off fly-card items were
 briefed as live for two days after they were closed.
 
-The rules mirror `.claude/hooks/session-start.sh`. Keep the two in step.
+The session-start hook that printed this board was removed 2026-10-12;
+`tools/checklist_board.py` follows the same rules. Keep the two in step.
 """
 
 from __future__ import annotations

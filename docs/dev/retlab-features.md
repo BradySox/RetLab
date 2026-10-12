@@ -9133,8 +9133,8 @@ locked by `tests/test_removed_module_tombstones.py`.
 **Removing a module takes both halves.** The owner drops the orphan key *and* the module
 gets a `REMOVED_MODULES` entry. Either one alone leaves saves unloadable.
 
-Design note `retlab-wing-growth-notes.md` is kept for the reasoning; do not author
-against it.
+Design note `retlab-wing-growth-notes.md` was deleted 2026-10-12; it is at
+`git show 57ab9e720:docs/dev/design/retlab-wing-growth-notes.md`.
 
 ## §83 — SP Pilot Mode — REMOVED (2026-10-12)
 

@@ -8,7 +8,7 @@ which bumped the pydcs pin and refreshed `resources/terrain-beacons/` for **Cauc
 Related: [`retlab-desert-storm-campaign-notes.md`](retlab-desert-storm-campaign-notes.md),
 [`retlab-inherent-resolve-campaign-notes.md`](retlab-inherent-resolve-campaign-notes.md),
 [`retlab-scenery-import-notes.md`](retlab-scenery-import-notes.md) (the automation this plan
-deliberately does **not** wait for), [`retlab-tanker-war-campaign-notes.md`](retlab-tanker-war-campaign-notes.md).
+deliberately does **not** wait for).
 
 ---
 
