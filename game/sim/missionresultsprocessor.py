@@ -38,6 +38,16 @@ MINOR_DEFEAT_INFLUENCE = 0.1
 DEFEAT_INFLUENCE = 0.3
 STRONG_DEFEAT_INFLUENCE = 0.5
 
+
+def sectors_won(delta: float, winner_attacked: bool) -> int:
+    """§111 step 2: how many sectors a won battle takes, by how clear the win was."""
+    if delta >= STRONG_DEFEAT_INFLUENCE:
+        return 2
+    if delta >= DEFEAT_INFLUENCE:
+        return 1
+    return 1 if winner_attacked else 0
+
+
 #: Rung B: the share of a won assault the attacker spends taking the ground. The
 #: loser still yields the full delta -- only the winner's bank is discounted, and
 #: only when it was the side pushing forward. See the long-view note, seam 4.
@@ -95,6 +105,8 @@ class MissionResultsProcessor:
                 self.commit_front_line_battle_impact(debriefing, events)
             with logged_duration("commit_captures"):
                 self.commit_captures(debriefing, events)
+            with logged_duration("commit_sector_war"):
+                self.commit_sector_war(debriefing, events)
             with logged_duration("record_carcasses"):
                 self.record_carcasses(debriefing)
             with logged_duration("commit_super_gaggle"):
@@ -802,6 +814,63 @@ class MissionResultsProcessor:
             winner.base.affect_strength(delta * (1.0 - ASSAULT_COST_FRACTION))
         else:
             winner.base.affect_strength(delta)
+        self.take_sectors(winner, loser, delta, winner_attacked)
+
+    def take_sectors(
+        self,
+        winner: ControlPoint,
+        loser: ControlPoint,
+        delta: float,
+        winner_attacked: bool,
+    ) -> None:
+        """§111 step 2: a won battle takes the loser's sectors nearest the front."""
+        from game.theater.sectorwar import war_of
+
+        war = war_of(self.game)
+        if war is None:
+            return
+        count = sectors_won(delta, winner_attacked)
+        if count <= 0:
+            return
+        front = winner.front_line_with(loser)
+        taken = war.take_sectors(front, winner.captured, count)
+        if taken:
+            side = "We" if winner.captured.is_blue else "The enemy"
+            self.game.message(
+                "Sectors taken",
+                f"{side} took {', '.join(taken)} on the {front.name.removeprefix('Front line ')} front.",
+            )
+
+    def commit_sector_war(
+        self, debriefing: Debriefing, events: GameUpdateEvents
+    ) -> None:
+        """§111 step 2: a base taken in the mission takes its sector, and a base
+        whose sector was taken falls."""
+        from game.theater.sectorwar import war_of
+
+        war = war_of(self.game)
+        if war is None:
+            return
+        for captured in debriefing.base_captures:
+            war.claim_base(self.game.theater, captured.control_point)
+        for cp, holder in war.fallen_bases(self.game.theater):
+            try:
+                if holder.is_blue:
+                    self.game.message(
+                        f"{cp} captured!", f"We took the sector holding {cp}."
+                    )
+                else:
+                    self.game.message(
+                        f"{cp} lost!", f"The enemy took the sector holding {cp}."
+                    )
+                cp.capture(self.game, events, holder)
+                CsarService(self.game).liberate_prisoners_at(cp)
+                self.redeploy_units(cp)
+            except Exception:
+                logging.exception(f"Could not process sector capture of {cp}")
+        for front_line in self.game.theater.conflicts():
+            front_line.update_position()
+            events.update_front_line(front_line)
 
     def redeploy_units(self, cp: ControlPoint) -> None:
         """ "

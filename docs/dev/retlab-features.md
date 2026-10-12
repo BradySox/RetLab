@@ -10971,8 +10971,13 @@ measured along the border, instead of one short line across the road. The battle
 and the front's movement are unchanged. Setting *Front line battles spread along the
 border*, on by default. Not flown (row B230).
 
-Steps 2 (sectors decide the fight, a base falls with its sector, new-game setting on by
-default) and 3 (a CAS battle-map kneeboard card per front) are agreed with Brady, not built.
+Step 2, built 2026-10-12: sectors decide the fight. Each sector's owner is saved; the
+front line sits where its road enters the enemy's sectors; a won battle takes 2, 1 or 0
+sectors by how clear the win was; a base falls with its sector; a road through enemy
+sectors carries no convoys. Setting *Sectors decide the ground war*, on for new games; a
+save from before it keeps it off. Not flown (row B232).
+
+Step 3 (a CAS battle-map kneeboard card per front) is agreed with Brady, not built.
 
 **Design note:** [retlab-sector-war-notes.md](design/retlab-sector-war-notes.md) has the
 choices, the algorithm and the step 2 notes.
@@ -10988,9 +10993,15 @@ choices, the algorithm and the step 2 notes.
   `_battle_point`; each group keeps its own forward heading (`_local`).
 - `game/server/frontlines/models.py`: the app map's front line follows the battle stretch.
 - `game/server/sectors/models.py`: `TerritoryJs` and `SectorsJs` on `/game`.
+- `game/theater/sectorwar.py`: `SectorWar` (owners, `take_sectors`, `claim_base`,
+  `fallen_bases`, `route_progress`), `road_is_cut`, `ensure`.
+- `game/theater/frontline.py` (`_sector_war_progress`),
+  `game/sim/missionresultsprocessor.py` (`sectors_won`, `take_sectors`,
+  `commit_sector_war`), `game/theater/transitnetwork.py`, `game/game.py`.
 - `client/src/components/territorylayer/`, `client/src/api/territorySlice.ts`: the
   Territory and Sectors layers.
-- `tests/theater/test_sectors.py`, `client/src/components/territorylayer/TerritoryLayer.test.tsx`.
+- `tests/theater/test_sectors.py`, `tests/theater/test_sector_war.py`,
+  `client/src/components/territorylayer/TerritoryLayer.test.tsx`.
 
 ### Constraints
 
@@ -11000,8 +11011,12 @@ choices, the algorithm and the step 2 notes.
 - The territory border is pinned to the front by sources 1.2 NM either side of the bowed
   trace. Without them the edge drifts off the drawn front line.
 - A country holding no base on either side (§98's NEUTRAL posture) is nobody's ground.
-- Sectors are rebuilt, not saved. A change to the seeding or naming renames every sector
-  of a running campaign; step 2 must store them.
+- Sectors are rebuilt, not saved; step 2 saves their owners by name. A change to the
+  seeding or naming gives a running campaign's renamed sectors back to nobody.
+- The sector cache is keyed by base ids as well as names: two games of one campaign share
+  names, and a stale id silently stops bases falling with their sectors.
+- In a sector-war game the fronts follow the owners, never the other way round. Only turn 0
+  reads owners from the fronts.
 - Battles only stand on ground the landmap marks drivable. Abchazian Blitz's border near
   Sukhumi has about 6 NM of it, so that front stays short.
 - There are as many battles as the side with fewer armor wedges can fill, so every battle

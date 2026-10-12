@@ -1,0 +1,13 @@
+date: 2026-10-12
+title: Sectors decide the ground war
+change: >-
+  In new games each sector belongs to one side. A won front line battle
+  takes the enemy's sectors nearest the front: two for a strong win, one
+  for a clear win, and one for a narrow win only if you were attacking. The
+  front line sits where the road between the two bases enters enemy
+  sectors, and a base falls when its sector is taken. A road that runs
+  through enemy sectors carries no convoys. Older saves are unchanged.
+watch: >-
+  After a win, look for the sectors named in the turn's messages and the
+  territory fill growing on the map. Tell us if a base changes hands when
+  you did not expect it, or if the front line is drawn inside one color.
