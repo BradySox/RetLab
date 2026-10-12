@@ -16,9 +16,8 @@ behavior returns to upstream, including the task-weight rebalance
     missed F-14A-95-GR.yaml and F-100D.yaml.
   - Whole-file keeps: S-3B.yaml (sea-control shape, nothing restored) and
     C-130J-30.yaml (its task set is all fork lanes / decided keeps).
-  - Per-task keeps: the EA-18G / EA-6B `SEAD Escort: 400` demotion is wiring of the
-    kept Escort Jammer lane (the 2026-07-21 "prefer dedicated jammers as jammers"
-    call), so it survives the magnitude restore.
+  - Per-task keeps: none. The EA-18G / EA-6B `SEAD Escort: 400` demotion was kept
+    as wiring of the Escort Jammer lane until that lane was removed on 2026-10-12.
 
 Only the numeric value on a matched task line changes (or the whole line, for
 Intercept); byte-exact otherwise, line endings preserved. After writing, every file
@@ -52,20 +51,16 @@ EXCLUDED_FILES = {
 }
 
 # (file, task) pairs exempt from the restore: magnitudes that are the documented
-# wiring of a KEPT feature, not rubric rebalance. Restoring 550/460 here would put
-# the dedicated jammers back above the strike fighters (450) for SEAD Escort and
-# double-book them out of the kept Escort Jammer lane.
-KEEP_TASK_VALUES = {
-    ("EA-18G.yaml", "SEAD Escort"),
-    ("EA_6B.yaml", "SEAD Escort"),
-}
+# wiring of a KEPT feature, not rubric rebalance. Empty since 2026-10-12, when the
+# Escort Jammer lane and its two SEAD Escort demotions were removed.
+KEEP_TASK_VALUES: set[tuple[str, str]] = set()
 
 # Retired everywhere: the QRA alert reserve replaced Intercept as the intercept
 # model. Any surviving line is deleted outright.
 DELETE_TASKS = {"Intercept"}
 
 # Fork-only feature lanes, reported separately from other fork-only additions.
-FORK_LANES = {"TARPS", "Jamming", "Escort Jammer", "CSAR", "Sandy"}
+FORK_LANES = {"TARPS", "Jamming", "CSAR", "Sandy"}
 
 TASK_LINE = re.compile(
     r"^(?P<indent>\s+)(?P<name>[A-Za-z][A-Za-z0-9 /&'.()-]*?):"

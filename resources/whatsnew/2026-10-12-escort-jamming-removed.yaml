@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: Escort jamming removed
+change: >-
+  The Escort Jammer task, the Escort jamming plugin and the Max escort
+  jammers setting are gone. Growlers and Prowlers now fly SEAD and SEAD
+  Escort, and the planner prefers them for SEAD Escort again. A saved
+  Escort Jammer flight loads as a SEAD Escort.
+watch: >-
+  No package in the ATO carries an Escort Jammer flight. A wing with
+  Growlers or Prowlers shows them fragged as SEAD or SEAD Escort.

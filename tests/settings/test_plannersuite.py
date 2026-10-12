@@ -28,11 +28,9 @@ def test_apply_suite_and_back_round_trips() -> None:
     apply_planner_suite(settings, True)
     assert detect_planner_suite(settings) is True
     assert settings.barcap_overlap_time == timedelta(minutes=15)
-    assert settings.max_escort_jammers == 4
     apply_planner_suite(settings, False)
     assert detect_planner_suite(settings) is False
     assert settings.barcap_overlap_time == timedelta(minutes=0)
-    assert settings.max_escort_jammers == 0
 
 
 def test_hand_tuned_mix_detects_custom() -> None:

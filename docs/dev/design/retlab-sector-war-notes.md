@@ -37,9 +37,15 @@ them. A second set showed hand-drawn "BATTLE MAP" CAS kneeboard cards built per 
 
 `game/theater/sectors.py`.
 
-- **The war region** is the land within 60 NM of the outermost land bases, clipped to the
+- **The war region** is every §98 country holding a base on either side, out to its
+  border, plus the land within 60 NM of the outermost land bases. It is clipped to the
   landmap's inclusion zones, minus the sea and minus any §98 country holding no base on
-  either side. Off-map spawns and ships are not land bases.
+  either side. Off-map spawns and ships are not land bases. On a map with no border data
+  (Germany) the 60 NM box is the whole region. Until 2026-10-12 the box was the region
+  everywhere, and on Iraq it drew as a plain rectangle with most of the country unfilled.
+  A campaign that authors its own §98 borders lists its neighbours only (COIN has no
+  Afghanistan zone), so a country holding a base is also read from the map's own file in
+  `resources/borders/`.
 - **The grid** is 1 NM cells. A cell costs 1 to cross on drivable ground and 4
   (`MAX_TERRAIN_DIFFICULTY`, §90 rung D) inside an exclusion zone.
 - **Sectors** grow from seeds by multi-source shortest path over that grid, so an edge
@@ -60,9 +66,10 @@ them. A second set showed hand-drawn "BATTLE MAP" CAS kneeboard cards built per 
 - **Sector ownership** for display is whoever holds most of a sector's cells.
 
 Built on demand and cached: the sectors while the bases stay put, the territory while no
-base changes hands and no front moves. Measured on the cloud box: Abchazian Blitz 0.5 s,
-Red Tide 2.0 s, Iraq Desert Storm 1.4 s, Syria full map 0.7 s for sectors plus territory.
-The sector edges for the app map take 1.8 s on Red Tide, once.
+base changes hands and no front moves. Measured on Brady's PC with whole countries in the
+region, sectors plus territory: Abchazian Blitz 0.4 s, Red Tide 1.3 s, Iraq Desert Storm
+1.0 s, Northern Flank 1.3 s, Anatolian Reach 0.7 s. The sector edges for the app map take
+0.9 s on Red Tide, once.
 
 ### F10 map
 
@@ -163,5 +170,5 @@ Red Tide or Desert Storm.
 
 ## Not checked
 
-- How large filled drawings look and perform on the DCS F10 map. Red Tide's largest piece
-  is about 1,650 corners. Row B229.
+- How large filled drawings look and perform on the DCS F10 map. The largest piece is
+  Northern Flank's Russia, about 2,700 corners; Red Tide's is about 1,650. Row B229.

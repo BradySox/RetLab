@@ -75,7 +75,6 @@ def test_hostile_motorpool_mission_types_include_bai_and_inherited_types() -> No
         FlightType.ESCORT,
         FlightType.TARCAP,
         FlightType.SEAD_ESCORT,
-        FlightType.ESCORT_JAMMER,
         FlightType.SEAD_SWEEP,
         FlightType.ARMED_RECON,
         FlightType.SWEEP,

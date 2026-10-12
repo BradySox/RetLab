@@ -79,8 +79,7 @@ def test_the_carrier_air_wing_is_period_correct() -> None:
     """No Prowler on a 2027 deck.
 
     The Navy retired the EA-6B in 2015 (USMC 2019), so a Prowler here is the same
-    anachronism as red flying a J-7B. Electronic attack is the EA-18G, which also
-    outranks every other airframe for the §77 Escort Jammer role (800 vs 790).
+    anachronism as red flying a J-7B. Electronic attack is the EA-18G.
     """
     carrier = yaml.safe_dump(_campaign()["squadrons"]["Naval-1"])
     assert "EA-6B" not in carrier

@@ -133,9 +133,9 @@ def test_a_tanker_orbit_is_a_sortie_and_not_a_combat_sortie() -> None:
     assert pilot.record.combat_sorties == 0
 
 
-def test_an_escort_jammer_counts_as_a_combat_sortie() -> None:
+def test_an_escort_counts_as_a_combat_sortie() -> None:
     # It rides into the same threat ring as the strikers it is covering.
-    assert is_combat_sortie(FlightType.ESCORT_JAMMER)
+    assert is_combat_sortie(FlightType.SEAD_ESCORT)
     assert is_combat_sortie(FlightType.BARCAP)
     assert is_combat_sortie(FlightType.STRIKE)
     assert not is_combat_sortie(FlightType.FERRY)

@@ -54,7 +54,6 @@ TASK_MAPPING: dict[FlightType, tuple[Any, list[Any]]] = {
     FlightType.SEAD: (SEAD, [CAS, AFAC, AntishipStrike]),
     FlightType.SEAD_SWEEP: (SEAD, [CAS, AFAC, AntishipStrike]),
     FlightType.SEAD_ESCORT: (SEAD, []),
-    FlightType.ESCORT_JAMMER: (SEAD, [Escort]),
     FlightType.STRIKE: (GroundAttack, [PinpointStrike, AFAC]),
     FlightType.ANTISHIP: (AntishipStrike, [CAS, AFAC, SEAD]),
     FlightType.ESCORT: (Escort, []),

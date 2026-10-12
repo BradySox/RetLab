@@ -91,10 +91,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Survivors pop smoke for AI rescue flights. Human crews get the F10 menu — list active
   survivors, request smoke, flare or IR strobe — and choose when to expose the position.
 - JAMMING turns the C-130J into an EC-130H/RC-130H-style EW and ISR platform.
-- Escort jamming is flown by the EA-18G Growler and EA-6B Prowler only (both require their
-  mods). The jammer spoofs radar missiles fired at anything under its bubble and pulses
-  tracking SAMs to weapons-hold; effect strengthens with proximity. AI flies it automatically;
-  players get an F10 menu. A per-side cap limits how many fly per turn.
 - The auto-planner puts jammers on the packages that fly into a SAM ring — DEAD and strike.
   Helicopter packages (air assault, CSAR) do not get one; neither do their fast-jet formation
   escorts, which now follow the same helo/LHA rule the A2A and SEAD escorts already used.

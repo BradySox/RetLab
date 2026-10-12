@@ -40,7 +40,6 @@ from .interceptluadata import (
 from .cruisemissileluadata import populate_cruise_missiles_lua
 from .missiondata import MissionData
 from .gpsjammingluadata import populate_gps_jamming_lua
-from .growlerluadata import populate_growler_lua
 from .navalmagazineluadata import populate_naval_magazines_lua
 from .neutralborderluadata import populate_neutral_border_lua
 from .redscrambleluadata import populate_red_scramble_lua
@@ -440,12 +439,6 @@ class LuaGenerator:
         # convoy and/or mobile VBIED exists; the coin plugin drives them at runtime
         # (the kill/fuse consequence stays in the turn-boundary force model).
         populate_coin_lua(lua_data, self.game, self.mission_data)
-
-        # Growler escort jamming -- emits dcsRetribution.growler only when an
-        # ESCORT_JAMMER flight exists; the growler plugin drives the scripted
-        # jamming effects (missile-spoof bubble + ROE-hold pulses, never
-        # enableEmission) over the package it escorts.
-        populate_growler_lua(lua_data, self.game, self.mission_data)
 
         # GPS jamming (§85) -- emits dcsRetribution.gpsJamming only when the
         # setting is on and a live GPS-jamming ground site exists; the gpsjamming

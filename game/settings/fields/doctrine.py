@@ -380,8 +380,8 @@ class DoctrineSettings:
         "One SEAD flavor per package",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
-        # Stock default (2026-08-09 re-convergence): upstream sets the SEAD and
-        # jammer flags off one radar-SAM trigger, so a package can pull SEAD
+        # Stock default (2026-08-09 re-convergence): upstream sets the SEAD
+        # flag off one radar-SAM trigger, so a package can pull SEAD
         # Escort, SEAD Sweep and (on DEAD) a SEAD flight at once. RetLab
         # planner suite preset turns this on.
         default=False,
@@ -461,27 +461,6 @@ class DoctrineSettings:
             "strikes push, several packages massing behind one suppressor. "
             "Player packages are never rescheduled, but a player-flown SEAD "
             "still opens a window the AI pushes behind."
-        ),
-    )
-    max_escort_jammers: int = bounded_int_option(
-        "Max escort jammers airborne per side",
-        page=CAMPAIGN_DOCTRINE_PAGE,
-        section=GENERAL_SECTION,
-        # Stock default (2026-08-09 re-convergence): upstream plans no escort
-        # jammers. RetLab planner suite preset sets 4.
-        default=0,
-        min=0,
-        max=12,
-        detail=(
-            "Caps how many escort-jamming flights (dedicated jammers -- the EA-18G "
-            "Growler / EA-6B Prowler) each side's auto-planner will frag in one "
-            "turn. Escort jammers are proposed on "
-            "every radar-SAM-threatened package, so a strike-heavy turn against a "
-            "dense IADS could otherwise put a dozen jammers in the air. The bubble "
-            "and SAM-suppression effects don't stack (a missile faces one bubble, a "
-            "SAM always gets a shoot-back window), so this is mostly an "
-            "airframe-economy bound -- 0 disables auto-planned jammers entirely, "
-            "leaving only any you plan yourself."
         ),
     )
     heli_combat_alt_agl: int = bounded_int_option(

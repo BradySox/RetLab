@@ -35,14 +35,12 @@ moves code past its docs is a broken push.
 5. `AGENTS.md` — sync to mirror `CLAUDE.md` (see Conventions)
 6. `docs/dev/checklist-rows/<ID>.md` — add a row for any feature with runtime behavior that CI can't exercise (one file per row; see the table below)
 7. **If a feature's RULE changed (not just its internals), grep the docs for the phrases the
-   change falsified** — in the old rule's own words ("until scouted", the removed setting
-   name), not the `§N`. Steps 1-6 cover the feature's own faces, not the other notes that
-   merely mention it; the 2026-08-18 §3 rework left 8 stale claims behind, two on the wiki.
-   `python tools/audit_stale_docs.py` checks every published file (README and `docs/wiki/`)
-   against a table of removed features; CI runs it in `lint.yml` (job *Published docs*).
-   **When you remove a feature, add its `Removed` row to that table in the same change.**
-   Exit 1 = a published page still briefs a removed feature; exit 2 = a row's own pattern is
-   inert. Audited in `docs/dev/design/retlab-doc-mass-notes.md`.
+   change falsified**, in the old rule's own words ("until scouted", the removed setting
+   name), not the `§N`. `python tools/audit_stale_docs.py` checks every published file
+   (README and `docs/wiki/`) against a table of removed features; CI runs it in `lint.yml`
+   (job *Published docs*). **When you remove a feature, add its `Removed` row to that table
+   in the same change.** Exit 1 = a published page still briefs a removed feature; exit 2 =
+   a row's own pattern is inert.
 
 **Parallel PRs must not collide (STANDARD, 2026-09-29).** Several threads run at once, and
 nearly every PR used to conflict in the same five places. Each now has a rule:
@@ -89,7 +87,7 @@ feature — each carries the design rationale, the flown-test findings, and the 
 | [retlab-features.md](docs/dev/retlab-features.md) | **The deep dive.** Every feature with file paths, gotchas, tests, deferred work. |
 | [retlab-features-history.md](docs/dev/retlab-features-history.md) | Full text of the older §8 fix entries and §6's removed orbit design. The features doc keeps one line each. |
 | [retlab-feature-index.md](docs/dev/retlab-feature-index.md) | Generated catalog of every feature with its plugin and `Settings` wiring. |
-| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. Rows added from 2026-09-29 are one file each in `docs/dev/checklist-rows/`. Find a row: `grep -rn "^### B55 " docs/dev/retlab-ingame-pass-checklist.md docs/dev/checklist-rows`, then Read ~15 lines from there. Never search a bare row ID. |
+| [retlab-ingame-pass-checklist.md](docs/dev/retlab-ingame-pass-checklist.md) | Every "needs an in-game pass" item with a pass criterion and fail signature. Rows added from 2026-09-29 are one file each in `docs/dev/checklist-rows/`. Settled rows (verified, retired, removed, closed) are in `retlab-ingame-pass-checklist-archive.md`; `python tools/checklist_rows.py archive` moves them. Find a row: `grep -rn "^### B55 " docs/dev/retlab-ingame-pass-checklist*.md docs/dev/checklist-rows`, then Read ~15 lines from there. Never search a bare row ID. |
 | [flycards/WATCH.md](docs/dev/flycards/WATCH.md) | The standing opportunistic watch list — rows to adjudicate on any flight. |
 | [flycards/LOCAL.md](docs/dev/flycards/LOCAL.md) | The rolling local test card for contrived conditions. |
 | [retlab-early-systems-decision-ledger.md](docs/dev/retlab-early-systems-decision-ledger.md) | The 2026-07-18 deep-audit verdicts on the early-systems core, with self-play evidence. |
@@ -99,107 +97,25 @@ feature — each carries the design rationale, the flown-test findings, and the 
 | [retlab-retribution-long-view.md](docs/dev/design/retlab-retribution-long-view.md) | Structural read of the engine (2026-08-17) and its seven seams. 1 and 4 are BUILT (§91, §90); 2 and 5 accepted, not started; 3 analysis only; 6 scoped in `retlab-coop-persistent-campaign-notes.md`; **7 (the enemy) DROPPED** — read [retlab-red-brain-phase0-notes.md](docs/dev/design/retlab-red-brain-phase0-notes.md) before proposing anything about red. |
 | [retlab-campaign-architecture-notes.md](docs/dev/design/retlab-campaign-architecture-notes.md) | Direction note (2026-08-20, DM call): the one-substrate architecture, rungs R0–R7. Nothing built; each rung lands on its own call. |
 
-### Campaign notes — `docs/dev/design/`
+### Design notes — `docs/dev/design/`
 
-Read before touching a campaign's `.yaml`, `.miz` or build tool.
+One note per campaign and per system, indexed in
+[docs/dev/design/README.md](docs/dev/design/README.md). **Find and read the matching note
+before touching a campaign's `.yaml`, `.miz` or build tool, or a feature's code.** A new note
+is added to that index in the same change.
 
-| Campaign | Note |
-|---|---|
-| Germany — Red Tide | `retlab-red-tide-campaign-notes.md` (+ `retlab-red-tide-supply-routes-notes.md`, `retlab-red-tide-c2-real-buildings-HANDOFF.md`) |
-| Operation Baltic Fury | `retlab-baltic-fury-campaign-notes.md` |
-| Marianas — Second Island Chain 2027 | `retlab-marianas-2027-campaign-notes.md` |
-| Marianas — Operation Forager (1944) | `retlab-marianas-wwii-terrain-notes.md` (the terrain note owns it) |
-| Syria — Anatolian Reach (2004) | `retlab-anatolian-reach-campaign-notes.md` — **Akrotiri stays support-only**; read the note first |
-| Iraq — Umm al-Ma'arik (Desert Storm) | `retlab-desert-storm-campaign-notes.md` |
-| Iraq — Operation Inherent Resolve | `retlab-inherent-resolve-campaign-notes.md` |
-| Afghanistan — Enduring Resolve (COIN) | `retlab-coin-HANDOFF.md` — **start here for COIN** |
-| Caucasus — Iron Gate | `retlab-iron-gate-campaign-notes.md` |
-| Nevada — Red Flag 81-2 | `retlab-red-flag-81-campaign-notes.md` |
-| Kola — Northern Flank 1985 | `retlab-northern-flank-campaign-notes.md` — Sweden and Finland hold nothing; Luostari has no jet stands |
-| Vietnam set | `retlab-vietnam-retribution-HANDOFF.md`, `retlab-vietnam-retribution-notes.md`, `retlab-vietnam-ops-notes.md`, `retlab-vietnam-red-tempo-notes.md` |
-| Iraq map 2.9.28 content | `retlab-iraq-map-2928-notes.md` — authoring plan, not yet built |
+The starting points that are easiest to miss:
 
-### System notes — `docs/dev/design/`
-
-One line each; the status is the note's own. Read the note, not this line, before editing.
-
-- **IADS / air defense** — `retlab-skynet-return-notes.md` (**start here**: Skynet is the
-  engine again since 2026-09-12; MANTIS and the MIST shim are gone),
-  `retlab-sam-site-realism-notes.md`, `retlab-air-defense-planning-notes.md`,
-  `retlab-qra-player-manning-notes.md`, `retlab-sam-magazines-notes.md` (scoping only),
-  `retlab-iran-iads-deployment-notes.md` (research: where Iran's SAMs sit, map by map)
-- **EW / ISR / comms** — `retlab-c130-ew-isr-notes.md`, `retlab-gps-jamming-notes.md`,
-  `retlab-iads-c2-consequences-notes.md`
-- **Recon** — `retlab-recon-role-scoping-notes.md` (candidate A built 2026-08-18; B and C scoping)
-- **CSAR** — `retlab-csar-notes.md` (the one CSAR doc)
-- **COIN** — `retlab-coin-insurgent-replenishment-notes.md`, `retlab-coin-reinfiltration-notes.md`
-- **Naval** — `retlab-cruise-missile-raids-notes.md`, `retlab-naval-magazines-notes.md`,
-  `retlab-carrier-deck-decor-notes.md`, `retlab-antiship-deal-notes.md` (which ship each
-  anti-ship flight attacks; row B219)
-- **Ground / frontline** — `retlab-tic-dynamic-fronts-notes.md`,
-  `retlab-pr823-frontline-merge-notes.md` (read before adopting upstream #823),
-  `retlab-airlift-capacity-notes.md` (built 2026-08-26; **`cabin_size` is CTLD seats, not
-  airlift**), `retlab-het-convoy-notes.md` (scoping only),
-  `retlab-observer-gated-artillery-notes.md` (scoping only),
-  `retlab-front-movement-arrows-notes.md` (built 2026-09-23, row B139),
-  `retlab-sector-war-notes.md` (§111; Brady's 2026-10-12 choices and the build steps)
-- **Tankers** — `retlab-tanker-box-notes.md` (per-flight orbit speed, the 40 NM racetrack
-  every theater tanker flies, and why the four-corner box was removed 2026-10-09; rows
-  B152/B206)
-- **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (§94; the `aiReactionExempt`
-  protocol any plugin setting reaction-on-threat must use)
-- **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract
-  and numbers), `retlab-iran-air-defense-pack-HANDOFF.md` (the private pack's local build)
-- **Neutral factions** — `retlab-neutral-border-defense-notes.md` (§98; why a true neutral
-  cannot fire, and the DM-locked rules), `retlab-national-postures-notes.md` (the posture
-  table; consent moved to airbases 2026-08-26; the measured country-per-map table)
-- **Strike targets / BDA** — `retlab-scenery-kill-tracking-notes.md` (position matcher adopted
-  from upstream #957 on 2026-08-30; row B63 verified in test 33)
-- **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
-  edited on the map, never by typed coordinates; rows B150/B151)
-- **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103, and §112 HQ requests),
-  `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; read its
-  guardrails first), `retlab-llm-opfor-notes.md` (§109: the outside AI that reads red's turn;
-  the 2026-10-09 DM call that reversed "no LLM runs in this fork"), `retlab-falcon-bms-campaign-notes.md` (study),
-  `retlab-region-priorities-notes.md` (§93), `retlab-substrate-inventory-notes.md` (R0, done),
-  `retlab-substrate-HANDOFF.md` (start here to continue the substrate work),
-  `retlab-aircraft-task-rebalance-rubric.md`, `retlab-victory-conditions-notes.md`,
-  `retlab-autoplanner-upstream-divergence-audit.md`
-  (the full fork-vs-upstream planner diff; read before reverting or carving planner behavior),
-  `retlab-cruise-mach-notes.md` (built 2026-09-01; only the F/A-18C is authored),
-  `retlab-bullseye-notes.md` (§95), `retlab-flight-report-cards-notes.md` (§108, row B158),
-  `retlab-coop-persistent-campaign-notes.md` (scoped, not built)
-- **Cockpit / data** — `retlab-dtc-cartridge-notes.md`, `retlab-weapon-dates-proposal.md`,
-  `retlab-datalink-era-notes.md` (`DatalinkPolicy`, built 2026-08-16),
-  `retlab-dynamic-spawn-templates-notes.md` (§101, row B125), `retlab-my-aircraft-notes.md`
-  (§102, rows B135/B136), `retlab-startup-times-notes.md` (read before adding a
-  `startup_minutes:` value), `retlab-loadout-integrity-audit-notes.md`
-- **Terrain / maps / weather** — `retlab-marianas-wwii-terrain-notes.md` (built 2026-08-22;
-  read its traps before exporting another terrain), `retlab-atmosx-live-weather-notes.md`
-  (adopted from upstream #927)
-- **Framework / tooling** — `retlab-moose-ops-opportunity-map.md`,
-  `retlab-moose-bundle-patches-notes.md` (**read before bumping `Moose.lua`**),
-  `retlab-lua-plugin-harness-notes.md`, `retlab-splash-damage-notes.md` (why the Splash
-  Damage build is pinned)
-- **Structure / debt** — `retlab-doc-mass-notes.md` (the 2026-08-19 features-doc trim, and
-  **how to replace a section without destroying its neighbours**)
-- **Process** — `retlab-verification-cadence-notes.md` (partly built: WATCH and LOCAL; the
-  session-start board was removed 2026-10-12), `retlab-sim-thread-freeze-notes.md` (**read before chasing a stutter**; test
-  in model time, never wall time), `retlab-dcs-update-2026-08-26-notes.md` (that patch
-  triaged, verified against the install the same day), `retlab-dcs-log-noise-notes.md` (read
-  before triaging a `dcs.log`), `retlab-dcs-olympus-notes.md`, `retlab-ui-redesign-directions.md`
-  (+ `-mockups.html`), `retlab-ui-consistency-audit-notes.md` (the UI text house style),
-  `retlab-campaign-doc-ideas-harvest.md`
-- **Other forks and projects we watch** — `retlab-juanjux-fork-watch-notes.md`,
-  `retlab-liberation-watch-notes.md`, `retlab-mist-author-repos-notes.md` (licence-gated),
-  `retlab-fincenturion-dist-notes.md` (study only; read, never vendor)
-
-### Superseded, draft or historical
-
-Kept for reading old notes and saves; **do not author against them**.
-
-`retlab-scenery-import-notes.md` (`game/campaignloader/scenerycatalog.py` points at it) ·
-`turnless.md` (upstream's)
+- **IADS** — `retlab-skynet-return-notes.md`. Skynet is the engine again since 2026-09-12;
+  MANTIS and the MIST shim are gone.
+- **COIN** — `retlab-coin-HANDOFF.md`. **CSAR** — `retlab-csar-notes.md`.
+- **Syria — Anatolian Reach** — Akrotiri stays support-only; read its note first.
+- **A stutter or freeze** — `retlab-sim-thread-freeze-notes.md`. Test in model time, never
+  wall time.
+- **Bumping `Moose.lua`** — `retlab-moose-bundle-patches-notes.md`.
+- **Reverting or carving planner behavior** — `retlab-autoplanner-upstream-divergence-audit.md`.
+- **Adopting upstream #823** — `retlab-pr823-frontline-merge-notes.md`.
+- **Replacing a features-doc section** — `retlab-doc-mass-notes.md`.
 
 ### Deleted design notes
 
@@ -258,29 +174,27 @@ current map's sound files) declaring `late_init_files()` / `late_init_preamble()
 by `game/plugins/tests/test_late_init.py`.
 
 **Viewer-aware visibility layer (recon fog).** AI planning and threat math always use ground
-truth (`viewer=None`); only the human (BLUE) map/UI are fogged. **One question, asked in one
-place**: `TheaterGroundObject.visibility_for(viewer)` returns HIDDEN / UNKNOWN / KNOWN, and
-`known_for` + `hidden_on_player_map` are its two leaves. `known_for` gates composition and
-threat/detection rings (`recon_intel_fog`); `hidden_on_player_map` fully hides enemy command
-posts (`scar_command_post_intel`). Nothing else is viewer-aware except
-`standard_identity_for` (COIN's suspect-until-engaged symbol).
-**A site is revealed by engaging it — ordnance on it, or any ground-attack sortie that reaches
-it — and is then known completely and permanently, damage included.** Two other reveals:
-fixed SAM sites (`is_fixed_sam_site`) are always known, and a captured enemy commander
-reveals every command post. Recon/TARPS reveals nothing except a hidden command post within
-3 NM of its target (`reveal_scouted_command_posts`). There is no BDA damage lag:
-`alive`/`is_dead`/`dead_units`/`max_threat_range`/… are plain truth. Do **not** reintroduce a
-viewer parameter on those, or the old `_for_player`/`_for` method twins.
-**Anything that picks targets FOR blue automatically must gate on the fog** — auto raids
-(§63), the carrier strike (§44), C2 decapitation (§52), HQ priorities (§103), any future fire
-mission. Use `fogofwar.hidden_from(Player.BLUE, tgo)`, never a bare `hidden_on_player_map`: it
-wraps `fog_intact()`, so a host who ticked the reveal overview cannot get a different target
-than one who did not. Red is never fogged.
-A runtime **overview toggle** (`game/theater/fogofwar.py`, transient/never-pickled)
-short-circuits both fog leaves to ground truth, so the whole render path and intel dialogs
-un-fog with **no** server-model changes. It is a checkbox in `MapLayersControl` (§18), driven
-by a state `useEffect` (not a Leaflet add/remove layer — unmount doesn't reliably fire
-`remove`) that `PUT`s `/fog-of-war/reveal` then re-pulls `/game`. (See features doc §3.)
+truth (`viewer=None`); only the human (BLUE) map and UI are fogged. **One question, asked in
+one place**: `TheaterGroundObject.visibility_for(viewer)` returns HIDDEN / UNKNOWN / KNOWN.
+Its two leaves are `known_for` (composition and threat/detection rings, `recon_intel_fog`) and
+`hidden_on_player_map` (enemy command posts, `scar_command_post_intel`). Nothing else is
+viewer-aware except `standard_identity_for` (COIN's suspect-until-engaged symbol).
+
+- **A site is revealed by engaging it** (ordnance on it, or any ground-attack sortie that
+  reaches it) and is then known completely and permanently, damage included. Fixed SAM sites
+  (`is_fixed_sam_site`) are always known. A captured enemy commander reveals every command
+  post. Recon reveals only a hidden command post within 3 NM of its target.
+- There is no BDA damage lag: `alive`/`is_dead`/`dead_units`/`max_threat_range` are plain
+  truth. Do **not** reintroduce a viewer parameter on those, or the old `_for_player`/`_for`
+  method twins.
+- **Anything that picks targets FOR blue automatically must gate on the fog**: auto raids
+  (§63), the carrier strike (§44), C2 decapitation (§52), HQ priorities (§103), any future
+  fire mission. Use `fogofwar.hidden_from(Player.BLUE, tgo)`, never a bare
+  `hidden_on_player_map`; it wraps `fog_intact()`, so a host who ticked the reveal overview
+  gets the same target as one who did not. Red is never fogged.
+- The **overview toggle** (`game/theater/fogofwar.py`, transient, never pickled)
+  short-circuits both leaves to ground truth with no server-model change. It is a checkbox in
+  `MapLayersControl` (§18). See features doc §3.
 
 **Save migration.** Removed/renamed enum *values* migrate in **one place**:
 `FlightType._missing_` (`game/ato/flighttype.py`) maps legacy persisted strings to live
@@ -329,8 +243,6 @@ linked design note.
 - **Never restore the generic `ewrj` fighter-pod jammer** (§2). Superseded by the C-130J.
 - **The C-130J cues; it never lases or designates.** It carries no targeting sensor in DCS.
   Retribution has no FAC(A) task type; §38 does marking through Vietnam Ops.
-- **Never unify §77 escort jamming with the C-130's standoff model.** §77 strengthens as the
-  jammer closes; the C-130's burn-through weakens. Both are intentional and opposite.
 - **Never add a land-attack weapon family to the §81 anti-ship pattern list.** §63 and §81 stay
   correct only because their weapon sets are disjoint.
 - **GPS jamming (§86): at most 3 sites per campaign, non-overlapping.** Bubbles are large and
@@ -356,61 +268,60 @@ linked design note.
 
 ### Live features
 
-1. **QRA intercept reserve** — per-squadron alert reserve feeding the Moose `AI_A2A_DISPATCHER`, with player-manned cold alert, a scramble cue, and forward-defense border zones.
-2. **JAMMING flight type** — the C-130J as an EC-130H/RC-130H EW + ISR platform (`c130j` plugin).
-3. **Recon intel fog** — an enemy site's composition stays hidden until you engage it; once engaged it is known completely and permanently. Fixed SAM sites are always known. Recon's only job is finding the hidden enemy command posts.
+1. **QRA intercept reserve** — alert jets, player-manned cold alert, forward-defense border zones.
+2. **JAMMING flight type** — the C-130J as an EW + ISR platform (`c130j` plugin).
+3. **Recon intel fog** — a site is unknown until engaged, then known for good; recon finds command posts.
 4. **UI transparency** — target intel panel, mission-impact debrief, package context bar.
-5. **Player target location precision** — `Approximate` mode offsets steerpoints and hides exact coords.
-6. **Air-defense planning rework** — overlapping BARCAP waves, the first one ASAP along with every tanker and AWACS; no BARCAP over an LHA within 80 NM of a friendly carrier. The geometry half was reverted to upstream 2026-08-09.
-7. **Auto-hide mobile SAMs on MFD** — SHORAD/AAA/MANPAD off datalink; MERAD/LORAD stay visible for SEAD.
-8. **Robustness, crash fixes and refuelling** — helo CFIT, carrier-recovery stagger, convoy runway spawns, support-flight radio collisions, locked speed/time route rejection; per-flight Refuel before the push and Refuel before station.
-9. **TIC — Troops In Contact** — scripted frontline firefights with per-stance movement and ambient fire.
-10. **CurrentHill Iran assets pack** — Shahed-136, IRGCN FAC, `[CH] Iran 2020` faction.
-14. **Plugin Options UI** — `descriptionInUI` field plus label and default polish.
-16. **Settings QOL audit** — dead-field cleanup and the `AiRadioBehavior` enum consolidation.
-17. **Auto-planner target unpredictability** — opt-in per-side reordering of opportunistic offensive targets only.
-18. **Fog-of-war overview toggle** — transient reveal, never persisted, and fenced out of generated missions.
-19. **Unified map layers panel** — one grouped control with preset views; air-defence rows filter the master.
-22. **Kneeboard space-utilisation + custom import** — per-campaign imported kneeboard images.
-23. **Per-squadron DCS country** — nation-specific voiceovers and pilot names, pinnable per squadron.
-24. **Date-gated aircraft properties** — era-gated payload-editor options under `restrict_props_by_date`.
-26. **Off-mission combat fidelity** — capability-weighted auto-resolution plus the PLAYER_AT_IP fast-forward fix.
-27. **Shared-airframe kneeboard index** — one index page when several client flights share a type.
-28. **Settings IA reorg + difficulty presets** — metadata-driven layout, difficulty presets, search filter, and the RetLab Features page.
-29. **Campaign SITREP** — a last-turn digest on its own kneeboard page, the web ribbon, and the Qt debrief.
-32. **Arc Light** — heavy bombers walk a bomb carpet across a Strike target *(Vietnam Ops)*.
-33. **AAA flak gauntlet** — barrage flak that tightens against predictable run-ins *(Vietnam Ops)*.
-34. **Naval gunfire support** — call-for-fire and automatic coastal bombardment *(Vietnam Ops)*.
-35. **Convoy interdiction** — real tracked trail convoys hunted via Armed Recon *(Vietnam Ops)*.
-37. **Super Gaggle** — real squadron helos resupplying a cut-off outpost *(Vietnam Ops)*.
-38. **FAC(A) willie-pete marking** — an OV-10 marks the largest enemy concentration *(Vietnam Ops)*.
-39. **Snake and nape** — detonation-anchored napalm fire from a low fast release *(Vietnam Ops)*.
-41. **High Digit SAMs Ultimate Compilation** — S-400, S-300V4, SAMP/T, Pantsir-SM, period EWRs.
-42. **Local DCS chart base layers** — locally installed XYZ tile pyramids as extra base maps.
-43. **Per-aircraft flight defaults** — saved fuel and cockpit properties per airframe.
-44. **Long-range carrier ops** — a deterministic package off a standoff boat, routed to its own tanker.
-45. **Support-package F10 markers** — tanker and AEW&C orbits and CAP stations drawn on the F10 map, with callsign, freq and TACAN.
-47. **Continuous campaign clock & weather** — one marched clock with weather evolving from the previous turn.
+5. **Player target location precision** — `Approximate` mode offsets steerpoints.
+6. **Air-defense planning rework** — BARCAP waves; first wave, tankers and AWACS ASAP. Geometry is upstream's.
+7. **Auto-hide mobile SAMs on MFD** — SHORAD/AAA/MANPAD off datalink.
+8. **Robustness, crash fixes and refuelling** — the fix log; per-flight Refuel before the push / before station.
+9. **TIC — Troops In Contact** — scripted frontline firefights.
+10. **CurrentHill Iran assets pack** — Shahed-136, IRGCN FAC, `[CH] Iran 2020`.
+14. **Plugin Options UI** — `descriptionInUI`, labels and defaults.
+16. **Settings QOL audit** — dead-field cleanup, the `AiRadioBehavior` enum.
+17. **Auto-planner target unpredictability** — opt-in reordering of opportunistic targets.
+18. **Fog-of-war overview toggle** — transient reveal, never saved, fenced out of missions.
+19. **Unified map layers panel** — one grouped control with presets.
+22. **Kneeboard space-utilisation + custom import** — per-campaign kneeboard images.
+23. **Per-squadron DCS country** — nation voiceovers and pilot names.
+24. **Date-gated aircraft properties** — `restrict_props_by_date`.
+26. **Off-mission combat fidelity** — capability-weighted auto-resolution.
+27. **Shared-airframe kneeboard index** — one index page per shared type.
+28. **Settings IA reorg + difficulty presets** — metadata layout, presets, search, the RetLab Features page.
+29. **Campaign SITREP** — last-turn digest on the kneeboard, ribbon and debrief.
+32. **Arc Light** — bomber carpet on a Strike target *(Vietnam Ops)*.
+33. **AAA flak gauntlet** — barrage flak against predictable run-ins *(Vietnam Ops)*.
+34. **Naval gunfire support** — call-for-fire and coastal bombardment *(Vietnam Ops)*.
+35. **Convoy interdiction** — real trail convoys for Armed Recon *(Vietnam Ops)*.
+37. **Super Gaggle** — real helos resupply a cut-off outpost *(Vietnam Ops)*.
+38. **FAC(A) willie-pete marking** — an OV-10 marks the enemy concentration *(Vietnam Ops)*.
+39. **Snake and nape** — napalm fire from a low fast release *(Vietnam Ops)*.
+41. **High Digit SAMs Ultimate Compilation** — S-400, S-300V4, SAMP/T, Pantsir-SM.
+42. **Local DCS chart base layers** — local tile pyramids as base maps.
+43. **Per-aircraft flight defaults** — saved fuel and cockpit properties.
+44. **Long-range carrier ops** — a standoff boat's package with its own tanker.
+45. **Support-package F10 markers** — tanker, AEW&C and CAP stations on the F10 map.
+47. **Continuous campaign clock & weather** — one marched clock; weather evolves.
 50. **Ambient supply convoys** — a few real supply columns on both sides' roads every turn.
-52. **Command-center decapitation** — a headless HQ picks targets worse and frags fewer offensive packages.
-56. **Strikeable motorpool depots** — the reserve armor pool made bombable, 1:1 with no economy.
-58. **Mission-start briefing popup** — per-pilot slot-in cards with a beep and the taxi call.
-61. **Host red-interceptor scramble** — an F10 bandit spawner for a quiet event.
-62. **Squadron-sequenced modexes** — per-squadron number blocks for Hornets, a CAG bird and line jets for Tomcats; the Payload tab can pin a flight's number.
-63. **Ship-launched cruise missile raids** — finite no-rearm magazines, auto raids and an F10 call-for-fire, with a defender launch wake.
-64. **Carrier deck spawn policy** — AI carrier flights spawn clear of the six-pack; player carrier flights always spawn at mission start, so their MP slots work.
-65. **Curated carrier comms** — per-hull TACAN, ident, ICLS, Link 4 and ATC feeding the CV Operations Data page.
-66. **Generated-mission archive** — a dated copy of every generation, in a folder DCS lists.
-67. **Weather-aware auto-planning** — rain grounds auto-recon; storms demote low-level attack.
-68. **Adaptive procurement** — price-weighted buys and optional SAM site repair.
-69. **SEAD-before-strike coordination** — strikes retimed behind the suppressor servicing their target.
-71. **Expanded F-4E Weapons Pack** — AGM-78 Weasel fits gated on live pylon legality.
-72. **Carrier deck decorations** — island-street and LSO dressing, clear of every parking spot and standing for the whole mission.
-73. **Per-airframe default loadout for a task** — pin a fit for an airframe and task across campaigns.
-74. **Native DTC data pre-population** — auto-loading cartridges for the Hornet, Viper, F-14B(U) and Apache, with a per-flight DTC tab.
-75. **Custom victory conditions** — authored win/lose blocks plus generic domination and attrition endings.
+52. **Command-center decapitation** — a headless HQ plans worse and frags less.
+56. **Strikeable motorpool depots** — the reserve armor pool, bombable 1:1.
+58. **Mission-start briefing popup** — per-pilot slot-in cards.
+61. **Host red-interceptor scramble** — an F10 bandit spawner.
+62. **Squadron-sequenced modexes** — per-squadron board numbers; pin one per flight.
+63. **Ship-launched cruise missile raids** — finite magazines, auto raids, F10 call-for-fire.
+64. **Carrier deck spawn policy** — AI clear of the six-pack; players spawn at mission start.
+65. **Curated carrier comms** — per-hull TACAN, ICLS, Link 4 and ATC.
+66. **Generated-mission archive** — a dated copy of every generation.
+67. **Weather-aware auto-planning** — rain grounds recon; storms demote low attack.
+68. **Adaptive procurement** — price-weighted buys, optional SAM repair.
+69. **SEAD-before-strike coordination** — strikes retimed behind their suppressor.
+71. **Expanded F-4E Weapons Pack** — AGM-78 fits gated on pylon legality.
+72. **Carrier deck decorations** — deck dressing clear of every parking spot.
+73. **Per-airframe default loadout for a task** — pin a fit across campaigns.
+74. **Native DTC data pre-population** — cartridges for Hornet, Viper, F-14B(U), Apache.
+75. **Custom victory conditions** — authored and generic endings.
 76. **CTLD paratroopers** — fixed-wing Air Assault by paradrop, player and AI.
-77. **Escort jamming** — EA-18G and EA-6B only; non-stacking spoof bubbles and SAM weapons-hold pulses.
 78. **Sea-supply convoys + coastal anti-ship** — proportional convoy losses and batteries that actually engage.
 80. **Mixed-hull ship groups** — task groups instead of copies of one hull, family-bounded.
 81. **Cross-turn naval magazines** — staggered weapons-free release and finite anti-ship stock, released on attack.
@@ -440,6 +351,34 @@ linked design note.
 109. **Outside AI reads red's turn** — a REST API under `/retribution-ai/*` for an AI on the same PC: it reports what looks wrong in red's plan, and with the Outside AI plans red setting ticked (Campaign Management; also on the new game wizard's Campaign options page) it plans red's packages, TOTs, stances and buying, starting from the plan the scripted planner still makes every turn. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; loadouts, waypoints, transfers, ships, repairs and MCP are staged after it.
 111. **Sector war** — the war region is cut into named sectors about 10 NM across (WHISKEY-14), shaped by the ground. Step 1 (built): each side's territory is filled on the F10 map and the app map, and each front's units fight a battle in every sector along the shared border (setting on by default). Step 2 (built, new games): sectors decide the fight; a won battle takes sectors, the front sits on the sector edge, a base falls with its sector, a road through enemy sectors carries no convoys. Step 3 (a CAS battle-map card) is agreed, not built.
 112. **HQ requests** — each turn HQ asks the players to take out up to three enemy targets the auto-planner left alone, one easy, one mid and one hard, each open 2 to 5 turns. No prize; the SITREP notes the ones destroyed. On for new games.
+80. **Mixed-hull ship groups** — task groups, family-bounded.
+81. **Cross-turn naval magazines** — staggered release, finite anti-ship stock.
+85. **SAM/missile battery support sections** — refuellers, power and transload trucks.
+86. **GPS jamming** — satellite weapons land long inside the bubble.
+87. **Naval station-keeping racetracks** — ships hold station under way.
+88. **Angled-deck carrier recovery heading** — 25 kt down the angled deck.
+90. **Front-line model** — supply lines, assault cost, force weight, terrain, movement arrows.
+91. **Per-flight sortie records** — track, time airborne, fuel, shots and hits.
+92. **What's New** — recent player-visible changes.
+93. **Region priorities** — per-base BLUE planning weight. Never a fence.
+94. **Smart threat reaction** — only the flight being guided on goes defensive.
+95. **Pinned bullseye** — one per campaign, never on a ship.
+96. **Player career logbook** — per-pilot record. Never a reward.
+97. **Lifetime pilot profiles** — flying kept across campaigns, outside the save.
+98. **Neutral-faction border defense** — real borders; a neutral hails, then turns hostile. Players only.
+99. **Sandy rescue escort** — armed escort for a downed pilot. Hand-fragged only.
+100. **King on-scene commander** — the player C-130J fixes the survivor. Cues only.
+101. **Dynamic spawn templates** — dynamic-slot jets built from a fragged flight.
+102. **My aircraft, saved points and the DTC options** — one window for your seat.
+103. **HQ priority targets** — target value ranking; a blue-only planner weight.
+104. **Runway queue at busy fields** — taxi allowance and early mission start. Always on.
+105. **RetLab Iran Air Defense Pack** — support for RetLab's private mod.
+106. **Package route and map route editing** — routes edited on the map; package legs shared.
+107. **Briefing screen picture** — RetLab's, or your own `briefing.png`.
+108. **Flight report cards** — debrief grades from §91. Never a reward.
+109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
+111. **Sector war** — named sectors about 10 NM across; territory fill and a battle in every border sector are built, sectors deciding the fight and the CAS card are agreed, not built.
+112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 
 ### Retired, removed or shelved — do not restore
 
@@ -470,6 +409,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 57 | Air-droppable minefields | Removed 2026-09-07 |
 | 59 | Ground AI sleep | Removed 2026-09-23 — never observed doing its job in a flown test |
 | 60 | SAM guidance-radar redundancy (two track radars per site) | Removed 2026-09-29 — every SAM site is back to one guidance radar |
+| 77 | Escort jamming (the `growler` plugin and the Escort Jammer task) | Removed 2026-10-12 — the EA-18G and EA-6B fly SEAD and SEAD Escort at upstream's weights |
 | 79 | Decoy suspected-activity zones | Removed 2026-08-18 |
 | 82 | The Wing Grows (scheduled squadron arrivals) | Removed 2026-08-16 |
 | 83 | SP Pilot Mode | Removed 2026-10-12 — verified working 2026-08-05, never switched on since |
@@ -579,8 +519,6 @@ that block until upstream fixes it. History: `retlab-splash-damage-notes.md`.
   - A pointer must resolve; confirm the file exists before committing it.
   - Data files carry values, not essays.
   - **Compress a constraint comment, never delete it.**
-  - Measured 2026-08-11: 8.3% comment density against upstream's 4.8%. Re-measure before
-    claiming a cleanup worked.
 - **UI text house style (STANDARD, 2026-09-22 DM call).** Every user-visible string is US
   English (field names keep their spelling); nautical miles are `NM`; a setting's description
   renders in full, names another setting by its label rather than "above"/"below", and never
@@ -589,16 +527,15 @@ that block until upstream fixes it. History: `retlab-splash-damage-notes.md`.
 - **When the evidence contradicts the instruction, lead with that and stop (STANDARD,
   2026-08-23 user call).** If a file, manual, log or generated artifact contradicts what was
   asked, the reply opens with that finding and names the source, in two sentences, then asks.
-  Do not build the thing and bury the contradiction in a note. (The case: the F-14 route was
-  trimmed to fit a "7 waypoint" cap that the Heatblur manual shows is a PTID display rank,
-  not a capacity.) A preference cannot be contradicted by evidence; taste calls stand. If the
-  call is reaffirmed, build it in full and say so.
+  Do not build the thing and bury the contradiction in a note. A preference cannot be
+  contradicted by evidence; taste calls stand. If the call is reaffirmed, build it in full
+  and say so.
 - **Ask decisions with the AskUserQuestion widget (STANDARD, 2026-07-21; reaffirmed
   2026-10-08).** Whenever you need a decision, use the widget: recommended option first,
   marked "(Recommended)", a one-line trade-off per option, `multiSelect` when choices aren't
   exclusive, at most 4 questions. Typed "1, 2, 3" lists read as low-effort.
-  - **When the widget can't reach the reader** (a project thread, where only the message text
-    arrives): numbered questions with lettered options in the message, recommendation marked.
+  - It works in a project thread too (2026-10-12 DM call); use it there. Only when it truly
+    cannot reach the reader: numbered questions with lettered options, recommendation marked.
   - A free-text question with no fixed options goes in its own block at the end of the
     message: `> ❓ **Need your call:** <the question>`.
   - Never build a custom widget or Artifact to ask a question.
@@ -618,14 +555,13 @@ that block until upstream fixes it. History: `retlab-splash-damage-notes.md`.
   on fictional overlays trace on-map roads by eye. Reference implementations: COIN
   (`coin_enduring_resolve.yaml`) and Red Flag 81-2 (`red_flag_81_2.yaml`).
 - **Upstream dev-process standards are ours (ADOPTED 2026-07-20 user call).** The upstream
-  wiki's Contributing and Core development guides are mirrored with **RetLab:** deltas in
-  `docs/wiki/`: the Developer's Guide (small PRs, type annotations, Black via pre-commit), the
-  aircraft/terrain module checklists, the QGIS shapefile guide, Modded-Unit-Support,
-  Motorpools, Campaign maintenance, and the Release process (the rolling `latest` IS the
-  release; pinned tags are `v<X.Y.Z>-retlab`; never `git push --tags`). Upstream carves meet
-  the same standards: target `dcs-retribution/dev` via the PR fork, one change per PR,
-  upstream's gates run locally on the upstream tree, a `changelog.md` note, fork-only
-  couplings stripped. When an upstream page changes, refresh the mirror and re-annotate.
+  wiki's Contributing and Core development guides are mirrored in `docs/wiki/` with
+  **RetLab:** deltas: small PRs, type annotations, Black via pre-commit, the module
+  checklists, and the Release process (the rolling `latest` IS the release; pinned tags are
+  `v<X.Y.Z>-retlab`; never `git push --tags`). An upstream carve targets
+  `dcs-retribution/dev` via the PR fork, one change per PR, with upstream's gates run locally
+  on the upstream tree, a `changelog.md` note and fork-only couplings stripped. When an
+  upstream page changes, refresh the mirror and re-annotate.
 - **AGENTS.md sync** — `AGENTS.md` is a byte-identical mirror of this file (CLAUDE.md is
   authoritative; only line 1, the title, differs), and `tests/test_agent_guide_mirror.py`
   fails when they drift. After editing CLAUDE.md, resync: `cp CLAUDE.md AGENTS.md`, then Edit

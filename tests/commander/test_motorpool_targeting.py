@@ -297,7 +297,6 @@ def test_motorpool_attack_proposes_armed_recon_plus_escorts() -> None:
         FlightType.SEAD_ESCORT,
         FlightType.ESCORT,
         FlightType.SEAD_SWEEP,
-        FlightType.ESCORT_JAMMER,
     ]
 
 

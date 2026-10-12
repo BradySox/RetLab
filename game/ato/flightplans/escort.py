@@ -27,10 +27,7 @@ class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
         doctrine = self.flight.coalition.doctrine
         rng = (
             doctrine.sead_escort_engagement_range
-            # The escort jammer flies the SEAD-escort engage profile (see
-            # joinpoint.handle_sead_escort), so its overlay shows that reach.
-            if self.flight.flight_type
-            in (FlightType.SEAD_ESCORT, FlightType.ESCORT_JAMMER)
+            if self.flight.flight_type is FlightType.SEAD_ESCORT
             else doctrine.escort_engagement_range
         )
         # AI escorts skip the ingress/target waypoints (only_for_player) and turn

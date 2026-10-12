@@ -147,7 +147,7 @@ settings:
   autoplan_tankers_for_strike: true
   autoplan_tankers_for_oca: true
   autoplan_tankers_for_dead: true
-  # The carrier's Escort Jammer squadron flies only the EA-6B.
+  # The carrier's SEAD Escort squadron flies only the EA-6B.
   ea6b_prowler: true
 
 # The .miz places a CVN-71. The loader only recognises the Stennis hull as a
@@ -235,7 +235,7 @@ squadrons:
       aircraft:
         - F-14B(U) Tomcat
       size: 16
-    - primary: Escort Jammer
+    - primary: SEAD Escort
       aircraft:
         - EA-6B Prowler
       size: 4

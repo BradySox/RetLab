@@ -19,7 +19,6 @@ from game.commander.packagefulfiller import PackageFulfiller
 SEAD_ESCORT = ProposedFlight(FlightType.SEAD_ESCORT, 2, EscortType.Sead)
 SEAD_SWEEP = ProposedFlight(FlightType.SEAD_SWEEP, 2, EscortType.Sead)
 A2A_ESCORT = ProposedFlight(FlightType.ESCORT, 2, EscortType.AirToAir)
-JAMMER = ProposedFlight(FlightType.ESCORT_JAMMER, 2, EscortType.Jammer)
 
 
 def _fulfiller(enabled: bool) -> PackageFulfiller:
@@ -36,12 +35,10 @@ def test_second_sead_flavour_is_dropped(escort: ProposedFlight) -> None:
     assert fulfiller.sead_flavour_satisfied(escort, sead_planned=True)
 
 
-@pytest.mark.parametrize("escort", [A2A_ESCORT, JAMMER])
-def test_other_flavours_are_untouched(escort: ProposedFlight) -> None:
-    # An anti-ship package doubles its fighter escort on purpose, and the jammer
-    # has its own max_escort_jammers cap.
+def test_the_fighter_escort_is_untouched() -> None:
+    # An anti-ship package doubles its fighter escort on purpose.
     fulfiller = _fulfiller(enabled=True)
-    assert not fulfiller.sead_flavour_satisfied(escort, sead_planned=True)
+    assert not fulfiller.sead_flavour_satisfied(A2A_ESCORT, sead_planned=True)
 
 
 @pytest.mark.parametrize("escort", [SEAD_ESCORT, SEAD_SWEEP])

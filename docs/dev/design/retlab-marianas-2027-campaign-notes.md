@@ -362,10 +362,9 @@ the Marines in **2019**, so it is precisely the anachronism this campaign strips
 (the J-7B). The wing is now the CJS Super Hornet package — `fa_18efg` (E/F/G) and
 `fa18ef_tanker` (ET/FT), both preseeded:
 
-- **EA-18G replaces the EA-6B.** §77's runtime is airframe-agnostic (it drives whatever
-  ESCORT_JAMMER group the emitter names), so the swap carries no runtime risk, and the
-  Growler outranks every other airframe for the role — **Escort Jammer 800** vs the
-  Prowler's 790. VAQ-136 "Gauntlets" is a real Growler squadron, so the authored name stays.
+- **EA-18G replaces the EA-6B.** VAQ-136 "Gauntlets" is a real Growler squadron, so the
+  authored name stays. (§77 escort jamming, which this swap was first weighed against, was
+  removed 2026-10-12; the Growlers fly SEAD and SEAD Escort.)
 - **The F/A-18E Tanker is the organic recovery tanker**, and it is *not* interchangeable
   with Andersen's boom tanker. `FA-18ET` is `tanker_refuel_types: probe`; so is the
   **KC-135 MPRS**, whose multi-point kit is *drogue* pods — it is a drogue tanker, not a
@@ -449,9 +448,7 @@ Preseeded feature set, and why each earns its place:
   multi-hull convoys that attrit proportionally, past Silkworm batteries that actually engage.
 - **§50 `ambient_supply_convoys`** on Guam's two blue road corridors (`convoy_ambush` was removed 2026-10-11).
 - **§70 `comint_collection` + `red_comms_net`** — the PLA net is audible and homeable.
-- **§77 escort jamming** rides along free: VAQ-136's Growlers are authored SEAD, and
-  `SquadronConfig.auto_assignable` offers the Escort Jammer role to every capable squadron,
-  so they fly in front of the strike packages without a per-campaign edit.
+- VAQ-136's Growlers are authored SEAD. (§77 escort jamming was removed 2026-10-12.)
 
 Mod packs are preseeded through the campaign `settings:` block, which re-seeds the New Game
 **Mods** checkboxes (`QGeneratorSettings.update_settings`): `chinesemilitaryassetspack` (a

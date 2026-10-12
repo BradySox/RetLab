@@ -511,6 +511,9 @@ FEATURES: tuple[Feature, ...] = (
             "front_line_sead_escort",
             "route_around_sams",
             "tarcap_behind_sead",
+            # One suppression flight per package; filed under §77 until its
+            # escort jammer was removed on 2026-10-12.
+            "single_sead_escort_flavour",
         ),
     ),
     Feature(
@@ -593,22 +596,13 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="ctld",
     ),
     Feature(
-        # §77 Escort jamming: the ESCORT_JAMMER escort role (auto-added on the
-        # SEAD-escort radar-SAM trigger, rides the package join->split) + the
-        # growler plugin's scripted EW effects -- a missile-spoof bubble over the
-        # package and offensive ROE WEAPON_HOLD pulses on radar SAMs (emissions
-        # never toggled). Flown only by dedicated jammers -- the EA-18G Growler and
-        # EA-6B Prowler, the only airframes that declare the Escort Jammer task;
-        # the plugin is airframe-agnostic so AI Growlers and Prowlers are driven
-        # identically. Capped per side by max_escort_jammers. Rides the growler
-        # plugin toggle.
+        # REMOVED 2026-10-12 on the DM's call: the growler plugin and the
+        # ESCORT_JAMMER task. Verified by audit 2026-09-16; the plugin was off in
+        # his defaults and every save. single_sead_escort_flavour moved to §69.
         "growler_escort_jamming",
         "Escort jamming (Growler / Prowler)",
         77,
-        plugin_id="growler",
-        # single_sead_escort_flavour caps a package at one suppression flight so
-        # the jammer's SEAD siblings stop crowding it out (in-game rows B52/B75).
-        settings_fields=("max_escort_jammers", "single_sead_escort_flavour"),
+        retired=True,
     ),
     Feature(
         # §78 sea-supply convoys + coastal anti-ship engagement: a pure-engine feature

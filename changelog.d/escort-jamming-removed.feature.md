@@ -1,0 +1,1 @@
+* **[Flight Planning]** Removed escort jamming: the Escort Jammer task, the Escort jamming plugin and the **Max escort jammers airborne per side** setting. The EA-18G Growler and EA-6B Prowler fly SEAD and SEAD Escort, at upstream's priorities. A saved Escort Jammer flight loads as a SEAD Escort.
