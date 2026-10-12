@@ -323,34 +323,6 @@ linked design note.
 75. **Custom victory conditions** — authored and generic endings.
 76. **CTLD paratroopers** — fixed-wing Air Assault by paradrop, player and AI.
 78. **Sea-supply convoys + coastal anti-ship** — proportional convoy losses and batteries that actually engage.
-80. **Mixed-hull ship groups** — task groups instead of copies of one hull, family-bounded.
-81. **Cross-turn naval magazines** — staggered weapons-free release and finite anti-ship stock, released on attack.
-85. **SAM/missile battery support sections** — refuellers, power and transload in the faction's own kit.
-86. **GPS jamming** — satellite-guided weapons released inside the bubble land long.
-87. **Naval station-keeping racetracks** — anchored ovals so ships hold station under way.
-88. **Angled-deck carrier recovery heading** — the boat steams for 25 kt down the angled deck, not the bow.
-90. **Front-line model** — reinforcement follows supply lines, attacking costs more than defending, position counts the forces present, terrain slows the advance, and the map arrows last turn's movement.
-91. **Per-flight sortie records** — the mission reports what each flight did: track, time airborne, fuel, shots and hits.
-92. **What's New** — a toolbar window listing recent player-visible changes, each with what to look for in the next mission.
-93. **Region priorities** — per-control-point BLUE planning emphasis. A weight, never a fence.
-94. **Smart threat reaction** — only the flight a missile is guiding on goes defensive; everything else holds formation and uses countermeasures.
-95. **Pinned bullseye** — one bullseye for the campaign, never on a ship or an off-map spawn; the kneeboard names the place.
-96. **Player career logbook** — a permanent per-pilot record of sorties, hours, kills, ejections and rank, from what the mission recorded. A record, never a reward.
-97. **Lifetime pilot profiles** — your flying kept across every campaign, keyed by DCS player name and stored outside the save.
-98. **Neutral-faction border defense** — every nation drawn with its real border; a country not in the war stands live SAMs inside it, hails a player who crosses, and turns hostile on the enemy's coalition if pressed. Alignment comes from who holds its airfields. Players only unless the `engageAi` testing option is ticked.
-99. **Sandy rescue escort** — an armed escort working the ground around a downed pilot, flown by the A-10 and Apache. Hand-fragged only.
-100. **King on-scene commander** — the player C-130J King fixes the survivor by DF cuts, sweeps for threats and passes the picture to the player Sandy and helicopter. Cues only.
-101. **Dynamic spawn templates** — one player flight per base and type is marked as DCS's Dyn.SPAWN Template, so a dynamic-slot jet is built from it instead of blank.
-102. **My aircraft, saved points and the DTC options** — one window for your seat: saved points and drawings (Hornet, Viper, F-14B(U), Apache, A-10), the loadout and the DTC tab. Ported from juanjux/dcs-escalation.
-103. **HQ priority targets** — what losing each enemy target costs the enemy, ranked within its kind; a panel line always, a blue-only planner weight when on. No prize.
-104. **Runway queue at busy fields** — taxi allowance grows 45 s per jet ahead, and the mission starts up to 30 minutes early when a flight needs it; ASAP tankers, AWACS and the first CAP launch with it. Always on, no setting.
-105. **RetLab Iran Air Defense Pack** — support for RetLab's private mod: 3rd Khordad, Bavar-373 (Sayyad-4B), the Matla ul-Fajr EWR, the Rasool IADS node and five missile launchers, in `[CH] Iran 2020` and `[CH] Iran 2025`. Flown in tests 41-53; both SAMs have kills.
-106. **Package route and map route editing** — routes are edited on the map (drag, double-click to add, right-click to delete); the join-to-IP and target-to-split legs belong to the package, so an edit there lands on every flight.
-107. **Briefing screen picture** — RetLab's own load-screen picture; drop `briefing.png` or `briefing.jpg` into `Saved Games\DCS\Retribution` to use yours.
-108. **Flight report cards** — the debrief grades every blue flight that flew, yours first, from §91's records. A record, never a reward.
-109. **Outside AI reads red's turn** — a REST API under `/retribution-ai/*` for an AI on the same PC: it reports what looks wrong in red's plan, and with the Outside AI plans red setting ticked (Campaign Management; also on the new game wizard's Campaign options page) it plans red's packages, TOTs, stances and buying, starting from the plan the scripted planner still makes every turn. Developer tools > Copy AI connect link. Red only; blue's ATO is never served. Ported from juanjux/dcs-escalation; loadouts, waypoints, transfers, ships, repairs and MCP are staged after it.
-111. **Sector war** — the war region is cut into named sectors about 10 NM across (WHISKEY-14), shaped by the ground. Step 1 (built): each side's territory is filled on the F10 map and the app map, and each front's units fight a battle in every sector along the shared border (setting on by default). Step 2 (built, new games): sectors decide the fight; a won battle takes sectors, the front sits on the sector edge, a base falls with its sector, a road through enemy sectors carries no convoys. Step 3 (a CAS battle-map card) is agreed, not built.
-112. **HQ requests** — each turn HQ asks the players to take out up to three enemy targets the auto-planner left alone, one easy, one mid and one hard, each open 2 to 5 turns. No prize; the SITREP notes the ones destroyed. On for new games.
 80. **Mixed-hull ship groups** — task groups, family-bounded.
 81. **Cross-turn naval magazines** — staggered release, finite anti-ship stock.
 85. **SAM/missile battery support sections** — refuellers, power and transload trucks.
@@ -377,7 +349,7 @@ linked design note.
 107. **Briefing screen picture** — RetLab's, or your own `briefing.png`.
 108. **Flight report cards** — debrief grades from §91. Never a reward.
 109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
-111. **Sector war** — named sectors about 10 NM across; territory fill and a battle in every border sector are built, sectors deciding the fight and the CAS card are agreed, not built.
+111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 
 ### Retired, removed or shelved — do not restore
