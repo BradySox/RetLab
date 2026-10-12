@@ -15,9 +15,11 @@ Design note: docs/dev/design/retlab-sector-war-notes.md
 from __future__ import annotations
 
 import heapq
+import logging
 import math
 import random
 import threading
+import time
 from collections import OrderedDict
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
@@ -587,7 +589,16 @@ def sector_map_for(theater: ConflictTheater) -> SectorMap:
     with _cache_lock:
         found = _sector_maps.get(key)
         if found is None:
+            started = time.perf_counter()
             found = build_sector_map(theater)
+            raster = found.raster
+            logging.info(
+                "Sectors built: %d sectors on a %dx%d grid in %.1f s",
+                len(found.sectors),
+                raster.rows,
+                raster.cols,
+                time.perf_counter() - started,
+            )
             _remember(_sector_maps, key, found)
         return found
 
@@ -599,7 +610,14 @@ def territory_for(theater: ConflictTheater) -> Territory:
     with _cache_lock:
         found = _territories.get(key)
         if found is None:
+            started = time.perf_counter()
             found = build_territory(theater, sector_map)
+            logging.info(
+                "Territory built: blue %d, red %d shapes in %.1f s",
+                len(found.polygons(BLUE)),
+                len(found.polygons(RED)),
+                time.perf_counter() - started,
+            )
             _remember(_territories, key, found)
         return found
 

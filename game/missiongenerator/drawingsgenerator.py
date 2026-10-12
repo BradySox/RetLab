@@ -180,6 +180,12 @@ class DrawingsGenerator:
                     )
                     edges += 1
                     line.name = f"{label} territory edge {edges}"
+            logging.info(
+                "%s territory drawn: %d fill pieces, %d edge lines",
+                label,
+                pieces,
+                edges,
+            )
 
     def generate_frontlines_drawing(self) -> None:
         """
