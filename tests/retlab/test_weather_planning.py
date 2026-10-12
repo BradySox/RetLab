@@ -16,7 +16,6 @@ from game.retlab.weather_planning import (
     VISUAL_ATTACK_METHODS,
     demote_weather_hostile_methods,
     poor_visibility_weather,
-    recon_suppressed,
     storm,
 )
 from game.theater import Player
@@ -46,14 +45,6 @@ def test_missing_conditions_read_as_clear() -> None:
         settings=SimpleNamespace(weather_aware_planning=True)
     )
     assert not poor_visibility_weather(cast(Any, no_conditions))
-    assert not recon_suppressed(cast(Any, no_conditions))
-
-
-def test_recon_suppressed_only_when_on_and_wet() -> None:
-    assert recon_suppressed(cast(Any, _sky(Raining)))
-    assert recon_suppressed(cast(Any, _sky(Thunderstorm)))
-    assert not recon_suppressed(cast(Any, _sky(ClearSkies)))
-    assert not recon_suppressed(cast(Any, _sky(Thunderstorm, on=False)))
 
 
 STOCK = list(PlanNextAction._OFFENSIVE_FACTORIES)

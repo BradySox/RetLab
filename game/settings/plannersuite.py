@@ -32,7 +32,6 @@ PLANNER_SUITE_VALUES: dict[str, tuple[Any, Any]] = {
     "front_line_sead_escort": (False, True),
     "route_around_sams": (False, True),
     "tarcap_behind_sead": (False, True),
-    "auto_add_tarps_recon": (False, True),
     "weather_aware_planning": (False, True),
     "adaptive_procurement": (False, True),
     "continuous_campaign_clock": (False, True),

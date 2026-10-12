@@ -250,7 +250,6 @@ class AircraftGenerator:
     def spawn_intercept_templates(self) -> None:
         setting_engagement_nm = QRA_ENGAGEMENT_RANGE_NM
         setting_gci_nm = QRA_GCI_MAX_RADIUS_NM
-        comms_enabled = self.game.settings.qra_comms_enabled
         forward_defense = self.game.settings.qra_forward_defense
 
         for control_point in self.game.theater.controlpoints:
@@ -373,7 +372,6 @@ class AircraftGenerator:
                             grouping=qra_scramble_grouping(),
                             engagement_range_nm=tuning.engage_nm,
                             gci_max_radius_nm=tuning.scramble_nm,
-                            comms_enabled=comms_enabled,
                             ambush=tuning.ambush,
                             disengage_radius_nm=tuning.disengage_nm,
                         )

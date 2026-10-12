@@ -482,7 +482,7 @@ def test_live_weather_reaches_every_turn_not_only_the_first(
 
 def test_the_weather_aware_planner_sees_a_live_storm() -> None:
     """§67 tested isinstance(Raining, Thunderstorm); a LiveWeather is neither, so a
-    real thunderstorm read as clear -- auto-recon flew and low-level attack stayed."""
+    real thunderstorm read as clear and low-level attack stayed."""
     from game.retlab import weather_planning
 
     game = SimpleNamespace(
@@ -491,7 +491,6 @@ def test_the_weather_aware_planner_sees_a_live_storm() -> None:
     )
     assert weather_planning.storm(game)  # type: ignore[arg-type]
     assert weather_planning.poor_visibility_weather(game)  # type: ignore[arg-type]
-    assert weather_planning.recon_suppressed(game)  # type: ignore[arg-type]
 
 
 def test_a_clear_observation_leaves_the_planner_alone() -> None:
@@ -504,7 +503,7 @@ def test_a_clear_observation_leaves_the_planner_alone() -> None:
         ),
     )
     assert not weather_planning.storm(game)  # type: ignore[arg-type]
-    assert not weather_planning.recon_suppressed(game)  # type: ignore[arg-type]
+    assert not weather_planning.poor_visibility_weather(game)  # type: ignore[arg-type]
 
 
 # --- the DCS wind ceiling ---------------------------------------------------------

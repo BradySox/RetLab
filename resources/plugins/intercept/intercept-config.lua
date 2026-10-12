@@ -41,12 +41,11 @@ end
 -- loop.
 local intercept_registry = {}
 
--- QRA tuning (comms, GCI radius, engagement range) is sourced from the Campaign
--- Doctrine settings and carried on each Intercept record by the mission generator
--- (gciMaxRadiusNm/engagementRangeNm/commsEnabled). The values are global, so each
--- record in a coalition carries the same trio; build_dispatcher reads them from
--- records[1]. add_key_value serializes everything as a string, hence tonumber()
--- for the numerics and a string compare ("false") for the boolean.
+-- QRA tuning (GCI radius, engagement range) is carried on each Intercept record by
+-- the mission generator (gciMaxRadiusNm/engagementRangeNm). The values are global,
+-- so each record in a coalition carries the same pair; build_dispatcher reads them
+-- from records[1]. add_key_value serializes everything as a string, hence
+-- tonumber() for the numerics.
 local NM = 1852  -- metres per nautical mile
 local DETECTION_GROUPING_M = 30000  -- contact-clustering radius for DETECTION_AREAS
 local BUILD_DELAY = 5  -- seconds; let the mission's groups register before SET_GROUP
@@ -314,7 +313,6 @@ local function build_dispatcher(coalition_name, records)
     if #records == 0 then return end
 
     -- Global QRA tuning, identical across this coalition's records (see header).
-    local comms_enabled = records[1].commsEnabled ~= "false"
     local scramble_radius_nm = tonumber(records[1].gciMaxRadiusNm) or 60
     local engagement_range_nm = tonumber(records[1].engagementRangeNm) or 38
     -- Home-base disengage leash in NM (RetLab forward defense). 0/absent leaves
@@ -447,9 +445,6 @@ local function build_dispatcher(coalition_name, records)
             -- airspace.
             dispatcher:SetDisengageRadius(disengage_radius_nm * NM)
         end
-        if comms_enabled then
-            dispatcher:SetSendMessages(true)
-        end
 
         for _, rec in ipairs(records) do
             -- Moose keys squadrons by name; the squadron display name is not
@@ -488,9 +483,6 @@ local function build_dispatcher(coalition_name, records)
             -- NOTE: deliberately NOT SetSquadronVisible — see header. Visible mode
             -- forces a cold pre-park (F-16 never taxis), clamps reserve to parking
             -- spots, and forces Grouping=1. Non-visible = in-air fresh-spawn on scramble.
-            if comms_enabled then
-                dispatcher:SetSquadronLanguage(sq, "EN")
-            end
             intercept_survivors[rec.squadronId] = tonumber(rec.resourceCount)
 
             intercept_registry[rec.squadronId] = {

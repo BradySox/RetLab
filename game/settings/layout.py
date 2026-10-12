@@ -143,7 +143,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "ownfor_default_qra_reserve",
                     "opfor_default_qra_reserve",
                     "qra_forward_defense",
-                    "qra_comms_enabled",
                 ],
             ),
             (
@@ -179,12 +178,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "weather_aware_planning",
                     "sead_strike_coordination",
                     "single_sead_escort_flavour",
-                ],
-            ),
-            (
-                "Recon planning",
-                [
-                    "auto_add_tarps_recon",
                 ],
             ),
             (
@@ -257,15 +250,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "terrain_weighted_front_line",
                     "front_line_salients",
                     "front_line_battles_along_border",
-                ],
-            ),
-            (
-                # §75 custom victory conditions: the two generic knobs (authored
-                # campaign `victory:` blocks need no settings).
-                "Victory conditions",
-                [
-                    "alternate_victory_domination",
-                    "alternate_victory_attrition",
                 ],
             ),
             (
@@ -409,11 +393,9 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 ],
             ),
             (
-                # In-mission life on the ground: cosmetic siege damage, traffic
-                # and the convoy war.
+                # In-mission life on the ground: traffic and convoys.
                 "Battlefield life",
                 [
-                    "base_battle_damage",
                     "civilian_air_traffic",
                     "ambient_supply_convoys",
                     "mission_briefing_popup",
@@ -468,7 +450,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "generate_target_recon_kneeboard",
                     "generate_all_packages_kneeboard",
                     "generate_threat_intel_kneeboard",
-                    "enable_package_code_words",
                     "generate_sitrep_kneeboard",
                 ],
             ),

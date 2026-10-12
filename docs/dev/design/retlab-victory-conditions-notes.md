@@ -84,6 +84,9 @@ siblings:
   campaign YAML by name at load — the phases-S5 **rederive-never-pickle** rule,
   module cache `_PROFILE_CACHE`, any failure degrades to "no profile" with a
   log, never a crash.
+- **Generic tier (V2): REMOVED 2026-10-12 (DM call).** The two sliders described in the rest of this
+  bullet and under *Knob → condition synthesis* are gone; an authored block expresses the same
+  conditions. The text is kept as the record.
 - **Generic tier (V2):** two opt-in Settings knobs usable on ANY campaign with
   zero authoring — `alternate_victory_domination` (own ≥ N% of the non-neutral
   bases → win) and `alternate_victory_attrition` (enemy air below N% of its

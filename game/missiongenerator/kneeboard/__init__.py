@@ -1,7 +1,7 @@
 """Generates kneeboard pages relevant to the player's mission.
 
 Each client flight gets Mission Info (BLUF, airfields, flight plan with fuel,
-weather), Support Info (package, AEW&C, tankers, JTAC, code words) and, by
+weather), Support Info (package, AEW&C, tankers, JTAC) and, by
 setting, target, threat-intel, recon, SITREP and friendly-package pages.
 
 DCS adds kneeboard pages per airframe, not per flight, so every flight of one

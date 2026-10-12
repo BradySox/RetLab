@@ -78,7 +78,7 @@ One line each. Ref = the flown/documented reason where one exists.
 |---|---|---|
 | `barcap_overlap_time` | 15 min | 0 |
 | `sead_strike_coordination` | ON | off |
-| `auto_add_tarps_recon` | ON | off |
+| `auto_add_tarps_recon` (removed 2026-10-12) | ON | off |
 | `weather_aware_planning` | ON | off (no-op in clear skies) |
 | `max_escort_jammers` (removed 2026-10-12 with §77) | 4 | 0 (needs a Growler/Prowler anyway) |
 | `region_priorities` | OFF | off — §93 (2026-08-20): per-CP blue emphasis weighting `_targets_by_range`; identity while off |

@@ -266,18 +266,6 @@ class AtoModel(QAbstractListModel):
         package = self.ato.packages[index.row()]
         if role == Qt.ItemDataRole.DisplayRole:
             return f"{package.package_description} {package.target.name}"
-        elif role == Qt.ItemDataRole.ToolTipRole:
-            # Quick per-package reminder of the SRS code words (this package's push
-            # word + the mission events); the full table is in the Code Words panel.
-            # Gated by the feature.
-            game = self.game
-            if game is not None and game.settings.enable_package_code_words:
-                cw = game.blue.code_words
-                task = package.primary_task
-                push = cw.push_for(task) if task is not None else None
-                head = f"Push: {push}  (this package)\n" if push else ""
-                return f"{head}SUCCESS: {cw.success}   ABORT: {cw.abort}"
-            return None
         elif role == AtoModel.PackageRole:
             return package
         return None

@@ -69,6 +69,7 @@ REMOVED_MODULES = (
     "game.ato.flightplans.combatsar",
     "game.ato.flightplans.scar",
     "game.theater.unitplacement",
+    "game.ato.codewords",
 )
 
 

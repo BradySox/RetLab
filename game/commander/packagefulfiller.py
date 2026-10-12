@@ -20,7 +20,6 @@ from game.profiling import MultiEventTracer
 from game.settings import Settings
 from game.squadrons import AirWing
 from game.theater import ConflictTheater, FrontLine
-from game.theater.theatergroundobject import TheaterGroundObject
 from game.threatzones import ThreatZones
 
 if TYPE_CHECKING:
@@ -58,7 +57,6 @@ class PackageFulfiller:
         self.flight_db = flight_db
         self.player_missions_asap = settings.auto_ato_player_missions_asap
         self.default_start_type = settings.default_start_type
-        self.auto_add_tarps_recon = settings.auto_add_tarps_recon
         self.single_sead_escort_flavour = settings.single_sead_escort_flavour
         self.front_line_sead_escort = settings.front_line_sead_escort
 
@@ -148,87 +146,6 @@ class PackageFulfiller:
         logging.debug(
             f"{color}: not enough aircraft in range for {mission.location.name} "
             f"capable of: {missing_types_str}"
-        )
-
-    def _maybe_plan_tarps_recon(
-        self, mission: ProposedMission, builder: PackageBuilder, ignore_range: bool
-    ) -> None:
-        """Append an optional TARPS photo-recon flight to a Strike/DEAD/Armed Recon
-        package.
-
-        Gated by the ``auto_add_tarps_recon`` setting and the package's primary task.
-        For Strike/DEAD the target must be a ground objective that warrants imagery
-        (``warrants_recon``); for Armed Recon the target is a control point / road
-        corridor the flight sweeps, which always warrants an overwatch pass, so a
-        recon bird rides along to scout the area (on a drone-fielding faction the
-        auto-assignable TARPS squadron IS the drone, so this frags a drone into each
-        armed recon package — RetLab call). Crucially this never scrubs the
-        mission: if no TARPS-capable squadron is in range the recon flight is simply
-        omitted. The flight's +2 min TOT offset comes from ``TarpsFlightPlan`` (tight
-        on purpose so it ingresses under the package's escort window rather than
-        trailing in alone — see checklist G19).
-        """
-        if not self.auto_add_tarps_recon:
-            logging.debug(
-                "TARPS skipped for %s: auto_add_tarps_recon is disabled",
-                mission.location.name,
-            )
-            return
-        # §67 weather-aware planning: the auto-added recon bird stays home in
-        # rain/storm -- optical and IR alike photograph cloud deck, so the pass
-        # banks nothing. Same contract as a missing squadron: the optional
-        # flight is omitted, the package is never scrubbed. Player-planned
-        # recon flights are unaffected (this is only the automatic add-on).
-        from game.retlab.weather_planning import recon_suppressed
-
-        if recon_suppressed(self.coalition.game):
-            logging.debug(
-                "TARPS skipped for %s: rain/storm blinds the camera",
-                mission.location.name,
-            )
-            return
-        primary = builder.package.primary_flight
-        if primary is None or primary.flight_type not in (
-            FlightType.STRIKE,
-            FlightType.DEAD,
-            FlightType.ARMED_RECON,
-        ):
-            if primary is not None:
-                logging.debug(
-                    "TARPS skipped for %s: primary flight is %s",
-                    mission.location.name,
-                    primary.flight_type.name,
-                )
-            return
-        target = mission.location
-        # Strike/DEAD only recon a ground objective that warrants imagery. Armed
-        # Recon sweeps a control-point corridor (not a TGO) and always warrants a
-        # scouting overwatch pass, so it skips the warrants_recon gate.
-        if primary.flight_type in (FlightType.STRIKE, FlightType.DEAD) and (
-            not isinstance(target, TheaterGroundObject) or not target.warrants_recon
-        ):
-            logging.debug(
-                "TARPS skipped for %s: target does not warrant recon",
-                mission.location.name,
-            )
-            return
-        if not self.air_wing_can_plan(FlightType.TARPS):
-            logging.debug(
-                "TARPS skipped for %s: no TARPS-capable squadron is auto-assignable in the air wing",
-                mission.location.name,
-            )
-            return
-        # plan_flight returns False when no suitable squadron is available; for an
-        # optional recon flight that is acceptable -- skip it, leave the strike intact.
-        if not builder.plan_flight(ProposedFlight(FlightType.TARPS, 1), ignore_range):
-            logging.debug(
-                "TARPS skipped for %s: no TARPS-capable squadron was available in range",
-                mission.location.name,
-            )
-            return
-        logging.debug(
-            "TARPS added for %s: appended post-strike recon flight",
-            mission.location.name,
         )
 
     def check_needed_escorts(self, builder: PackageBuilder) -> Dict[EscortType, bool]:
@@ -457,11 +374,6 @@ class PackageFulfiller:
                     mission, builder, missing_types, escorts, purchase_multiplier
                 )
                 return None
-
-        # Optionally pair a photo-recon flight (e.g. F-14 TARPS) with Strike/DEAD
-        # packages. This is purely additive: it is never allowed to scrub the
-        # primary mission, so it runs after the package is confirmed plannable.
-        self._maybe_plan_tarps_recon(mission, builder, ignore_range)
 
         package = builder.build()
         # Add flight plans for escorts.

@@ -86,7 +86,7 @@ class CampaignStatusJs(BaseModel):
     red_c2: str | None
     #: §75 custom victory conditions: one row per configured win/lose entry with
     #: live-value prose, empty (block + chip hidden) unless the campaign authors
-    #: a `victory:` block or a domination/attrition knob is on. The optional
+    #: a `victory:` block. The optional
     #: description is the authored header ("Liberate Abkhazia").
     victory: list[VictoryConditionJs]
     victory_description: str | None

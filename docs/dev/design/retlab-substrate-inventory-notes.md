@@ -12,7 +12,7 @@ fired**; §4 records what that changes.
 | Quantity | Home | Writers | Readers | Cockpit path | Verdict |
 |---|---|---|---|---|---|
 | Ground units per CP | `Base.armor` (`game/theater/base.py:10`) | procurement deliveries, FLOT losses, §56 motorpool strikes, transfers | ground planner (`deployable_armor`/`reserve_armor_for`), front-line math, §56 render, transfers | kill armor at the FLOT; bomb the motorpool | **citizen** — the core stock |
-| Base strength (0–1 per CP) | `Base.strength` (`base.py:11`) | strike damage (`basedamage.py:71`), per-turn recovery × `SupplyStatus` | front-line position math (`frontline.py:298–314`) | bomb the base; cut its supply | **citizen** — carries the substrate's first flow-coupling |
+| Base strength (0–1 per CP) | `Base.strength` (`base.py:11`) | strike damage, per-turn recovery × `SupplyStatus` | front-line position math (`frontline.py:298–314`) | bomb the base; cut its supply | **citizen** — carries the substrate's first flow-coupling |
 | Squadron pilots | `Squadron.available_pilots` | losses, per-turn replenish, CSAR returns | flight planning, UI | losses; rescues | citizen; replenish ignores supply (§4 gap 3) |
 | Squadron airframes | `Squadron.owned_aircraft`/`untasked_aircraft` | procurement, losses | planner, UI | shoot them down | citizen; same gap |
 | Naval anti-ship magazines (§81) | `game/retlab/naval_magazines.py` persisted state | mission expenditure | its own release logic + surfaces | empty their tubes | **private ledger** — one feature reads it |

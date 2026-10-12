@@ -21,7 +21,6 @@ def _entry(**kw: object) -> InterceptEntry:
         grouping=2,
         engagement_range_nm=60,
         gci_max_radius_nm=100,
-        comms_enabled=True,
     )
     base.update(kw)
     return InterceptEntry(**base)  # type: ignore[arg-type]
@@ -64,7 +63,6 @@ def test_resource_count_and_ranges_are_serialized() -> None:
     assert "resourceCount" in serialized
     assert "engagementRangeNm" in serialized
     assert "gciMaxRadiusNm" in serialized
-    assert "commsEnabled" in serialized
 
 
 def test_grouping_is_serialized() -> None:

@@ -249,7 +249,6 @@ class InterceptEntry:
     grouping: int
     engagement_range_nm: int
     gci_max_radius_nm: int
-    comms_enabled: bool
     #: GCI-ambush posture (Vietnam W5): the Lua leashes this side's defenders
     #: (small disengage radius + high fuel threshold = hit-and-run). Defaulted so
     #: pre-W5 callers/tests are unaffected.
@@ -290,7 +289,6 @@ def populate_intercept_lua(
         record.add_key_value("grouping", str(entry.grouping))
         record.add_key_value("engagementRangeNm", str(entry.engagement_range_nm))
         record.add_key_value("gciMaxRadiusNm", str(entry.gci_max_radius_nm))
-        record.add_key_value("commsEnabled", "true" if entry.comms_enabled else "false")
         record.add_key_value("ambushPosture", "true" if entry.ambush else "false")
         record.add_key_value("disengageRadiusNm", str(entry.disengage_radius_nm))
 
