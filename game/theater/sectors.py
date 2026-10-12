@@ -39,7 +39,8 @@ if TYPE_CHECKING:
 NM = 1852.0
 CELL_M = 1.0 * NM
 SECTOR_SPACING_M = 10.0 * NM
-#: Land this far beyond the outermost land bases is still part of the war.
+#: Land this far beyond the outermost land bases is part of the war even where
+#: no country border covers it. A country holding a base is in whole.
 WAR_MARGIN_M = 60.0 * NM
 #: A grid seed this close to a base's seed would leave a sliver; the base's
 #: sector takes the ground instead.
@@ -160,29 +161,52 @@ def _land_shape(theater: ConflictTheater) -> BaseGeometry:
     if landmap is None:
         return Polygon()
     land: BaseGeometry = landmap.inclusion_zones.difference(landmap.sea_zones)
-    neutral = _neutral_countries(theater)
+    _, neutral = _countries(theater)
     if not neutral.is_empty:
         land = land.difference(neutral)
     return land
 
 
-def _neutral_countries(theater: ConflictTheater) -> BaseGeometry:
-    """Countries holding no base on either side: nobody's territory."""
+def _countries(theater: ConflictTheater) -> tuple[BaseGeometry, BaseGeometry]:
+    """(at war, neutral): the countries holding a base, and those holding none."""
     from game.theater.neutralborder import NEUTRAL
 
-    shapes = []
+    at_war = []
+    neutral = []
     for zone in getattr(theater, "neutral_border_zones", None) or []:
         if len(zone.border) < 3:
             continue
         try:
-            if zone.posture_in(theater) != NEUTRAL:
-                continue
-            shapes.append(Polygon(zone.border).buffer(0))
+            shape = Polygon(zone.border).buffer(0)
+            if zone.posture_in(theater) == NEUTRAL:
+                neutral.append(shape)
+            else:
+                at_war.append(shape)
         except Exception:
             continue
-    if not shapes:
-        return Polygon()
-    return shapely.union_all(shapes)
+    return (
+        shapely.union_all(at_war) if at_war else Polygon(),
+        shapely.union_all(neutral) if neutral else Polygon(),
+    )
+
+
+def _war_region(
+    theater: ConflictTheater, bases: Sequence[ControlPoint]
+) -> BaseGeometry:
+    """Every country holding a base, plus the margin around the bases.
+
+    The margin alone drew a plain rectangle on open ground: Iraq, 2026-10-12.
+    """
+    xs = [cp.position.x for cp in bases]
+    ys = [cp.position.y for cp in bases]
+    near = box(
+        min(xs) - WAR_MARGIN_M,
+        min(ys) - WAR_MARGIN_M,
+        max(xs) + WAR_MARGIN_M,
+        max(ys) + WAR_MARGIN_M,
+    )
+    at_war, _ = _countries(theater)
+    return near if at_war.is_empty else near.union(at_war)
 
 
 def land_control_points(theater: ConflictTheater) -> list[ControlPoint]:
@@ -199,17 +223,18 @@ def build_raster(theater: ConflictTheater, cell: float = CELL_M) -> TerrainRaste
     bases = land_control_points(theater)
     if landmap is None or not bases:
         return TerrainRaster(0, 0, cell, 0, 0, np.zeros(0, np.float32), Polygon())
-    xs = [cp.position.x for cp in bases]
-    ys = [cp.position.y for cp in bases]
+    region = _war_region(theater, bases)
+    region_bounds = region.bounds
     land_bounds = landmap.inclusion_zones.bounds
-    min_x = max(min(xs) - WAR_MARGIN_M, land_bounds[0])
-    max_x = min(max(xs) + WAR_MARGIN_M, land_bounds[2])
-    min_y = max(min(ys) - WAR_MARGIN_M, land_bounds[1])
-    max_y = min(max(ys) + WAR_MARGIN_M, land_bounds[3])
+    min_x = max(region_bounds[0], land_bounds[0])
+    max_x = min(region_bounds[2], land_bounds[2])
+    min_y = max(region_bounds[1], land_bounds[1])
+    max_y = min(region_bounds[3], land_bounds[3])
     rows = max(1, int(math.ceil((max_x - min_x) / cell)))
     cols = max(1, int(math.ceil((max_y - min_y) / cell)))
     land = (
         _land_shape(theater)
+        .intersection(region)
         .intersection(box(min_x, min_y, min_x + rows * cell, min_y + cols * cell))
         .simplify(COAST_TOLERANCE_M)
     )
