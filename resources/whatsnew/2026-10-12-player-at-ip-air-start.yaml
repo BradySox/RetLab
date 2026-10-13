@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: Player at IP works for an In Flight start
+change: >-
+  With "Fast forward until" set to "Player at IP", a player flight set to
+  In Flight start spawned at its takeoff point: the fast forward was
+  skipped. It now runs until the first player flight reaches its IP.
+watch: >-
+  Set a player flight to In Flight start, pick "Player at IP" and press
+  Take Off. You spawn in the air at your IP, with the mission clock moved
+  on by the flying time to it.
