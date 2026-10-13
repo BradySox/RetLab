@@ -46,6 +46,14 @@ def test_terrain_name_matching_is_forgiving() -> None:
     assert load_terrain_borders("Afghanistan") == load_terrain_borders("afghanistan")
 
 
+def test_every_shipped_file_is_reached_by_its_pydcs_terrain() -> None:
+    """Callers pass the pydcs name; Sinai's is "SinaiMap" and once read no file."""
+    from dcs import terrain
+
+    for name in SHIPPED:
+        assert load_terrain_borders(getattr(terrain, name)().name), name
+
+
 def test_a_terrain_with_no_file_is_empty_not_an_error() -> None:
     """Nevada and the Marianas have no foreign border to draw."""
     assert load_terrain_borders("Nevada") == []

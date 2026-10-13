@@ -41,8 +41,14 @@ BORDERS_DIR = Path("resources/borders")
 _cache: dict[str, list[dict[str, Any]]] = {}
 
 
+#: pydcs names some terrains differently from their file: Sinai is "SinaiMap",
+#: so every Sinai campaign silently got no borders (2026-10-13).
+_FILE_FOR_TERRAIN = {"sinaimap": "sinai"}
+
+
 def _terrain_key(terrain_name: str) -> str:
-    return terrain_name.strip().lower().replace(" ", "")
+    key = terrain_name.strip().lower().replace(" ", "")
+    return _FILE_FOR_TERRAIN.get(key, key)
 
 
 def load_terrain_borders(
