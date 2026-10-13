@@ -316,8 +316,8 @@ def test_blue_attacks_into_red_ground_at_every_battle(game: Any) -> None:
             assert territory.labels[raster.index_at(behind.x, behind.y)] == BLUE
 
 
-def test_a_front_fills_no_more_border_than_the_maximum_width(game: Any) -> None:
-    width = game.settings.max_frontline_width * 1000
+def test_a_front_fills_no_more_border_than_twice_the_maximum_width(game: Any) -> None:
+    width = game.settings.max_frontline_width * 1000 * 2
     for front in game.theater.conflicts():
         line = front_battles(game.theater, front).line
         assert LineString(line).length <= width + 1

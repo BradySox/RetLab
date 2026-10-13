@@ -10851,8 +10851,8 @@ first build stopped 60 NM past the outermost bases and drew a rectangle on Iraq.
 (row B229).
 
 Battles along the border, built 2026-10-12 on Brady's call: each front's ground units are
-split into a battle in each sector along the shared border, out to Maximum frontline width
-measured along the border, instead of one short line across the road. The battle result
+split into a battle in each sector along the shared border, out to twice Maximum frontline
+width measured along the border, instead of one short line across the road. The battle result
 and the front's movement are unchanged. Setting *Front line battles spread along the
 border*, on by default. Not flown (row B230).
 

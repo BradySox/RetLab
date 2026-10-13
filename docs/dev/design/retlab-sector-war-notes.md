@@ -92,7 +92,7 @@ like a push instead of one single 10nm front line battle." Two calls on decision
 | Question | Answer |
 |---|---|
 | How units sit along the border | A battle per sector (not an even thin line) |
-| How much border a front fills | Up to Maximum frontline width (not the whole border) |
+| How much border a front fills | Up to twice Maximum frontline width (not the whole border). Was one width until 2026-10-13: Sinai left ~200 of a 240 mile border quiet |
 
 Before this, a front's units stood on one straight line across the road between its two
 bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red Tide
@@ -102,7 +102,7 @@ bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red 
 
 - The shared border is where the two sides' territory shapes meet, merged into lines.
 - A front takes the line nearest its position and the stretch of it centred there, as long
-  as Maximum frontline width (80 km by default) measured along the border. Where the line
+  as twice Maximum frontline width (160 km at the 80 km default) measured along the border. Where the line
   ends first, the stretch slides to keep its length.
 - The stretch is sampled every quarter mile. A sample counts if it is on drivable ground
   (inclusion zones minus exclusion and sea) and nearer this front than any other front.
