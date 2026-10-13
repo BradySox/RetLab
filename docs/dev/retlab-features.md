@@ -9902,6 +9902,10 @@ of the other side.
   that declares its own `neutral_border_defense:` block overrides the terrain
   file **completely** — never merged. Saves already in progress pick the borders
   up on load, so no re-roll is needed.
+- **The file is keyed off the pydcs terrain name, aliased.** Sinai is `SinaiMap` in
+  pydcs, so until 2026-10-13 `sinaimap.yaml` was looked up and every Sinai campaign had
+  no borders, no neutral defense and a §111 fill clipped to the base box.
+  `terrainborders._FILE_FOR_TERRAIN` maps it; `test_terrain_borders.py` pins each file.
 - **The clip box has to reach the map's own edge.** Every border is the real
   country outline clipped to a hand-passed `--clip`, and until 2026-09-10 seven
   of the eight boxes stopped *inside* the terrain — 1,273,689 km² of modelled
