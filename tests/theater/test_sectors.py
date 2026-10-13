@@ -316,8 +316,8 @@ def test_blue_attacks_into_red_ground_at_every_battle(game: Any) -> None:
             assert territory.labels[raster.index_at(behind.x, behind.y)] == BLUE
 
 
-def test_a_front_fills_no_more_border_than_the_maximum_width(game: Any) -> None:
-    width = game.settings.max_frontline_width * 1000
+def test_a_front_fills_no_more_border_than_twice_the_maximum_width(game: Any) -> None:
+    width = game.settings.max_frontline_width * 1000 * 2
     for front in game.theater.conflicts():
         line = front_battles(game.theater, front).line
         assert LineString(line).length <= width + 1
@@ -399,6 +399,28 @@ def test_wedges_are_dealt_across_the_battles() -> None:
     assert [slots[id(w)][0] for w in wedges] == [0, 1, 0, 1, 0]
     assert slots[id(member)] == slots[id(wedges[3])]
     assert all(0 < slots[id(w)][1] < 1 for w in wedges)
+
+
+def test_a_thin_side_spreads_its_wedges_end_to_end() -> None:
+    def tanks(count: int) -> list[CombatGroup]:
+        return [CombatGroup(CombatGroupRole.TANK, MagicMock(), 1) for _ in range(count)]
+
+    one = tanks(1)
+    artillery = CombatGroup(CombatGroupRole.ARTILLERY, MagicMock(), 1)
+    slots = battle_slots([*one, artillery], 5)
+    assert slots[id(one[0])][0] == 2
+    assert slots[id(artillery)][0] == 2
+    two = tanks(2)
+    assert [battle_slots(two, 5)[id(w)][0] for w in two] == [0, 4]
+
+
+def test_the_bigger_side_sets_the_battle_count() -> None:
+    def tanks(count: int) -> list[CombatGroup]:
+        return [CombatGroup(CombatGroupRole.TANK, MagicMock(), 1) for _ in range(count)]
+
+    assert FlotGenerator._battle_count(tanks(1), tanks(6)) == 6
+    assert FlotGenerator._battle_count([], tanks(3)) == 3
+    assert FlotGenerator._battle_count([], []) == 1
 
 
 def test_battles_are_picked_from_end_to_end() -> None:

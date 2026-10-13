@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, Optional
 import numpy as np
 import numpy.typing as npt
 
+from game.theater.frontbattles import battle_stretch_m
 from game.theater.player import Player
 from game.theater.sectors import (
     BLUE,
@@ -106,10 +107,7 @@ class SectorWar:
         neighbours = sector_neighbours(sector_map)
         won = BLUE if winner.is_blue else RED
         lost = RED if won == BLUE else BLUE
-        reach = max(
-            front.coalition.game.settings.max_frontline_width * 1000 / 2,
-            TAKE_REACH_M,
-        )
+        reach = max(battle_stretch_m(front) / 2, TAKE_REACH_M)
         x, y = front.position.x, front.position.y
         taken: list[str] = []
         for _ in range(count):

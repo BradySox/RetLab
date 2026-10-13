@@ -92,7 +92,7 @@ like a push instead of one single 10nm front line battle." Two calls on decision
 | Question | Answer |
 |---|---|
 | How units sit along the border | A battle per sector (not an even thin line) |
-| How much border a front fills | Up to Maximum frontline width (not the whole border) |
+| How much border a front fills | Up to twice Maximum frontline width (not the whole border). Was one width until 2026-10-13: Sinai left ~200 of a 240 mile border quiet |
 
 Before this, a front's units stood on one straight line across the road between its two
 bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red Tide
@@ -102,7 +102,7 @@ bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red 
 
 - The shared border is where the two sides' territory shapes meet, merged into lines.
 - A front takes the line nearest its position and the stretch of it centred there, as long
-  as Maximum frontline width (80 km by default) measured along the border. Where the line
+  as twice Maximum frontline width (160 km at the 80 km default) measured along the border. Where the line
   ends first, the stretch slides to keep its length.
 - The stretch is sampled every quarter mile. A sample counts if it is on drivable ground
   (inclusion zones minus exclusion and sea) and nearer this front than any other front.
@@ -113,9 +113,13 @@ bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red 
 
 `FlotGenerator`:
 
-- Picks as many battles as the side with fewer armor wedges, evenly from end to end.
-- Deals wedges out across the battles in turn; a cluster member joins its wedge; artillery
-  and the rest are dealt the same way. Each group then steps back to its depth along its
+- Picks as many battles as the side with more armor wedges, evenly from end to end
+  (2026-10-13, Brady's card "Bigger side sets it"). The fewer-wedges rule made one pocket
+  for the whole front when blue had one tank group: Desert Aladeen, 1 battle of 5.
+- Deals wedges out across the battles in turn. A side with fewer wedges than battles
+  spreads them end to end, one wedge in the middle battle, so some pockets are one-sided.
+  A cluster member joins its wedge; artillery and the rest are dealt across the side's
+  own battles. Each group then steps back to its depth along its
   own battle's heading, and keeps that heading for every order (TIC and vanilla).
 - Measured with a test force on Red Tide: the two sides' spread went from 2.7 NM to 20 NM
   across 3 battles. Iraq: 29 NM to 36 NM. Abchazian Blitz: 1 or 2 battles in the 6 NM of

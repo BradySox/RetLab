@@ -39,6 +39,9 @@ SAMPLE_M = 0.25 * NM
 MIN_BATTLE_RUN_M = 1.0 * NM
 #: How far along the border one battle's groups spread: half a sector.
 MAX_BATTLE_SPREAD_M = 5.0 * NM
+#: A front's battles cover this many times Maximum frontline width of border
+#: (one width left most of a 240 mile Sinai border quiet, 2026-10-13).
+BORDER_WIDTH_FACTOR = 2.0
 #: How far across the border to look when working out which way is red.
 SIDE_PROBE_M = 1.5 * NM
 
@@ -256,7 +259,7 @@ _CACHE_SIZE = 16
 
 def front_battles(theater: ConflictTheater, front: FrontLine) -> FrontBattles:
     """The front's battles, kept while no base changes hands and no front moves."""
-    width = float(front.coalition.game.settings.max_frontline_width * 1000)
+    width = battle_stretch_m(front)
     key = (_territory_key(theater), front.name, width)
     with _cache_lock:
         found = _cache.get(key)
@@ -269,6 +272,12 @@ def front_battles(theater: ConflictTheater, front: FrontLine) -> FrontBattles:
         while len(_cache) > _CACHE_SIZE:
             _cache.popitem(last=False)
     return found
+
+
+def battle_stretch_m(front: FrontLine) -> float:
+    """Length of border a front's battles may cover, in metres."""
+    settings = front.coalition.game.settings
+    return float(settings.max_frontline_width * 1000 * BORDER_WIDTH_FACTOR)
 
 
 def battles_for(theater: ConflictTheater, front: FrontLine) -> Optional[FrontBattles]:

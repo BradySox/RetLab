@@ -642,8 +642,8 @@ class CampaignManagementSettings:
         default=True,
         detail=(
             "Each front's ground units are split into a battle in every sector "
-            "along the border between the two sides' territory, out to Maximum "
-            "frontline width (km) measured along the border. Units only go on "
+            "along the border between the two sides' territory, out to twice "
+            "Maximum frontline width (km) measured along the border. Units only go on "
             "ground the campaign marks as drivable. With this off they stand on "
             "one short line across the road between the two bases."
         ),

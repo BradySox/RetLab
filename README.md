@@ -216,7 +216,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   as the edge between them. The campaign map can also show the named 10 NM sectors the map
   is cut into.
 - Each front's ground units fight a battle in every sector along the shared border, out to
-  the Maximum frontline width, instead of on one short line across the road.
+  twice the Maximum frontline width, instead of on one short line across the road.
 - Sectors decide the ground war in new games. A won battle takes the enemy's sectors nearest
   the front, the front line sits on the sector edge, and a base falls when its sector is
   taken. A road through enemy sectors carries no convoys.
