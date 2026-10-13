@@ -2185,6 +2185,16 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   divergence in `retlab-autoplanner-upstream-divergence-audit.md`. Tests:
   `tests/squadrons/test_sead_needs_an_arm.py`.
 
+- **A SAM site in an AAA slot keeps its search radars on load (2026-10-12).**
+  `TheaterGroundObject.__setstate__` strips search radars from a site whose task is
+  AAA, to heal sites generated before 2026-06 with a stray radar. The task is the map
+  slot's, not the layout's, so a missile system can sit in an AAA slot. The case: a
+  Bavar-373 battery at an AAA slot lost its Meraj-4 and Hafez on load, its command post
+  had nothing to cue from, and it never fired with a jet at 2.7 NM. The strip now skips
+  any site holding a launcher, TELAR, track radar or search-track radar
+  (`_holds_sam_system`). A save written after the strip stays stripped. Tests:
+  `tests/theater/test_aaa_radar_migration.py`.
+
 ## 9. TIC — Troops In Contact frontline battle sim (plugin, default ON)
 
 Grendel's TIC v1.1 (MIT, lua globals named `GLSCO*`) replaces vanilla ground AI
