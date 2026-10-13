@@ -62,3 +62,38 @@ def test_strip_removes_only_the_sam_radar() -> None:
     assert fire_can in group.units  # KS-19 Fire Can survives
     assert all(g in group.units for g in guns)
     assert jeep in group.units
+
+
+def test_missile_system_in_an_aaa_slot_keeps_its_search_radars() -> None:
+    # Flown 2026-10-12: a Bavar-373 battery in an AAA slot lost both search
+    # radars on load and never fired.
+    search_radars = [
+        _unit(UnitClass.SEARCH_RADAR, "[IRAD] Bavar-373 Meraj-4 SR"),
+        _unit(UnitClass.SEARCH_RADAR, "[IRAD] Bavar-373 Hafez AR"),
+    ]
+    battery: Any = SimpleNamespace(
+        units=[
+            *search_radars,
+            _unit(UnitClass.COMMAND_POST, "[IRAD] Bavar-373 CP"),
+            _unit(UnitClass.TRACK_RADAR, "[IRAD] Bavar-373 STR"),
+            _unit(UnitClass.LAUNCHER, "[IRAD] Bavar-373 TEL"),
+        ]
+    )
+    point_defense: Any = SimpleNamespace(
+        units=[_unit(UnitClass.SHORAD, "SA-15 Tor"), _unit(UnitClass.AAA, "ZU-23")]
+    )
+
+    removed = _strip_erroneous_aaa_radars_from_groups([battery, point_defense])
+
+    assert removed == 0
+    assert all(radar in battery.units for radar in search_radars)
+
+
+def test_telar_site_in_an_aaa_slot_keeps_its_search_radar() -> None:
+    search_radar = _unit(UnitClass.SEARCH_RADAR, "SA-11 Buk SR 9S18M1")
+    group: Any = SimpleNamespace(
+        units=[search_radar, _unit(UnitClass.TELAR, "SA-11 Buk LN 9A310M1")]
+    )
+
+    assert _strip_erroneous_aaa_radars_from_groups([group]) == 0
+    assert search_radar in group.units

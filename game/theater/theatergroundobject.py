@@ -110,6 +110,26 @@ def _is_erroneous_aaa_search_radar(unit: "TheaterUnit") -> bool:
     )
 
 
+#: A site holding one of these is a missile system, and its search radars are its own.
+_SAM_SYSTEM_UNIT_CLASSES = frozenset(
+    {
+        UnitClass.LAUNCHER,
+        UnitClass.TELAR,
+        UnitClass.TRACK_RADAR,
+        UnitClass.SEARCH_TRACK_RADAR,
+    }
+)
+
+
+def _holds_sam_system(groups: "list[TheaterGroup]") -> bool:
+    return any(
+        unit.unit_type is not None
+        and unit.unit_type.unit_class in _SAM_SYSTEM_UNIT_CLASSES
+        for group in groups
+        for unit in group.units
+    )
+
+
 def _strip_erroneous_aaa_radars_from_groups(groups: "list[TheaterGroup]") -> int:
     """Drop erroneous AAA search radars from `groups` in place; return count removed.
 
@@ -117,6 +137,11 @@ def _strip_erroneous_aaa_radars_from_groups(groups: "list[TheaterGroup]") -> int
     node, which re-derives its detection range from `group.units`), and the groups
     themselves are kept so the site stays an AAA group like a freshly generated one.
     """
+    # The task is the map slot's, so a missile system can sit in an AAA slot. Its
+    # search radars cue it: stripping them left a Bavar-373 site unable to fire
+    # (flown 2026-10-12).
+    if _holds_sam_system(groups):
+        return 0
     removed = 0
     for group in groups:
         kept = [u for u in group.units if not _is_erroneous_aaa_search_radar(u)]

@@ -1,0 +1,10 @@
+date: 2026-10-12
+title: A SAM site in a gun slot keeps its search radars
+change: >-
+  Loading a save removed the search radars from a SAM site that sits in a
+  map slot meant for AAA guns. The site could then not find a target and
+  never fired. Loading no longer does this.
+watch: >-
+  A save made after the radars were removed does not get them back. If a
+  SAM site stays silent with a jet well inside its range, open it on the
+  campaign map and check that it still lists a search radar.
