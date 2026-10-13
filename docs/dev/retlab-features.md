@@ -3084,13 +3084,20 @@ longer stops the fast-forward (it keeps ticking and resolves via the capability 
 combat that **involves a player flight** still pauses (you fly that one). Applied to both stop-guards
 in `on_game_tick`. Other stop conditions and `force_continue` are unchanged.
 
+**Air-start player flights (2026-10-12).** `GameLoop.run_to_first_contact` skips the fast-forward
+when every player flight is already airborne, because an air start has no pre-flight state to stop
+at. Under `PLAYER_AT_IP` that skip left an In Flight start at its takeoff point; the skip no longer
+applies to `PLAYER_AT_IP`. Found from a save (two In Flight DEAD flights, log line "all player
+flights are hot-spawn"): with the skip lifted the sim ran 14 min 16 s and the generated mission
+spawned the first flight at its IP.
+
 ### Files & tests
 
 | Area | Path |
 |---|---|
 | Capability scoring | `game/sim/combat/capability.py` |
 | A2A / SAM resolve | `game/sim/combat/aircombat.py`, `game/sim/combat/defendingsam.py` |
-| Fast-forward gate | `game/sim/aircraftsimulation.py` (`_combat_pauses_fast_forward`) |
+| Fast-forward gate | `game/sim/aircraftsimulation.py` (`_combat_pauses_fast_forward`), `game/sim/gameloop.py` (`run_to_first_contact`) |
 | Tests | `tests/test_combat_resolution_capability.py`, `tests/test_player_at_ip_fast_forward.py` |
 
 ### Gotchas / deferred

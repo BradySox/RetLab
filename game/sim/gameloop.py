@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Iterator, TYPE_CHECKING
 
+from game.settings.settings import FastForwardStopCondition
 from .gamelooptimer import GameLoopTimer
 from .gameupdatecallbacks import GameUpdateCallbacks
 from .gameupdateevents import GameUpdateEvents
@@ -75,11 +76,16 @@ class GameLoop:
         # state. No Startup/Taxi/Takeoff state is ever entered, so the normal
         # should_halt_sim() checks never fire and the sim runs until the 24-hour
         # deadline. If all player flights are already in-flight, there is nothing
-        # to simulate — bail out immediately.
+        # to simulate — bail out immediately. Player at IP is the exception: an
+        # air start still has to fly to its IP.
         player_flights = [
             f for f in self.sim.aircraft_simulation.iter_flights() if f.client_count > 0
         ]
-        if all(f.state.in_flight for f in player_flights):
+        if (
+            self.game.settings.fast_forward_stop_condition
+            is not FastForwardStopCondition.PLAYER_AT_IP
+            and all(f.state.in_flight for f in player_flights)
+        ):
             logging.info(
                 "Sim to first contact: all player flights are hot-spawn "
                 "(already in-flight); skipping fast-forward"
