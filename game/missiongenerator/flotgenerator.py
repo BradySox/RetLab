@@ -206,30 +206,45 @@ def frontline_offsets(groups: list[CombatGroup], size: int) -> dict[int, float]:
     return offsets
 
 
+def spread_indices(count: int, battle_count: int) -> list[int]:
+    """`count` battle indices spread evenly from end to end, the middle for one.
+
+    With at least as many as there are battles, they are dealt out in turn.
+    """
+    if count >= battle_count:
+        return [index % battle_count for index in range(count)]
+    if count == 1:
+        return [battle_count // 2]
+    return [round(i * (battle_count - 1) / (count - 1)) for i in range(count)]
+
+
 def battle_slots(
     groups: list[CombatGroup], battle_count: int
 ) -> dict[int, tuple[int, float]]:
     """Which battle each group joins, and where across it (0 to 1).
 
-    Armor wedges are dealt out across the battles in turn, so every battle gets
-    a share. A clustered member joins its wedge's battle at the wedge's place;
-    everything else is dealt out the same way after the wedges.
+    Armor wedges are dealt out across the battles in turn; a side with fewer
+    wedges than battles spreads them end to end, so the bigger side sets the
+    number of pockets (§111). A clustered member joins its
+    wedge's battle; everything else is dealt across the side's own battles.
     """
     slots: dict[int, tuple[int, float]] = {}
 
-    def deal(dealt: list[CombatGroup]) -> None:
+    def deal(dealt: list[CombatGroup], battles: list[int]) -> None:
         per_battle: dict[int, list[CombatGroup]] = {}
-        for index, group in enumerate(dealt):
-            per_battle.setdefault(index % battle_count, []).append(group)
+        for group, index in zip(dealt, spread_indices(len(dealt), len(battles))):
+            per_battle.setdefault(battles[index], []).append(group)
         for battle, members in per_battle.items():
             for place, group in enumerate(members):
                 slots[id(group)] = (battle, (place + 0.5) / len(members))
 
-    deal([g for g in groups if g.anchor is None and g.role in WEDGE_ROLES])
+    every = list(range(battle_count))
+    deal([g for g in groups if g.anchor is None and g.role in WEDGE_ROLES], every)
     for g in groups:
         if g.anchor is not None and id(g.anchor) in slots:
             slots[id(g)] = slots[id(g.anchor)]
-    deal([g for g in groups if id(g) not in slots])
+    own = sorted({battle for battle, _ in slots.values()}) or every
+    deal([g for g in groups if id(g) not in slots], own)
     return slots
 
 
@@ -331,14 +346,14 @@ class FlotGenerator:
 
     @staticmethod
     def _battle_count(blue: list[CombatGroup], red: list[CombatGroup]) -> int:
-        """As many battles as the side with fewer wedges can fill, so each battle
-        has both sides in it. A side with none leaves the other to fill them."""
+        """As many battles as the side with more wedges can fill. The thinner
+        side holds some of them; one wedge on each side used to make a single
+        pocket for the whole front (Iraq, 2026-10-13)."""
         counts = [
             sum(1 for g in groups if g.anchor is None and g.role in WEDGE_ROLES)
             for groups in (blue, red)
         ]
-        present = [count for count in counts if count]
-        return min(present) if present else 1
+        return max(max(counts), 1)
 
     def _local_for(self, dcs_group: VehicleGroup) -> Optional[Tuple[Point, Heading]]:
         if not self._local:

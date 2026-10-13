@@ -10904,8 +10904,9 @@ choices, the algorithm and the step 2 notes.
   reads owners from the fronts.
 - Battles only stand on ground the landmap marks drivable. Abchazian Blitz's border near
   Sukhumi has about 6 NM of it, so that front stays short.
-- There are as many battles as the side with fewer armor wedges can fill, so every battle
-  has both sides in it. Each group faces across the border at its own battle; TIC's
+- There are as many battles as the side with more armor wedges can fill. The thinner side
+  spreads its wedges end to end, so some pockets are one-sided pushes. Each group faces
+  across the border at its own battle; TIC's
   distance-to-front reads the group's own point on the border.
 - The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
 - CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.

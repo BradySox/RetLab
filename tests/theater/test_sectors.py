@@ -401,6 +401,28 @@ def test_wedges_are_dealt_across_the_battles() -> None:
     assert all(0 < slots[id(w)][1] < 1 for w in wedges)
 
 
+def test_a_thin_side_spreads_its_wedges_end_to_end() -> None:
+    def tanks(count: int) -> list[CombatGroup]:
+        return [CombatGroup(CombatGroupRole.TANK, MagicMock(), 1) for _ in range(count)]
+
+    one = tanks(1)
+    artillery = CombatGroup(CombatGroupRole.ARTILLERY, MagicMock(), 1)
+    slots = battle_slots([*one, artillery], 5)
+    assert slots[id(one[0])][0] == 2
+    assert slots[id(artillery)][0] == 2
+    two = tanks(2)
+    assert [battle_slots(two, 5)[id(w)][0] for w in two] == [0, 4]
+
+
+def test_the_bigger_side_sets_the_battle_count() -> None:
+    def tanks(count: int) -> list[CombatGroup]:
+        return [CombatGroup(CombatGroupRole.TANK, MagicMock(), 1) for _ in range(count)]
+
+    assert FlotGenerator._battle_count(tanks(1), tanks(6)) == 6
+    assert FlotGenerator._battle_count([], tanks(3)) == 3
+    assert FlotGenerator._battle_count([], []) == 1
+
+
 def test_battles_are_picked_from_end_to_end() -> None:
     sites = tuple(BattleSite(0, 0, 0, NM, f"S{i}", along=float(i)) for i in range(7))
     assert [s.sector for s in pick_battles(sites, 3)] == ["S0", "S3", "S6"]
