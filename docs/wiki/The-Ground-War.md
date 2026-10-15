@@ -67,16 +67,6 @@ loss, otherwise the heavier casualties lose.
 **CAS and BAI are the attrition.** Every armour or infantry unit your aircraft destroy counts
 against the enemy's casualty ratio for that sector. Convoy interdiction counts for the same reason.
 
-### Troops In Contact
-
-The fork replaces vanilla ground AI on the front with **Troops In Contact** — prolonged,
-formation-keeping firefights with ambient suppressive fire, instead of stock AI erasing the battle
-in seconds. TIC shapes movement per stance and staggers timing so the line ripples rather than
-lurching.
-
-**TIC's scripted fire is theatrical** — near misses, not aimed lethality — so the front still moves
-on player kills, not on TIC's own attrition. See [Troops In Contact](Troops-In-Contact).
-
 ---
 
 ## Base capture
@@ -134,7 +124,6 @@ deploy units, so those tasks need CTLD in the generated mission.
 
 ## See also
 
-- [Troops In Contact](Troops-In-Contact)
 - [Mission Planning](Mission-planning)
 - [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance)
 - [Fast Forward and Performance](Fast-Forward-and-Performance)

@@ -730,46 +730,6 @@ class LuaGenerator:
         filename = resource_path.resolve()
         self.mission.map_resource.add_resource_file(filename)
 
-    def inject_late_plugin_scripts(
-        self,
-        plugin_mnemonic: str,
-        files: list[str],
-        comment: str,
-        preamble: Optional[str] = None,
-    ) -> None:
-        """Load a plugin's late-init scripts in a single trigger, after config.
-
-        Emits one TriggerStart containing an optional inline ``preamble``
-        (DoScript) followed by a DoScriptFile for each file in order. This runs
-        in inject_plugins()'s second pass, so every plugin's
-        dcsRetribution.plugins.<id> table (and MOOSE) already exists. If any
-        declared file is missing the whole pass is skipped with a loud error,
-        instead of the feature silently never starting.
-        """
-        if not files:
-            return
-        plugin_path = Path("./resources/plugins", plugin_mnemonic)
-        resolved: list[Path] = []
-        for file in files:
-            script_path = Path(plugin_path, file)
-            if not script_path.exists():
-                logging.error(
-                    "Cannot find %s for plugin %s — late-init skipped, the "
-                    "feature will not start this mission",
-                    script_path,
-                    plugin_mnemonic,
-                )
-                return
-            resolved.append(script_path)
-
-        trigger = TriggerStart(comment=comment)
-        if preamble:
-            trigger.add_action(DoScript(String(preamble)))
-        for script_path in resolved:
-            fileref = self.mission.map_resource.add_resource_file(script_path.resolve())
-            trigger.add_action(DoScriptFile(fileref))
-        self.mission.triggerrules.triggers.append(trigger)
-
     def _ew_excluded_c130j_groups(self) -> list[str]:
         """Group names of C-130J-30 flights flying a NON-EW role this mission.
 
@@ -807,15 +767,8 @@ class LuaGenerator:
         # Emit every plugin's config-script load in one bundled trigger (their
         # options are already set inline above, so this preserves the load
         # invariant) -- guards against DCS dropping individual mission-start
-        # DoScriptFile triggers. Runs before the late-init pass.
+        # DoScriptFile triggers.
         self.flush_deferred_plugin_scripts()
-        # Second pass: late-init scripts (TIC/TARS) that must load AFTER
-        # every plugin's config table exists. Ordering within this pass follows
-        # plugins.json; the features share no Lua globals so relative order is
-        # immaterial. Replaces the old hand-injected _inject_*_script tail.
-        for plugin in LuaPluginManager.plugins():
-            if plugin.should_late_init(self):
-                plugin.inject_late_init(self)
 
 
 class LuaValue:

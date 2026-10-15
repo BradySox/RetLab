@@ -470,6 +470,14 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical", "captured before"),
     ),
     Removed(
+        # S9. Not a lowercase "troops in contact": it is also the plain CAS term.
+        "TIC, the Troops In Contact plugin and the late-init pass (S9)",
+        "2026-10-15",
+        r"Troops In Contact|Troops-In-Contact|\bTIC\b|\bGLSCO\w*|StormTrooper"
+        r"|Ambient suppressive fire|late-init pass|late_init",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",

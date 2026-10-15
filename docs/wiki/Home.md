@@ -37,7 +37,6 @@ and quality-of-life work on top of upstream.
   TARPS, approximate targeting.
 - [Electronic Warfare and ISR](Electronic-Warfare-and-ISR) — the C-130J JAMMING platform.
 - [Combat SAR](Combat-SAR) — rescuing a downed pilot.
-- [Troops In Contact](Troops-In-Contact) — the frontline battle simulation.
 - [Vietnam Ops](Vietnam-Ops) — opt-in period mechanics and the Vietnam campaign doctrine.
 
 ## What the fork changes

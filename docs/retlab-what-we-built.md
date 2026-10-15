@@ -36,9 +36,7 @@ front, AWACS and tankers that hold sensible orbits instead of wandering into the
 and an auto-planner that stops hitting the same targets every turn. Strike packages get
 the escorts and TARCAP they should.
 
-**A living battlefield.** The front line isn't two static walls of armor anymore —
-**TIC (Troops In Contact)** drives scripted firefights with real maneuver, so the FLOT
-looks alive from the air, tracers and all. Mobile SAMs hide from the datalink the way
+**A living battlefield.** Mobile SAMs hide from the datalink the way
 they should, and target locations can be made deliberately approximate so you have to
 *find* the enemy, not just fly to a waypoint.
 

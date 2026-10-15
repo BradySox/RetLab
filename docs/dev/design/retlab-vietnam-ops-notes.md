@@ -13,8 +13,7 @@ originally-planned "optional later increment"). Emitter-tested; the spawn Lua ne
 L9).
 **Date:** 2026-06-28 (designed) · 2026-07-01 (§E landed runtime)
 **Related:** [`retlab-moose-ops-opportunity-map.md`](retlab-moose-ops-opportunity-map.md)
-(why this is Tier-A only, never `Ops.Chief`), [`retlab-tic-dynamic-fronts-notes.md`](retlab-tic-dynamic-fronts-notes.md)
-(TIC firefights — the flak/convoy effects reuse its `TaskFireAtPoint` pattern),
+(why this is Tier-A only, never `Ops.Chief`),
 [`retlab-csar-notes.md`](retlab-csar-notes.md) (rescue; note the King on-scene-commander
 pattern NGFS spotting reuses was itself removed with §21 on 2026-08-07),
 CLAUDE.md §20 (drop-spawn), §28 (settings IA). Campaign target: `khe_sanh_niagara.yaml`

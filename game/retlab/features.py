@@ -73,7 +73,13 @@ FEATURES: tuple[Feature, ...] = (
     Feature("air_defense_planning", "Air-defense planning rework", 6),
     Feature("auto_hide_mobile_sams", "Auto-hide mobile SAMs on MFD", 7),
     Feature("robustness_fixes", "Robustness / crash fixes", 8),
-    Feature("tic", "TIC — Troops In Contact", 9, plugin_id="tic"),
+    Feature(
+        # REMOVED 2026-10-15 on the DM's call.
+        "tic",
+        "TIC — Troops In Contact",
+        9,
+        retired=True,
+    ),
     Feature("currenthill_iran_pack", "CurrentHill Iran assets pack", 10),
     Feature(
         "dtc_cartridge_export",

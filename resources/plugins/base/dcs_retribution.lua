@@ -105,7 +105,7 @@ end
 
 -- Who killed what, for the loss causes the AI link serves. The killer is named by
 -- unit so Python can look it up in the unit map; its type is kept for a killer the
--- map does not know (a TIC clone, a late spawn).
+-- map does not know (a late spawn).
 function record_kill_cause(initiator, target, weapon_name)
     local target_name = target:getName()
     local killer_name = initiator:getName()

@@ -233,6 +233,5 @@ one. Six campaigns author it, including all three Vietnam ones.
 ## See also
 
 - [Combat SAR](Combat-SAR)
-- [Troops In Contact](Troops-In-Contact) — the firefight sim the flak and convoy effects reuse
 - [Lua Plugins](Lua-Plugins) — where the per-feature tunables live
 - [Air Defense and the Air War](Air-Defense-and-the-Air-War)

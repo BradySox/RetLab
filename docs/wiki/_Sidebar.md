@@ -17,7 +17,6 @@
 - [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance)
 - [Electronic Warfare and ISR](Electronic-Warfare-and-ISR)
 - [Combat SAR](Combat-SAR)
-- [Troops In Contact](Troops-In-Contact)
 - [Vietnam Ops](Vietnam-Ops)
 
 **What the fork changes**

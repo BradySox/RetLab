@@ -26,11 +26,6 @@ Everything below is on top of upstream; we still pull upstream fixes, so you los
 
 ## The big additions
 
-**A living front line (TIC).** The FLOT is no longer two static walls of armor. Ground
-units hold formation and fight scripted, maneuvering firefights with per-stance behavior,
-so flying CAS over the front finally looks and feels alive — and your strafing passes are
-the real source of attrition.
-
 **Recon fog.** Enemy sites show as targets you can plan against, but their *composition and
 threat rings stay hidden* until you engage them — ordnance on the site, or any ground-attack
 sortie that reaches it. Engaging reveals the site completely and permanently, damage included;

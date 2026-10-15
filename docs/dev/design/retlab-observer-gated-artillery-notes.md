@@ -1,6 +1,7 @@
 # Observer-gated frontline artillery — scoping note (2026-09-23)
 
-Status: **scoping only, nothing built.** Concept from FinCenturion's fire-support work (his
+Status: **scoping only, nothing built. Moot since TIC was removed 2026-10-15** (features
+doc §9): the mechanism below reads TIC's observers and sight checks. Concept from FinCenturion's fire-support work (his
 Discord post 2026-09-18; see §11 of
 [retlab-fincenturion-dist-notes.md](retlab-fincenturion-dist-notes.md)). His code is not
 read or copied; licence unasked.

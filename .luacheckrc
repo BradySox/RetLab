@@ -28,7 +28,6 @@ exclude_files = {
     "resources/plugins/MooseSoundhandler/*",
     "resources/plugins/skynetiads/*",
     "resources/plugins/splashdamage3/*",
-    "resources/plugins/tic/TIC_v1.1.lua",
 }
 
 -- DCS plugin scripts assign module-level globals freely and read a large host
@@ -82,7 +81,4 @@ files["resources/plugins/intercept/intercept-config.lua"] = {
 }
 files["resources/plugins/redscramble/redscramble-config.lua"] = {
     globals = { "dcsRetribution" }, -- aiReactionExempt, the §94 protocol
-}
-files["resources/plugins/tic/tic_retlab_init.lua"] = {
-    globals = { "GLSCO_COMBATANT" }, -- simulate override
 }

@@ -13,7 +13,7 @@ next from the parking lot.
 
 *(Refilled 2026-08-22. Slots 1–2 carried over; 3–4 are new. The previous parking lot was
 cleared — both entries named rows that had already closed, `Q3` VERIFIED and the loadout
-watch pointing at RETIRED `B42`.)*
+watch pointing at RETIRED `B42`. Slots 4 and 5 (`B103`, `B108`) went 2026-10-15 with TIC.)*
 
 ### 1 · An AI flight inside a shaded neutral border, and nothing happens — `B121`
 
@@ -47,26 +47,6 @@ flight is near a shaded (hostile-neutral) border.
   the change reads differently from one planned before.
 - **Fail:** the bar moves and nothing beneath it changes.
 - **Why it's here:** pulled from the parking lot 2026-09-16 when `B78` closed on the DM's call.
-
-### 4 · BMP-3s in a front fight fire single aimed shots — `B103`
-
-**Where:** any front with BMP-3 groups and TIC on (Iron Gate, Caucasus 2026, Red Tide), from
-the cockpit or the F10 map. **~2 min** of watching one firefight.
-
-- **Pass:** a BMP-3 group fires single aimed shots, visibly slower than the BTRs beside it.
-- **Fail:** BMP-3s fire at the infantry salvo rate, as fast as the BTRs.
-- **Why it's here:** pulled from the parking lot 2026-09-27 when `B111` closed on the DM's call.
-  A recording does not carry per-round gunfire, so this needs eyes.
-
-### 5 · A stuck TIC unit names itself, and the retries are spread — `B108`
-
-**Where:** `dcs.log` after any mission with a front line, one grep for `stuck`. **~1 min.**
-
-- **Pass:** each stuck line names its unit, and the retries are spread across many units
-  rather than one unit retrying hundreds of times.
-- **Fail:** unnamed stuck lines, or one unit holding most of the count.
-- **Why it's here:** pulled from the parking lot 2026-09-16 when `B90` closed on the DM's call.
-  Test 33 had a live front and no stuck line at all, so it is still unflown.
 
 ---
 
