@@ -1,5 +1,8 @@
 # RetLab PR #823 Frontline Merge Notes
 
+**2026-10-15: TIC was removed (features doc §9).** #823's cohesive maneuver now moves every
+frontline role and the TIC guard below is gone. The rest of this note is the merge record.
+
 How to adopt upstream **PR #823 — "Enhanced Front Line Stances + Movement"**
 (`dcs-retribution/dcs-retribution#823`, branch `feat/dr-byba-frontline-movement`) onto a
 fork build where **TIC is the default frontline driver**. Read this before merging #823 or

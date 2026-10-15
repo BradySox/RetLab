@@ -26,26 +26,6 @@ At mission generation Retribution reads the work orders and injects the referenc
 into the `.miz`, so the scripts run when the mission starts. The `base` plugin is the
 mandatory core every mission loads.
 
-### The late-init pass: load-after-config plugins
-
-Most plugins are ordinary work-order plugins. But one of the fork's features —
-**TIC** — must load its main script **after** every plugin's
-configuration has been injected, because its init reads `dcsRetribution.plugins.<name>`
-(and MOOSE) the moment it loads. The normal work-order pass loads a plugin's scripts before
-its own config, so it can't express that ordering.
-
-It is a `LuaPlugin` subclass (`game/plugins/tic.py`, registered in
-`game/plugins/manager.py`'s `_PLUGIN_CLASSES`) that declares what to load late via
-`late_init_files()`, an optional `late_init_preamble()`, and a `should_late_init()` gate.
-`inject_plugins()` then runs a **second pass** that loads those files after the normal
-config pass — so the vendored MOOSE class plus the small `tic_retlab_init.lua` that owns
-construction land last, with everything they need already present.
-
-The robustness win over the old hand-injected approach: a missing or renamed init file is
-now caught by an automated test (`game/plugins/tests/test_late_init.py`) at CI time, instead
-of the feature **silently never starting** in-game. (This replaces the former
-`_inject_*_script()` "scramble pattern".)
-
 ## The framework: MOOSE
 
 Write runtime logic against **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim).
@@ -111,7 +91,6 @@ setting off costs nothing at runtime.
 
 | Plugin | Default | What it does |
 |---|---|---|
-| `tic` | on | Troops In Contact — formation-keeping frontline units fighting prolonged scripted firefights. (Late-init plugin.) |
 | `coin` | on | The COIN insurgency layer's movers and ambient pressure. Inert unless a COIN campaign. |
 | `vietnamops` | always | The Vietnam Ops suite (Arc Light, flak gauntlet, naval gunfire, convoy interdiction, Super Gaggle, FAC(A), snake-and-nape). Inert unless one of the Vietnam Ops settings is on. |
 
@@ -156,6 +135,5 @@ sets up and spawns, Lua executes — don't move runtime logic into the planner o
 
 - [Custom Campaigns](Custom-Campaigns) — campaigns and the IADS engine
 - [Electronic Warfare and ISR](Electronic-Warfare-and-ISR) — the `c130j` plugin in play
-- [Troops In Contact](Troops-In-Contact) — the `tic` plugin in play
 - [Combat SAR](Combat-SAR) — the `opscsar` plugin in play
 - [Dedicated Server Guide](Dedicated-Server-Guide) — running plugin-driven missions on a server

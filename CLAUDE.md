@@ -124,6 +124,7 @@ The starting points that are easiest to miss:
 8 superseded notes were deleted 2026-10-12 (the EWRS and dismounts retirements, the CTLD port
 scope, the mission-planning wiki draft, wing growth, framework consolidation, the MOOSE long
 view, the Tanker War campaign); they are at `git show 57ab9e720:docs/dev/design/<name>`.
+The TIC movement note went with TIC on 2026-10-15: `git show bc0284448:docs/dev/design/retlab-tic-dynamic-fronts-notes.md`.
 **Do not keep a note for a removed feature**: record the removal in the features doc §N and
 delete the note, after lifting any **constraint learned from a flown test** into the
 hard-constraints list or a surviving note. The deleted debt register is at
@@ -159,19 +160,9 @@ hard-constraints list or a surviving note. The deleted debt register is at
 ## Key Architecture Patterns
 
 **Planner / Lua split.** Python plans and spawns the mission (flight plans, ROE, templates);
-runtime behavior (EW, ISR, frontline firefights) is driven by the Lua
+runtime behavior (EW, ISR, rescue) is driven by the Lua
 plugins. When a feature has both, the Python side sets up and the Lua side executes — don't
 move runtime logic into the planner or vice versa.
-
-**Plugin script injection (the uniform late-init pass).** Most RetLab plugins are normal
-work-order plugins. TIC additionally needs its main script loaded **after**
-every plugin's config table exists (its init reads `dcsRetribution.plugins.<name>` / MOOSE
-at file scope). It is a `LuaPlugin` subclass (`game/plugins/tic.py`, registered in
-`manager.py`'s `_PLUGIN_CLASSES`; `MooseAtis` is registered there too, but only to inject the
-current map's sound files) declaring `late_init_files()` / `late_init_preamble()` /
-`should_late_init()`; `inject_plugins()` runs a **second pass** that calls
-`inject_late_init()` after the normal config pass. A missing or renamed init file is caught
-by `game/plugins/tests/test_late_init.py`.
 
 **Viewer-aware visibility layer (recon fog).** AI planning and threat math always use ground
 truth (`viewer=None`); only the human (BLUE) map and UI are fogged. **One question, asked in
@@ -278,7 +269,6 @@ linked design note.
 6. **Air-defense planning rework** — BARCAP waves; first wave, tankers and AWACS ASAP. Geometry is upstream's.
 7. **Auto-hide mobile SAMs on MFD** — SHORAD/AAA/MANPAD off datalink.
 8. **Robustness, crash fixes and refuelling** — the fix log; per-flight Refuel before the push / before station.
-9. **TIC — Troops In Contact** — scripted frontline firefights.
 10. **CurrentHill Iran assets pack** — Shahed-136, IRGCN FAC, `[CH] Iran 2020`.
 14. **Plugin Options UI** — `descriptionInUI`, labels and defaults.
 16. **Settings QOL audit** — dead-field cleanup, the `AiRadioBehavior` enum.
@@ -389,6 +379,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 83 | SP Pilot Mode | Removed 2026-10-12 — verified working 2026-08-05, never switched on since |
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
 | 110 | Ballistic missile call-for-fire (`bmstrike`) | Removed 2026-10-12 — ported 2026-10-10, never flown |
+| 9 | TIC — Troops In Contact (the `tic` plugin and the late-init pass) | Removed 2026-10-15 — the front fights with DCS's own ground AI |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush

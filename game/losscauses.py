@@ -122,9 +122,7 @@ def _owner(
     flying = unit_map.flight(name)
     if flying is not None:
         return side_of(flying.flight.departure), KIND_AIRCRAFT, None
-    front = unit_map.front_line_unit(name) or unit_map.front_line_unit_from_tic_clone(
-        name
-    )
+    front = unit_map.front_line_unit(name)
     if front is None:
         front = unit_map.motorpool_unit(name)
     if front is not None:

@@ -46,9 +46,6 @@ class FakeUnitMap:
     def front_line_unit(self, name: str) -> Optional[Any]:
         return self.front.get(name)
 
-    def front_line_unit_from_tic_clone(self, name: str) -> Optional[Any]:
-        return None
-
     def motorpool_unit(self, name: str) -> Optional[Any]:
         return None
 

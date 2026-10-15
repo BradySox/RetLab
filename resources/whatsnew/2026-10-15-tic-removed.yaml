@@ -1,0 +1,10 @@
+date: 2026-10-15
+title: Troops In Contact removed
+change: >-
+  The Troops In Contact plugin is gone, with its scripted ambient fire and
+  its Plugin Options checkbox. Front-line units fight with DCS's own ground
+  AI and still drive the routes their front's stance gives them.
+watch: >-
+  On a front with an Aggressive stance, the attacking groups drive toward
+  the enemy and engage on their own. No unit name in the mission starts
+  with "TIC:".

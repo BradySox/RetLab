@@ -62,7 +62,7 @@ either a fatter facade or targeted extraction before they can ride the harness.
    `assert_no_lua_errors()`.
 
 Good next targets: `combatsar`'s divert/release routing (G23's regression shape), the
-`airecon` capture trigger (G19), TIC stance cadences.
+`airecon` capture trigger (G19).
 
 ## CI
 

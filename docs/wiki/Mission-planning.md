@@ -341,9 +341,7 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 - **Package role:** Lead / standalone.
 - **Typical airframes:** A-10-class types excel; any CAS-capable airframe works.
 - **TOT meaning:** Loiter/search start. Searches until bingo or winchester.
-- **Player technique:** Work the front-line area; coordinate with ground stance for effect. In
-  RetLab the front is a prolonged, formation-aware firefight (Troops In Contact), so there are
-  usually live engagements to support.
+- **Player technique:** Work the front-line area; coordinate with ground stance for effect.
 - **AI limitations:** **AI will not actively hunt** — it engages only what enters visual range,
   and is degraded in poor weather, so it may miss targets on the line.
 

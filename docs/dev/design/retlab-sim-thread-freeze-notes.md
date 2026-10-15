@@ -45,8 +45,8 @@ scripts. Exports: Tacview, WinWing, SRS, an OH-6 gunner export.
 MAKES TOO LONG!!!!!` lines in run 2 had an `ANTIFREEZE` within 3–5 s (the rest had none
 within 30 s). But run 3 froze with TIC off, and a path
 warning fired there too — the pathfinder serves upstream's convoys and FLOT groups as
-well. TIC was a contributor in run 2, not the cause. The retry ceiling the TIC note
-pre-registered is still owed; it is not this fix.
+well. TIC was a contributor in run 2, not the cause. TIC was removed 2026-10-15
+(features doc §9).
 
 **The 15 s `state.json` write / the 30 s sortie sample.** Three reasons:
 - the track is emitted only on the final write by design (`sortie_recorder.lua`

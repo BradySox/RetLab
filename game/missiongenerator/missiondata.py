@@ -170,9 +170,6 @@ class MissionData:
     # Bases with a player-manned QRA alert flight (§1); drives the Lua "raid
     # inbound — scramble" cue in intercept-config.lua.
     player_alert_entries: list[PlayerAlertEntry] = field(default_factory=list)
-    # Names of frontline ground groups handed over to the Troops In Contact
-    # script (TIC plugin). Non-empty means TIC_v1.1.lua must be injected.
-    tic_groups: list[str] = field(default_factory=list)
     atis_frequencies: list[AtisInfo] = field(default_factory=list)
     # The enemy comms-jamming plan (§51), computed once before the Lua pass so
     # the emitter and the kneeboard (JAM BACKUP line) read the same plan. None

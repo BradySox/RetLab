@@ -2195,129 +2195,40 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   (`_holds_sam_system`). A save written after the strip stays stripped. Tests:
   `tests/theater/test_aaa_radar_migration.py`.
 
-## 9. TIC — Troops In Contact frontline battle sim (plugin, default ON)
+## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
-Grendel's TIC v1.1 (MIT, lua globals named `GLSCO*`) replaces vanilla ground AI
-with formation-keeping, prolonged scripted firefights for frontline maneuver
-units. Enable per-game via the plugins UI ("Troops In Contact").
+**Removed 2026-10-15 (DM call).** The `tic` plugin (default on) ran Grendel's TIC v1.1 (MIT,
+Lua globals `GLSCO*`) on the front line: TANK/IFV/APC/ATGM groups were named `TIC:<name>`,
+late-activated, respawned by the script as single-unit clones, and fought scripted firefights
+from orders encoded in waypoint names, with RetLab's ambient suppressive fire on top.
 
-Dynamic-front movement design (why the stance/cadence logic looks the way it does):
-`docs/dev/design/retlab-tic-dynamic-fronts-notes.md`. Read it before touching
-`_plan_tic_action()` or the TIC stance mapping.
+**Why it went:** the DM's call during the 2026-10-15 test day. It was already off in his Red
+Tide game, and the front fought with DCS's own ground AI in test 58 as intended. It cost frame
+rate on dense fronts, and it was the only plugin that needed the late-init pass.
 
-- Plugin: `resources/plugins/tic/` (`TIC_v1.1.lua` + `tic_retlab_init.lua` +
-  `plugin.json`; options: `stormtrooper`, `createMenus`, `boundPause`,
-  `ambientFire`). Script injection is NOT a work order - it runs in the uniform
-  late-init pass: `TicPlugin` (`game/plugins/tic.py`, registered in
-  `manager.py`) declares a `late_init_preamble()` (pre-seeds `GLSCO.*` from
-  `dcsRetribution.plugins.tic.*` and sets `AutoInitialize/AutoStart = false`)
-  plus `late_init_files()` (`TIC_v1.1.lua`, `tic_retlab_init.lua`), gated on
-  `mission_data.tic_groups`; `inject_plugins()`'s second pass DoScriptFiles them
-  after all plugin config. (Was `_inject_tic_script()` — the "scramble pattern".)
-  `tic_retlab_init.lua` then
-  installs RetLab ambient-fire extension (wraps
-  `GLSCO_COMBATANT:simulate()`: combatants with no LOS target have a 50%
-  chance per firing cycle to area-fire a salvo at 30-150 m around the nearest
-  enemy formation within 6 km - tracers over LOS blockers, no aimed
-  lethality) and then owns `GLSCO:Initialize()` + `battle:Activate()`.
-  CRITICAL: TIC's auto-init is disabled, so if tic_retlab_init.lua is removed or
-  fails, the battle never starts.
-- Failsafe hardening (`tic_retlab_init.lua`): RetLab ambient-fire `simulate()` override and the
-  battle init are `pcall`-contained, so a runtime error in the speculative-fire path can't throw
-  out of the engine cycle (one combatant) and an init error logs rather than aborting the rest of
-  the DO-SCRIPT-FILE chain. Same defensive pattern as SCAR's `scar_check` watchdog (§15) and the
-  Combat SAR LARS query (§21) — see `retlab-campaign-doc-ideas-harvest.md`.
-- Generator contract: `game/missiongenerator/flotgenerator.py`. When the
-  plugin is enabled, TANK/IFV/APC/ATGM frontline groups are named
-  `TIC:<namegen name>` (one TIC formation per group), late-activated, and get
-  TIC orders as waypoint NAMES (`t+N hdg=H roe=simulate`) via
-  `_plan_tic_action()` instead of DCS tasks/triggers. Squad infantry joins
-  the carrier's formation as `TIC:<formation>#<infantry name>`. Artillery and
-  the manpads-only branch stay vanilla. TIC group names are recorded in
-  `mission_data.tic_groups` (the injection gate).
-- Frontline composition + laydown (PR #823 adoption, 2026-06-26): the ground
-  planner (`game/ground_forces/ai_ground_planner.py` + new
-  `frontline_clustering.py`) now deploys a *proportional mixed selection* of the
-  base armor pool (largest-remainder allocation) as even-spread combat clusters —
-  an armor wedge (5-7, type alternates between adjacent clusters) with embedded
-  SHORAD, an ATGM standoff pair, and leading recon; artillery/logi to the rear —
-  replacing single-type random groups. `flotgenerator._generate_groups` places
-  them via `frontline_offsets` (even slots; members share their wedge's offset)
-  layered on top of the fork's existing perpendicular-step anti-stacking. This
-  sits *upstream* of TIC's waypoint orders, so it just gives TIC a better starting
-  laydown — TIC still drives movement. **#823's DCS-task cohesive-maneuver half is
-  TIC-guarded**: in `plan_action_for_groups` the new `_plan_follower_action` /
-  APC-into-wedge routing runs ONLY when `not self.tic_enabled`; with TIC on,
-  TANK/IFV/APC/ATGM short-circuit to `_plan_tic_action` and SHORAD/RECON stay
-  static (pre-#823 behaviour), so TIC keeps sole ownership of armor/ATGM movement.
-  The fork keeps `base.total_frontline_units` (not upstream `total_armor`) as the
-  deploy denominator. Also adds the **default front-line stance** setting
-  (`settings.default_front_line_stance`, HQ Automation; seeded at new-game time
-  and on player capture when auto-stance management is off). Tests:
-  `tests/ground_forces/`, `tests/missiongenerator/test_flotgenerator_*`,
-  `tests/theater/test_default_front_line_stance*`. Full merge record + the
-  Bucket A/B/C split: `docs/dev/design/retlab-pr823-frontline-merge-notes.md`.
-- ROE/waypoint design (settled after in-game testing, intentional - keep):
-  TIC's "simulate" ROE fires theatrical near-miss salvos ONLY while
-  stationary; moving units don't shoot at all, and `roe=kill` was judged too
-  lethal/accurate by RetLab. `_plan_tic_action()` shapes movement PER
-  CombatStance (`TIC_STANCE_PROFILES` / `_tic_stance_profile()`) so opposing
-  sides don't run the same script and collide as a symmetric wall - the
-  campaign already feeds independent per-side stances. Full design rationale:
-  `docs/dev/design/retlab-tic-dynamic-fronts-notes.md`.
-  - Every formation takes an opening bound to a fighting line short of the
-    trace (`_tic_distance_to_front()` projects the group onto the forward axis;
-    `find_offensive_point()` places the bound), inside TIC's ~2 NM targeting
-    bubble. ATTACKERS then run slide/press assault cycles past the trace;
-    DEFENSIVE/AMBUSH dig in at the bound instead of idling at the rear spawn
-    (which could sit OUTSIDE the bubble, leaving an attacker pressing an empty
-    line).
-  - Stance profiles: AGGRESSIVE = standoff (600-900 m) + 1 slide + light press;
-    BREAKTHROUGH = straight thrust, no lateral slide, deeper press
-    (`TIC_BREAKTHROUGH_DEPTH_SCALE` 1.8) + faster cadence (0.7); ELIMINATION =
-    2 slide/press cycles to hunt LOS; DEFENSIVE = dig in at
-    `TIC_DEFENSIVE_STANDOFF` (900-1400 m) + a low-chance occasional
-    counterattack (`TIC_COUNTERATTACK_CHANCE` 0.25); AMBUSH = most rearward
-    hold at `TIC_AMBUSH_STANDOFF` (1400-2200 m), never counterattacks;
-    RETREAT = single fallback leg.
-  - Slide legs use TIC_LATERAL_SLIDE (1.5-3 km) to break LOS deadlocks behind
-    towns/ridges (the Dzhukhur lesson: TIC targeting is LOS-checked and TIC
-    does not path around terrain). Press legs use TIC_PUSH_DEPTH (400-800 m)
-    times the stance depth scale.
-  - Cadence is staggered per group so the line ripples instead of lurching:
-    `_tic_step_off()` spreads the opening bound across a `boundPause`-scaled
-    window, `_tic_jitter()` is boundPause +/-45% (loosened from +/-25%), and
-    `_tic_leg_gap()` further scales each gap by a per-group tempo
-    (`TIC_GROUP_TEMPO` 0.7-1.4) and the stance cadence. `tic.boundPause`
-    (default 12, players set it in the plugin UI) sizes the battle arc to fit
-    a single sortie (~45-75 min); lowered from 25 (~1.5-2 h) on 2026-06-26
-    after a playtest showed the line hadn't pressed into contact within a sortie.
-  - Losses from scripted fire are sparse near-miss kills by design; players
-    flying CAS are the real attrition source. The campaign front moves on
-    player kills, not TIC kills. (Terrain-anchored positioning was considered
-    and rejected - Retribution exposes no terrain queries on this path; see the
-    design note.) Tests: `tests/test_tic_dynamic_fronts.py`.
-- Loss tracking: TIC destroys originals (no dead event - scripted destroy is
-  silent) and respawns single-unit clones renamed by MOOSE SPAWN to
-  `<group>-<i>#NNN-UU`. `game/unitmap.py` registers `front_line_groups` and
-  `front_line_unit_from_tic_clone()` strips the suffixes (regex
-  `TIC_CLONE_NAME`, handles nested respawn generations); `game/debriefing.py`
-  falls back to it when the exact unit-name lookup misses. Tests:
-  `tests/test_tic_clone_mapping.py`.
-- KNOWN LIMITATION: with StormTrooper AI on (default), TIC cloaks managed
-  units from DCS AI sensors - AI CAS flights cannot detect the enemy
-  frontline. Human CAS is unaffected. Turn StormTrooper off for visible
-  real-AI ground combat.
-- AUTO-JTAC REMOVED (2026-06-26, RetLab playtest): the MQ-9 Reaper FAC drone
-  that used to orbit the FLOT (spawned by `flotgenerator`, gated by
-  `faction.has_jtac`) was removed for EVERY faction - it was unwanted drone +
-  F10-menu clutter. The `MooseAutolase` plugin (JTAC Alpha/Bravo autolase) was
-  deleted too. `faction.has_jtac`/`jtac_unit` remain as DORMANT no-op fields
-  (kept so faction JSONs + `test_factions` don't churn). The frontline-group
-  membership recording was accidentally nested inside that JTAC `if` block; it
-  now always runs (latent bug fixed in passing).
-- Do NOT call `ScanAndRegisterFormations` twice and do not ME-activate TIC
-  groups - TIC owns their lifecycle.
+**What went:** `resources/plugins/tic/`, `game/plugins/tic.py`, the late-init pass
+(`LuaPlugin.late_init_*`, `should_late_init`, `inject_late_init`,
+`LuaGenerator.inject_late_plugin_scripts`), `mission_data.tic_groups`, the TIC branches in
+`flotgenerator.py` (`TIC_*` constants, `TicStanceProfile`, `_plan_tic_action` and its helpers,
+the `TIC:` naming and late activation), `UnitMap.front_line_groups` and
+`front_line_unit_from_tic_clone`, the design note `retlab-tic-dynamic-fronts-notes.md`, the
+wiki page, and rows B103 and B108. Old saves load; their `tic.*` plugin keys are dropped on
+load. `tools/apply_state_json.py` still parses `TIC:` names, which older test captures carry.
+
+**What stays:** PR #823's frontline laydown and cohesive maneuver
+(`frontline_clustering.py`, `plan_action_for_groups`), now the only movement path for every
+role, and the **default front-line stance** setting. See
+`docs/dev/design/retlab-pr823-frontline-merge-notes.md`.
+
+**Constraints learned from flown tests:**
+- TIC's ROE cycling raised DCS's undocumented event 61 about ten times a second; the
+  `RetLab patch (event 61 spam)` guard in the bundled `Moose.lua` stays, since any option change
+  raises it.
+- Scripted near-miss fire never moved a front; the campaign front moves on player kills.
+
+**To bring it back:** `git show bc0284448:resources/plugins/tic/TIC_v1.1.lua` (and
+`tic_retlab_init.lua`, `game/plugins/tic.py`), and
+`git show bc0284448:docs/dev/design/retlab-tic-dynamic-fronts-notes.md` for the stance design.
 
 ---
 
@@ -10957,8 +10868,7 @@ choices, the algorithm and the step 2 notes.
   Sukhumi has about 6 NM of it, so that front stays short.
 - There are as many battles as the side with more armor wedges can fill. The thinner side
   spreads its wedges end to end, so some pockets are one-sided pushes. Each group faces
-  across the border at its own battle; TIC's
-  distance-to-front reads the group's own point on the border.
+  across the border at its own battle.
 - The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
 - CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.
 

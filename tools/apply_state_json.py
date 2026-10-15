@@ -32,8 +32,8 @@ namespace:
   the same accounting ``commit_air_losses`` performs -- so a lopsided mission
   (more red jets died than the new ATO flies) still carries its full attrition.
 - **Front-line units** (``unit|...| Unit #N``) and **TIC clones**
-  (``TIC:unit|...-N#NNN-NN``): matched by unit-type token against the target
-  front line, falling back to any unconsumed same-side front-line unit (the
+  (``TIC:unit|...-N#NNN-NN``, in captures from before TIC was removed):
+  matched by unit-type token against the target front line, falling back to any unconsumed same-side front-line unit (the
   name embeds the DCS country id). A front thinner than the kill count drops
   the overflow -- you cannot kill more units than exist -- and reports it.
 - **QRA intercept survivors**: squadron-UUID keys are remapped by home base +
@@ -90,8 +90,7 @@ if TYPE_CHECKING:
     from game.unitmap import UnitMap
 
 #: A TIC (Troops In Contact) respawn clone: "<original group name>-<idx>#<NNN>-<NN>"
-#: (kept in sync with game.unitmap.TIC_CLONE_NAME; duplicated so the parse helpers
-#: stay importable without the full game package).
+#: TIC was removed 2026-10-15; older test captures still carry these names.
 TIC_CLONE_NAME = re.compile(r"^(?P<group>.+?)(?:-\d+#\d{3})+-\d{2}$")
 
 #: A generated theater-ground-object unit name: "NNNN | <unit name>".

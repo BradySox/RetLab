@@ -1995,45 +1995,6 @@ files are rebased onto the new stock and re-applied. Fly this row after that reb
 update and is currently unapplied. Re-enabling the July copy reverts ED's AGM-45B and
 SUU-23 work — see the note's §2.4 before turning it back on.
 
-### B103 — BMP-3s in a firefight still fire like armour, not infantry · §9 TIC · ☐ UNTESTED
-
-**2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the units were in the fight, the rate was not measurable.** BMP-3 groups stood on the live front on Iron Gate (tests 24 and 26, two groups each) and Caucasus 2026 (test 31, six groups) after the 08-26 patch; a recording does not carry ground gunfire per round, so salvo rate needs eyes. Unchanged; parked on the WATCH lot.
-
-DCS 2.9.29 folded the CurrentHill pack into core. `CHAP_BMP3.lua` keeps the vanilla id
-`BMP-3` but renames its DisplayName to `IFV BMP-3 [CH]`. TIC keys its per-unit profile
-table by DisplayName (`TIC_v1.1.lua:512` → `:2300`) and swallows a miss with `or {}`, so
-the BMP-3 entry's `SalvoQty = 1` silently reverted to the generic profile — BMP-3s
-started firing at the infantry salvo rate. Fixed by falling back to the name with a
-trailing vendor suffix stripped; verified on Lua 5.1 that both spellings resolve.
-
-The id is unchanged, so no layout or unit yaml was ever at risk and
-`tests/test_layout_unit_types.py` stays green. Detail in
-[retlab-dcs-update-2026-08-26-notes.md](design/retlab-dcs-update-2026-08-26-notes.md) §2.1.
-
-**Setup.** Any campaign whose red order of battle fields the BMP-3 with TIC enabled —
-Red Tide is the readiest. Fly a CAS or TIC sortie over a contested front section and
-watch a BMP-3 group engage. ~20 min.
-
-**Pass.** BMP-3 groups fire in single aimed shots, visibly slower than a BTR-80 or
-BTR-82A group in the same firefight. The distinction between IFV and APC fire is
-audible and visible from the cockpit.
-
-**Fail signatures, and what each means:**
-
-- **BMP-3s pour fire like APCs** — the fallback did not match. Check the live
-  DisplayName with `getDesc().displayName`; if ED used a different suffix shape than
-  ` [CH]`, the pattern `%s*%[%u+%]$` needs widening.
-- **No unit fires at its profile rate any more** — the fallback broke the exact-match
-  path. That would mean the `or` chain is returning the wrong table; revert to
-  `profile[self:GetDisplayName()] or {}` and re-test.
-- **The T-90 behaves oddly too** — `CHAP_T90A.lua` also claims a vanilla id (`T-90`,
-  DisplayName `MBT T-90A [CH]`). TIC does not key it today, so this would mean something
-  else keys by DisplayName. Grep the plugin tree before assuming it is this fix.
-
-**Note.** TIC has no headless harness coverage — `tests/lua/` covers `vietnamops` only.
-Nothing catches the next DisplayName rename, which is the general risk this row stands
-for.
-
 ### B104 — The Viper's ROE tab declares the campaign's own sides · §74 · ◐ PARTIAL
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the cartridge is right in the flown mission; the tab itself is unread.** Test 33's miz carries `DTC/Retribution Rattler 1 F-16C_50.dtc` with the 48-row ATDT and `TypeSovereignty` on. Checked against the blue and red rosters in the same miz: A-6, A-10, B-1, C-130, E-2, F-15, F-16, F/A-18 and KC-135 read FRIENDLY; Il-76, Il-78, MiG-21/23/29, Mirage F1, Su-24/25, Tu-16 (the H-6J) and Tu-22 read HOSTILE; the E-3, F-4, F-5, F-14, AV-8B, Su-27 and the rest that neither side flies read UNKNOWN. That is the derivation the row describes, on a real campaign. What remains is the DM opening the ROE tab on the MMC page and seeing the same table.
@@ -2140,38 +2101,6 @@ through and going home.
 - **The orbit sits 80+ nm off** — the survivor is deep inside a large ring, so
   `distance_to_threat + THREAT_BUFFER` is genuinely that far. Working as designed;
   move the waypoints.
-
-### B108 — A stuck TIC unit names itself, and the retries are spread not concentrated · §9 TIC · ◐ PARTIAL
-
-**2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **measured: no stuck retry at all since the fix.** The anonymous line fired 629, 487, 509 and 90 times in tests 1–2, 17, 21 and 24 (all on the pre-fix TIC copy). In the four post-fix missions with a live front and TIC running (tests 25, 26, 31 and 33: Syria 2024, Iron Gate turn 2, Caucasus 2026, Peace Spring) the named line never fired, because nothing got stuck. So the distribution question has no data, the storm is gone from the logs, and the pass line has not yet been seen printed. Stays on the WATCH card for the first mission that produces one.
-
-**2026-09-15, test 33** (Syria — Operation Peace Spring turn 2, multiplayer listen host with two humans in the MAVERICK Viper strike, 93 min, `Tacview-20260915-205127-DCS-Host`, DCS 2.9.29.27468, build `611eedfcd`; the turn-3 save `91526.retribution` is the auto-planner's own frag on the same build) — no stuck-unit line in 93 min of a live front, so nothing to adjudicate. Two things the same log does show: 51 `MIST|getGroupData ... TIC:unit|... not found in MIST database` errors in one second at mission start, one per TIC unit, before MIST's database has seen the groups TIC just spawned (the fight went on, so it is noise until shown otherwise); and DCS's multiplayer event logger echoing every controller option change TIC makes, 66,000 lines in 93 min.
-
-**2026-08-29, test 24** (Caucasus — Iron Gate turn 1, 72 min, `Tacview-20260829-162330`, DCS 2.9.29.27278) — **could not be tested: the flown build predates the fix** (see B107
-for the four-second miss). The bundled `TIC_v1.1.lua` is the 2026-08-26 copy.
-
-`OnBeforeArrived` re-issues a move with roads prohibited whenever a combatant made
-no progress since the last tick. It fired 846 times in 7 minutes and named no unit,
-so nobody could tell thirty units recovering twice from one unit wedged all mission
-— and those want opposite fixes. The line now carries the combatant name and a
-per-combatant count. **This row is a measurement, not a pass/fail on behaviour.**
-
-**Setup.** Any campaign with an active front and TIC on. Fly a normal turn of ~15
-minutes, then read `dcs.log`. ~20 min including the read.
-
-**Pass.** The line reads `... [<unit name>] (retry N)`. Then answer the actual
-question: `grep -oP 'stuck.*?\[\K[^]]+' dcs.log | sort | uniq -c | sort -rn`.
-A long tail of distinct names with low counts means DCS ground pathing on that
-terrain — the answer is fewer or simpler routes. A handful of names
-with counts in the hundreds means a wedge — the answer is a retry ceiling that parks
-the unit. Record which, in `retlab-tic-dynamic-fronts-notes.md`.
-
-**Fail signatures, and what each means:**
-
-- **The name prints as `nil`** — `combatant:GetName()` is unsafe at that point in the
-  FSM; wrap it or use the group name.
-- **`ANTIFREEZE ENABLED` still clusters on the retry peak** — the correlation holds
-  and this is a framerate problem, not just log noise. That escalates the row.
 
 ---
 

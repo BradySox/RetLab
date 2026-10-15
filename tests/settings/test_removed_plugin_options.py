@@ -15,7 +15,7 @@ def _load(plugins: dict[str, object]) -> Settings:
     return settings
 
 
-@pytest.mark.parametrize("plugin", ["aisleep", "bmstrike", "mantisiads"])
+@pytest.mark.parametrize("plugin", ["aisleep", "bmstrike", "mantisiads", "tic"])
 def test_a_save_with_a_removed_plugin_ticked_sheds_its_keys(plugin: str) -> None:
     settings = _load({plugin: True, f"{plugin}.someOption": 3})
 
@@ -30,7 +30,7 @@ def test_a_removed_option_of_a_live_plugin_is_dropped() -> None:
 
 
 def test_live_plugin_values_survive_the_sweep() -> None:
-    settings = _load({"tic": False, "tic.boundPause": 20})
+    settings = _load({"ctld": False, "ctld.smoke": False})
 
-    assert settings.plugins["tic"] is False
-    assert settings.plugins["tic.boundPause"] == 20
+    assert settings.plugins["ctld"] is False
+    assert settings.plugins["ctld.smoke"] is False

@@ -1,0 +1,1 @@
+* **[Plugins]** Removed the Troops In Contact (TIC) plugin. Front-line ground units now fight with DCS's own ground AI and drive the routes their stance gives them. Saves that had the plugin ticked load with its options dropped.

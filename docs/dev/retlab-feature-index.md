@@ -20,7 +20,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §6 | Air-defense planning rework | — | — |
 | §7 | Auto-hide mobile SAMs on MFD | — | — |
 | §8 | Robustness / crash fixes | — | — |
-| §9 | TIC — Troops In Contact | `tic` | — |
+| §9 | TIC — Troops In Contact _(retired)_ | — | — |
 | §10 | CurrentHill Iran assets pack | — | — |
 | §11 | Native DCS DTC cartridge export _(retired)_ | — | — |
 | §12 | Recon engine (TARPS + drone BDA) _(retired)_ | — | — |
