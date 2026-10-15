@@ -56,6 +56,7 @@ if dcsRetribution.plugins and dcsRetribution.plugins.coin then
     HVT_RADIUS = (tonumber(o.hvtPatrolRadiusNm) or HVT_RADIUS / 1852) * 1852 -- NM (UI) -> m
     HVT_SPEED = (tonumber(o.hvtSpeedKt) or HVT_SPEED / 1.852) * 1.852 -- kt (UI) -> km/h
     VBIED_SPEED = (tonumber(o.vbiedSpeedKt) or VBIED_SPEED / 1.852) * 1.852 -- kt (UI) -> km/h
+    -- vbiedRepathS and infilRepathS left the options page 2026-10-15; only tests set them.
     VBIED_INTERVAL = tonumber(o.vbiedRepathS) or VBIED_INTERVAL
     CELL_INTERVAL = tonumber(o.cellPatrolIntervalS) or CELL_INTERVAL
     CELL_RADIUS = (tonumber(o.cellPatrolRadiusNm) or CELL_RADIUS / 1852) * 1852 -- NM (UI) -> m

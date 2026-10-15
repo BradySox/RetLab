@@ -194,8 +194,7 @@ end
 -- Moose treats it as a pattern (SET_GROUP:FilterPrefixes matches via string.find
 -- with pattern semantics). We escape everything EXCEPT "-": Moose's FilterPrefixes
 -- already gsubs "-" -> "%-" itself, so escaping it here would double-escape.
--- Same fix as mantis-config.lua's escape_prefix (the proven MANTIS FilterPrefixes
--- repair); the parenthesized capture makes "%1" valid in the replacement.
+-- The parenthesized capture makes "%1" valid in the replacement.
 local function lua_pattern_escape(s)
     return (s:gsub("([%(%)%.%%%+%*%?%[%]%^%$])", "%%%1"))
 end

@@ -40,24 +40,33 @@ if dcsRetribution and SkynetIADS then
     local adjustGoLiveRange_SA20 = 100
     local adjustGoLiveRange_SA23 = 100
 
+    -- The scoot distances are authored in feet; Skynet takes meters.
+    local function feetToMeters(ft, fallback)
+        local n = tonumber(ft)
+        if n == nil then
+            return fallback
+        end
+        return n * 0.3048
+    end
+
     -- retrieve specific options values
     if dcsRetribution.plugins then
         if dcsRetribution.plugins.skynetiads then
             createRedIADS = dcsRetribution.plugins.skynetiads.createRedIADS
             createBlueIADS = dcsRetribution.plugins.skynetiads.createBlueIADS
-            includeRedInRadio = dcsRetribution.plugins.skynetiads.includeRedInRadio
-            includeBlueInRadio = dcsRetribution.plugins.skynetiads.includeBlueInRadio
+            includeRedInRadio = dcsRetribution.plugins.skynetiads.radioMenuRed
+            includeBlueInRadio = dcsRetribution.plugins.skynetiads.radioMenuBlue
             debugRED = dcsRetribution.plugins.skynetiads.debugRED
             debugBLUE = dcsRetribution.plugins.skynetiads.debugBLUE
             actMobile = dcsRetribution.plugins.skynetiads.actMobile
             actMobileMaxEmissionTime = dcsRetribution.plugins.skynetiads.actMobileMaxEmissionTime
-            actMobileMinimumScootDistance = dcsRetribution.plugins.skynetiads.actMobileMinimumScootDistance
-            actMobileMaximumScootDistance = dcsRetribution.plugins.skynetiads.actMobileMaximumScootDistance
+            actMobileMinimumScootDistance = feetToMeters(dcsRetribution.plugins.skynetiads.actMobileMinimumScootDistanceFt, actMobileMinimumScootDistance)
+            actMobileMaximumScootDistance = feetToMeters(dcsRetribution.plugins.skynetiads.actMobileMaximumScootDistanceFt, actMobileMaximumScootDistance)
             actMobile_exclude_SA15 = dcsRetribution.plugins.skynetiads.actMobile_exclude_SA15
             actMobile_merad = dcsRetribution.plugins.skynetiads.actMobile_merad
             actMobileMaxEmissionTime_merad = dcsRetribution.plugins.skynetiads.actMobileMaxEmissionTime_merad
-            actMobileMinimumScootDistance_merad = dcsRetribution.plugins.skynetiads.actMobileMinimumScootDistance_merad
-            actMobileMaximumScootDistance_merad = dcsRetribution.plugins.skynetiads.actMobileMaximumScootDistance_merad
+            actMobileMinimumScootDistance_merad = feetToMeters(dcsRetribution.plugins.skynetiads.actMobileMinimumScootDistanceFt_merad, actMobileMinimumScootDistance_merad)
+            actMobileMaximumScootDistance_merad = feetToMeters(dcsRetribution.plugins.skynetiads.actMobileMaximumScootDistanceFt_merad, actMobileMaximumScootDistance_merad)
             adjustGoLiveRange = dcsRetribution.plugins.skynetiads.adjustGoLiveRange
             adjustGoLiveRange_SA5 = dcsRetribution.plugins.skynetiads.adjustGoLiveRange_SA5
             adjustGoLiveRange_SA10 = dcsRetribution.plugins.skynetiads.adjustGoLiveRange_SA10

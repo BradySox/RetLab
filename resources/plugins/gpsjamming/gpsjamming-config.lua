@@ -50,6 +50,7 @@ if dcsRetribution and dcsRetribution.plugins and dcsRetribution.plugins.gpsjammi
     if tonumber(o.terminalAglFt) then
         TERMINAL_AGL = tonumber(o.terminalAglFt) * 0.3048 -- ft (UI) -> m
     end
+    -- missPower, trackStepS and maxTrackS left the options page 2026-10-15; only tests set them.
     MISS_POWER = tonumber(o.missPower) or MISS_POWER
     if tonumber(o.missPowerScalePct) then
         MISS_POWER_SCALE = tonumber(o.missPowerScalePct) / 100

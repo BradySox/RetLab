@@ -1,0 +1,11 @@
+date: 2026-10-15
+title: Plugin options cleaned up
+change: >-
+  GPS jamming, cruise missiles, naval magazines, the briefing popup, red
+  scramble and neutral border defense no longer have a plugin checkbox: the
+  setting turns each one on. Plugin options use feet, NM and lb, and every
+  number has a maximum. Skynet's F10 debug menus are off by default, and
+  LotATC shows blue only the red sites it has found.
+watch: >-
+  The Lua Plugins page lists six fewer checkboxes. No player sees a SKYNET
+  IADS menu in the F10 radio menu unless the host ticks it.

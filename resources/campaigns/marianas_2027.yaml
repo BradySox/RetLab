@@ -19,20 +19,8 @@ settings:
   # (see ground_forces). A JDAM/JSOW/JASSM aimed at anything inside a bubble lands off the
   # aimpoint -- standing off does not help, because the weapon flies through the bubble
   # whatever range it was released from. Change delivery (laser/TV are untouched) or kill the
-  # jammer, which restores accuracy at once. Runs via the 'GPS jamming' LUA plugin, preseeded
-  # below -- the setting does NOTHING without it.
+  # jammer, which restores accuracy at once.
   gps_jamming: true
-  # Saved plugin defaults layer UNDER campaign preseeds, so a host whose defaults have
-  # these unticked would otherwise silently lose the runtime half of each feature
-  # (the §36 lesson). Preseed every plugin the settings in this block depend on.
-  #
-  # This map MUST stay nested under `settings:`. Campaign reads only
-  # data["settings"] (game/campaignloader/campaign.py), so a top-level `plugins:`
-  # block parses as valid YAML and is then silently discarded -- which is exactly
-  # what happened to four of these five from 2026-06 until 2026-08-08.
-  plugins:
-    gpsjamming: true            # §86 runtime -- the setting does nothing without it
-    cruisemissiles: true        # §63 ship-launched raids + the call-for-fire menu
   # Every squadron fields its full authored strength on turn 1. This is a come-as-you-
   # are fight -- the war opened with a missile salvo on Guam, nobody spins up a training
   # pipeline first -- and with no land front the player cannot trade time for mass.

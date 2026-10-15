@@ -255,8 +255,8 @@ A Retribution carrier/LHA objective is **two DCS groups** — the flagship
 whose entire AAW fit is the CIWS it fired; the HHQ-16 escorts **1.91 km away** were never
 targeted, so nothing released them and they watched their flagship die.
 
-So an attack now frees every managed friendly group within `formationReleaseKm`
-(**default 15 km**). The flown geometry makes that radius unambiguous — measured at the
+So an attack now frees every managed friendly group within `formationReleaseNm`
+(**default 8 NM**; 15 km until 2026-10-15). The flown geometry makes that radius unambiguous — measured at the
 moment of the attack:
 
 | Group | Distance from the attacked LHA |
@@ -275,7 +275,7 @@ attack can never ripple across the map — pinned by a three-group A→B→C tes
 20 km from the attacked A but 10 km from the freed B.
 
 Also pinned: an enemy formation is never freed by our own attack (coalition check), and
-`formationReleaseKm: 0` restores targeted-group-only release.
+`formationReleaseNm: 0` restores targeted-group-only release.
 
 **Re-fly #2 (`Tacview-20260805-203549`) — the release fires; the shooting is another
 matter.** The log shows both lines in the same second (`… under attack` / `… in the

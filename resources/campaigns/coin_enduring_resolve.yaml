@@ -168,9 +168,6 @@ neutral_border_defense:
     ]
 
 settings:
-  plugins:
-    # §98 runtime -- the neutral_border_defense setting does nothing without it.
-    neutralborder: true
   # §98: Iran, Pakistan, Turkmenistan, Uzbekistan and Tajikistan defend their
   # airspace below 10,000 ft. See the neutral_border_defense block above.
   neutral_border_defense: true

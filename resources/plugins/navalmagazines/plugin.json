@@ -1,17 +1,22 @@
 {
     "nameInUI": "Naval magazines & weapons release",
-    "descriptionInUI": "Runtime for the fleet's finite anti-ship missiles. Inert unless the mission generator emits dcsRetribution.navalMagazines (the 'Stagger naval weapons release' or 'Cross-turn naval magazines' setting is on and a naval group exists). With the stagger on, warships spawn on ReturnFire and are released to weapons-free one group at a time across a window, so a modern fleet -- whose missiles out-range the whole theater -- develops the exchange instead of emptying its tubes in the opening minute; a held group -- and its escort screen, since a carrier/LHA objective is two DCS groups and the area-defense SAMs ride the escorts -- is released to weapons-free the instant the enemy fires at it (a ship on ReturnFire will not defend itself, flown finding), so the hold decides who starts the war, never who may defend. A ship group also stops after its per-mission salvo -- the magazine bounds the war, the salvo bounds the day, so a fleet whose campaign stock is far deeper than its ready loadout fights a running battle instead of emptying every tube in one mission; it still defends itself if attacked. With magazines on, every anti-ship missile actually fired is counted against that group's campaign stock, a group that runs dry drops back to ReturnFire until attacked (winchester -- an attacked spent ship defends itself and may overshoot its stock), and the expenditure is reported so the turn boundary can debit the persisted magazine -- there is no rearm. The land-attack weapons the cruise-missile plugin meters are excluded, so the two magazines never charge the same shot. Sets ROE and counts real weapon releases only: no spawns, no kills.",
+    "descriptionInUI": "Runs the 'Stagger naval weapons release' and 'Cross-turn naval magazines' settings. Warships are released to weapons-free one group at a time, each fires a limited salvo per mission, and every anti-ship missile fired comes off the campaign stock. A ship that is attacked always defends itself.",
     "defaultValue": true,
+    "skipUI": true,
     "specificOptions": [
         {
-            "nameInUI": "Weapons-release window opens (s after mission start)",
+            "nameInUI": "Weapons-release window opens (seconds after mission start)",
             "mnemonic": "releaseMinS",
-            "defaultValue": 120
+            "defaultValue": 120,
+            "minimumValue": 0,
+            "maximumValue": 3600
         },
         {
-            "nameInUI": "Weapons-release window closes (s after mission start)",
+            "nameInUI": "Weapons-release window closes (seconds after mission start)",
             "mnemonic": "releaseMaxS",
-            "defaultValue": 900
+            "defaultValue": 900,
+            "minimumValue": 0,
+            "maximumValue": 3600
         },
         {
             "nameInUI": "Announce when a ship group goes winchester",
@@ -19,19 +24,23 @@
             "defaultValue": true
         },
         {
-            "nameInUI": "Attacking a ship group also frees friendly groups within (km) -- its escort screen (0 = only the targeted group)",
-            "mnemonic": "formationReleaseKm",
-            "defaultValue": 15
+            "nameInUI": "Attacking a ship group also frees its escorts within (NM)",
+            "mnemonic": "formationReleaseNm",
+            "defaultValue": 8,
+            "minimumValue": 0,
+            "maximumValue": 50,
+            "descriptionInUI": "0 = only the group attacked."
         },
         {
-            "nameInUI": "Anti-ship missiles one ship group may fire per mission (0 = unlimited)",
+            "nameInUI": "Anti-ship missiles one ship group may fire per mission",
             "mnemonic": "salvoPerMission",
             "defaultValue": 6,
             "minimumValue": 0,
-            "maximumValue": 64
+            "maximumValue": 64,
+            "descriptionInUI": "0 = no limit."
         },
         {
-            "nameInUI": "Anti-ship weapon name patterns (comma separated, matched inside the DCS weapon type name)",
+            "nameInUI": "Anti-ship weapon names (comma-separated, matched inside the DCS weapon name)",
             "mnemonic": "ashmWeaponPatterns",
             "defaultValue": "HARPOON,RGM_84,AGM_84,EXOCET,MM_38,MM_40,YJ,C_802,C_602,P_500,P_700,P_270,P_1000,KH_35,3M24,3M54,SS_N,NSM,RBS15,OTOMAT"
         }

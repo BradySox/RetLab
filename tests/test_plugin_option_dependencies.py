@@ -201,8 +201,8 @@ def test_skynet_dependants_follow_the_lua_gates() -> None:
         for o in definition.options
         if o.enabled_when is not None
     }
-    shorad = ["actMobileMaxEmissionTime", "actMobileMinimumScootDistance"]
-    shorad += ["actMobileMaximumScootDistance", "actMobile_exclude_SA15"]
+    shorad = ["actMobileMaxEmissionTime", "actMobileMinimumScootDistanceFt"]
+    shorad += ["actMobileMaximumScootDistanceFt", "actMobile_exclude_SA15"]
     expected = {m: "actMobile" for m in shorad}
     expected |= {f"{m}_merad": "actMobile_merad" for m in shorad[:3]}
     expected |= {

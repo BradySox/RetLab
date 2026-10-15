@@ -21,7 +21,7 @@
             "nameInUI": "Default-priority report interval (seconds)",
             "mnemonic": "defaultReportFrequencyPreference",
             "minimumValue": 1,
-            "maximumValue": 5000,
+            "maximumValue": 120,
             "defaultValue": 30
         },
         {

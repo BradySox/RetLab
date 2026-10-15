@@ -380,7 +380,7 @@ def test_formation_release_can_be_switched_off() -> None:
                 {"group": "0057 | LHA", "coalition": "blue", "remaining": "8"},
                 {"group": "0058 | Escort", "coalition": "blue", "remaining": "8"},
             ],
-            options={"releaseMinS": 3000, "releaseMaxS": 3000, "formationReleaseKm": 0},
+            options={"releaseMinS": 3000, "releaseMaxS": 3000, "formationReleaseNm": 0},
         ),
     )
     h.fire_shot(

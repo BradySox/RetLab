@@ -21,6 +21,8 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from tests.lua.harness import DcsPluginHarness
 
 PLUGIN = "resources/plugins/skynetiads/skynetiads-config.lua"
@@ -42,8 +44,10 @@ local function element(iads, name)
     function e:setGoLiveRangeInPercent() end
     function e:setAutonomousBehaviour() end
     function e:setActAsEW() end
-    function e:setActMobile(enable)
-        table.insert(SkynetRecords.actMobile, { nato = name, enable = enable })
+    function e:setActMobile(enable, emission, minScoot, maxScoot)
+        table.insert(SkynetRecords.actMobile, {
+            nato = name, enable = enable, minScoot = minScoot, maxScoot = maxScoot
+        })
     end
     function e:addPointDefence(pd)
         table.insert(SkynetRecords.pds, { sam = name, pd = pd.name })
@@ -124,8 +128,8 @@ def _bridge(
             "skynetiads": {
                 "createRedIADS": True,
                 "createBlueIADS": False,
-                "includeRedInRadio": False,
-                "includeBlueInRadio": False,
+                "radioMenuRed": False,
+                "radioMenuBlue": False,
                 "debugRED": False,
                 "debugBLUE": False,
                 "actMobile": False,
@@ -246,7 +250,7 @@ def test_other_coalitions_awacs_is_not_polled_for() -> None:
     assert _list(h, rec.ewrs) == []
 
 
-def _mobile_shorad(exclude_sa15: bool) -> list[str]:
+def _mobile_shorad_records(exclude_sa15: bool) -> list[dict[str, Any]]:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_SKYNET)
     h.lua.globals().dcsRetribution = h.to_lua(
@@ -256,8 +260,8 @@ def _mobile_shorad(exclude_sa15: bool) -> list[str]:
                     "createRedIADS": True,
                     "actMobile": True,
                     "actMobileMaxEmissionTime": 30,
-                    "actMobileMinimumScootDistance": 300,
-                    "actMobileMaximumScootDistance": 500,
+                    "actMobileMinimumScootDistanceFt": 1000,
+                    "actMobileMaximumScootDistanceFt": 1600,
                     "actMobile_exclude_SA15": exclude_sa15,
                 }
             },
@@ -266,7 +270,17 @@ def _mobile_shorad(exclude_sa15: bool) -> list[str]:
     )
     h.load_plugin_script(PLUGIN)
     h.assert_no_lua_errors()
-    return [r["nato"] for r in _list(h, h.lua.globals().SkynetRecords.actMobile)]
+    return [dict(r.items()) for r in _list(h, h.lua.globals().SkynetRecords.actMobile)]
+
+
+def _mobile_shorad(exclude_sa15: bool) -> list[str]:
+    return [r["nato"] for r in _mobile_shorad_records(exclude_sa15)]
+
+
+def test_scoot_distances_are_feet_converted_to_meters() -> None:
+    record = _mobile_shorad_records(exclude_sa15=False)[0]
+    assert record["minScoot"] == pytest.approx(1000 * 0.3048)
+    assert record["maxScoot"] == pytest.approx(1600 * 0.3048)
 
 
 def test_mobile_shorad_includes_sa15_by_default() -> None:

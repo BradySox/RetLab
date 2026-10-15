@@ -166,73 +166,12 @@ class Settings(
         new_state.update(migrated_state)
         self.__dict__.update(new_state)
 
-        # Drop retired plugin option keys so dead configuration does not persist
-        # across a load/save cycle. The obsolete Anubis "herculescargo" plugin and
-        # its option keys were removed in favor of the official C-130J-30. The old
-        # generic EW/Jammer Script ("ewrj") was retired in favor of the C-130J
-        # JAMMING flight + c130j mission-systems plugin. The "dismounts" and "ewrs"
-        # plugins were retired during the MIST -> MOOSE framework consolidation:
-        # dismounts was a default-off, FPS-heavy MIST-only plugin with no MOOSE
-        # successor, and ewrs is superseded by the MOOSE Ops.INTEL-based "bigeye"
-        # EWR. The "flightcontrol" MOOSE
-        # FLIGHTCONTROL ATC plugin was retired as a half-baked feature. The "arty"
-        # (CG ArtySpotter) and "artymbot" (Mbot Call-Artillery) player fire-support
-        # scripts were retired as unused: both had been silently dropped from the
-        # active plugin list and their directories are now removed. The "tars"
-        # (MOOSE Ops.TARS) and "airecon" plugins were retired on 2026-08-05 when the
-        # two split recon implementations were replaced by the single "recon" plugin
-        # (§12); that successor was itself removed on 2026-08-20, once the reveal
-        # rework left its captures with no consumer. The "deckdecor" plugin went the
-        # same day: it existed only to swap §72's launch- and recovery-phase deck
-        # dressing, and both tiers were cut. The "minefields" plugin went on
-        # 2026-09-07 with §57, abandoned rather than resumed; "aisleep" went on
-        # 2026-09-23 with §59; "bmstrike" (§110) and "growler" (§77) on
-        # 2026-10-12. A save made before each of those still carries the keys.
-        for plugin_key in [
-            key
-            for key in self.plugins
-            if key == "herculescargo"
-            or key.startswith("herculescargo.")
-            or key == "tars"
-            or key.startswith("tars.")
-            or key == "airecon"
-            or key.startswith("airecon.")
-            or key == "recon"
-            or key.startswith("recon.")
-            or key == "ewrj"
-            or key.startswith("ewrj.")
-            or key == "dismounts"
-            or key.startswith("dismounts.")
-            or key == "ewrs"
-            or key.startswith("ewrs.")
-            or key == "flightcontrol"
-            or key.startswith("flightcontrol.")
-            or key == "arty"
-            or key.startswith("arty.")
-            or key == "artymbot"
-            or key.startswith("artymbot.")
-            or key == "deckdecor"
-            or key.startswith("deckdecor.")
-            or key == "minefields"
-            or key.startswith("minefields.")
-            or key == "commsjam"
-            or key.startswith("commsjam.")
-            or key == "rednet"
-            or key.startswith("rednet.")
-            or key == "reactivered"
-            or key.startswith("reactivered.")
-            or key == "aisleep"
-            or key.startswith("aisleep.")
-            or key == "bmstrike"
-            or key.startswith("bmstrike.")
-            or key == "growler"
-            or key.startswith("growler.")
-        ]:
-            del self.plugins[plugin_key]
-
         from game.plugins import LuaPluginManager
 
         LuaPluginManager().load_settings(self)
+        # A removed plugin or option would otherwise ride along in every save for
+        # good, and a plugin later re-added under an old name would pick it up.
+        LuaPluginManager.prune_settings(self)
 
     @staticmethod
     def deserialize_state_dict(state: dict[str, Any]) -> dict[str, Any]:

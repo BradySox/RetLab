@@ -8,7 +8,7 @@
 -- Two fire paths share one budget:
 --   * AUTO raids: each planned raid launches at its own random moment inside the launch window
 --     (staggered so several naval groups don't ripple simultaneously and stack the missile count
---     against the framerate -- the same stagger the SCUD fire tasks use); each ripples via a
+--     against the framerate); each ripples via a
 --     FireAtPoint task with the cruise-missile weapon flag (the ME "fire Tomahawks at a point"
 --     mechanism, pushed by script).
 --   * PLAYER call-for-fire: an F10 "Cruise Missile Strike" menu fires a salvo from the nearest
@@ -118,15 +118,14 @@ local function cmMsg(side, text)
 end
 
 -- Defender launch wake (the 2026-07-16 flown finding): nothing in DCS ever wakes a
--- defender for a cruise missile on its own -- ALARM AUTO only trips on aircraft, MANTIS
+-- defender for a cruise missile on its own -- ALARM AUTO only trips on aircraft, IADS
 -- detection scans units (never weapon objects), and the MOOSE SHORAD watch lists carry
 -- no BGM_109/Kalibr -- so without this, raids fly in unopposed past alive SA-15s. On
 -- every launch (raid or call-for-fire), the opposing side's ground air-defense groups
 -- near the AIMPOINT are set alarm state RED (radars up: the LAUNCH WARNING doing its
 -- job) and stood back down to AUTO once the salvo has long arrived. Alarm state ONLY --
--- emission toggling stays untouched, and a
--- MANTIS-managed site keeps its own EMCON loop (MANTIS may re-dark it; that is
--- MANTIS's call to make).
+-- emission toggling stays untouched, so a site Skynet holds dark keeps its own EMCON
+-- (that is Skynet's call to make).
 local wakeUntil = {} -- AD group name -> sim time to hold RED until
 
 local function standDownDefender(name, t)
@@ -246,7 +245,7 @@ end
 
 -- Pick each raid's launch moment inside [RAID_DELAY_MIN, RAID_DELAY_MAX], so several naval
 -- groups (or both sides) never ripple their salvos simultaneously and stack the in-flight
--- missile count against the framerate (the same stagger the SCUD fire tasks use).
+-- missile count against the framerate.
 local function raidDelay()
     if RAID_DELAY_MAX <= RAID_DELAY_MIN then
         return RAID_DELAY_MIN

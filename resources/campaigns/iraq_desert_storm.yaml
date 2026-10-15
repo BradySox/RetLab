@@ -62,11 +62,7 @@ settings:
   # legs live in the .miz and light up as blue captures the rungs.
   # s61 host tools for the DM (gated to the host's tag via the plugin option below).
   host_red_scramble: true
-  # Plugin preseeds (the s36 saved-default-off lesson): a plugin unticked in the
-  # host's saved defaults would otherwise silently kill its preseeded feature.
   plugins:
-    # s70 C1: the audible KARI UHF net (CW traffic from every alive C2 node).
-    redscramble: true
     redscramble.hostPlayers: Flash
 
 red_tempo:

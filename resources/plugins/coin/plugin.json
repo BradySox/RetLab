@@ -1,100 +1,113 @@
 {
     "nameInUI": "COIN in-mission liveliness",
-    "descriptionInUI": "Runtime for the COIN insurgency layer's moving objects and ambient pressure. Inert unless the mission generator emits dcsRetribution.coin (a COIN campaign with something alive this turn). Movement and cosmetics ONLY -- the consequences (kill the HVT before the strike window closes = a decapitation; intercept the VBIED = defused; let the HVT go and he escapes; let the VBIED through and it detonates on the base) stay in the campaign's turn logic, so a mover you shoot down is recorded natively like any other unit. HVT: the named leader's convoy drives a slow, random patrol around its area (alarm-green, so it relocates rather than stopping to fight). VBIED: the suicide vehicle bomb drives for the nearest friendly base; kill it en route or it detonates on arrival. Field cells: each dispersed cell wanders its patch of countryside, so patrolling means catching something moving. Infiltrators: the re-infiltration cell creeps toward the base it is taking. Indirect fire: friendly bases inside a stronghold's mortar reach draw sporadic small rocket/mortar barrages (never a field a player spawns at or recovers to -- filtered by the generator AND double-guarded here -- and only after a startup grace period). All movement is off-road at low ground speed; movers begin after a short startup grace so nothing lurches the instant the mission loads, and the one-way drives (VBIED, infiltrator) are paced so they are still under way at least 90 minutes into the mission -- a cold-starting flight can always still make the intercept.",
+    "descriptionInUI": "Runs a COIN campaign's moving targets and harassment: the HVT convoy patrols, the VBIED drives for a base, field cells wander, infiltrators creep in, and bases inside a stronghold's reach take small mortar and rocket barrages. Inert outside a COIN campaign.",
     "defaultValue": true,
     "specificOptions": [
         {
-            "nameInUI": "HVT: seconds between patrol legs (re-rolls a new destination)",
+            "nameInUI": "HVT: seconds between patrol legs",
             "mnemonic": "hvtPatrolIntervalS",
             "minimumValue": 10,
-            "defaultValue": 90
+            "defaultValue": 90,
+            "maximumValue": 1800
         },
         {
             "nameInUI": "HVT: patrol radius around his area (NM)",
             "mnemonic": "hvtPatrolRadiusNm",
-            "defaultValue": 2.16,
-            "maximumValue": 10.8
+            "defaultValue": 2.0,
+            "maximumValue": 10.0,
+            "minimumValue": 0.5
         },
         {
             "nameInUI": "HVT: convoy ground speed (kt)",
             "mnemonic": "hvtSpeedKt",
-            "defaultValue": 13.5
+            "defaultValue": 14,
+            "minimumValue": 1,
+            "maximumValue": 60
         },
         {
             "nameInUI": "VBIED: suicide-vehicle ground speed (kt)",
             "mnemonic": "vbiedSpeedKt",
-            "defaultValue": 24.3
+            "defaultValue": 24,
+            "minimumValue": 1,
+            "maximumValue": 60
         },
         {
-            "nameInUI": "VBIED: seconds between re-issuing the drive order (anti-stall)",
-            "mnemonic": "vbiedRepathS",
-            "minimumValue": 10,
-            "defaultValue": 120
-        },
-        {
-            "nameInUI": "Startup grace before movement begins (s)",
+            "nameInUI": "Startup grace before movement begins (seconds)",
             "mnemonic": "startGraceS",
-            "defaultValue": 30
+            "defaultValue": 30,
+            "minimumValue": 0,
+            "maximumValue": 600
         },
         {
-            "nameInUI": "One-way movers: earliest arrival after mission start (s) -- VBIED/infiltrator drives are slowed so the intercept window survives a slow player start",
+            "nameInUI": "One-way movers: earliest arrival (seconds after mission start)",
             "mnemonic": "minJourneyS",
-            "defaultValue": 5400
+            "defaultValue": 5400,
+            "minimumValue": 5400,
+            "maximumValue": 14400,
+            "descriptionInUI": "VBIED and infiltrator drives are slowed so a cold-starting flight can still catch them. 5400 seconds (90 minutes) is the floor."
         },
         {
             "nameInUI": "Field cell: seconds between patrol legs",
             "mnemonic": "cellPatrolIntervalS",
             "minimumValue": 10,
-            "defaultValue": 150
+            "defaultValue": 150,
+            "maximumValue": 1800
         },
         {
             "nameInUI": "Field cell: patrol radius around its patch (NM)",
             "mnemonic": "cellPatrolRadiusNm",
-            "defaultValue": 1.08,
-            "maximumValue": 10.8
+            "defaultValue": 1.0,
+            "maximumValue": 10.0,
+            "minimumValue": 0.5
         },
         {
             "nameInUI": "Field cell: ground speed (kt)",
             "mnemonic": "cellSpeedKt",
-            "defaultValue": 10.8
+            "defaultValue": 11,
+            "minimumValue": 1,
+            "maximumValue": 60
         },
         {
             "nameInUI": "Infiltrator: creep speed toward the target base (kt)",
             "mnemonic": "infilSpeedKt",
-            "defaultValue": 8.1
-        },
-        {
-            "nameInUI": "Infiltrator: seconds between re-issuing the creep order",
-            "mnemonic": "infilRepathS",
-            "minimumValue": 10,
-            "defaultValue": 180
+            "defaultValue": 8,
+            "minimumValue": 1,
+            "maximumValue": 60
         },
         {
             "nameInUI": "Indirect fire: mean seconds between barrages on a base",
             "mnemonic": "harassIntervalS",
             "minimumValue": 20,
-            "defaultValue": 300
+            "defaultValue": 300,
+            "maximumValue": 3600
         },
         {
             "nameInUI": "Indirect fire: impacts per barrage",
             "mnemonic": "harassRoundsPerEvent",
-            "defaultValue": 4
+            "defaultValue": 4,
+            "minimumValue": 1,
+            "maximumValue": 20
         },
         {
             "nameInUI": "Indirect fire: impact dispersion around the base (ft)",
             "mnemonic": "harassDispersionFt",
-            "defaultValue": 820,
-            "maximumValue": 6562
+            "defaultValue": 800,
+            "maximumValue": 6500,
+            "minimumValue": 100
         },
         {
             "nameInUI": "Indirect fire: per-impact blast power",
             "mnemonic": "harassBlastPower",
-            "defaultValue": 6
+            "defaultValue": 6,
+            "minimumValue": 0,
+            "maximumValue": 100
         },
         {
-            "nameInUI": "Indirect fire: no-fire grace at mission start (s)",
+            "nameInUI": "Indirect fire: no-fire grace at mission start (seconds)",
             "mnemonic": "harassGraceS",
-            "defaultValue": 300
+            "defaultValue": 300,
+            "minimumValue": 0,
+            "maximumValue": 3600
         }
     ],
     "scriptsWorkOrders": [],

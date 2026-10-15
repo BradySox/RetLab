@@ -51,8 +51,8 @@ class MissionGenerationSettings:
             "and departure field -- the way the professional DCS campaigns greet you "
             "at mission start. Fires at mission start in single-player and whenever a "
             "pilot slots in or rejoins on a server. Display only: no gameplay change. "
-            "Card duration and the startup grace are options on the 'Mission-start "
-            "briefing popup' plugin."
+            "Card duration, the delay and the ground frequency are on the Plugin "
+            "Options page."
         ),
     )
     host_red_scramble: bool = boolean_option(
@@ -66,7 +66,7 @@ class MissionGenerationSettings:
             "menu can launch a 2/4-ship from any red airfield and vector it straight "
             "onto the nearest friendly fighters -- the emergency 'give the flight "
             "something to shoot' button for a session gone quiet. Restrict who sees "
-            "the menu with the 'Host red scramble' plugin's 'Host player names' option: "
+            "the menu with 'Host player names' on the Plugin Options page: "
             "comma-separated DCS names or name fragments (substring match, so a "
             "static tag like 'Flash' covers 'Viper 1-1 | Flash' whatever the flight "
             "prefix); empty shows it to every BLUE client. "
@@ -97,8 +97,7 @@ class MissionGenerationSettings:
             "and engages -- not just the site you flew past. Whose airspace it "
             "is, and whether it lets you through, are read from who holds the "
             "airfields inside it. AI intruders are never engaged, and the "
-            "auto-planner ignores the borders entirely. Needs the 'Neutral "
-            "border defense' Lua plugin ticked. Borders ship with the eight "
+            "auto-planner ignores the borders entirely. Borders ship with the eight "
             "real-world terrains, so no campaign has to author anything; a "
             "campaign may still author its own. Batteries are free, untracked "
             "event content."
@@ -149,8 +148,7 @@ class MissionGenerationSettings:
             "every salvo spends stock you never get back. The missiles are real "
             "weapons from a real, tracked ship: kills count at debrief, enemy "
             "point defense can intercept them, and sinking the shooter ends the "
-            "raids. Symmetric. Runs via the 'Cruise missile strikes' Lua plugin "
-            "-- keep that plugin enabled or this setting does nothing."
+            "raids. Symmetric."
         ),
     )
     cruise_missile_auto_raids: bool = boolean_option(
@@ -212,8 +210,7 @@ class MissionGenerationSettings:
             "from the moment the mission loads and the entire naval battle happens "
             "in the first five minutes. They still defend themselves while they "
             "wait -- this delays who shoots first, it does not disarm anyone. "
-            "Symmetric. Runs via the 'Naval magazines & weapons release' LUA "
-            "plugin -- keep that plugin enabled or this setting does nothing."
+            "Symmetric."
         ),
     )
     naval_magazines: bool = boolean_option(
@@ -229,9 +226,7 @@ class MissionGenerationSettings:
             "group that runs dry drops back to return-fire -- winchester, not "
             "disarmed: it still shoots back, it just has no missiles left to open "
             "with. Land-attack cruise missiles are counted separately by their own "
-            "setting, so nothing is charged twice. Symmetric. Runs via the 'Naval "
-            "magazines & weapons release' Lua plugin -- keep that plugin enabled "
-            "or this setting does nothing."
+            "setting, so nothing is charged twice. Symmetric."
         ),
     )
     coastal_batteries_engage_ships: bool = boolean_option(
@@ -266,7 +261,6 @@ class MissionGenerationSettings:
             "same mission). Symmetric: a site degrades the other side's weapons "
             "only. Known jamming areas are briefed on the kneeboard, but only once "
             "you have engaged the site. Inert unless a campaign fields a "
-            "unit that jams. Runs via the 'GPS jamming' Lua plugin -- keep that "
-            "plugin enabled or this setting does nothing."
+            "unit that jams."
         ),
     )

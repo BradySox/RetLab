@@ -31,7 +31,7 @@ def test_a_hidden_plugin_ignores_a_stored_false() -> None:
 
 
 def test_a_visible_plugin_still_obeys_its_checkbox() -> None:
-    plugin = _plugin("gpsjamming")
+    plugin = _plugin("lotatc")
     assert plugin.show_in_ui
     plugin.set_value(False)
     assert not plugin.enabled
@@ -43,3 +43,16 @@ def test_every_hidden_plugin_defaults_on() -> None:
         data = json.loads(path.read_text(encoding="utf-8-sig"))
         if data.get("skipUI"):
             assert data.get("defaultValue") is True, path
+
+
+def test_a_plugin_that_only_runs_a_setting_has_no_checkbox() -> None:
+    """Each is inert unless its own setting is on, so the setting is the one switch."""
+    for name in (
+        "gpsjamming",
+        "cruisemissiles",
+        "navalmagazines",
+        "briefing",
+        "redscramble",
+        "neutralborder",
+    ):
+        assert not _plugin(name).show_in_ui, name

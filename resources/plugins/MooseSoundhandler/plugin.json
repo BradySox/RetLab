@@ -19,7 +19,7 @@
             "defaultValue": true
         },
         {
-            "nameInUI": "Generate debug information",
+            "nameInUI": "Debug output (testing only)",
             "mnemonic": "SoundDebug",
             "defaultValue": false
         }

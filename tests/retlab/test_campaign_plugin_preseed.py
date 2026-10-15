@@ -35,13 +35,10 @@ def test_red_tide_does_not_preseed_the_removed_comms_features() -> None:
         assert plugin not in settings["plugins"], plugin
 
 
-def test_red_tide_preseeds_the_redscramble_plugin_for_the_host_menu() -> None:
+def test_red_tide_gates_the_host_scramble_menu_to_the_host() -> None:
     settings = _campaign_settings()
-    # §61's runtime lives in the redscramble plugin -- same saved-default-off trap
-    # as the others. Preseeded ahead of the Friday 2026-07-17 regeneration so the
-    # host's "give the boys something to shoot" button is armed for MP events.
+    # The host's "give the boys something to shoot" button, armed for MP events.
     assert settings["host_red_scramble"] is True
-    assert settings["plugins"]["redscramble"] is True
     # The menu is gated to the host's static name tag: RetLab names run
     # "<flight> 1-x | Flash" with a changing prefix, and hostPlayers is a
     # substring match, so the tag alone covers every event's prefix.
@@ -237,10 +234,7 @@ def _campaign_paths() -> list[Path]:
 
 
 def _plugin_backed_settings() -> dict[str, str]:
-    """Maps a ``Settings`` field name to the plugin id that runs it.
-
-    A plugin with no checkbox (``skipUI``) is always on, so it needs no preseed.
-    """
+    """Maps a ``Settings`` field name to a plugin with a checkbox that runs it."""
     import json
 
     from game.retlab.features import FEATURES
@@ -254,7 +248,6 @@ def _plugin_backed_settings() -> dict[str, str]:
             continue
         for field in feature.settings_fields:
             mapping[field] = feature.plugin_id
-    assert mapping, "registry exposes no plugin-backed settings fields"
     return mapping
 
 
@@ -276,13 +269,21 @@ def test_no_campaign_puts_its_plugins_block_at_the_document_root() -> None:
     )
 
 
+def test_no_setting_has_a_second_switch() -> None:
+    """A setting whose runtime is a plugin leaves that plugin without a checkbox.
+
+    Otherwise a ticked setting with an unticked plugin does nothing, with no log line:
+    the §36 two-gate trap. Since 2026-10-15 every such plugin is ``skipUI``.
+    """
+    assert _plugin_backed_settings() == {}
+
+
 def test_every_plugin_backed_setting_preseeds_its_plugin() -> None:
     """The §36 two-gate rule, swept over every campaign.
 
-    A setting turned on in a campaign yaml is only half the gate: the runtime lives in
-    a Lua plugin, and the host's *saved* plugin defaults layer UNDER campaign preseeds.
-    So a host who once unticked the plugin loses the feature with no log line unless the
-    campaign pins the plugin too.
+    Kept for any plugin that gains a checkbox again: a setting turned on in a campaign
+    yaml is only half the gate, and the host's *saved* plugin defaults layer UNDER
+    campaign preseeds, so the campaign pins the plugin too.
 
     Only an explicit ``True`` counts as turning a feature on -- several registry fields
     are numeric tuning knobs (reach, station counts) whose presence does not by itself

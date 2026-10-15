@@ -68,8 +68,7 @@ Every §63 building block already existed:
    defense without being told where.
 6. **Symmetric by construction.** Both sides' ships emit, both get the F10 menu, red auto
    raids need only the same two toggles. Default OFF (both settings) until flown; the
-   plugin's own `defaultValue` is ON so the settings are the single gate (the §36
-   saved-default-off lesson).
+   plugin has no checkbox (since 2026-10-15), so the settings are the single gate.
 
 ## Deferred / rejected
 
