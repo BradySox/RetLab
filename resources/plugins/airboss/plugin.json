@@ -4,34 +4,37 @@
     "defaultValue": true,
     "specificOptions": [
         {
-            "nameInUI": "Enable Airboss for LHA",
+            "nameInUI": "Airboss for the LHA too",
             "mnemonic": "enableForLHA",
             "defaultValue": true
         },
         {
-            "nameInUI": "Enable recovery tanker",
+            "nameInUI": "Airboss recovery tanker",
             "mnemonic": "enableTanker",
-            "defaultValue": false
+            "defaultValue": false,
+            "descriptionInUI": "An extra tanker over the carrier, on top of any tanker Retribution plans."
         },
         {
-            "nameInUI": "Enable Airboss AWACS",
+            "nameInUI": "Airboss AWACS",
             "mnemonic": "enableAWACS",
-            "defaultValue": false
+            "defaultValue": false,
+            "descriptionInUI": "An extra AWACS from the carrier, on top of any AEW&C Retribution plans."
         },
         {
-            "nameInUI": "Enable rescue helo (required for MSRS)",
+            "nameInUI": "Rescue helo",
             "mnemonic": "enableRescueHelo",
             "defaultValue": true
         },
         {
-            "nameInUI": "Rescue helo max distance (NM)",
+            "nameInUI": "Carrier controlled area radius (NM)",
             "mnemonic": "rescueHeloDistance",
             "minimumValue": 5,
             "maximumValue": 120,
-            "defaultValue": 50
+            "defaultValue": 50,
+            "descriptionInUI": "How far out Marshal handles traffic around the carrier."
         },
         {
-            "nameInUI": "Use UH-60L mod for rescue helo",
+            "nameInUI": "Use the UH-60L mod for the rescue helo",
             "mnemonic": "useUH60mod",
             "defaultValue": false,
             "enabledWhen": "enableRescueHelo"
@@ -53,7 +56,7 @@
             "enabledWhen": "enableRescueHelo"
         },
         {
-            "nameInUI": "Recovery window start time (minutes)",
+            "nameInUI": "Recovery window opens (minutes after mission start)",
             "mnemonic": "windowStartOption",
             "minimumValue": 10,
             "maximumValue": 120,
@@ -67,23 +70,21 @@
             "defaultValue": 60
         },
         {
-            "nameInUI": "Force-despawn AI units this many minutes after landing",
+            "nameInUI": "Remove landed AI after (minutes)",
             "mnemonic": "despawnMinutesAfterLanding",
             "minimumValue": 0,
             "maximumValue": 30,
-            "defaultValue": 5
+            "defaultValue": 5,
+            "descriptionInUI": "0 = never."
         }
     ],
-
     "scriptsWorkOrders": [],
-
     "configurationWorkOrders": [
         {
             "file": "airboss.lua",
             "mnemonic": "airboss"
         }
     ],
-    
     "otherResourceFiles": [
         "AIRBOSS Soundfiles/AIRBOSS-Noise.ogg",
         "AIRBOSS Soundfiles/AIRBOSS-RadioClick.ogg",

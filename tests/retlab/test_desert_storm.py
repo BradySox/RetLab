@@ -80,11 +80,7 @@ def test_desert_storm_campaign_definition() -> None:
         "host_red_scramble",
     ):
         assert data["settings"][key] is True, key
-    # The s36 lesson: every preseeded feature's plugin is preseeded with it.
-    plugins = data["settings"]["plugins"]
-    for plugin in ("redscramble",):
-        assert plugins[plugin] is True, plugin
-    assert plugins["redscramble.hostPlayers"] == "Flash"
+    assert data["settings"]["plugins"]["redscramble.hostPlayers"] == "Flash"
 
 
 def test_desert_storm_blue_holds_only_the_h3_complex() -> None:

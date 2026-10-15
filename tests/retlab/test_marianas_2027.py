@@ -118,23 +118,13 @@ def test_naval_and_missile_features_are_preseeded() -> None:
         assert settings[key] is True, key
 
 
-def test_runtime_plugins_are_preseeded() -> None:
-    # A saved plugin default of "off" silently kills the runtime half of a feature
-    # even with its setting on (the §36 lesson), so every plugin the settings above
-    # depend on is preseeded.
+def test_no_plugins_block_is_left_at_the_document_root() -> None:
+    # The loader reads only `settings:`. A root-level `plugins:` block sat here from
+    # 2026-06 until 2026-08-08, where the loader never looked. The GPS jamming and
+    # cruise missile plugins have had no checkbox since 2026-10-15, so nothing is
+    # preseeded.
     campaign = _campaign()
-    # The map has to be nested under `settings:` to reach Campaign.settings at all.
-    # It sat at the document root from 2026-06 until 2026-08-08, where the loader
-    # never looked -- so assert the location, not just the values.
     assert "plugins" not in campaign, "a root-level `plugins:` block is discarded"
-    plugins = campaign["settings"]["plugins"]
-    for plugin in (
-        "gpsjamming",
-        "cruisemissiles",
-    ):
-        assert plugins[plugin] is True, plugin
-    # §50 needs no plugin -- its ambush spring is authored as native DCS triggers.
-    assert "convoyambush" not in plugins
 
 
 def test_guam_is_blue_and_the_chain_is_red() -> None:

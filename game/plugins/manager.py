@@ -57,3 +57,13 @@ class LuaPluginManager:
     def load_settings(cls, settings: Settings) -> None:
         for plugin in cls.plugins():
             plugin.set_settings(settings)
+
+    @classmethod
+    def prune_settings(cls, settings: Settings) -> None:
+        """Drop stored plugin keys that no plugin or option declares any more."""
+        known = set()
+        for plugin in cls.plugins():
+            known.add(plugin.identifier)
+            known.update(option.identifier for option in plugin.options)
+        for key in [key for key in settings.plugins if key not in known]:
+            del settings.plugins[key]

@@ -178,9 +178,9 @@ carrier's squadrons are assignable at all — see
 A preseed only sets the **default** for a new campaign — the player can still change any of
 it in Settings before starting.
 
-> A setting that a campaign preseeds but the feature's **plugin** is left unticked is a
-> silent no-op: the toggle is on and nothing runs. If a campaign depends on a Lua feature,
-> preseed the plugin too.
+> A feature whose runtime is a Lua plugin needs only its setting: those plugins have no
+> checkbox and are always on. Skynet IADS is the exception. A campaign built around
+> `advanced_iads` also preseeds `skynetiads: true` under `settings: plugins:`.
 
 ## Authoring and importing a campaign
 

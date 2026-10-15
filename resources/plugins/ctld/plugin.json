@@ -4,9 +4,10 @@
     "defaultValue": true,
     "specificOptions": [
         {
-            "nameInUI": "Tailor CTLD for Retribution missions",
+            "nameInUI": "Use only Retribution's crates and troops",
             "mnemonic": "tailorctld",
-            "defaultValue": true
+            "defaultValue": true,
+            "descriptionInUI": "Unticked, CTLD's own stock crates, vehicles and troop groups are offered as well."
         },
         {
             "nameInUI": "Create a logistics unit in each pickup zone",
@@ -14,7 +15,7 @@
             "defaultValue": true
         },
         {
-            "nameInUI": "Mark pickup/drop zones with smoke",
+            "nameInUI": "Mark pickup and drop-off zones with smoke",
             "mnemonic": "smoke",
             "defaultValue": true
         },
@@ -24,12 +25,12 @@
             "defaultValue": false
         },
         {
-            "nameInUI": "Use real sling-loading (vs. radio-menu loading)",
+            "nameInUI": "Real sling-loading (instead of radio-menu loading)",
             "mnemonic": "slingload",
             "defaultValue": false
         },
         {
-            "nameInUI": "JTAC autolase targets",
+            "nameInUI": "JTAC autolases targets",
             "mnemonic": "autolase",
             "defaultValue": true
         },
@@ -40,13 +41,13 @@
             "enabledWhen": "autolase"
         },
         {
-            "nameInUI": "JTAC uses FC3 laser code (1113)",
+            "nameInUI": "JTAC uses the FC3 laser code (1113)",
             "mnemonic": "fc3LaserCode",
             "defaultValue": false,
             "enabledWhen": "autolase"
         },
         {
-            "nameInUI": "Generate CTLD debug information",
+            "nameInUI": "Debug output (testing only)",
             "mnemonic": "debug",
             "defaultValue": false
         }

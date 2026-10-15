@@ -7,7 +7,9 @@ the options page rendered nowhere.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
+from typing import Any
 
 from game.plugins.luaplugin import LuaPluginDefinition
 from tests.settings.test_settings_text import UK_SPELLING
@@ -59,4 +61,34 @@ def test_plugin_text_is_us_english() -> None:
             for text in texts
             if (m := UK_SPELLING.search(text))
         ]
+    assert offenders == []
+
+
+def _options() -> list[tuple[str, dict[str, Any]]]:
+    found = []
+    for manifest in sorted(PLUGINS.glob("*/plugin.json")):
+        raw = json.loads(manifest.read_text(encoding="utf-8"))
+        for option in raw.get("specificOptions") or []:
+            found.append((f"{manifest.parent.name}.{option['mnemonic']}", option))
+    return found
+
+
+def test_every_number_option_has_a_maximum() -> None:
+    """Without one the box accepts up to 10,000 (the loader's default)."""
+    offenders = [
+        name
+        for name, option in _options()
+        if isinstance(option["defaultValue"], (int, float))
+        and not isinstance(option["defaultValue"], bool)
+        and "maximumValue" not in option
+    ]
+    assert offenders == []
+
+
+def test_option_units_are_imperial() -> None:
+    """Distances in ft or NM and weights in lb, as the squadron flies (2026-10-15)."""
+    metric = re.compile(r"\((m|km|kg)\b|\bmeters?\b|\bkilometers?\b", re.IGNORECASE)
+    offenders = [
+        name for name, option in _options() if metric.search(option.get("nameInUI", ""))
+    ]
     assert offenders == []

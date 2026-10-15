@@ -2,12 +2,27 @@
     "nameInUI": "Moose ATIS",
     "defaultValue": false,
     "specificOptions": [
-        { "nameInUI": "ATIS Base Frequency (MHz)", "mnemonic": "AtisBaseFreqMHz", "minimumValue": 118, "maximumValue": 399, "defaultValue": 131 },
-        { "nameInUI": "ATIS Frequency Spacing (kHz)", "mnemonic": "AtisSpacingKHz", "minimumValue": 25, "maximumValue": 5000, "defaultValue": 500 }
+        {
+            "nameInUI": "ATIS base frequency (MHz)",
+            "mnemonic": "AtisBaseFreqMHz",
+            "minimumValue": 118,
+            "maximumValue": 399,
+            "defaultValue": 131
+        },
+        {
+            "nameInUI": "ATIS frequency spacing (kHz)",
+            "mnemonic": "AtisSpacingKHz",
+            "minimumValue": 25,
+            "maximumValue": 5000,
+            "defaultValue": 500
+        }
     ],
     "scriptsWorkOrders": [],
     "configurationWorkOrders": [
-        { "file": "Plugin_Atis.lua", "mnemonic": "MooseAtis-config" }
+        {
+            "file": "Plugin_Atis.lua",
+            "mnemonic": "MooseAtis-config"
+        }
     ],
     "otherResourceFiles": [
         "SoundFiles/ActiveRunway.ogg",
@@ -113,5 +128,6 @@
         "SoundFiles/Xray.ogg",
         "SoundFiles/Yankee.ogg",
         "SoundFiles/Zulu.ogg"
-    ]
+    ],
+    "descriptionInUI": "Voice ATIS at the airfields your flights use. Each station gets its own frequency, counted up from the base frequency."
 }

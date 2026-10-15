@@ -1094,8 +1094,8 @@ rows (B, C, D, E) then becomes the upstream-PR carve-out batch.
 
 **Setup:** Operation Baltic Fury preseeds this — two jamming sites at `GPSJAM-1` (Copenhagen
 approach, ~5 km from Kastrup) and `GPSJAM-2` (Rostock). `gps_jamming` ON (RetLab Features →
-Electronic & command warfare) **and** the `gpsjamming` plugin ticked — the plugin is the
-runtime, so an unticked plugin silently kills the setting (the §36 lesson). Fly a strike with
+Electronic & command warfare); the `gpsjamming` plugin has no checkbox since 2026-10-15.
+Fly a strike with
 JDAMs at a target within **15 nm** of a site.
 
 Note the bubble is a denied **target** area, not a denied release area: a weapon aimed at
@@ -1111,7 +1111,7 @@ mission. The kneeboard's `GPS` line appears only once recon has identified the s
 **Fail signatures to watch for:**
 - **A bomb that detonates ON target AND produces a second explosion off it** — the predictive
   terminal gate lost the race against a real JDAM's terminal profile (the top risk; the harness
-  flies a constant-rate descent, DCS does not). Raise `terminalAglFt` or shorten `trackStepS`.
+  flies a constant-rate descent, DCS does not). Raise `terminalAglFt` or shorten the script's `TRACK_STEP`.
 - **Nothing happens at all** — check the plugin is enabled and that a live jammer is actually
   in the mission (`DCSRetribution|GPSJamming: armed` vs `inert` in dcs.log).
 - **A laser, TV, IR or anti-radiation weapon missing** — the pattern list leaked; this is the
@@ -1678,7 +1678,7 @@ enough that its envelope just reaches the frontier. A single battery covered
 3.5 % of Pakistan's border on the Afghanistan map, which is why there are now
 several (2026-09-09).
 
-**Setup.** Any campaign with `neutral_border_defense` on and the plugin ticked.
+**Setup.** Any campaign with `neutral_border_defense` on.
 Into the Hornet's Nest (Lebanon) is the worked case.
 
 **Pass.**
@@ -1757,7 +1757,7 @@ generated turn exercises the hail, the dwell, the whole-country swap and the
 engagement. Use it to adjudicate **B120**, then untick it — this row is the
 default behaviour and must be checked with the option **off**.
 
-**Setup.** Any campaign with `neutral_border_defense` on and the plugin ticked —
+**Setup.** Any campaign with `neutral_border_defense` on —
 Into the Hornet's Nest (Lebanon) or Enduring Resolve (Pakistan, Iran) are the
 worked cases. Fly a normal mission and watch the F10 map for red or blue **AI**
 crossing a shaded border. You do not need to cross one yourself; if you do, that

@@ -4,26 +4,28 @@
     "defaultValue": true,
     "specificOptions": [
         {
-            "nameInUI": "StormTrooper AI (longer cinematic firefights; ground units hidden from AI sensors)",
+            "nameInUI": "StormTrooper AI",
             "mnemonic": "stormtrooper",
-            "defaultValue": true
+            "defaultValue": true,
+            "descriptionInUI": "Longer, cinematic firefights. The front-line units are hidden from AI sensors, so AI CAS flights cannot find them; players are unaffected."
         },
         {
-            "nameInUI": "Enable F10 'Troops in Contact' radio menu",
+            "nameInUI": "F10 'Troops in Contact' menu",
             "mnemonic": "createMenus",
             "defaultValue": true
         },
         {
-            "nameInUI": "Minutes between advance bounds (randomized per group)",
+            "nameInUI": "Minutes between advances (varies per group)",
             "mnemonic": "boundPause",
             "defaultValue": 12,
             "minimumValue": 2,
             "maximumValue": 90
         },
         {
-            "nameInUI": "Ambient suppressive fire (tracers toward enemies without line of sight)",
+            "nameInUI": "Ambient suppressive fire",
             "mnemonic": "ambientFire",
-            "defaultValue": true
+            "defaultValue": true,
+            "descriptionInUI": "Tracers toward enemies the shooter cannot see."
         }
     ],
     "scriptsWorkOrders": [],

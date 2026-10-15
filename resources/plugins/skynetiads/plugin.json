@@ -4,121 +4,148 @@
     "defaultValue": true,
     "specificOptions": [
         {
-            "nameInUI": "create IADS for RED coalition",
+            "nameInUI": "Create the RED IADS",
             "mnemonic": "createRedIADS",
             "defaultValue": true
         },
         {
-            "nameInUI": "create IADS for BLUE coalition",
+            "nameInUI": "Create the BLUE IADS",
             "mnemonic": "createBlueIADS",
             "defaultValue": true
         },
         {
-            "nameInUI": "Include RED IADS in radio menu",
-            "mnemonic": "includeRedInRadio",
-            "defaultValue": true
+            "nameInUI": "F10 debug menu for the RED IADS (testing only)",
+            "mnemonic": "radioMenuRed",
+            "defaultValue": false,
+            "descriptionInUI": "Adds a 'SKYNET IADS RED' F10 menu for every player that prints the network's status and contacts on screen. It shows what the fog of war hides."
         },
         {
-            "nameInUI": "Include BLUE IADS in radio menu",
-            "mnemonic": "includeBlueInRadio",
-            "defaultValue": true
+            "nameInUI": "F10 debug menu for the BLUE IADS (testing only)",
+            "mnemonic": "radioMenuBlue",
+            "defaultValue": false,
+            "descriptionInUI": "Adds a 'SKYNET IADS BLUE' F10 menu for every player that prints the network's status and contacts on screen."
         },
         {
-            "nameInUI": "Generate debug information for RED IADS",
+            "nameInUI": "Debug output for the RED IADS (testing only)",
             "mnemonic": "debugRED",
             "defaultValue": false
         },
         {
-            "nameInUI": "Generate debug information for BLUE IADS",
+            "nameInUI": "Debug output for the BLUE IADS (testing only)",
             "mnemonic": "debugBLUE",
             "defaultValue": false
         },
         {
-            "nameInUI": "Enable Mobile SAMs SHORAD (SA-8/9/13/15/19)",
+            "nameInUI": "Mobile SHORAD shoot-and-scoot (SA-8, SA-9, SA-13, SA-15, SA-19)",
             "mnemonic": "actMobile",
-            "defaultValue": false
+            "defaultValue": false,
+            "descriptionInUI": "Short-range mobile SAMs emit for a while, then drive to a new spot."
         },
         {
-            "nameInUI": "Maximum emission time (s) for Mobile SHORAD",
+            "nameInUI": "SHORAD: longest emission before moving (seconds)",
             "mnemonic": "actMobileMaxEmissionTime",
             "defaultValue": 30,
-            "enabledWhen": "actMobile"
+            "enabledWhen": "actMobile",
+            "minimumValue": 5,
+            "maximumValue": 600
         },
         {
-            "nameInUI": "Minimum scoot distance (m) for Mobile SHORAD",
-            "mnemonic": "actMobileMinimumScootDistance",
-            "defaultValue": 300,
-            "enabledWhen": "actMobile"
+            "nameInUI": "SHORAD: shortest move (ft)",
+            "mnemonic": "actMobileMinimumScootDistanceFt",
+            "defaultValue": 1000,
+            "enabledWhen": "actMobile",
+            "minimumValue": 100,
+            "maximumValue": 10000
         },
         {
-            "nameInUI": "Maximum scoot distance (m) for Mobile SHORAD",
-            "mnemonic": "actMobileMaximumScootDistance",
-            "defaultValue": 500,
-            "enabledWhen": "actMobile"
+            "nameInUI": "SHORAD: longest move (ft)",
+            "mnemonic": "actMobileMaximumScootDistanceFt",
+            "defaultValue": 1600,
+            "enabledWhen": "actMobile",
+            "minimumValue": 100,
+            "maximumValue": 10000
         },
         {
-            "nameInUI": "Exclude SA-15",
+            "nameInUI": "SHORAD: leave the SA-15 out",
             "mnemonic": "actMobile_exclude_SA15",
             "defaultValue": false,
             "enabledWhen": "actMobile"
         },
         {
-            "nameInUI": "Enable Mobile SAMs MERAD (SA-6/11/17)",
+            "nameInUI": "Mobile MERAD shoot-and-scoot (SA-6, SA-11, SA-17)",
             "mnemonic": "actMobile_merad",
-            "defaultValue": false
+            "defaultValue": false,
+            "descriptionInUI": "Medium-range SAMs emit for a while, then drive to a new spot."
         },
         {
-            "nameInUI": "Maximum emission time (s) for Mobile MERAD",
+            "nameInUI": "MERAD: longest emission before moving (seconds)",
             "mnemonic": "actMobileMaxEmissionTime_merad",
             "defaultValue": 120,
-            "enabledWhen": "actMobile_merad"
+            "enabledWhen": "actMobile_merad",
+            "minimumValue": 5,
+            "maximumValue": 600
         },
         {
-            "nameInUI": "Minimum scoot distance (m) for Mobile MERAD",
-            "mnemonic": "actMobileMinimumScootDistance_merad",
-            "defaultValue": 500,
-            "enabledWhen": "actMobile_merad"
+            "nameInUI": "MERAD: shortest move (ft)",
+            "mnemonic": "actMobileMinimumScootDistanceFt_merad",
+            "defaultValue": 1600,
+            "enabledWhen": "actMobile_merad",
+            "minimumValue": 100,
+            "maximumValue": 30000
         },
         {
-            "nameInUI": "Maximum scoot distance (m) for Mobile MERAD",
-            "mnemonic": "actMobileMaximumScootDistance_merad",
-            "defaultValue": 3000,
-            "enabledWhen": "actMobile_merad"
+            "nameInUI": "MERAD: longest move (ft)",
+            "mnemonic": "actMobileMaximumScootDistanceFt_merad",
+            "defaultValue": 10000,
+            "enabledWhen": "actMobile_merad",
+            "minimumValue": 100,
+            "maximumValue": 30000
         },
         {
-            "nameInUI": "Adjust default SAMs GoLiveRange",
+            "nameInUI": "Change when long-range SAMs go live",
             "mnemonic": "adjustGoLiveRange",
-            "defaultValue": false
+            "defaultValue": false,
+            "descriptionInUI": "Each go-live range value is the share of the SAM's missile range at which its radar comes on. 100 = full missile range."
         },
         {
-            "nameInUI": "SA-5 GoLiveRange (% max interceptor range)",
+            "nameInUI": "SA-5 go-live range (% of missile range)",
             "mnemonic": "adjustGoLiveRange_SA5",
             "defaultValue": 100,
-            "enabledWhen": "adjustGoLiveRange"
+            "enabledWhen": "adjustGoLiveRange",
+            "minimumValue": 10,
+            "maximumValue": 100
         },
         {
-            "nameInUI": "SA-10 GoLiveRange (% max interceptor range)",
+            "nameInUI": "SA-10 go-live range (% of missile range)",
             "mnemonic": "adjustGoLiveRange_SA10",
             "defaultValue": 100,
-            "enabledWhen": "adjustGoLiveRange"
+            "enabledWhen": "adjustGoLiveRange",
+            "minimumValue": 10,
+            "maximumValue": 100
         },
         {
-            "nameInUI": "SA-17 GoLiveRange (% max interceptor range)",
+            "nameInUI": "SA-17 go-live range (% of missile range)",
             "mnemonic": "adjustGoLiveRange_SA17",
             "defaultValue": 100,
-            "enabledWhen": "adjustGoLiveRange"
+            "enabledWhen": "adjustGoLiveRange",
+            "minimumValue": 10,
+            "maximumValue": 100
         },
         {
-            "nameInUI": "SA-20 GoLiveRange (% max interceptor range)",
+            "nameInUI": "SA-20 go-live range (% of missile range)",
             "mnemonic": "adjustGoLiveRange_SA20",
             "defaultValue": 100,
-            "enabledWhen": "adjustGoLiveRange"
+            "enabledWhen": "adjustGoLiveRange",
+            "minimumValue": 10,
+            "maximumValue": 100
         },
         {
-            "nameInUI": "SA-23 GoLiveRange (% max interceptor range)",
+            "nameInUI": "SA-23 go-live range (% of missile range)",
             "mnemonic": "adjustGoLiveRange_SA23",
             "defaultValue": 100,
-            "enabledWhen": "adjustGoLiveRange"
+            "enabledWhen": "adjustGoLiveRange",
+            "minimumValue": 10,
+            "maximumValue": 100
         }
     ],
     "scriptsWorkOrders": [

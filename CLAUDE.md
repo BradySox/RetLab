@@ -262,9 +262,11 @@ linked design note.
 - **Never script explosions on an airfield.** `trigger.action.explosion` inside a field's area
   puts it into DCS's under-attack state and every AI fixed-wing launch there is held until it
   clears; a recurring barrage never clears it (§36, removed). A one-off strike is not this.
-- **A plugin toggle is a second gate.** An unticked plugin silently kills its setting — campaigns
-  must preseed both. A `skipUI` plugin has no checkbox and is always on (`LuaPlugin.enabled`):
-  `base`, `intercept`, `opscsar`, `vietnamops`.
+- **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
+  setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
+  the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`. A test fails if one gains a
+  checkbox again.
 
 ### Live features
 

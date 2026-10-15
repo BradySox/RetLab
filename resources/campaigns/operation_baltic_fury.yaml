@@ -166,10 +166,6 @@ settings:
   plugins:
     # advanced_iads (top-level) is this laydown's centerpiece; skynetiads owns its whole runtime.
     skynetiads: true
-    # §61 host scramble.
-    # (§50's ambush spring is authored as native DCS triggers -- no plugin.)
-    redscramble: true
-    gpsjamming: true                 # §86 GPS jamming runtime -- the setting does NOTHING without it
     # §61 host-menu gate: only DCS names containing "Flash" see the HOST: Red Scramble menu.
     redscramble.hostPlayers: Flash
 # --- §86 GPS jamming: two of red's five early-warning sites also field an EW Radio Jammer.

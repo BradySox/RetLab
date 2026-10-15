@@ -351,7 +351,7 @@ The DCS-only unknowns, in order of risk:
 1. **Does the terminal gate beat a real JDAM's terminal profile?** The harness
    flies a constant-rate descent; a real store's last seconds are steeper. If a
    bomb ever detonates on target *and* produces a miss explosion, the gate lost
-   the race — raise `terminalAglFt` or shorten `trackStepS`.
+   the race — raise `terminalAglFt` or shorten the script's `TRACK_STEP`.
 2. **Does `Weapon:destroy()` on a live store look clean in the cockpit/Tacview**,
    or does it read as a disappearing bomb?
 3. **Is the miss legible?** 200 m off should look like a miss, not a bug.

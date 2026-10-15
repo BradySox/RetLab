@@ -16,7 +16,7 @@ A `plugin.json` describes the plugin to both the loader and the settings UI:
 | Field | Meaning |
 |---|---|
 | `nameInUI` / `descriptionInUI` | Title and explanation. The name is listed on the Lua Plugins page; the description heads the plugin's box on the Lua Plugin Options page. |
-| `skipUI` | No checkbox: the plugin is always on, and its options page still shows. Used by `base`, `intercept`, `opscsar` and `vietnamops`. |
+| `skipUI` | No checkbox: the plugin is always on, and its options page still shows. Used by `base`, `intercept`, `opscsar`, and every plugin that only runs a setting (`vietnamops`, `gpsjamming`, `cruisemissiles`, `navalmagazines`, `briefing`, `redscramble`, `neutralborder`), so the setting is the one switch. |
 | `defaultValue` | Whether the plugin starts enabled. |
 | `specificOptions` | Per-plugin tunables (each with its own `mnemonic`, label, optional `descriptionInUI`, default, min/max) shown as settings. `choices` renders a dropdown instead of a spinner; `enabledWhen` greys an option out until a named sibling option is set. |
 | `scriptsWorkOrders` | The Lua files to inject, with load/disable directives. |
@@ -82,7 +82,7 @@ ELINT tracks as spin boxes.
 
 ## The plugins
 
-All 26, grouped by area; `plugins.json` holds the load order. "Inert unless" means the plugin ships in every mission
+All 24, grouped by area; `plugins.json` holds the load order. "Inert unless" means the plugin ships in every mission
 but does nothing until the mission generator emits its data — turning the matching campaign
 setting off costs nothing at runtime.
 
@@ -93,19 +93,19 @@ setting off costs nothing at runtime.
 | `base` | on | Mandatory core scripts, MIST, `Moose.lua`, and the sortie recorder. |
 | `ctld` | on | CTLD — sling-loading crates, deploying troops and vehicles, JTAC autolasing. Also carries the §76 paradrop runtime. |
 | `MooseSoundhandler` | off | Radio-call and combat sound effects on in-game events. |
-| `MooseMarkerOps` | off | MOOSE MarkerOps — F10 map-marker command parsing. |
+| `MooseMarkerOps` | off | Host tool: any player types a command into an F10 map marker to explode, illuminate, smoke, destroy, send home, refuel or make immortal what is near it. |
 | `MooseAtis` | off | MOOSE ATIS broadcasts. Injects only the current map's spoken field names. |
 
 ### Air defense, EW and ISR
 
 | Plugin | Default | What it does |
 |---|---|---|
-| `skynetiads` | on | **Skynet-IADS** (upstream's) — SAM/EWR networking, HARM defence, point defence, mobile-SAM shoot-and-scoot, the advanced comms/power/command graph. The fork's build adds HDSUC and CurrentHill SAM profiles; see [IADS Engine: Skynet](IADS-Engine-Skynet). |
+| `skynetiads` | on | **Skynet-IADS** (upstream's) — SAM/EWR networking, HARM defence, point defence, mobile-SAM shoot-and-scoot, the advanced comms/power/command graph. Its F10 debug menus are off by default. The fork's build adds HDSUC and CurrentHill SAM profiles; see [IADS Engine: Skynet](IADS-Engine-Skynet). |
 | `c130j` | on | Turns the player C-130J into an EC-130H Compass Call (jamming) and RC-130H Rivet Joint (ISR/ELINT) platform — `FlightType.JAMMING`. Supersedes the retired generic `ewrj`. |
-| `gpsjamming` | on | GPS denial — satellite-guided weapons released inside the bubble land long. Inert unless a live GPS-jamming group is on the map. |
+| `gpsjamming` | always | GPS denial — satellite-guided weapons released inside the bubble land long. Inert unless a live GPS-jamming group is on the map. |
 | `bigeye` | off | BigEye EWR — text threat reports to pilots, prioritised by contact danger. |
-| `lotatc` | off | Exports anti-air sites to LotATC so GCI controllers see the SAM/AAA picture. |
-| `neutralborder` | on | Neutral-country border defense: SAM batteries inside each non-belligerent border, a radio hail on entry, the whole country turning hostile when pressed. Inert unless the setting is on. |
+| `lotatc` | off | Exports anti-air sites to LotATC so GCI controllers see the SAM/AAA picture. Blue sees only the red sites it has found. |
+| `neutralborder` | always | Neutral-country border defense: SAM batteries inside each non-belligerent border, a radio hail on entry, the whole country turning hostile when pressed. Inert unless the setting is on. |
 
 ### Ground war and the front line
 
@@ -120,8 +120,8 @@ setting off costs nothing at runtime.
 | Plugin | Default | What it does |
 |---|---|---|
 | `airboss` | on | MOOSE Airboss — LSO and Marshal voice comms, the recovery window schedule, optional rescue helo and recovery tanker. |
-| `cruisemissiles` | on | Ship-launched land-attack cruise missiles, F10 call-for-fire and auto raids. Inert unless the setting is on. |
-| `navalmagazines` | on | The fleet's finite anti-ship missiles and staggered weapons-free release. Inert unless the setting is on. |
+| `cruisemissiles` | always | Ship-launched land-attack cruise missiles, F10 call-for-fire and auto raids. Inert unless the setting is on. |
+| `navalmagazines` | always | The fleet's finite anti-ship missiles and staggered weapons-free release. Inert unless the setting is on. |
 
 ### Missions, pilots and hosting
 
@@ -129,8 +129,8 @@ setting off costs nothing at runtime.
 |---|---|---|
 | `opscsar` | on | **Combat SAR** — spawns downed pilots and runs the rescue via MOOSE `Ops.CSAR`, and carries the King's on-scene systems (`KingOnScene.lua`: DF cuts on the beacon, the threat sweep, the picture passed to the Sandy and the helo). See [Combat SAR](Combat-SAR). |
 | `intercept` | on | Per-squadron QRA intercept reserve feeding the MOOSE `AI_A2A_DISPATCHER`. |
-| `redscramble` | on | Host tool: an F10 menu to scramble red interceptors. Inert unless the setting is on. |
-| `briefing` | on | The mission-start briefing card each pilot sees when they slot in. |
+| `redscramble` | always | Host tool: an F10 menu to scramble red interceptors. Inert unless the setting is on. |
+| `briefing` | always | The mission-start briefing card each pilot sees when they slot in. Inert unless the setting is on. |
 | `splashdamage3` | on | The squadron's locked, softened Splash Damage 3.4.2 build. No user-adjustable options by design. |
 | `ai_reaction` | on | Smart threat reaction — only the flight a missile is actually guiding on goes defensive; everything else holds formation and uses countermeasures. |
 | `profiler` | off | Lua profiler — a diagnostic that times plugin work and writes `MooseProfiler.txt`. Slows the mission while it runs. |

@@ -61,7 +61,7 @@ if dcsRetribution.plugins and dcsRetribution.plugins.navalmagazines then
     if o.announceWinchester ~= nil then
         ANNOUNCE = o.announceWinchester
     end
-    FORMATION_KM = tonumber(o.formationReleaseKm) or FORMATION_KM
+    FORMATION_KM = (tonumber(o.formationReleaseNm) or FORMATION_KM / 1.852) * 1.852 -- NM (UI) -> km
     SALVO_CAP = tonumber(o.salvoPerMission) or SALVO_CAP
     if SALVO_CAP < 0 then
         SALVO_CAP = 0

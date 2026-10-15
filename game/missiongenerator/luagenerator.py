@@ -23,6 +23,7 @@ from game.missiongenerator.csargenerator import EMBARK_ZONE_RADIUS
 from game.plugins import LuaPluginManager
 from game.squadrons.downedpilot import DownedPilot
 from game.theater import TheaterGroundObject
+from game.theater.player import Player
 from game.theater.theatergroup import SceneryUnit
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.utils import escape_string_for_lua, nautical_miles
@@ -48,6 +49,15 @@ from .vietnamopsluadata import populate_vietnam_ops_lua
 if TYPE_CHECKING:
     from game import Game
     from game.theater.iadsnetwork.iadsnetwork import IadsNode
+
+
+def lotatc_exports(ground_object: TheaterGroundObject, blue_owned: bool) -> bool:
+    """Whether the LotATC plugin may draw this site for the other side's GCI.
+
+    Red is never fogged; blue's controllers see only the red sites blue has found
+    (the recon fog, features doc §3), as on blue's own map.
+    """
+    return blue_owned or ground_object.known_for(Player.BLUE)
 
 
 class LuaGenerator:
@@ -284,6 +294,8 @@ class LuaGenerator:
                 else lua_data.get_or_create_item("RedAA")
             )
             for ground_object in cp.ground_objects:
+                if not lotatc_exports(ground_object, cp.captured.is_blue):
+                    continue
                 for g in ground_object.groups:
                     threat_range = g.max_threat_range()
 

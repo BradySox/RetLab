@@ -1,32 +1,44 @@
 {
     "nameInUI": "Cruise missile strikes",
-    "descriptionInUI": "Runtime for ship-launched land-attack cruise missiles. Inert unless the mission generator emits dcsRetribution.cruiseMissiles (the 'Ship-launched cruise missile strikes' setting is on and a cruise-missile ship with stock exists). Fires each planned auto raid at its own random moment inside the launch window (staggered so several naval groups don't ripple simultaneously), serves each coalition an F10 'Cruise Missile Strike' call-for-fire menu (a salvo onto your last F10 map marker from the nearest capable ship -- put just a number in the marker's text, '6' or '#6', to fire exactly that many), enforces the campaign magazine as this mission's hard expenditure cap (auto raids and player salvos share it -- no rearm), and reports what actually fired for the turn-boundary magazine debit. The missiles are real DCS weapons from real, tracked ships: kills record natively and a sunk ship fires nothing. Every launch also brings the defender's air-defense groups near the aimpoint to alarm-RED readiness for the missile flight window (DCS never wakes a defender for a missile on its own), so point defense gets its intercept shot.",
+    "descriptionInUI": "Runs the 'Ship-launched cruise missile strikes' setting: the planned raids, the F10 'Cruise Missile Strike' menu (a salvo onto your last map marker; type a number in the marker to set the count) and the campaign magazine. Each launch also puts the defender's air defense near the aimpoint on alert.",
     "defaultValue": true,
+    "skipUI": true,
     "specificOptions": [
         {
-            "nameInUI": "Auto-raid launch window opens (s after mission start)",
+            "nameInUI": "Auto raids: launch window opens (seconds after mission start)",
             "mnemonic": "raidDelayMinS",
-            "defaultValue": 240
+            "defaultValue": 240,
+            "minimumValue": 0,
+            "maximumValue": 3600
         },
         {
-            "nameInUI": "Auto-raid launch window closes (s after mission start)",
+            "nameInUI": "Auto raids: launch window closes (seconds after mission start)",
             "mnemonic": "raidDelayMaxS",
-            "defaultValue": 900
+            "defaultValue": 900,
+            "minimumValue": 0,
+            "maximumValue": 3600
         },
         {
-            "nameInUI": "Player call-for-fire salvo size (default when the marker text has no number)",
+            "nameInUI": "Call-for-fire salvo size",
             "mnemonic": "playerSalvoSize",
-            "defaultValue": 4
+            "defaultValue": 4,
+            "minimumValue": 1,
+            "maximumValue": 24,
+            "descriptionInUI": "Used when the marker text has no number."
         },
         {
-            "nameInUI": "Player call-for-fire max ship-to-target range (NM)",
+            "nameInUI": "Call-for-fire max ship-to-target range (NM)",
             "mnemonic": "playerRangeNm",
-            "defaultValue": 250
+            "defaultValue": 250,
+            "minimumValue": 10,
+            "maximumValue": 1000
         },
         {
             "nameInUI": "Impact dispersion radius (ft)",
             "mnemonic": "salvoRadiusFt",
-            "defaultValue": 328
+            "defaultValue": 330,
+            "minimumValue": 0,
+            "maximumValue": 3000
         },
         {
             "nameInUI": "F10 call-for-fire menu",
@@ -34,21 +46,26 @@
             "defaultValue": true
         },
         {
-            "nameInUI": "Launch wakes defender air defenses near the aimpoint (alarm RED for the flight window)",
+            "nameInUI": "Wake the defender's air defense near the aimpoint",
             "mnemonic": "defenderWake",
-            "defaultValue": true
+            "defaultValue": true,
+            "descriptionInUI": "Sets alarm state red for the missiles' flight time, since DCS never wakes a defender for a cruise missile."
         },
         {
-            "nameInUI": "Defender wake radius around the impact point (NM)",
+            "nameInUI": "Wake radius around the aimpoint (NM)",
             "mnemonic": "defenderWakeRadiusNm",
             "defaultValue": 8,
-            "enabledWhen": "defenderWake"
+            "enabledWhen": "defenderWake",
+            "minimumValue": 1,
+            "maximumValue": 50
         },
         {
-            "nameInUI": "Defender wake held past estimated missile arrival (s)",
+            "nameInUI": "Hold the wake past the missiles' arrival (seconds)",
             "mnemonic": "defenderWakeExtraS",
             "defaultValue": 300,
-            "enabledWhen": "defenderWake"
+            "enabledWhen": "defenderWake",
+            "minimumValue": 0,
+            "maximumValue": 1800
         }
     ],
     "scriptsWorkOrders": [],

@@ -37,7 +37,7 @@ local SOUND_FILE = "l10n/DEFAULT/briefing-beep.wav"
 if dcsRetribution.plugins and dcsRetribution.plugins.briefing then
     local o = dcsRetribution.plugins.briefing
     DURATION = tonumber(o.durationS) or DURATION
-    GRACE = tonumber(o.startGraceS) or GRACE
+    GRACE = tonumber(o.startGraceS) or GRACE -- not on the options page since 2026-10-15; tests set it
     if tonumber(o.startDelayS) ~= nil then
         START_DELAY = tonumber(o.startDelayS)
     end

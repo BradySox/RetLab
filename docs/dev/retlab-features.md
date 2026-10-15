@@ -2504,15 +2504,45 @@ part that rots, so it was checked line by line rather than inferred from names:
 
 - `airboss.rescueHeloDistance` *looks* like a rescue-helo knob and is not — it feeds
   `SetCarrierControlledArea` in `SetupAirboss`, which runs whether or not the rescue helo
-  is enabled. Greying it would have hidden a live setting.
+  is enabled. Greying it would have hidden a live setting. Since 2026-10-15 its label says
+  so: "Carrier controlled area radius (NM)".
 - `bigeye.defaultEnableReportPreference` is a per-player *default* that players toggle in
   the radio menu; the report-frequency options still apply once reports are on.
 - `gpsjamming.missPower` / `missPowerScalePct` are a fallback and a scale that coexist,
-  not a master and a dependant.
+  not a master and a dependant. `missPower` left the options page 2026-10-15.
 
 Files: `game/plugins/luaplugin.py`, `qt_ui/windows/settings/plugins.py`, and the 5
 `plugin.json` files above. Tests: `tests/test_plugin_option_dependencies.py` (45).
 No runtime change, no save migration, no new setting.
+
+**Options audit (2026-10-15).** Every option of all 24 plugins was checked against the Lua
+that reads it. None was dead and none was left from the 2026-10-12 removals. What changed:
+
+- **One switch.** `gpsjamming`, `cruisemissiles`, `navalmagazines`, `briefing`,
+  `redscramble` and `neutralborder` are `skipUI`: each runs only a setting, so the setting
+  is the one switch (CLAUDE.md hard constraints). Their campaign preseeds are gone;
+  `redscramble.hostPlayers` stays. `coin` keeps its checkbox.
+  `tests/retlab/test_campaign_plugin_preseed.py::test_no_setting_has_a_second_switch`.
+- **Skynet's F10 menus off.** `includeRedInRadio` / `includeBlueInRadio` were on and gave
+  every player a "SKYNET IADS RED" menu printing the network's status and contacts. They are
+  now `radioMenuRed` / `radioMenuBlue`, default off; the rename makes old saves take the new
+  default.
+- **Imperial units.** Skynet's scoot distances are in feet (`...ScootDistanceFt`, converted
+  in `skynetiads-config.lua`), the naval formation release in NM (`formationReleaseNm`), and
+  COIN's converted numbers are rounded (2 NM, 14 kt, 800 ft).
+- **LotATC** exports a red site only once blue knows it (`lotatc_exports` in
+  `luagenerator.py`, the §3 fog). Blue sites are always exported; red is never fogged.
+- **Engineer knobs off the page:** `gpsjamming.missPower`, `trackStepS`, `maxTrackS`,
+  `briefing.startGraceS`, `coin.vbiedRepathS`, `infilRepathS`. The Lua still reads them, so
+  the harness tests can set them; a mission always gets the script default.
+- **Limits and words.** Every number option has a maximum, labels are US English with
+  imperial units, and the long plugin descriptions are two or three sentences.
+  `tests/test_plugin_option_descriptions.py` guards the maximums and the units.
+- **Saves shed dead keys.** `LuaPluginManager.prune_settings` drops any stored key no
+  plugin or option declares, replacing the hand-kept list of retired plugins in
+  `Settings.__setstate__`.
+- MarkerOps' radius commands (SmokeZone, RTB, Refuel, Immortal, Mortal) ignored the typed
+  radius: a shadowing `local n`. Fixed.
 
 ---
 
@@ -5894,7 +5924,7 @@ setting. Bandit kills *of* players record natively (players are real tracked uni
 `resources/plugins/redscramble/` runs the menu/spawn/vector runtime (options: `hostPlayers`,
 `takeoff` air/hot/runway, `vectorIntervalS`). Gated `host_red_scramble` (Mission Generation →
 the new "Host & event tools" section, default **OFF**), **preseeded ON in Red Tide** (with the
-`redscramble` plugin — the §36 saved-default-off lesson — and `redscramble.hostPlayers: Flash`,
+`redscramble` plugin until 2026-10-15, when it lost its checkbox — and `redscramble.hostPlayers: Flash`,
 the host's static name tag) ahead of the Friday 2026-07-17 regeneration.
 
 **Tests.** `tests/missiongenerator/test_redscrambleluadata.py` (emit contract: gating, red-only
@@ -8202,8 +8232,8 @@ debit.
 build the release fired correctly and the targeted Type 071 LHA fought with the AK-630 CIWS
 that is its entire AAW fit, and still died: a Retribution carrier/LHA objective is **two DCS
 groups**, and the area-defence SAMs are on the **escort** group, which nobody had shot at.
-An attack now frees every managed friendly group within `formationReleaseKm` (default
-**15 km**, plugin option, 0 = targeted-only), same coalition, **one hop — never a cascade**.
+An attack now frees every managed friendly group within `formationReleaseNm` (default
+**8 NM**, plugin option, 0 = targeted-only; 15 km until 2026-10-15), same coalition, **one hop — never a cascade**.
 The flown geometry makes the radius safe: the screen rode **1.91 km** off its flagship and
 the next task force was **59.02 km** away. Details + harness pins in the design note.
 
@@ -8610,12 +8640,12 @@ GPS-guided weapons postdate it entirely.
 preseeded nowhere). A unit with no reach or miss of its own uses `DEFAULT_REACH` (15 NM) and
 `DEFAULT_MISS_RADIUS` (200 m) in `game/retlab/gps_jamming.py`; both were settings until
 2026-09-23. Plugin options cover the degrade
-chance (85 %), terminal altitude (100 ft AGL), the shooter cue, grace, and the track step. **The
+chance (85 %), terminal altitude (100 ft AGL), the shooter cue and the grace. **The
 miss detonates with the store's own warhead** (`desc.warhead.explosiveMass`, scaled by
 `missPowerScalePct`, default 100 %), so a 2000 lb JDAM craters like one and a 500 lb JDAM does
 not; a store reporting no warhead falls back to the flat `missPower`, which is the pre-scaling
-behaviour exactly. **The plugin is the runtime** — a saved default with the `gpsjamming` plugin
-unticked silently kills the setting (the §36 lesson).
+behaviour exactly. **The plugin is the runtime**; it has no checkbox since 2026-10-15, so the
+setting is the one switch.
 
 **Deliberately not done:** aircraft navigation degradation (impossible, and it would lie to the
 pilot's own cockpit); a dedicated map overlay (the site is an ordinary TGO and already draws);

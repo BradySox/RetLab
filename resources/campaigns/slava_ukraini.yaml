@@ -20,11 +20,8 @@ settings:
   # (see ground_forces). A JDAM/JSOW/JASSM aimed at anything inside a bubble lands off the
   # aimpoint -- standing off does not help, because the weapon flies through the bubble
   # whatever range it was released from. Change delivery (laser/TV are untouched) or kill the
-  # jammer, which restores accuracy at once. Runs via the 'GPS jamming' LUA plugin, preseeded
-  # below -- the setting does NOTHING without it.
+  # jammer, which restores accuracy at once.
   gps_jamming: true
-  plugins:
-    gpsjamming: true            # §86 runtime -- the setting does nothing without it
   ukrainemilitaryassetspack: true
   russianmilitaryassetspack: true
   squadron_start_full: true

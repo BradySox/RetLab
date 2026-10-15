@@ -6,7 +6,8 @@
         {
             "nameInUI": "Export RED anti-air",
             "mnemonic": "exportRedAA",
-            "defaultValue": true
+            "defaultValue": true,
+            "descriptionInUI": "Only the red sites blue has found; the rest stay hidden, as on blue's map."
         },
         {
             "nameInUI": "Export BLUE anti-air",

@@ -210,7 +210,7 @@ function SmokeZone()
         local n = 5
 
         if Text then
-            local n = tonumber(Text:match("(%d+)$"))
+            n = tonumber(Text:match("(%d+)$")) or n
         end
         BASE:I(n)
 
@@ -366,7 +366,7 @@ function RTBZone()
         local n = 5
 
         if Text then
-            local n = tonumber(Text:match("(%d+)$"))
+            n = tonumber(Text:match("(%d+)$")) or n
         end
         BASE:I(n)
 
@@ -445,7 +445,7 @@ function ImmortalZone()
         local n = 5
 
         if Text then
-            local n = tonumber(Text:match("(%d+)$"))
+            n = tonumber(Text:match("(%d+)$")) or n
         end
         BASE:I(n)
 
@@ -518,7 +518,7 @@ function MortalZone()
         local n = 5
 
         if Text then
-            local n = tonumber(Text:match("(%d+)$"))
+            n = tonumber(Text:match("(%d+)$")) or n
         end
         BASE:I(n)
 
@@ -591,7 +591,7 @@ function RefuelZone()
         local n = 5
 
         if Text then
-            local n = tonumber(Text:match("(%d+)$"))
+            n = tonumber(Text:match("(%d+)$")) or n
         end
         BASE:I(n)
 

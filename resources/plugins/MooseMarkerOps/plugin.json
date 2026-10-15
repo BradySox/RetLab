@@ -1,5 +1,5 @@
 {
-    "nameInUI": "Moose's MarkerOps",
+    "nameInUI": "Host tool: F10 map-marker commands",
     "defaultValue": false,
     "specificOptions": [],
     "scriptsWorkOrders": [
@@ -9,5 +9,6 @@
         }
     ],
     "configurationWorkOrders": [],
-    "otherResourceFiles": []
+    "otherResourceFiles": [],
+    "descriptionInUI": "Any player can type a command into an F10 map marker: Boom and a number explodes with that power, Light drops illumination, Smoke and a color marks the spot, and SmokeZone, Destroy, RTB, Refuel, Immortal and Mortal act on every group within the miles typed after them (5 if none). Destroy removes friendly and enemy groups alike. Off by default."
 }

@@ -60,8 +60,6 @@ settings:
   airbase_threat_range: 300
   plugins:
     skynetiads: true
-    neutralborder: true
-    navalmagazines: true
 # The forward fields the Soviets captured get mobile batteries; the home fields
 # keep fixed ones. Unpinned markers fill from the faction by band.
 ground_forces:
