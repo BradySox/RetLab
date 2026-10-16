@@ -31,9 +31,9 @@ class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
             else doctrine.escort_engagement_range
         )
         # AI escorts skip the ingress/target waypoints (only_for_player) and turn
-        # for home at the escort-hold anchor, ~7-9nm short of the target, without
-        # loitering. So the honest reach is the join->escort-hold leg, not a
-        # corridor all the way to the target and out to split.
+        # for home at the escort-hold anchor (the IP, or a stand-off package's
+        # launch range), without loitering. So the honest reach is the
+        # join->escort-hold leg, not a corridor all the way to the target and out.
         hold = self.layout.initial
         far = hold.position if hold is not None else self.package.target.position
         route = [self.layout.join.position, far]
@@ -90,7 +90,11 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
 
         is_helo = builder.flight.is_helo
         initial = builder.escort_hold(
-            target.position if is_helo else self.package.waypoints.initial,
+            (
+                target.position
+                if is_helo
+                else PackageWaypoints.escort_hold_point(self.package)
+            ),
         )
 
         pf = self.package.primary_flight

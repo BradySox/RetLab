@@ -1909,6 +1909,14 @@ that code.
   search or sweep point, split) with the same reach circle. The same pass took the reverted
   loiter, the -3 min SEAD offset and the deleted DEAD reachability gate (U7) off the wiki, and
   added both removals to `tools/audit_stale_docs.py`.
+- **Escorts held at the IP while their stand-off shooters launched far outside it (2026-10-16).**
+  Desert Trident turn 1: a Patriot DEAD's two escort flights held 7 NM from the Patriot while
+  its Kh-59M shooters turned 62 NM out. `PackageWaypoints.escort_hold_point` puts the escort
+  hold at the shortest launch range among the flights of the package's primary task, capped
+  at the ingress. Escorts' own weapons do not count (a SEAD escort's HARM says nothing about
+  where bombers release), and one attacker with no ranged weapon keeps the IP. It matters for a
+  player escort's route and for an escort whose primary never flies, which holds its anchor
+  (the test 36 entry below). Tests: `tests/ato/test_escort_hold_standoff.py`.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**
 - Flight-combat-exit `IndexError`: `game/ato/flightstate/inflight.py` guards in
@@ -10939,3 +10947,29 @@ announce the takeover* (on). Brady's idea from his Northern Front 2003 campaign;
 - `ai_twin_view` must put back everything it changes, the waypoint TOTs and fuel included:
   the client flight's kneeboard reads them from the same waypoint objects.
 - The twin maps to the same pilots as the seats it replaces, so a loss lands on the roster.
+
+## §114 — Coordinated TOT
+
+A package made from the map times itself behind the SEAD or DEAD package hitting the SAM that
+covers its target: 2 to 8 minutes after it, the §69 window. With no such package, or a window
+it cannot make inside the mission, it flies ASAP and the package window says why. A third TOT
+mode beside ASAP and a typed TOT, ticked by default on a new package, worked out again on every
+change and at Take Off (Brady's choices, 2026-10-16). No setting. Built 2026-10-16, not flown
+(row B236).
+
+**Design note:** [retlab-coordinated-tot-notes.md](design/retlab-coordinated-tot-notes.md).
+
+### Files
+
+- `game/commander/coordinatedtot.py`: the window, the warnings, the Take Off pass.
+- `game/ato/package.py`: `auto_coordinated`; an old save loads with it off.
+- `game/sim/missionsimulation.py`: the Take Off pass runs before `settle_mission_start`.
+- `qt_ui/models.py`, `qt_ui/windows/mission/QPackageDialog.py`,
+  `qt_ui/windows/mission/QAutoCreateDialog.py`: the tick, the TOT line, the warning line.
+- `tests/commander/test_coordinated_tot.py`.
+
+### Constraints
+
+- Never earlier than ASAP. Only strike-class packages wait (Strike, BAI, OCA, CAS).
+- A site counts only if blue knows it, overview ignored (`fog_intact`). Red reads ground truth.
+- The Take Off pass times suppression packages first, so a strike waits for its SEAD's final TOT.

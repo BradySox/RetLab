@@ -53,7 +53,14 @@ The campaign settings include a **Never delay player flights** option for multip
 squadrons. This does not alter your mission time — it only lets you sit in the cockpit while
 you wait.
 
-For immediate mission generation, use the **ASAP** button next to the TOT field.
+Next to the TOT field are two ticks. With neither ticked, the TOT is the time you type.
+
+- **ASAP** sets the TOT to the earliest time all flights can arrive.
+- **Coordinated** (the default for a package made from the map) starts from that earliest
+  time, then moves the TOT to 2 to 8 minutes after the SEAD or DEAD package hitting a SAM
+  whose ring covers the target. It is worked out again whenever you change the package and
+  when you press Take Off. With no such package it flies ASAP, and a red line in the window
+  names the SAM nobody is suppressing.
 
 ### Time-over-target by task
 
@@ -68,7 +75,7 @@ coverage is established before the strikers arrive. The full set of rules, in on
 | Anti-ship | Weapons released at IP | 0 (package TOT) | — |
 | OCA/Aircraft | Attack run at field | 0 (package TOT) | — |
 | OCA/Runway | Bomb run on runway | 0 (package TOT) | — |
-| SEAD | Weapons/decoys at IP | **−3 min** | Fixed; arrives 3 min ahead so suppression is up before the package. |
+| SEAD | Weapons/decoys at IP | **−1 min** | Fixed; arrives 1 min ahead so suppression is up before the package. |
 | SEAD Escort | Matches escorted flight | follows package | Same plan as the flight it protects. |
 | SEAD Sweep | Matches package route | **−2 min** | Engages route threats between Join and Split. |
 | Escort | Matches package | 0 (join TOT shared) | Joins at the package join point. |
