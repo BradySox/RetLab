@@ -119,7 +119,7 @@ class QPackageDialog(QDialog):
         self.tot_spinner.timeChanged.connect(self.save_tot)
         self.tot_spinner.setToolTip("Time over target (mission clock)")
         self.tot_spinner.setEnabled(
-            not self.package_model.package.auto_asap
+            self.tot_is_typed()
             and self.package_model.package.all_flights_waiting_for_start()
         )
         self.tot_column.addWidget(self.tot_spinner)
@@ -136,6 +136,20 @@ class QPackageDialog(QDialog):
         self.auto_asap.toggled.connect(self.set_asap)
         self.tot_column.addWidget(self.auto_asap)
 
+        self.auto_coordinated = QCheckBox("Coordinated")
+        self.auto_coordinated.setToolTip(
+            "Starts from the earliest time all flights can arrive, then waits for "
+            "the SEAD or DEAD package hitting the SAM that covers the target, to "
+            "arrive 2 to 8 minutes after it. Worked out again on every change and "
+            "at Take Off. Flies ASAP when there is no such package to wait for."
+        )
+        self.auto_coordinated.setChecked(self.package_model.package.auto_coordinated)
+        self.auto_coordinated.setEnabled(
+            self.package_model.package.all_flights_waiting_for_start()
+        )
+        self.auto_coordinated.toggled.connect(self.set_coordinated)
+        self.tot_column.addWidget(self.auto_coordinated)
+
         self.tot_help_label = QLabel(
             '<a href="https://github.com/dcs-retribution/dcs-retribution/wiki/Mission-planning"><span style="color:#FFFFFF;">Help</span></a>'
         )
@@ -149,6 +163,12 @@ class QPackageDialog(QDialog):
             Qt.TextInteractionFlag.TextSelectableByMouse
         )
         self.layout.addWidget(self.package_context)
+
+        self.tot_warnings = QLabel()
+        self.tot_warnings.setWordWrap(True)
+        self.tot_warnings.setStyleSheet("color: #ff6b6b;")
+        self.tot_warnings.setVisible(False)
+        self.layout.addWidget(self.tot_warnings)
 
         self.package_view = QFlightList(self.game_model, self.package_model)
         self.package_view.selectionModel().selectionChanged.connect(
@@ -199,11 +219,19 @@ class QPackageDialog(QDialog):
         self.accepted.connect(self.on_save)
         self.finished.connect(self.on_close)
         self.rejected.connect(self.on_cancel)
+        package = self.package_model.package
+        if package.auto_coordinated and package.all_flights_waiting_for_start():
+            # Other packages may have moved since; also fills in the notes below.
+            self.package_model.update_tot()
         self.update_package_context()
 
     @property
     def game(self) -> Game:
         return self.game_model.game
+
+    def tot_is_typed(self) -> bool:
+        package = self.package_model.package
+        return not package.auto_asap and not package.auto_coordinated
 
     def tot_qtime(self) -> QTime:
         tot = self.package_model.package.time_over_target
@@ -234,7 +262,22 @@ class QPackageDialog(QDialog):
 
     def set_asap(self, checked: bool) -> None:
         self.package_model.set_asap(checked)
-        self.tot_spinner.setEnabled(not self.package_model.package.auto_asap)
+        self.sync_tot_mode()
+
+    def set_coordinated(self, checked: bool) -> None:
+        self.package_model.set_coordinated(checked)
+        self.sync_tot_mode()
+
+    def sync_tot_mode(self) -> None:
+        package = self.package_model.package
+        for box, checked in (
+            (self.auto_asap, package.auto_asap),
+            (self.auto_coordinated, package.auto_coordinated),
+        ):
+            box.blockSignals(True)
+            box.setChecked(checked)
+            box.blockSignals(False)
+        self.tot_spinner.setEnabled(self.tot_is_typed())
         self.update_tot()
 
     def update_tot(self) -> None:
@@ -349,6 +392,7 @@ class QPackageDialog(QDialog):
                 "No flights are assigned yet. Add flights manually or use Auto Create "
                 "to let the planner build a package for this target."
             )
+            self.tot_warnings.setVisible(False)
             return
 
         player_slots = sum(f.client_count for f in flights)
@@ -363,9 +407,7 @@ class QPackageDialog(QDialog):
             else "Unknown"
         )
         tot_text = package.time_over_target.strftime("%H:%M:%S")
-        timing_text = (
-            f"TOT: {tot_text} (ASAP)" if package.auto_asap else f"TOT: {tot_text}"
-        )
+        timing_text = f"TOT: {tot_text}{self.tot_mode_text()}"
 
         summary = [
             f"Primary task: {primary_task}",
@@ -377,6 +419,27 @@ class QPackageDialog(QDialog):
         if missing_pilots:
             summary.append(f"Missing pilots: {missing_pilots}")
         self.package_context.setText(" | ".join(summary))
+        plan = self.package_model.coordinated
+        warnings = (
+            plan.warnings if plan is not None and package.auto_coordinated else []
+        )
+        self.tot_warnings.setText("\n".join(f"Warning: {w}" for w in warnings))
+        self.tot_warnings.setVisible(bool(warnings))
+
+    def tot_mode_text(self) -> str:
+        package = self.package_model.package
+        if package.auto_asap:
+            return " (ASAP)"
+        if not package.auto_coordinated:
+            return ""
+        plan = self.package_model.coordinated
+        if plan is None or not plan.behind:
+            return " (Coordinated)"
+        lead = max(plan.behind, key=lambda p: p.time_over_target)
+        return (
+            f" (Coordinated, behind the {lead.package_description} on "
+            f"{lead.target.name} at {lead.time_over_target:%H:%M})"
+        )
 
     def on_reset_radio(self):
         self.package_model.package.frequency = None
@@ -424,7 +487,8 @@ class QNewPackageDialog(QPackageDialog):
         super().__init__(
             game_model,
             PackageModel(
-                Package(target, game_model.game.db.flights, auto_asap=True), game_model
+                Package(target, game_model.game.db.flights, auto_coordinated=True),
+                game_model,
             ),
             parent=parent,
         )

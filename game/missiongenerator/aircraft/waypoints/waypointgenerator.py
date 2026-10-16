@@ -71,6 +71,7 @@ class WaypointGenerator:
         settings: Settings,
         mission_data: MissionData,
         multiplayer: bool,
+        activation_by_script: bool = False,
     ) -> None:
         self.flight = flight
         self.group = group
@@ -82,6 +83,8 @@ class WaypointGenerator:
         # slots. A single-player mission spawns its lone player flight at the
         # planned start time regardless of never_delay_player_flights.
         self.multiplayer = multiplayer
+        #: An AI twin (§113) is late-activated by the aifill plugin, not a trigger.
+        self.activation_by_script = activation_by_script
         #: REFUEL waypoints create_waypoints left out of the mission. The caller
         #: needs them too: a REFUEL waypoint is a fuel source to the bingo
         #: estimator, so a dropped one must leave that list as well.
@@ -648,6 +651,8 @@ class WaypointGenerator:
         # until 09:10 when the overall mission start time is 09:00, with a join
         # time of 09:30 will show the join time as 00:30, not 09:30.
         self.group.late_activation = True
+        if self.activation_by_script:
+            return
 
         activation_trigger = TriggerOnce(
             Event.NoEvent, f"FlightLateActivationTrigger{self.group.id}"

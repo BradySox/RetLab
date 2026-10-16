@@ -51,7 +51,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   every theater tanker flies, and why the four-corner box was removed 2026-10-09; rows
   B152/B206)
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (§94; the `aiReactionExempt`
-  protocol any plugin setting reaction-on-threat must use)
+  protocol any plugin setting reaction-on-threat must use), `retlab-ai-fill-notes.md`
+  (§113; the AI twin of an empty player flight, row B234)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract
   and numbers), `retlab-iran-air-defense-pack-HANDOFF.md` (the private pack's local build)
 - **Neutral factions** — `retlab-neutral-border-defense-notes.md` (§98; why a true neutral
@@ -62,6 +63,7 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
   edited on the map, never by typed coordinates; rows B150/B151)
 - **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103, and §112 HQ requests),
+  `retlab-coordinated-tot-notes.md` (§114: a hand-planned package timed behind its SEAD),
   `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; read its
   guardrails first), `retlab-llm-opfor-notes.md` (§109: the outside AI that reads red's turn;
   the 2026-10-09 DM call that reversed "no LLM runs in this fork"), `retlab-falcon-bms-campaign-notes.md` (study),

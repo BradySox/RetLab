@@ -1,0 +1,14 @@
+date: 2026-10-16
+title: Hand-planned packages wait for their SEAD
+change: >-
+  A package you make from the map starts with Coordinated ticked instead of
+  ASAP. Its TOT is the earliest time all its flights can make, moved to 2 to
+  8 minutes after the SEAD or DEAD package hitting a SAM whose ring covers
+  the target. It is worked out again whenever you change the package and
+  when you press Take Off. With no such package, it flies ASAP and a red
+  line in the package window names the uncovered SAM. ASAP and a typed TOT
+  are still there.
+watch: >-
+  A strike planned on a target under a SAM with a SEAD package on that SAM
+  shows "behind the SEAD on" the site, and its TOT is a few minutes after
+  the SEAD package's.

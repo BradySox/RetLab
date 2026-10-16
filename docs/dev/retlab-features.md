@@ -10900,3 +10900,62 @@ off (`Game.__setstate__`). Built 2026-10-12, not flown (row B231).
 - Never a site `hidden_from(BLUE)`; difficulty counts only rings blue knows, overview ignored.
 - Motorpools are never requested: their vehicles are drawn afresh, so one never dies.
 - No prize, ticket or loan. RetLab's line is a record, never a reward (§96, §108).
+
+## §113 — AI fills empty player flights
+
+A player flight marked **AI fills if no player** (General tab) gets a late-activated AI copy of
+its player seats. If nobody is in any of those seats at the check time (5 minutes, setting), the
+coalition is told and the copy starts in the air over the home base at the planned takeoff and
+flies the same tasking. Settings on Mission Generation > Player slots: *AI fills empty player
+flights* (each box's starting value, off), *AI fill: check player seats after*, *AI fill:
+announce the takeover* (on). Brady's idea from his Northern Front 2003 campaign; built
+2026-10-16, not flown (row B234).
+
+**Design note:** [retlab-ai-fill-notes.md](design/retlab-ai-fill-notes.md).
+
+### Files
+
+- `game/retlab/ai_fill.py`: `offers_ai_fill`, `ai_fill_wanted`, `AiFillPair`,
+  `populate_ai_fill_lua`.
+- `game/missiongenerator/aircraft/aitwin.py`: `ai_twin_view`, `AiTwinSeat`, `copy_identity`.
+- `game/missiongenerator/aircraft/aircraftgenerator.py`: `_spawn_ai_twin`.
+- `game/missiongenerator/aircraft/waypoints/waypointgenerator.py`: `activation_by_script`.
+- `resources/plugins/aifill/aifill-config.lua`: the check and the launch, always on.
+- `qt_ui/windows/mission/flight/settings/QAiFillCheckbox.py`.
+- `tests/retlab/test_ai_fill.py`, `tests/lua/test_aifill_runtime.py`.
+
+### Constraints
+
+- The twin covers only the player seats. A part-player flight's AI wingmen fly in the client
+  group as they always did (Brady, 2026-10-16).
+- Air start at the takeoff time, never a runway start: a late-activated runway start lands on
+  a taxiway in multiplayer. Never a parking spawn: the twin would hold spots all mission.
+- `ai_twin_view` must put back everything it changes, the waypoint TOTs and fuel included:
+  the client flight's kneeboard reads them from the same waypoint objects.
+- The twin maps to the same pilots as the seats it replaces, so a loss lands on the roster.
+
+## §114 — Coordinated TOT
+
+A package made from the map times itself behind the SEAD or DEAD package hitting the SAM that
+covers its target: 2 to 8 minutes after it, the §69 window. With no such package, or a window
+it cannot make inside the mission, it flies ASAP and the package window says why. A third TOT
+mode beside ASAP and a typed TOT, ticked by default on a new package, worked out again on every
+change and at Take Off (Brady's choices, 2026-10-16). No setting. Built 2026-10-16, not flown
+(row B236).
+
+**Design note:** [retlab-coordinated-tot-notes.md](design/retlab-coordinated-tot-notes.md).
+
+### Files
+
+- `game/commander/coordinatedtot.py`: the window, the warnings, the Take Off pass.
+- `game/ato/package.py`: `auto_coordinated`; an old save loads with it off.
+- `game/sim/missionsimulation.py`: the Take Off pass runs before `settle_mission_start`.
+- `qt_ui/models.py`, `qt_ui/windows/mission/QPackageDialog.py`,
+  `qt_ui/windows/mission/QAutoCreateDialog.py`: the tick, the TOT line, the warning line.
+- `tests/commander/test_coordinated_tot.py`.
+
+### Constraints
+
+- Never earlier than ASAP. Only strike-class packages wait (Strike, BAI, OCA, CAS).
+- A site counts only if blue knows it, overview ignored (`fog_intact`). Red reads ground truth.
+- The Take Off pass times suppression packages first, so a strike waits for its SEAD's final TOT.

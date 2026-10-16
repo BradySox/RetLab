@@ -1,0 +1,99 @@
+"""AI fills an empty player flight (§113).
+
+A player flight marked "AI fills if no player" gets a late-activated AI copy of
+its player seats, the twin. The ``aifill`` plugin checks the player seats a few
+minutes in and, if nobody is in any of them, activates the twin at the planned
+takeoff time. Design note: docs/dev/design/retlab-ai-fill-notes.md.
+
+This module holds the rule (which flights may carry a twin) and the Lua record.
+The twin itself is built in ``game/missiongenerator/aircraft/aitwin.py``.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from game.ato.flighttype import FlightType
+
+if TYPE_CHECKING:
+    from game import Game
+    from game.ato import Flight
+    from game.missiongenerator.luagenerator import LuaData
+    from game.missiongenerator.missiondata import MissionData
+    from game.settings import Settings
+
+#: Tasks an AI copy cannot fly the way the players would: cargo and troop moves
+#: (CTLD is keyed to the client group), support orbits (a second tanker or AEW&C
+#: registration), and the player-only roles (photo recon, rescue, the C-130J EW
+#: suite).
+NO_AI_FILL_TASKS: frozenset[FlightType] = frozenset(
+    {
+        FlightType.TRANSPORT,
+        FlightType.AIR_ASSAULT,
+        FlightType.FERRY,
+        FlightType.AEWC,
+        FlightType.REFUELING,
+        FlightType.RECOVERY,
+        FlightType.TARPS,
+        FlightType.CSAR,
+        FlightType.JAMMING,
+    }
+)
+
+
+def offers_ai_fill(flight: Flight) -> bool:
+    """Whether the flight may carry an AI twin at all."""
+    return (
+        flight.client_count > 0
+        and flight.cargo is None
+        and flight.flight_type not in NO_AI_FILL_TASKS
+    )
+
+
+def ai_fill_wanted(flight: Flight, settings: Settings) -> bool:
+    """Whether the mission generator builds a twin for this flight.
+
+    The flight's own box wins; an untouched box follows the campaign setting.
+    """
+    if not offers_ai_fill(flight):
+        return False
+    choice = getattr(flight, "ai_fills_if_empty", None)
+    if choice is None:
+        return settings.ai_fills_empty_player_flights
+    return choice
+
+
+@dataclass(frozen=True)
+class AiFillPair:
+    """One client group and the AI twin that replaces it if nobody flies it."""
+
+    client_group: str
+    twin_group: str
+    #: "blue" or "red": whose players are counted.
+    coalition: str
+    #: Seconds after mission start the twin may launch: its planned takeoff.
+    activate_after: int
+    #: The coalition message when the twin launches.
+    message: str
+
+
+def populate_ai_fill_lua(
+    root: LuaData, game: Game, mission_data: MissionData | None = None
+) -> None:
+    """Build ``dcsRetribution.aiFill``; nothing when the mission has no twin."""
+    pairs = mission_data.ai_fill_pairs if mission_data else []
+    if not pairs:
+        return
+    node = root.add_item("aiFill")
+    delay = int(game.settings.ai_fill_check_delay.total_seconds())
+    node.add_key_value("checkDelay", str(delay))
+    node.add_key_value("announce", "true" if game.settings.ai_fill_announce else "")
+    pair_node = node.get_or_create_item("pairs")
+    for pair in pairs:
+        record = pair_node.add_item()
+        record.add_key_value("client", pair.client_group)
+        record.add_key_value("twin", pair.twin_group)
+        record.add_key_value("coalition", pair.coalition)
+        record.add_key_value("activateAfter", str(pair.activate_after))
+        record.add_key_value("message", pair.message)

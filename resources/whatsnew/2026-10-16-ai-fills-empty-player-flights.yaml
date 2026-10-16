@@ -1,0 +1,13 @@
+date: 2026-10-16
+title: AI fills an empty player flight
+change: >-
+  A player flight has an "AI fills if no player" box on its General tab.
+  If nobody takes any of its player seats 5 minutes into the mission, the
+  coalition is told and an AI copy of those seats starts in the air over the
+  home base at the planned takeoff time and flies the same tasking. The
+  Mission Generation page sets the check time, the announcement, and whether
+  new player flights start with the box ticked.
+watch: >-
+  Leave a ticked flight empty: the message shows 5 minutes in and an "AI"
+  group appears over its base at takeoff time. A flight with a player in it
+  never launches its copy.

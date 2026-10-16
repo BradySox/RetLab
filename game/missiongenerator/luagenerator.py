@@ -44,6 +44,7 @@ from .gpsjammingluadata import populate_gps_jamming_lua
 from .navalmagazineluadata import populate_naval_magazines_lua
 from .neutralborderluadata import populate_neutral_border_lua
 from .redscrambleluadata import populate_red_scramble_lua
+from game.retlab.ai_fill import populate_ai_fill_lua
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
@@ -486,6 +487,10 @@ class LuaGenerator:
         # the redscramble plugin builds the host's F10 menu and force-vectors the
         # cloned bandits onto blue fighters (a GM event tool -- untracked by design).
         populate_red_scramble_lua(lua_data, self.game, self.mission_data)
+
+        # AI fills an empty player flight (§113) -- emits dcsRetribution.aiFill only when a
+        # flight carries an AI twin; the aifill plugin launches a twin whose seats stay empty.
+        populate_ai_fill_lua(lua_data, self.game, self.mission_data)
 
         # Neutral-faction border defense (§98) -- emits dcsRetribution.neutralBorder
         # only when neutral_border_defense is on and the generator could build

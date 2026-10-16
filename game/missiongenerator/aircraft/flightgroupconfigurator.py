@@ -73,6 +73,7 @@ class FlightGroupConfigurator:
         dynamic_runways: dict[str, RunwayData],
         use_client: bool,
         livery_allocator: Optional[LiveryAllocator] = None,
+        activation_by_script: bool = False,
     ) -> None:
         self.flight = flight
         self.group = group
@@ -86,6 +87,7 @@ class FlightGroupConfigurator:
         self.dynamic_runways = dynamic_runways
         self.use_client = use_client
         self.livery_allocator = livery_allocator
+        self.activation_by_script = activation_by_script
 
     def configure(self) -> FlightData:
         flight_channel = self.setup_radios()
@@ -129,6 +131,7 @@ class FlightGroupConfigurator:
             self.game.settings,
             self.mission_data,
             self.use_client,
+            self.activation_by_script,
         )
         mission_start_time, waypoints = waypoint_generator.create_waypoints()
 
