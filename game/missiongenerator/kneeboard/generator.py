@@ -380,6 +380,13 @@ class KneeboardGenerator(MissionInfoGenerator):
         if (hq_request := brief_line(self.game, target)) is not None:
             lines.append(hq_request)
 
+        # §113: an optional flight says when the AI takes it.
+        if getattr(flight, "ai_fill", False):
+            minutes = int(self.game.settings.ai_fill_check_delay.total_seconds() // 60)
+            lines.append(
+                f"OPTIONAL  AI takes this flight if no seat is filled {minutes} min in"
+            )
+
         # Compact threat picture: the enemy's likely CAP fighters + the condensed
         # top live SAM systems ("SA-5 S-200 138nm · SA-11 Buk 27nm · ...").
         air = self._brief_air_threats(flight)

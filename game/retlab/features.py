@@ -927,6 +927,14 @@ FEATURES: tuple[Feature, ...] = (
         112,
         settings_fields=("hq_requests",),
     ),
+    Feature(
+        # Per-flight box; the settings are a default and two knobs, not a gate
+        # (game/retlab/ai_fill.py); docs/dev/design/retlab-ai-fill-notes.md.
+        "ai_fill",
+        "AI fills empty player flights",
+        113,
+        plugin_id="aifill",
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),
