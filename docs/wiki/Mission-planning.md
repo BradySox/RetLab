@@ -5,7 +5,7 @@ a shared time-over-target. This page covers how packages are built, how the plan
 them, and what every task type actually does — both when you fly it and when the AI does.
 
 For how RetLab plans the wider air war around your packages — QRA, BARCAP layering, support
-orbits, SEAD/DEAD reachability, and the IADS engine — see
+orbits, SEAD/DEAD, and the IADS engine — see
 [Air-Defense-and-the-Air-War](Air-Defense-and-the-Air-War).
 
 ## Packages and the auto-planner
@@ -230,14 +230,13 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 - **Package role:** Support (paired with a DEAD lead).
 - **Typical airframes:** HARM-capable types — the Viper's HTS and the Hornet are the usual SEAD
   platforms.
-- **TOT meaning:** Weapons/decoys at the IP, **TOT −3 min** ahead of the package, so
+- **TOT meaning:** Weapons/decoys at the IP, **TOT −1 min** ahead of the package, so
   suppression is established before the strikers arrive.
 - **Player technique:** Fire HARMs in **PB mode** so weapon TOT roughly aligns with package TOT
   even if the emitter is off. Stagger launches ~1 min apart; keep one HARM in flight near the
   site to hold suppression. With decoys the principle is identical — estimate the decoy's TOT.
 - **AI limitations:** AI may kill the emitter incidentally but won't reliably finish the site —
-  that's DEAD's job. In RetLab the AI SEAD can loiter near the target, react to emitters, and
-  break off on a computed timeline rather than making one inflexible pass.
+  that's DEAD's job. It flies one pass from the SEAD Search point and does not orbit there.
 - **IADS notes:** Sites shut radars down reactively, so HARMs are **less** likely to score
   emitter kills than against a dumb SAM. Plan SEAD as genuine suppression; let DEAD close the
   kill.
@@ -252,10 +251,9 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 - **Player technique:** Ingress while the radar is held down by SEAD; target launchers/TELs and
   command vehicles that ARMs won't kill.
 - **AI limitations:** Carries bombs/missiles rather than ARMs/decoys so it can destroy the
-  non-emitting parts. Without SEAD support against a live radar SAM, expect losses. RetLab's
-  planner will **not** send the follow-on strike through a belt the DEAD can't actually reach —
-  the strike is held until the SAM is genuinely down (DEAD reachability gate; see
-  [Air-Defense-and-the-Air-War](Air-Defense-and-the-Air-War)).
+  non-emitting parts. Without SEAD support against a live radar SAM, expect losses. A strike
+  whose target sits inside a SAM ring being suppressed is retimed to arrive just behind the
+  SEAD/DEAD (see [Air-Defense-and-the-Air-War](Air-Defense-and-the-Air-War)).
 - **IADS notes:** With emitters kept dark, the bomb/ATGM kill DEAD provides is often the *only*
   reliable way to remove the site — SEAD alone frequently won't.
 
@@ -457,7 +455,7 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 ## See also
 
 - [Air-Defense-and-the-Air-War](Air-Defense-and-the-Air-War) — how RetLab plans the air war
-  around your packages (QRA, BARCAP layering, support orbits, SEAD/DEAD reachability, IADS).
+  around your packages (QRA, BARCAP layering, support orbits, SEAD/DEAD, IADS).
 - [Fog-of-War-and-Reconnaissance](Fog-of-War-and-Reconnaissance) — recon fog, TARPS, and the
   overview reveal toggle.
 - [Combat-SAR](Combat-SAR) — the downed-pilot rescue.

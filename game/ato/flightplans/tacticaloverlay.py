@@ -115,23 +115,24 @@ def cap_overlay(
     )
 
 
-def loiter_overlay(
-    orbit_center: Point,
-    loiter_radius: Distance,
+def standoff_run_overlay(
+    path: list[Point],
     engagement_center: Point,
     engagement_range: Distance,
     target_position: Point,
 ) -> TacticalOverlay:
-    """Loiter-and-react overlay: an orbit ring at the standoff loiter point, a
-    filled engagement bubble, and the revealed target. Used by the SEAD family,
-    which orbits at standoff and engages air-defence radars reactively."""
+    """The SEAD family: the run it flies, a filled engagement bubble, the target.
+
+    No orbit ring: neither SEAD nor SEAD Sweep is given an orbit task. The ring was
+    upstream #772's loiter, which the 2026-08-09 planner re-convergence reverted.
+    """
     return TacticalOverlay(
         reach=[
             ReachShape(
                 geometry=reach_circle(engagement_center, engagement_range), filled=True
             )
         ],
-        actual_path=orbit_loop(orbit_center, loiter_radius),
+        actual_path=path,
         targets=[TacticalTarget(position=target_position)],
     )
 

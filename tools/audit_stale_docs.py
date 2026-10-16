@@ -478,6 +478,23 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(
+        # U7 of the planner re-convergence (#826). §69's SEAD window is the live
+        # replacement and words its own behaviour; only the gate's names go here.
+        "the DEAD reachability gate",
+        "2026-08-09",
+        r"reachability gate|DEAD reachability|dead_can_reach|unreachable_air_defenses",
+        allow=("removed", "Removed", "no longer", "historical", "reverted"),
+    ),
+    Removed(
+        # U39 of #826: upstream #772's loiter-and-react SEAD. Plain SEAD flies
+        # upstream's run again and has no orbit task.
+        "the loiter-and-react SEAD (upstream #772)",
+        "2026-08-09",
+        r"SEAD_LOITER|sead_loiter\w*|loitering SEAD"
+        r"|SEAD[^.]{0,40}loiter near the target|break off on a computed",
+        allow=("removed", "Removed", "no longer", "historical", "reverted"),
+    ),
+    Removed(
         "the third-party Iranian missile mods and their toggle",
         "2026-09-29",
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",

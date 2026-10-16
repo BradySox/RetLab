@@ -1902,6 +1902,13 @@ that code.
 ### Flight plans and routing
 
 - **A stand-off shooter flew past its own launch range and died at the target (2026-08-19).**
+- **The planner map drew plain SEAD and SEAD Sweep orbiting at their search point (2026-10-16).**
+  The orbit ring came from upstream #772's loiter-and-react SEAD, adopted 2026-06-18 and
+  reverted 2026-08-09 by the planner re-convergence (U39); the drawing survived the revert, and
+  neither flight has an orbit task. `standoff_run_overlay` draws the run instead (ingress,
+  search or sweep point, split) with the same reach circle. The same pass took the reverted
+  loiter, the -3 min SEAD offset and the deleted DEAD reachability gate (U7) off the wiki, and
+  added both removals to `tools/audit_stale_docs.py`.
 - **Escorts held at the IP while their stand-off shooters launched far outside it (2026-10-16).**
   Desert Trident turn 1: a Patriot DEAD's two escort flights held 7 NM from the Patriot while
   its Kh-59M shooters turned 62 NM out. `PackageWaypoints.escort_hold_point` puts the escort
