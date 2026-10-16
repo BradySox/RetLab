@@ -11,8 +11,7 @@ from .formationattack import (
 from .tacticaloverlay import (
     TacticalOverlay,
     TacticalOverlayDisplay,
-    loiter_overlay,
-    orbit_radius,
+    standoff_run_overlay,
 )
 from .uizonedisplay import UiZoneDisplay, UiZone
 from ..flightwaypoint import FlightWaypoint
@@ -31,7 +30,7 @@ class SeadSweepFlightPlan(
         return -timedelta(minutes=2)
 
     @property
-    def _loiter_anchor(self) -> FlightWaypoint:
+    def _sweep_point(self) -> FlightWaypoint:
         return self.layout.initial or self.tot_waypoint
 
     @property
@@ -41,14 +40,14 @@ class SeadSweepFlightPlan(
         )
 
     def tactical_overlay(self) -> TacticalOverlay:
-        # Sweep orbits at standoff but its EngageTargetsInZone bubble is centered
-        # on the target, so the orbit ring and the bubble sit in different places.
-        anchor = self._loiter_anchor
-        return loiter_overlay(
-            orbit_center=anchor.position,
-            loiter_radius=orbit_radius(
-                self.flight.unit_type.preferred_patrol_speed(anchor.alt)
-            ),
+        # Sweep flies to its sweep point, but its EngageTargetsInZone bubble is
+        # centered on the target, so the run and the bubble sit in different places.
+        return standoff_run_overlay(
+            path=[
+                self.layout.ingress.position,
+                self._sweep_point.position,
+                self.layout.split.position,
+            ],
             engagement_center=self.tot_waypoint.position,
             engagement_range=self._engagement_range,
             target_position=self.tot_waypoint.position,

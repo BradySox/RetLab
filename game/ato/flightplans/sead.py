@@ -12,8 +12,7 @@ from .formationattack import (
 from .tacticaloverlay import (
     TacticalOverlay,
     TacticalOverlayDisplay,
-    loiter_overlay,
-    orbit_radius,
+    standoff_run_overlay,
 )
 from .uizonedisplay import UiZone, UiZoneDisplay
 from ..flightwaypoint import FlightWaypoint
@@ -21,9 +20,8 @@ from ..flightwaypointtype import FlightWaypointType
 from ...settings.settings import TargetIntelPrecision
 from ...utils import nautical_miles
 
-# Plain SEAD reactively fires HARMs from its loiter anchor. The planner overlay shows a
-# fixed HARM-reach bubble rather than the user-tunable SEAD-sweep engagement range, so
-# the orbit is always drawn against a realistic engagement envelope.
+# Plain SEAD works from its SEAD Search point. The planner draws a fixed HARM-reach
+# bubble there rather than the user-tunable SEAD-sweep engagement range.
 SEAD_ENGAGEMENT_RANGE = nautical_miles(20)
 
 
@@ -36,30 +34,22 @@ class SeadFlightPlan(FormationAttackFlightPlan, UiZoneDisplay, TacticalOverlayDi
         return -timedelta(minutes=1)
 
     def ui_zone(self) -> UiZone:
-        # Centre the HARM-reach bubble on the loiter anchor (where the flight orbits and
-        # engages), falling back to the target if no anchor was planned.
-        anchor = self.layout.initial or self.tot_waypoint
-        return UiZone([anchor.position], SEAD_ENGAGEMENT_RANGE)
+        return UiZone([self._search_point.position], SEAD_ENGAGEMENT_RANGE)
 
     @property
-    def _loiter_anchor(self) -> FlightWaypoint:
-        # Standoff loiter point (the "SEAD Search" anchor); fall back to the
-        # target if the layout has no standoff anchor.
+    def _search_point(self) -> FlightWaypoint:
+        # The "SEAD Search" point; the target if the layout has none.
         return self.layout.initial or self.tot_waypoint
 
     def tactical_overlay(self) -> TacticalOverlay:
-        # SEAD loiters at standoff and reacts to radars near its own position, so
-        # both the orbit and the engagement bubble sit on the loiter anchor. The
-        # engagement bubble uses the fixed HARM-reach SEAD_ENGAGEMENT_RANGE (see
-        # the module comment) rather than the tunable sead-sweep range, matching
-        # the fork's ui_zone.
-        anchor = self._loiter_anchor
-        return loiter_overlay(
-            orbit_center=anchor.position,
-            loiter_radius=orbit_radius(
-                self.flight.unit_type.preferred_patrol_speed(anchor.alt)
-            ),
-            engagement_center=anchor.position,
+        search = self._search_point
+        return standoff_run_overlay(
+            path=[
+                self.layout.ingress.position,
+                search.position,
+                self.layout.split.position,
+            ],
+            engagement_center=search.position,
             engagement_range=SEAD_ENGAGEMENT_RANGE,
             target_position=self.tot_waypoint.position,
         )

@@ -95,23 +95,6 @@ No carrier, no capable jets, or no legal target ⇒ silent no-op. Blue-side only
 example is the COIN campaign `coin_enduring_resolve`. *(Engine-verified; awaiting its first
 flown campaign — checklist P2.)*
 
-## DEAD reachability gate
-
-The planner no longer sends strikers through a SAM belt it only *intends* to clear. When a
-strike is shielded behind a radar SAM, the planner schedules a DEAD against that SAM — but it
-only treats the SAM as removed (and releases the dependent strike) if the DEAD's **actual
-routed flight plan** can reach the site without crossing **another** live radar-SAM ring.
-
-- If the DEAD can't range past the belt, the SAM stays modelled as alive, and the strike that
-  depends on it stays **deferred until real battle-damage confirms the kill on a later turn** —
-  rather than bombers being tasked into defences that are still up and then turned around by
-  threat-reaction ROE without dropping anything.
-- A close SAM whose DEAD route is clear is still cleared the same turn, so legitimate
-  same-turn SEAD-escort-then-strike sequences are unaffected.
-
-Practically: deep strikes wait for the belt to be genuinely peeled, layer by layer, instead of
-flying optimistically into live rings.
-
 ## Mobile SAMs hidden from the MFD
 
 Mobile short-range defences are kept **off player datalinks** so the SEAD/DEAD picture shows the
@@ -128,13 +111,13 @@ single fuzzed target-area waypoint per mobile SAM rather than a precise steerpoi
 launcher — visual acquisition matters. See [Mission-planning](Mission-planning) for the SEAD/DEAD
 task detail.
 
-## Reactive, loitering SEAD
+## SEAD
 
-The fork's AI SEAD can **loiter near the target, react to emitters, and break off on a computed
-timeline**, instead of making a single inflexible pass and leaving. Combined with reactive radar
-shutdown from the IADS engine (below), this means SEAD is best planned as genuine *suppression*
-that holds the radar down while DEAD closes the kill — not as a reliable emitter-killer on its
-own.
+AI SEAD flies upstream's run: its attack tasks start at the ingress and it works from the SEAD
+Search point short of the site. It does not orbit there. The planner map draws that run and a
+20 NM HARM-reach circle on the search point. Combined with reactive radar shutdown from the IADS
+engine (below), SEAD is best planned as genuine *suppression* that holds the radar down while
+DEAD closes the kill, not as a reliable emitter-killer on its own.
 
 ## Auto-planner unpredictability (doctrine knob)
 
