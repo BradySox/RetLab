@@ -928,6 +928,14 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("hq_requests",),
     ),
     Feature(
+        # Per-flight box; the settings are a default and two knobs, not a gate
+        # (game/retlab/ai_fill.py); docs/dev/design/retlab-ai-fill-notes.md.
+        "ai_fill",
+        "AI fills empty player flights",
+        113,
+        plugin_id="aifill",
+    ),
+    Feature(
         # The package window's third TOT mode, no setting (game/commander/coordinatedtot.py);
         # docs/dev/design/retlab-coordinated-tot-notes.md.
         "coordinated_tot",

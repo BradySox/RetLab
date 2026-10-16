@@ -5,6 +5,7 @@ from game.ato.flight import Flight
 from game.ato.flightmember import apply_default_player_laser_code
 from qt_ui.models import PackageModel, GameModel
 from qt_ui.windows.mission.flight.payload.QFlightPayloadTab import QFlightPayloadTab
+from qt_ui.windows.mission.flight.settings.QAiFillCheckbox import QAiFillCheckbox
 from qt_ui.windows.mission.flight.settings.FlightPlanPropertiesGroup import (
     FlightPlanPropertiesGroup,
 )
@@ -52,6 +53,9 @@ class QGeneralFlightSettingsTab(QFrame):
 
         roster = self.flight_slot_editor.roster_editor
         roster.pilots_changed.connect(start_type.on_pilot_selected)
+        ai_fill = QAiFillCheckbox(flight)
+        roster.pilots_changed.connect(ai_fill.refresh)
+        self.flight_slot_editor.flight_resized.connect(ai_fill.refresh)
 
         widgets = [
             QFlightTypeTaskInfo(flight),
@@ -61,6 +65,7 @@ class QGeneralFlightSettingsTab(QFrame):
             ),
             self.flight_slot_editor,
             start_type,
+            ai_fill,
             QFlightCustomName(flight),
         ]
 

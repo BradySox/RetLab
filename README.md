@@ -103,6 +103,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 
 - QRA intercept reserve holds fighters for base defence. Part of it can be player-manned as
   cold alert.
+- A player flight can be marked **AI fills if no player**. If nobody takes its seats in the
+  first 5 minutes, an AI copy of them starts in the air at the planned takeoff time and flies
+  the same tasking, so a package keeps its shape however many people show up.
 - A package you make from the map is **Coordinated** by default: its TOT is the earliest time
   all its flights can make, moved to 2 to 8 minutes after the SEAD or DEAD package hitting a
   SAM whose ring covers the target. It is worked out again on every change and at Take Off.

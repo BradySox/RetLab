@@ -1,0 +1,1 @@
+* **[Mission Generation]** A player flight can be marked "AI fills if no player" on its General tab. If nobody takes its player seats in the first 5 minutes, an AI copy of those seats starts in the air at the planned takeoff time and flies the same tasking. A setting ticks the box on every player flight by default.

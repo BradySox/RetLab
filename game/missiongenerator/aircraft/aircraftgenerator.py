@@ -44,6 +44,7 @@ from game.squadrons.intercept_reserve import (
 )
 from game.radio.radios import RadioRegistry
 from game.radio.tacan import TacanRegistry
+from game.retlab.ai_fill import AiFillPair, ai_fill_wanted
 from game.runways import RunwayData
 from game.settings import Settings
 from game.theater.controlpoint import (
@@ -53,6 +54,7 @@ from game.theater.controlpoint import (
 )
 from game.unitmap import UnitMap
 from .aircraftpainter import AircraftPainter
+from .aitwin import ai_twin_view, copy_identity, player_units, twin_group_name
 from .liveryallocator import LiveryAllocator
 from .flightdata import FlightData
 from .flightgroupconfigurator import FlightGroupConfigurator
@@ -178,6 +180,8 @@ class AircraftGenerator:
                         flight, country, dynamic_runways
                     )
                     self.unit_map.add_aircraft(group, flight)
+                    if ai_fill_wanted(flight, self.settings):
+                        self._spawn_ai_twin(flight, country, dynamic_runways, group)
                     spawned_flights.append(flight)
             if (
                 package.primary_flight is not None
@@ -558,6 +562,68 @@ class AircraftGenerator:
             self.setup_internal_datalink_network(group)
 
         return group
+
+    def _spawn_ai_twin(
+        self,
+        flight: Flight,
+        country: Country,
+        dynamic_runways: Dict[str, RunwayData],
+        client_group: FlyingGroup[Any],
+    ) -> None:
+        """Build the late-activated AI copy of the flight's player seats (§113).
+
+        The aifill plugin activates it if nobody takes a player seat. It is not
+        on the kneeboard, and its aircraft map to the same pilots as the seats it
+        replaces, so a loss lands on whoever was rostered.
+        """
+        client_data = self.flights[-1]
+        client_units = player_units(flight, client_group)
+        with ai_twin_view(flight, self.time):
+            twin = FlightGroupSpawner(
+                flight,
+                country,
+                self.mission,
+                self.helipads,
+                self.ground_spawns_roadbase,
+                self.ground_spawns_large,
+                self.ground_spawns,
+                self.mission_data,
+            ).create_flight_group(twin_group_name(str(client_group.name)))
+            copy_identity(client_units, twin)
+            twin_data = FlightGroupConfigurator(
+                flight,
+                twin,
+                self.game,
+                self.mission,
+                self.time,
+                self.radio_registry,
+                self.tacan_registy,
+                self.datalink_registry,
+                self.mission_data,
+                dynamic_runways,
+                self.use_client,
+                self.livery_allocator,
+                activation_by_script=True,
+            ).configure()
+            twin.late_activation = True
+            twin.set_frequency(client_data.intra_flight_channel.mhz)
+            if flight.unit_type.dcs_unit_type.networked_datalink:
+                self.setup_internal_datalink_network(twin)
+            self.unit_map.add_aircraft(twin, flight)
+
+        client_data.ai_fill = True
+        self.mission_data.ai_fill_pairs.append(
+            AiFillPair(
+                client_group=str(client_group.name),
+                twin_group=str(twin.name),
+                coalition="blue" if flight.blue.is_blue else "red",
+                activate_after=max(0, int(twin_data.departure_delay.total_seconds())),
+                message=(
+                    f"{client_data.callsign} has no players. AI flies its tasking "
+                    f"({len(twin.units)} x {flight.unit_type.display_name})."
+                ),
+            )
+        )
 
     @staticmethod
     def setup_internal_datalink_network(group: FlyingGroup[Any]) -> None:
