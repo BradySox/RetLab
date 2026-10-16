@@ -1902,6 +1902,14 @@ that code.
 ### Flight plans and routing
 
 - **A stand-off shooter flew past its own launch range and died at the target (2026-08-19).**
+- **Escorts held at the IP while their stand-off shooters launched far outside it (2026-10-16).**
+  Desert Trident turn 1: a Patriot DEAD's two escort flights held 7 NM from the Patriot while
+  its Kh-59M shooters turned 62 NM out. `PackageWaypoints.escort_hold_point` puts the escort
+  hold at the shortest launch range among the flights of the package's primary task, capped
+  at the ingress. Escorts' own weapons do not count (a SEAD escort's HARM says nothing about
+  where bombers release), and one attacker with no ranged weapon keeps the IP. It matters for a
+  player escort's route and for an escort whose primary never flies, which holds its anchor
+  (the test 36 entry below). Tests: `tests/ato/test_escort_hold_standoff.py`.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**
 - Flight-combat-exit `IndexError`: `game/ato/flightstate/inflight.py` guards in

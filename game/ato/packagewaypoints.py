@@ -159,3 +159,35 @@ class PackageWaypoints:
         dist = nautical_miles(random.random() * 2 + 7).meters
         initial_point = tgt_point.point_from_heading(hdg, dist)
         return initial_point
+
+    @staticmethod
+    def escort_hold_point(package: Package) -> Point:
+        """Where the package's escorts anchor: the IP, or the shooters' launch range.
+
+        A stand-off shooter starts its run at its own launch range (see
+        standoff_doctrine), not at the 7-9 nm IP. Holding the escorts at the IP put
+        a Patriot DEAD's escorts 7 nm from the Patriot while its Kh-59M shooters
+        turned 62 nm out (Desert Trident turn 1, 2026-10-16).
+
+        Only the package's attackers count: a SEAD escort's ARM says nothing about
+        where bombers release, and one attacker with no ranged weapon flies to the
+        target, so its escorts keep the IP.
+        """
+        waypoints = package.waypoints
+        assert waypoints is not None
+        target = package.target.position
+        ip_distance = waypoints.initial.distance_to_point(target)
+        ranges = [
+            f.max_standoff_range
+            for f in package.flights
+            if f.flight_type is package.primary_task
+        ]
+        if not ranges or any(r is None for r in ranges):
+            return waypoints.initial
+        launch = min(r.meters for r in ranges if r is not None)
+        if launch <= ip_distance:
+            return waypoints.initial
+        ingress_distance = waypoints.ingress.distance_to_point(target)
+        hold_distance = max(ip_distance, min(launch, ingress_distance))
+        heading = target.heading_between_point(waypoints.ingress)
+        return target.point_from_heading(heading, hold_distance)
