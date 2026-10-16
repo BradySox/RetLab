@@ -125,5 +125,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §111 | Sector war | — | `front_line_battles_along_border`, `sector_war` |
 | §112 | HQ requests | — | `hq_requests` |
 | §113 | AI fills empty player flights | `aifill` | — |
+| §114 | Coordinated TOT | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

@@ -6,6 +6,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING
 
+from game.commander.coordinatedtot import retime_coordinated_packages
 from game.debriefing import Debriefing
 from game.retlab.mission_archive import archive_mission
 from game.missiongenerator import MissionGenerator
@@ -39,6 +40,8 @@ class MissionSimulation:
         self.miz_generated_at: float = 0.0
 
     def begin_simulation(self) -> None:
+        # Before the start settles: a Coordinated TOT moves its flights' startups.
+        retime_coordinated_packages(self.game)
         self.time = settle_mission_start(self.game)
         self.aircraft_simulation.begin_simulation(self.time)
 

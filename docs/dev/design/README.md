@@ -63,6 +63,7 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
   edited on the map, never by typed coordinates; rows B150/B151)
 - **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103, and §112 HQ requests),
+  `retlab-coordinated-tot-notes.md` (§114: a hand-planned package timed behind its SEAD),
   `retlab-planner-doctrine-mining-notes.md` (how we teach the scripted planner; read its
   guardrails first), `retlab-llm-opfor-notes.md` (§109: the outside AI that reads red's turn;
   the 2026-10-09 DM call that reversed "no LLM runs in this fork"), `retlab-falcon-bms-campaign-notes.md` (study),

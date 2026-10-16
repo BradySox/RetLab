@@ -344,6 +344,7 @@ linked design note.
 111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 113. **AI fills empty player flights** — an AI copy launches when nobody takes a flight's player seats.
+114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
 
 ### Retired, removed or shelved — do not restore
 

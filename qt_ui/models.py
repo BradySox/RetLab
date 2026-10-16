@@ -17,6 +17,7 @@ from game.ato.airtaaskingorder import AirTaskingOrder
 from game.ato.flight import Flight
 from game.ato.flighttype import FlightType
 from game.ato.package import Package
+from game.commander.coordinatedtot import CoordinatedTot, apply_tot_mode
 from game.dcs.beacons import Beacons
 from game.game import Game
 from game.radio.RadioFrequencyContainer import RadioFrequencyContainer
@@ -126,6 +127,8 @@ class PackageModel(QAbstractListModel):
         super().__init__()
         self.package = package
         self.game_model = game_model
+        #: The last Coordinated TOT worked out, for the window's notes.
+        self.coordinated: Optional[CoordinatedTot] = None
         self.game_model.sim_controller.sim_update.connect(self.on_sim_update)
 
     def rowCount(self, parent: QModelIndex = QModelIndex()) -> int:
@@ -204,14 +207,32 @@ class PackageModel(QAbstractListModel):
     def set_asap(self, asap: bool) -> None:
         with self.game_model.sim_controller.paused_sim():
             self.package.auto_asap = asap
+            if asap:
+                self.package.auto_coordinated = False
+            self.update_tot()
+
+    def set_coordinated(self, coordinated: bool) -> None:
+        with self.game_model.sim_controller.paused_sim():
+            self.package.auto_coordinated = coordinated
+            if coordinated:
+                self.package.auto_asap = False
             self.update_tot()
 
     def update_tot(self) -> None:
         with self.game_model.sim_controller.paused_sim():
-            if self.package.auto_asap:
-                self.package.set_tot_asap(
-                    self.game_model.sim_controller.current_time_in_sim
-                )
+            # A package still in its New Package window is not in the ATO yet.
+            flights = self.package.flights
+            coalition = flights[0].coalition if flights else None
+            self.coordinated = apply_tot_mode(
+                self.package,
+                coalition.ato.packages if coalition is not None else [],
+                self.game_model.sim_controller.current_time_in_sim,
+                (
+                    coalition.game.settings.desired_player_mission_duration
+                    if coalition is not None
+                    else datetime.timedelta()
+                ),
+            )
             self.tot_changed.emit()
             # For some reason this is needed to make the UI update quickly.
             self.layoutChanged.emit()

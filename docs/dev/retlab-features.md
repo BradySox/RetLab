@@ -10932,3 +10932,29 @@ announce the takeover* (on). Brady's idea from his Northern Front 2003 campaign;
 - `ai_twin_view` must put back everything it changes, the waypoint TOTs and fuel included:
   the client flight's kneeboard reads them from the same waypoint objects.
 - The twin maps to the same pilots as the seats it replaces, so a loss lands on the roster.
+
+## §114 — Coordinated TOT
+
+A package made from the map times itself behind the SEAD or DEAD package hitting the SAM that
+covers its target: 2 to 8 minutes after it, the §69 window. With no such package, or a window
+it cannot make inside the mission, it flies ASAP and the package window says why. A third TOT
+mode beside ASAP and a typed TOT, ticked by default on a new package, worked out again on every
+change and at Take Off (Brady's choices, 2026-10-16). No setting. Built 2026-10-16, not flown
+(row B236).
+
+**Design note:** [retlab-coordinated-tot-notes.md](design/retlab-coordinated-tot-notes.md).
+
+### Files
+
+- `game/commander/coordinatedtot.py`: the window, the warnings, the Take Off pass.
+- `game/ato/package.py`: `auto_coordinated`; an old save loads with it off.
+- `game/sim/missionsimulation.py`: the Take Off pass runs before `settle_mission_start`.
+- `qt_ui/models.py`, `qt_ui/windows/mission/QPackageDialog.py`,
+  `qt_ui/windows/mission/QAutoCreateDialog.py`: the tick, the TOT line, the warning line.
+- `tests/commander/test_coordinated_tot.py`.
+
+### Constraints
+
+- Never earlier than ASAP. Only strike-class packages wait (Strike, BAI, OCA, CAS).
+- A site counts only if blue knows it, overview ignored (`fog_intact`). Red reads ground truth.
+- The Take Off pass times suppression packages first, so a strike waits for its SEAD's final TOT.
