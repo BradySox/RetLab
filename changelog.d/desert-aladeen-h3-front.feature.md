@@ -1,0 +1,1 @@
+* **[Campaigns]** New Iraq campaign, Desert Aladeen: The H-3 Front. A rebuild of Starfire's Desert Aladeen with the sides reversed: blue fights east from the three H-3 strips against a red that holds Baghdad and the rest of Iraq, with a north-west target set. Ships two stock-DCS factions, USA 2012 and Republic of Wadiya 1991.
