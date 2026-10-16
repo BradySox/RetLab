@@ -255,6 +255,9 @@ class QAutoCreateDialog(QDialog):
                 package = pff.plan_mission(pm, 1, now, tracer, ignore_range=True)
                 if package:
                     package.set_tot_asap(now)
+                    # Keep the TOT mode ticked in the package window.
+                    package.auto_asap = self.package.auto_asap
+                    package.auto_coordinated = self.package.auto_coordinated
                     self.package = package
                     self.package_model.package = package
                 else:

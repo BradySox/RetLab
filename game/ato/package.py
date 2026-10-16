@@ -4,7 +4,7 @@ import logging
 from collections import defaultdict
 from copy import deepcopy
 from datetime import datetime
-from typing import Dict, Optional, TYPE_CHECKING
+from typing import Any, Dict, Optional, TYPE_CHECKING
 
 from game.db import Database
 from game.utils import Speed
@@ -31,6 +31,7 @@ class Package(RadioFrequencyContainer):
         auto_asap: bool = False,
         custom_name: str | None = None,
         frequency: RadioFrequency | None = None,
+        auto_coordinated: bool = False,
     ) -> None:
         self.target = target
         self._db = db
@@ -41,6 +42,9 @@ class Package(RadioFrequencyContainer):
         # change. This is really a UI property rather than a game property, but we want
         # it to persist in the save.
         self.auto_asap = auto_asap
+        # §114: re-time behind the SEAD covering the target on every change and at
+        # Take Off. The player's own setting, like auto_asap; never both.
+        self.auto_coordinated = auto_coordinated
         self.flights: list[Flight] = []
 
         # Desired TOT as an offset from mission start. Obviously datetime.min is bogus,
@@ -49,6 +53,10 @@ class Package(RadioFrequencyContainer):
         # the old behavior?
         self.time_over_target: datetime = datetime.min
         self.waypoints: PackageWaypoints | None = None
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state.setdefault("auto_coordinated", False)
+        self.__dict__.update(state)
 
     @property
     def has_players(self) -> bool:
@@ -283,7 +291,12 @@ class Package(RadioFrequencyContainer):
 
     @staticmethod
     def clone_package(package: Package) -> Package:
-        clone = Package(package.target, package._db, package.auto_asap)
+        clone = Package(
+            package.target,
+            package._db,
+            package.auto_asap,
+            auto_coordinated=package.auto_coordinated,
+        )
         clone.time_over_target = deepcopy(package.time_over_target)
         for f in package.flights:
             cf = Flight.clone_flight(f)

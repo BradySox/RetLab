@@ -343,6 +343,7 @@ linked design note.
 109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
 111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
+114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
 
 ### Retired, removed or shelved — do not restore
 

@@ -124,5 +124,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §110 | Ballistic missile call-for-fire _(retired)_ | — | — |
 | §111 | Sector war | — | `front_line_battles_along_border`, `sector_war` |
 | §112 | HQ requests | — | `hq_requests` |
+| §114 | Coordinated TOT | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

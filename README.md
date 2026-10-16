@@ -103,6 +103,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 
 - QRA intercept reserve holds fighters for base defence. Part of it can be player-manned as
   cold alert.
+- A package you make from the map is **Coordinated** by default: its TOT is the earliest time
+  all its flights can make, moved to 2 to 8 minutes after the SEAD or DEAD package hitting a
+  SAM whose ring covers the target. It is worked out again on every change and at Take Off.
+  With no such package, it flies ASAP and the package window names the uncovered SAM. ASAP
+  and a typed TOT are still there.
 - A package flies the leg from the join to the ingress at one speed, so escorts stay with
   the strikers they are escorting instead of running ahead. Cruise speed is set per airframe
   where one has been measured rather than assumed the same for every jet; the F/A-18C is the

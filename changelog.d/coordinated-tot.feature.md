@@ -1,0 +1,1 @@
+* **[Flight Planner]** A package made from the map is Coordinated by default: its TOT moves to 2 to 8 minutes after the SEAD or DEAD package hitting a SAM that covers its target, and is worked out again at Take Off. With no such package it flies ASAP and the package window names the uncovered SAM.
