@@ -1,0 +1,1 @@
+* **[Flight Planning]** An escort on a stand-off package holds where its shooters launch, not 7 to 9 NM from the target. A Patriot DEAD's escorts held 7 NM from the Patriot while its Kh-59M shooters launched 62 NM out.
