@@ -114,6 +114,9 @@ class FlightData:
     #: The working area the map draws for this flight (CAS, SEAD...), if any.
     work_zone: Optional[UiZone] = None
 
+    #: Player seats an AI twin replaces if nobody takes them (§113).
+    ai_fill: bool = False
+
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])
 

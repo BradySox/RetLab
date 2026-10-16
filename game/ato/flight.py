@@ -150,6 +150,9 @@ class Flight(
         self.refuel_before_push = False
         # Minutes on the boom at that stop; None uses 4 a jet plus 1.
         self.tanking_minutes: Optional[int] = None
+        # Launch an AI copy of the player seats when nobody takes them (§113). None
+        # follows the "AI fills empty player flights" setting.
+        self.ai_fills_if_empty: Optional[bool] = None
         # RetLab (§43): seed a genuinely fresh player-side flight's fuel + cockpit
         # properties (condition/wear/spawn/...) from the per-aircraft "save as
         # default" store. Only when roster is None -- a brand-new flight, never a
@@ -347,6 +350,8 @@ class Flight(
             state["refuel_before_push"] = False
         if "tanking_minutes" not in state:
             state["tanking_minutes"] = None
+        if "ai_fills_if_empty" not in state:
+            state["ai_fills_if_empty"] = None
         # The box was a per-flight choice until every theater tanker flew one.
         state.pop("tanker_box", None)
         self.__dict__.update(state)

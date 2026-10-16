@@ -88,7 +88,7 @@ class FlightGroupSpawner:
         self.ground_spawns = ground_spawns
         self.mission_data = mission_data
 
-    def create_flight_group(self) -> FlyingGroup[Any]:
+    def create_flight_group(self, name: Optional[str] = None) -> FlyingGroup[Any]:
         """Creates the group for the flight and adds it to the mission.
 
         Each flight is spawned according to its FlightState at the time of mission
@@ -114,9 +114,9 @@ class FlightGroupSpawner:
                 self.flight.state.is_waiting_for_start
                 or self.flight.state.spawn_type is not StartType.IN_FLIGHT
             ):
-                grp = self.generate_flight_at_departure()
+                grp = self.generate_flight_at_departure(name)
             else:
-                grp = self.generate_mid_mission()
+                grp = self.generate_mid_mission(name)
         finally:
             # Pull the role callsign back out of the shared country pool now that
             # pydcs has stamped it onto THIS group. Left in, next_callsign_category()
@@ -248,8 +248,11 @@ class FlightGroupSpawner:
     def start_type(self) -> StartType:
         return self.flight.state.spawn_type
 
-    def generate_flight_at_departure(self) -> FlyingGroup[Any]:
-        name = namegen.next_aircraft_name(self.country, self.flight)
+    def generate_flight_at_departure(
+        self, name: Optional[str] = None
+    ) -> FlyingGroup[Any]:
+        if name is None:
+            name = namegen.next_aircraft_name(self.country, self.flight)
         cp = self.flight.departure
         try:
             if self.start_type is StartType.IN_FLIGHT:
@@ -396,9 +399,10 @@ class FlightGroupSpawner:
             group = self._generate_over_departure(name, cp)
             return group
 
-    def generate_mid_mission(self) -> FlyingGroup[Any]:
+    def generate_mid_mission(self, name: Optional[str] = None) -> FlyingGroup[Any]:
         assert isinstance(self.flight.state, InFlight)
-        name = namegen.next_aircraft_name(self.country, self.flight)
+        if name is None:
+            name = namegen.next_aircraft_name(self.country, self.flight)
         speed = self.flight.state.estimate_speed()
         pos = self.flight.state.estimate_position()
         pos += Vector2(random.randint(100, 1000), random.randint(100, 1000))

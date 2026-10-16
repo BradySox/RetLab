@@ -103,6 +103,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 
 - QRA intercept reserve holds fighters for base defence. Part of it can be player-manned as
   cold alert.
+- A player flight can be marked **AI fills if no player**. If nobody takes its seats in the
+  first 5 minutes, an AI copy of them starts in the air at the planned takeoff time and flies
+  the same tasking, so a package keeps its shape however many people show up.
 - A package flies the leg from the join to the ingress at one speed, so escorts stay with
   the strikers they are escorting instead of running ahead. Cruise speed is set per airframe
   where one has been measured rather than assumed the same for every jet; the F/A-18C is the

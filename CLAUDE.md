@@ -256,7 +256,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -343,6 +343,7 @@ linked design note.
 109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
 111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
+113. **AI fills empty player flights** — an AI copy launches when nobody takes a flight's player seats.
 
 ### Retired, removed or shelved — do not restore
 

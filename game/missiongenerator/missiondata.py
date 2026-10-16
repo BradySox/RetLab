@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from game.radio.radios import RadioFrequency
     from game.radio.tacan import TacanChannel
+    from game.retlab.ai_fill import AiFillPair
     from game.theater.player import Player
     from game.utils import Distance
     from uuid import UUID
@@ -197,3 +198,5 @@ class MissionData:
     #: Theater unit name -> the DCS name it was generated under, for units the
     #: generator renamed (a carrier flagship takes its hull name, §65).
     renamed_units: dict[str, str] = field(default_factory=dict)
+    #: Player flights with an AI twin waiting to replace them (§113).
+    ai_fill_pairs: list[AiFillPair] = field(default_factory=list)

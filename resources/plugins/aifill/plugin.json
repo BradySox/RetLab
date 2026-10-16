@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "AI fills empty player flights",
+    "descriptionInUI": "Launches the AI copy of a player flight marked \"AI fills if no player\" when nobody takes its seats. Mission Generation > Player slots holds the check time and the announcement.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "aifill-config.lua",
+            "mnemonic": "aifill-config"
+        }
+    ]
+}

@@ -220,6 +220,42 @@ class MissionGeneratorSettings:
             "takeoff). Should not be used if players have runway or in-air starts."
         ),
     )
+    ai_fills_empty_player_flights: bool = boolean_option(
+        "AI fills empty player flights",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            'The starting value of each player flight\'s "AI fills if no player" '
+            "box. When nobody takes any of a flight's player seats, an AI copy of "
+            "those seats starts in the air over the home base at the planned "
+            "takeoff time and flies the same tasking. A flight's own box overrides "
+            "this."
+        ),
+    )
+    ai_fill_check_delay: timedelta = minutes_option(
+        "AI fill: check player seats after",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=timedelta(minutes=5),
+        min=1,
+        max=30,
+        detail=(
+            "Minutes after mission start that the mission checks a flight marked "
+            '"AI fills if no player" for players. The AI copy launches only if '
+            "nobody is in any of its seats by then."
+        ),
+    )
+    ai_fill_announce: bool = boolean_option(
+        "AI fill: announce the takeover",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "Shows the coalition a 20-second message when AI takes over an empty "
+            "player flight."
+        ),
+    )
     untasked_opfor_client_slots: bool = boolean_option(
         "Convert untasked OPFOR aircraft into client slots",
         page=MISSION_GENERATOR_PAGE,
