@@ -593,8 +593,9 @@ Ours only ever widens. That is a planner-behaviour call, not data — decide it 
 - A jammer goes dark with its power station (would need §86 sites as IADS nodes), and
   his generator rule — a Patriot EPP-III keeps the battery alive through a grid cut. Our
   §85 support sections already field the power units; the IADS does not read them.
-- His Skynet fork (3.3.0 base: HARM fixes, mobile SAMs, package-based culling) against
-  our `baron-branch` build of 16.05.2023. Both carry the HDS units. Not assessed.
+- His Skynet fork (`juanjux/Skynet-IADS`, Apache-2.0) was assessed 2026-10-16. Its fixes
+  were taken into our file by hand, not the build; what was taken and skipped is in
+  `retlab-skynet-return-notes.md`, "Fixes from Juan's fork".
 
 ### Adopted here 2026-09-22 — My aircraft and saved points (§102)
 
