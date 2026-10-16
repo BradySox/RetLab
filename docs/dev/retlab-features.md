@@ -4369,7 +4369,8 @@ All unit data was read from the **installed mod's own Database lua files** (laun
 - **Factions**: modern Russia/redfor get S-400 + V4 + Pantsir-SM + Nebo EWRs; russia_1980 gets the S-300PT;
   france_2005 gets SAMP/T; 70s-80s Middle-East/NK reds get SA-7/7b and Vietnam-era + Cold-War reds the
   P-37 Bar Lock (which also closes the
-  "red faction has zero EWR units" blind-net gap for 16 period factions); insurgents get the ERO
+  "red faction has zero EWR units" blind-net gap for 16 period factions; under Skynet its
+  entry sat outside `searchRadar` and it reported nothing until 2026-10-16); insurgents get the ERO
   technicals.
 - **Skynet profiles (since 2026-09-12)**: the S-400 / S-300V4 / SAMP/T / Pantsir-SM `samTypesDB` entries
   ride in the vendored compiled build, taken from upstream #956 (our #851 work). Under the 2026-06 to

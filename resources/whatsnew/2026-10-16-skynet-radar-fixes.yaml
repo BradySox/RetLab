@@ -1,0 +1,11 @@
+date: 2026-10-16
+title: Skynet knows more radars and hides better from HARMs
+change: >-
+  The air defense network now uses the P-37, Nebo and FPS-117 early-warning
+  radars, which used to report nothing. CurrentHill Patriot, Pantsir-S2 and
+  Tor M2K sites, the Swedish LvS-103 and RBS systems and the IRIS-T SLM join
+  the network instead of radiating from mission start. More sites go dark
+  when a HARM is inbound.
+watch: >-
+  A Patriot, Pantsir-S2 or Tor M2K site stays dark until a target is in
+  range. A site that shut down for a HARM comes back up and fires again.

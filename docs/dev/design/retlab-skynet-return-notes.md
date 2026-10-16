@@ -52,7 +52,8 @@ Upstream's compiled Skynet has not changed since our removal (last real edit 202
 ## 4. The compiled build — three layers
 
 1. **Upstream's vendored Skynet** (baron-branch, build 2023-05-16), with Retribution's own
-   hand-added units (P-37 in the S-200 profile, the HDS SA-10B block). Adding `samTypesDB`
+   hand-added units (P-37 in the S-200 profile, which sat outside its `searchRadar` block
+   until 2026-10-16, the HDS SA-10B block). Adding `samTypesDB`
    entries here is the accepted pattern.
 2. **The HDSUC profiles from #956**: S-400, S-300V4, SAMP/T, Pantsir-SM, and the renamed
    SA-10B radars. This is our #851 work as upstream will ship it, so the fork converges on
@@ -62,12 +63,45 @@ Upstream's compiled Skynet has not changed since our removal (last real edit 202
    Tor-M2, Patriot (CH), NASAMS 3, THAAD, HQ-22, Sky Sabre and the rest. That fork is walder's
    Skynet plus these data files and nothing else (2 commits ahead, 0 behind, 2025-07). Its
    `sampack_s300` file is **not** taken: it overlaps the #956 profiles and would override the
-   SA-10 block. 14 of its 64 unit ids name units no fork faction fields (the Germany pack and
-   newer US-pack Patriots); an unmatched profile is inert.
+   SA-10 block. 14 of its 64 unit ids matched nothing because they lacked the mod's `CH_`
+   prefix (12 US Patriot units, Pantsir-S2, Tor M2K). This note said those were unfielded;
+   they were fielded, and fixed 2026-10-16 (below).
 
 Plus two fork lines. **`isExist()` in `getDetectedTargets` (2026-09-22):** upstream skips a nil `target.object`, but a crashed aircraft's wreck stays a radar target that is non-nil and gone. Its `getTypeName` raised `Static doesn't exist` and aborted `evaluateContacts` every cycle, 174 times on test 38. Upstream Skynet has the same line; `tests/lua/test_skynet_engine.py` pins the guard, row G43 owns the fly. And `P14_SR` in the S-200 search-radar block, because the two SA-5 Legacy
-Site layouts pair the S-200 with a Tall King. Coverage audit 2026-09-12: of the 151 unit ids
-the anti-air layouts and preset groups field, every radar id is in the database.
+Site layouts pair the S-200 with a Tall King. The coverage audit of 2026-09-12 read the
+anti-air layouts and preset groups only and missed every radar a faction fields by class.
+`tests/lua/test_skynet_unit_coverage.py` now checks every fielded radar against the database.
+
+### Fixes from Juan's fork (2026-10-16)
+
+Compared with `juanjux/Skynet-IADS` (Apache-2.0): stock Skynet 3.3.0 with baron-branch's
+ActMobile and HDS profiles put back, plus a day of fixes (2026-09-07). Taken here as edits to
+our file, each with a `RetLab:` comment. Harness: `test_skynet_engine.py`. Row B235.
+
+| Fix | From |
+|---|---|
+| `CH_` prefix on 12 US Patriot ids, Pantsir-S2, Tor M2K | Juan |
+| FPS-117 and FPS-117 Dome EWRs | Skynet 3.3.0 |
+| P-37 moved into the S-200 `searchRadar` block; 1L119 Nebo-SVU and 55G6U Nebo-U EWRs | ours (found by the coverage test) |
+| LvS-103, RBS 70, RBS 98, IRIS-T SLM under `CHAP_` ids | Juan; RBS 90 ours |
+| HARM detection rolls for every radar that sees the HARM (the evaluated list aliased the contact's own) | Skynet 3.3.0 |
+| A zero-speed contact skips only itself in the HARM scan, instead of `return` | Juan |
+| A site going dark for a HARM turns its AI off; `goLive` turns it on (DCS multiplayer) | Skynet 3.3.0 |
+| `relocateNow` turns the AI on before the route push | ours: with the line above, a mobile site hiding from a HARM never drove |
+| `getTypeName` reads the category through `pcall(Object.getCategory, ...)` | walder PR #105, via Juan |
+| `isAirborneContact`: a bomb is no longer read as a ship (C-RAM) | walder #107, via Juan |
+
+Not taken:
+
+- **The F10 menu scoped to its own coalition** (#88). Our menu is a testing tool for every
+  player; scoped, a blue tester could not read RED's network.
+- **His performance pass** (event dispatch, contact index, ammo and position snapshots). Our
+  freeze profile measured Skynet at 2.2 s of Lua against MOOSE's 16.6 s, and he lists the
+  event dispatch as untested in DCS.
+- **SA-20 with a Tin Shield** (#94): no layout of ours pairs them.
+- **His whole build:** it lacks our wreck guard, `P14_SR` and the Iran pack.
+- **Iron Dome and David's Sling** (`israel_2017`) have no Skynet profile in either build; the
+  coverage test lists the ELM-2084 as a known gap.
 
 ## 5. The config bridge — upstream's plus three additions
 

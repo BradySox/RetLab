@@ -21,12 +21,13 @@ samTypesDB = {
 					['NATO'] = 'Tall King',
 				},
 			},
+			-- RetLab: Retribution's entry sat outside searchRadar, so no P-37 was ever a radar.
+			['EWR P-37 BAR LOCK'] = {
+				['name'] = {
+					['NATO'] = 'Bar Lock',
+				},
+			},
 		},
-        ['EWR P-37 BAR LOCK'] = {
-            ['Name'] = {
-              ['NATO'] = "Bar lock",
-            },
-        },
         ['trackingRadar'] = {
             ['RPC_5N62V'] = {
             },
@@ -449,6 +450,30 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},
+	-- RetLab: the two newer Nebo radars the Russia-modern factions field; without an entry
+	-- Skynet added them as EWRs that reported nothing.
+	['1L119 EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['EWR 1L119 Nebo-SVU'] = {
+				['name'] = {
+					['NATO'] = 'Box Spring',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
+	['55G6U EWR'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['EWR 55G6U NEBO-U'] = {
+				['name'] = {
+					['NATO'] = 'Tall Rack',
+				},
+			},
+		},
+		['harm_detection_chance'] = 60
+	},
 	-- RetLab Iran Air Defense Pack
 	['Matla ul-Fajr'] = {
 		['type'] = 'ewr',
@@ -480,6 +505,29 @@ samTypesDB = {
 		},
 
 		['harm_detection_chance'] = 60
+	},
+-- RetLab: the FPS-117 entries from Skynet 3.3.0; without them an FPS-117 EWR reported nothing.
+	['FPS-117 Dome'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['FPS-117 Dome'] = {
+				['name'] = {
+					['NATO'] = 'FPS-117 Dome',
+				},
+			},
+		},
+		['harm_detection_chance'] = 80
+	},
+	['FPS-117'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['FPS-117'] = {
+				['name'] = {
+					['NATO'] = 'FPS-117',
+				},
+			},
+		},
+		['harm_detection_chance'] = 80
 	},
 }
 end
@@ -1066,11 +1114,11 @@ samTypesDB['Pantsir-S1'] = {
 samTypesDB['Pantsir-S2'] = {
 	['type'] = 'single',
 	['searchRadar'] = {
-		['PantsirS2'] = {
+		['CH_PantsirS2'] = {
 		},
 	},
 	['launchers'] = {
-		['PantsirS2'] = {
+		['CH_PantsirS2'] = {
 		},
 	},
 	['name'] = {
@@ -1102,11 +1150,11 @@ samTypesDB['Tor-M2'] = {
 samTypesDB['Tor-M2K'] = {
 	['type'] = 'single',
 	['searchRadar'] = {
-		['TorM2K'] = {
+		['CH_TorM2K'] = {
 		},
 	},
 	['launchers'] = {
-		['TorM2K'] = {
+		['CH_TorM2K'] = {
 		},
 	},
 	['name'] = {
@@ -1242,53 +1290,53 @@ samTypesDB['LAV_AD'] = {
 samTypesDB['MIM-104_US'] = {
 	['type'] = 'complex',
 	['searchRadar'] = {
-		['MIM104_ANMPQ65'] = {
+		['CH_MIM104_ANMPQ65'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
-		['MIM104_ANMPQ65_HEMTT'] = {
+		['CH_MIM104_ANMPQ65_HEMTT'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
-		['MIM104_ANMPQ65A'] = {
+		['CH_MIM104_ANMPQ65A'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
-		['MIM104_ANMPQ65A_HEMTT'] = {
+		['CH_MIM104_ANMPQ65A_HEMTT'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
-		['MIM104_LTAMDS'] = {
+		['CH_MIM104_LTAMDS'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
-		['MIM104_LTAMDS_HEMTT'] = {
+		['CH_MIM104_LTAMDS_HEMTT'] = {
 			['name'] = {
 				['NATO'] = 'Fire Finder',
 			},
 		},
 	},
 	['misc'] = {
-		['MIM104_ECS'] = {
+		['CH_MIM104_ECS'] = {
 			['required'] = true,
 		},
-		['MIM104_EPP'] = {
+		['CH_MIM104_EPP'] = {
 			['required'] = true,
 		},
 	},
 	['launchers'] = {
-		['MIM104_M903_PAC2'] = {
+		['CH_MIM104_M903_PAC2'] = {
 		},
-		['MIM104_M903_PAC2_HEMTT'] = {
+		['CH_MIM104_M903_PAC2_HEMTT'] = {
 		},
-		['MIM104_M903_PAC3'] = {
+		['CH_MIM104_M903_PAC3'] = {
 		},
-		['MIM104_M903_PAC3_HEMTT'] = {
+		['CH_MIM104_M903_PAC3_HEMTT'] = {
 		},
 		
 	},
@@ -1739,6 +1787,108 @@ samTypesDB['THAAD'] = {
 --[[
 
 --]]
+
+-- RetLab: the Swedish CurrentHill systems, from juanjux/Skynet-IADS (Apache-2.0), plus the
+-- RBS 90 on the same UndE 23 radar. The RBS 70/90 missiles ride a laser beam and the RBS 98
+-- is IR, so no RBS entry can engage a HARM.
+samTypesDB['LvS-103'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_LvS-103_PM103'] = {
+		},
+		['CH_LvS-103_PM103_HX'] = {
+		},
+	},
+	['trackingRadar'] = {
+		['CH_LvS-103_StriE103'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_LvS-103_Lavett103_Rb103A'] = {
+		},
+		['CH_LvS-103_Lavett103_Rb103B'] = {
+		},
+		['CH_LvS-103_Lavett103_HX_Rb103A'] = {
+		},
+		['CH_LvS-103_Lavett103_HX_Rb103B'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'LvS-103'
+	},
+	['harm_detection_chance'] = 79,
+	['can_engage_harm'] = true
+}
+
+samTypesDB['RBS 70'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_UndE23'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_RBS-70'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'RBS 70'
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = false
+}
+
+samTypesDB['RBS 90'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_UndE23'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_RBS-90'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'RBS 90'
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = false
+}
+
+samTypesDB['RBS 98'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CH_UndE23'] = {
+		},
+	},
+	['launchers'] = {
+		['CH_RBS-98'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'RBS 98'
+	},
+	['harm_detection_chance'] = 22,
+	['can_engage_harm'] = false
+}
+
+-- RetLab: the IRIS-T SLM under the CHAP_ unit ids blufor_current's group fields, from
+-- juanjux/Skynet-IADS. The 'IRIS-T SML' entry above only knows the CH_ ids.
+samTypesDB['IRIS-T SLM CHAP'] = {
+	['type'] = 'complex',
+	['searchRadar'] = {
+		['CHAP_IRISTSLM_STR'] = {
+		},
+	},
+	['launchers'] = {
+		['CHAP_IRISTSLM_LN'] = {
+		},
+	},
+	['name']  = {
+		['NATO'] = 'IRIS-T SLM'
+	},
+	['harm_detection_chance'] = 79,
+	['can_engage_harm'] = true
+}
 
 end
 
@@ -2382,6 +2532,26 @@ function SkynetIADS:getCommandCenters()
 	return self.commandCenters
 end
 
+-- RetLab: from juanjux/Skynet-IADS (walder/Skynet-IADS#107). Weapon and unit categories
+-- collide: Weapon.Category.BOMB is 3, the same as Unit.Category.SHIP, so reading every
+-- contact as a unit dropped bombs as ships and a C-RAM never woke for one.
+function SkynetIADS.isAirborneContact(contact)
+	local description = contact:getDesc()
+	if description == nil or description.category == nil then
+		return false
+	end
+	local category = description.category
+	local object = contact:getDCSRepresentation()
+	if object ~= nil then
+		local ok, objectCategory = pcall(Object.getCategory, object)
+		if ok and objectCategory == Object.Category.WEAPON then
+			return category ~= Weapon.Category.SHELL
+		end
+	end
+	return category ~= Unit.Category.GROUND_UNIT
+		and category ~= Unit.Category.SHIP
+		and category ~= Unit.Category.STRUCTURE
+end
 
 function SkynetIADS.evaluateContacts(self)
 
@@ -2441,9 +2611,7 @@ function SkynetIADS.evaluateContacts(self)
 			local contact = self.contacts[j]
 			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
 			-- currently every type of object in the air is handed of to the SAM site, including missiles
-			local description = contact:getDesc()
-			local category = description.category
-			if category and category ~= Unit.Category.GROUND_UNIT and category ~= Unit.Category.SHIP and category ~= Unit.Category.STRUCTURE then
+			if SkynetIADS.isAirborneContact(contact) then
 				samToTrigger:informOfContact(contact)
 			end
 		end
@@ -3600,6 +3768,8 @@ function SkynetIADSAbstractRadarElement:goLive()
 	then
 		if self:isDestroyed() == false then
 			local  cont = self:getController()
+			-- RetLab: Skynet 3.3.0 turns the AI off while hiding from a HARM (goDark); back on here.
+			cont:setOnOff(true)
 			cont:setOption(AI.Option.Ground.id.ALARM_STATE, AI.Option.Ground.val.ALARM_STATE.RED)
 			cont:setOption(AI.Option.Air.id.ROE, AI.Option.Air.val.ROE.WEAPON_FREE)
 			self:getDCSRepresentation():enableEmission(true)
@@ -3632,6 +3802,11 @@ function SkynetIADSAbstractRadarElement:goDark()
 		-- point defence will only go live if the Radar Emitting site it is protecting goes dark and this is due to a it defending against a HARM
 		if (self.harmSilenceID ~= nil) then
 			self:pointDefencesGoLive()
+			if self:isDestroyed() == false then
+				-- RetLab: from Skynet 3.3.0. In DCS multiplayer a HARM still finds a radar whose
+				-- emission is merely off, so the site's AI goes off too until goLive.
+				self:getController():setOnOff(false)
+			end
 		end
 		self.aiState = false
 		self:stopScanningForHARMs()
@@ -4106,9 +4281,14 @@ function SkynetIADSContact:getTypeName()
 	if self:isIdentifiedAsHARM() then
 		return SkynetIADSContact.HARM
 	end
-	local category = self:getDCSRepresentation():getCategory()
-	if category == Object.Category.UNIT then
-		return self.typeName
+	-- RetLab: getCategory raises on an object that exists but is destroyed (walder/Skynet-IADS
+	-- PR #105); a raise here aborted the whole contact cycle (test 38). pcall answers UNKNOWN.
+	local representation = self:getDCSRepresentation()
+	if representation ~= nil then
+		local ok, category = pcall(Object.getCategory, representation)
+		if ok and category == Object.Category.UNIT then
+			return self.typeName
+		end
 	end
 	return "UNKNOWN"
 end
@@ -4625,6 +4805,9 @@ function SkynetIADSSamSite:relocateNow(newSiteZone)
 	local mistZone = {}
 	mistZone.point = self.mobileSiteZone.point
 	mistZone.radius = 1 --move dead center
+	-- RetLab: a site hiding from a HARM has its AI off (goDark), and a group with its AI off
+	-- does not drive. The radar stays dark: emission off, alarm state green.
+	self:getController():setOnOff(true)
 	mist.groupToRandomZone(self:getDCSRepresentation(), mistZone, formation, nil, 80, ignoreRoads)
 
 	--have mobile point defences follow, if possible
@@ -4905,39 +5088,38 @@ function SkynetIADSHARMDetection:evaluateContacts()
 	for i = 1, #self.contacts do
 		local contact = self.contacts[i]
 		local groundSpeed  = contact:getGroundSpeedInKnots(0)
-		--if a contact has only been hit by a radar once it's speed is 0
-		if groundSpeed == 0 then
-			return
-		end
-		local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
-		local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
-		--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
-		--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
-		if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
-			local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
-			--self.iads:printOutputToLog("DETECTION PROB: "..detectionProbability)
-			if ( self:shallReactToHARM(detectionProbability) ) then
-				contact:setHARMState(SkynetIADSContact.HARM)
-				if (self.iads:getDebugSettings().harmDefence ) then
-					self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
-				end
-			else
-				contact:setHARMState(SkynetIADSContact.NOT_HARM)
-				if (self.iads:getDebugSettings().harmDefence ) then
-					self.iads:printOutputToLog("HARM NOT IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+		-- RetLab: a first sighting has no speed yet; skip it, not the rest of the scan (juanjux/Skynet-IADS).
+		if groundSpeed ~= 0 then
+			local simpleAltitudeProfile = contact:getSimpleAltitudeProfile()
+			local newRadarsToEvaluate = self:getNewRadarsThatHaveDetectedContact(contact)
+			--self.iads:printOutputToLog(contact:getName().." new Radars to evaluate: "..#newRadarsToEvaluate)
+			--self.iads:printOutputToLog(contact:getName().." ground speed: "..groundSpeed)
+			if ( #newRadarsToEvaluate > 0 and contact:isIdentifiedAsHARM() == false and ( groundSpeed > SkynetIADSHARMDetection.HARM_THRESHOLD_SPEED_KTS and #simpleAltitudeProfile <= 2 ) ) then
+				local detectionProbability = self:getDetectionProbability(newRadarsToEvaluate)
+				--self.iads:printOutputToLog("DETECTION PROB: "..detectionProbability)
+				if ( self:shallReactToHARM(detectionProbability) ) then
+					contact:setHARMState(SkynetIADSContact.HARM)
+					if (self.iads:getDebugSettings().harmDefence ) then
+						self.iads:printOutputToLog("HARM IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+					end
+				else
+					contact:setHARMState(SkynetIADSContact.NOT_HARM)
+					if (self.iads:getDebugSettings().harmDefence ) then
+						self.iads:printOutputToLog("HARM NOT IDENTIFIED: "..contact:getTypeName().." | DETECTION PROBABILITY WAS: "..detectionProbability.."%")
+					end
 				end
 			end
-		end
 
-		if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
-			contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
-			if (self.iads:getDebugSettings().harmDefence ) then
-				self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
+			if ( #simpleAltitudeProfile > 2 and contact:isIdentifiedAsHARM() ) then
+				contact:setHARMState(SkynetIADSContact.HARM_UNKNOWN)
+				if (self.iads:getDebugSettings().harmDefence ) then
+					self.iads:printOutputToLog("CORRECTING HARM STATE: CONTACT IS NOT A HARM: "..contact:getName())
+				end
 			end
-		end
 
-		if ( contact:isIdentifiedAsHARM() ) then
-			self:informRadarsOfHARM(contact)
+			if ( contact:isIdentifiedAsHARM() ) then
+				self:informRadarsOfHARM(contact)
+			end
 		end
 	end
 end
@@ -4952,32 +5134,34 @@ function SkynetIADSHARMDetection:cleanAgedContacts()
 	self.contactRadarsEvaluated = activeContactRadars
 end
 
+-- RetLab: Skynet 3.3.0's version. The old one stored the contact's own radar list as the
+-- evaluated list, so a radar that saw the HARM later never rolled its detection chance.
 function SkynetIADSHARMDetection:getNewRadarsThatHaveDetectedContact(contact)
-	local newRadars = contact:getAbstractRadarElementsDetected()
-	local radars = self.contactRadarsEvaluated[contact]
-	if radars then
-		newRadars = {}
-		local contactRadars = contact:getAbstractRadarElementsDetected()
-		for i = 1, #contactRadars do
-			local contactRadar = contactRadars[i]
-			local newRadar = self:isElementInTable(radars, contactRadar)
-			if newRadar ~= nil then
-				table.insert(newRadars, newRadar)
-			end
+	local radarsFromContact = contact:getAbstractRadarElementsDetected()
+	local evaluatedRadars = self.contactRadarsEvaluated[contact]
+	local newRadars = {}
+	if evaluatedRadars == nil then
+		evaluatedRadars = {}
+		self.contactRadarsEvaluated[contact] = evaluatedRadars
+	end
+	for i = 1, #radarsFromContact do
+		local contactRadar = radarsFromContact[i]
+		if self:isElementInTable(evaluatedRadars, contactRadar) == false then
+			table.insert(evaluatedRadars, contactRadar)
+			table.insert(newRadars, contactRadar)
 		end
 	end
-	self.contactRadarsEvaluated[contact] = contact:getAbstractRadarElementsDetected()
 	return newRadars
 end
 
 function SkynetIADSHARMDetection:isElementInTable(tbl, element)
 	for i = 1, #tbl do
-		tblElement = tbl[i]
+		local tblElement = tbl[i]
 		if tblElement == element then
-			return nil
+			return true
 		end
 	end
-	return element
+	return false
 end
 
 function SkynetIADSHARMDetection:informRadarsOfHARM(contact)
