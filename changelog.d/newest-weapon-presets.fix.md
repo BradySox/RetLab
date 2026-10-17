@@ -1,0 +1,1 @@
+* **[Loadouts]** Shipped loadouts carry the newest variant of their missiles where the pylon takes it: AIM-9M or AIM-9X for AIM-9L, AIM-7M for AIM-7E-2 and AIM-7F, Maverick K for G, R-27ER for R-27R, Shrike B for A. With Restrict weapons by campaign date on, an early campaign steps them back down. 169 pylons on 17 aircraft, most of them on the F-4E.
