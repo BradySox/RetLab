@@ -187,9 +187,6 @@ settings:
   # frontline_reserves_factor); the code default is 130 but that never applied under the saved 70.
   # NEEDS the Haina depot in the miz to exceed 15, and a NEW game to take effect.
   frontline_reserves_factor_red: 85
-  # §50 convoy escort/ambush -- friendly NATO supply convoys run the rear roads up to the
-  # Fulda front and concealed Spetsnaz/recon-team ambushes dig in along the route; fly
-  # CAS/BAI escort or the column is ground down. The rear isn't a safe road.
   # Civilian air traffic stays ON (squadron call 2026-07-12, reversing the first M1
   # tuning cut): a neutral IL-76 at FL230 DID die to a deep player Phoenix shot in M1
   # (an airliner profile is indistinguishable from a Soviet transport on an AWG-9),

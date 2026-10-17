@@ -178,7 +178,7 @@ first, marked "(Recommended)", each with its trade-off.
 | Fact | Detail |
 |---|---|
 | Fork feature layer | `game/retlab/` — turn-model features, hooked from `finish_turn` / `initialize_turn` / `plan_missions` |
-| Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts) · `JAMMING` (C-130J standoff EW) · `ESCORT_JAMMER` · `CSAR` (upstream #929's rescue) |
+| Custom flight types | `TARPS` (photo-recon; finds hidden enemy command posts) · `JAMMING` (C-130J standoff EW) · `CSAR` (upstream #929's rescue) |
 | Squadron script stack | separate repo: `tyfoultz/414th-Joint-Fighter-Group`, `bradys-changes` branch |
 
 The tech stack, CI gates, release rules and the **removed, do not restore** table are in

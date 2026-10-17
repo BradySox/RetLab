@@ -5449,7 +5449,9 @@ directly.
   to share, since `plan_groundwar` has no tests on this base), capped by `motorpool_spawn_cap`
   (largest-remainder proportional trim). Multiple motorpools on one CP round-robin the **single** shared
   reserve pool (never each render it in full, which would double-decrement `base.armor` on a strike). The
-  populated groups are **ephemeral** — never persisted; rebuilt every mission.
+  populated groups and `motorpool_projection_keys` are a **persisted cache** on the TGO, reconciled
+  on every `populate()`: an unchanged reserve keeps the same groups and unit ids. A flight plan aimed
+  at a depot keeps its hand edits at Take Off; only its unit snapshot is swapped (#1205).
 - **Rendering** — `MotorpoolGenerator` (`game/missiongenerator/motorpoolgenerator.py`, a
   `GroundObjectGenerator` subclass) lays the vehicles in a grid (so DCS doesn't drop overlapping spawns),
   **weapon-hold + alarm-green + `player_can_drive=False` + no EPLRS** (parked, unmanned, no datalink),
@@ -5564,8 +5566,8 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
   2026-10-11) so a depot's owner does not change on the first load. A depot used to stay
   with whoever owned it at New Game.
   Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
-  marker left the campaign and de-duplicates a save that listed one twice. Generated groups
-  are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
+  marker left the campaign and de-duplicates a save that listed one twice. A load re-homes
+  depots only; it does not repopulate them.
   - **Fork interaction:** it runs after `_ensure_motorpool_tgos` and after New Game's
     `generate_motorpools` (which both bind through the loader's blue-preference and
     stranded-marker rules) and overrides that owner with the nearest land CP. The loader's binding still decides which side's warning fires.

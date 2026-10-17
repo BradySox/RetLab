@@ -78,8 +78,7 @@ class LuaGenerator:
         # fields many separate ones -- observed on Red Tide, where the
         # vietnamops/commsjam config loads never executed while
         # adjacent, byte-identically-wired plugin loads did. Bundling into a
-        # single trigger (the same shape the reliable late-init pass uses) keeps
-        # any one config from being dropped.
+        # single trigger keeps any one config from being dropped.
         self._deferred_plugin_loads: list[DoScriptFile] = []
 
     def iads_dcs_name(self, node: IadsNode) -> str:
@@ -710,9 +709,9 @@ class LuaGenerator:
     def flush_deferred_plugin_scripts(self) -> None:
         """Emit every deferred plugin-config load in a single TriggerStart.
 
-        Collapsing the per-plugin config loads into one trigger -- the shape the
-        reliable late-init pass already uses -- stops DCS from silently dropping
-        any one of them at a heavy mission start (see ``_deferred_plugin_loads``).
+        Collapsing the per-plugin config loads into one trigger stops DCS from
+        silently dropping any one of them at a heavy mission start (see
+        ``_deferred_plugin_loads``).
         Order is preserved: actions run in the order they were queued, which is
         the plugins' registration order.
         """

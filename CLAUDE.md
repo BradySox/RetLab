@@ -360,7 +360,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 21 | Combat SAR (fork implementation) | Removed 2026-08-07 — replaced by upstream #929 (an open PR), re-adopted by hand phase by phase; read `retlab-csar-notes.md` before touching the hover height. The King is hand-fragged only |
 | 25 | Compact 3–4 page kneeboard deck | Retired 2026-07-05 |
 | 30 | Dedicated kneeboard cover page | Retired 2026-07-13 — new info folds into a stock page |
-| 31 | One-page Brief Sheet | Retired 2026-07-13 — BLUF and code words survived |
+| 31 | One-page Brief Sheet | Retired 2026-07-13 — BLUF survived |
 | 40 | Campaign phases, ROE zones, target release | Removed 2026-07-21 |
 | 46 | Route-aware fuel-tank planning (fuel-first) | Reverted 2026-08-09 — nothing fits tanks; the external-fuel accounting helpers survive for the readouts. Tanker tasking has fork additions since (§6, §8) |
 | 48 | Commitment ceiling and the political-will economy | Removed 2026-07-21 |

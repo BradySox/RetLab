@@ -1,7 +1,7 @@
 # Lua Plugins
 
 Retribution plans and spawns a mission in Python, but the **runtime behavior** inside the
-generated `.miz` — electronic warfare, frontline firefights, combat-SAR
+generated `.miz` — electronic warfare, the Skynet IADS, combat-SAR
 rescues — is driven by **Lua plugins** injected into the mission. This page explains
 how the plugin system works, the fork's hand-injected plugins, the Lua discipline the CI
 gate enforces, and lists the notable RetLab plugins.

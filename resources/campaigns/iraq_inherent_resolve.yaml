@@ -68,10 +68,6 @@ settings:
   # Predators/Reapers ride the air-to-ground packages and laze from inside the fight.
   # The ratline west toward Tal Afar / Syria (real, tracked convoys).
   vietnam_convoy_interdiction: true
-  # §50 convoy escort/ambush -- the mirror of interdiction: your OWN supply convoys run
-  # Highway 1 and concealed IS ambush teams dig in along the route (peak "ambush alley");
-  # fly CAS/BAI escort or the column is ground down before it arrives. The spring is
-  # authored as native DCS trigger rules at generation, so there is no plugin to preseed.
   # The insurgent faction's ERO ZU-23 technicals are HDS Ultimate Compilation content --
   # they resolve only with the mod on (and drop silently without it, so a mod-less
   # install still plays).
