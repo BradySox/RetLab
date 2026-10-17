@@ -200,6 +200,26 @@ def test_a_site_hidden_on_the_map_is_never_requested() -> None:
     assert _names(game) == []
 
 
+def test_the_saved_why_line_ignores_the_fog_reveal(monkeypatch: Any) -> None:
+    from game.retlab import hq_priorities
+    from game.theater import fogofwar
+
+    seen: list[bool] = []
+
+    def why(tgo: Any, game: Any, viewer: Player) -> str:
+        seen.append(fogofwar.fog_revealed())
+        return "why"
+
+    monkeypatch.setattr(hq_priorities, "why_it_matters", why)
+    game, _ = _game_with_targets()
+    fogofwar.set_fog_revealed(True)
+    try:
+        _refresh(game)
+    finally:
+        fogofwar.set_fog_revealed(False)
+    assert seen and not any(seen)
+
+
 def test_motorpools_and_friendly_targets_are_never_requested() -> None:
     game = FakeGame()
     FakeTgo(game.enemy, "Pool", x_nm=10.0, category="motorpool")

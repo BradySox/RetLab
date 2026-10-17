@@ -220,8 +220,11 @@ def _pick(tier: Sequence[Any], game: Game, rng: random.Random) -> Any:
 
 def _why(tgo: Any, game: Game) -> str:
     from game.retlab.hq_priorities import why_it_matters
+    from game.theater.fogofwar import fog_intact
 
-    return why_it_matters(tgo, game, Player.BLUE) or ""
+    # Saved on the request: a host's fog reveal at turn end must not bake in.
+    with fog_intact():
+        return why_it_matters(tgo, game, Player.BLUE) or ""
 
 
 def refresh(game: Game, rng: Optional[random.Random] = None) -> None:
