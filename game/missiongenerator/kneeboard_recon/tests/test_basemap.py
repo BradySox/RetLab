@@ -9,6 +9,13 @@ from unittest.mock import patch
 import pytest
 from PIL import Image
 from dcs.terrain.caucasus.caucasus import Caucasus
+from dcs.terrain import (
+    GermanyColdWar,
+    MarianaIslandsWWII,
+    PersianGulf,
+    Sinai,
+    TheChannel,
+)
 from dcs.terrain.iraq import Iraq
 
 from game.missiongenerator.kneeboard_recon import basemap
@@ -535,3 +542,16 @@ def test_theater_basemap_draws_the_land_borders(iraq: Iraq) -> None:
     img = basemap.render_theater_basemap(extent, 400, 400)
     colours = {img.getpixel((x, y)) for x in range(400) for y in range(400)}
     assert basemap._BORDER_RGB in colours
+
+
+@pytest.mark.parametrize(
+    "terrain_cls",
+    [Sinai, MarianaIslandsWWII, PersianGulf, TheChannel, GermanyColdWar],
+)
+def test_every_terrain_finds_its_landmap(terrain_cls: type) -> None:
+    """pydcs names some terrains differently from their theater folder.
+
+    Sinai ("SinaiMap") and Marianas WWII matched no folder, so their page had
+    no water.
+    """
+    assert basemap._landmap_path_for_terrain(terrain_cls()) is not None

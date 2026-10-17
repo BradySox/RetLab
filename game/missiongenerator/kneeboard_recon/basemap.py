@@ -144,6 +144,11 @@ _BORDER_RGB_DARK = (200, 140, 200)
 #: outer edge is drawn as land.
 _FOOTPRINT_CLOSE_M = 4_000.0
 
+#: Open sea from the border file narrower than twice this is dropped: the
+#: files' clip edge is simplified, and the gap it leaves under the hull runs
+#: about 20 km thick along Iraq's northern frame.
+_OPEN_SEA_MIN_M = 15_000.0
+
 _sea_cache: "OrderedDict[str, tuple[Any, ...]]" = OrderedDict()
 _sea_cache_lock = threading.Lock()
 
@@ -539,6 +544,18 @@ def _draw_landmap_only(
     return img
 
 
+def _pydcs_name(theater_dir: Path) -> Optional[str]:
+    """The ``pydcs_name`` a theater's info.yaml declares, or None."""
+    import yaml
+
+    try:
+        data = yaml.safe_load((theater_dir / "info.yaml").read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return None
+    name = data.get("pydcs_name") if isinstance(data, dict) else None
+    return name if isinstance(name, str) else None
+
+
 def _landmap_path_for_terrain(terrain: Terrain) -> Optional[Path]:
     terrain_name_lower = terrain.name.lower()
     if not _THEATERS_DIR.exists():
@@ -565,7 +582,9 @@ def _landmap_path_for_terrain(terrain: Terrain) -> Optional[Path]:
             continue
         dir_name = theater_dir.name.lower().replace(" ", "").replace("_", "")
         candidate_name = terrain_name_lower.replace(" ", "").replace("_", "")
-        if dir_name == candidate_name:
+        # The folder name alone missed "SinaiMap" (sinai/) and
+        # "MarianaIslandsWWII" (marianaswwii/); info.yaml names the terrain.
+        if dir_name == candidate_name or _pydcs_name(theater_dir) == terrain.name:
             landmap_p = theater_dir / "landmap.p"
             if not landmap_p.exists():
                 return None
@@ -654,9 +673,17 @@ def _load_sea_polygons(terrain: Terrain) -> tuple[Any, ...]:
     The outer edge is the land and sea zones together, with gaps under
     ``2 * _FOOTPRINT_CLOSE_M`` between them closed, so a shoreline or estuary
     the zones both stop short of stays water as it was before.
+
+    Past that edge, the §98 border file decides: inside the hull of its
+    countries (not their bounding box, which a lat/lon clip edge leaves a
+    sliver of past), ground no country covers is sea, so the Falklands' open ocean stays ocean while
+    Iraq's Jordan and Syria stay land. Outside the frame, or on a terrain
+    with no border file, it is land.
     """
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
+
+    from game.theater.terrainborders import load_terrain_borders
 
     data = _load_landmap(terrain)
     if data is None:
@@ -671,7 +698,24 @@ def _load_sea_polygons(terrain: Terrain) -> tuple[Any, ...]:
             .buffer(-_FOOTPRINT_CLOSE_M, quad_segs=2)
         )
         outline = unary_union([Polygon(p.exterior) for p in _polygon_parts(footprint)])
-        return tuple(_polygon_parts(outline.difference(land)))
+        sea = outline.difference(land)
+        countries = [
+            Polygon(zone["border"]).buffer(0)
+            for zone in load_terrain_borders(terrain.name)
+            if len(zone.get("border") or []) >= 3
+        ]
+        if countries:
+            covered = unary_union(countries)
+            # Opened, so a sliver between a simplified clip edge and the hull
+            # is not drawn as a strip of sea along the frame.
+            open_sea = (
+                covered.convex_hull.difference(covered)
+                .buffer(-_OPEN_SEA_MIN_M, quad_segs=2)
+                .buffer(_OPEN_SEA_MIN_M, quad_segs=2)
+                .difference(outline)
+            )
+            sea = unary_union([sea, open_sea])
+        return tuple(_polygon_parts(sea))
     except (
         Exception
     ) as exc:  # noqa: BLE001 -- a bad landmap costs the sea, not the page

@@ -991,7 +991,12 @@ Jordan, Syria and Turkey. Any page reaching past a landmap's outer edge did the 
   gaps under 8 km closed (`_FOOTPRINT_CLOSE_M`), minus the land. Inside that outline the page
   reads as before, estuaries and shoreline gaps included; outside it is land fill. DM call:
   land, not a grey "off the map" fill, accepting open ocean drawn as land in the few corners
-  past a landmap's edge (SW of Syria, the Falklands, north of Kola).
+  past a landmap's edge. Inside the hull of the terrain's §98 border countries, ground no country
+  covers is open sea (pieces under 30 km across dropped: the files' simplified clip edge leaves a
+  20 km sliver under Iraq's northern frame), so the Falklands' ocean and Iraq's Caspian stay blue.
+- `_landmap_path_for_terrain` also matches a theater's `info.yaml` `pydcs_name`. By folder name
+  alone Sinai ("SinaiMap") and Marianas WWII ("MarianaIslandsWWII") found no landmap, so their
+  page had no water at all.
 - `_draw_land_borders` draws the §98 terrain border file's frontiers over either backdrop: only
   edges two countries share, the rule `land_border_runs` uses, so no coast or clip edge.
 
