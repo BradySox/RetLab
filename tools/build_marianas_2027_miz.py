@@ -44,6 +44,12 @@ Five edits are applied, all of which the source miz cannot express by itself:
     lines) reverts to red, and red's carriers, amphibious groups and escort screen are
     pulled south into the Guam-Saipan corridor where they can actually contest it.
 
+6.  **Garrison markers come off the runways.**  Repartee left a tank group, a SAM
+    site and a strike building on Pagan's strip, and a SAM site 83 m off Saipan's
+    centreline.  Neither field was a control point there; here both are, and a ground
+    unit on a runway or taxiway holds every AI taxi at the field (CLAUDE.md, §1).
+    See ``OFF_RUNWAY``.
+
 Every added marker position is validated against the real landmap
 (``ConflictTheater.is_on_land``) so nothing is authored into the sea, and every naval
 position is checked to be OFF land for the same reason.
@@ -212,6 +218,19 @@ BLUE_ADDITIONS: tuple[tuple[str, str, int, int], ...] = (
     ("Naval-2", "Naval-31", -150_000, -260_000),  # RN amphibious group, south-west
 )
 
+# Markers moved off a runway, as (along, across) metres from the field's reference
+# point in the frame of its first runway (across is positive to the right of the
+# runway heading). New Game's airfield clearance check flagged each one.
+# The landmap has no Pagan, so its three are put by the markers Repartee itself
+# placed on the island (its SA-2, EWR and armor 3-5 km north-east of the strip),
+# and the Tech combine sits past the stands, off the runway.
+OFF_RUNWAY: dict[str, tuple[str, int, int]] = {
+    "Ground-31": ("Pagan Airstrip", 1_478, 3_580),  # tank group, was on the strip
+    "Ground-17": ("Pagan Airstrip", 1_489, 2_705),  # SAM site, 19 m off
+    "Static Tech combine-9": ("Pagan Airstrip", 450, -110),  # strike building
+    "Ground-19": ("Saipan Intl", 1_486, 433),  # SAM site, 83 m off
+}
+
 # Search parameters for _place_on_land, in metres. The minimum keeps a launcher off
 # the airfield it anchors to; the maximum keeps it on the same small island.
 MIN_OFFSET_M = 1_500
@@ -248,6 +267,26 @@ def _move_group(group: object, x: int, y: int) -> float:
         point.position.x += dx
         point.position.y += dy
     return (dx * dx + dy * dy) ** 0.5
+
+
+def _move_off_runways(mission: Mission) -> None:
+    import math
+
+    statics = {
+        group.name: group
+        for coalition in mission.coalition.values()
+        for country in coalition.countries.values()
+        for group in country.static_group
+    }
+    groups = {**_all_groups(mission), **statics}
+    print("\nmarkers moved off a runway:")
+    for name, (field, along, across) in OFF_RUNWAY.items():
+        airport = mission.terrain.airports[field]
+        heading = math.radians(airport.runways[0].heading)
+        x = airport.position.x + along * math.cos(heading) + across * math.sin(heading)
+        y = airport.position.y + along * math.sin(heading) - across * math.cos(heading)
+        moved = _move_group(groups[name], round(x), round(y))
+        print(f"  {name:<22} {field:<15} moved {moved:>5.0f} m")
 
 
 def _reseat_naval(
@@ -454,6 +493,7 @@ def main() -> None:
     _reseat_naval(mission, theater, BLUE_ESCORTS, "blue escort screen")
     _reseat_naval(mission, theater, RED_NAVAL, "PLAN task groups")
     _reseat_naval(mission, theater, RED_ESCORTS, "PLAN escort screen")
+    _move_off_runways(mission)
 
     mission.save(str(DEST))
     print(f"\nwrote {DEST.relative_to(_REPO_ROOT)}")

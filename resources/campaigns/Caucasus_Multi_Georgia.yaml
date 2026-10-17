@@ -1,14 +1,14 @@
 ---
-name: Caucasus - Muti-Part Georgia
+name: Caucasus - Multi-Part Georgia
 theater: Caucasus
 authors: Doc_of_Mur
-description: <p><p>This is part 2 of the Caucasus Multi-part campaign. After completing Multi-Part Georgia, play this campaign to invade Russia and finish the theater. As this is now Russia the recommended enemy faction has changed. To simulate still owning Georgia the player income has been supplemented through an increased number of blue strike targets at the starting bases. This is a more difficult scenario with a higher concentration of Redfor SAMs and Strike targets than usual.</p>
+description: <p>This is part 1 of the Caucasus Multi-part campaign. The player starts from Batumi and a carrier group offshore, and fights north and east to take Georgia's airfields. When it is done, play Multi-Part Russia to invade Russia and finish the theater.</p>
 recommended_player_faction: Bluefor Modern
 recommended_enemy_faction: Georgia 2008
 recommended_start_date: 1995-06-13
 miz: Caucasus_Multi_Georgia.miz
 performance: 2
-version: "9.1"
+version: "10.0"
 squadrons:
   # Kutaisi
   22:

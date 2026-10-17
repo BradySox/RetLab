@@ -542,6 +542,14 @@ registration from the mod and break the export-verification invariant.
 
 ---
 
+## Garrison markers off the runways (2026-10-17)
+
+Repartee left a tank group, a SAM site and a strike building on Pagan's strip and a SAM
+site 83 m off Saipan's centreline; neither field was a control point there. The build
+tool's `OFF_RUNWAY` moves all four (edit 6). The landmap has no Pagan, so its three sit
+next to Repartee's own Pagan markers, placed by eye. Row **B243** checks them in the
+Mission Editor.
+
 ## Open questions for the in-game pass (T5)
 
 - Do the three PLARF sites actually scoot on their islands? Rota/Tinian are small — the §49
