@@ -95,6 +95,12 @@ def test_the_uk_is_stock_and_argentina_needs_only_the_a4(tmp_path: Path) -> None
     assert {s.display_name for s in argentina.naval_units} == ships
 
 
+def test_new_game_ticks_the_a4(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    """The campaign's settings pre-tick the New Game mod box it needs."""
+    campaign, _ = loaded
+    assert campaign.settings["a4_skyhawk"] is True
+
+
 def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     _, theater = loaded
     blue = {cp.name for cp in theater.controlpoints if cp.starting_coalition.is_blue}

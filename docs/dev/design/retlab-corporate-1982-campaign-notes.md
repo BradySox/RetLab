@@ -80,8 +80,9 @@ the command centre, plus the fuel silo and the stores.
 - **The UK faction's country is the joint task force**, not `UK`. A preferred carrier hull
   is honoured only if the faction's DCS country may sail it, and `UK` has no LHA-1. The
   squadrons fly under the UK flag through their presets.
-- **The Argentine faction needs the A-4E mod.** Without it Grupos 4 and 5 and the 3ra
-  Escuadrilla are dropped at New Game. The description says so.
+- **The Argentine faction needs the A-4E mod.** The yaml's `a4_skyhawk: true` pre-ticks its
+  New Game box (DM ask, 2026-10-17: new campaigns tick the mods they need). Unticked, Grupos
+  4 and 5 and the 3ra Escuadrilla are dropped.
 
 ## Stand-ins
 

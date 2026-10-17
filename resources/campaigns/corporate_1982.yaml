@@ -15,8 +15,8 @@ description:
   this war and will warn you once.</p>
   <p>Play it from either side. New Game's Invert Sides gives you Argentina, with
   the win and loss rules turned round.</p>
-  <p>Needs the community A-4E Skyhawk mod. Tick it under Mods at New Game, or
-  Argentina loses its Skyhawk squadrons. Everything else is stock DCS. The AV-8B
+  <p>Needs the community A-4E Skyhawk mod; New Game ticks it for you. Untick it
+  and Argentina loses its Skyhawk squadrons. Everything else is stock DCS. The AV-8B
   stands in for the Sea Harrier and Harrier GR.3, the Mirage F1 for the
   Mirage III and Dagger, and the Tornado IDS for the Super Etendard.</p>
 miz: corporate_1982.miz
@@ -25,6 +25,8 @@ recommended_start_date: 1982-05-21
 version: "10.9"
 settings:
   squadron_start_full: true
+  # Ticks the A-4E box at New Game: three Argentine squadrons fly it.
+  a4_skyhawk: true
   # 1982: AIM-9L yes, AMRAAM and laser-guided kit no.
   restrict_weapons_by_date: true
   restrict_props_by_date: true
