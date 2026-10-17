@@ -1,0 +1,3 @@
+* **[Campaigns]** Ground units no longer sit on or beside the runways at 19 fields in 7 campaigns, where they could hold every AI jet at the stands: Retake the Falklands, Caen to Evreux, Final Countdown II, Golan Heights, Canary Islands, Dynamo and Second Island Chain 2027.
+* **[Campaigns]** The three Caucasus Multi-Part campaigns, Mozdok to Maykop and Task Force Thunder show in the New Game list again; they were hidden as out of date.
+* **[Campaigns]** The WRL campaign names no longer carry their release history, Multi-Part Georgia is spelled right and has its own description, and Operation Frostbite drops "(Test Build)".
