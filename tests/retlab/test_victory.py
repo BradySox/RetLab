@@ -541,8 +541,8 @@ def test_inverted_overview_mirrors_rows_and_drops_the_authors_words() -> None:
     game = _inverted_war()
     rows = victory_overview(game)
     assert [row["defeat"] for row in rows] == [False, True]
-    assert rows[0]["text"] == "Capture San Carlos (0/1 fallen)"
-    assert rows[1]["text"] == "The enemy takes Stanley (0/1 held)"
+    assert rows[0]["text"] == "Capture San Carlos (0/1 taken)"
+    assert rows[1]["text"] == "The enemy takes Stanley (0/1 fallen)"
     assert victory_mod.victory_description(game) is None
     assert victory_mod.victory_description(_game(campaign_name="Test Campaign")) == (
         "Retake the islands"

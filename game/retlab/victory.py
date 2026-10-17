@@ -589,7 +589,9 @@ def describe_condition(
                 for name in condition.capture_cps
                 if (cp := _cp_named(game, name)) is not None and cp.captured is friendly
             )
-            now = f" ({held}/{len(condition.capture_cps)} held)"
+            # Mirrored, the author's holdings are the enemy's gains.
+            state = "fallen" if mirrored else "held"
+            now = f" ({held}/{len(condition.capture_cps)} {state})"
         bits.append(
             f"The enemy takes {names}{now}" if mirrored else f"Capture {names}{now}"
         )
@@ -602,7 +604,8 @@ def describe_condition(
                 for name in condition.lose_cps
                 if (cp := _cp_named(game, name)) is not None and cp.captured is enemy
             )
-            now = f" ({fallen}/{len(condition.lose_cps)} fallen)"
+            state = "taken" if mirrored else "fallen"
+            now = f" ({fallen}/{len(condition.lose_cps)} {state})"
         if mirrored:
             any_of = "any of " if len(condition.lose_cps) > 1 else ""
             bits.append(f"Capture {any_of}{names}{now}")
