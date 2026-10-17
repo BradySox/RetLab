@@ -211,6 +211,15 @@ class ForceGroup:
             hide_on_mfd=preset_group.hide_on_mfd,
         )
 
+    @property
+    def units_a_faction_must_own(self) -> list[UnitType[Any]]:
+        """The group's units minus the Dog Ear that _add_dog_ear_if_needed forces in.
+
+        No faction lists the Dog Ear, so counting it would reject every campaign
+        `ground_forces` pick of a Soviet SHORAD preset the faction does not itself hold.
+        """
+        return [u for u in self.units if u.variant_id != _DOG_EAR_RADAR_NAME]
+
     def has_access_to_dcs_type(self, type: Type[DcsUnitType]) -> bool:
         return (
             any(unit.dcs_unit_type == type for unit in self.units)
