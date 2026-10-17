@@ -122,7 +122,7 @@ closed, one superseded by a follow-up PR — since 2026-07-20.
 | VWV v3.2.0 registration (item 22) | #881 | 🟢 OPEN, not draft — awaiting maintainer review |
 | [CH] Iran 2020 pack (last-mile queue) | #886 | 🟢 OPEN, not draft — awaiting maintainer review |
 | Squadron country + Air Wing selector (§23 follow-on, answers the #854/#627 Discord ask) | #896 | 🟢 OPEN, not draft — trimmed to Druss99's request (yaml pin + selector, no default-behavior change); awaiting merge |
-| Cruise missile strikes (§63 core) | #872 | 🟢 OPEN, not draft — the DM flew the full loop locally ("works 10/10"), defender launch wake ported in; awaiting merge |
+| Cruise missile strikes (§63 core) | #872 | ⚪ CLOSED 2026-10-17 by us (DM call), after sitting as a draft from 2026-09-02. The DM had flown the full loop locally ("works 10/10"). Re-offering is a new PR |
 | Curated carrier comms (§65) | #874 | 🟢 OPEN, not draft — un-drafted; awaiting merge |
 | Splash Damage coherent defaults (item 21) | #880 | ⛔ **CLOSED 2026-08-06** on the DM's call — permanently fork-only, not a carve candidate |
 | Sborka "Dog Ear" acquisition radar (item 23, new since last revision) | #887 | 🟡 OPEN, draft — vanilla-unit SHORAD radar fix, un-draft call open |
