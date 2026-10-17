@@ -136,6 +136,21 @@ _SEA_RGB_DARK = (28, 42, 60)
 _LAND_FILL = (228, 216, 190)
 _LAND_FILL_DARK = (66, 62, 52)
 _COAST_RGB = (110, 100, 80)
+_BORDER_RGB = (140, 70, 140)
+_BORDER_RGB_DARK = (200, 140, 200)
+
+#: Gaps narrower than twice this between the land and sea zones are shoreline
+#: and estuary, and stay sea as they always were; only ground past the landmap's
+#: outer edge is drawn as land.
+_FOOTPRINT_CLOSE_M = 4_000.0
+
+#: Open sea from the border file narrower than twice this is dropped: the
+#: files' clip edge is simplified, and the gap it leaves under the hull runs
+#: about 20 km thick along Iraq's northern frame.
+_OPEN_SEA_MIN_M = 15_000.0
+
+_sea_cache: "OrderedDict[str, tuple[Any, ...]]" = OrderedDict()
+_sea_cache_lock = threading.Lock()
 
 
 def render_landmap_basemap(
@@ -147,11 +162,15 @@ def render_landmap_basemap(
 ) -> Image.Image:
     """Render a tile-free filled-coastline basemap for a wide overview page.
 
-    The theater's landmasses (from the shipped landmap polygons) are filled
-    over a sea-coloured background, with a coastline stroke and a light
-    reference grid. Never touches the network and adds no OFFLINE banner, so
-    it suits whole-theater overview pages where satellite tiles would be both
-    too numerous and too zoomed out to be useful.
+    The theater's water (from the shipped landmap) is filled over a
+    land-coloured background, with a coastline stroke and a light reference
+    grid. Never touches the network and adds no OFFLINE banner, so it suits
+    whole-theater overview pages where satellite tiles would be both too
+    numerous and too zoomed out to be useful.
+
+    Ground past the landmap's outer edge is drawn as land. Painting it sea put
+    an ocean over Syria, Jordan and Turkey on every Iraq page that reached the
+    map's west or north edge (Desert Aladeen, 2026-10-16).
 
     Unlike the theater-GIF crop this is correct for *any* extent: the geometry
     comes from world-coordinate polygons projected through
@@ -166,18 +185,24 @@ def render_landmap_basemap(
 
     sea = _SEA_RGB_DARK if dark else _SEA_RGB
     land = _LAND_FILL_DARK if dark else _LAND_FILL
-    img = Image.new("RGB", (page_width, page_height), sea)
+    img = Image.new("RGB", (page_width, page_height), land)
     draw = ImageDraw.Draw(img)
     projector = Projector(
         extent=extent, pixel_width=page_width, pixel_height=page_height
     )
-    for poly in _landmap_polygons_for_terrain(extent.terrain):
-        pts = [
-            projector.project(DcsPoint(x, y, extent.terrain))
-            for x, y in poly.exterior.coords
-        ]
-        if len(pts) >= 3:
-            draw.polygon(pts, fill=land, outline=_COAST_RGB)
+
+    def project(coords: Iterable[Any]) -> list[tuple[int, int]]:
+        return [projector.project(DcsPoint(x, y, extent.terrain)) for x, y in coords]
+
+    for poly in _sea_polygons_for_terrain(extent.terrain):
+        pts = project(poly.exterior.coords)
+        if len(pts) < 3:
+            continue
+        draw.polygon(pts, fill=sea, outline=_COAST_RGB)
+        for hole in poly.interiors:
+            hole_pts = project(hole.coords)
+            if len(hole_pts) >= 3:
+                draw.polygon(hole_pts, fill=land, outline=_COAST_RGB)
     for i in range(1, 8):
         gx = i * page_width // 8
         draw.line((gx, 0, gx, page_height), fill=_GRID_LINE, width=1)
@@ -233,10 +258,84 @@ def render_theater_basemap(
     """
     crop = _crop_from_gif(extent, page_width, page_height)
     if crop is None:
-        return render_landmap_basemap(extent, page_width, page_height, dark=dark)
-    if dark:
-        crop = ImageEnhance.Brightness(crop).enhance(_DARK_RASTER_DIM)
-    return crop
+        img = render_landmap_basemap(extent, page_width, page_height, dark=dark)
+    else:
+        img = crop
+        if dark:
+            img = ImageEnhance.Brightness(img).enhance(_DARK_RASTER_DIM)
+    _draw_land_borders(img, extent, dark=dark)
+    return img
+
+
+def _draw_land_borders(img: Image.Image, extent: MapExtent, *, dark: bool) -> None:
+    """Thin lines along the national frontiers of the §98 terrain border file.
+
+    Only edges two countries share are drawn; an edge one country has alone is
+    coast or the file's clip edge.
+    """
+    from dcs.mapping import Point as DcsPoint
+    from .projection import Projector
+
+    segments = _land_border_segments(extent.terrain.name)
+    if not segments:
+        return
+    projector = Projector(extent=extent, pixel_width=img.width, pixel_height=img.height)
+    draw = ImageDraw.Draw(img)
+    colour = _BORDER_RGB_DARK if dark else _BORDER_RGB
+    for (ax, ay), (bx, by) in segments:
+        if not (
+            extent.min_x <= max(ax, bx)
+            and min(ax, bx) <= extent.max_x
+            and extent.min_y <= max(ay, by)
+            and min(ay, by) <= extent.max_y
+        ):
+            continue
+        draw.line(
+            [
+                projector.project(DcsPoint(ax, ay, extent.terrain)),
+                projector.project(DcsPoint(bx, by, extent.terrain)),
+            ],
+            fill=colour,
+            width=2,
+        )
+
+
+_border_cache: dict[
+    str, tuple[tuple[tuple[float, float], tuple[float, float]], ...]
+] = {}
+_border_cache_lock = threading.Lock()
+
+
+def _land_border_segments(
+    terrain_name: str,
+) -> tuple[tuple[tuple[float, float], tuple[float, float]], ...]:
+    """Every edge two countries share in the terrain's border file, cached.
+
+    The border files are one shared coverage, so neighbours agree vertex for
+    vertex (the same rule as the DTC's ``land_border_runs``).
+    """
+    from game.theater.terrainborders import load_terrain_borders
+
+    with _border_cache_lock:
+        cached = _border_cache.get(terrain_name)
+        if cached is not None:
+            return cached
+        owners: dict[frozenset[tuple[float, float]], set[str]] = {}
+        for zone in load_terrain_borders(terrain_name):
+            ring = [(float(x), float(y)) for x, y in zone.get("border") or []]
+            if len(ring) < 3:
+                continue
+            for a, b in zip(ring, ring[1:] + ring[:1]):
+                owners.setdefault(frozenset((a, b)), set()).add(
+                    str(zone.get("country"))
+                )
+        segments = tuple(
+            (min(edge), max(edge))
+            for edge, countries in owners.items()
+            if len(edge) == 2 and len(countries) >= 2
+        )
+        _border_cache[terrain_name] = segments
+        return segments
 
 
 def _banner_text_for_reason(reason: str) -> str:
@@ -445,6 +544,18 @@ def _draw_landmap_only(
     return img
 
 
+def _pydcs_name(theater_dir: Path) -> Optional[str]:
+    """The ``pydcs_name`` a theater's info.yaml declares, or None."""
+    import yaml
+
+    try:
+        data = yaml.safe_load((theater_dir / "info.yaml").read_text(encoding="utf-8"))
+    except (OSError, yaml.YAMLError):
+        return None
+    name = data.get("pydcs_name") if isinstance(data, dict) else None
+    return name if isinstance(name, str) else None
+
+
 def _landmap_path_for_terrain(terrain: Terrain) -> Optional[Path]:
     terrain_name_lower = terrain.name.lower()
     if not _THEATERS_DIR.exists():
@@ -471,7 +582,9 @@ def _landmap_path_for_terrain(terrain: Terrain) -> Optional[Path]:
             continue
         dir_name = theater_dir.name.lower().replace(" ", "").replace("_", "")
         candidate_name = terrain_name_lower.replace(" ", "").replace("_", "")
-        if dir_name == candidate_name:
+        # The folder name alone missed "SinaiMap" (sinai/) and
+        # "MarianaIslandsWWII" (marianaswwii/); info.yaml names the terrain.
+        if dir_name == candidate_name or _pydcs_name(theater_dir) == terrain.name:
             landmap_p = theater_dir / "landmap.p"
             if not landmap_p.exists():
                 return None
@@ -503,13 +616,13 @@ def _landmap_polygons_for_terrain(terrain: Terrain) -> Iterable[Any]:
         return polygons
 
 
-def _load_landmap_polygons(terrain: Terrain) -> tuple[Any, ...]:
+def _load_landmap(terrain: Terrain) -> Optional[Any]:
     path = _landmap_path_for_terrain(terrain)
     if path is None:
-        return ()
+        return None
     try:
         with path.open("rb") as f:
-            data = pickle.load(f)
+            return pickle.load(f)
     except Exception as exc:
         logger.warning(
             "kneeboard_recon: failed to load landmap %s (%s); "
@@ -517,13 +630,98 @@ def _load_landmap_polygons(terrain: Terrain) -> tuple[Any, ...]:
             path,
             exc,
         )
+        return None
+
+
+def _load_landmap_polygons(terrain: Terrain) -> tuple[Any, ...]:
+    data = _load_landmap(terrain)
+    if data is None:
         return ()
     try:
         return tuple(data.inclusion_zones.geoms)
     except AttributeError:
         logger.warning(
-            "kneeboard_recon: landmap at %s has no inclusion_zones.geoms; "
+            "kneeboard_recon: landmap for %s has no inclusion_zones.geoms; "
             "falling back to grid-only basemap",
-            path,
+            terrain.name,
+        )
+        return ()
+
+
+def _sea_polygons_for_terrain(terrain: Terrain) -> Iterable[Any]:
+    with _sea_cache_lock:
+        cached = _sea_cache.get(terrain.name)
+        if cached is not None:
+            _sea_cache.move_to_end(terrain.name)
+            return cached
+        polygons = _load_sea_polygons(terrain)
+        _cache_set(_sea_cache, terrain.name, polygons)
+        return polygons
+
+
+def _polygon_parts(geometry: Any) -> list[Any]:
+    if geometry.is_empty:
+        return []
+    return [
+        g for g in getattr(geometry, "geoms", [geometry]) if g.geom_type == "Polygon"
+    ]
+
+
+def _load_sea_polygons(terrain: Terrain) -> tuple[Any, ...]:
+    """The landmap's water: everything inside its outer edge that is not land.
+
+    The outer edge is the land and sea zones together, with gaps under
+    ``2 * _FOOTPRINT_CLOSE_M`` between them closed, so a shoreline or estuary
+    the zones both stop short of stays water as it was before.
+
+    Past that edge, the §98 border file decides: inside the hull of its
+    countries (not their bounding box, which a lat/lon clip edge leaves a
+    sliver of past), ground no country covers is sea, so the Falklands' open ocean stays ocean while
+    Iraq's Jordan and Syria stay land. Outside the frame, or on a terrain
+    with no border file, it is land.
+    """
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+
+    from game.theater.terrainborders import load_terrain_borders
+
+    data = _load_landmap(terrain)
+    if data is None:
+        return ()
+    try:
+        land = unary_union(
+            [Polygon(p.exterior) for p in _polygon_parts(data.inclusion_zones)]
+        )
+        footprint = (
+            unary_union([data.inclusion_zones, data.sea_zones])
+            .buffer(_FOOTPRINT_CLOSE_M, quad_segs=2)
+            .buffer(-_FOOTPRINT_CLOSE_M, quad_segs=2)
+        )
+        outline = unary_union([Polygon(p.exterior) for p in _polygon_parts(footprint)])
+        sea = outline.difference(land)
+        countries = [
+            Polygon(zone["border"]).buffer(0)
+            for zone in load_terrain_borders(terrain.name)
+            if len(zone.get("border") or []) >= 3
+        ]
+        if countries:
+            covered = unary_union(countries)
+            # Opened, so a sliver between a simplified clip edge and the hull
+            # is not drawn as a strip of sea along the frame.
+            open_sea = (
+                covered.convex_hull.difference(covered)
+                .buffer(-_OPEN_SEA_MIN_M, quad_segs=2)
+                .buffer(_OPEN_SEA_MIN_M, quad_segs=2)
+                .difference(outline)
+            )
+            sea = unary_union([sea, open_sea])
+        return tuple(_polygon_parts(sea))
+    except (
+        Exception
+    ) as exc:  # noqa: BLE001 -- a bad landmap costs the sea, not the page
+        logger.warning(
+            "kneeboard_recon: could not build the sea for %s (%s); drawing land only",
+            terrain.name,
+            exc,
         )
         return ()
