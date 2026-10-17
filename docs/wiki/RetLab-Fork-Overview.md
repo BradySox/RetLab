@@ -143,7 +143,7 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
 
 - **Built campaigns**: Red Tide (Germany 1988), 1968 Yankee Station (Vietnam), Operation
   Enduring Resolve (Afghanistan COIN), Red Flag 81-2 (Nevada 1981), Operation Inherent Resolve
-  (Iraq 2016), Umm al-Ma'arik (Desert Storm 1991), Second Island Chain (Marianas 2027),
+  (Iraq 2016), Umm al-Ma'arik (Desert Storm 1991), Desert Aladeen: The H-3 Front (Iraq 2012), Second Island Chain (Marianas 2027),
   Operation Baltic Fury, Anatolian Reach (Syria 2004) and Northern Flank 1985 (Kola). Briefing
   packs for several are in the
   Campaigns section of [Home](Home).

@@ -417,6 +417,93 @@ IRAQ_DS91_ROUTES = [
 ]
 
 
+# --- Iraq - Desert Aladeen: The H-3 Front. Red holds the interior road net (Desert
+# --- Storm's corridors, with Highway 1 run straight through the unowned Balad), blue
+# --- holds the H-3 strips, and the front ladder runs H-3 -> FOB Wadi Hauran (past the
+# --- unowned H-2 on the pipeline road) -> Al-Asad (via Haditha) -> Al-Taquddum (down
+# --- the Euphrates through Hit and Ramadi). Kirkuk-Erbil and Al-Salam-Kirkuk are miz
+# --- path groups from Starfire's original, so they are not repeated here.
+H3F_H3_MAIN = (-23566.0, -419185.0)  # H-3 Main Airbase (BLUE)
+H3F_H3_NW = (-7286.0, -432419.0)  # H-3 Northwest Airbase (BLUE)
+H3F_H3_SW = (-44250.0, -433791.0)  # H-3 Southwest Airbase (BLUE)
+H3F_FOB = (42000.0, -298800.0)  # FOB Wadi Hauran (RED, the first rung)
+
+IRAQ_H3_FRONT_ROUTES = [
+    Route(
+        "H-3 Main -> H-3 Northwest  (BLUE: the station road north-west)",
+        H3F_H3_MAIN,
+        [(33.00, 39.70), (33.05, 39.64)],
+        H3F_H3_NW,
+    ),
+    Route(
+        "H-3 Main -> H-3 Southwest  (BLUE: the station road south-west)",
+        H3F_H3_MAIN,
+        [(32.87, 39.70), (32.79, 39.64)],
+        H3F_H3_SW,
+    ),
+    Route(
+        "H-3 Main -> FOB Wadi Hauran  (THE FRONT: the pipeline road north-east past "
+        "the empty H-2 station)",
+        H3F_H3_MAIN,
+        [(33.147, 40.153), (33.34, 40.57), (33.47, 40.80)],
+        H3F_FOB,
+    ),
+    Route(
+        "FOB Wadi Hauran -> Al-Asad  (RED: the pipeline road to the Euphrates at "
+        "Haditha, then south to the base)",
+        H3F_FOB,
+        [(33.79, 41.42), (34.05, 42.20), (33.87, 42.53)],
+        DS_AL_ASAD,
+    ),
+    Route(
+        "Al-Asad -> Al-Taquddum  (RED: down the Euphrates through Hit and Ramadi)",
+        DS_AL_ASAD,
+        [(33.64, 42.83), (33.42, 43.30), (33.40, 43.45)],
+        DS_TAQADDUM,
+    ),
+    Route(
+        "Baghdad International -> Al-Taquddum  (RED Highway 10 west through Abu "
+        "Ghraib -> Fallujah -> Habbaniyah)",
+        DS_BAGHDAD,
+        [(33.30, 44.05), (33.35, 43.79), (33.37, 43.67)],
+        DS_TAQADDUM,
+    ),
+    Route(
+        "Baghdad International -> Al-Kut  (RED Highway 6 southeast through Salman "
+        "Pak -> Aziziyah -> Numaniyah)",
+        DS_BAGHDAD,
+        [(33.10, 44.58), (32.91, 44.92), (32.62, 45.29)],
+        DS_KUT,
+    ),
+    Route(
+        "Baghdad International -> Al-Sahra (Tikrit)  (RED Highway 1 north through "
+        "Taji, past Balad, then Samarra -> al-Alam)",
+        DS_BAGHDAD,
+        [
+            (33.52, 44.25),
+            (33.86, 44.28),
+            (34.02, 44.20),
+            (34.20, 43.88),
+            (34.60, 43.70),
+        ],
+        DS_SAHRA,
+    ),
+    *[
+        route
+        for route in IRAQ_DS91_ROUTES
+        if (route.start, route.end)
+        in (
+            (DS_SAHRA, DS_QAYYARAH),
+            (DS_SAHRA, DS_KIRKUK),
+            (DS_KIRKUK, DS_SULAY),
+            (DS_QAYYARAH, DS_ERBIL),
+            (DS_QAYYARAH, DS_MOSUL),
+            (DS_MOSUL, DS_ERBIL),
+        )
+    ],
+]
+
+
 # =====================================================================================
 # --- The §50 standardization BATCH 1 (2026-07-06): blue rear corridors for the
 # --- road-less campaigns, so the ambient supply convoys + convoy ambushes reach them.
@@ -1160,6 +1247,7 @@ CAMPAIGNS = {
     "caucasus_trail_fixes": (Caucasus, CAUCASUS_TRAIL_FIXES),
     "iraq_inherent_resolve": (Iraq, IRAQ_IR_ROUTES),
     "iraq_desert_storm": (Iraq, IRAQ_DS91_ROUTES),
+    "desert_aladeen_h3_front": (Iraq, IRAQ_H3_FRONT_ROUTES),
     "anatolian_reach": (Syria, ANATOLIAN_REACH_ROUTES),
     "northern_flank_1985": (Kola, NORTHERN_FLANK_ROUTES),
     "northern_flank_1985_lanes": (Kola, NORTHERN_FLANK_LANES),

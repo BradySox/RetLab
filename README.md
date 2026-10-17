@@ -419,6 +419,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Red Flag 81-2 | Nevada | The exercise, played as the war it rehearses |
 | Operation Inherent Resolve | Iraq | Battle of Mosul, 2016–17 |
 | Umm al-Ma'arik | Iraq | Desert Storm 1991, fought from the H-3 strips inward |
+| Desert Aladeen: The H-3 Front | Iraq | Starfire's Desert Aladeen reversed: 2012, east from H-3 |
 | Second Island Chain | Marianas | 2027 China fight up the chain from Guam |
 | Northern Flank 1985 | Kola | The coast road from Narvik to Murmansk, and the sea beside it |
 
@@ -444,6 +445,13 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   repairs. Night-one start (17 Jan 1991, 0300), a Scud hunt in the western baskets, real-highway
   convoy interdiction, and a GCI-alert Iraqi Air Force on hot-pad QRA. Every squadron is its
   real 1991 unit.
+- **Desert Aladeen: The H-3 Front** — a rebuild of Starfire's *Operation Desert Aladeen* with the
+  sides reversed. Wadiya holds Baghdad, Al-Salam and every field from Mosul to Al-Kut, plus Kharg.
+  Blue holds the three H-3 strips, with the AWACS, tankers, B-1Bs and C-130Js flying from a Jordan
+  rear. The front starts at FOB Wadi Hauran, about 85 mi east of H-3, then climbs Al-Asad and
+  Al-Taquddum to Baghdad. North-west Iraq holds Scud sites, SA-10 and SA-11 rings and 10 strike
+  targets. Two new factions, stock DCS units only: USA 2012 and Republic of Wadiya 1991
+  (early-90s jets, no AWACS or tankers).
 - **Second Island Chain** — a Taiwan crisis went kinetic; the opening salvo cratered Guam's ramps
   while amphibious groups took Rota, Tinian and Saipan. Hold the remaining ramp and fight north.
   A modern PLA air-defence belt (S-300PMU-2 on Tinian, HQ-22 on Rota, HQ-7 and HQ-17A point
