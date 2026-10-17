@@ -450,7 +450,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   rear. The front starts at FOB Wadi Hauran, about 85 mi east of H-3, then climbs Al-Asad and
   Al-Taquddum to Baghdad. North-west Iraq holds Scud sites, SA-10 and SA-11 rings and 10 strike
   targets. Two new factions, stock DCS units only: USA 2012 and Republic of Wadiya 1991
-  (early-90s jets, no AWACS or tankers).
+  (early-90s jets, no AWACS or tankers). Blue wins by taking FOB Wadi Hauran and every Iraqi
+  airfield; Kharg does not count. Losing H-3 Main loses the war.
 - **Second Island Chain** — a Taiwan crisis went kinetic; the opening salvo cratered Guam's ramps
   while amphibious groups took Rota, Tinian and Saipan. Hold the remaining ramp and fight north.
   A modern PLA air-defence belt (S-300PMU-2 on Tinian, HQ-22 on Rota, HQ-7 and HQ-17A point

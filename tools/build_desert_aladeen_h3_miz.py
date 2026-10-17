@@ -12,7 +12,8 @@ untouched source (it stays a test standard); this tool writes a separate campaig
 
 Every placed group is a band marker (`MizCampaignLoader` vocabulary): the unit type
 picks the band, the faction fills the system. Coordinates are mission x (north) / y
-(east) in metres, picked on open ground clear of the landmap's exclusion zones and at
+(east) in metres, on open ground at least 250 m from the landmap's exclusion zones (a
+SAM marker by its widest layout, so no launcher lands in a town or the sea) and at
 least 3.5 km from any airfield reference point (1.2 km on Kharg).
 Design note: docs/dev/design/retlab-desert-aladeen-h3-campaign-notes.md.
 
@@ -54,7 +55,9 @@ RED_AIRFIELDS = [
     "Kharg Airfield",
 ]
 
-OFF_MAP_REAR = ("Coalition Rear (Jordan)", (-67757.0, -501199.0))
+#: 10 km inside Iraq on the Jordan border. Jordan is a neutral under §98, so a C-130J
+#: that spawns inside it is engaged after 180 s.
+OFF_MAP_REAR = ("Coalition Rear (Jordan)", (-60000.0, -478000.0))
 RED_FOB = ("FOB Wadi Hauran", (42000.0, -298800.0))
 #: Without a zone the FOB is the nearest control point to the Al-Qaim complex 56 mi
 #: north, and taking the first rung would depopulate it. The zone keeps the FOB to its
@@ -129,8 +132,8 @@ BASE_MARKERS: list[tuple[str, float, float]] = [
     ("ARMOR Al-Kut", -87613, 138113),
     ("AMMO Al-Kut", -90430, 141572),
     ("STRIKE Al-Kut", -78838, 144497),
-    ("SHORAD Kharg", -431674, 588463),
-    ("LORAD Kharg", -434188, 589456),
+    ("SHORAD Kharg", -432224, 588463),
+    ("LORAD Kharg", -433388, 588756),
     ("AAA Kharg", -431816, 588514),
     ("SHORAD Wadi Hauran", 43250, -296635),
     ("AAA Wadi Hauran", 40121, -299484),
@@ -158,7 +161,7 @@ NORTH_WEST_MARKERS: list[tuple[str, float, float]] = [
     ("SCUD Wadi Tharthar", 206093, -119120),
     ("SCUD Tal Afar South", 329209, -161473),
     ("LORAD Tal Afar", 343754, -165575),
-    ("LORAD Al-Qaim", 135222, -276988),
+    ("LORAD Al-Qaim", 135422, -276788),
     ("MERAD Sinjar", 339265, -201663),
     ("MERAD Rabia", 387542, -182249),
     ("MERAD Haditha", 96192, -165718),

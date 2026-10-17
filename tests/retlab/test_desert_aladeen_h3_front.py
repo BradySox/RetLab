@@ -10,7 +10,11 @@ What these pin is what fails silently:
 * the H-3 strips have no heavy stands, so a re-based tanker never spawns;
 * markers bind the nearest control point, so a moved FOB or a lost influence
   zone hands the Al-Qaim complex to the first rung, and taking it wipes them;
-* the DM asked for 75-100 mi between the sides at the start.
+* the DM asked for 75-100 mi between the sides at the start;
+* a squadron whose primary its airframe cannot fly never gets that task;
+* Kharg has no road or sea link, so only the victory block lets blue win;
+* a rear spawn inside a neutral border is engaged by §98's border defense;
+* a SAM marker too near a town or the sea puts launchers in it.
 
 Validated at ``load_theater`` depth, the fork's campaign-test convention.
 Design note: docs/dev/design/retlab-desert-aladeen-h3-campaign-notes.md
@@ -18,19 +22,26 @@ Design note: docs/dev/design/retlab-desert-aladeen-h3-campaign-notes.md
 
 import copy
 import importlib.util
+import math
 from collections import defaultdict
 from pathlib import Path
 from types import ModuleType
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
+import yaml
 from dcs.mapping import Point
 from dcs.mission import Mission
+from shapely.geometry import Point as ShapelyPoint, Polygon
+from shapely.strtree import STRtree
 
 from game import persistency
 from game.campaignloader.campaign import Campaign
+from game.data.groups import GroupTask
 from game.dcs.aircrafttype import AircraftType
 from game.factions import FACTIONS
+from game.retlab.victory import authored_victory_for, parse_victory
 from game.theater import ConflictTheater
 from game.theater.start_generator import ModSettings
 
@@ -60,6 +71,14 @@ RED = {
 #: Starfire's two neutral FOBs, left as he authored them.
 NEUTRAL = {"FARP Hamrin", "FARP Adhaim"}
 METERS_PER_MILE = 1609.344
+#: Marker prefix -> the SAM band its layouts come from.
+SAM_BANDS = {
+    "PATRIOT": GroupTask.LORAD,
+    "LORAD": GroupTask.LORAD,
+    "NASAMS": GroupTask.MERAD,
+    "MERAD": GroupTask.MERAD,
+    "SHORAD": GroupTask.SHORAD,
+}
 
 
 @pytest.fixture(scope="module")
@@ -204,6 +223,41 @@ def test_every_squadron_is_in_its_sides_faction(
     assert count == 40
 
 
+def test_every_squadron_can_fly_its_primary(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """A primary the airframe cannot fly is never planned for that squadron."""
+    campaign, theater = loaded
+    config = campaign.load_air_wing_config(theater)
+    for cp, squadrons in config.by_location.items():
+        for squadron in squadrons:
+            kind = AircraftType.named(squadron.aircraft_type or squadron.aircraft[0])
+            assert kind.capable_of(
+                squadron.primary
+            ), f"{cp.name}: a {kind.display_name} cannot fly {squadron.primary.value}"
+
+
+def test_blue_wins_on_the_iraqi_bases_and_kharg_does_not_count(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """Kharg has no road or sea link, and the stock win needs zero red bases."""
+    campaign, theater = loaded
+    profile = parse_victory(yaml.safe_load(YAML.read_text(encoding="utf-8"))["victory"])
+    assert profile is not None
+    by_name = authored_victory_for(
+        SimpleNamespace(campaign_name=campaign.name)  # type: ignore[arg-type]
+    )
+    assert by_name == profile
+    (win,) = profile.win_when
+    assert set(win.capture_cps) == RED - {"Kharg Airfield"}
+    for name in win.capture_cps:
+        assert theater.control_point_named(name).connected_points, name
+    kharg = theater.control_point_named("Kharg Airfield")
+    assert not kharg.connected_points and not kharg.shipping_lanes
+    (lose,) = profile.lose_when
+    assert lose.lose_cps == ("H-3 Main Airbase",)
+
+
 def test_markers_bind_the_base_they_were_placed_for(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
@@ -246,3 +300,79 @@ def test_the_miz_is_the_build_tools_output_and_every_marker_is_on_land(
         assert name in placed, f"{name}: re-run {TOOL}"
         assert abs(placed[name].x - x) < 1 and abs(placed[name].y - y) < 1, name
         assert theater.is_on_land(placed[name]), name
+
+
+def test_the_rear_spawn_is_outside_every_neutral_border(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """Inside Jordan, §98's border defense engaged a spawning C-130J after 180 s.
+
+    §98 derives a country's posture from the fields inside it, so one holding
+    fields of both sides is contested and never enforces.
+    """
+    _, theater = loaded
+    rear = theater.control_point_named(REAR).position
+    here = ShapelyPoint(rear.x, rear.y)
+    inside = {
+        zone.country
+        for zone in theater.neutral_border_zones
+        if len(zone.border) >= 3 and Polygon(zone.border).buffer(0).contains(here)
+    }
+    assert inside == {"Iraq"}
+    iraq = [
+        Polygon(zone.border).buffer(0)
+        for zone in theater.neutral_border_zones
+        if zone.country == "Iraq"
+    ]
+    sides = {
+        cp.starting_coalition.name
+        for cp in theater.controlpoints
+        if cp.name != REAR
+        and any(p.contains(ShapelyPoint(cp.position.x, cp.position.y)) for p in iraq)
+    }
+    assert {"BLUE", "RED"} <= sides
+
+
+def _widest_layout_m(task: GroupTask) -> float:
+    """Every layout either faction can stand on a marker of this band."""
+    widest = 0.0
+    for name in ("USA 2012", "Republic of Wadiya 1991"):
+        for group in FACTIONS[name].preset_groups:
+            if task not in group.tasks:
+                continue
+            for layout in group.layouts:
+                for unit_group in layout.all_unit_groups:
+                    for unit in unit_group.layout_units:
+                        offset = math.hypot(unit.position.x, unit.position.y)
+                        widest = max(widest, offset)
+    return widest
+
+
+def test_every_marker_keeps_the_notes_clearances(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """250 m from exclusion zones (a SAM by its widest layout), clear of airfields.
+
+    A layout turns about its marker, so a SAM marker as far from a town or the
+    sea as its widest layout reaches puts no launcher in either.
+    """
+    _, theater = loaded
+    tool = _tool()
+    landmap = theater.landmap
+    assert landmap is not None
+    exclusion = list(landmap.exclusion_zones.geoms)
+    sea = list(landmap.sea_zones.geoms)
+    exclusion_tree, sea_tree = STRtree(exclusion), STRtree(sea)
+    reach = {task: _widest_layout_m(task) for task in set(SAM_BANDS.values())}
+    airports = [a.position for a in theater.terrain.airport_list()]
+    for name, x, y in tool.BASE_MARKERS + tool.NORTH_WEST_MARKERS:
+        here = ShapelyPoint(x, y)
+        band = SAM_BANDS.get(name.split()[0])
+        needed = max(250.0, reach[band]) if band is not None else 250.0
+        town = exclusion[exclusion_tree.nearest(here)].distance(here)
+        assert town >= needed, f"{name}: {town:.0f} m from an exclusion zone"
+        if band is not None:
+            water = sea[sea_tree.nearest(here)].distance(here)
+            assert water >= reach[band], f"{name}: {water:.0f} m from the sea"
+        field = min(p.distance_to_point(Point(x, y, theater.terrain)) for p in airports)
+        assert field >= (1200 if "Kharg" in name else 3500), f"{name}: {field:.0f} m"
