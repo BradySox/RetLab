@@ -150,8 +150,6 @@ settings:
   # not just SAM autonomy -- as the player bombs the HQs, red's offensive targeting gets
   # sloppier. Reactive defense untouched. This laydown ships a real per-base C2 network to key on.
   c2_decapitation_effects: true
-  # §50 convoy escort/ambush: NATO supply convoys run the rear roads to the front; concealed
-  # recon-team ambushes dig in along the route. Fly CAS/BAI escort or the column is ground down.
   # §61 host red-interceptor scramble: F10 "HOST: Red Scramble" clones a red fighter flight at
   # any red field and vectors it onto the nearest blue fighters (MP events; gated to the host's
   # static "Flash" name tag). Free/untracked event content.

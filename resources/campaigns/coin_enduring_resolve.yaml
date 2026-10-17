@@ -202,10 +202,6 @@ settings:
   # packaged drone JTAC: a real, killable Reaper/Predator that rides your air-to-ground
   # packages and lazes from inside the fight, where the war actually is.
   vietnam_convoy_interdiction: true
-  # §50 convoy escort/ambush -- the mirror of interdiction: your OWN supply convoys run
-  # the Helmand roads and concealed insurgent ambush teams dig in along the route (peak
-  # "ambush alley"); fly CAS/BAI escort or the column is ground down. The spring is
-  # authored as native DCS trigger rules at generation, so there is no plugin to preseed.
   # The insurgent faction's ERO ZU-23 technicals/emplacements are §41 HDS
   # Ultimate Compilation content — they resolve only with the mod on (and drop
   # silently without it, so a mod-less install still plays).

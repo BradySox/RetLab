@@ -4,6 +4,14 @@ Moved out of `CLAUDE.md` 2026-09-23. The standing rules it implies are summarise
 *Upstream PRs — standing rules*; this file is the PR-by-PR record. Its counts go stale fast —
 re-verify with GitHub before acting on any line.
 
+**2026-10-17: roundup of all open PRs. #872 closed, #896 brought up to date.** Upstream `dev` is still `49e8067f` (2026-08-29), `test/1.6` still has only its two 2026-07-25 builds, the newest release is still v1.5.0, and pydcs has merged nothing since 2026-07-25. All open PRs had green CI and no conflicts.
+
+- **#872 is CLOSED**, by us, on the DM's call (2026-10-17). It had been back to draft since 2026-09-02 with no reason recorded. Not an upstream rejection. Re-offering it is a new PR and needs a freeze exception.
+- **#896:** upstream `dev` merged in (head `e66eaffa`). The replacement body from `retlab-pr896-body-refresh.md` was already published; its Validation line is now filled in (464 passed / 2 skipped). Druss99's re-review has been pending since 2026-07-31.
+- **#884:** Starfire13's 2026-08-09 ask for AI-flight testing has no reply in the thread. The DM says the AI flights were tested long ago and are green in our checks.
+- **pydcs [#39](https://github.com/dcs-retribution/pydcs/pull/39) and [#40](https://github.com/dcs-retribution/pydcs/pull/40)** are open and unreviewed since 2026-08-22. The fork pins `BradySox/pydcs@beb37634`: #40's head plus five commits (the 2.9.29 data update, the MB-339 AIM-9B, the ACLS and Link 4 tasks, DTC, `dynSpawnTemplate`). Merging #40 alone would not let the fork re-pin to upstream.
+- **Open list is now 10:** #977 (draft) · #966 (draft) · #925 (draft) · #920 · #896 · #884 · #881 · #874 · #792 · #788.
+
 **2026-10-11: the Time & Weather window went upstream. #792 extended, #977 opened as a draft.** Upstream `dev` is still `49e8067f` (2026-08-29), `test/1.6` still has only its two 2026-07-25 builds, and the newest release is still v1.5.0.
 
 - **[#792](https://github.com/dcs-retribution/dcs-retribution/pull/792) carries four dialog fixes beside the wind rows.** Accept keeps the wind (already there), keeps temperature, pressure, turbulence and fog unless the date or weather type changed, and re-times the flight plans on a time change instead of re-initializing the turn (`AirTaskingOrder.shift_time`, fork #561). The cloud boxes are 100 px wide.

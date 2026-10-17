@@ -128,6 +128,24 @@ bases, clipped wherever the line met undrivable ground. Measured at turn 0: Red 
 The F10 and app-map front line follows the stretch from the first battle to the last.
 Built and cached with the territory; a few milliseconds per front after it.
 
+### CAS on the battle line
+
+Brady, 2026-10-17: a CAS flight's FLOT bounds and its one 10 NM search circle at their middle
+never reached battles 25 to 50 miles out. Now (`game/ato/flightplans/cas.py`):
+
+- FLOT START and FLOT END sit on the outer battles, the end nearer the departure first. A
+  front with one battle runs the length of that battle's spread.
+- Up to 3 BATTLE stops sit between them, each the battle nearest an even spacing along the
+  line, so every stop is on a fight. Two battles: no stops.
+- The on-station time (CAS duration) is shared across the stop legs by length.
+- The map draws a circle of engagement range round each stop instead of a corridor.
+
+DCS tasking: the ingress waypoint carries an *EngageTargetsInZone* on FLOT START; each later
+stop carries its own (`CasStopBuilder`). These are en-route tasks: one stays on from its
+waypoint to the end of the route, so they stack. pydcs has no "stop at waypoint N" condition.
+The sum is a row of tight circles along the border, so the AI may go back to an earlier battle.
+Measured on Desert Storm (H-3): five stops about 29 km apart, 115 km end to end.
+
 ## What step 1 does not do
 
 - No rule changes. The front still slides along the road between two bases, and the
@@ -154,8 +172,9 @@ games; a save from before it loads with it off (`Game.__setstate__`). Code:
 - **A won battle takes sectors** (`MissionResultsProcessor.take_sectors`, after the strength
   change, which still happens). The result itself is unchanged: one per front. Strong win 2,
   clear win 1, minor win 1 only when the winner attacked. Each sector taken is the loser's
-  sector nearest the front that touches the winner's ground, within half the Maximum
-  frontline width (at least 15 NM). The turn's messages name the sectors.
+  sector nearest the front that touches the winner's ground, within one Maximum frontline
+  width of the front (at least 15 NM): half of `battle_stretch_m`, which spans two widths.
+  The turn's messages name the sectors.
 - **A base falls with its sector** (`commit_sector_war`, after the mission's own captures):
   same capture, prisoners and redeploy as a mission capture. A base taken in the mission
   takes its sector first, so the two never fight. Every turn the base sectors are synced to

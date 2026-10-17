@@ -5376,7 +5376,8 @@ directly.
 - **`MotorpoolGroundObject`** (`game/theater/theatergroundobject.py`, category `"motorpool"`) — a
   maintenance-facility map symbol (`LandInstallationEntity.MAINTENANCE_FACILITY`), visually distinct
   from an armor group. `sidc_status` is pinned **`PRESENT`** — an empty depot is its normal resting
-  state (vehicles populate ephemerally at mission-gen), never rendered damaged/destroyed; `is_dead` is
+  state (its vehicles are a projection of the reserve, reconciled by `MotorpoolPopulator`), never
+  rendered damaged/destroyed; `is_dead` is
   left intact so AI target-selection/capture/IADS logic is unaffected. `capturable`/`purchasable`/
   `should_head_to_conflict` are all `False`; `mission_types` offers **BAI** to the opponent.
 - **Placement** — gated on an authored `Fortification.Garage_A` static (`MizCampaignLoader.motorpools`
@@ -5460,7 +5461,9 @@ directly.
   to share, since `plan_groundwar` has no tests on this base), capped by `motorpool_spawn_cap`
   (largest-remainder proportional trim). Multiple motorpools on one CP round-robin the **single** shared
   reserve pool (never each render it in full, which would double-decrement `base.armor` on a strike). The
-  populated groups are **ephemeral** — never persisted; rebuilt every mission.
+  populated groups and `motorpool_projection_keys` are a **persisted cache** on the TGO, reconciled
+  on every `populate()`: an unchanged reserve keeps the same groups and unit ids. A flight plan aimed
+  at a depot keeps its hand edits at Take Off; only its unit snapshot is swapped (#1205).
 - **Rendering** — `MotorpoolGenerator` (`game/missiongenerator/motorpoolgenerator.py`, a
   `GroundObjectGenerator` subclass) lays the vehicles in a grid (so DCS doesn't drop overlapping spawns),
   **weapon-hold + alarm-green + `player_can_drive=False` + no EPLRS** (parked, unmanned, no datalink),
@@ -5557,9 +5560,9 @@ motorpool modules were byte-identical to the adoption baseline, so these apply c
   zone"), since `TRIGGER_RADIUS_CAPTURE` in metres told an author nothing actionable. Red Tide's
   Haina depot at 4,250 m stays outside it and silent.
 
-`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this, but
-population is ephemeral (rebuilt each mission-gen), so **no save migration is needed** — the next
-generated mission simply parks them in the new spot. Checklist B8 still owns the in-game pass and
+`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this. No
+save migration was added. Since #959 the groups are a persisted cache: a vehicle kept by a reconcile
+keeps its saved position, and only vehicles a reconcile adds use the current offset. Checklist B8 still owns the in-game pass and
 should now also confirm the garage lands on its authored marker.
 
 ### Upstream drift sync (2026-10-06) — the #926 split
@@ -5575,8 +5578,8 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
   2026-10-11) so a depot's owner does not change on the first load. A depot used to stay
   with whoever owned it at New Game.
   Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
-  marker left the campaign and de-duplicates a save that listed one twice. Generated groups
-  are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
+  marker left the campaign and de-duplicates a save that listed one twice. A load re-homes
+  depots only; it does not repopulate them.
   - **Fork interaction:** it runs after `_ensure_motorpool_tgos` and after New Game's
     `generate_motorpools` (which both bind through the loader's blue-preference and
     stranded-marker rules) and overrides that owner with the nearest land CP. The loader's binding still decides which side's warning fires.
@@ -7620,8 +7623,16 @@ authored/knob condition is announced once (`game.message`, latched on
 `game.victory_announced`) so the generic Victory!/Defeat! dialog always has a "why"
 beside it in the events feed.
 
-**The baseline:** `VictoryBaseline` (red/blue air, red ground, red per-category TGO
-counts) latched unconditionally in `initialize_turn` (turn 0 for a new game; first
+**Invert Sides (2026-10-17).** A block is written for its campaign's own blue side, and
+New Game's Invert Sides makes that side red. `game.sides_inverted` (set by `GameGenerator`,
+default False on old saves) makes every entry read for the author's side, swaps the lists
+(the author's `win_when` is the player's defeat), mirrors the prose ("The enemy takes
+Stanley"), and drops the authored `label` and `description`, which speak for the other side.
+Before this an inverted game could end on turn 1: a `lose_cps` field the author's side held
+at the start was red-owned from the first turn.
+
+**The baseline:** `VictoryBaseline` (red/blue air, red and blue ground, red and blue per-category
+TGO counts) latched unconditionally in `initialize_turn` (turn 0 for a new game; first
 load for a pre-feature save — the accepted `PhaseBaseline` migration), so a knob
 flipped on at turn 20 still measures against the earliest state this build saw.
 Persisted on `game.victory_baseline` (getattr-guarded).
@@ -10864,6 +10875,11 @@ width measured along the border, instead of one short line across the road. The 
 and the front's movement are unchanged. Setting *Front line battles spread along the
 border*, on by default. Not flown (row B230).
 
+CAS follows the battle line, built 2026-10-17 on Brady's call: with battles along the border, a
+CAS flight's FLOT START and FLOT END sit on the outer battles (the end nearer home first), with
+up to 3 BATTLE stops on battles evenly spaced between. The AI searches its engagement range
+around each stop. With the setting off or no battles, the plan is unchanged. Not flown (row B240).
+
 Step 2, built 2026-10-12: sectors decide the fight. Each sector's owner is saved; the
 front line sits where its road enters the enemy's sectors; a won battle takes 2, 1 or 0
 sectors by how clear the win was; a base falls with its sector; a road through enemy
@@ -10893,7 +10909,11 @@ choices, the algorithm and the step 2 notes.
   `commit_sector_war`), `game/theater/transitnetwork.py`, `game/game.py`.
 - `client/src/components/territorylayer/`, `client/src/api/territorySlice.ts`: the
   Territory and Sectors layers.
+- `game/ato/flightplans/cas.py` (`battle_stop_sites`, `CasLayout.battle_stops`),
+  `game/missiongenerator/aircraft/waypoints/casingress.py` (`CasStopBuilder`): CAS on the
+  battle line.
 - `tests/theater/test_sectors.py`, `tests/theater/test_sector_war.py`,
+  `tests/ato/flightplans/test_cas_battle_line.py`,
   `client/src/components/territorylayer/TerritoryLayer.test.tsx`.
 
 ### Constraints
@@ -10922,7 +10942,13 @@ choices, the algorithm and the step 2 notes.
   spreads its wedges end to end, so some pockets are one-sided pushes. Each group faces
   across the border at its own battle.
 - The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
-- CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.
+- A CAS flight on the battle line gets one search circle (*EngageTargetsInZone*) per stop.
+  They are DCS en-route tasks, so each stays on for the rest of the route and the circles add
+  up; one zone over the whole line would send the AI deep behind it. The JTAC orbits the
+  busiest battle.
+- CAS stops use every battle site, not the ones the mission fills (`pick_battles` needs the
+  ground forces). The ends hold units unless the bigger side fields one wedge; a middle
+  stop can land on an empty site.
 
 ## §112 — HQ requests
 

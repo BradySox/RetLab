@@ -170,7 +170,9 @@ Cruise-missile stock is left out because reading it seeds the magazines (a write
 - `game/settings/fields/campaignmanagement.py`: `outside_ai_plans_red`.
   `game/game.py`: `opfor_ai_notes` (saved), and `__setstate__` moves an old save's
   `opfor_ai_enabled` into the setting.
-- `game/coalition.py`: the `initialize_turn` branch.
+- `game/coalition.py`: no branch since 2026-10-10; a §109 comment in `initialize_turn`
+  marks where red is still planned with the toggle on. The toggle's gates are in
+  `game/agent/service.py` (`_writable_game`, `run_fallback_if_needed`).
 - `qt_ui/windows/QLiberationWindow.py`: Developer tools > Copy AI connect link.
   `qt_ui/widgets/QTopPanel.py`: the Take Off fallback.
 - Tests: `tests/agent/test_read_api.py`, `tests/agent/test_write_api.py`,

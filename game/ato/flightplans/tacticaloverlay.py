@@ -146,8 +146,20 @@ def escort_overlay(route: list[Point], engagement_range: Distance) -> TacticalOv
 
 
 def cas_overlay(
-    patrol_start: Point, patrol_end: Point, engagement_range: Distance
+    patrol_start: Point,
+    patrol_end: Point,
+    engagement_range: Distance,
+    stops: list[Point] | None = None,
 ) -> TacticalOverlay:
+    if stops:
+        # On a §111 battle line the AI searches a circle round each stop.
+        merged = unary_union([reach_circle(stop, engagement_range) for stop in stops])
+        return TacticalOverlay(
+            reach=[
+                ReachShape(geometry=part, filled=True)
+                for part in getattr(merged, "geoms", [merged])
+            ]
+        )
     # Loiters ALONG the front line, so the reach is a corridor down the FLOT
     # bounds, not a single circle at the midpoint.
     return TacticalOverlay(
