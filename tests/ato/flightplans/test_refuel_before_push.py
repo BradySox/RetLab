@@ -218,3 +218,24 @@ def test_an_old_flight_reads_as_automatic_minutes(
     flight = Flight.__new__(Flight)
     flight.__setstate__({"squadron": SimpleNamespace(settings=None), "roster": None})
     assert flight.tanking_minutes is None
+
+
+def test_a_cloned_flight_keeps_its_refuel_before_push_choice(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Package.clone_package deep-copies the layout and its pre-push REFUEL point,
+    # so the clone must keep the option that put the point there.
+    monkeypatch.setattr(Flight, "__init__", lambda self, *args, **kwargs: None)
+    source = SimpleNamespace(
+        package=None,
+        squadron=None,
+        count=2,
+        flight_type=None,
+        start_type=None,
+        divert=None,
+        refuel_before_push=True,
+        tanking_minutes=7,
+    )
+    clone = Flight.clone_flight(cast(Flight, source))
+    assert clone.refuel_before_push is True
+    assert clone.tanking_minutes == 7

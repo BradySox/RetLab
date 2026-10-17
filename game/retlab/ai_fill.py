@@ -12,11 +12,15 @@ The twin itself is built in ``game/missiongenerator/aircraft/aitwin.py``.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
+
+from dcs.task import ControlledTask, EscortTaskAction
 
 from game.ato.flighttype import FlightType
 
 if TYPE_CHECKING:
+    from dcs.unitgroup import FlyingGroup
+
     from game import Game
     from game.ato import Flight
     from game.missiongenerator.luagenerator import LuaData
@@ -65,6 +69,45 @@ def ai_fill_wanted(flight: Flight, settings: Settings) -> bool:
 
 
 @dataclass(frozen=True)
+class AiFillEscort:
+    """An escort group's Escort task, to be re-aimed at a twin that launches."""
+
+    group: str
+    engagement_max_dist: int
+    target_types: tuple[str, ...]
+    #: The escort's formation offset (x, y, z), metres.
+    position: tuple[float, float, float]
+    #: The package's split flag, which ends the task; None if it has none.
+    split_flag: Optional[str]
+
+
+def escort_task_of(group: FlyingGroup[Any]) -> Optional[AiFillEscort]:
+    """The Escort task the waypoint generator wrote into the group's route."""
+    for point in group.points:
+        for task in point.tasks:
+            if not isinstance(task, ControlledTask):
+                continue
+            inner = task.params.get("task", {})
+            if inner.get("id") != EscortTaskAction.Id:
+                continue
+            params = inner.get("params", {})
+            pos = params.get("pos", {})
+            stop = task.params.get("stopCondition", {}).get("userFlag")
+            return AiFillEscort(
+                group=str(group.name),
+                engagement_max_dist=int(params.get("engagementDistMax", 0)),
+                target_types=tuple(params.get("targetTypes", {}).values()),
+                position=(
+                    float(pos.get("x", 0)),
+                    float(pos.get("y", 0)),
+                    float(pos.get("z", 0)),
+                ),
+                split_flag=None if stop is None else str(stop),
+            )
+    return None
+
+
+@dataclass(frozen=True)
 class AiFillPair:
     """One client group and the AI twin that replaces it if nobody flies it."""
 
@@ -76,6 +119,11 @@ class AiFillPair:
     activate_after: int
     #: The coalition message when the twin launches.
     message: str
+    #: Seconds after mission start the client group appears. A late-activated
+    #: group has no seats to take before then, so the check waits for it.
+    client_activation: int = 0
+    #: The package's escorts, when the client group is the one they escort.
+    escorts: tuple[AiFillEscort, ...] = ()
 
 
 def populate_ai_fill_lua(
@@ -96,4 +144,17 @@ def populate_ai_fill_lua(
         record.add_key_value("twin", pair.twin_group)
         record.add_key_value("coalition", pair.coalition)
         record.add_key_value("activateAfter", str(pair.activate_after))
+        record.add_key_value("clientActivation", str(pair.client_activation))
         record.add_key_value("message", pair.message)
+        if not pair.escorts:
+            continue
+        escorts = record.add_item("escorts")
+        for escort in pair.escorts:
+            item = escorts.add_item()
+            item.add_key_value("group", escort.group)
+            item.add_key_value("engagementDistMax", str(escort.engagement_max_dist))
+            item.add_data_array("targetTypes", list(escort.target_types))
+            for axis, value in zip("xyz", escort.position):
+                item.add_key_value(axis, str(value))
+            if escort.split_flag is not None:
+                item.add_key_value("splitFlag", escort.split_flag)

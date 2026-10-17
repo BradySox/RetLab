@@ -208,6 +208,7 @@ class FlightGroupConfigurator:
                 if isinstance(flight_plan, UiZoneDisplay)
                 else None
             ),
+            activation_delay=waypoint_generator.activation_delay,
         )
 
         self.register_escort_leash()
