@@ -1,0 +1,1 @@
+* **[Campaigns]** New Falklands campaign, Mount Pleasant 2032: a defensive war in which the UK garrison and a US Air Force detachment throw an Argentine landing off the islands. Playable as either side with Invert Sides. Ships two factions, UK-US Falklands Garrison 2032 (stock DCS plus the CurrentHill UK pack) and Argentina 2032 (stock DCS plus the community A-4E).

@@ -1,0 +1,56 @@
+{
+  "country": "Argentina",
+  "name": "Argentina 2032",
+  "authors": "RetLab",
+  "description": "<p>A rearmed Argentina in 2032, fictional: the F-16s bought from Denmark, the A-4AR Fightinghawks, Mi-171 and Huey transport, and short-range air defence bought from China. Stock DCS units plus the community A-4E Skyhawk mod. The F-16A stands in for the F-16AM/BM, the A-4E for the A-4AR, the Mi-17 for the Mi-171E, the Leopard 1A3 for the TAM, the Marder for the VCTP, the C-130J-30 for the C-130H and the Castle class for the Gowind patrol ships.</p>",
+  "locales": [
+    "es_ES"
+  ],
+  "aircrafts": [
+    "A-4E Skyhawk",
+    "C-130J-30",
+    "F-16A",
+    "Mi-17 Hip",
+    "UH-1H Iroquois"
+  ],
+  "awacs": [],
+  "tankers": [
+    "KC-130"
+  ],
+  "frontline_units": [
+    "Leopard 1A3",
+    "Marder 1A3",
+    "AAVP-7A1 'Amtrac'",
+    "M113"
+  ],
+  "artillery_units": [
+    "M109A6 Paladin"
+  ],
+  "logistics_units": [
+    "Truck M818 6x6"
+  ],
+  "infantry_units": [
+    "Infantry M249",
+    "Infantry M4",
+    "MANPADS SA-18 Igla \"Grouse\"",
+    "Mortar 2B11 120mm"
+  ],
+  "missiles": [],
+  "preset_groups": [
+    "HQ-7"
+  ],
+  "naval_units": [
+    "P258 Leeds Castle"
+  ],
+  "air_defense_units": [
+    "EWR AN/FPS-117 Radar",
+    "Flakpanzer Gepard"
+  ],
+  "carrier_names": [],
+  "helicopter_carrier_names": [],
+  "requirements": {
+    "Community A-4E": "https://heclak.github.io/community-a4e-c/"
+  },
+  "has_jtac": false,
+  "doctrine": "modern"
+}

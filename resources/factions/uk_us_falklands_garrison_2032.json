@@ -1,0 +1,60 @@
+{
+  "country": "Combined Joint Task Forces Blue",
+  "name": "UK-US Falklands Garrison 2032",
+  "authors": "RetLab",
+  "description": "<p>The Falklands garrison in 2032, reinforced: the RAF and Army at Mount Pleasant and Stanley, the Royal Navy's Type 45 and Type 26, and a US Air Force detachment with its AWACS and tankers flying in from Ascension. Needs the CurrentHill UK asset pack for Sky Sabre, Stormer, Ajax, Warrior, Challenger 3 and the ships. The AH-64D stands in for the AH-64E, the C-130J-30 for the A400M, the KC-135 MPRS for the Voyager and the FPS-117 for the Mount Byron radar. The squadrons fly under their own flags; the faction uses the joint task force country because it fields both.</p>",
+  "locales": [
+    "en_UK"
+  ],
+  "aircrafts": [
+    "AH-64D Apache Longbow",
+    "C-130J-30",
+    "CH-47F Block I",
+    "F-15E Strike Eagle (Suite 4+)",
+    "F-16CM Fighting Falcon (Block 50)"
+  ],
+  "awacs": [
+    "E-3A"
+  ],
+  "tankers": [
+    "KC-135 Stratotanker",
+    "KC-135 Stratotanker MPRS"
+  ],
+  "frontline_units": [
+    "[CH] Ajax CRV",
+    "[CH] Warrior IFV",
+    "[CH] Challenger 3 MBT",
+    "FV510 Warrior",
+    "FV4034 Challenger 2"
+  ],
+  "artillery_units": [],
+  "logistics_units": [
+    "[CH] Land Rover Wolf LUV",
+    "Truck M818 6x6"
+  ],
+  "infantry_units": [
+    "Infantry M249",
+    "Infantry M4",
+    "MANPADS Stinger"
+  ],
+  "missiles": [],
+  "preset_groups": [
+    "Sky Sabre Battery",
+    "Stormer HVM Battery"
+  ],
+  "naval_units": [
+    "[CH] Type 45 Destroyer",
+    "[CH] Type 26 Frigate",
+    "P265 Dumbarton Castle"
+  ],
+  "air_defense_units": [
+    "EWR AN/FPS-117 Radar"
+  ],
+  "carrier_names": [],
+  "helicopter_carrier_names": [],
+  "requirements": {
+    "CurrentHill UK Asset Pack": "https://www.currenthill.com/united-kingdom"
+  },
+  "has_jtac": false,
+  "doctrine": "modern"
+}

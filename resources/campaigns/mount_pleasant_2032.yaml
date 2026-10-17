@@ -1,0 +1,145 @@
+---
+name: Falklands - Mount Pleasant 2032
+theater: Falklands
+authors: RetLab
+recommended_player_faction: UK-US Falklands Garrison 2032
+recommended_enemy_faction: Argentina 2032
+description:
+  <p>November 2032, fictional. A rearmed Argentina has tried again. Its marines
+  came ashore at San Carlos and its paratroops took the strip at Goose Green, and
+  their HQ-7 batteries are already up. The garrison holds Mount Pleasant and
+  Stanley, with Sky Sabre, a Type 45 offshore, and a US Air Force detachment of
+  F-16s and F-15Es that was on the islands for an exercise. The AWACS and tankers
+  come from Ascension. The rest is a long way off.</p>
+  <p>Hold Mount Pleasant and push them off the islands. Clear Goose Green and San
+  Carlos and the war is won. Lose Mount Pleasant and it is lost. The Argentine
+  F-16s and Skyhawks fly 360 to 430 NM from the mainland, and the mainland
+  fields cannot be taken. Chile is not in this war and will warn you once.</p>
+  <p>Play it from either side. New Game's Invert Sides gives you the Argentine
+  landing, with the win and loss rules turned round.</p>
+  <p>Needs the CurrentHill UK asset pack and the community A-4E Skyhawk mod. Tick
+  both under Mods at New Game.</p>
+miz: mount_pleasant_2032.miz
+performance: 1
+recommended_start_date: 2032-11-15
+version: "10.9"
+settings:
+  squadron_start_full: true
+  # §98: Chile holds no airfield, so it reads as uninvolved and stands border SAMs.
+  neutral_border_defense: true
+  # The mainland fields are 360 to 432 NM from the island fields; 440 opens the
+  # islands to them.
+  max_mission_range_planes: 440
+victory:
+  description: "Clear the islands. Hold Mount Pleasant."
+  win_when:
+    - label: "The landing is thrown back"
+      capture_cps: [Goose Green, San Carlos FOB]
+  lose_when:
+    - label: "Mount Pleasant falls"
+      lose_cps: [Mount Pleasant]
+squadrons:
+  # ============================== UK and US ==============================
+  # Mount Pleasant: the US detachment and the RAF's lift.
+  2:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - 55th FS
+      aircraft_type: F-16CM Fighting Falcon (Block 50)
+      size: 12
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - 336th Fighter Squadron
+      aircraft_type: F-15E Strike Eagle (Suite 4+)
+      size: 8
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - No. 18 Squadron RAF
+      aircraft_type: CH-47F Block I
+      size: 2
+    - primary: Transport
+      aircraft:
+        - No. 1312 Flight RAF
+      aircraft_type: C-130J-30
+      size: 2
+  # Port Stanley: the Army's Apaches.
+  1:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 656 Squadron AAC
+      aircraft_type: AH-64D Apache Longbow
+      size: 6
+  # Ascension Island, off the map: the AWACS and the tankers.
+  Ascension Island:
+    - primary: AEW&C
+      aircraft:
+        - 960th AAC Squadron
+      aircraft_type: E-3A
+      size: 1
+    - primary: Refueling
+      aircraft:
+        - 18th Air Refueling Squadron
+      aircraft_type: KC-135 Stratotanker
+      size: 2
+    - primary: Refueling
+      aircraft:
+        - No. 10 Squadron RAF
+      aircraft_type: KC-135 Stratotanker MPRS
+      size: 1
+  # ============================== Argentina ==============================
+  # Goose Green: the paratroops' Hueys.
+  24:
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - Batallon de Aviacion de Combate 601
+      aircraft_type: UH-1H Iroquois
+      size: 4
+  # San Carlos: the marines' Mi-171s.
+  3:
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - VII Brigada Aerea (Mi-171)
+      aircraft_type: Mi-17 Hip
+      size: 4
+  # Rio Gallegos: the first F-16 squadron and the tankers.
+  5:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - Escuadron I de Caza (VI Brigada Aerea)
+      aircraft_type: F-16A
+      size: 12
+    - primary: Refueling
+      aircraft:
+        - Grupo 1 de Transporte Aereo
+      aircraft_type: KC-130
+      size: 2
+  # Rio Grande: the second F-16 squadron.
+  6:
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - Escuadron II de Caza (VI Brigada Aerea)
+      aircraft_type: F-16A
+      size: 7
+  # San Julian: the A-4ARs.
+  11:
+    - primary: BAI
+      secondary: any
+      aircraft:
+        - Grupo 5 de Caza
+      aircraft_type: A-4E Skyhawk
+      size: 9
+  # Ushuaia: the Hercules.
+  7:
+    - primary: Transport
+      aircraft:
+        - Grupo 1 de Transporte Aereo (Hercules)
+      aircraft_type: C-130J-30
+      size: 2
