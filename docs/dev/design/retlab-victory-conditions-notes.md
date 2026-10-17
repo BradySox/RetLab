@@ -10,6 +10,23 @@
 same-day adaptation pass — the will/supply meters feed the one ending evaluator).**
 In-app pass = checklist B29.
 
+## 2026-10-17 — Invert Sides mirrors the block
+
+A `victory:` block names its campaign's own blue side. New Game's Invert Sides swaps the
+sides, and nothing recorded that it had: `capture_cps` and `lose_cps` read the game's colours,
+so an inverted Corporate-style block ("lose San Carlos and you lose") fired on turn 1 because
+the author's side, now red, held San Carlos. Northern Flank, Baltic Fury, Red Flag 81-2 and
+COIN had the same fault.
+
+- `Game.sides_inverted` records the New Game choice (`__setstate__` defaults it False).
+- Every condition is read for the author's side (`_author_sides`); the baseline latches
+  both colours (`blue_ground`, `blue_categories` added, getattr-guarded).
+- The verdict swaps the lists: the author's `win_when` is the player's defeat, its
+  `lose_when` the player's win. Loss precedence still holds for the player.
+- The overview, SITREP and banner mirror the prose ("The enemy takes Stanley", "Capture San
+  Carlos") and drop the authored `label` and `description`, which speak for the other side.
+- Not mirrored: nothing else. `min_turn` is side-free.
+
 ## 2026-07-19 adaptation — "adapt the meters or drop them"
 
 The DM's follow-up call after §75 landed: look at political will, supply "and all
