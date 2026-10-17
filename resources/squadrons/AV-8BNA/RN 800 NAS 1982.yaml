@@ -1,0 +1,20 @@
+---
+name: 800 Naval Air Squadron
+female_pilot_percentage: 0
+country: UK
+role: Fleet Air Defence
+aircraft: AV-8B Harrier II Night Attack
+bases:
+  carrier: false
+  shore: true
+  lha: true
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
+  - BAI
+  - Strike
+  - Anti-ship
+  - OCA/Runway
+# HMS Hermes, 1982. The AV-8B stands in for the Sea Harrier FRS.1.

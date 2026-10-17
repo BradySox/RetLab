@@ -1,0 +1,10 @@
+---
+name: 846 Naval Air Squadron
+female_pilot_percentage: 0
+country: UK
+role: Commando Helicopter
+aircraft: UH-1H Iroquois
+mission_types:
+  - Air Assault
+  - Transport
+# Sea King HC.4, 1982. The UH-1H stands in.

@@ -1,0 +1,1 @@
+* **[Campaigns]** New Falklands campaign, Operation Corporate 1982: the war from the San Carlos landing, playable as either side with Invert Sides. Ships two factions, UK Falklands Task Force 1982 (stock DCS) and Argentina Falklands 1982 (stock DCS plus the community A-4E), and 19 squadrons named for the real 1982 units.

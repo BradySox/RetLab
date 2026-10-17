@@ -1,0 +1,9 @@
+---
+name: Grupo 1 de Transporte Aereo
+female_pilot_percentage: 0
+country: Argentina
+role: Air-to-Air Refueling
+aircraft: KC-130
+mission_types:
+  - Refueling
+# KC-130H, 1982.

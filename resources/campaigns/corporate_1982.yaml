@@ -1,0 +1,239 @@
+---
+name: Falklands - Operation Corporate 1982
+theater: Falklands
+authors: RetLab
+recommended_player_faction: UK Falklands Task Force 1982
+recommended_enemy_faction: Argentina Falklands 1982
+description:
+  <p>21 May 1982. 3 Commando Brigade is ashore at San Carlos. HMS Hermes and HMS
+  Invincible stand off to the east, beyond the reach of the Argentine strike
+  groups, with every Harrier the task force has. Argentina holds Stanley, the
+  Condor strip at Goose Green and the hills west of Stanley, and its Skyhawks and
+  Daggers fly 350 to 430 NM from the Patagonian coast to reach you.</p>
+  <p>Hold the beachhead and the ships in Falkland Sound, take Goose Green and Mount
+  Kent, then take Stanley. Lose San Carlos and the war is lost. Chile is not in
+  this war and will warn you once.</p>
+  <p>Play it from either side. New Game's Invert Sides gives you Argentina, with
+  the win and loss rules turned round.</p>
+  <p>Needs the community A-4E Skyhawk mod. Tick it under Mods at New Game, or
+  Argentina loses its Skyhawk squadrons. Everything else is stock DCS. The AV-8B
+  stands in for the Sea Harrier and Harrier GR.3, and the Mirage F1 for the
+  Mirage III and Dagger.</p>
+miz: corporate_1982.miz
+performance: 1
+recommended_start_date: 1982-05-21
+version: "10.9"
+settings:
+  squadron_start_full: true
+  # 1982: AIM-9L yes, AMRAAM and laser-guided kit no.
+  restrict_weapons_by_date: true
+  restrict_props_by_date: true
+  # §98: Chile holds no airfield, so it reads as uninvolved and stands border SAMs.
+  neutral_border_defense: true
+  # The mainland strike fields are 385 to 432 NM from Stanley. 440 opens the
+  # islands to them; both British carriers stay just beyond it from Rio Grande.
+  max_mission_range_planes: 440
+victory:
+  description: "Take Stanley. Hold San Carlos."
+  win_when:
+    - label: "Stanley surrenders"
+      capture_cps: [Port Stanley]
+  lose_when:
+    - label: "The beachhead is lost"
+      lose_cps: [San Carlos FOB]
+carriers:
+  HMS Hermes:
+    preferred_name: HMS Hermes
+    preferred_type: LHA-1 Tarawa
+  HMS Invincible:
+    preferred_name: HMS Invincible
+    preferred_type: R05 Invincible
+  ARA Veinticinco de Mayo:
+    preferred_name: ARA Veinticinco de Mayo
+    preferred_type: ARA Veinticinco de Mayo
+squadrons:
+  # ================================ UK ================================
+  # HMS Hermes: the LHA-1 hull. 800 NAS and the RAF's GR.3s.
+  HMS Hermes:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - 800 Naval Air Squadron
+      aircraft_type: AV-8B Harrier II Night Attack
+      size: 12
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - No. 1(F) Squadron RAF
+      aircraft_type: AV-8B Harrier II Night Attack
+      size: 6
+  # HMS Invincible: 801 NAS and the commando helicopters.
+  HMS Invincible:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - 801 Naval Air Squadron
+      aircraft_type: AV-8B Harrier II Night Attack
+      size: 8
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - 846 Naval Air Squadron
+      aircraft_type: UH-1H Iroquois
+      size: 6
+  # San Carlos: the beachhead.
+  3:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 3 Commando Brigade Air Squadron
+      aircraft_type: Gazelle AH.1
+      size: 4
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - No. 18 Squadron RAF
+      aircraft_type: CH-47F Block I
+      size: 1
+  # Ascension Island, off the map: the Victors and the Hercules.
+  Ascension Island:
+    - primary: Refueling
+      aircraft:
+        - No. 55 Squadron RAF
+      aircraft_type: KC-135 Stratotanker MPRS
+      size: 2
+    - primary: Transport
+      aircraft:
+        - No. 47 Squadron RAF
+      aircraft_type: C-130J-30
+      size: 2
+  # ============================= Argentina =============================
+  # Port Stanley (BAM Malvinas).
+  1:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 1ra Escuadrilla Aeronaval de Ataque
+      aircraft_type: MB-339A
+      size: 6
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - Batallon de Aviacion de Combate 601
+      aircraft_type: UH-1H Iroquois
+      size: 6
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - Batallon de Aviacion de Combate 601 (Chinook)
+      aircraft_type: CH-47D
+      size: 2
+  # Goose Green (BAM Condor): the Pucaras.
+  24:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - Grupo 3 de Ataque
+      aircraft_type: MB-339A
+      size: 6
+  # Rio Gallegos: the A-4Bs, the Mirage IIIs and the KC-130s.
+  5:
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - Grupo 5 de Caza
+      aircraft_type: A-4E Skyhawk
+      size: 10
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - Grupo 8 de Caza
+      aircraft_type: Mirage-F1CE
+      size: 9
+    - primary: Refueling
+      aircraft:
+        - Grupo 1 de Transporte Aereo
+      aircraft_type: KC-130
+      size: 2
+  # Rio Grande: the Daggers.
+  6:
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - Grupo 6 de Caza
+      aircraft_type: Mirage-F1CE
+      size: 7
+  # San Julian: the A-4Cs.
+  11:
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - Grupo 4 de Caza
+      aircraft_type: A-4E Skyhawk
+      size: 9
+  # Ushuaia: the Hercules.
+  7:
+    - primary: Transport
+      aircraft:
+        - Grupo 1 de Transporte Aereo (Hercules)
+      aircraft_type: C-130J-30
+      size: 2
+  # The Veinticinco de Mayo: the Navy's A-4Qs.
+  ARA Veinticinco de Mayo:
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - 3ra Escuadrilla Aeronaval de Caza y Ataque
+      aircraft_type: A-4E Skyhawk
+      size: 8
+supply_routes:
+  # THE FRONT -- San Carlos -> Goose Green  (over the Sussex Mountains, Camilla Creek, Darwin)
+  - waypoints:
+      - [107939, 8484]
+      - [101438, 9696]
+      - [91468, 11352]
+      - [80348, 11653]
+      - [73694, 12522]
+      - [72565, 11162]
+  # THE FRONT -- San Carlos -> Mount Kent  (the northern route: Port San Carlos, Teal Inlet, Estancia)
+  - waypoints:
+      - [107939, 8484]
+      - [110464, 14315]
+      - [106473, 33163]
+      - [102360, 49206]
+      - [95902, 61104]
+      - [91328, 74326]
+  # Mount Kent -> Port Stanley  (past Two Sisters and Mount Longdon, Moody Brook, the town)
+  - waypoints:
+      - [91328, 74326]
+      - [89505, 79193]
+      - [88482, 86120]
+      - [88515, 88885]
+      - [89025, 93868]
+  # Goose Green -> Port Stanley  (the Fitzroy road: Fitzroy, Bluff Cove, Mount Harriet)
+  - waypoints:
+      - [72565, 11162]
+      - [76287, 26945]
+      - [75629, 47656]
+      - [75872, 60757]
+      - [82648, 66856]
+      - [86159, 78548]
+      - [89025, 93868]
+  # Rio Gallegos -> San Julian  (Ruta 3 north: Comandante Piedrabuena, the Santa Cruz crossing)
+  - waypoints:
+      - [25718, -703408]
+      - [65556, -709331]
+      - [122644, -708174]
+      - [174205, -705815]
+      - [209341, -706419]
+      - [254096, -667181]
+      - [297478, -636918]
+  # Rio Grande -> Ushuaia  (Ruta 3 south: Tolhuin, Lago Fagnano, the Garibaldi pass)
+  - waypoints:
+      - [-197144, -559488]
+      - [-229859, -534510]
+      - [-272842, -511615]
+      - [-299687, -546977]
+      - [-313777, -564419]
+      - [-320587, -576145]
+

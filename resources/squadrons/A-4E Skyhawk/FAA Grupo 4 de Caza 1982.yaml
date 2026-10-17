@@ -1,0 +1,16 @@
+---
+name: Grupo 4 de Caza
+female_pilot_percentage: 0
+country: Argentina
+role: Attack
+aircraft: A-4E Skyhawk
+livery: "International Argentina Brigada IV"
+mission_types:
+  - BAI
+  - Strike
+  - Anti-ship
+  - OCA/Aircraft
+  - OCA/Runway
+  - BARCAP
+  - Escort
+# A-4C, San Julian, 1982.

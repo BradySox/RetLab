@@ -1,0 +1,13 @@
+---
+name: Grupo 8 de Caza
+female_pilot_percentage: 0
+country: Argentina
+role: Interceptor
+aircraft: Mirage-F1CE
+livery: "ALA 14 NATO Skin 1 (CE)"
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
+# Mirage IIIEA, Rio Gallegos, 1982. The F1CE stands in.
