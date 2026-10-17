@@ -16,6 +16,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
 | Marianas — Operation Forager (1944) | `retlab-marianas-wwii-terrain-notes.md` (the terrain note owns it) |
 | Syria — Anatolian Reach (2004) | `retlab-anatolian-reach-campaign-notes.md` — **Akrotiri stays support-only**; read the note first |
 | Iraq — Umm al-Ma'arik (Desert Storm) | `retlab-desert-storm-campaign-notes.md` |
+| Falklands — Operation Corporate 1982 | `retlab-corporate-1982-campaign-notes.md` — built by `tools/build_corporate_1982_miz.py`; plays both ways with Invert Sides |
 | Iraq — Desert Aladeen: The H-3 Front | `retlab-desert-aladeen-h3-campaign-notes.md` — built by `tools/build_desert_aladeen_h3_miz.py`; Starfire's original stays untouched |
 | Iraq — Operation Inherent Resolve | `retlab-inherent-resolve-campaign-notes.md` |
 | Afghanistan — Enduring Resolve (COIN) | `retlab-coin-HANDOFF.md` — **start here for COIN** |

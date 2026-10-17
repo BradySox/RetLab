@@ -1,0 +1,55 @@
+{
+  "country": "Combined Joint Task Forces Blue",
+  "name": "UK Falklands Task Force 1982",
+  "authors": "RetLab",
+  "description": "<p>Operation Corporate, May 1982: the carrier group, 3 Commando Brigade and the RAF's long-range support. Stock DCS units. The AV-8B stands in for the Sea Harrier FRS.1 and Harrier GR.3, the UH-1H for the Sea King and Wessex, the KC-135 MPRS for the Victor, the M113 for the Scorpion and Scimitar, and the LHA-1 for HMS Hermes. The squadrons fly under the UK flag; the faction uses the joint task force country so the LHA-1 can sail as HMS Hermes.</p>",
+  "locales": [
+    "en_UK"
+  ],
+  "aircrafts": [
+    "AV-8B Harrier II Night Attack",
+    "C-130J-30",
+    "CH-47F Block I",
+    "Gazelle AH.1",
+    "UH-1H Iroquois"
+  ],
+  "awacs": [],
+  "tankers": [
+    "KC-135 Stratotanker MPRS"
+  ],
+  "frontline_units": [
+    "M113"
+  ],
+  "artillery_units": [],
+  "logistics_units": [
+    "Truck Land Rover 101 FC",
+    "LUV Land Rover 109"
+  ],
+  "infantry_units": [
+    "Infantry M249",
+    "Infantry M4",
+    "MANPADS Stinger",
+    "Mortar 2B11 120mm"
+  ],
+  "missiles": [],
+  "preset_groups": [
+    "Rapier"
+  ],
+  "naval_units": [
+    "R05 Invincible",
+    "LHA-1 Tarawa",
+    "F12 Achilles",
+    "F57 Andromeda",
+    "F72 Ariadne",
+    "P265 Dumbarton Castle"
+  ],
+  "air_defense_units": [],
+  "carrier_names": [],
+  "helicopter_carrier_names": [
+    "HMS Invincible",
+    "HMS Hermes"
+  ],
+  "requirements": {},
+  "has_jtac": false,
+  "doctrine": "coldwar"
+}

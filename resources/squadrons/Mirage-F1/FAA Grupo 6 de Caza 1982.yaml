@@ -1,0 +1,15 @@
+---
+name: Grupo 6 de Caza
+female_pilot_percentage: 0
+country: Argentina
+role: Fighter-Bomber
+aircraft: Mirage-F1CE
+livery: "ALA 14 Camu Lagarto 1975-1990"
+mission_types:
+  - BAI
+  - Strike
+  - Anti-ship
+  - Escort
+  - Fighter sweep
+  - TARCAP
+# IAI Dagger, Rio Grande and San Julian, 1982. The F1CE stands in.

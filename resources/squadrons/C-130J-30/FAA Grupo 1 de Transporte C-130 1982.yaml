@@ -1,0 +1,10 @@
+---
+name: Grupo 1 de Transporte Aereo (Hercules)
+female_pilot_percentage: 0
+country: Argentina
+role: Transport
+aircraft: C-130J-30
+mission_types:
+  - Transport
+  - Air Assault
+# C-130H, 1982. The C-130J-30 stands in.

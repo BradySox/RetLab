@@ -1,0 +1,10 @@
+---
+name: Batallon de Aviacion de Combate 601 (Chinook)
+female_pilot_percentage: 0
+country: Argentina
+role: Heavy Lift Helicopter
+aircraft: CH-47D
+mission_types:
+  - Air Assault
+  - Transport
+# Ejercito Argentino CH-47C, Stanley, 1982.

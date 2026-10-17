@@ -1,0 +1,10 @@
+---
+name: 2da Escuadrilla Aeronaval de Caza y Ataque
+female_pilot_percentage: 0
+country: Argentina
+role: Maritime Strike
+aircraft: Tornado IDS
+mission_types:
+  - Anti-ship
+  - Strike
+# Super Etendard with AM39 Exocet, Rio Grande, 1982. The Tornado IDS with Kormoran stands in.
