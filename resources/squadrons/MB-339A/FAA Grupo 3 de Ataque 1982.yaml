@@ -1,0 +1,12 @@
+---
+name: Grupo 3 de Ataque
+female_pilot_percentage: 0
+country: Argentina
+role: Counter-Insurgency
+aircraft: MB-339A
+livery: "MB339AA 'ARMADA' - Yellow Band"
+mission_types:
+  - CAS
+  - BAI
+  - Armed Recon
+# IA-58 Pucara, Goose Green, 1982. The MB-339A stands in.

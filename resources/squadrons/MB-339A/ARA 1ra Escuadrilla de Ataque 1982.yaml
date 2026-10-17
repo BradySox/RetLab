@@ -1,0 +1,13 @@
+---
+name: 1ra Escuadrilla Aeronaval de Ataque
+female_pilot_percentage: 0
+country: Argentina
+role: Light Attack
+aircraft: MB-339A
+livery: "MB339AA 'ARMADA' - Crippa"
+mission_types:
+  - CAS
+  - BAI
+  - Anti-ship
+  - Armed Recon
+# MB-339A, Puerto Argentino/Stanley, 1982.

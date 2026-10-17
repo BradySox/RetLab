@@ -1,0 +1,18 @@
+---
+name: 3ra Escuadrilla Aeronaval de Caza y Ataque
+female_pilot_percentage: 0
+country: Argentina
+role: Carrier-based Attack
+aircraft: A-4E Skyhawk
+bases:
+  carrier: true
+  shore: true
+livery: "International Argentina"
+mission_types:
+  - BAI
+  - Strike
+  - Anti-ship
+  - OCA/Aircraft
+  - BARCAP
+  - Escort
+# A-4Q, ARA Veinticinco de Mayo and Rio Grande, 1982.

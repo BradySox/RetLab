@@ -1,0 +1,18 @@
+---
+name: No. 1(F) Squadron RAF
+female_pilot_percentage: 0
+country: UK
+role: Ground Attack
+aircraft: AV-8B Harrier II Night Attack
+bases:
+  carrier: false
+  shore: true
+  lha: true
+mission_types:
+  - CAS
+  - BAI
+  - Strike
+  - OCA/Aircraft
+  - OCA/Runway
+  - Armed Recon
+# Harrier GR.3, HMS Hermes and San Carlos, 1982.

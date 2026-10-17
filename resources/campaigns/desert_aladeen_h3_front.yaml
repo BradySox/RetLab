@@ -21,6 +21,31 @@ recommended_start_date: 2012-05-16
 version: "10.9"
 settings:
   squadron_start_full: true
+# Kharg has no road or sea link, so no front ever reaches it, and the stock win needs
+# every red base taken. This win names the Iraqi bases and leaves Kharg out.
+victory:
+  description: >-
+    Free Iraq. Take FOB Wadi Hauran and every Iraqi airfield Aladeen holds, from
+    Al-Asad to Baghdad and north to Mosul, Erbil and Sulaimaniyah. Kharg Island
+    does not count. Lose H-3 Main and the war is lost.
+  win_when:
+    - label: "Iraq is free"
+      capture_cps:
+        - FOB Wadi Hauran
+        - Al-Asad Airbase
+        - Al-Taquddum Airport
+        - Baghdad International Airport
+        - Al-Salam Airbase
+        - Al-Kut Airport
+        - Al-Sahra Airport
+        - Kirkuk International Airport
+        - Sulaimaniyah International Airport
+        - Qayyarah Airfield West
+        - Erbil International Airport
+        - Mosul International Airport
+  lose_when:
+    - label: "H-3 Main falls"
+      lose_cps: [H-3 Main Airbase]
 squadrons:
   # ---- BLUE. The Iraq map has no heavy stands west of Baghdad, so the E-3, the
   # tankers, the B-1Bs and the C-130Js fly from the off-map Jordanian rear.
@@ -112,7 +137,8 @@ squadrons:
       aircraft:
         - Su-25 Frogfoot
       size: 10
-    - primary: SEAD Escort
+    # Starfire's JF-17s flew SEAD Escort; the MiG-29S cannot, so it escorts.
+    - primary: Escort
       secondary: air-to-ground
       aircraft:
         - MiG-29S Fulcrum-C

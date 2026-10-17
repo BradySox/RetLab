@@ -34,6 +34,7 @@ from dataclasses import dataclass, field
 from dcs.mapping import LatLng, Point
 from dcs.terrain.afghanistan import Afghanistan
 from dcs.terrain.caucasus import Caucasus
+from dcs.terrain.falklands import Falklands
 from dcs.terrain.iraq import Iraq
 from dcs.terrain.kola import Kola
 from dcs.terrain.marianaislands import MarianaIslands
@@ -1241,6 +1242,71 @@ NORTHERN_FLANK_LANES = [
 ]
 
 
+# --- Falklands - Operation Corporate 1982: the 1982 tracks on East Falkland (the
+# --- San Carlos-Goose Green track over the Sussex Mountains, the northern route the
+# --- commandos marched by Teal Inlet and Estancia, the Fitzroy road), and Ruta 3 on
+# --- the mainland. Endpoints are the airfields' reference points and the Mount Kent
+# --- FOB marker from tools/build_corporate_1982_miz.py.
+C82_SAN_CARLOS = (107939.0, 8484.0)
+C82_STANLEY = (89025.0, 93868.0)
+C82_GOOSE_GREEN = (72565.0, 11162.0)
+C82_MOUNT_KENT = (91328.0, 74326.0)
+C82_RIO_GALLEGOS = (25718.0, -703408.0)
+C82_SAN_JULIAN = (297478.0, -636918.0)
+C82_RIO_GRANDE = (-197144.0, -559488.0)
+C82_USHUAIA = (-320587.0, -576145.0)
+
+CORPORATE_1982_ROUTES = [
+    Route(
+        "THE FRONT -- San Carlos -> Goose Green  (over the Sussex Mountains, Camilla Creek, Darwin)",
+        C82_SAN_CARLOS,
+        [(-51.56, -58.99), (-51.65, -58.97), (-51.75, -58.97), (-51.81, -58.96)],
+        C82_GOOSE_GREEN,
+    ),
+    Route(
+        "THE FRONT -- San Carlos -> Mount Kent  (the northern route: Port San Carlos, Teal Inlet, Estancia)",
+        C82_SAN_CARLOS,
+        [(-51.48, -58.92), (-51.52, -58.65), (-51.56, -58.42), (-51.62, -58.25)],
+        C82_MOUNT_KENT,
+    ),
+    Route(
+        "Mount Kent -> Port Stanley  (past Two Sisters and Mount Longdon, Moody Brook, the town)",
+        C82_MOUNT_KENT,
+        [(-51.68, -57.99), (-51.69, -57.89), (-51.69, -57.85)],
+        C82_STANLEY,
+    ),
+    Route(
+        "Goose Green -> Port Stanley  (the Fitzroy road: Fitzroy, Bluff Cove, Mount Harriet)",
+        C82_GOOSE_GREEN,
+        [
+            (-51.79, -58.75),
+            (-51.80, -58.45),
+            (-51.80, -58.26),
+            (-51.74, -58.17),
+            (-51.71, -58.00),
+        ],
+        C82_STANLEY,
+    ),
+    Route(
+        "Rio Gallegos -> San Julian  (Ruta 3 north: Comandante Piedrabuena, the Santa Cruz crossing)",
+        C82_RIO_GALLEGOS,
+        [
+            (-51.25, -69.30),
+            (-50.75, -69.15),
+            (-50.30, -69.00),
+            (-49.99, -68.93),
+            (-49.65, -68.30),
+        ],
+        C82_SAN_JULIAN,
+    ),
+    Route(
+        "Rio Grande -> Ushuaia  (Ruta 3 south: Tolhuin, Lago Fagnano, the Garibaldi pass)",
+        C82_RIO_GRANDE,
+        [(-54.10, -67.45), (-54.51, -67.20), (-54.70, -67.80), (-54.80, -68.10)],
+        C82_USHUAIA,
+    ),
+]
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
@@ -1251,6 +1317,7 @@ CAMPAIGNS = {
     "anatolian_reach": (Syria, ANATOLIAN_REACH_ROUTES),
     "northern_flank_1985": (Kola, NORTHERN_FLANK_ROUTES),
     "northern_flank_1985_lanes": (Kola, NORTHERN_FLANK_LANES),
+    "corporate_1982": (Falklands, CORPORATE_1982_ROUTES),
 }
 # Every batch-1/batch-2 campaign is directly addressable too (spaces -> underscores;
 # a campaign in both batches resolves to its batch-2 red routes -- regenerate batch-1

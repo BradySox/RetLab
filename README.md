@@ -421,6 +421,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Desert Aladeen: The H-3 Front | Iraq | Starfire's Desert Aladeen reversed: 2012, east from H-3 |
 | Second Island Chain | Marianas | 2027 China fight up the chain from Guam |
 | Northern Flank 1985 | Kola | The coast road from Narvik to Murmansk, and the sea beside it |
+| Operation Corporate 1982 | Falklands | The Falklands War from the San Carlos landing, either side |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -450,7 +451,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   rear. The front starts at FOB Wadi Hauran, about 85 mi east of H-3, then climbs Al-Asad and
   Al-Taquddum to Baghdad. North-west Iraq holds Scud sites, SA-10 and SA-11 rings and 10 strike
   targets. Two new factions, stock DCS units only: USA 2012 and Republic of Wadiya 1991
-  (early-90s jets, no AWACS or tankers).
+  (early-90s jets, no AWACS or tankers). Blue wins by taking FOB Wadi Hauran and every Iraqi
+  airfield; Kharg does not count. Losing H-3 Main loses the war.
 - **Second Island Chain** — a Taiwan crisis went kinetic; the opening salvo cratered Guam's ramps
   while amphibious groups took Rota, Tinian and Saipan. Hold the remaining ramp and fight north.
   A modern PLA air-defence belt (S-300PMU-2 on Tinian, HQ-22 on Rota, HQ-7 and HQ-17A point
@@ -462,6 +464,12 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   coast road toward Bardufoss. Sweden and Finland are neutral and defend their borders, so
   nobody flies round the front. A carrier in the Norwegian Sea, the Northern Fleet out of
   Murmansk, Soviet supply ships to sink and Backfires hunting the boat. Stock DCS units only.
+- **Operation Corporate 1982** — 21 May 1982: the commandos are ashore at San Carlos, Hermes and
+  Invincible stand off to the east, and Argentina holds Stanley, Goose Green and Mount Kent. The
+  Skyhawks, Daggers and Super Étendards fly 350 to 430 NM from the Patagonian coast; the Navy's A-4Qs fly off the
+  Veinticinco de Mayo. Take Stanley to win, lose San Carlos and you lose. Chile is neutral. Play
+  it as Argentina with Invert Sides. Stock DCS plus the community A-4E; the AV-8B stands in for
+  the Sea Harrier.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

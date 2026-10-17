@@ -1,0 +1,11 @@
+---
+name: Batallon de Aviacion de Combate 601
+female_pilot_percentage: 0
+country: Argentina
+role: Utility Helicopter
+aircraft: UH-1H Iroquois
+livery: "Army Standard"
+mission_types:
+  - Air Assault
+  - Transport
+# Ejercito Argentino UH-1H, Stanley, 1982.

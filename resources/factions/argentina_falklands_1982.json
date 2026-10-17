@@ -1,0 +1,59 @@
+{
+  "country": "Argentina",
+  "name": "Argentina Falklands 1982",
+  "authors": "RetLab",
+  "description": "<p>Argentina in May 1982: the Fuerza Aerea and Navy strike groups on the Patagonian coast and the garrison on the islands. Stock DCS units plus the community A-4E Skyhawk mod. The Mirage F1CE stands in for the Mirage IIIEA and the Dagger, the MB-339A also for the Pucara, the Tornado IDS with Kormoran for the Super Etendard with Exocet, the FPS-117 for the TPS-43 radar, the Gepard for the Oerlikon 35 mm guns, the M113 for the Panhard AML, and the Castle class for the Navy's escorts.</p>",
+  "locales": [
+    "es_ES"
+  ],
+  "aircrafts": [
+    "A-4E Skyhawk",
+    "C-130J-30",
+    "CH-47D",
+    "MB-339A",
+    "Mirage-F1CE",
+    "Tornado IDS",
+    "UH-1H Iroquois"
+  ],
+  "awacs": [],
+  "tankers": [
+    "KC-130"
+  ],
+  "frontline_units": [
+    "AAVP-7A1 'Amtrac'",
+    "M113"
+  ],
+  "artillery_units": [],
+  "logistics_units": [
+    "Truck M818 6x6"
+  ],
+  "infantry_units": [
+    "Infantry M249",
+    "Infantry M4",
+    "SAM SA-7 Strela-2 manpad",
+    "Mortar 2B11 120mm"
+  ],
+  "missiles": [],
+  "preset_groups": [
+    "Roland"
+  ],
+  "naval_units": [
+    "ARA Veinticinco de Mayo",
+    "P258 Leeds Castle",
+    "ARA Santa Fe S-21"
+  ],
+  "air_defense_units": [
+    "EWR AN/FPS-117 Radar",
+    "Flakpanzer Gepard",
+    "M163 Vulcan Air Defense System"
+  ],
+  "carrier_names": [
+    "ARA Veinticinco de Mayo"
+  ],
+  "helicopter_carrier_names": [],
+  "requirements": {
+    "Community A-4E": "https://heclak.github.io/community-a4e-c/"
+  },
+  "has_jtac": false,
+  "doctrine": "coldwar"
+}

@@ -1,0 +1,10 @@
+---
+name: 3 Commando Brigade Air Squadron
+female_pilot_percentage: 0
+country: UK
+role: Light Helicopter
+aircraft: Gazelle AH.1
+livery: "UK Marines GB"
+mission_types:
+  - CAS
+  - Transport
