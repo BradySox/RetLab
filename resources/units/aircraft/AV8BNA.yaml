@@ -62,13 +62,19 @@ fuel:
 tasks:
   Anti-ship: 60
   BAI: 690
+  # Air-to-air below every jet fighter: the Harrier patrols only when its side has
+  # nothing better, as the Sea Harrier did in 1982. Fork addition to upstream's list.
+  BARCAP: 110
   CAS: 690
   DEAD: 350
+  Escort: 110
+  Fighter sweep: 110
   OCA/Aircraft: 690
   OCA/Runway: 590
   SEAD: 70
   SEAD Escort: 70
   Strike: 590
+  TARCAP: 110
 sead_escort_front_line_only: true
 
 # Air-to-air refueling method (receiver).

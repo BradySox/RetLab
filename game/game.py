@@ -147,6 +147,9 @@ class Game:
         # pickled. Evaluated at the turn boundary by check_win_loss.
         self.victory_baseline: Optional["VictoryBaseline"] = None
         self.victory_announced: set[str] = set()
+        #: New Game's Invert Sides: a campaign's ``victory:`` block speaks for its
+        #: own blue side, which is this game's red when set (§75 mirrors it).
+        self.sides_inverted = False
         # W6 red tempo: the last turn resolve-regen was applied (idempotence
         # guard for the multiple-init-per-turn cases).
         self.red_tempo_regen_turn: Optional[int] = None
@@ -263,6 +266,7 @@ class Game:
         state.setdefault("naval_magazines", {})
         state.setdefault("concealment_salt", None)
         state.setdefault("campaign_uid", None)
+        state.setdefault("sides_inverted", False)
         # The political-will / war-economy meters (§48/§53) were removed; strip
         # their interim per-save state so it doesn't linger as dead attributes.
         state.pop("will_history", None)

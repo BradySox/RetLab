@@ -193,6 +193,7 @@ class GameGenerator:
                 enemy_budget=self.generator_settings.enemy_budget,
                 campaign_name=self.campaign_name,
             )
+            game.sides_inverted = self.generator_settings.inverted
 
             # Coalitions are wired by Game.__init__ (finish_init), so cp.captured
             # is valid here. Runs only for new games -- never on save load.

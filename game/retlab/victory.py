@@ -17,6 +17,10 @@ that default:
 * The generic tier (two Settings sliders that synthesized a domination and an
   attrition win on any campaign) was removed 2026-10-12.
 
+A block is written for the campaign's own blue side. A game started with Invert
+Sides reads every entry for that side (the game's red) and flips the verdict:
+the author's win is the player's defeat, and the display mirrors the prose.
+
 Semantics: a victory entry is a *requirement*, so EVERY field set on one entry
 must hold (AND within the entry) and the ``win_when`` / ``lose_when`` lists are
 OR (any fully-met entry ends the war). That is what makes ``min_turn`` usable
@@ -38,6 +42,7 @@ from typing import TYPE_CHECKING, Literal, Optional
 if TYPE_CHECKING:
     from game import Game
     from game.theater.controlpoint import ControlPoint
+    from game.theater.player import Player
     from game.theater.theatergroundobject import TheaterGroundObject
 
 
@@ -108,32 +113,41 @@ class VictoryBaseline:
     blue_air: int
     red_ground: int
     red_categories: dict[str, int] = field(default_factory=dict)
+    #: The blue halves an inverted game reads (its author's enemy is blue).
+    blue_ground: int = 0
+    blue_categories: dict[str, int] = field(default_factory=dict)
 
 
 # --- live-state counters (self-contained: this module is an upstream-carve
 # candidate, so it deliberately does not import the phases counters) -----------
 
 
-def _air_strength(game: Game, blue: bool) -> int:
+def _author_sides(game: Game) -> tuple[Player, Player]:
+    """(the block author's side, its enemy) in game colours.
+
+    Swapped in a game started with Invert Sides: the author's blue is then red.
+    """
+    from game.theater.player import Player
+
+    if getattr(game, "sides_inverted", False):
+        return Player.RED, Player.BLUE
+    return Player.BLUE, Player.RED
+
+
+def _air_strength(game: Game, player: Player) -> int:
     """Owned airframes across ALL of one side's squadrons.
 
     The whole force, not the phases classifier's air-superiority slice --
     Starfire's ask is force strength, and a bomber wing is strength.
     """
-    from game.theater.player import Player
-
-    player = Player.BLUE if blue else Player.RED
     return sum(
         squadron.owned_aircraft
         for squadron in game.air_wing_for(player).iter_squadrons()
     )
 
 
-def _ground_strength(game: Game, blue: bool) -> int:
+def _ground_strength(game: Game, player: Player) -> int:
     """One side's front-line ground inventory (the force plan_groundwar fields)."""
-    from game.theater.player import Player
-
-    player = Player.BLUE if blue else Player.RED
     return sum(
         cp.base.total_armor
         for cp in game.theater.controlpoints
@@ -141,40 +155,36 @@ def _ground_strength(game: Game, blue: bool) -> int:
     )
 
 
-def _territory(game: Game) -> tuple[int, int]:
-    """(blue-owned, total non-neutral) control points."""
+def _territory(game: Game, player: Player) -> tuple[int, int]:
+    """(``player``-owned, total non-neutral) control points."""
     from game.theater.player import Player
 
-    blue = 0
+    held = 0
     total = 0
     for cp in game.theater.controlpoints:
         if cp.captured is Player.NEUTRAL:
             continue
         total += 1
-        if cp.captured is Player.BLUE:
-            blue += 1
-    return blue, total
+        if cp.captured is player:
+            held += 1
+    return held, total
 
 
-def _red_category_counts(game: Game) -> dict[str, int]:
-    """Red-owned ground objects per ``category`` string (alive or dead)."""
-    from game.theater.player import Player
-
+def _category_counts(game: Game, player: Player) -> dict[str, int]:
+    """``player``-owned ground objects per ``category`` string (alive or dead)."""
     counts: dict[str, int] = {}
     for tgo in game.theater.ground_objects:
-        if tgo.control_point.captured is Player.RED:
+        if tgo.control_point.captured is player:
             counts[tgo.category] = counts.get(tgo.category, 0) + 1
     return counts
 
 
-def _red_alive_in_category(game: Game, category: str) -> int:
-    """Red-owned ground objects of ``category`` that still have alive units."""
-    from game.theater.player import Player
-
+def _alive_in_category(game: Game, category: str, player: Player) -> int:
+    """``player``-owned ground objects of ``category`` that still have alive units."""
     return sum(
         1
         for tgo in game.theater.ground_objects
-        if tgo.control_point.captured is Player.RED
+        if tgo.control_point.captured is player
         and tgo.category == category
         and any(unit.alive for unit in tgo.units)
     )
@@ -197,14 +207,12 @@ def _cp_named(game: Game, name: str) -> Optional[ControlPoint]:
     return None
 
 
-def _operational_red_airbases(game: Game) -> int:
-    """Red control points that can currently field aircraft."""
-    from game.theater.player import Player
-
+def _operational_airbases(game: Game, player: Player) -> int:
+    """``player``'s control points that can currently field aircraft."""
     return sum(
         1
         for cp in game.theater.controlpoints
-        if cp.captured is Player.RED and cp.runway_is_operational()
+        if cp.captured is player and cp.runway_is_operational()
     )
 
 
@@ -218,16 +226,37 @@ def ensure_victory_baseline(game: Game) -> VictoryBaseline:
     verdict/overview also call it defensively so a pre-feature save latches on
     first read. Cheap (three sums + a category walk) and unconditional.
     """
+    from game.theater.player import Player
+
     baseline = getattr(game, "victory_baseline", None)
     if baseline is None:
         baseline = VictoryBaseline(
-            red_air=_air_strength(game, blue=False),
-            blue_air=_air_strength(game, blue=True),
-            red_ground=_ground_strength(game, blue=False),
-            red_categories=_red_category_counts(game),
+            red_air=_air_strength(game, Player.RED),
+            blue_air=_air_strength(game, Player.BLUE),
+            red_ground=_ground_strength(game, Player.RED),
+            red_categories=_category_counts(game, Player.RED),
+            blue_ground=_ground_strength(game, Player.BLUE),
+            blue_categories=_category_counts(game, Player.BLUE),
         )
         game.victory_baseline = baseline
     return baseline
+
+
+def _baseline_air(baseline: VictoryBaseline, player: Player) -> int:
+    return baseline.blue_air if player.is_blue else baseline.red_air
+
+
+def _baseline_ground(baseline: VictoryBaseline, player: Player) -> int:
+    # getattr: a baseline pickled before the blue halves existed lacks them.
+    if player.is_blue:
+        return getattr(baseline, "blue_ground", 0)
+    return baseline.red_ground
+
+
+def _baseline_categories(baseline: VictoryBaseline, player: Player) -> dict[str, int]:
+    if player.is_blue:
+        return getattr(baseline, "blue_categories", {})
+    return baseline.red_categories
 
 
 # --- evaluation -----------------------------------------------------------------------
@@ -243,28 +272,30 @@ def _ratio_below(current: int, base: int, threshold: float) -> bool:
 def condition_met(
     game: Game, condition: VictoryCondition, baseline: VictoryBaseline
 ) -> bool:
-    """AND semantics: every field set on the entry must hold."""
-    from game.theater.player import Player
+    """AND semantics: every field set on the entry must hold.
 
+    Read for the block author's side (see :func:`_author_sides`).
+    """
+    friendly, enemy = _author_sides(game)
     if game.turn < condition.min_turn:
         return False
     for name in condition.capture_cps:
         cp = _cp_named(game, name)
-        if cp is None or not cp.captured.is_blue:
+        if cp is None or cp.captured is not friendly:
             return False
     if condition.lose_cps:
         if not any(
-            (cp := _cp_named(game, name)) is not None and cp.captured is Player.RED
+            (cp := _cp_named(game, name)) is not None and cp.captured is enemy
             for name in condition.lose_cps
         ):
             return False
     if condition.territory_above is not None:
-        blue, total = _territory(game)
-        if total == 0 or blue / total < condition.territory_above:
+        held, total = _territory(game, friendly)
+        if total == 0 or held / total < condition.territory_above:
             return False
     if condition.territory_below is not None:
-        blue, total = _territory(game)
-        if total == 0 or blue / total >= condition.territory_below:
+        held, total = _territory(game, friendly)
+        if total == 0 or held / total >= condition.territory_below:
             return False
     for name in condition.destroy_targets:
         targets = _tgos_named(game, name)
@@ -274,25 +305,29 @@ def condition_met(
             if any(unit.alive for unit in tgo.units):
                 return False
     for category in condition.destroy_categories:
-        if baseline.red_categories.get(category, 0) <= 0:
+        if _baseline_categories(baseline, enemy).get(category, 0) <= 0:
             return False
-        if _red_alive_in_category(game, category) > 0:
+        if _alive_in_category(game, category, enemy) > 0:
             return False
     if condition.enemy_air_below is not None and not _ratio_below(
-        _air_strength(game, blue=False), baseline.red_air, condition.enemy_air_below
+        _air_strength(game, enemy),
+        _baseline_air(baseline, enemy),
+        condition.enemy_air_below,
     ):
         return False
     if condition.enemy_ground_below is not None and not _ratio_below(
-        _ground_strength(game, blue=False),
-        baseline.red_ground,
+        _ground_strength(game, enemy),
+        _baseline_ground(baseline, enemy),
         condition.enemy_ground_below,
     ):
         return False
     if condition.friendly_air_below is not None and not _ratio_below(
-        _air_strength(game, blue=True), baseline.blue_air, condition.friendly_air_below
+        _air_strength(game, friendly),
+        _baseline_air(baseline, friendly),
+        condition.friendly_air_below,
     ):
         return False
-    if condition.enemy_air_denied and _operational_red_airbases(game) > 0:
+    if condition.enemy_air_denied and _operational_airbases(game, enemy) > 0:
         return False
     return True
 
@@ -474,7 +509,8 @@ def _announce(game: Game, condition: VictoryCondition, defeat: bool) -> None:
     times around a turn boundary, and the events feed should carry the "why"
     once. The latch persists (harmless -- the war is over).
     """
-    text = condition.label or describe_condition(
+    label = None if getattr(game, "sides_inverted", False) else condition.label
+    text = label or describe_condition(
         game, condition, ensure_victory_baseline(game), live=False
     )
     announced: set[str] = getattr(game, "victory_announced", set())
@@ -502,17 +538,27 @@ def victory_verdict(
     if profile is None:
         return None
     baseline = ensure_victory_baseline(game)
-    for condition in profile.lose_when:
+    wins, losses = _player_lists(game, profile)
+    for condition in losses:
         if condition_met(game, condition, baseline):
             if announce:
                 _announce(game, condition, defeat=True)
             return "loss"
-    for condition in profile.win_when:
+    for condition in wins:
         if condition_met(game, condition, baseline):
             if announce:
                 _announce(game, condition, defeat=False)
             return "win"
     return None
+
+
+def _player_lists(
+    game: Game, profile: VictoryProfile
+) -> tuple[tuple[VictoryCondition, ...], tuple[VictoryCondition, ...]]:
+    """(the player's wins, the player's losses): the author's, swapped if inverted."""
+    if getattr(game, "sides_inverted", False):
+        return profile.lose_when, profile.win_when
+    return profile.win_when, profile.lose_when
 
 
 # --- display (the ribbon expander block + the SITREP lines) ---------------------------
@@ -525,9 +571,14 @@ def describe_condition(
     live: bool = True,
 ) -> str:
     """One entry as prose, with live values when ``live`` (the
-    ``_describe_condition`` style from the phases expander)."""
-    from game.theater.player import Player
+    ``_describe_condition`` style from the phases expander).
 
+    In an inverted game the entry speaks for the other side, so the prose is
+    mirrored to the player's view and the authored label (the author's words)
+    is dropped.
+    """
+    friendly, enemy = _author_sides(game)
+    mirrored = getattr(game, "sides_inverted", False)
     bits = []
     if condition.capture_cps:
         names = ", ".join(condition.capture_cps)
@@ -536,10 +587,14 @@ def describe_condition(
             held = sum(
                 1
                 for name in condition.capture_cps
-                if (cp := _cp_named(game, name)) is not None and cp.captured.is_blue
+                if (cp := _cp_named(game, name)) is not None and cp.captured is friendly
             )
-            now = f" ({held}/{len(condition.capture_cps)} held)"
-        bits.append(f"Capture {names}{now}")
+            # Mirrored, the author's holdings are the enemy's gains.
+            state = "fallen" if mirrored else "held"
+            now = f" ({held}/{len(condition.capture_cps)} {state})"
+        bits.append(
+            f"The enemy takes {names}{now}" if mirrored else f"Capture {names}{now}"
+        )
     if condition.lose_cps:
         names = ", ".join(condition.lose_cps)
         now = ""
@@ -547,28 +602,32 @@ def describe_condition(
             fallen = sum(
                 1
                 for name in condition.lose_cps
-                if (cp := _cp_named(game, name)) is not None
-                and cp.captured is Player.RED
+                if (cp := _cp_named(game, name)) is not None and cp.captured is enemy
             )
-            now = f" ({fallen}/{len(condition.lose_cps)} fallen)"
-        plural = "s" if len(condition.lose_cps) == 1 else ""
-        bits.append(f"{names} fall{plural} to the enemy{now}")
+            state = "taken" if mirrored else "fallen"
+            now = f" ({fallen}/{len(condition.lose_cps)} {state})"
+        if mirrored:
+            any_of = "any of " if len(condition.lose_cps) > 1 else ""
+            bits.append(f"Capture {any_of}{names}{now}")
+        else:
+            plural = "s" if len(condition.lose_cps) == 1 else ""
+            bits.append(f"{names} fall{plural} to the enemy{now}")
     if condition.territory_above is not None:
         now = ""
         if live:
-            blue, total = _territory(game)
+            held, total = _territory(game, friendly)
             if total:
-                now = f" (now {blue / total:.0%})"
-        bits.append(f"Hold {condition.territory_above:.0%} of the bases{now}")
+                now = f" (now {held / total:.0%})"
+        owner = "The enemy holds" if mirrored else "Hold"
+        bits.append(f"{owner} {condition.territory_above:.0%} of the bases{now}")
     if condition.territory_below is not None:
         now = ""
         if live:
-            blue, total = _territory(game)
+            held, total = _territory(game, friendly)
             if total:
-                now = f" (now {blue / total:.0%})"
-        bits.append(
-            f"Friendly holdings fall below {condition.territory_below:.0%}{now}"
-        )
+                now = f" (now {held / total:.0%})"
+        owner = "Enemy" if mirrored else "Friendly"
+        bits.append(f"{owner} holdings fall below {condition.territory_below:.0%}{now}")
     if condition.destroy_targets:
         names = ", ".join(condition.destroy_targets)
         now = ""
@@ -581,54 +640,66 @@ def describe_condition(
                 ):
                     dead += 1
             now = f" ({dead}/{len(condition.destroy_targets)} destroyed)"
-        bits.append(f"Destroy {names}{now}")
+        bits.append(f"Lose {names}{now}" if mirrored else f"Destroy {names}{now}")
     if condition.destroy_categories:
         names = ", ".join(condition.destroy_categories)
         now = ""
         if live:
             alive = sum(
-                _red_alive_in_category(game, category)
+                _alive_in_category(game, category, enemy)
                 for category in condition.destroy_categories
             )
             now = f" ({alive} still standing)"
-        bits.append(f"Destroy every enemy {names} site{now}")
+        bits.append(
+            f"Lose every friendly {names} site{now}"
+            if mirrored
+            else f"Destroy every enemy {names} site{now}"
+        )
     if condition.enemy_air_below is not None:
         now = ""
-        if live and baseline.red_air:
-            ratio = _air_strength(game, blue=False) / baseline.red_air
+        if live and _baseline_air(baseline, enemy):
+            ratio = _air_strength(game, enemy) / _baseline_air(baseline, enemy)
             now = f" (now {ratio:.0%})"
+        owner = "Friendly" if mirrored else "Enemy"
         bits.append(
-            f"Enemy air force below {condition.enemy_air_below:.0%} of start{now}"
+            f"{owner} air force below {condition.enemy_air_below:.0%} of start{now}"
         )
     if condition.enemy_ground_below is not None:
         now = ""
-        if live and baseline.red_ground:
-            ratio = _ground_strength(game, blue=False) / baseline.red_ground
+        if live and _baseline_ground(baseline, enemy):
+            ratio = _ground_strength(game, enemy) / _baseline_ground(baseline, enemy)
             now = f" (now {ratio:.0%})"
+        owner = "Friendly" if mirrored else "Enemy"
         bits.append(
-            f"Enemy ground force below "
+            f"{owner} ground force below "
             f"{condition.enemy_ground_below:.0%} of start{now}"
         )
     if condition.friendly_air_below is not None:
         now = ""
-        if live and baseline.blue_air:
-            ratio = _air_strength(game, blue=True) / baseline.blue_air
+        if live and _baseline_air(baseline, friendly):
+            ratio = _air_strength(game, friendly) / _baseline_air(baseline, friendly)
             now = f" (now {ratio:.0%})"
+        owner = "Enemy" if mirrored else "Friendly"
         bits.append(
-            f"Friendly air force falls below "
+            f"{owner} air force falls below "
             f"{condition.friendly_air_below:.0%} of start{now}"
         )
     if condition.enemy_air_denied:
         now = ""
         if live:
-            operating = _operational_red_airbases(game)
+            operating = _operational_airbases(game, enemy)
             plural = "" if operating == 1 else "s"
-            now = f" ({operating} enemy base{plural} still operating)"
-        bits.append(f"Deny the enemy air operations{now}")
+            side = "friendly" if mirrored else "enemy"
+            now = f" ({operating} {side} base{plural} still operating)"
+        bits.append(
+            f"The enemy denies your air operations{now}"
+            if mirrored
+            else f"Deny the enemy air operations{now}"
+        )
     text = " and ".join(bits)
     if condition.min_turn > 1:
         text += f" (not before turn {condition.min_turn})"
-    if condition.label:
+    if condition.label and not mirrored:
         return f"{condition.label} — {text}"
     return text
 
@@ -646,29 +717,28 @@ def victory_overview(game: Game) -> list[dict[str, object]]:
     if profile is None:
         return rows
     baseline = ensure_victory_baseline(game)
-    for condition in profile.win_when:
-        rows.append(
-            {
-                "text": describe_condition(game, condition, baseline),
-                "met": condition_met(game, condition, baseline),
-                "defeat": False,
-            }
-        )
-    for condition in profile.lose_when:
-        rows.append(
-            {
-                "text": describe_condition(game, condition, baseline),
-                "met": condition_met(game, condition, baseline),
-                "defeat": True,
-            }
-        )
+    wins, losses = _player_lists(game, profile)
+    for conditions, defeat in ((wins, False), (losses, True)):
+        for condition in conditions:
+            rows.append(
+                {
+                    "text": describe_condition(game, condition, baseline),
+                    "met": condition_met(game, condition, baseline),
+                    "defeat": defeat,
+                }
+            )
     return rows
 
 
 def victory_description(game: Game) -> Optional[str]:
-    """The authored block's description line, for the expander header."""
+    """The authored block's description line, for the expander header.
+
+    None in an inverted game: the line is the author's side speaking.
+    """
     profile = active_victory_profile(game)
-    return profile.description if profile else None
+    if profile is None or getattr(game, "sides_inverted", False):
+        return None
+    return profile.description
 
 
 def victory_sitrep_lines(game: Game, limit: int = 4) -> list[str]:
