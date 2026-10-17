@@ -54,7 +54,7 @@ def _patch_pydcs_payload_loader() -> None:
     patch_pydcs_payload_loader()
 
 
-def inject_custom_payloads(user_path: Path) -> None:
+def inject_custom_payloads() -> None:
     dev_payloads = THIS_DIR.parent / "resources/customized_payloads"
     # The packaged release rearranges the file locations, so the release has the
     # customized payloads in a different location.
@@ -123,7 +123,7 @@ def run_ui(game: Optional[Game], ui_flags: UiFlags) -> None:
         )
     )
 
-    inject_custom_payloads(persistency.base_path())
+    inject_custom_payloads()
 
     # Splash screen setup
     pixmap = QPixmap("./resources/ui/splash_screen.png")
@@ -316,7 +316,7 @@ def create_game(
     # Without this, it is not possible to use next turn (or anything that needs to check
     # for loadouts) without saving the generated campaign and reloading it the normal
     # way.
-    inject_custom_payloads(persistency.base_path())
+    inject_custom_payloads()
     campaign = Campaign.from_file(campaign_path)
     theater = campaign.load_theater(advanced_iads)
     generator = GameGenerator(
