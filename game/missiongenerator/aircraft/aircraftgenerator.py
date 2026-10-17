@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 from datetime import datetime
 from functools import cached_property
 from typing import Any, Dict, List, TYPE_CHECKING, Tuple
@@ -44,7 +45,12 @@ from game.squadrons.intercept_reserve import (
 )
 from game.radio.radios import RadioRegistry
 from game.radio.tacan import TacanRegistry
-from game.retlab.ai_fill import AiFillPair, ai_fill_wanted
+from game.retlab.ai_fill import (
+    AiFillEscort,
+    AiFillPair,
+    ai_fill_wanted,
+    escort_task_of,
+)
 from game.runways import RunwayData
 from game.settings import Settings
 from game.theater.controlpoint import (
@@ -166,6 +172,7 @@ class AircraftGenerator:
             if not package.flights:
                 continue
             spawned_flights: list[Flight] = []
+            first_pair = len(self.mission_data.ai_fill_pairs)
             for flight in package.flights:
                 if flight.alive and not isinstance(flight.state, Completed):
                     if not flight.squadron.location.runway_is_operational():
@@ -183,6 +190,7 @@ class AircraftGenerator:
                     if ai_fill_wanted(flight, self.settings):
                         self._spawn_ai_twin(flight, country, dynamic_runways, group)
                     spawned_flights.append(flight)
+            self._hand_escorts_to_twin(package, spawned_flights, first_pair)
             if (
                 package.primary_flight is not None
                 and package.primary_flight.flight_plan.is_formation(
@@ -618,12 +626,56 @@ class AircraftGenerator:
                 twin_group=str(twin.name),
                 coalition="blue" if flight.blue.is_blue else "red",
                 activate_after=max(0, int(twin_data.departure_delay.total_seconds())),
+                client_activation=(
+                    0
+                    if client_data.activation_delay is None
+                    else max(0, int(client_data.activation_delay.total_seconds()))
+                ),
                 message=(
                     f"{client_data.callsign} has no players. AI flies its tasking "
                     f"({len(twin.units)} x {flight.unit_type.display_name})."
                 ),
             )
         )
+
+    def _hand_escorts_to_twin(
+        self, package: Package, spawned: list[Flight], first_pair: int
+    ) -> None:
+        """Give a primary flight's twin the package's AI escorts (§113).
+
+        Their Escort tasks name the client group's id, so the aifill plugin pushes
+        each one a fresh task on the twin when it launches.
+        """
+        pairs = self.mission_data.ai_fill_pairs
+        primary = package.primary_flight
+        if primary is None or len(pairs) == first_pair:
+            return
+        client = self.mission.find_group_by_id(primary.group_id)
+        if client is None:
+            return
+        escorts: list[AiFillEscort] = []
+        for flight in spawned:
+            if flight is primary or not flight.flight_type.is_escort_type:
+                continue
+            group = self.mission.find_group_by_id(flight.group_id)
+            if group is None:
+                continue
+            # A player escort flies its own; its AI twin, if any, needs the task.
+            groups = [] if flight.client_count else [group]
+            twin = self.mission.find_group(twin_group_name(str(group.name)))
+            if twin is not None:
+                groups.append(twin)
+            for escort_group in groups:
+                if not isinstance(escort_group, FlyingGroup):
+                    continue
+                escort = escort_task_of(escort_group)
+                if escort is not None:
+                    escorts.append(escort)
+        if not escorts:
+            return
+        for index in range(first_pair, len(pairs)):
+            if pairs[index].client_group == str(client.name):
+                pairs[index] = replace(pairs[index], escorts=tuple(escorts))
 
     @staticmethod
     def setup_internal_datalink_network(group: FlyingGroup[Any]) -> None:

@@ -43,6 +43,16 @@ twin would hold its own parking spots all mission).
   same pilots. `WaypointGenerator(activation_by_script=True)` writes no activation trigger.
 - **The launch** (`resources/plugins/aifill/aifill-config.lua`, always on, no checkbox): reads
   `dcsRetribution.aiFill`, built by `populate_ai_fill_lua`.
+- **A late-activated client group** (a lone player's flight, or multiplayer with *Spawn player
+  flights immediately* off, starting 10 or more minutes out) has no seats until it appears.
+  Each pair carries `clientActivation` (`WaypointGenerator.activation_delay`), and the check
+  runs that long plus the check delay after mission start (2026-10-17, row B239).
+- **The package's escorts** were tasked on the client group's id (the join point's Escort
+  task, the split trigger, the §8 escort leash). When the twin is the package's primary,
+  `AircraftGenerator._hand_escorts_to_twin` copies each AI escort's Escort task into the pair,
+  and the plugin pushes it on the twin's id once that escort is airborne (a task pushed while
+  it taxis would replace its taxi), stopped by the split flag. It also points the escort
+  leash at the twin (2026-10-17, row B239).
 - **The briefing**: the client flight's `FlightData.ai_fill` adds an OPTIONAL line to the
   kneeboard BLUF and "(optional, AI fills if empty)" to the English mission briefing.
 
@@ -61,5 +71,9 @@ take only human-flown records.
 - Whether the AI wingmen of a part-player flight spawn and fly with an empty lead seat is
   DCS's call, unverified (row B234).
 - The twin is activated at max(check time, takeoff), so a takeoff before the check launches
-  the twin late against its timed waypoints.
+  the twin late against its timed waypoints. A late-activated client group's check comes a
+  check delay after its takeoff, so its twin is always that late.
+- **Watch (row B239):** the package's split trigger is `GroupDead` on the client group. If DCS
+  reads a never-occupied client group as dead, the split fires early and the escorts leave.
+  Not guessed at; the twin's id is not in that trigger.
 - French and Chinese briefing templates are unchanged.

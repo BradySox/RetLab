@@ -7,6 +7,7 @@ from typing import Any, cast
 from unittest.mock import MagicMock
 from uuid import uuid4
 
+from game.ato.flighttype import FlightType
 from game.migrator import Migrator
 from game.squadrons.squadron import Squadron
 
@@ -75,3 +76,28 @@ def test_release_untasked_flights_zero_reserve_unchanged() -> None:
 
     assert squadron.untasked_aircraft == 7  # 10 owned - 3 claimed
     assert squadron.claim_available_pilot.call_count == 3
+
+
+def test_every_load_drops_auto_assign_tasks_the_airframe_can_no_longer_fly() -> None:
+    """#1218 took BAI and DEAD off the Tu-160; an old RetLab save kept frag'ing it."""
+    squadron = Squadron.__new__(Squadron)
+    removed = {FlightType.BAI, FlightType.DEAD}
+    squadron.aircraft = cast(
+        Any, SimpleNamespace(capable_of=lambda task: task not in removed)
+    )
+    squadron.auto_assignable_mission_types = {
+        FlightType.STRIKE,
+        FlightType.BAI,
+        FlightType.DEAD,
+    }
+    cp = SimpleNamespace(squadrons=[squadron])
+    migrator = Migrator.__new__(Migrator)
+    migrator.game = cast(
+        Any, SimpleNamespace(theater=SimpleNamespace(controlpoints=[cp]))
+    )
+    migrator.is_liberation = False
+
+    migrator._drop_auto_assign_tasks_the_airframe_lost()
+
+    assert squadron.auto_assignable_mission_types == {FlightType.STRIKE}
+    assert not squadron.can_auto_assign(FlightType.BAI)

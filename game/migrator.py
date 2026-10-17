@@ -228,9 +228,6 @@ class Migrator:
                         0, s.location.unclaimed_parking(parking_type) + s.owned_aircraft
                     )
 
-                if self.is_liberation:
-                    s.set_auto_assignable_mission_types(s.auto_assignable_mission_types)
-
                 # One-time opt-in of existing squadrons to CSAR. Guarded by a flag
                 # so a player who later turns CSAR off for a squadron doesn't get
                 # it re-enabled on every subsequent load.
@@ -243,6 +240,15 @@ class Migrator:
             for ac, sdefs in coa.air_wing.squadron_defs.items():
                 for sdef in sdefs:
                     try_set_attr(sdef, "radio_presets", {})
+        self._drop_auto_assign_tasks_the_airframe_lost()
+
+    def _drop_auto_assign_tasks_the_airframe_lost(self) -> None:
+        # A task removed from a unit yaml (#1218: BAI and DEAD off the Tu-160 and
+        # H-6J) stays in an old save's auto-assign set, and the planner reads only
+        # that set. The setter keeps only tasks the airframe can fly.
+        for cp in self.game.theater.controlpoints:
+            for s in cp.squadrons:
+                s.set_auto_assignable_mission_types(s.auto_assignable_mission_types)
 
     def _update_transfers(self) -> None:
         # Track transfers across all coalitions to detect the same object in

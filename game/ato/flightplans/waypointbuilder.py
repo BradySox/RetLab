@@ -678,27 +678,29 @@ class WaypointBuilder:
         return target.point_from_heading(hdg, capped)
 
     def _sead_search_point(self, target: MissionTarget) -> Point:
+        return self.sead_search_point(self.flight, target)
+
+    @staticmethod
+    def sead_search_point(flight: Flight, target: MissionTarget) -> Point:
         """Offset anchor for AI SEAD flights so they do not fly all the way to the SAM.
 
         ARM shooters can hold tighter (0.8x the strongest threat range); everyone else
         stands further off (1.1x). Targets with no known threat range fall back to the
         flat sead_threat_buffer_min_distance."""
-        assert self.flight.package.waypoints
-        ingress = self.flight.package.waypoints.ingress
+        assert flight.package.waypoints
+        ingress = flight.package.waypoints.ingress
         threat_range = nautical_miles(
-            self.settings.sead_threat_buffer_min_distance
+            flight.coalition.game.settings.sead_threat_buffer_min_distance
         ).meters
         if target.strike_targets:
             factor = (
-                0.8
-                if self.flight.any_member_has_weapon_of_type(WeaponType.ARM)
-                else 1.1
+                0.8 if flight.any_member_has_weapon_of_type(WeaponType.ARM) else 1.1
             )
             # threat_range is viewer-aware (method) on this fork; AI planning uses
             # ground truth (viewer=None).
             max_threat = max(x.threat_range() for x in target.strike_targets).meters
             threat_range = factor * max_threat
-        return self._offset_toward(target.position, ingress, threat_range)
+        return WaypointBuilder._offset_toward(target.position, ingress, threat_range)
 
     def escort_hold(self, start: Point) -> FlightWaypoint:
         """Creates custom waypoint for escort flights that need to hold.
