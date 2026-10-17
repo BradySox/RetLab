@@ -5365,7 +5365,8 @@ directly.
 - **`MotorpoolGroundObject`** (`game/theater/theatergroundobject.py`, category `"motorpool"`) — a
   maintenance-facility map symbol (`LandInstallationEntity.MAINTENANCE_FACILITY`), visually distinct
   from an armor group. `sidc_status` is pinned **`PRESENT`** — an empty depot is its normal resting
-  state (vehicles populate ephemerally at mission-gen), never rendered damaged/destroyed; `is_dead` is
+  state (its vehicles are a projection of the reserve, reconciled by `MotorpoolPopulator`), never
+  rendered damaged/destroyed; `is_dead` is
   left intact so AI target-selection/capture/IADS logic is unaffected. `capturable`/`purchasable`/
   `should_head_to_conflict` are all `False`; `mission_types` offers **BAI** to the opponent.
 - **Placement** — gated on an authored `Fortification.Garage_A` static (`MizCampaignLoader.motorpools`
@@ -5548,9 +5549,9 @@ motorpool modules were byte-identical to the adoption baseline, so these apply c
   zone"), since `TRIGGER_RADIUS_CAPTURE` in metres told an author nothing actionable. Red Tide's
   Haina depot at 4,250 m stays outside it and silent.
 
-`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this, but
-population is ephemeral (rebuilt each mission-gen), so **no save migration is needed** — the next
-generated mission simply parks them in the new spot. Checklist B8 still owns the in-game pass and
+`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this. No
+save migration was added. Since #959 the groups are a persisted cache: a vehicle kept by a reconcile
+keeps its saved position, and only vehicles a reconcile adds use the current offset. Checklist B8 still owns the in-game pass and
 should now also confirm the garage lands on its authored marker.
 
 ### Upstream drift sync (2026-10-06) — the #926 split

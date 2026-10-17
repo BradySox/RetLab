@@ -67,8 +67,6 @@ settings:
   # are a deliberate geography no-op.
   ambient_supply_convoys: true
 
-  # -- Blue COMINT off the PLA net (§70), and the net being audible to home on (C1).
-
   # -- Making the auto-planner fight. Measured on a flown turn-1 save whose ATO came
   # out 100% defensive: 33 packages, 28 of them BARCAP, and ZERO strike/SEAD/DEAD/
   # anti-ship. Two independent causes compounded, and BOTH of these lines are needed
