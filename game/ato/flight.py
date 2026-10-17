@@ -598,7 +598,7 @@ class Flight(
 
     @staticmethod
     def clone_flight(flight: Flight) -> Flight:
-        return Flight(
+        clone = Flight(
             flight.package,
             flight.squadron,
             flight.count,
@@ -606,3 +606,7 @@ class Flight(
             flight.start_type,
             flight.divert,
         )
+        # clone_package copies the layout, which carries the pre-push REFUEL point.
+        clone.refuel_before_push = flight.refuel_before_push
+        clone.tanking_minutes = flight.tanking_minutes
+        return clone
