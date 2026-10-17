@@ -87,6 +87,13 @@ def test_each_side_needs_only_its_named_mod(tmp_path: Path) -> None:
     assert aircraft - {a.display_name for a in red.aircraft} == {"A-4E Skyhawk"}
 
 
+def test_new_game_ticks_both_mods(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    """The campaign's settings pre-tick the New Game mod boxes it needs."""
+    campaign, _ = loaded
+    assert campaign.settings["ukmilitaryassetspack"] is True
+    assert campaign.settings["a4_skyhawk"] is True
+
+
 def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     _, theater = loaded
     blue = {cp.name for cp in theater.controlpoints if cp.starting_coalition.is_blue}
