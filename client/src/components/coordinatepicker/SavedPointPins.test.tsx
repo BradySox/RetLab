@@ -209,10 +209,11 @@ it("redraws a renamed point and drops a deleted one", async () => {
     response([{ ...receiver, points: [{ ...point, name: "NEW" }] }]),
   );
   act(() => changed());
-  await waitFor(() =>
-    expect(screen.getByRole("tooltip")).toHaveTextContent("NEW"),
-  );
-  expect(screen.getByLabelText("Name")).toHaveValue("NEW");
+  // The Name box follows the point in an effect, a render after the tooltip.
+  await waitFor(() => {
+    expect(screen.getByRole("tooltip")).toHaveTextContent("NEW");
+    expect(screen.getByLabelText("Name")).toHaveValue("NEW");
+  });
   (fetch as jest.Mock).mockResolvedValue(response([]));
   act(() => changed());
   await waitFor(() =>
