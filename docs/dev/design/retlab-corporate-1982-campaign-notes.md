@@ -11,7 +11,7 @@ Owner: this note. CI lock: `tests/retlab/test_corporate_1982.py`.
 | Build tool | `python tools/build_corporate_1982_miz.py` — **never hand-edit the `.miz`** |
 | Routes | `python tools/supply_route_geo.py corporate_1982` |
 | Factions | `UK Falklands Task Force 1982` (stock), `Argentina Falklands 1982` (stock + community A-4E) |
-| Squadrons | 19 presets named `*1982.yaml` under `resources/squadrons/` |
+| Squadrons | 20 presets named `*1982.yaml` under `resources/squadrons/` |
 | Checklist row | B241 |
 
 ## Why it exists
@@ -27,11 +27,13 @@ flies three mods (Mirage III, Super Étendard, MB-339 mod), so this campaign has
   Argentine campaign.
 - **Start at the San Carlos beachhead**, 21 May 1982, not at sea on 1 May.
 - **Argentina: stock plus the A-4E.** The Mirage F1CE stands in for the Mirage IIIEA and the
-  Dagger; the MB-339A is the Navy's own MB-339A and also stands in for the Pucará.
+  Dagger; the MB-339A is the Navy's own MB-339A and also stands in for the Pucará; the
+  Tornado IDS, which carries the Kormoran, stands in for the Super Étendard and its Exocet.
 - **HMS Hermes is an LHA-1 hull.** Invincible is the R05 DCS ships.
 - **The Veinticinco de Mayo is at sea**, off Rio Grande. It was in port after 2 May; it is
   here so an Argentine player has a deck.
-- **Historical ratio**: 26 Harriers against 55 Argentine jets.
+- **Historical ratio**: 26 Harriers against 53 Argentine jets.
+- **No F-16s for the UK.** Considered so the DM could fly a module he owns, then dropped.
 - **Victory**: take Port Stanley; lose San Carlos and you lose.
 - **The Harrier flies CAP** on four AIM-9L (RetLab #1266). Without it the UK had no fighters.
 
@@ -46,8 +48,8 @@ flies three mods (Mirage III, Super Étendard, MB-339 mod), so this campaign has
 | ARG | **Port Stanley** | 1ra Escuadrilla MB-339A 6, Batallón 601 UH-1H 6 + CH-47D 2 |
 | ARG | **Goose Green** | Grupo 3 MB-339A 6 (the Pucarás) |
 | ARG | **Rio Gallegos** | Grupo 5 A-4E 10, Grupo 8 F1CE 9, Grupo 1 KC-130 2 |
-| ARG | **Rio Grande** | Grupo 6 F1CE 7 (the Daggers) |
-| ARG | **San Julian** | Grupo 4 A-4E 9 |
+| ARG | **Rio Grande** | 2da Escuadrilla Tornado IDS 5 (the Super Étendards) |
+| ARG | **San Julian** | Grupo 4 A-4E 5, Grupo 6 F1CE 4 (the Daggers) |
 | ARG | **Ushuaia** | Grupo 1 C-130J-30 2 |
 | ARG | **Veinticinco de Mayo** | 3ra Escuadrilla A-4E 8 (the A-4Qs) |
 | ARG | **Mount Kent** (FOB) | none; garrison, guns, depot |
@@ -85,11 +87,12 @@ the command centre, plus the fuel silo and the stores.
 
 AV-8B for the Sea Harrier FRS.1 and Harrier GR.3; UH-1H for the Sea King and Wessex; KC-135
 MPRS for the Victor K.2; C-130J-30 for the C-130H and Hercules C.1; CH-47F and CH-47D for
-the CH-47C; Mirage F1CE for the Mirage IIIEA and Dagger; MB-339A for the Pucará; FPS-117 for
+the CH-47C; Mirage F1CE for the Mirage IIIEA and Dagger; MB-339A for the Pucará; Tornado IDS with
+Kormoran for the Super Étendard with Exocet; FPS-117 for
 the TPS-43; Gepard and M163 for the Oerlikon 35 mm and Rheinmetall 20 mm guns; Stinger and
 SA-7 are real; M113 for the Scorpion, Scimitar and Panhard AML; Castle class for the
-Argentine escorts; LHA-1 for Hermes. There is no Vulcan, Super Étendard, Canberra or Exocet
-(pydcs cannot load the F1's AM39).
+Argentine escorts; LHA-1 for Hermes. There is no Vulcan or Canberra, and no Exocet (pydcs cannot
+load the F1's AM39).
 
 ## Not verified
 

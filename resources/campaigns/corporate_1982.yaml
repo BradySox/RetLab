@@ -8,8 +8,8 @@ description:
   <p>21 May 1982. 3 Commando Brigade is ashore at San Carlos. HMS Hermes and HMS
   Invincible stand off to the east, beyond the reach of the Argentine strike
   groups, with every Harrier the task force has. Argentina holds Stanley, the
-  Condor strip at Goose Green and the hills west of Stanley, and its Skyhawks and
-  Daggers fly 350 to 430 NM from the Patagonian coast to reach you.</p>
+  Condor strip at Goose Green and the hills west of Stanley, and its Skyhawks, Daggers
+  and Super Etendards fly 350 to 430 NM from the Patagonian coast to reach you.</p>
   <p>Hold the beachhead and the ships in Falkland Sound, take Goose Green and Mount
   Kent, then take Stanley. Lose San Carlos and the war is lost. Chile is not in
   this war and will warn you once.</p>
@@ -17,8 +17,8 @@ description:
   the win and loss rules turned round.</p>
   <p>Needs the community A-4E Skyhawk mod. Tick it under Mods at New Game, or
   Argentina loses its Skyhawk squadrons. Everything else is stock DCS. The AV-8B
-  stands in for the Sea Harrier and Harrier GR.3, and the Mirage F1 for the
-  Mirage III and Dagger.</p>
+  stands in for the Sea Harrier and Harrier GR.3, the Mirage F1 for the
+  Mirage III and Dagger, and the Tornado IDS for the Super Etendard.</p>
 miz: corporate_1982.miz
 performance: 1
 recommended_start_date: 1982-05-21
@@ -155,22 +155,28 @@ squadrons:
         - Grupo 1 de Transporte Aereo
       aircraft_type: KC-130
       size: 2
-  # Rio Grande: the Daggers.
+  # Rio Grande: the Navy's Super Etendards (the Tornado IDS carries Kormoran).
   6:
     - primary: Anti-ship
       secondary: any
       aircraft:
-        - Grupo 6 de Caza
-      aircraft_type: Mirage-F1CE
-      size: 7
-  # San Julian: the A-4Cs.
+        - 2da Escuadrilla Aeronaval de Caza y Ataque
+      aircraft_type: Tornado IDS
+      size: 5
+  # San Julian: the A-4Cs and the Daggers.
   11:
     - primary: Anti-ship
       secondary: any
       aircraft:
         - Grupo 4 de Caza
       aircraft_type: A-4E Skyhawk
-      size: 9
+      size: 5
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - Grupo 6 de Caza
+      aircraft_type: Mirage-F1CE
+      size: 4
   # Ushuaia: the Hercules.
   7:
     - primary: Transport

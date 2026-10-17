@@ -222,7 +222,7 @@ def test_every_squadron_is_a_1982_unit_in_its_sides_faction(
             (named,) = squadron.aircraft
             assert presets.get(named) == kind, f"{cp.name}: {named!r}"
             count += 1
-    assert count == len(presets) == 19
+    assert count == len(presets) == 20
 
 
 def test_the_carriers_sail_the_hulls_the_yaml_names(

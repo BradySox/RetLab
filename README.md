@@ -465,7 +465,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   Murmansk, Soviet supply ships to sink and Backfires hunting the boat. Stock DCS units only.
 - **Operation Corporate 1982** — 21 May 1982: the commandos are ashore at San Carlos, Hermes and
   Invincible stand off to the east, and Argentina holds Stanley, Goose Green and Mount Kent. The
-  Skyhawks and Daggers fly 350 to 430 NM from the Patagonian coast; the Navy's A-4Qs fly off the
+  Skyhawks, Daggers and Super Étendards fly 350 to 430 NM from the Patagonian coast; the Navy's A-4Qs fly off the
   Veinticinco de Mayo. Take Stanley to win, lose San Carlos and you lose. Chile is neutral. Play
   it as Argentina with Invert Sides. Stock DCS plus the community A-4E; the AV-8B stands in for
   the Sea Harrier.
