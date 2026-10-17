@@ -472,3 +472,78 @@ def test_sitrep_lines_are_prefixed_and_capped() -> None:
     assert len(lines) == 5
     assert lines[0].startswith("Victory: ")
     assert lines[-1] == "(+1 more conditions)"
+
+
+# --- Invert Sides ---------------------------------------------------------------------
+# A block is written for the campaign's own blue side. Started inverted, that side is
+# the game's red: "take Stanley" is the player's defeat, not a turn-one win.
+
+
+def _inverted_war() -> Any:
+    victory_mod._PROFILE_CACHE["Test Campaign"] = VictoryProfile(
+        description="Retake the islands",
+        win_when=(VictoryCondition(label="Stanley falls", capture_cps=("Stanley",)),),
+        lose_when=(VictoryCondition(lose_cps=("San Carlos",)),),
+    )
+    # The author's blue (the UK) holds San Carlos; in an inverted game that is red.
+    game = _game(
+        cps=[_cp("Stanley", Player.BLUE), _cp("San Carlos", Player.RED)],
+        campaign_name="Test Campaign",
+    )
+    game.sides_inverted = True
+    return game
+
+
+def test_an_inverted_game_does_not_end_on_its_first_turn() -> None:
+    assert victory_verdict(_inverted_war()) is None
+
+
+def test_inverted_the_authors_loss_is_the_players_win() -> None:
+    game = _inverted_war()
+    game.theater.controlpoints[1].captured = Player.BLUE  # the player takes San Carlos
+    assert victory_verdict(game) == "win"
+
+
+def test_inverted_the_authors_win_is_the_players_loss() -> None:
+    game = _inverted_war()
+    game.theater.controlpoints[0].captured = Player.RED  # the enemy takes Stanley
+    assert victory_verdict(game) == "loss"
+    # The banner speaks for the player, not with the author's label.
+    assert game.messages[0] == ("Defeat condition met", "The enemy takes Stanley")
+
+
+def test_inverted_strength_ratios_read_the_other_side() -> None:
+    game = _game(red_air=(10,), blue_air=(10,))
+    game.sides_inverted = True
+    baseline = _baseline(game)
+    cond = VictoryCondition(enemy_air_below=0.5)
+    # The author's enemy is the game's blue: red losses do not count.
+    game.air_wing_for(Player.RED).iter_squadrons()[0].owned_aircraft = 1
+    assert not condition_met(game, cond, baseline)
+    game.air_wing_for(Player.BLUE).iter_squadrons()[0].owned_aircraft = 1
+    assert condition_met(game, cond, baseline)
+
+
+def test_inverted_categories_and_air_denial_read_blue_ground() -> None:
+    blue_cp = _cp("Home", Player.BLUE, operational=False)
+    game = _game(cps=[blue_cp], tgos=[_tgo("Comms", "comms", blue_cp, True)])
+    game.sides_inverted = True
+    baseline = _baseline(game)
+    assert baseline.blue_categories == {"comms": 1}
+    cond = VictoryCondition(destroy_categories=("comms",))
+    assert not condition_met(game, cond, baseline)
+    game.theater.ground_objects[0].units[0].alive = False
+    assert condition_met(game, cond, baseline)
+    assert condition_met(game, VictoryCondition(enemy_air_denied=True), baseline)
+
+
+def test_inverted_overview_mirrors_rows_and_drops_the_authors_words() -> None:
+    game = _inverted_war()
+    rows = victory_overview(game)
+    assert [row["defeat"] for row in rows] == [False, True]
+    assert rows[0]["text"] == "Capture San Carlos (0/1 fallen)"
+    assert rows[1]["text"] == "The enemy takes Stanley (0/1 held)"
+    assert victory_mod.victory_description(game) is None
+    assert victory_mod.victory_description(_game(campaign_name="Test Campaign")) == (
+        "Retake the islands"
+    )

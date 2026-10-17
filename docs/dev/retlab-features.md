@@ -7609,8 +7609,16 @@ authored/knob condition is announced once (`game.message`, latched on
 `game.victory_announced`) so the generic Victory!/Defeat! dialog always has a "why"
 beside it in the events feed.
 
-**The baseline:** `VictoryBaseline` (red/blue air, red ground, red per-category TGO
-counts) latched unconditionally in `initialize_turn` (turn 0 for a new game; first
+**Invert Sides (2026-10-17).** A block is written for its campaign's own blue side, and
+New Game's Invert Sides makes that side red. `game.sides_inverted` (set by `GameGenerator`,
+default False on old saves) makes every entry read for the author's side, swaps the lists
+(the author's `win_when` is the player's defeat), mirrors the prose ("The enemy takes
+Stanley"), and drops the authored `label` and `description`, which speak for the other side.
+Before this an inverted game could end on turn 1: a `lose_cps` field the author's side held
+at the start was red-owned from the first turn.
+
+**The baseline:** `VictoryBaseline` (red/blue air, red and blue ground, red and blue per-category
+TGO counts) latched unconditionally in `initialize_turn` (turn 0 for a new game; first
 load for a pre-feature save — the accepted `PhaseBaseline` migration), so a knob
 flipped on at turn 20 still measures against the earliest state this build saw.
 Persisted on `game.victory_baseline` (getattr-guarded).
