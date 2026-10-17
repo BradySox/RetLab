@@ -1,0 +1,18 @@
+---
+name: Escuadron I de Caza (VI Brigada Aerea)
+female_pilot_percentage: 0
+country: Argentina
+role: Multirole Fighter
+aircraft: F-16A
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
+  - BAI
+  - Strike
+  - Anti-ship
+  - OCA/Aircraft
+  - OCA/Runway
+  - CAS
+# F-16AM, Tandil. The F-16A stands in.

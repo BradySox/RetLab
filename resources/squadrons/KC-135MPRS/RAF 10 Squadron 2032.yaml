@@ -1,0 +1,9 @@
+---
+name: No. 10 Squadron RAF
+female_pilot_percentage: 0
+country: UK
+role: Air-to-Air Refueling
+aircraft: KC-135 Stratotanker MPRS
+mission_types:
+  - Refueling
+# Voyager KC2. The KC-135 MPRS stands in.

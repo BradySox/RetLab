@@ -1,0 +1,12 @@
+---
+name: 656 Squadron AAC
+female_pilot_percentage: 0
+country: UK
+role: Attack Helicopter
+aircraft: AH-64D Apache Longbow
+mission_types:
+  - CAS
+  - BAI
+  - Armed Recon
+  - Escort
+# AH-64E, 2032. The AH-64D stands in.

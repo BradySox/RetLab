@@ -422,6 +422,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Second Island Chain | Marianas | 2027 China fight up the chain from Guam |
 | Northern Flank 1985 | Kola | The coast road from Narvik to Murmansk, and the sea beside it |
 | Operation Corporate 1982 | Falklands | The Falklands War from the San Carlos landing, either side |
+| Mount Pleasant 2032 | Falklands | Hold the islands against a rearmed Argentina, either side |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -470,6 +471,12 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   Veinticinco de Mayo. Take Stanley to win, lose San Carlos and you lose. Chile is neutral. Play
   it as Argentina with Invert Sides. Stock DCS plus the community A-4E; the AV-8B stands in for
   the Sea Harrier.
+- **Mount Pleasant 2032** — fictional: Argentina has landed at Goose Green and San Carlos with
+  HQ-7 batteries. The UK garrison holds Mount Pleasant and Stanley with Sky Sabre, Apaches and a
+  Type 45, and a US Air Force detachment of F-16s and F-15Es fights beside it, its AWACS and
+  tankers flying in from Ascension. Take both landings to win, lose Mount Pleasant and you lose;
+  the mainland can't be taken. Play the landing with Invert Sides. Needs the CurrentHill UK
+  pack and the community A-4E.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

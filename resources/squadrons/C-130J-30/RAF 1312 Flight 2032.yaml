@@ -1,0 +1,10 @@
+---
+name: No. 1312 Flight RAF
+female_pilot_percentage: 0
+country: UK
+role: Transport
+aircraft: C-130J-30
+mission_types:
+  - Transport
+  - Air Assault
+# A400M Atlas, Mount Pleasant. The C-130J-30 stands in.

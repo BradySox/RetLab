@@ -1307,6 +1307,46 @@ CORPORATE_1982_ROUTES = [
     ),
 ]
 
+# --- Falklands - Mount Pleasant 2032: the modern road from Mount Pleasant to Goose
+# --- Green and to Stanley, the northern track from Stanley to San Carlos, and the
+# --- 1982 Sussex Mountains track between the two Argentine bridgeheads. The
+# --- mainland reuses Corporate 1982's Ruta 3 routes.
+MP32_MOUNT_PLEASANT = (73318.0, 47169.0)
+
+MOUNT_PLEASANT_2032_ROUTES = [
+    Route(
+        "THE FRONT -- Mount Pleasant -> Goose Green  (the Darwin road, west across Lafonia's neck)",
+        MP32_MOUNT_PLEASANT,
+        [(-51.81, -58.58), (-51.80, -58.72), (-51.81, -58.86)],
+        C82_GOOSE_GREEN,
+    ),
+    Route(
+        "Mount Pleasant -> Port Stanley  (the Stanley road, past Fitzroy and Mount Harriet)",
+        MP32_MOUNT_PLEASANT,
+        [(-51.77, -58.32), (-51.74, -58.17), (-51.71, -58.00), (-51.69, -57.88)],
+        C82_STANLEY,
+    ),
+    Route(
+        "THE FRONT -- Port Stanley -> San Carlos  (Moody Brook, Mount Kent, Estancia, Teal Inlet, Port San Carlos)",
+        C82_STANLEY,
+        [
+            (-51.69, -57.88),
+            (-51.67, -58.05),
+            (-51.62, -58.25),
+            (-51.56, -58.42),
+            (-51.52, -58.65),
+            (-51.48, -58.92),
+        ],
+        C82_SAN_CARLOS,
+    ),
+    Route(
+        "Goose Green -> San Carlos  (Darwin, Camilla Creek, over the Sussex Mountains)",
+        C82_GOOSE_GREEN,
+        [(-51.81, -58.96), (-51.75, -58.97), (-51.65, -58.97), (-51.56, -58.99)],
+        C82_SAN_CARLOS,
+    ),
+] + [route for route in CORPORATE_1982_ROUTES if "Ruta 3" in route.comment]
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
@@ -1318,6 +1358,7 @@ CAMPAIGNS = {
     "northern_flank_1985": (Kola, NORTHERN_FLANK_ROUTES),
     "northern_flank_1985_lanes": (Kola, NORTHERN_FLANK_LANES),
     "corporate_1982": (Falklands, CORPORATE_1982_ROUTES),
+    "mount_pleasant_2032": (Falklands, MOUNT_PLEASANT_2032_ROUTES),
 }
 # Every batch-1/batch-2 campaign is directly addressable too (spaces -> underscores;
 # a campaign in both batches resolves to its batch-2 red routes -- regenerate batch-1

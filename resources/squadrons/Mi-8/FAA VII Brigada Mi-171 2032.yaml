@@ -1,0 +1,10 @@
+---
+name: VII Brigada Aerea (Mi-171)
+female_pilot_percentage: 0
+country: Argentina
+role: Transport Helicopter
+aircraft: Mi-17 Hip
+mission_types:
+  - Air Assault
+  - Transport
+# Mi-171E. The Mi-17 stands in.
