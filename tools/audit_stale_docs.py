@@ -456,7 +456,7 @@ REMOVED: tuple[Removed, ...] = (
         "escort jamming, the growler plugin and the Escort Jammer task (S77)",
         "2026-10-12",
         r"[Ee]scort jamm\w+|Escort Jammer|escort-jammer|ESCORT_JAMMER"
-        r"|max_escort_jammers|`growler`",
+        r"|max_escort_jammers|`growler`|jammers? on (the )?(\w+ )?packages?",
         allow=("removed", "Removed", "no longer", "historical"),
     ),
     Removed(

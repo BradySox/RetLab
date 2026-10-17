@@ -91,9 +91,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Survivors pop smoke for AI rescue flights. Human crews get the F10 menu — list active
   survivors, request smoke, flare or IR strobe — and choose when to expose the position.
 - JAMMING turns the C-130J into an EC-130H/RC-130H-style EW and ISR platform.
-- The auto-planner puts jammers on the packages that fly into a SAM ring — DEAD and strike.
-  Helicopter packages (air assault, CSAR) do not get one; neither do their fast-jet formation
-  escorts, which now follow the same helo/LHA rule the A2A and SEAD escorts already used.
+- A helicopter package (air assault, CSAR) takes its Escort and SEAD Escort flights only from
+  helicopter or LHA-capable squadrons. A plain fast jet cannot hold formation on a helicopter.
 - Fixed-wing transports fly Air Assault as a paradrop. Players run in below 3,000 ft AGL and
   use the CTLD *Unload / Extract Troops* call; AI releases automatically over the drop zone.
   Helicopter assaults are unchanged.

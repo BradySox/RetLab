@@ -172,8 +172,9 @@ games; a save from before it loads with it off (`Game.__setstate__`). Code:
 - **A won battle takes sectors** (`MissionResultsProcessor.take_sectors`, after the strength
   change, which still happens). The result itself is unchanged: one per front. Strong win 2,
   clear win 1, minor win 1 only when the winner attacked. Each sector taken is the loser's
-  sector nearest the front that touches the winner's ground, within half the Maximum
-  frontline width (at least 15 NM). The turn's messages name the sectors.
+  sector nearest the front that touches the winner's ground, within one Maximum frontline
+  width of the front (at least 15 NM): half of `battle_stretch_m`, which spans two widths.
+  The turn's messages name the sectors.
 - **A base falls with its sector** (`commit_sector_war`, after the mission's own captures):
   same capture, prisoners and redeploy as a mission capture. A base taken in the mission
   takes its sector first, so the two never fight. Every turn the base sectors are synced to

@@ -17,14 +17,12 @@ Windows releases publish automatically to the rolling
 Upstream shows you the enemy laydown. The fork fogs it.
 
 - Enemy sites can be known without their composition, strength, damage state or threat rings
-  being known. Scouting or attacking reveals them; confirmed battle damage can require a
-  surviving recon pass.
+  being known. Engaging a site reveals it for good, damage included.
 - Unscouted mobile forces draw a dashed circle offset from their true position instead of an
   exact marker. Fixed infrastructure stays exact.
-- [TARPS](Fog-of-War-and-Reconnaissance) is a player task — the F-14 plus the Vietnam-era RF-101B Voodoo
-  and RA-5C Vigilante. Recon is automatic on overfly: fly the profile over the target and the
-  take is banked as confirmed intelligence. Drones film whatever they overfly regardless of
-  their tasking.
+- [TARPS](Fog-of-War-and-Reconnaissance) is a hand-fragged player task — the F-14 plus the Vietnam-era
+  RF-101B Voodoo and RA-5C Vigilante.
+- A recon flight reveals only a hidden enemy command post within 3 NM of its target.
 - Optional **Approximate target area** mode removes perfect coordinates and offsets steerpoints,
   so visual acquisition and talk-ons matter. Mobile short-range defences are kept off player
   datalinks; larger SAM sites stay visible for deliberate SEAD/DEAD.
