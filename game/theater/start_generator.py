@@ -290,7 +290,9 @@ class ControlPointGroundObjectGenerator:
         valid_fg = (
             fg
             and task in fg.tasks
-            and all([u in self.faction.accessible_units for u in fg.units])
+            and all(
+                u in self.faction.accessible_units for u in fg.units_a_faction_must_own
+            )
         )
         if valid_fg:
             assert fg

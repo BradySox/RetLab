@@ -1,0 +1,1 @@
+* **[Campaigns]** A campaign that places an SA-15 site for a faction without a Dog Ear radar gets the SA-15 again, not a random SHORAD. Fixes 20 sites in Assault on Damascus, Battle for Georgia and Noisy Cricket (Redux).
