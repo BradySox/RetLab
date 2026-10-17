@@ -829,6 +829,10 @@ class MissionResultsProcessor:
         war = war_of(self.game)
         if war is None:
             return
+        # Upstream scores an empty front as a strong defeat; with nobody there to
+        # take the ground, that handed over 2 sectors a turn and the base with them.
+        if winner.base.total_frontline_units <= 0:
+            return
         count = sectors_won(delta, winner_attacked)
         if count <= 0:
             return
