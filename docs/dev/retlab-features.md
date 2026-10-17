@@ -10853,6 +10853,11 @@ width measured along the border, instead of one short line across the road. The 
 and the front's movement are unchanged. Setting *Front line battles spread along the
 border*, on by default. Not flown (row B230).
 
+CAS follows the battle line, built 2026-10-17 on Brady's call: with battles along the border, a
+CAS flight's FLOT START and FLOT END sit on the outer battles (the end nearer home first), with
+up to 3 BATTLE stops on battles evenly spaced between. The AI searches its engagement range
+around each stop. With the setting off or no battles, the plan is unchanged. Not flown (row B240).
+
 Step 2, built 2026-10-12: sectors decide the fight. Each sector's owner is saved; the
 front line sits where its road enters the enemy's sectors; a won battle takes 2, 1 or 0
 sectors by how clear the win was; a base falls with its sector; a road through enemy
@@ -10882,7 +10887,11 @@ choices, the algorithm and the step 2 notes.
   `commit_sector_war`), `game/theater/transitnetwork.py`, `game/game.py`.
 - `client/src/components/territorylayer/`, `client/src/api/territorySlice.ts`: the
   Territory and Sectors layers.
+- `game/ato/flightplans/cas.py` (`battle_stop_sites`, `CasLayout.battle_stops`),
+  `game/missiongenerator/aircraft/waypoints/casingress.py` (`CasStopBuilder`): CAS on the
+  battle line.
 - `tests/theater/test_sectors.py`, `tests/theater/test_sector_war.py`,
+  `tests/ato/flightplans/test_cas_battle_line.py`,
   `client/src/components/territorylayer/TerritoryLayer.test.tsx`.
 
 ### Constraints
@@ -10905,7 +10914,13 @@ choices, the algorithm and the step 2 notes.
   spreads its wedges end to end, so some pockets are one-sided pushes. Each group faces
   across the border at its own battle.
 - The unit count is unchanged: *Maximum ground units deployed per frontline by faction*.
-- CAS flight plans still use the front's own bounds. The JTAC orbits the busiest battle.
+- A CAS flight on the battle line gets one search circle (*EngageTargetsInZone*) per stop.
+  They are DCS en-route tasks, so each stays on for the rest of the route and the circles add
+  up; one zone over the whole line would send the AI deep behind it. The JTAC orbits the
+  busiest battle.
+- CAS stops use every battle site, not the ones the mission fills (`pick_battles` needs the
+  ground forces). The ends hold units unless the bigger side fields one wedge; a middle
+  stop can land on an empty site.
 
 ## §112 — HQ requests
 
