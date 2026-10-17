@@ -21,7 +21,13 @@ from game.settings import Settings
 from game.sim import GameUpdateEvents
 from game.sim.missionresultsprocessor import MissionResultsProcessor, sectors_won
 from game.theater.player import Player
-from game.theater.sectors import BLUE, RED, land_control_points, sector_map_for
+from game.theater.sectors import (
+    BLUE,
+    RED,
+    land_control_points,
+    sector_map_for,
+    territory_for,
+)
 from game.theater.sectorwar import SectorWar, sector_neighbours, war_of
 from game.theater.start_generator import GameGenerator, GeneratorSettings, ModSettings
 
@@ -151,6 +157,50 @@ def test_a_base_falls_with_its_sector() -> None:
     )
     assert red_cp.captured.is_blue
     assert war.fallen_bases(game.theater) == []
+
+
+def test_a_side_with_no_front_line_units_takes_no_sectors(game: Any) -> None:
+    war = war_of(game)
+    assert war is not None
+    front = next(iter(game.theater.conflicts()))
+    saved = dict(war.owners)
+    red_armor = dict(front.red_cp.base.armor)
+    processor = MissionResultsProcessor(game)
+    try:
+        front.red_cp.base.armor.clear()
+        processor.take_sectors(front.red_cp, front.blue_cp, 0.5, True)
+        assert war.owners == saved
+        tank = next(iter(game.red.faction.frontline_units))
+        front.red_cp.base.armor[tank] = 4
+        assert front.red_cp.base.total_frontline_units > 0
+        processor.take_sectors(front.red_cp, front.blue_cp, 0.5, True)
+        assert war.owners != saved
+    finally:
+        front.red_cp.base.armor.clear()
+        front.red_cp.base.armor.update(red_armor)
+        war.owners = saved
+        war.version += 1
+
+
+def test_shapes_follow_the_owners_not_the_change_count(game: Any) -> None:
+    # A reloaded save re-flown differently reaches the same version with other
+    # owners; the module caches outlive the game and must not serve the old shape.
+    war = war_of(game)
+    assert war is not None
+    front = next(iter(game.theater.conflicts()))
+    saved = dict(war.owners)
+    version = war.version
+    try:
+        war.take_sectors(front, Player.BLUE, 1)
+        first = territory_for(game.theater)
+        war.owners = dict(saved)
+        war.version = version
+        war.take_sectors(front, Player.RED, 1)
+        assert war.version == version + 1
+        assert territory_for(game.theater) is not first
+    finally:
+        war.owners = saved
+        war.version += 1
 
 
 def test_a_base_taken_in_the_mission_takes_its_sector(game: Any) -> None:

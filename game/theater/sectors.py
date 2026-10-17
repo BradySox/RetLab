@@ -616,7 +616,7 @@ def _war(theater: ConflictTheater) -> Optional[Any]:
 def _territory_key(theater: ConflictTheater) -> tuple[Any, ...]:
     war = _war(theater)
     if war is not None:
-        return (_sector_key(theater), "war", war.version)
+        return (_sector_key(theater), "war", war.owner_key())
     owners = tuple(
         sorted((cp.name, cp.captured.value) for cp in land_control_points(theater))
     )
