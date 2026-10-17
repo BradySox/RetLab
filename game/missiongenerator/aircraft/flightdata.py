@@ -117,6 +117,9 @@ class FlightData:
     #: Player seats an AI twin replaces if nobody takes them (§113).
     ai_fill: bool = False
 
+    #: When a late-activated group appears; None spawns at mission start.
+    activation_delay: Optional[timedelta] = None
+
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])
 

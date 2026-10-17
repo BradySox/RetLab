@@ -32,6 +32,7 @@ local Harness = {
         aiOnOff = {}, -- { group, on, t } from Controller:setOnOff
         controllerTasks = {}, -- { group, taskId, targetGroupId, x, y, t } from Controller:setTask
         controllerResets = {}, -- { group, t } from Controller:resetTask
+        pushedTasks = {}, -- { group, taskId, innerId, targetGroupId, stopFlag, t } from Controller:pushTask
         activations = {}, -- group names from Group:activate (late-activation launches)
         controllerCommands = {}, -- { group, commandId, t } from Controller:setCommand
         options = {}, -- { group, option, value, t } from Controller:setOption
@@ -277,6 +278,23 @@ function ControllerFake:setCommand(command)
     table.insert(Harness.records.controllerCommands, {
         group = self.group:getName(),
         commandId = id,
+        t = Harness.now,
+    })
+end
+
+-- A pushed task sits on top of the route and hands back to it when it ends.
+function ControllerFake:pushTask(task)
+    local inner = task and task.params and task.params.task
+    local innerParams = inner and inner.params or {}
+    local stop = task and task.params and task.params.stopCondition or {}
+    table.insert(Harness.records.pushedTasks, {
+        group = self.group:getName(),
+        taskId = task and task.id,
+        innerId = inner and inner.id,
+        targetGroupId = innerParams.groupId,
+        engagementDistMax = innerParams.engagementDistMax,
+        targetTypes = innerParams.targetTypes,
+        stopFlag = stop.userFlag,
         t = Harness.now,
     })
 end
