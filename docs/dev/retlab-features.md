@@ -981,6 +981,20 @@ Markers, labels and the label-placement rules are untouched.
   daylight satellite render; 0.45 sits it near the dark landmap's own land fill and keeps the
   white label plates and haloes high-contrast.
 
+**Past the landmap's edge is land, and frontiers are drawn (2026-10-16).** The landmap fallback
+used to paint everything that was not an inclusion zone as sea. The Iraq landmap stops about
+35 km short of the map's west and north edges, so Desert Aladeen's page drew an ocean over
+Jordan, Syria and Turkey. Any page reaching past a landmap's outer edge did the same
+(Caucasus's Turkey corner, Syria's south, the Gulf's Saudi side, Nevada, Sinai, Kola).
+
+- `_load_sea_polygons` builds the water once per terrain: the inclusion and sea zones together,
+  gaps under 8 km closed (`_FOOTPRINT_CLOSE_M`), minus the land. Inside that outline the page
+  reads as before, estuaries and shoreline gaps included; outside it is land fill. DM call:
+  land, not a grey "off the map" fill, accepting open ocean drawn as land in the few corners
+  past a landmap's edge (SW of Syria, the Falklands, north of Kola).
+- `_draw_land_borders` draws the §98 terrain border file's frontiers over either backdrop: only
+  edges two countries share, the rule `land_border_runs` uses, so no coast or clip edge.
+
 Independent confirmation the georeference is right, from the rendered pages: on Caucasus every
 coastal field — Sochi-Adler, Gudauta, Sukhumi-Babushara, Kobuleti, Batumi — sits on the imaged
 shoreline, and only Batumi is a reference point. On northern Syria the raster's coastline traces

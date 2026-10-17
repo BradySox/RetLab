@@ -9,6 +9,7 @@ from unittest.mock import patch
 import pytest
 from PIL import Image
 from dcs.terrain.caucasus.caucasus import Caucasus
+from dcs.terrain.iraq import Iraq
 
 from game.missiongenerator.kneeboard_recon import basemap
 from game.missiongenerator.kneeboard_recon.basemap import (
@@ -430,12 +431,14 @@ def test_theater_basemap_falls_back_to_coastlines_when_the_raster_refuses(
         img.getpixel((x, y)) for x in range(0, 400, 40) for y in range(0, 400, 40)
     }
     assert _SYNTHETIC_GIF_RGB not in colours
-    # render_landmap_basemap paints sea, land fill or its grid line — nothing else.
+    # render_landmap_basemap paints sea, land fill or its grid line, and the
+    # border overlay its frontier lines — nothing else.
     assert colours <= {
         basemap._SEA_RGB,
         basemap._LAND_FILL,
         basemap._COAST_RGB,
         basemap._GRID_LINE,
+        basemap._BORDER_RGB,
     }
 
 
@@ -467,3 +470,68 @@ def test_theater_basemap_never_reaches_for_tiles(caucasus: Caucasus) -> None:
         basemap, "render_tiles", side_effect=AssertionError("must not fetch tiles")
     ):
         basemap.render_theater_basemap(extent, 400, 400)
+
+
+@pytest.fixture(scope="module")
+def iraq() -> Iraq:
+    return Iraq()
+
+
+def test_ground_past_the_landmap_edge_is_land_not_sea(iraq: Iraq) -> None:
+    """West of the Iraq landmap is Jordan and Syria, never an ocean.
+
+    Flown 2026-10-16: Desert Aladeen's packages map drew sea down the whole
+    west and north edge of the page.
+    """
+    extent = MapExtent(
+        min_x=-100_000.0,
+        max_x=100_000.0,
+        min_y=-700_000.0,
+        max_y=-560_000.0,
+        terrain=iraq,
+    )
+    img = basemap.render_landmap_basemap(extent, 400, 400)
+    colours = {
+        img.getpixel((x, y)) for x in range(5, 400, 40) for y in range(5, 400, 40)
+    }
+    assert basemap._SEA_RGB not in colours
+    assert basemap._LAND_FILL in colours
+
+
+def test_the_gulf_is_still_sea(iraq: Iraq) -> None:
+    """Real water inside the landmap keeps its sea fill."""
+    kharg = next(a for a in iraq.airports.values() if a.name.startswith("Kharg"))
+    x, y = kharg.position.x, kharg.position.y
+    extent = MapExtent(
+        min_x=x - 60_000.0,
+        max_x=x + 60_000.0,
+        min_y=y - 60_000.0,
+        max_y=y + 60_000.0,
+        terrain=iraq,
+    )
+    img = basemap.render_landmap_basemap(extent, 400, 400)
+    colours = {
+        img.getpixel((x, y)) for x in range(5, 400, 40) for y in range(5, 400, 40)
+    }
+    assert basemap._SEA_RGB in colours
+
+
+def test_land_borders_are_frontiers_only() -> None:
+    """Only edges two countries share are drawn: no coast, no clip edge."""
+    segments = basemap._land_border_segments("Iraq")
+    assert segments
+    assert basemap._land_border_segments("Nevada") == ()
+
+
+def test_theater_basemap_draws_the_land_borders(iraq: Iraq) -> None:
+    """Iraq's frontiers show on the orientation map."""
+    extent = MapExtent(
+        min_x=-400_000.0,
+        max_x=400_000.0,
+        min_y=-500_000.0,
+        max_y=500_000.0,
+        terrain=iraq,
+    )
+    img = basemap.render_theater_basemap(extent, 400, 400)
+    colours = {img.getpixel((x, y)) for x in range(400) for y in range(400)}
+    assert basemap._BORDER_RGB in colours
