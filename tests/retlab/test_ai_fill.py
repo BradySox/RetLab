@@ -11,11 +11,14 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from dcs.task import ControlledTask, EscortTaskAction, OptROE
+from dcs.unitgroup import FlyingGroup
 
 from game.ato.flightmember import FlightMember
 from game.ato.flightstate import WaitingForStart
 from game.ato.flighttype import FlightType
 from game.ato.starttype import StartType
+from game.missiongenerator.aircraft.aircraftgenerator import AircraftGenerator
 from game.missiongenerator.aircraft.aitwin import (
     AiTwinSeat,
     ai_twin_view,
@@ -25,10 +28,15 @@ from game.missiongenerator.aircraft.aitwin import (
 )
 from game.missiongenerator.luagenerator import LuaData
 from game.missiongenerator.missiondata import MissionData
+from game.missiongenerator.aircraft.waypoints.waypointgenerator import (
+    WaypointGenerator,
+)
 from game.retlab.ai_fill import (
     NO_AI_FILL_TASKS,
+    AiFillEscort,
     AiFillPair,
     ai_fill_wanted,
+    escort_task_of,
     offers_ai_fill,
     populate_ai_fill_lua,
 )
@@ -232,3 +240,124 @@ def test_the_lua_record_carries_each_pair_and_the_settings() -> None:
     assert 'twin = "AI Hog 1 grp"' in lua
     assert 'coalition = "blue"' in lua
     assert 'activateAfter = "1500"' in lua
+
+
+ESCORT = AiFillEscort(
+    group="Eagle 1",
+    engagement_max_dist=37040,
+    target_types=("Fighters", "Multirole fighters"),
+    position=(100.0, 609.6, -50.0),
+    split_flag="split-42",
+)
+
+
+def test_the_record_carries_when_the_client_group_appears() -> None:
+    lua = _emit(
+        [AiFillPair("Hog 1 grp", "AI Hog 1 grp", "blue", 1500, "m", 1500)],
+        Settings(),
+    )
+    assert 'clientActivation = "1500"' in lua
+    assert "escorts" not in lua
+
+
+def test_the_record_carries_the_escorts_to_retask() -> None:
+    lua = _emit(
+        [AiFillPair("Hog 1 grp", "AI Hog 1 grp", "blue", 1500, "m", 0, (ESCORT,))],
+        Settings(),
+    )
+    assert 'clientActivation = "0"' in lua
+    assert "escorts = {" in lua
+    assert 'group = "Eagle 1"' in lua
+    assert 'engagementDistMax = "37040"' in lua
+    assert 'targetTypes = {"Fighters", "Multirole fighters"}' in lua
+    assert 'z = "-50.0"' in lua
+    assert 'splitFlag = "split-42"' in lua
+
+
+def test_the_escort_task_is_read_from_the_generated_route() -> None:
+    task = ControlledTask(
+        EscortTaskAction(
+            group_id=7,
+            engagement_max_dist=37040,
+            targets=["Fighters", "Multirole fighters"],
+            position={"x": 100.0, "y": 609.6, "z": -50.0},
+        )
+    )
+    task.stop_if_user_flag("split-42", True)
+    join = SimpleNamespace(tasks=[OptROE(OptROE.Values.OpenFire), task])
+    group = SimpleNamespace(name="Eagle 1", points=[SimpleNamespace(tasks=[]), join])
+    assert escort_task_of(group) == ESCORT  # type: ignore[arg-type]
+
+
+def test_a_route_with_no_escort_task_has_nothing_to_retask() -> None:
+    group = SimpleNamespace(name="Eagle 1", points=[SimpleNamespace(tasks=[])])
+    assert escort_task_of(group) is None  # type: ignore[arg-type]
+
+
+def test_the_waypoint_generator_records_a_late_activation() -> None:
+    generator = WaypointGenerator(
+        SimpleNamespace(departure=SimpleNamespace(dcs_airport=None)),  # type: ignore[arg-type]
+        SimpleNamespace(id=5, late_activation=False),  # type: ignore[arg-type]
+        SimpleNamespace(triggerrules=SimpleNamespace(triggers=[])),  # type: ignore[arg-type]
+        START,
+        Settings(),
+        MissionData(),
+        multiplayer=False,
+    )
+    assert generator.activation_delay is None
+    generator.set_activation_time(timedelta(minutes=20))
+    assert generator.activation_delay == timedelta(minutes=20)
+
+
+def _escort_group(name: str, group_id: int) -> Any:
+    group = FlyingGroup.__new__(FlyingGroup)
+    group.name = name
+    group.id = group_id
+    task = ControlledTask(
+        EscortTaskAction(
+            group_id=1,
+            engagement_max_dist=37040,
+            targets=["Fighters", "Multirole fighters"],
+            position={"x": 100.0, "y": 609.6, "z": -50.0},
+        )
+    )
+    task.stop_if_user_flag("split-42", True)
+    group.points = [SimpleNamespace(tasks=[task])]  # type: ignore[list-item]
+    return group
+
+
+def test_a_primary_flights_twin_takes_the_packages_ai_escorts() -> None:
+    client = SimpleNamespace(name="Hog 1", id=1)
+    groups = {
+        1: client,
+        2: _escort_group("Eagle 1", 2),
+        3: _escort_group("Viper 1", 3),
+    }
+    twin_of_player_escort = _escort_group("AI Viper 1", 4)
+    mission = SimpleNamespace(
+        find_group_by_id=groups.get,
+        find_group=lambda name: (
+            twin_of_player_escort if name == "AI Viper 1" else None
+        ),
+    )
+    primary = SimpleNamespace(flight_type=FlightType.STRIKE, group_id=1)
+    ai_escort = SimpleNamespace(
+        flight_type=FlightType.ESCORT, group_id=2, client_count=0
+    )
+    player_escort = SimpleNamespace(
+        flight_type=FlightType.SEAD_ESCORT, group_id=3, client_count=1
+    )
+    generator = AircraftGenerator.__new__(AircraftGenerator)
+    generator.mission = mission  # type: ignore[assignment]
+    generator.mission_data = MissionData()
+    generator.mission_data.ai_fill_pairs.append(
+        AiFillPair("Hog 1", "AI Hog 1", "blue", 600, "m")
+    )
+    package = SimpleNamespace(primary_flight=primary)
+
+    generator._hand_escorts_to_twin(
+        package, [primary, ai_escort, player_escort], 0  # type: ignore[arg-type,list-item]
+    )
+
+    escorts = generator.mission_data.ai_fill_pairs[0].escorts
+    assert [e.group for e in escorts] == ["Eagle 1", "AI Viper 1"]

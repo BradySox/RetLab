@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Optional
 
 from dcs import Point
 
+from game.ato.flighttype import FlightType
 from game.ato.flightplans.waypointbuilder import WaypointBuilder
 from game.flightplan import JoinZoneGeometry
 from game.flightplan.ipsolver import IpSolver
@@ -172,11 +173,26 @@ class PackageWaypoints:
         Only the package's attackers count: a SEAD escort's ARM says nothing about
         where bombers release, and one attacker with no ranged weapon flies to the
         target, so its escorts keep the IP.
+
+        SEAD and SEAD sweep fly to their SEAD Search point, not to their ARM's
+        authored range (80 nm for a HARM), so their escorts hold there.
         """
         waypoints = package.waypoints
         assert waypoints is not None
         target = package.target.position
         ip_distance = waypoints.initial.distance_to_point(target)
+        if package.primary_task in (FlightType.SEAD, FlightType.SEAD_SWEEP):
+            searches = [
+                WaypointBuilder.sead_search_point(f, package.target)
+                for f in package.flights
+                if f.flight_type is package.primary_task
+            ]
+            if not searches:
+                return waypoints.initial
+            nearest = min(searches, key=lambda p: p.distance_to_point(target))
+            if nearest.distance_to_point(target) <= ip_distance:
+                return waypoints.initial
+            return nearest
         ranges = [
             f.max_standoff_range
             for f in package.flights

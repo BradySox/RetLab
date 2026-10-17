@@ -111,3 +111,50 @@ def test_the_escorts_own_range_is_ignored_on_a_stand_off_package() -> None:
         _flight(FlightType.ESCORT, None),
     )
     assert _hold_nm(package) == pytest.approx(62)
+
+
+def _sead_flight(has_arm: bool = True, task: FlightType = FlightType.SEAD) -> Any:
+    flight = SimpleNamespace(
+        flight_type=task,
+        # A HARM's authored range: what put the old hold out on the ingress.
+        max_standoff_range=nautical_miles(80),
+        coalition=SimpleNamespace(
+            game=SimpleNamespace(
+                settings=SimpleNamespace(sead_threat_buffer_min_distance=40)
+            )
+        ),
+        any_member_has_weapon_of_type=lambda _weapon: has_arm,
+    )
+    return flight
+
+
+def _sead_package(*flights: Any, threat_nm: float = 25) -> Any:
+    package = _package(*flights, primary=flights[0].flight_type, ingress_nm=75)
+    site = SimpleNamespace(threat_range=lambda: nautical_miles(threat_nm))
+    package.target.strike_targets = [site]
+    for flight in flights:
+        flight.package = package
+    return package
+
+
+def test_a_sead_packages_escorts_hold_at_the_sead_search_point() -> None:
+    # Plain SEAD works from 0.8x the SAM's threat range with an ARM, not from
+    # its HARM's 80 nm authored range out on the ingress.
+    package = _sead_package(_sead_flight(), _flight(FlightType.ESCORT, None))
+    assert _hold_nm(package) == pytest.approx(20)
+
+
+def test_a_sead_sweeps_escorts_hold_at_its_sweep_point() -> None:
+    package = _sead_package(_sead_flight(task=FlightType.SEAD_SWEEP))
+    assert _hold_nm(package) == pytest.approx(20)
+
+
+def test_the_nearest_sead_search_point_sets_the_hold() -> None:
+    # A SEAD flight without an ARM stands off at 1.1x; the ARM shooter goes closer.
+    package = _sead_package(_sead_flight(has_arm=False), _sead_flight())
+    assert _hold_nm(package) == pytest.approx(20)
+
+
+def test_a_sead_search_point_inside_the_ip_keeps_the_ip() -> None:
+    package = _sead_package(_sead_flight(), threat_nm=5)
+    assert PackageWaypoints.escort_hold_point(package) is package.waypoints.initial

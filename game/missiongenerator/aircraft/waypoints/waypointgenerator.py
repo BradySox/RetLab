@@ -89,6 +89,8 @@ class WaypointGenerator:
         #: needs them too: a REFUEL waypoint is a fuel source to the bingo
         #: estimator, so a dropped one must leave that list as well.
         self.dropped_refuels: list[FlightWaypoint] = []
+        #: When a late-activated group appears; None spawns at mission start.
+        self.activation_delay: Optional[timedelta] = None
 
     def create_waypoints(self) -> tuple[timedelta, list[FlightWaypoint]]:
         for waypoint in self.flight.points:
@@ -652,6 +654,7 @@ class WaypointGenerator:
         # until 09:10 when the overall mission start time is 09:00, with a join
         # time of 09:30 will show the join time as 00:30, not 09:30.
         self.group.late_activation = True
+        self.activation_delay = delay
         if self.activation_by_script:
             return
 
