@@ -10897,6 +10897,12 @@ choices, the algorithm and the step 2 notes.
   seeding or naming gives a running campaign's renamed sectors back to nobody.
 - The sector cache is keyed by base ids as well as names: two games of one campaign share
   names, and a stale id silently stops bases falling with their sectors.
+- The territory and battle caches are keyed on the owners themselves (`owner_key`), never
+  on `version`: a reloaded save re-flown differently reaches the same version with other
+  owners, and the module caches outlive the game.
+- A side with no front-line units at a front takes no sectors there, whatever the battle
+  result says. Upstream scores an empty front as a strong defeat; under sector war that
+  handed over 2 sectors a turn and the base with them.
 - In a sector-war game the fronts follow the owners, never the other way round. Only turn 0
   reads owners from the fronts.
 - Battles only stand on ground the landmap marks drivable. Abchazian Blitz's border near
