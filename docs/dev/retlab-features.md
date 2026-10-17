@@ -5376,7 +5376,8 @@ directly.
 - **`MotorpoolGroundObject`** (`game/theater/theatergroundobject.py`, category `"motorpool"`) — a
   maintenance-facility map symbol (`LandInstallationEntity.MAINTENANCE_FACILITY`), visually distinct
   from an armor group. `sidc_status` is pinned **`PRESENT`** — an empty depot is its normal resting
-  state (vehicles populate ephemerally at mission-gen), never rendered damaged/destroyed; `is_dead` is
+  state (its vehicles are a projection of the reserve, reconciled by `MotorpoolPopulator`), never
+  rendered damaged/destroyed; `is_dead` is
   left intact so AI target-selection/capture/IADS logic is unaffected. `capturable`/`purchasable`/
   `should_head_to_conflict` are all `False`; `mission_types` offers **BAI** to the opponent.
 - **Placement** — gated on an authored `Fortification.Garage_A` static (`MizCampaignLoader.motorpools`
@@ -5460,7 +5461,9 @@ directly.
   to share, since `plan_groundwar` has no tests on this base), capped by `motorpool_spawn_cap`
   (largest-remainder proportional trim). Multiple motorpools on one CP round-robin the **single** shared
   reserve pool (never each render it in full, which would double-decrement `base.armor` on a strike). The
-  populated groups are **ephemeral** — never persisted; rebuilt every mission.
+  populated groups and `motorpool_projection_keys` are a **persisted cache** on the TGO, reconciled
+  on every `populate()`: an unchanged reserve keeps the same groups and unit ids. A flight plan aimed
+  at a depot keeps its hand edits at Take Off; only its unit snapshot is swapped (#1205).
 - **Rendering** — `MotorpoolGenerator` (`game/missiongenerator/motorpoolgenerator.py`, a
   `GroundObjectGenerator` subclass) lays the vehicles in a grid (so DCS doesn't drop overlapping spawns),
   **weapon-hold + alarm-green + `player_can_drive=False` + no EPLRS** (parked, unmanned, no datalink),
@@ -5557,9 +5560,9 @@ motorpool modules were byte-identical to the adoption baseline, so these apply c
   zone"), since `TRIGGER_RADIUS_CAPTURE` in metres told an author nothing actionable. Red Tide's
   Haina depot at 4,250 m stays outside it and silent.
 
-`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this, but
-population is ephemeral (rebuilt each mission-gen), so **no save migration is needed** — the next
-generated mission simply parks them in the new spot. Checklist B8 still owns the in-game pass and
+`_GRID_OFFSET_M` shifts every depot's parked vehicles relative to saves generated before this. No
+save migration was added. Since #959 the groups are a persisted cache: a vehicle kept by a reconcile
+keeps its saved position, and only vehicles a reconcile adds use the current offset. Checklist B8 still owns the in-game pass and
 should now also confirm the garage lands on its authored marker.
 
 ### Upstream drift sync (2026-10-06) — the #926 split
@@ -5575,8 +5578,8 @@ commits cherry-picked with him as author. **They are open PRs: re-sync if he cha
   2026-10-11) so a depot's owner does not change on the first load. A depot used to stay
   with whoever owned it at New Game.
   Authored-marker identity (`motorpool_identity`: name, x, y, heading) drops depots whose
-  marker left the campaign and de-duplicates a save that listed one twice. Generated groups
-  are stripped in `__getstate__`/`__setstate__`, so they never reach the save.
+  marker left the campaign and de-duplicates a save that listed one twice. A load re-homes
+  depots only; it does not repopulate them.
   - **Fork interaction:** it runs after `_ensure_motorpool_tgos` and after New Game's
     `generate_motorpools` (which both bind through the loader's blue-preference and
     stranded-marker rules) and overrides that owner with the nearest land CP. The loader's binding still decides which side's warning fires.
