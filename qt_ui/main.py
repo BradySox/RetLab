@@ -68,9 +68,10 @@ def inject_custom_payloads(user_path: Path) -> None:
             f"Could not find customized payloads at {release_payloads} or "
             f"{dev_payloads}. Aircraft will have no payloads."
         )
-    # We configure these as fallbacks so that the user's payloads override ours.
+    # RetLab: only the shipped payloads. Upstream also reads the user's
+    # MissionEditor/UnitPayloads; those replaced shipped fits by name in every
+    # campaign and pinned old weapons (features doc §73).
     PayloadDirectories.set_fallback(payloads)
-    PayloadDirectories.set_preferred(user_path / "MissionEditor" / "UnitPayloads")
 
 
 def on_game_load(game: Optional[Game]) -> None:

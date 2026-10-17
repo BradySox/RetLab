@@ -4,19 +4,19 @@ Retribution re-seeds a new flight's cockpit knobs -- internal fuel, aircraft
 condition, wear & tear, spawn variant, and any other unit *properties* -- from the
 pydcs engine defaults every time a flight is created. A player who always wants
 (say) their F/A-18C to spawn hot with 80% fuel therefore has to redo it on every
-package. This module gives those knobs the same persistence the payload dropdown
-already has: a small JSON store keyed by DCS aircraft id, written from a button in
-the payload tab and applied to each freshly-created BLUE flight.
+package. This module gives those knobs a small JSON store keyed by DCS aircraft
+id, written from a button in the payload tab and applied to each freshly-created
+BLUE flight.
 
-The loadout has its own "Save Payload" mechanism (writes DCS ``UnitPayloads``) and
-the player laser code has a campaign-wide setting; this covers the *rest* of that
-box -- fuel and the property editor knobs.
+The player laser code has a campaign-wide setting; this covers the *rest* of that
+box -- fuel and the property editor knobs. Loadouts are not saved here: they come
+from the shipped presets (features doc §73).
 
 Design notes:
 
 * Storage is one JSON file under the Saved Games tree (never the save game, never
   the repo) -- :func:`game.persistency.flight_defaults_path`. It survives across
-  campaigns, exactly like the ``UnitPayloads`` files the loadout button writes.
+  campaigns.
 * Each entry is ``{"fuel": <kg>, "properties": {<prop id>: <scalar>}}`` -- plain
   JSON. ``properties`` carries whatever the user set in the property editor
   (condition/wear/spawn/HMD/ripple/...); an untouched knob simply isn't stored and

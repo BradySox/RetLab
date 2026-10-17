@@ -1,0 +1,11 @@
+date: 2026-10-17
+title: Planned flights use the shipped loadouts
+change: >-
+  Planned flights always take RetLab's shipped loadouts, which carry the
+  newest weapons and step down for the campaign date. Loadouts saved in the
+  DCS Mission Editor are no longer read, and the Save Payload and Set as
+  default buttons are gone. Flights already planned keep what they have.
+  You can still change one flight's pylons with Use custom loadout.
+watch: >-
+  A new F-16 or Hornet flight in a modern campaign carries AIM-9X and
+  AIM-120C, not AIM-9M and AIM-120B.

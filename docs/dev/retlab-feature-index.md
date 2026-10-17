@@ -84,7 +84,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §70 | COMINT collection (blue-side communications intelligence) _(retired)_ | — | — |
 | §71 | Expanded F-4E Weapons Pack (AGM-78/-88 Weasel fits) | — | — |
 | §72 | Carrier deck decorations (campaign A deck dressing) | — | `carrier_deck_decorations` |
-| §73 | Per-airframe default loadout for a task | — | — |
+| §73 | Per-airframe default loadout for a task _(retired)_ | — | — |
 | §74 | Native DTC data pre-population (F/A-18C + F-16C + F-14B(U) + AH-64D) | — | `dtc_data_cartridges` |
 | §75 | Custom victory conditions | — | — |
 | §76 | CTLD paratroopers (fixed-wing air assault) | `ctld` | — |

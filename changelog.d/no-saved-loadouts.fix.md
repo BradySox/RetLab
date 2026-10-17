@@ -1,0 +1,2 @@
+* **[Loadouts]** Planned flights always use RetLab's shipped loadouts. A loadout saved in the DCS Mission Editor under a Retribution name no longer replaces the shipped one; it did so for both sides in every campaign and kept old weapons in modern campaigns. The Save Payload, Create Backup, Set as default and Clear default buttons are gone. Editing one flight's pylons is unchanged, and your saved files are not deleted.
+* **[Loadouts]** The F/A-18C, A-7E and AV-8B payload files no longer list an "Aerial Minefield" preset left over from the removed minefields.
