@@ -74,6 +74,11 @@ class SectorWar:
         ).astype(np.int32)
         return territory_from_labels(sector_map.raster, labels)
 
+    def owner_key(self) -> tuple[tuple[str, int], ...]:
+        """The owners as a cache key. Not `version`: the shape caches outlive a
+        game, and a reloaded save can reach the same version with other owners."""
+        return tuple(sorted(self.owners.items()))
+
     def set_owner(self, sector_name: str, side: int) -> bool:
         if self.owners.get(sector_name) == side:
             return False
