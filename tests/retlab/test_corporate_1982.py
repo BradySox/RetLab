@@ -244,7 +244,7 @@ def test_the_carriers_sail_the_hulls_the_yaml_names(
     ):
         allowed = {
             v.id
-            for k, v in country_dict[faction.country.id].Ship.__dict__.items()
+            for k, v in country_dict[faction.country.id].Ship.__dict__.items()  # type: ignore
             if "__" not in k
         }
         assert hulls <= allowed, faction.name
