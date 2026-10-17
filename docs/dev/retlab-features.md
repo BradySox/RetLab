@@ -1936,6 +1936,9 @@ that code.
   where bombers release), and one attacker with no ranged weapon keeps the IP. It matters for a
   player escort's route and for an escort whose primary never flies, which holds its anchor
   (the test 36 entry below). Tests: `tests/ato/test_escort_hold_standoff.py`.
+- **A SEAD package's escorts held on the ingress, 60-80 NM out (2026-10-17).** The HARM's
+  authored 80 NM range set the hold. SEAD and SEAD Sweep primaries now use their SEAD Search
+  point (`WaypointBuilder.sead_search_point`), where the flight plan actually works from.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**
 - Flight-combat-exit `IndexError`: `game/ato/flightstate/inflight.py` guards in
@@ -2031,6 +2034,8 @@ that code.
   on the early stop instead of 0.5, because every jet is above half before the push and
   would otherwise never plug in. Dragging the early stop moves only that flight, not the
   package's refuel point. Tests `tests/ato/flightplans/test_refuel_before_push.py`.
+  `Flight.clone_flight` copies the box and the minutes (2026-10-17): a cloned package kept
+  the stop in its copied layout with the box off.
 - **Refuel before station (built 2026-10-08, DM call, not flown — row B191).** The same
   flag on a BARCAP or TARCAP shows as **Refuel before station** and puts the stop between
   Takeoff and Race-track start (`BarCapLayout`, `TarCapLayout.pre_push_refuel`, built by
@@ -2087,6 +2092,9 @@ that code.
   (`_patch_pydcs_payload_loader()`), plus the offending files are skipped with a warning.
 - **Loadout integrity (jets flying clean / wrong ordnance).**
 - **Datalink era gating — the EPLRS boolean became a policy (2026-08-16).**
+- **Switching the flight member on the payload tab wiped that member's pylon settings
+  (2026-10-17).** `QPylonEditor.set_from` now sets the store with the combo's signals
+  blocked, so showing a member's loadout no longer counts as a store change.
 
 ### Ground movement
 
@@ -2096,6 +2104,9 @@ that code.
 ### Campaign and save robustness
 
 - **New Game crash on an authored-but-empty `aircraft:` key (2026-07-01).**
+- **A task removed from a unit yaml kept being auto-planned in old saves (2026-10-17).** #1218
+  took BAI and DEAD off the Tu-160 and H-6J, but the saved auto-assign sets kept them. The
+  migrator now drops tasks the airframe cannot fly on every load, not only Liberation saves.
 - **Player-despawn counted as a combat loss (2026-06-20).**
 - **Task-claim generation crash — group-role degrade instead of raise (fixed 2026-08-16).**
 - **A CSAR flight the AI cannot fly took the whole turn down (fixed 2026-08-17).**
@@ -10966,6 +10977,9 @@ announce the takeover* (on). Brady's idea from his Northern Front 2003 campaign;
 - `resources/plugins/aifill/aifill-config.lua`: the check and the launch, always on.
 - `qt_ui/windows/mission/flight/settings/QAiFillCheckbox.py`.
 - `tests/retlab/test_ai_fill.py`, `tests/lua/test_aifill_runtime.py`.
+
+A late-activated client group is checked a check delay after it appears, and a twin that
+replaces a package's primary takes the package's AI escorts (2026-10-17, row B239).
 
 ### Constraints
 

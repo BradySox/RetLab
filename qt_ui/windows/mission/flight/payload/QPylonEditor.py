@@ -195,6 +195,9 @@ class QPylonEditor(QWidget):
         self.set_from(self.flight_member.loadout)
 
     def set_from(self, loadout: Loadout) -> None:
-        self.weapon_combo.setCurrentText(self.matching_weapon_name(loadout))
+        # Showing a loadout is not a store change: on_pylon_change would drop the
+        # pylon's settings whenever the member's store differs from the last shown.
+        with block_signals(self.weapon_combo):
+            self.weapon_combo.setCurrentText(self.matching_weapon_name(loadout))
         self._populate_weapons(self.weapon_combo.currentData())
         self.update_settings_button_visibility()
