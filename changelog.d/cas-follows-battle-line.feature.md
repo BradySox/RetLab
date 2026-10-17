@@ -1,0 +1,1 @@
+* **[Flight Planner]** With front line battles spread along the border, a CAS flight's FLOT start and end sit on the outer battles, with up to 3 battle stops between. The AI searches its engagement range around each stop.

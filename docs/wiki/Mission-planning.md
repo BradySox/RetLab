@@ -343,6 +343,9 @@ planning is aimed at the sites that actually warrant a deliberate package. See
 - **Purpose:** Support friendly ground forces at a front line.
 - **Valid targets:** Targets within range of the front-line centre (right-click the front line
   to plan).
+- **Route:** FLOT start to FLOT end along the front. With *Front line battles spread along the
+  border* on, the two ends sit on the outer battles and up to 3 Battle waypoints sit on battles
+  between. The AI searches its engagement range around each of these stops.
 - **Package role:** Lead / standalone.
 - **Typical airframes:** A-10-class types excel; any CAS-capable airframe works.
 - **TOT meaning:** Loiter/search start. Searches until bingo or winchester.

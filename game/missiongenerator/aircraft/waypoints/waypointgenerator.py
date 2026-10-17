@@ -30,7 +30,7 @@ from .airassaultingress import AirAssaultIngressBuilder
 from .antishipingress import AntiShipIngressBuilder
 from .armedreconingress import ArmedReconIngressBuilder
 from .baiingress import BaiIngressBuilder
-from .casingress import CasIngressBuilder
+from .casingress import CasIngressBuilder, CasStopBuilder
 from .csarpickup import CsarPickupBuilder
 from .deadingress import DeadIngressBuilder
 from .default import DefaultWaypointBuilder
@@ -473,6 +473,7 @@ class WaypointGenerator:
     def builder_for_waypoint(self, waypoint: FlightWaypoint) -> PydcsWaypointBuilder:
         builders = {
             FlightWaypointType.CARGO_STOP: CargoStopBuilder,
+            FlightWaypointType.CAS: CasStopBuilder,
             FlightWaypointType.CSAR_PICKUP: CsarPickupBuilder,
             FlightWaypointType.DROPOFF_ZONE: LandingZoneBuilder,
             FlightWaypointType.INGRESS_AIR_ASSAULT: AirAssaultIngressBuilder,
