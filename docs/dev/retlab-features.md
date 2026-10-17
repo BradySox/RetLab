@@ -2107,6 +2107,11 @@ that code.
 - **A task removed from a unit yaml kept being auto-planned in old saves (2026-10-17).** #1218
   took BAI and DEAD off the Tu-160 and H-6J, but the saved auto-assign sets kept them. The
   migrator now drops tasks the airframe cannot fly on every load, not only Liberation saves.
+- **A campaign's SA-15 pick fell back to a random SHORAD (2026-10-17).** The Dog Ear that
+  `_add_dog_ear_if_needed` forces into Soviet SHORAD presets (2026-06-13) failed the
+  `ground_forces` override check for any faction that lists no Dog Ear: 20 sites across
+  Assault on Damascus, Battle for Georgia and Noisy Cricket (Redux). The check reads
+  `ForceGroup.units_a_faction_must_own`. Test: `tests/armedforces/test_shorad_dog_ear.py`.
 - **Player-despawn counted as a combat loss (2026-06-20).**
 - **Task-claim generation crash — group-role degrade instead of raise (fixed 2026-08-16).**
 - **A CSAR flight the AI cannot fly took the whole turn down (fixed 2026-08-17).**
