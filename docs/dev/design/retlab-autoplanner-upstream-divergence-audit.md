@@ -219,6 +219,16 @@ with weapon dates off it never runs. Who it benches, from a scan of every airfra
 year: an airframe that predates its own ARM (JF-17 before 2013, Gripen before 2008,
 Tornado before 1990, Su-30/34/35 before 1988, AV-8B before 1986).
 
+### Amendment 2026-10-17 — the AV-8B flies fighter patrols, last in line (DM call)
+
+Upstream's `AV8BNA.yaml` lists no air-to-air task, so a side whose only jet is the Harrier
+gets no CAP at all. The 1982 Falklands campaign is that side: the AV-8B stands in for the
+Sea Harrier. DCS lets an AI AV-8B fly CAP and Escort. The yaml now adds BARCAP, TARCAP,
+Escort and Fighter sweep at 110, below every jet fighter's weight (the lowest, the L-39ZA,
+is 120), so a side with any real fighter still sends that first. Its `Retribution BARCAP`
+fit is four AIM-9L, the GAU-12 pod and two tanks; TARCAP, Escort and Sweep fall back to it.
+Lock: `tests/retlab/test_harrier_air_to_air.py`.
+
 ## Levers, if pulling back (superseded by the decision above; kept for the record)
 
 1. "Stock planner" settings preset (the §28 preset machinery exists): flips the whole default-ON table above in one click. Can't touch the ungated items.

@@ -450,6 +450,43 @@ local unitPayloads = {
 				[1] = 31,
 			},
 		},
+		[12] = {
+			["displayName"] = "Retribution BARCAP",
+			["name"] = "Retribution BARCAP",
+			["pylons"] = {
+				[1] = {
+					["CLSID"] = "{AIM-9L}",
+					["num"] = 1,
+				},
+				[2] = {
+					["CLSID"] = "{AIM-9L-ON-ADAPTER}",
+					["num"] = 2,
+				},
+				[3] = {
+					["CLSID"] = "{AV8BNA_AERO1D}",
+					["num"] = 3,
+				},
+				[4] = {
+					["CLSID"] = "{A111396E-D3E8-4b9c-8AC9-2432489304D5}",
+					["num"] = 5,
+				},
+				[5] = {
+					["CLSID"] = "{AV8BNA_AERO1D}",
+					["num"] = 6,
+				},
+				[6] = {
+					["CLSID"] = "{AIM-9L-ON-ADAPTER}",
+					["num"] = 7,
+				},
+				[7] = {
+					["CLSID"] = "{AIM-9L}",
+					["num"] = 8,
+				},
+			},
+			["tasks"] = {
+				[1] = 11,
+			},
+		},
 	},
 	["tasks"] = {
 	},
