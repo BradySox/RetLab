@@ -1,0 +1,14 @@
+---
+name: TuAF 132 Filo
+nickname: Hancer
+country: Turkey
+role: Fighter Bomber
+aircraft: F-4E-45MC Phantom II
+livery: TuAF-67-0285-SEA
+mission_types:
+  - BAI
+  - CAS
+  - DEAD
+  - OCA/Aircraft
+  - OCA/Runway
+  - Strike

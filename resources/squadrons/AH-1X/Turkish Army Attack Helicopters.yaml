@@ -1,0 +1,10 @@
+---
+name: Turkish Army Attack Helicopters
+country: Turkey
+role: Attack Helicopter
+aircraft: AH-1W SuperCobra
+livery: Turkey 1
+mission_types:
+  - CAS
+  - BAI
+  - Escort

@@ -1,0 +1,10 @@
+---
+name: Turkish Army Aviation
+country: Turkey
+role: Utility Helicopter
+aircraft: UH-1H Iroquois
+livery: Turkish Air Force
+mission_types:
+  - Transport
+  - Air Assault
+  - CSAR
