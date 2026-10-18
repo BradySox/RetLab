@@ -23,6 +23,7 @@ from dcs.task import (
     Transport,
     SEAD,
     OptJettisonEmptyTanks,
+    OptFormation,
     MainTask,
     PinpointStrike,
     Reconnaissance,
@@ -183,6 +184,7 @@ class AircraftBehavior:
                 unit.gun = 0
 
         group.points[0].tasks.append(OptRTBOnBingoFuel(rtb_on_bingo))
+        self.configure_takeoff_formation(flight, group)
         if flight.coalition.game.settings.ai_jettison_empty_tanks:
             group.points[0].tasks.append(OptJettisonEmptyTanks())
         # Do not restrict afterburner.
@@ -201,6 +203,17 @@ class AircraftBehavior:
                 group.points[0].tasks.append(radio_usage)
 
             group.points[0].tasks.append(OptNoReportWaypointPass(True))
+
+    @staticmethod
+    def configure_takeoff_formation(flight: Flight, group: FlyingGroup[Any]) -> None:
+        # DCS holds a lead slow and low until his flight is joined, 2-5 min for a
+        # 4-ship (2026-10-17). A loose trail from takeoff counts as joined sooner;
+        # the HOLD and JOIN points set the package formation after that.
+        if flight.is_helo or flight.count < 2:
+            return
+        if not str(group.points[0].type).startswith("TakeOff"):
+            return
+        group.points[0].tasks.append(OptFormation.trail_open())
 
     @staticmethod
     def configure_eplrs(group: FlyingGroup[Any], flight: Flight) -> None:
