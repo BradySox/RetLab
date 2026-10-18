@@ -247,6 +247,10 @@ settings:
   autoplan_tankers_for_strike: true
   autoplan_tankers_for_oca: true
   autoplan_tankers_for_dead: true
+  # Every blue field is 108-258 NM from a red base. At a 300 NM airbase threat
+  # range each one draws two BARCAPs, which eat every escort fighter, and no
+  # Israeli strike package can be planned (seen 2026-10-18).
+  airbase_threat_range: 100
 
 # The .miz places a CVN-71. The loader only recognises the Stennis hull as a
 # carrier, so the group must be a CVN-74 in the editor; this block paints it
