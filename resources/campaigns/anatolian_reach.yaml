@@ -398,10 +398,8 @@ squadrons:
       aircraft:
         - KC-135 Stratotanker MPRS
       size: 2
-    - primary: AEW&C
-      aircraft:
-        - E-3A
-      size: 2
+    # No E-3A: the IAF 192nd E-2Cs at Tel Nof and the carrier's VAW-125 cover
+    # AEW&C (DM call, 2026-10-18).
     - primary: Transport
       secondary: any
       aircraft:
