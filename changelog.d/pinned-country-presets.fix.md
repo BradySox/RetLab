@@ -1,0 +1,1 @@
+* **[Campaign]** A campaign squadron pinned to another nation than its faction's (Anatolian Reach's Israeli squadrons) gets that nation's squadron name and paint. It was generated as "Squadron 00N" in the default paint.
