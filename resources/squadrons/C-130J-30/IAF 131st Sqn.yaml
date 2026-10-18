@@ -1,0 +1,12 @@
+---
+name: 131st Squadron
+nickname: Knights of the Yellow Bird
+female_pilot_percentage: 6
+country: Israel
+role: Transport
+aircraft: C-130J-30
+# A user-files livery; without it DCS shows the default paint.
+livery: "IDF 131 Sqn, Knights of the Yellow Bird"
+mission_types:
+  - Transport
+  - Air Assault

@@ -185,6 +185,13 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
   2002), in a DCS User Files livery (folder `IAF - 192nd`). The tankers and the E-3A stay
   US: the KC-707 and the Phalcon are not in DCS, and a KC-130 cannot refuel the boom-only
   Israeli F-15s and F-16s.
+- DCS User Files liveries Brady installed (2026-10-18): the 133rd flies **F-15E Strike Eagles
+  in Baz 2000 paint** (`IDF BAZ2000 - 133rd Sqn`) while the 106th stays the F-15C BARCAP;
+  Ben Gurion adds the 131st's C-130Js ("Knights of the Yellow Bird"); Tel Nof adds the 125th's
+  OH-58Ds (`IAF-125th-Light helicopter Sqd`). Squadrons that share an airframe are asked for
+  by preset name (`69th Squadron`, `IAF 133rd Squadron Baz 2000`,
+  `IAF 125th Light Helicopter Squadron`), since a pinned pick is otherwise random and
+  Hatzerim's strike squadron took the Baz preset.
 - Both fields are farther from Turkey than Ramat David, so they do not draw the planner
   away from the Israeli strike fields the way Akrotiri would.
 

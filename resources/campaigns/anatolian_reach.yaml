@@ -168,6 +168,7 @@ squadrons:
     - primary: Strike
       secondary: air-to-ground
       aircraft:
+        - 69th Squadron
         - F-15E Strike Eagle (Suite 4+)
       size: 12
       country: Israel
@@ -181,18 +182,25 @@ squadrons:
   # Tel Nof (135 stands) - the IAF's F-15 base (8th Airbase), with the 119th's
   # Kurnass 2000 and the CH-53 squadrons. Farther from Turkey than Ramat David.
   220:
+    # The 133rd flies Strike Eagles in the Baz 2000 user-files paint (DM call,
+    # 2026-10-18); named presets so neither pick can take the other's.
     - primary: Escort
       secondary: air-to-air
       aircraft:
-        - F-15C Eagle
+        - IAF 133rd Squadron Baz 2000
+        - F-15E Strike Eagle (Suite 4+)
       size: 12
       country: Israel
+      name: 133rd Squadron
+      nickname: Knights of the Twin Tail
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - F-15C Eagle
       size: 12
       country: Israel
+      name: 106th Squadron
+      nickname: Spearhead
     - primary: Strike
       secondary: air-to-ground
       aircraft:
@@ -223,6 +231,14 @@ squadrons:
         - UH-60A
       size: 4
       country: Israel
+    - primary: CAS
+      secondary: air-to-ground
+      aircraft:
+        - IAF 125th Light Helicopter Squadron
+        - OH-58D(R) Kiowa Warrior
+      size: 4
+      country: Israel
+      name: 125th Squadron
     # The IAF flew E-2Cs (192nd Squadron) until 2002; a user-files livery.
     - primary: AEW&C
       aircraft:
@@ -233,6 +249,11 @@ squadrons:
   # Ben Gurion (172 stands) - the airlift field. The IAF flew the C-130H here in
   # 2004; the C-130J-30 is Retribution's only Hercules.
   221:
+    - primary: Transport
+      aircraft:
+        - C-130J-30
+      size: 4
+      country: Israel
     - primary: Transport
       aircraft:
         - C-130J-30

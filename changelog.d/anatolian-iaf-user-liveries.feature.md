@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: the 133rd Squadron flies F-15E Strike Eagles in Baz 2000 paint, the 106th stays on F-15C BARCAP, Ben Gurion adds the 131st Squadron's C-130Js and Tel Nof the 125th Squadron's OH-58Ds (user-files liveries).
