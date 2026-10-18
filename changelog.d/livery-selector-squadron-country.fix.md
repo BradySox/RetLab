@@ -1,0 +1,1 @@
+* **[UI]** The Air Wing screen no longer swaps a squadron's paint for one of the faction's: it lists liveries for the squadron's own nation, so Anatolian Reach's Israeli squadrons keep their IAF paint.

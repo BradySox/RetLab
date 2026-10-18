@@ -79,13 +79,17 @@ class SquadronLiverySelector(QComboBox):
             self.currentTextChanged.connect(self.on_change)
 
         liveries = set()
-        cc = squadron.coalition.faction.country.shortname
+        # The squadron's own nation, not the faction's: Anatolian Reach's
+        # Israeli squadrons in a USA faction lost their ISR-only paint here.
+        faction_cc = squadron.coalition.faction.country.shortname
+        country = getattr(squadron, "country", None)
+        cc = country.shortname if country is not None else faction_cc
         aircraft_liveries = dcs_liveries_for(self.aircraft_type)
         if len(aircraft_liveries) == 0:
             logging.info(f"Liveries for {self.aircraft_type} is empty!")
         for livery in aircraft_liveries:
             valid_livery = livery.countries is None or cc in livery.countries
-            if valid_livery or cc in ["BLUE", "RED"]:
+            if valid_livery or faction_cc in ["BLUE", "RED"]:
                 liveries.add(livery)
         faction = squadron.coalition.faction
         overrides = [
