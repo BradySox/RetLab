@@ -1,0 +1,69 @@
+name: Mk 82 AIR
+year: 1985
+fallback: Mk 82
+clsids:
+  - "{BRU-32 MK-82AIR}"   # Mk-82AIR
+  - "{BRU42_2*MK82AIR RS}"   # 2 Mk-82AIR
+  - "{BRU3242_2*MK82AIR RS}"   # 2 Mk-82AIR
+  - "{PHXBRU3242_2*MK82AIR RS}"   # 2 Mk-82AIR
+  - "{BRU42_2*MK82AIR LS}"   # 2 Mk-82AIR
+  - "{BRU3242_2*MK82AIR LS}"   # 2 Mk-82AIR
+  - "{PHXBRU3242_2*MK82AIR LS}"   # 2 Mk-82AIR
+  - "{BRU-42_3_MK82AIR}"   # 3 Mk-82 AIR
+  - "{CFT_L_MK82AR_x_2}"   # Mk-82 AIR * 2
+  - "{CFT_R_MK82AR_x_2}"   # Mk-82 AIR * 2
+  - "{CFT_L_MK82AR_x_3}"   # Mk-82 AIR * 3
+  - "{CFT_R_MK82AR_x_3}"   # Mk-82 AIR * 3
+  - "{CFT_L_MK82AR_x_6}"   # Mk-82 AIR * 6
+  - "{CFT_R_MK82AR_x_6}"   # Mk-82 AIR * 6
+  - "{BRU-42_2*Mk-82AIR_LEFT}"   # 2 Mk-82 AIR */*
+  - "{BRU-42_2*Mk-82AIR_RIGHT}"   # 2 Mk-82 AIR *\*
+  - "{MAK79_MK82AIR 3L}"   # MAK79 3 Mk-82AIR
+  - "{MAK79_MK82AIR 3R}"   # MAK79 3 Mk-82AIR
+  - "{MAK79_MK82AIR 4}"   # MAK79 4 Mk-82AIR
+  - "{M2KC_RAFAUT_MK82A}"   # AUF2 MK-82 Air x 2
+  - "{BRU41A_4_L*MK82AIR}"   # BRU-41A - 4 x Mk-82AIR
+  - "{BRU41A_4_R*MK82AIR}"   # BRU-41A - 4 x Mk-82AIR
+  - "{BRU41A_6*MK82AIR}"   # BRU-41A - 6 x Mk-82AIR
+  - "{BRU42A_2_L*MK82AIR}"   # BRU-42A - 2 x Mk-82AIR
+  - "{BRU42A_2_R*MK82AIR}"   # BRU-42A - 2 x Mk-82AIR
+  - "{BRU42A_3*MK82AIR}"   # BRU-42A - 3 x Mk-82AIR
+  - "{Mk_82Y}"   # Mk-82Y - 500lb GP Chute Retarded HD
+  - "{Mk82AIR}"   # Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{B52H_BAY_Mk82AIR}"   # 27 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{HB_F4E_MK-82AIR_2x}"   # 2x Mk-82 AIR Ballute - 500lb GP Bomb HD (TER)
+  - "{HB_F4E_MK-82AIR_3x}"   # 3x Mk-82 AIR Ballute - 500lb GP Bomb HD (TER)
+  - "{HB_F4E_MK-82AIR_6x}"   # 6x Mk-82 AIR Ballute - 500lb GP Bomb HD (MER)
+  - "{CBM_Mk82AIR}"   # CBM - 28 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{HSAB_Mk82AIR}"   # HSAB - 9 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{BRU33_2X_MK-82Y}"   # BRU-33 with 2 x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{BRU42_1X_MK-82AIR}"   # BRU-42 with 1 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{BRU42_2X_MK-82AIR_L}"   # BRU-42 with 2 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{BRU42_2X_MK-82AIR_R}"   # BRU-42 with 2 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{TER_9A_2L*MK-82AIR}"   # TER-9A with 2 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{TER_9A_2R*MK-82AIR}"   # TER-9A with 2 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{TER_9A_3*MK-82AIR}"   # TER-9A with 3 x Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{BRU-42_3*Mk-82AIR}"   # BRU-42 with 3 x Mk-82 AIR Ballute - 500lb GP Bombs HD
+  - "{HB_MK-82AIR_SWA}"   # (Special Weapons Adapter) Mk-82 AIR Ballute - 500lb GP Bomb HD
+  - "{HB_F4E_MK-82AIR_2x_SWA}"   # (Special Weapons Adapter) 2x Mk-82 AIR Ballute - 500lb GP Bomb HD (TER)
+  - "{SUPERHORNET_PYLON_02_OB_MK_1X_MK-82Y}"   #  [ STA 02	  | SUU80 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_02_MB_MK_1X_MK-82Y}"   #  [ STA 03	  | SUU79 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_03_MB_MK_1X_MK-82Y}"   #  [ STA 03	  | SUU79 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_03_MB_MK_BR2_MK-82Y}"   #  [ STA 03	  | SUU79 | BRU33   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_03_IB_MK_BR2_MK-82Y}"   #  [ STA 04	  | SUU79 | BRU33   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_03_IB_MK_1X_MK-82Y}"   #  [ STA 04	  | SUU80 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_06_CN_MK_1X_MK-82Y}"   #  [ STA 06	  | SUU78 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_06_CN_MK_2X_MK-82Y}"   #  [ STA 06	  | SUU78 | BRU33   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_09_IB_MK_BR2_MK-82Y}"   #  [ STA 08	  | SUU79 | BRU33   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_09_IB_MK_1X_MK-82Y}"   #  [ STA 08	  | SUU80 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_10_MB_MK_1X_MK-82Y}"   #  [ STA 09	  | SUU79 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_09_MB_MK_BR2_MK-82Y}"   #  [ STA 09	  | SUU79 | BRU33   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_09_MB_MK_1X_MK-82Y}"   #  [ STA 09	  | SUU80 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_10_OB_MK_1X_MK-82Y}"   #  [ STA 10	  | SUU80 | BRU32   ] - 1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_02_OB_MB_MK_2X_MK-82Y}"   #  [ STA 03/02 | 79 / 80 | BRU32   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_02_OB_IB_MK_2X_MK-82Y}"   #  [ STA 04/02 | 79 / 80 | BRU32   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_10_OB_MB_MK_2X_MK-82Y}"   #  [ STA 09/10 | 79 / 80 | BRU32   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_10_OB_IB_MK_2X_MK-82Y}"   #  [ STA 10/08 | 79 / 80 | BRU32   ] - 2x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_03_IB_MB_MK_MK-82Y}"   #  [ STA 04/03 | SUU79 | BRU32   ] - 1x/1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "{SUPERHORNET_PYLON_09_IB_MB_MK_MK-82Y}"   #  [ STA 09/08 | SUU79 | BRU32   ] - 1x/1x Mk-82Y - 500lb GP Chute Retarded HD
+  - "Herc_Ammo_Mk_82AIR_bombs"   # Ammo Mk-82AIR*20 [11044lb]

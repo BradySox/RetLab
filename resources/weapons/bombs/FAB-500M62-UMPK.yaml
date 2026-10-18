@@ -1,0 +1,5 @@
+name: FAB-500M62 UMPK
+year: 2023
+fallback: FAB-500 M62
+clsids:
+  - "{Su30_UMPKFAB500M62}"   # FAB-500M62 UMPK, 500kg Glide Bomb

@@ -1,0 +1,9 @@
+name: AIM-120C-7
+year: 2007
+fallback: AIM-120C
+clsids:
+  - "{AIM-120C-7}"   # AIM-120C7 - Active Radar AAM
+  - "{LAU_115_2xAIM-120C-7}"   # 2x AIM-120C7 - Active Radar AAM
+  - "{JAS39_AIM120C7}"   # AIM-120C-7 AMRAAM Active Rdr AAM
+  - "{AIM_120C-7_IRST_LEFT}"   # AIM-120C7 - Active Radar AAM + IRST POD
+  - "{AIM_120C-7_IRST_RIGHT}"   # AIM-120C7 - Active Radar AAM + IRST POD

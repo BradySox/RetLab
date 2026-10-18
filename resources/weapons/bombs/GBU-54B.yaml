@@ -1,5 +1,5 @@
 name: GBU-54B
-year: 2018
+year: 2008
 fallback: GBU-38
 clsids:
   - "{CFT_L_GBU_54_x_3}"   # GBU-54B * 3

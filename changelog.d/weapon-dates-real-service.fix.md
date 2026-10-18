@@ -1,0 +1,1 @@
+* **[Weapons]** Weapon service dates checked against real service: the AIM-120C (2000), AIM-9X (2003), R-77 (1994) and other stores held back to 2018 now arrive on their real dates, mixed groups are split by variant (AIM-120C-7/C-8, AIM-9X Block II, R-77-1/M), and 30 more stores are re-dated.

@@ -1,0 +1,5 @@
+name: Kh-31AD
+year: 2015
+fallback: Kh-31A
+clsids:
+  - "{SU30_KH31AD}"   # Kh-31AD (AS-17 Krypton) - 715kg

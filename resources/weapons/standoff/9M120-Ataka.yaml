@@ -9,8 +9,6 @@ clsids:
   - "{2x9M120F_Ataka_V}"   # 2 x 9M120F Ataka (AT-9 Spiral-2) - AGM, SACLOS, HE
   - "{2x9M120F_Ataka_V_with_adapter}"   # 2 x 9M120F Ataka (AT-9 Spiral-2) - AGM, SACLOS, HE
   - "{Ka52_9M120F_6}"   # 6 x 9M120F Ataka (AT-9 Spiral-2) - AGM, SACLOS, HE
-  - "{2x9M220_Ataka_V}"   # 2 x 9M220O Ataka (AT-9 Spiral-2) - AAM, SACLOS, Frag
-  - "{2x9M220_Ataka_V_with_adapter}"   # 2 x 9M220O Ataka (AT-9 Spiral-2) - AAM, SACLOS, Frag
   - "{2x9M120_Ataka_V}"   # 2 x 9M120 Ataka (AT-9 Spiral-2) - ATGM, SACLOS, Tandem HEAT
   - "{2x9M120_Ataka_V_with_adapter}"   # 2 x 9M120 Ataka (AT-9 Spiral-2) - ATGM, SACLOS, Tandem HEAT
   - "{Ka52_9M120_6}"   # 6 x 9M120 Ataka (AT-9 Spiral-2) - ATGM, SACLOS, Tandem HEAT

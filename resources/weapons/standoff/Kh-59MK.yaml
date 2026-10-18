@@ -1,0 +1,5 @@
+name: Kh-59MK
+year: 2005
+fallback: Kh-59M
+clsids:
+  - "{SU30_KH59MK}"   # Kh-59MK (AS-18 Kazoo) - 930kg

@@ -1,0 +1,5 @@
+name: Spike-ER2
+year: 2018
+fallback: Spike-ER
+clsids:
+  - "{SPIKE_ER2}"   # SPIKE-ER2

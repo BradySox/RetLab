@@ -1,5 +1,5 @@
 name: AGM-114L * 1
-year: 2018
+year: 1998
 fallback: AGM-114K * 1
 clsids:
   - "{AGM_114L}"   # AGM-114L

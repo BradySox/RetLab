@@ -1,5 +1,5 @@
 name: AGM-154C JSOW
-year: 2018
+year: 2005
 fallback: AGM-154A JSOW
 clsids:
   - "{B2_AGM-154C*8}"   # B2 AGM-154C*8

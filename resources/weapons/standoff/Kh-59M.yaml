@@ -4,5 +4,4 @@ fallback: Kh-29T
 range: 62
 clsids:
   - "{SU30_KH59M}"   # Kh-59M (AS-18 Kazoo), 930kg
-  - "{SU30_KH59MK}"   # Kh-59MK (AS-18 Kazoo) - 930kg
   - "{40AB87E8-BEFB-4D85-90D9-B2753ACF9514}"   # Kh-59M (AS-18 Kazoo) - 930kg, ASM, IN

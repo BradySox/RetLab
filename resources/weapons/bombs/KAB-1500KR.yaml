@@ -1,5 +1,5 @@
 name: KAB-1500KR
-year: 1995
+year: 1987
 fallback: FAB-1500 M54
 clsids:
   - "{SU30_KAB_1500Kr_LOADOUT}"   # KAB-1500Kr - 1500kg

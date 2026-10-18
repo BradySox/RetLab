@@ -1,4 +1,5 @@
 name: Kh-25MP
+type: ARM
 year: 1979
 fallback: Kh-28
 clsids:

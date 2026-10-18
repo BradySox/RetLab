@@ -208,7 +208,7 @@ as regiments:
 
 **The DM's goal, and it is historically correct:** the AIM-120D (now D-3) is the current US/allied
 AMRAAM — the whole blue force fields it in real life — and this fork tops the entire blue fleet out
-at **AIM-120C (2018)**. In a 2027 campaign that is the same anachronism as red's J-7B.
+at **AIM-120C (2018)**. In a 2027 campaign that is the same anachronism as red's J-7B. (Since 2026-10-18 the C is split by variant and dated to real service: C 2000, C-7 2007, C-8 2015, D 2015.)
 
 **There is no data-only path to it.** Measured across all 287 registered aircraft: exactly **four**
 can mount a Retribution-visible AIM-120D store — **F-22A** (3 stores) and the CJS **FA-18E / FA-18F

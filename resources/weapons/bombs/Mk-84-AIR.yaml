@@ -1,0 +1,11 @@
+name: Mk 84 AIR
+year: 1990
+fallback: Mk 84
+clsids:
+  - "{CFT_L_MK84AR_x_2}"   # Mk-84 AIR * 2
+  - "{CFT_R_MK84AR_x_2}"   # Mk-84 AIR * 2
+  - "{CFT_L_BDU56AR_x_2}"   # Mk-84 AIR TP * 2
+  - "{CFT_R_BDU56AR_x_2}"   # Mk-84 AIR TP * 2
+  - "{Mk_84AIR_GP}"   # Mk-84 AIR (BSU-50) - 2000 lb GP Chute Retarded Bomb HD
+  - "{Mk_84AIR_TP}"   # Mk-84 AIR (BSU-50) - 2000 lb TP Chute Retarded Bomb HD
+  - "{MPRL_Mk84AIR}"   # MPRL - 8 x Mk-84 AIR (BSU-50) - 2000 lb GP Chute Retarded Bomb HD

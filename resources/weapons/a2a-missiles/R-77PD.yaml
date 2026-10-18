@@ -1,0 +1,6 @@
+# The ramjet R-77PD never entered service; 2030 keeps it out of every era.
+name: R-77PD
+year: 2030
+fallback: R-77M
+clsids:
+  - "{SU30_R77PD}"   # R-77PD (AA-12 Adder) - Active Rdr Ramjet
