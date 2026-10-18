@@ -208,12 +208,14 @@ against a predicted starvation failure that did not occur.
 - **Balance is unmeasured.** USA-Israel 2000 is 1999–2000 kit against S-300PS and
   MiG-31s. Untested beyond one short night.
 - **Supply routes: the red network was joined 2026-10-08.** The `.miz` draws one
-  road (Incirlik–Kahramanmaras, 41 waypoints); the yaml's `supply_routes:` adds
-  eleven more so every red field and FOB is connected (Konya–Cilician Gates–
+  road (Incirlik–Kahramanmaras, 41 waypoints); eleven more, drawn as M-113 route groups
+  in the `.miz` since 2026-10-18 (they were a yaml `supply_routes:` list, which upstream
+  does not read), connect every red field and FOB (Konya–Cilician Gates–
   Chukurova, Konya FOB–Gazipasa, Kahramanmaras–Adiyaman–Sanliurfa–Diyarbakir–
   Gulechoba, Kahramanmaras–Azaz FOB–Aleppo–Bassel Al-Assad). Corridors come
   from OSRM driving routes over OSM roads, sampled every ~45 km, via
-  `tools/supply_route_geo.py anatolian_reach`; all points read as land. Locked by
+  `tools/supply_route_geo.py anatolian_reach`; all points read as land. The `.miz`
+  groups carry the same waypoints, so the loaded routes did not change. Locked by
   `test_every_red_base_is_on_the_road_network`. Blue has no road (no ground war).
 - **"Azaz FOB" is not at Azaz.** It sits at 36.78 N 36.60 E, in Hatay near
   Kirikhan, about 40 km west of the town. Its road to Aleppo therefore runs
