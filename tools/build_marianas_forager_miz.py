@@ -6,8 +6,8 @@ Rota and Guam.
 
 The miz is a marker mission, not a playable one: ``MizCampaignLoader`` reads
 airfield coalitions and a handful of sentinel unit types out of it and builds the
-theater from that. Roads and sea lanes live in the campaign yaml instead
-(``supply_routes`` and ``shipping_lanes``), which is why none are authored here.
+theater from that. Roads and sea lanes are drawn in the .miz itself and carried over
+from the current file on every rebuild (``tools/campaign_routes.py``).
 
 Run from the repo root:
 
@@ -141,6 +141,10 @@ def main() -> None:
         )
 
     DEST.parent.mkdir(parents=True, exist_ok=True)
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DEST)
     mission.save(str(DEST))
     print(f"wrote {DEST}")
 

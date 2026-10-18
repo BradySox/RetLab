@@ -300,6 +300,10 @@ def main() -> None:
             Point(fx + off, fy + off, terrain),
         )
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(m, DST)
     m.save(str(DST))
     print(f"saved {DST}")
 
@@ -331,6 +335,10 @@ def add_gps_jamming_markers() -> None:
         m.vehicle_group(red, name, EWR_MARKER, Point(x, y, terrain))
         added += 1
     if added:
+        # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+        from campaign_routes import carry_route_groups
+
+        carry_route_groups(m, DST)
         m.save(str(DST))
     print(f"{DST}: {added} GPS jamming marker(s) added")
 

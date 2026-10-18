@@ -479,24 +479,3 @@ squadrons:
       aircraft:
         - Mi-24P Hind-F
       size: 4
-
-supply_routes:
-  # Guam, Route 1 / Marine Corps Drive north through Dededo and Yigo. Inherited from
-  # the §50 batch-2 corridor pass; both ends are blue now, so it is the blue rear road.
-  # Won Pat Intl -> Andersen AFB
-  - waypoints:
-      - [-24, -78]
-      - [2948, 4516]
-      - [5666, 10062]
-      - [10575, 14549]
-  # Guam, Route 1 south along the west coast then Route 2A onto the Orote peninsula.
-  # Traced from the real road's lat/lon (Hagatna - Asan - Piti - Sumay) per the
-  # driveable-corridor standard.
-  # Won Pat Intl -> Olf Orote
-  - waypoints:
-      - [-24, -78]
-      - [-1116, -5116]
-      - [-1634, -8955]
-      - [-2331, -11345]
-      - [-4506, -15374]
-      - [-5023, -16869]

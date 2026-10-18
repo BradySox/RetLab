@@ -60,11 +60,12 @@ The fork holds campaign work to a few standards beyond upstream's. All of these 
 binding; the details, rationale, and reference implementations live in `CLAUDE.md` and
 the per-campaign design notes.
 
-* **Supply lines follow the driveable corridor.** Authored `supply_routes:` waypoints
-  trace the corridor you would actually *drive* between two points — the road, the river
-  valley, the pass — never a straight line across a ridge. On real-world-coordinate maps,
-  generate the intermediate waypoints from the real road network's lat/lon with
-  `tools/supply_route_geo.py`.
+* **Supply lines are drawn in the `.miz` and follow the driveable corridor.** A road is an
+  M-113 group and a sea lane a HandyWind group in the campaign `.miz`, never a yaml list.
+  Its waypoints trace the corridor you would actually *drive* between two points — the road,
+  the river valley, the pass — never a straight line across a ridge. On real-world-coordinate
+  maps, generate the intermediate waypoints from the real road network's lat/lon with
+  `tools/supply_route_geo.py <name> --draw <campaign>.miz`.
 * **SAM layout is the campaign's call.** A long-range system (S-300/S-400, Patriot) can
   sit as a single site, or as several fire units around a shared EWR that Skynet nets
   into one regiment (Red Tide, Baltic Fury). Say which in the campaign's design note.

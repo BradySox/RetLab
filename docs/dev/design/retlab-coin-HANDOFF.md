@@ -85,6 +85,7 @@ Enduring Resolve (COIN)"*, 5+ turns. The experiment that proves the loop:
   the source is topped up to 2× a convoy load with whitelisted kit — the
   external-support framing — so the skim ships a full column and leaves a stable
   rear buffer). Engine-probe verified: turn 1 ships Martello → Frontenac.
+  Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 - **The OEF air package** (user direction 2026-07-03): fixed wing + air defenses.
   Two schema traps cost time: (1) campaign-YAML **preset squadrons are requested via

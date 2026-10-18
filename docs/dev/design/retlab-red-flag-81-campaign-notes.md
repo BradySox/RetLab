@@ -204,6 +204,7 @@ Single front: **Camp Mercury (BLUE) ↔ FOB Tolicha (RED)** up the Nevada Test S
 corridor (Mercury Hwy → Pahute Mesa axis). YAML `supply_routes` (the fork mechanism,
 as Yankee Station) — blue↔red connection creates the FrontLine; `vietnam_static_front`
 pins it in the ±10 % band.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 Red's rear web (red↔red, interdiction targets, never new fronts):
 Tonopah (17) → TTR (18) → Pahute Mesa (16) → FOB Tolicha, plus Beatty (5) → FOB

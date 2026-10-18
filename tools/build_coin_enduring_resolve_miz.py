@@ -184,6 +184,10 @@ def build() -> None:
             )
             merad += 1
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DST)
     mission.save(str(DST))
     print(
         f"Wrote {DST} ({placed} caches, {aaa} AAA + {shorad} SHORAD + {merad} MERAD, "

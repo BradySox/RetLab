@@ -508,6 +508,14 @@ REMOVED: tuple[Removed, ...] = (
         r"\biranmissilemods\b|PG Iran IRBM|Iranian missile mods|PGIR_\w+|KHEIBAR_TEL_Launcher",
         allow=("removed", "replaced", "no longer", "historical"),
     ),
+    Removed(
+        # Routes and sea lanes are drawn in the .miz; a page that tells an
+        # author to write the yaml list is wrong.
+        "the yaml supply_routes / shipping_lanes lists",
+        "2026-10-18",
+        r"`supply_routes:`|`shipping_lanes:`",
+        allow=("retired", "never a yaml", "RetLab once used"),
+    ),
 )
 
 

@@ -233,6 +233,7 @@ Topology, which the yaml carries rather than the miz:
   Gurguan Point - Airfield 3 - Ushi; Guam runs Orote - Agana.
 - **Sea** (`shipping_lanes`): Saipan-Tinian, Tinian-Rota, Rota-Guam. There is no road between
   islands, which is the point.
+  Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 Four things went wrong building it, all now covered by the lock:
 

@@ -22,6 +22,7 @@ from dcs.vehicles import AirDefence, MissilesSS
 
 from game import persistency
 from game.campaignloader.mizcampaignloader import MizCampaignLoader
+from tests.miz_routes import miz_paths
 
 CAMPAIGN = Path("resources/campaigns/marianas_2027.yaml")
 MIZ = CAMPAIGN.parent / "marianas_2027.miz"
@@ -315,13 +316,12 @@ def test_every_blue_receiver_has_a_compatible_blue_tanker() -> None:
 
 def test_guam_keeps_two_blue_supply_roads() -> None:
     """§50 ambient convoys + the ambush roll need same-side road corridors."""
-    routes = _campaign()["supply_routes"]
-    assert len(routes) == 2
-    for route in routes:
-        waypoints = route["waypoints"]
+    roads, _ = miz_paths(_campaign()["miz"])
+    assert len(roads) == 2
+    for waypoints in roads:
         # Both roads start at Won Pat; each traces a real Guam highway, so an
         # intermediate corridor is mandatory (never a straight line).
-        assert waypoints[0] == [-24, -78]
+        assert waypoints[0] == (-24, -78)
         assert len(waypoints) >= 4, "supply route must follow the driveable corridor"
 
 

@@ -100,6 +100,10 @@ def build() -> None:
             position=at(xy, CACHE_OFFSET),
         )
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DST)
     mission.save(str(DST))
     print(
         f"Wrote {DST} (base + {len(NEW_FOBS)} in-between FOBs: {[n for n, _ in NEW_FOBS]})"

@@ -601,6 +601,7 @@ considered and declined.
   short of Haina (a plausible cause of FLOT units appearing south-west of Haina). Route B now
   ends on **Haina's exact CP position `(-359857, -702040)`** so the front is cleanly
   Fulda↔Haina. Verified: that endpoint resolves to `[161] Haina` at 0.0 km.
+  Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 ### Faction edits (shared)
 - `resources/factions/russia_1980.json` — added `SA-11` (Buk) and `SA-10/S-300PS` preset

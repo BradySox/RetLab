@@ -131,6 +131,7 @@ red↔red `supply_routes:` corridors the machinery runs on. A convoy killed on t
 ratline is a real loss and (§4) a resolve hit. Deliberately *not* coupling convoy
 arrival to cache health in v1 — one throttle (caches → regen) keeps the loop
 legible.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 ## 4. Will coupling (rides the #417 profiles)
 

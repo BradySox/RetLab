@@ -1,9 +1,9 @@
-"""Author campaign ``supply_routes:`` that follow real driveable corridors.
+"""Author campaign supply routes that follow real driveable corridors.
 
 **The standard (2026-07-03, user directive):** a drawn supply line must trace the
 corridor you would actually *drive* between the two points -- the road, the river
 valley, the mountain pass -- never a straight line across a ridgeline. The endpoints
-stay on the control points (Retribution's ``add_yaml_supply_routes`` binds a route to
+stay on the control points (Retribution's ``add_supply_routes`` binds a route to
 its CPs by the **first and last** waypoint only, so intermediates never change which
 bases the route connects -- they are purely the corridor shape the convoy drives and
 the line the player sees).
@@ -16,18 +16,26 @@ then lands on the actual roads/valleys of the satellite base layer. Calibration 
 Afghanistan: real town lat/lons convert to within ~1-5 km of the hand-placed FOB
 markers, so this is accurate to well inside a route's width.
 
+**Routes are drawn in the campaign .miz (DM call, 2026-10-18)**: an M-113 group per
+road, every waypoint "On Road", as upstream campaigns draw them. The yaml
+``supply_routes:`` list is retired; ``tools/campaign_routes.py`` moved every shipped
+campaign's list into its .miz, and a test keeps the yaml free of it.
+
 Usage: define a terrain + a list of :class:`Route` (endpoints as exact CP/marker XY,
-intermediate corridor points as real ``(lat, lon)``) and run to emit the YAML block.
-Each campaign's routes are defined below as its reference application; pick one by name
-and paste the output into that campaign's ``resources/campaigns/*.yaml``.
+intermediate corridor points as real ``(lat, lon)``). Run with a name to print the
+waypoints for review; add ``--draw <file>.miz`` to add them to that campaign .miz as
+route groups. The tables below are the routes as first authored; the .miz is the
+record now, so only draw a route that is not there yet.
 
     python tools/supply_route_geo.py [coin|red_flag_81_2|<batch-1 campaign stem>]
+    python tools/supply_route_geo.py <name> --draw <campaign>.miz
     # default: coin. The §50 batch-1 blue rear corridors (BATCH1_BLUE_REAR) are all
     # addressable by campaign stem with spaces as underscores, e.g. task_force_thunder.
 """
 
 from __future__ import annotations
 
+import re
 import sys
 from dataclasses import dataclass, field
 
@@ -1377,7 +1385,26 @@ CAMPAIGNS.update(
 )
 
 
+def draw(miz_name: str, terrain: object, routes: list[Route]) -> None:
+    """Add ``routes`` to ``resources/campaigns/<miz_name>`` as M-113 route groups."""
+    from campaign_routes import CAMPAIGNS as CAMPAIGN_DIR, draw_into_miz
+
+    wanted = []
+    for number, route in enumerate(routes, start=1):
+        ends = re.match(r"\s*(.+?)\s*->\s*(.+?)\s{2}", route.comment + "  ")
+        name = f"{ends[1]}-{ends[2]} Route" if ends else f"Route {number}"
+        points: list[tuple[float, float]] = [route.start]
+        points += [latlon_to_xy(terrain, lat, lon) for lat, lon in route.corridor]
+        points.append(route.end)
+        wanted.append(("route", name, points))
+    draw_into_miz(CAMPAIGN_DIR / miz_name, terrain, wanted)
+    print(f"drew {len(wanted)} routes into {miz_name}")
+
+
 if __name__ == "__main__":
     name = sys.argv[1] if len(sys.argv) > 1 else "coin"
     terrain_cls, routes = CAMPAIGNS[name]
-    print(render(terrain_cls(), routes))
+    if "--draw" in sys.argv:
+        draw(sys.argv[sys.argv.index("--draw") + 1], terrain_cls(), routes)
+    else:
+        print(render(terrain_cls(), routes))

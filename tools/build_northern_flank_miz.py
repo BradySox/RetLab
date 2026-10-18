@@ -18,9 +18,9 @@ The edits, none of which the source miz can express by itself:
     Alta, Banak and Kirkenes (captured) and Koshka Yavr, Severomorsk-1, Olenya
     and Monchegorsk. Severomorsk-3 and Murmansk International go neutral, and their
     inherited defences bind to Severomorsk-1 -- the Murmansk ring.
-3.  **The routes move to the yaml.** The M-113 path groups, the convoy-spawn
-    markers and the shipping lanes are dropped; ``supply_routes:`` and
-    ``shipping_lanes:`` in the campaign yaml replace them.
+3.  **The routes are re-drawn.** Able Archer's M-113 path groups, the convoy-spawn
+    markers and the shipping lanes are dropped; the campaign's own routes and lanes,
+    drawn in the current .miz, are carried over on every rebuild.
 4.  **The sea is re-seated.** One carrier group north-west of Andoya, a blue
     escort group, and two Northern Fleet groups in the Barents. The LHA is gone.
 5.  **Four fields are furnished** -- Evenes, Bardufoss and Alta had no laydown
@@ -107,7 +107,7 @@ COASTAL = MissilesSS.hy_launcher
 
 #: Inherited marker types this campaign replaces rather than keeps.
 DROPPED_VEHICLE_TYPES = {
-    Armor.M_113.id,  # front-line path groups -> yaml supply_routes
+    Armor.M_113.id,  # Able Archer's paths; this campaign's are carried over
     Armor.M1043_HMMWV_Armament.id,  # convoy spawn chains traced for those paths
     Unarmed.KrAZ6322.id,  # the two neutral FOBs, both off the campaign's axis
     AirDefence.Patriot_ln.id,  # Bodo's long-range slot: re-banded, see BODO_HAWK
@@ -574,6 +574,10 @@ def main() -> None:
         for name in placer.relaxed:
             print(f"  {name}")
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DEST)
     mission.save(str(DEST))
     print(f"\nwrote {DEST.relative_to(_REPO_ROOT)}")
 

@@ -25,6 +25,7 @@ from game.retlab.coin import (
 )
 from game.theater import Player
 from game.theater.base import Base
+from tests.miz_routes import miz_paths
 
 
 class _Unit:
@@ -469,9 +470,10 @@ def test_enduring_resolve_campaign_definition() -> None:
     assert (path.parent.parent / "factions" / "oef_coalition_2006.json").exists()
     # The ratline: authored red<->red supply corridors (the original laydown had
     # zero CP connectivity, so the trail machinery had nothing to run on).
-    assert len(data["supply_routes"]) >= 9
-    for route in data["supply_routes"]:
-        assert len(route["waypoints"]) >= 2
+    roads, _ = miz_paths(data["miz"])
+    assert len(roads) >= 9
+    for road in roads:
+        assert len(road) >= 2
 
     # The Clear-and-Hold push surges the insurgency's supply down the ratline (§35).
     windows = parse_red_tempo(data["red_tempo"])
