@@ -81,6 +81,15 @@ two jet types.
 Per-squadron `country:` pins put Turkish liveries and voices on the Turkish
 fields and Russian on the deep east and the Syrian gates.
 
+The Israeli fields pin `country: Israel` too: the blue faction's country is USA,
+so an unpinned squadron drew at random from US and Israeli presets (2026-10-18).
+A pinned squadron with no unclaimed same-nation preset is generated with no
+livery and flies the DCS default paint. DCS ships one Turkish Viper livery and
+one Israeli F-15C livery, so 141 and 182 Filo reuse the 191 Filo paint and the
+133rd reuses the 106th's. Ramat David's OCA squadron is an F-16, not a second
+F-15E: the IAF flew one F-15I squadron. Locked by
+`test_every_pinned_squadron_has_a_national_preset`.
+
 ### 3. The SAM belt is period-gated by hand
 
 `restrict_weapons_by_date` gates **weapons but never preset groups**. Nothing in
