@@ -2098,6 +2098,9 @@ that code.
   `AircraftGenerator.clear_parking_slots` marks them taken every generation, so no aircraft
   spawns there. Add a field's stands to `BLOCKED_STANDS` only from a flown loss. Tests:
   `tests/theater/test_blocked_parking.py`.
+- **One more F-15C ejected on the Hatzerim ramp, from stand 116 (test 60, 2026-10-18).** The
+  wingman lost its pilot 13 s after spawning, as its lead began to taxi. It had not moved and
+  nothing else was within 200 m. Stand 116 joins the blocked list.
 
 ### Helicopters
 

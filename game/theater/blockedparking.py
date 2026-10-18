@@ -1,7 +1,8 @@
 """Parking stands no aircraft is spawned on.
 
 An AI pilot on these stands ejects on the ramp the moment the jet starts to taxi: four
-F-15Cs on Hatzerim 131-134 in the 2026-10-17 Syria test, with nothing else within 150 m.
+F-15Cs on Hatzerim 131-134 in the 2026-10-17 Syria test, with nothing else within 150 m,
+and one on Hatzerim 116 in test 60, 13 s after it spawned.
 pydcs lists the stands as ordinary 21 x 15 m slots, so they are held here by name.
 """
 
@@ -13,7 +14,7 @@ from dcs.terrain.terrain import ParkingSlot
 
 #: Stand names (``ParkingSlot.slot_name``) per (terrain name, airfield name).
 BLOCKED_STANDS: dict[tuple[str, str], frozenset[str]] = {
-    ("Syria", "Hatzerim"): frozenset({"131", "132", "133", "134"}),
+    ("Syria", "Hatzerim"): frozenset({"116", "131", "132", "133", "134"}),
 }
 
 #: A non-None ``unit_id`` is how pydcs marks a slot taken.
