@@ -1,0 +1,14 @@
+---
+name: 133rd Squadron
+nickname: Knights of the Twin Tail
+female_pilot_percentage: 6
+country: Israel
+role: Air Superiority Fighter
+aircraft: F-15C Eagle
+# DCS ships one Israeli F-15C livery, the 106th's.
+livery: 106th SQN (8th Airbase)
+mission_types:
+  - BARCAP
+  - Escort
+  - Fighter sweep
+  - TARCAP

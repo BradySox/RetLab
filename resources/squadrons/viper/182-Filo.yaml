@@ -1,0 +1,22 @@
+---
+name: 182. Filo
+nickname: Atmaca
+female_pilot_percentage: 6
+country: Turkey
+role: Strike Fighter
+aircraft: F-16CM Fighting Falcon (Block 50)
+# DCS ships one Turkish Viper livery, so the tail badge reads 191 Filo.
+livery: THK_191_Filo
+mission_types:
+  - BAI
+  - BARCAP
+  - CAS
+  - DEAD
+  - Escort
+  - OCA/Aircraft
+  - OCA/Runway
+  - SEAD
+  - SEAD Escort
+  - Strike
+  - Fighter sweep
+  - TARCAP

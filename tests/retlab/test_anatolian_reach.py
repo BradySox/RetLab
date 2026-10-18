@@ -237,3 +237,45 @@ def test_konya_belt_is_on_the_land_map(tmp_path: Path) -> None:
         if not theater.landmap.inclusion_zones.contains(ShapelyPoint(loc.x, loc.y))
     ]
     assert not off, "Konya belt markers off the land map: %s" % off
+
+
+ISRAELI_FIELD_IDS = (81, 30)  # Hatzerim, Ramat David
+
+
+def _preset_counts() -> dict[tuple[str, str], int]:
+    """Shipped squadron presets with a livery, per (country, airframe)."""
+    counts: dict[tuple[str, str], int] = {}
+    for path in Path("resources/squadrons").rglob("*.yaml"):
+        with path.open(encoding="utf-8") as f:
+            preset = yaml.safe_load(f)
+        if preset.get("livery") or preset.get("livery_set"):
+            key = (preset["country"], preset["aircraft"])
+            counts[key] = counts.get(key, 0) + 1
+    return counts
+
+
+def test_israeli_fields_pin_israel() -> None:
+    """The faction's country is USA: an unpinned squadron draws US presets."""
+    squadrons = _data()["squadrons"]
+    for field in ISRAELI_FIELD_IDS:
+        for entry in squadrons[field]:
+            assert entry.get("country") == "Israel", (field, entry["aircraft"])
+
+
+def test_every_pinned_squadron_has_a_national_preset() -> None:
+    """A pinned squadron with no unclaimed same-nation preset is generated with
+    no livery and flies the DCS default paint (the Turkish Vipers, 2026-10-18).
+    Airframes the nation has no preset for at all are exempt."""
+    presets = _preset_counts()
+    wanted: dict[tuple[str, str], int] = {}
+    for entries in _data()["squadrons"].values():
+        for entry in entries:
+            if "country" in entry:
+                key = (entry["country"], entry["aircraft"][0])
+                wanted[key] = wanted.get(key, 0) + 1
+    short = {
+        key: (count, presets[key])
+        for key, count in wanted.items()
+        if key in presets and presets[key] < count
+    }
+    assert not short, f"squadrons vs presets: {short}"
