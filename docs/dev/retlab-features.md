@@ -2081,6 +2081,16 @@ that code.
 - **The astern cone fired with nothing in it, and now says what tripped it (instrumented 2026-08-17).**
 - **The deck-spot table was blind where the decorations stand (fixed 2026-08-17).**
 
+### Airfield parking
+
+- **Four F-15Cs ejected on the Hatzerim ramp as they began to taxi (2026-10-17).** Syria
+  test: every jet on stands 131-134 lost its pilot within 2 s of first moving, with nothing
+  else within 150 m and no weapon near. pydcs lists them as ordinary 21 x 15 m stands.
+  `game/theater/blockedparking.py` holds those stand names, and
+  `AircraftGenerator.clear_parking_slots` marks them taken every generation, so no aircraft
+  spawns there. Add a field's stands to `BLOCKED_STANDS` only from a flown loss. Tests:
+  `tests/theater/test_blocked_parking.py`.
+
 ### Helicopters
 
 - **AI helicopter terrain CFIT (the flown Red Tide M1 Harz/Sauerland pattern, fixed 2026-07-12).**
