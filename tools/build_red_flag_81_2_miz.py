@@ -255,6 +255,10 @@ def main() -> None:
             waypoint=(x + 500, y + 500),
         )
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(m, DST)
     m.save(str(DST))
     print(f"saved {DST}")
 

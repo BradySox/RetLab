@@ -25,6 +25,7 @@ import yaml
 
 from game import persistency
 from game.retlab.red_tempo import parse_red_tempo
+from tests.miz_routes import miz_paths
 
 CAMPAIGN = Path("resources/campaigns/iraq_desert_storm.yaml")
 FACTIONS = CAMPAIGN.parent.parent / "factions"
@@ -292,10 +293,9 @@ def test_desert_storm_supply_graph_is_the_red_interior() -> None:
     Endpoints are exact CP XY (closest-CP binding reads first/last waypoint only),
     so pin the corridor spine: a laydown edit that moves a base silently re-pairs
     the route. The blue H-3 -> H-2 -> Al-Asad ladder legs are .miz path groups
-    (they carry the front line up the ladder), not yaml routes."""
-    routes = _campaign()["supply_routes"]
-    assert len(routes) == 12
-    endpoints = {(tuple(r["waypoints"][0]), tuple(r["waypoints"][-1])) for r in routes}
+    (they carry the front line up the ladder)."""
+    roads, _ = miz_paths(_campaign()["miz"])
+    endpoints = {(road[0], road[-1]) for road in roads}
     # Highway 1 north: Baghdad -> Balad (al-Bakr) -> Tikrit -> Qayyarah -> Mosul.
     assert ((-142, 160), (75938, 13806)) in endpoints
     assert ((75938, 13806), (157133, -61805)) in endpoints

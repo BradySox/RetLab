@@ -231,6 +231,10 @@ def build() -> None:
                 country=red, name=name, _type=kind, position=point(x, y)
             )
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DST)
     mission.save(str(DST))
     print(
         f"Wrote {DST}: {len(BLUE_AIRFIELDS)} blue + {len(RED_AIRFIELDS)} new red "

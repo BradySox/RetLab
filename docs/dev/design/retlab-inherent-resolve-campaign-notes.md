@@ -76,6 +76,7 @@ the forward bases for the final push.
   (**Makhmur** ties Mosul↔Kirkuk, **Hawija** ties the corridor↔Kirkuk). Erbil and Kirkuk have no
   blue neighbour and fall to air assault as the line
   comes up.
+  Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 ### Ground enrichment (per red stronghold)
 Every one of the 8 red strongholds is furnished by the generator with **two garrison groups**

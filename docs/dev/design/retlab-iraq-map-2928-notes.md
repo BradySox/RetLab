@@ -192,6 +192,7 @@ already runs somewhere:
 
 What to avoid at such a field: making it a front-line anchor, running `supply_routes:` through the
 undetailed region, or centring CAS/armed-recon on it.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 ### Per-airfield verdict
 

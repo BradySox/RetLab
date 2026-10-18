@@ -10,6 +10,7 @@ from pathlib import Path
 import yaml
 
 from game.retlab.red_tempo import parse_red_tempo
+from tests.miz_routes import miz_paths
 
 CAMPAIGN = Path("resources/campaigns/iraq_inherent_resolve.yaml")
 
@@ -53,9 +54,10 @@ def test_inherent_resolve_campaign_definition() -> None:
     # BLUE rear-corridor roads (Baghdad -> Balad up Highway 1, Baghdad -> Al-Taquddum out
     # Highway 10) that the §50 escort convoys run (a blue->blue road is the feature's
     # hard prerequisite; without one it silently no-ops).
-    assert len(data["supply_routes"]) == 16
-    for route in data["supply_routes"]:
-        assert len(route["waypoints"]) >= 2
+    roads, _ = miz_paths(data["miz"])
+    assert len(roads) >= 16
+    for road in roads:
+        assert len(road) >= 2
 
     # One front, up Highway 1: Balad -> Tikrit.
     assert "Tikrit" in data["control_point_strengths"]

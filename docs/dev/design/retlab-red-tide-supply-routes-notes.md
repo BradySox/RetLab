@@ -31,6 +31,7 @@ suitable for a text-based campaign configuration.
 Extended `MizCampaignLoader` to also read `supply_routes` and `shipping_lanes` sections
 from the campaign YAML. Both systems are **additive** — YAML routes are added after `.miz`
 routes, so nothing existing breaks.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 **Modified files:**
 

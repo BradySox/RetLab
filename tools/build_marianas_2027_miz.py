@@ -495,6 +495,10 @@ def main() -> None:
     _reseat_naval(mission, theater, RED_ESCORTS, "PLAN escort screen")
     _move_off_runways(mission)
 
+    # Supply routes and sea lanes are drawn in the .miz; keep the drawn ones.
+    from campaign_routes import carry_route_groups
+
+    carry_route_groups(mission, DEST)
     mission.save(str(DEST))
     print(f"\nwrote {DEST.relative_to(_REPO_ROOT)}")
 

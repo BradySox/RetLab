@@ -27,6 +27,7 @@ import yaml
 from dcs.mission import Mission
 
 from game.campaignloader.mizcampaignloader import MizCampaignLoader
+from tests.miz_routes import miz_paths
 
 MIZ = Path("resources/campaigns/marianas_forager_1944.miz")
 YAML = Path("resources/campaigns/marianas_forager_1944.yaml")
@@ -136,11 +137,11 @@ def test_the_carrier_marker_is_present() -> None:
 def test_the_islands_are_joined() -> None:
     """Saipan, Tinian, Rota and Guam are only reachable from each other by sea."""
     campaign = load_campaign()
-    assert len(campaign["supply_routes"]) == 6
-    lanes = campaign["shipping_lanes"]
+    roads, lanes = miz_paths(campaign["miz"])
+    assert len(roads) == 6
     assert len(lanes) == 3
     for lane in lanes:
-        assert len(lane["waypoints"]) >= 2
+        assert len(lane) >= 2
 
 
 def test_it_points_at_the_wwii_theater() -> None:

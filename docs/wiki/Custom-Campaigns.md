@@ -106,10 +106,12 @@ version: "10.8"
 
 ### Supply routes, IADS, and squadrons
 
-- `supply_routes:` defines ground convoy paths and shipping lanes in YAML using DCS map
-  `[x, y]` coordinates; each route's endpoints resolve to the nearest control points. This
-  replaces baking front-line vehicle groups into the `.miz`. **Routes must follow the
-  driveable corridor** — see the standard below.
+- Supply routes are drawn in the `.miz`: an M-113 group per road and a HandyWind cargo ship
+  per sea lane, in the Combined Joint Task Forces Blue country. Each route's first and last
+  waypoints resolve to the nearest control points. **Routes must follow the driveable
+  corridor** — see the standard below.
+  - **RetLab:** the yaml `supply_routes:` / `shipping_lanes:` lists RetLab once used are
+    retired (2026-10-18); every shipped campaign draws its routes in the `.miz`.
 - `advanced_iads: true` with **range mode** auto-wires each red SAM to nearby comms,
   power, and command-center structures placed in the `.miz`, producing destroyable
   per-base C2 cells. A by-name `iads_config:` block is only possible when the SAMs have
@@ -127,13 +129,15 @@ corridor you would actually *drive* between its two points — the road, the riv
 pass — never a straight line across a ridgeline. The engine binds a route to its control points
 by the **first and last waypoint only**, so every intermediate waypoint is free shape: use
 enough of them (3–5+) to follow the real corridor. The payoff is visible everywhere the route
-is drawn — the map line *is* the road the convoys run.
+is drawn — the map line *is* the road the convoys run. Set the waypoints to "On Road" so the
+Mission Editor draws the road path; in the mission the convoys drive on roads either way.
 
 Two ways to author the intermediates:
 
 - **Real-world-coordinate maps** (Afghanistan, Syria, Nevada, Caucasus…): take the real road
   network's lat/lon junctions and convert them to terrain XY with **`tools/supply_route_geo.py`**
-  — it emits a ready-to-paste `supply_routes:` block with exact CP endpoints kept verbatim.
+  — `--draw <campaign>.miz` adds them to the campaign `.miz` as route groups, exact CP
+  endpoints kept verbatim.
   The shipped reference implementations: `python tools/supply_route_geo.py coin` (Highway 1 /
   Route 611 / the Uruzgan road) and `red_flag_81_2` (US-95 / US-6 / the NTS interior roads).
 - **Fictional-overlay campaigns** (Vietnam-on-Caucasus): trace the on-map roads and valleys by
@@ -271,7 +275,7 @@ describes, used in anger:
   laydown lives in the script's tables, never in hand edits.
 - **A `red_tempo:` schedule** — turn-windows that surge the insurgent ratline and raise red's
   ground stance, so the campaign's pressure changes over its run.
-- **Corridor-standard `supply_routes`** authored from real road lat/lons via
+- **Corridor-standard supply routes** drawn in the `.miz` from real road lat/lons via
   `tools/supply_route_geo.py` (Highway 1, Route 611, the Uruzgan road).
 - **`settings:` preseeds** for the whole COIN stack plus the carrier pair
   (`long_range_carrier_ops` + `max_mission_range_planes: 600`).

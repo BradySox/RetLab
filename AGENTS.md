@@ -516,13 +516,16 @@ that block until upstream fixes it. History: `retlab-splash-damage-notes.md`.
   - Commit messages and PR metadata count; rewrite and force-push an unmerged branch to fix one.
   - Not covered: real squadron names, real operation names, and the fork's own campaign names.
   - Check against `ls "<DCS>\Mods\campaigns\"`, not memory.
-- **Supply lines follow the driveable corridor (STANDARD, 2026-07-03).** Every authored
-  `supply_routes:` / shipping-lane drawing traces the road, river valley or pass you would
-  drive, never a straight line across a ridgeline. Only the first and last waypoints bind the
-  route to its CPs, so use 3–5 intermediates. On real-world maps author them from real road
-  lat/lon with `python tools/supply_route_geo.py [coin|red_flag_81_2|caucasus_trail_fixes]`;
-  on fictional overlays trace on-map roads by eye. Reference implementations: COIN
-  (`coin_enduring_resolve.yaml`) and Red Flag 81-2 (`red_flag_81_2.yaml`).
+- **Supply lines are drawn in the .miz and follow the driveable corridor (STANDARD,
+  2026-07-03; .miz-only since 2026-10-18 DM call).** A road is an M-113 group and a sea lane
+  a HandyWind group in the campaign `.miz` (Combined Joint Task Forces Blue), as upstream
+  draws them; never a yaml `supply_routes:`/`shipping_lanes:` list (a test fails on one).
+  Each traces the road, river valley or pass you would drive, never a straight line across a
+  ridgeline. Only the first and last waypoints bind the route to its CPs, so use 3–5
+  intermediates and set them "On Road". On real-world maps author them from real road
+  lat/lon with `python tools/supply_route_geo.py <name> --draw <campaign>.miz`; on fictional
+  overlays trace on-map roads by eye in the ME. A build script keeps the drawn routes with
+  `carry_route_groups` (`tools/campaign_routes.py`).
 - **Upstream dev-process standards are ours (ADOPTED 2026-07-20 user call).** The upstream
   wiki's Contributing and Core development guides are mirrored in `docs/wiki/` with
   **RetLab:** deltas: small PRs, type annotations, Black via pre-commit, the module

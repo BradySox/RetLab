@@ -181,7 +181,7 @@ Copy the source rather than the rendered view to preserve formatting in the bug.
 ## RetLab additions
 
 - [ ] **Campaigns on the new terrain author real corridors.** When the first campaign
-  comes to the terrain, its `supply_routes:` must trace the real driveable roads —
+  comes to the terrain, its supply routes (M-113 groups in the `.miz`) must trace the real driveable roads —
   `tools/supply_route_geo.py` converts real road lat/lon to terrain XY on
   real-world-coordinate maps (see the supply-lines standard in
   [Campaign maintenance](Campaign-maintenance)).

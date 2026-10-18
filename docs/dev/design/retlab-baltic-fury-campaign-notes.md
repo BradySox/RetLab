@@ -430,6 +430,7 @@ half is fixed **engine-side** rather than in the yaml (see features doc §8, `Co
 the generator walks a convoy's spawn back out along the authored corridor until it is 1.5 km clear
 of the field, which fixes existing saves on the next regeneration and covers every campaign — Red
 Tide has 3 endpoints with the same defect.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 ### Open: the Peenemünde routes cross open water
 

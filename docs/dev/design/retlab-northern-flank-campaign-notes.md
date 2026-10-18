@@ -61,6 +61,7 @@ Twelve control points on one road.
 **Roads** (`supply_routes:`, traced from real road lat/lon): Evenes – Bardufoss – Alta – Banak –
 Kirkenes – Koshka Yavr – Severomorsk-1 – Olenya – Monchegorsk. The only opposed pair is
 Bardufoss – Alta, so there is one front.
+Since 2026-10-18 these routes and lanes are M-113 and HandyWind groups in the `.miz`; the yaml list is gone (`tools/campaign_routes.py`).
 
 **Sea lanes** (`shipping_lanes:`): Bodo – Evenes, Bodo – Andoya, Severomorsk-1 – Kirkenes,
 Kirkenes – Banak. Bodo and Andoya have no road link, as in Able Archer.
