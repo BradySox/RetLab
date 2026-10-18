@@ -2101,6 +2101,10 @@ that code.
 - **One more F-15C ejected on the Hatzerim ramp, from stand 116 (test 60, 2026-10-18).** The
   wingman lost its pilot 13 s after spawning, as its lead began to taxi. It had not moved and
   nothing else was within 200 m. Stand 116 joins the blocked list.
+- **The stand survey (test 61, 2026-10-18).** One AI F-15C on each of Hatzerim's 53
+  Eagle-sized stands: 116, 131-134 and 158 ejected, the other 47 launched. The jet on 134
+  spawned clipped into the revetment wall, so these stands sit too close to a wall for an
+  Eagle. Stand 158 joins the blocked list. The probe is `Missions\RetLab probes\hatzerim_stand_survey.miz`.
 
 ### Helicopters
 

@@ -1,7 +1,7 @@
 """Stands where AI pilots eject on the ramp are never handed out.
 
 Hatzerim 131-134: four F-15Cs ejected there as they began to taxi on 2026-10-17.
-Hatzerim 116: one more in test 60.
+Hatzerim 116: one more in test 60. 158: the stand survey (test 61).
 """
 
 from __future__ import annotations
@@ -34,13 +34,13 @@ def test_hatzerim_blocked_stands_are_never_free() -> None:
     for slot in hatzerim.parking_slots:
         slot.unit_id = None
     before = {s.slot_name for s in hatzerim.free_parking_slots(F_15C)}
-    assert {"116", "131", "132", "133", "134"} <= before
+    assert {"116", "131", "132", "133", "134", "158"} <= before
 
     taken = occupy_blocked_stands(terrain.name, hatzerim.name, hatzerim.parking_slots)
 
     after = {s.slot_name for s in hatzerim.free_parking_slots(F_15C)}
-    assert taken == 5
-    assert after == before - {"116", "131", "132", "133", "134"}
+    assert taken == 6
+    assert after == before - {"116", "131", "132", "133", "134", "158"}
 
 
 def test_other_fields_are_untouched() -> None:
