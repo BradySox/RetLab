@@ -1,0 +1,9 @@
+---
+name: Gendarmerie Aviation
+country: Turkey
+role: Transport Helicopter
+aircraft: Mi-8MTV2 Hip
+livery: Turkey
+mission_types:
+  - Transport
+  - Air Assault

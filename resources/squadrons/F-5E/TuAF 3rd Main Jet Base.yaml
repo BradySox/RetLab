@@ -1,0 +1,13 @@
+---
+name: TuAF 3rd Main Jet Base F-5 Squadron
+country: Turkey
+role: Light Fighter
+aircraft: F-5E Tiger II
+livery: 3rd Main Jet Base Group Command, Turkey
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
+  - CAS
+  - BAI

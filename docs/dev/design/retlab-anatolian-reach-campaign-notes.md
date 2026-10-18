@@ -195,6 +195,19 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
 - Both fields are farther from Turkey than Ramat David, so they do not draw the planner
   away from the Israeli strike fields the way Akrotiri would.
 
+## More Turkish squadrons (2026-10-18, DM call)
+
+- **Konya** (the 3rd Main Jet Base) adds the 132nd Filo's F-4E 2020s (`TuAF 132 Filo`,
+  DCS's `TuAF-67-0285-SEA` paint) and an F-5E squadron in DCS's "3rd Main Jet Base Group
+  Command, Turkey" paint. The F-5E joins the inline red faction. Incirlik's Phantoms name
+  `TuAF 111 Filo` so the two Phantom picks cannot swap.
+- **Chukurova** adds Army UH-1Hs ("Turkish Air Force" paint) and Gendarmerie Mi-8s
+  ("Turkey" paint). The AH-1W squadron there now has a Turkish preset ("Turkey 1" paint);
+  it was generated blank.
+- **Chukurova** also has Turkish Land Forces CH-47Fs (DCS's own paint). Turkey got them in
+  2016; in by DM call ("fudge the date"). The E-7 stays out. The F-5 squadron's name is generic; which
+  Konya Filo flew F-5s in 2004 is not checked.
+
 ## What the first flown turn established
 
 Turn 2, 36.9 minutes, 2004-06-01 at 22:36 local (night — see below).

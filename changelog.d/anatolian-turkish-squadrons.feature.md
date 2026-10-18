@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: Konya adds the 132nd Filo's F-4E 2020s and an F-5E squadron; Chukurova adds Army UH-1Hs, Gendarmerie Mi-8s and Land Forces CH-47Fs; the AH-1W squadron wears Turkish paint.

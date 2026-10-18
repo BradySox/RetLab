@@ -37,6 +37,7 @@ recommended_enemy_faction:
   aircrafts:
     # Turkish
     - F-16CM Fighting Falcon (Block 50)
+    - F-5E Tiger II
     - F-4E Phantom II
     - F-4E-45MC Phantom II
     - AH-1W SuperCobra
@@ -44,6 +45,8 @@ recommended_enemy_faction:
     - UH-1H Iroquois
     - UH-60A
     - CH-47D
+    # Turkey got the CH-47F in 2016; in by DM call for its Turkish paint.
+    - CH-47F Block I
     - C-130J-30
     # Russian
     - MIG-29-FULCRUM
@@ -337,6 +340,7 @@ squadrons:
     - primary: Strike
       secondary: air-to-ground
       aircraft:
+        - TuAF 111 Filo
         - F-4E-45MC Phantom II
       size: 12
       country: Turkey
@@ -358,6 +362,20 @@ squadrons:
       aircraft:
         - KC-135 Stratotanker
       size: 2
+      country: Turkey
+    # Konya was the 3rd Main Jet Base: F-4E 2020s and F-5s in 2004.
+    - primary: Strike
+      secondary: air-to-ground
+      aircraft:
+        - TuAF 132 Filo
+        - F-4E-45MC Phantom II
+      size: 12
+      country: Turkey
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - F-5E Tiger II
+      size: 12
       country: Turkey
 
   # Diyarbakir (133 stands) - eastern main base, 398 nm from Ramat David and the
@@ -396,6 +414,21 @@ squadrons:
       secondary: air-to-ground
       aircraft:
         - AH-1W SuperCobra
+      size: 4
+      country: Turkey
+    - primary: Transport
+      aircraft:
+        - UH-1H Iroquois
+      size: 4
+      country: Turkey
+    - primary: Transport
+      aircraft:
+        - Mi-8MTV2 Hip
+      size: 4
+      country: Turkey
+    - primary: Air Assault
+      aircraft:
+        - CH-47F Block I
       size: 4
       country: Turkey
 

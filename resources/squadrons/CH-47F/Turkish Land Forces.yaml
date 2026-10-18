@@ -1,0 +1,9 @@
+---
+name: Turkish Land Forces Aviation
+country: Turkey
+role: Heavy Transport Helicopter
+aircraft: CH-47F Block I
+livery: Turkish Land Forces
+mission_types:
+  - Air Assault
+  - Transport
