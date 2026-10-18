@@ -204,7 +204,8 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
 - **Chukurova** adds Army UH-1Hs ("Turkish Air Force" paint) and Gendarmerie Mi-8s
   ("Turkey" paint). The AH-1W squadron there now has a Turkish preset ("Turkey 1" paint);
   it was generated blank.
-- Left out as post-2004: the CH-47F and the E-7. The F-5 squadron's name is generic; which
+- **Chukurova** also has Turkish Land Forces CH-47Fs (DCS's own paint). Turkey got them in
+  2016; in by DM call ("fudge the date"). The E-7 stays out. The F-5 squadron's name is generic; which
   Konya Filo flew F-5s in 2004 is not checked.
 
 ## What the first flown turn established
