@@ -1,0 +1,13 @@
+---
+name: 368th Assault Aviation Regiment
+country: Russia
+role: Attack
+aircraft: Su-25T Frogfoot
+livery: af standard
+mission_types:
+  - CAS
+  - BAI
+  - SEAD
+  - DEAD
+  - Strike
+  - Armed Recon

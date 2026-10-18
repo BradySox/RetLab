@@ -84,6 +84,12 @@ fields and Russian on the deep east. Since 2026-10-18 (DM call) the Syrian gates
 "Syria AF" paint (the only Fulcrum DCS paints Syrian; Bassel's MiG-29S became one),
 the 819th's Su-24Ms and the 765th's Mi-24Ps. Diyarbakir adds a Tu-22M3 regiment for
 long-range strike and the carrier threat, and its MiG-31s are the 174th Guards.
+Sanliurfa's Su-25Ts are the 368th Assault Aviation Regiment. Turkey's E-3A is gone
+(Turkey had no AWACS until the E-7 in 2014); red's only AEW&C is the A-50.
+
+Squadrons are named where a random pick went wrong: the carrier flies VF-103 (a pick
+could land on VF-101, the Tomcat training squadron), VFA-87 and VAW-125; Ramat David
+flies the 110th and 117th, Hatzerim the 101st.
 
 The Israeli fields pin `country: Israel` too: the blue faction's country is USA,
 so the preset loader only saw US presets and the Israeli squadrons flew US paint.

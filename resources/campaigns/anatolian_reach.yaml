@@ -65,7 +65,6 @@ recommended_enemy_faction:
     - L-39ZA Albatros
   awacs:
     - A-50
-    - E-3A
   tankers:
     - IL-78M
     - KC-135 Stratotanker
@@ -179,6 +178,7 @@ squadrons:
     - primary: DEAD
       secondary: air-to-ground
       aircraft:
+        - 101st Squadron
         - F-16CM Fighting Falcon (Block 50)
       size: 12
       country: Israel
@@ -267,9 +267,11 @@ squadrons:
   # Ramat David (86 stands) - forward staging, 254 nm to the nearest Turkish
   # field and 62 nm off the Syrian corridor. Recovery field for deep packages.
   30:
+    # Ramat David was home to the 110th and 117th.
     - primary: SEAD
       secondary: air-to-ground
       aircraft:
+        - 110th Squadron
         - F-16CM Fighting Falcon (Block 50)
       size: 12
       country: Israel
@@ -277,6 +279,7 @@ squadrons:
     - primary: OCA/Runway
       secondary: air-to-ground
       aircraft:
+        - 117th Squadron
         - F-16CM Fighting Falcon (Block 50)
       size: 8
       country: Israel
@@ -311,15 +314,19 @@ squadrons:
     - primary: Strike
       secondary: air-to-ground
       aircraft:
+        - VFA-87
         - F/A-18C Hornet (Lot 20)
       size: 16
     - primary: Escort
       secondary: any
       aircraft:
+        # Named: a random pick can land on VF-101, the training squadron.
+        - VF-103
         - F-14B(U) Tomcat
       size: 16
     - primary: AEW&C
       aircraft:
+        - VAW-125
         - E-2C Hawkeye
       size: 4
     - primary: Anti-ship
@@ -353,11 +360,6 @@ squadrons:
       aircraft:
         - F-16CM Fighting Falcon (Block 50)
       size: 16
-      country: Turkey
-    - primary: AEW&C
-      aircraft:
-        - E-3A
-      size: 2
       country: Turkey
     - primary: Refueling
       aircraft:
