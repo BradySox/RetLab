@@ -375,8 +375,10 @@ class AircraftGenerator:
                         continue
 
                     # The QRA reserve is the squadron's own jets -- they wear
-                    # the squadron modex sequence too (§62; clones copy it).
+                    # the squadron modex sequence and paint too (§62; clones
+                    # copy both). Unpainted, they launched in stock paint (test 62).
                     self.modex_allocator.assign(squadron, group, country)
+                    AircraftPainter(flight, group, self.livery_allocator).apply_livery()
                     self.mission_data.intercept_entries.append(
                         InterceptEntry(
                             squadron_id=str(squadron.id),
@@ -467,11 +469,15 @@ class AircraftGenerator:
                     exc_info=True,
                 )
                 continue
+            else:
+                # Painted while the roster still holds the members it reads.
+                if group is not None:
+                    self.modex_allocator.assign(squadron, group, country)
+                    AircraftPainter(flight, group, self.livery_allocator).apply_livery()
             finally:
                 flight.roster.clear()
             if group is None:
                 continue
-            self.modex_allocator.assign(squadron, group, country)
             self.mission_data.red_scramble_templates.append(
                 RedScrambleTemplate(group_name=group_name, label=aircraft.variant_id)
             )

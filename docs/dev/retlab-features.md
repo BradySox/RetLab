@@ -323,6 +323,12 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   when `restrict_weapons_by_date` is on. An airframe with no BARCAP preset keeps the
   pydcs default. The template's DCS task is unchanged. Tests:
   `tests/missiongenerator/test_alert_template_loadout.py`. Row **B227**.
+- **Alert templates wear the squadron's paint (2026-10-18, test 62).** For the same reason
+  (no `FlightGroupConfigurator`), the alert and §61 templates were never painted: Israeli
+  and Turkish alert F-16s and F-4Es launched in stock paint. Both now run `AircraftPainter`
+  after the board numbers, as a fragged flight does. Checked on Brady's Anatolian Reach
+  save: every alert template carries its squadron's livery. Test:
+  `tests/missiongenerator/test_alert_template_paint.py`. Row **B246**.
 - **A shot-down alert jet is not handed back to the pool (2026-10-12, test 56).** Red's
   JF-17 alert squadron launched 8 single-ship jets from a reserve of 4. The plugin sets
   `SetDefaultLandingAtEngineShutdown`, so Moose's `OnEventEngineShutdown` returns a
