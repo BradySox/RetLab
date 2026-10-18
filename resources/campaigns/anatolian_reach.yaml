@@ -2,7 +2,95 @@
 name: Syria - Anatolian Reach
 theater: Syria
 authors: RetLab
-recommended_player_faction: USA-Israel 2000
+# Trimmed from the shipped USA-Israel 2000 (DM call, 2026-10-18): the US brings
+# tankers, control and a carrier, not bombers or attack jets.
+recommended_player_faction:
+  country: USA
+  name: USA-Israel 2004 (Anatolian Reach)
+  authors: Starfire
+  description: '<p>The Israeli Air Force with a US tanker, control and carrier package, 2004.
+    Trimmed from Starfire''s USA-Israel 2000: no US bombers, attack jets or heavy lift.</p>'
+  locales:
+  - en_US
+  aircrafts:
+  - AH-1W SuperCobra
+  - AH-64A Apache
+  - AH-64D Apache Longbow
+  - C-130J-30
+  - CH-53E
+  - F-14B Tomcat
+  - F-14B(U) Tomcat
+  - F-15C Eagle
+  - F-15E Strike Eagle (Suite 4+)
+  - F-16CM Fighting Falcon (Block 50)
+  - F/A-18C Hornet (Lot 20)
+  - F-4E-45MC Phantom II
+  - OH-58D(R) Kiowa Warrior
+  - S-3B Viking
+  - SH-60B Seahawk
+  - UH-1H Iroquois
+  - UH-60A
+  - UH-60L
+  awacs:
+  - E-2C Hawkeye
+  - E-3A
+  tankers:
+  - KC-135 Stratotanker
+  - KC-135 Stratotanker MPRS
+  frontline_units:
+  - LAV-25
+  - M1043 HMMWV (M2 HMG)
+  - M1045 HMMWV (BGM-71 TOW)
+  - M1097 Heavy HMMWV Avenger
+  - M163 Vulcan Air Defense System
+  - M48 Chaparral
+  - M1A2 Abrams
+  - M2A2 Bradley
+  - M6 Linebacker
+  - M113
+  - Merkava Mk IV
+  artillery_units:
+  - M109A6 Paladin
+  - M270 Multiple Launch Rocket System
+  logistics_units:
+  - Truck M818 6x6
+  infantry_units:
+  - Infantry M249
+  - Infantry M4
+  - MANPADS Stinger
+  - Mortar 2B11 120mm
+  preset_groups:
+  - Hawk
+  - Patriot
+  naval_units:
+  - FFG Oliver Hazard Perry
+  - DDG Arleigh Burke IIa
+  - CG Ticonderoga
+  - LHA-1 Tarawa
+  - CVN-74 John C. Stennis
+  missiles: []
+  air_defense_units:
+  - EWR AN/FPS-117 Radar
+  - M1097 Heavy HMMWV Avenger
+  - M6 Linebacker
+  - M163 Vulcan Air Defense System
+  - M48 Chaparral
+  requirements: {}
+  carrier_names:
+  - CVN-71 Theodore Roosevelt
+  - CVN-72 Abraham Lincoln
+  - CVN-73 George Washington
+  - CVN-74 John C. Stennis
+  - CVN-75 Harry S. Truman
+  helicopter_carrier_names:
+  - LHA-1 Tarawa
+  - LHA-2 Saipan
+  - LHA-3 Belleau Wood
+  - LHA-4 Nassau
+  - LHA-5 Peleliu
+  has_jtac: true
+  jtac_unit: MQ-9 Reaper
+  liveries_overrides: {}
 description:
   <p>In 2004 a rupture between Ankara and Washington ends with Turkish airspace
   and Incirlik closed to coalition traffic. Moscow moves into the gap. An
@@ -63,6 +151,11 @@ recommended_enemy_faction:
     - IL-76MD
     - Tu-22M3 Backfire-C
     - L-39ZA Albatros
+    # Syrian Arab Air Force
+    - MiG-21bis Fishbed-N
+    - MiG-23MLD Flogger-K
+    - MiG-25PD Foxbat-E
+    - Su-17M4 Fitter-K
   awacs:
     - A-50
   tankers:
@@ -87,7 +180,8 @@ recommended_enemy_faction:
     - BMP-2
     - BMP-3
     - T-72B with Kontakt-1 ERA
-    - T-80UD
+    # Russia ran the T-80B/BV; DCS has no T-80U, and the T-80UD is Ukrainian.
+    - MBT T-80B
     - T-90A
   artillery_units:
     - Firtina
@@ -483,6 +577,25 @@ squadrons:
         - Su-24M Fencer-D
       size: 8
       country: Syria
+    # The bulk of the 2004 SyAAF, in the shipped Syrian presets.
+    - primary: TARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-21bis Fishbed-N
+      size: 8
+      country: Syria
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-25PD Foxbat-E
+      size: 6
+      country: Syria
+    - primary: BAI
+      secondary: air-to-ground
+      aircraft:
+        - Su-17M4 Fitter-K
+      size: 8
+      country: Syria
 
   # Aleppo (23 stands) - the overland corridor gate and the hinge that joins the
   # Syrian front to the Turkish one. 234 nm from Israel, 82 nm from Kahramanmaras.
@@ -499,6 +612,12 @@ squadrons:
       aircraft:
         - Mi-24P Hind-F
       size: 4
+      country: Syria
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-23MLD Flogger-K
+      size: 6
       country: Syria
 
   # Kahramanmaras (7), Adiyaman (6) and Gazipasa (6) carry no squadrons. They are
