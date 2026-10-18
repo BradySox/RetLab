@@ -133,6 +133,7 @@ def _layout(
     )
     front = MagicMock(spec=FrontLine)
     front.position = _point(50_000, 50_000)
+    front.name = "Front line Gazipasa/Konya FOB"
     home = SimpleNamespace(position=departure, theater=MagicMock())
     flight = SimpleNamespace(
         flight_type=MagicMock(),
@@ -169,6 +170,15 @@ def test_flot_start_and_end_sit_on_the_outer_battles(
     order = list(layout.iter_waypoints())
     start = order.index(layout.patrol_start)
     assert order[start : start + 5] == [layout.patrol_start, *stops, layout.patrol_end]
+
+
+def test_the_ingress_names_the_front(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Test 60's briefing printed the FrontLine object's repr here.
+    layout = _layout(monkeypatch, None, departure=_point(0, 0))
+    assert (
+        layout.ingress.description
+        == "Ingress to provide CAS at Front line Gazipasa/Konya FOB"
+    )
 
 
 def test_the_end_nearer_home_is_flot_start(monkeypatch: pytest.MonkeyPatch) -> None:
