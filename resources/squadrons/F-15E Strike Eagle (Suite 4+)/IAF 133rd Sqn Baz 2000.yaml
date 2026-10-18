@@ -1,0 +1,14 @@
+---
+name: IAF 133rd Squadron Baz 2000
+nickname: Knights of the Twin Tail
+female_pilot_percentage: 6
+country: Israel
+role: Air Superiority Fighter
+aircraft: F-15E Strike Eagle (Suite 4+)
+# A user-files livery (IAF Baz 2000); without it DCS shows the default paint.
+livery: IDF BAZ2000 - 133rd Sqn
+mission_types:
+  - BARCAP
+  - Escort
+  - Fighter sweep
+  - TARCAP

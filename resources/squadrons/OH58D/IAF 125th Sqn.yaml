@@ -1,0 +1,13 @@
+---
+name: IAF 125th Light Helicopter Squadron
+nickname: Light Helicopter
+female_pilot_percentage: 6
+country: Israel
+role: Light Attack and Scout Helicopter
+aircraft: OH-58D(R) Kiowa Warrior
+# A user-files livery (OH-58D IAF pack); without it DCS shows the default paint.
+livery: IAF-125th-Light helicopter Sqd
+mission_types:
+  - CAS
+  - BAI
+  - Escort
