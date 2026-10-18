@@ -7846,7 +7846,8 @@ those saves' ATOs doing nothing. Rows B31 and B52 had verified it worked (audit,
   §77 and is now a §69 setting.
 - **`is_escort_type` is `ESCORT` and `SEAD_ESCORT`** again. The call sites that read it (the split
   trigger's release push, the helo-package formation guard) keep reading it.
-- Anatolian Reach's Prowler squadron is authored `SEAD Escort`.
+- Anatolian Reach's Prowler squadron was authored `SEAD Escort`. No campaign carries a Prowler
+  since 2026-10-18 (DM call); the mod toggle and the faction entries stay.
 
 **Old saves:** `"Escort Jammer"` maps to `SEAD_ESCORT` in `_LEGACY_FLIGHT_TYPE_VALUES`, so a saved
 flight, a squadron's task list and a campaign yaml all convert; the jammer flew the SEAD escort

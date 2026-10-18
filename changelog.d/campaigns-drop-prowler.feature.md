@@ -1,0 +1,1 @@
+* **[Campaign]** No campaign turns on the EA-6B Prowler mod or has a Prowler squadron. Anatolian Reach, Gran Polvorin, Desert Storm, Inherent Resolve, Operation Blackball, Pacific Repartee, Scenic Merge and Scenic Route each lose their one Prowler squadron. The mod can still be turned on for a new game.
