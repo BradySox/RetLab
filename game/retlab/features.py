@@ -551,14 +551,13 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("carrier_deck_decorations",),
     ),
     Feature(
-        # §73 default loadout per airframe+task (game/retlab/loadout_defaults.py):
-        # one-click "set as default" writing the edited loadout into the payload
-        # NAME the planner resolves for that task, so every future flight of the
-        # airframe+task is planned with it. No Settings field -- on-disk content is
-        # the switch, like the §42 map tiles and the §43 flight defaults.
+        # Removed 2026-10-17 with the user payload directory: saved fits replaced
+        # the shipped ones in every campaign and pinned old weapons, so the era
+        # fallback had nothing newer to step down from.
         "default_task_loadout",
         "Per-airframe default loadout for a task",
         73,
+        retired=True,
     ),
     Feature(
         # §74 native DTC pre-population (game/missiongenerator/dtc/): one JSON

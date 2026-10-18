@@ -54,7 +54,7 @@ def _patch_pydcs_payload_loader() -> None:
     patch_pydcs_payload_loader()
 
 
-def inject_custom_payloads(user_path: Path) -> None:
+def inject_custom_payloads() -> None:
     dev_payloads = THIS_DIR.parent / "resources/customized_payloads"
     # The packaged release rearranges the file locations, so the release has the
     # customized payloads in a different location.
@@ -68,9 +68,10 @@ def inject_custom_payloads(user_path: Path) -> None:
             f"Could not find customized payloads at {release_payloads} or "
             f"{dev_payloads}. Aircraft will have no payloads."
         )
-    # We configure these as fallbacks so that the user's payloads override ours.
+    # RetLab: only the shipped payloads. Upstream also reads the user's
+    # MissionEditor/UnitPayloads; those replaced shipped fits by name in every
+    # campaign and pinned old weapons (features doc §73).
     PayloadDirectories.set_fallback(payloads)
-    PayloadDirectories.set_preferred(user_path / "MissionEditor" / "UnitPayloads")
 
 
 def on_game_load(game: Optional[Game]) -> None:
@@ -122,7 +123,7 @@ def run_ui(game: Optional[Game], ui_flags: UiFlags) -> None:
         )
     )
 
-    inject_custom_payloads(persistency.base_path())
+    inject_custom_payloads()
 
     # Splash screen setup
     pixmap = QPixmap("./resources/ui/splash_screen.png")
@@ -315,7 +316,7 @@ def create_game(
     # Without this, it is not possible to use next turn (or anything that needs to check
     # for loadouts) without saving the generated campaign and reloading it the normal
     # way.
-    inject_custom_payloads(persistency.base_path())
+    inject_custom_payloads()
     campaign = Campaign.from_file(campaign_path)
     theater = campaign.load_theater(advanced_iads)
     generator = GameGenerator(

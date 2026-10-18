@@ -310,7 +310,6 @@ linked design note.
 69. **SEAD-before-strike coordination** — strikes retimed behind their suppressor.
 71. **Expanded F-4E Weapons Pack** — AGM-78 fits gated on pylon legality.
 72. **Carrier deck decorations** — deck dressing clear of every parking spot.
-73. **Per-airframe default loadout for a task** — pin a fit across campaigns.
 74. **Native DTC data pre-population** — cartridges for Hornet, Viper, F-14B(U), Apache.
 75. **Custom victory conditions** — authored win/lose blocks.
 76. **CTLD paratroopers** — fixed-wing Air Assault by paradrop, player and AI.
@@ -382,6 +381,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 84 | Old-stock loadout attrition | Removed 2026-08-06 |
 | 110 | Ballistic missile call-for-fire (`bmstrike`) | Removed 2026-10-12 — ported 2026-10-10, never flown |
 | 9 | TIC — Troops In Contact (the `tic` plugin and the late-init pass) | Removed 2026-10-15 — the front fights with DCS's own ground AI |
+| 73 | Per-airframe default loadout for a task (and the user `UnitPayloads` folder) | Removed 2026-10-17 — saved fits replaced shipped presets by name in every campaign and pinned old weapons; RetLab reads only the shipped payloads |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush
