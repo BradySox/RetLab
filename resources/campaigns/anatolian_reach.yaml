@@ -37,16 +37,13 @@ recommended_player_faction:
   tankers:
   - KC-135 Stratotanker
   - KC-135 Stratotanker MPRS
+  # Israeli ground forces only; the M60A3 stands in for the Magach.
   frontline_units:
-  - LAV-25
   - M1043 HMMWV (M2 HMG)
   - M1045 HMMWV (BGM-71 TOW)
-  - M1097 Heavy HMMWV Avenger
   - M163 Vulcan Air Defense System
   - M48 Chaparral
-  - M1A2 Abrams
-  - M2A2 Bradley
-  - M6 Linebacker
+  - M60A3 "Patton"
   - M113
   - Merkava Mk IV
   artillery_units:
@@ -71,8 +68,6 @@ recommended_player_faction:
   missiles: []
   air_defense_units:
   - EWR AN/FPS-117 Radar
-  - M1097 Heavy HMMWV Avenger
-  - M6 Linebacker
   - M163 Vulcan Air Defense System
   - M48 Chaparral
   requirements: {}
@@ -183,6 +178,10 @@ recommended_enemy_faction:
     # Russia ran the T-80B/BV; DCS has no T-80U, and the T-80UD is Ukrainian.
     - MBT T-80B
     - T-90A
+    # Syrian Arab Army
+    - T-55A
+    - BMP-1
+    - BRDM-2
   artillery_units:
     - Firtina
     - M270 Multiple Launch Rocket System
@@ -211,6 +210,7 @@ recommended_enemy_faction:
     - SAM SA-8 Osa "Gecko" TEL
     - SA-13 Gopher (9K35 Strela-10M3)
     - ZSU-23-4 Shilka
+    - S-60 57mm
     - M1097 Heavy HMMWV Avenger
     - AAA ZU-23 Closed Emplacement
     - ZU-23 on Ural-375

@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: blue's ground units are Israeli (Merkava IV, M60A3 as the Magach, M113, Vulcan, Chaparral; no US-only vehicles), and red adds the Syrian army's T-55, BMP-1, BRDM-2 and S-60 guns.

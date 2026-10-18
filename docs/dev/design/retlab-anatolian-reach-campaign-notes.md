@@ -94,7 +94,9 @@ The SyAAF's 2004 bulk joins red: MiG-21bis (TARCAP) and MiG-25PD (BARCAP) and Su
 **Blue's faction is inline since 2026-10-18 (DM call):** Starfire's USA-Israel 2000
 (still shipped, still Desert Trident's) minus the B-1B, B-52H, F-117A, A-10A, AV-8B,
 F-14A, EA-6B, C-17A, CH-47D/F, MH-60L DAP and the KC-130 (probe and drogue only; every
-Israeli jet is a boom receiver). The US brings tankers, control and a carrier.
+Israeli jet is a boom receiver). The US brings tankers, control and a carrier. Its
+ground units are Israeli only: no LAV-25, M1A2, M2A2, M6 or Avenger; the M60A3 stands in
+for the Magach. Red adds the Syrian army's T-55A, BMP-1, BRDM-2 and S-60 guns.
 
 Squadrons are named where a random pick went wrong: the carrier flies VF-103 (a pick
 could land on VF-101, the Tomcat training squadron), VFA-87 and VAW-125; Ramat David
