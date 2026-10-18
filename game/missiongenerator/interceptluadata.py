@@ -31,12 +31,10 @@ AMBUSH_GCI_RADIUS_NM = 40
 #: Forward-defense reach: with ``qra_forward_defense`` on, the ceiling on how far a
 #: raid may be from a base and still make that base eligible to scramble for it.
 #:
-#: Widening the reach does NOT cause a mass launch. Moose's GCI loop
-#: (``AI_A2A_DISPATCHER``, Moose.lua) walks every squadron, keeps the one with the
-#: shortest *intercept* distance among those inside ``GciRadius``, and only reaches
-#: back to a farther squadron once the closer one's alert is spent. So a wide reach
-#: buys an echelon -- the front field answers, the rear fields backfill -- and this
-#: ceiling is what keeps a genuinely deep-rear field (300 NM back) at home.
+#: Moose launches from the squadron nearest the intercept and reaches back to a
+#: farther one once it is spent, so a wide reach buys an echelon. The plugin's
+#: per-raid cap (``MAX_DEFENDERS_PER_RAID``) is what stops that echelon emptying
+#: every base in range (test 62); this ceiling keeps a deep-rear field at home.
 QRA_FORWARD_REACH_NM = 200
 
 #: How far *past* the FLOT a front-anchor CP's defended-airspace circle reaches. The
