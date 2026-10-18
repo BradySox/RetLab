@@ -174,6 +174,31 @@ def test_too_few_fields_yields_nothing() -> None:
     )
 
 
+def test_an_airliner_never_flies_to_a_helipad() -> None:
+    """Test 59: an An-26 and an IL-76 were sent to land on Syria helipads and crashed."""
+    pads = [
+        replace(f, name=f"pad {f.name}", has_runway=False)
+        for f in _spread(4, spacing=200_000)
+    ]
+    pool = pads + _spread(3)
+    routes = plan_airways(pool, REGIONS["Syria"], (3, 3), random.Random(5))
+    assert routes
+    for route in routes:
+        assert all(field.has_runway for field in route.chain)
+
+
+def test_helipads_alone_give_no_airways() -> None:
+    pads = [replace(f, has_runway=False) for f in _spread(5)]
+    assert plan_airways(pads, REGIONS["Syria"], (1, 3), random.Random(0)) == []
+
+
+def test_syria_lists_runwayless_helipads_as_airports() -> None:
+    """The premise of the runway filter: these come back from terrain.airports."""
+    airports = dcs.terrain.Syria().airports
+    assert not airports["HI24"].runways
+    assert not airports["HJ03"].runways
+
+
 # --- rotary stays local -------------------------------------------------------
 
 

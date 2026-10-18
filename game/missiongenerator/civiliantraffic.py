@@ -150,6 +150,9 @@ class _Field:
     name: str
     point: Point
     elevation_m: Optional[float] = None
+    #: False for a helipad listed as an airport (Syria's HI24, HJ03, ...). An
+    #: An-26 and an IL-76 sent to land on one crashed on test 59.
+    has_runway: bool = True
 
 
 @dataclass(frozen=True)
@@ -278,6 +281,7 @@ def plan_airways(
     (a small map, or a heavily pruned pool), so a cramped theatre still gets traffic
     rather than silently getting none.
     """
+    pool = [f for f in pool if f.has_runway]
     if len(pool) < 2 or not region.fleet:
         return []
 
@@ -465,11 +469,13 @@ class CivilianTrafficGenerator:
                 name=name,
                 point=airport.position,
                 elevation_m=field_elevation_for_airport(self.mission.terrain, airport),
+                has_runway=bool(airport.runways),
             )
             every.append(field)
             if name not in controlled:
                 neutral.append(field)
-        return neutral if len(neutral) >= 2 else every
+        neutral_runways = sum(1 for f in neutral if f.has_runway)
+        return neutral if neutral_runways >= 2 else every
 
     def _neutral_country(self) -> "Optional[Country]":
         return _neutral_country(self.mission)
