@@ -183,3 +183,27 @@ def test_an_empty_livery_list_is_rescanned_once(
     installed.clear()
     assert module.dcs_liveries_for(aircraft) == set()
     assert scans == [1]
+
+
+@dataclass(frozen=True, order=True)
+class _NationalLivery:
+    id: str
+    name: str
+    countries: frozenset[str]
+
+
+def test_a_squadron_keeps_its_own_nations_livery(qapp: Any) -> None:
+    """An Israeli squadron in a USA faction kept losing its ISR-only paint to
+    the first US livery whenever the Air Wing dialog opened (2026-10-18)."""
+    dcs_type = SimpleNamespace(
+        iter_liveries=lambda: [
+            _NationalLivery("12th fighter sqn (ak)", "12th", frozenset({"USA"})),
+            _NationalLivery("106th sqn (8th airbase)", "106th", frozenset({"ISR"})),
+        ]
+    )
+    squadron = _squadron(livery="106th SQN (8th Airbase)")
+    squadron.aircraft = SimpleNamespace(dcs_unit_type=dcs_type, default_livery=None)
+    squadron.country = SimpleNamespace(shortname="ISR")
+    selector = _selector(squadron)
+    assert selector.currentData() == "106th sqn (8th airbase)"
+    assert selector.findData("12th fighter sqn (ak)") == -1
