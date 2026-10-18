@@ -38,6 +38,7 @@ import math
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Iterator, Optional
 
+from game.data.units import UnitClass
 from game.theater import Player
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.retlab.region_priorities import planning_factor
@@ -343,11 +344,7 @@ def _point_defended_rings(game: "Game", side: str) -> list[tuple[float, float, f
         if not (owner.is_red if side == "blue" else owner.is_blue):
             continue
         for tgo in cp.ground_objects:
-            if not any(
-                getattr(group, "iads_role", None) is IadsRole.POINT_DEFENSE
-                and any(unit.alive for unit in group.units)
-                for group in getattr(tgo, "groups", [])
-            ):
+            if not _has_live_point_defense(tgo):
                 continue
             if side == "blue" and hidden_from(Player.BLUE, tgo):
                 continue
@@ -355,6 +352,30 @@ def _point_defended_rings(game: "Game", side: str) -> list[tuple[float, float, f
             if radius > 0:
                 rings.append((tgo.position.x, tgo.position.y, radius))
     return rings
+
+
+def _has_live_point_defense(tgo: "TheaterGroundObject") -> bool:
+    """A live PD group: a SAM (Tor, Tunguska) or, beside a SAM, AAA guns.
+
+    The layouts' PD slot fields guns as often as a SAM, and a gun group's IADS role
+    is EWR (Skynet's AAA role). Test 62: three gun-defended sites were missed.
+    """
+    groups = getattr(tgo, "groups", [])
+    has_sam = any(getattr(g, "iads_role", None) is IadsRole.SAM for g in groups)
+    for group in groups:
+        live = [unit for unit in group.units if unit.alive]
+        if not live:
+            continue
+        if getattr(group, "iads_role", None) is IadsRole.POINT_DEFENSE:
+            return True
+        if has_sam and all(_is_gun(unit) for unit in live):
+            return True
+    return False
+
+
+def _is_gun(unit: object) -> bool:
+    unit_type = getattr(unit, "unit_type", None)
+    return unit_type is not None and unit_type.unit_class is UnitClass.AAA
 
 
 def _path_crosses_ring(

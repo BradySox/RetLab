@@ -27,6 +27,7 @@ from game.retlab.cruise_raids import (
     reconcile_cruise_missiles,
     tgo_magazines,
 )
+from game.data.units import UnitClass
 from game.theater import Player
 from game.theater.iadsnetwork.iadsrole import IadsRole
 
@@ -557,22 +558,46 @@ def _sam_site(
     *,
     point_defense: bool = True,
     pd_alive: bool = True,
+    pd_guns: bool = False,
+    sam: bool = True,
     unseen: bool = False,
 ) -> Any:
-    """A SAM TGO; its point-defense group is a separate group, as in the layouts."""
-    groups = [
-        SimpleNamespace(
-            group_name=f"{name} (SAM)",
-            iads_role=IadsRole.SAM,
-            units=[SimpleNamespace(alive=True, type=SimpleNamespace(id="S-300"))],
+    """A SAM TGO; its point-defense group is a separate group, as in the layouts.
+
+    ``pd_guns`` fills the PD slot with AAA guns, which the layouts allow and which
+    carry Skynet's AAA role (EWR) rather than POINT_DEFENSE.
+    """
+    groups = []
+    if sam:
+        groups.append(
+            SimpleNamespace(
+                group_name=f"{name} (SAM)",
+                iads_role=IadsRole.SAM,
+                units=[
+                    SimpleNamespace(
+                        alive=True,
+                        type=SimpleNamespace(id="S-300"),
+                        unit_type=SimpleNamespace(unit_class=UnitClass.LAUNCHER),
+                    )
+                ],
+            )
         )
-    ]
     if point_defense:
         groups.append(
             SimpleNamespace(
                 group_name=f"{name} (PD)",
-                iads_role=IadsRole.POINT_DEFENSE,
-                units=[SimpleNamespace(alive=pd_alive, type=SimpleNamespace(id="2S6"))],
+                iads_role=IadsRole.EWR if pd_guns else IadsRole.POINT_DEFENSE,
+                units=[
+                    SimpleNamespace(
+                        alive=pd_alive,
+                        type=SimpleNamespace(
+                            id="ZSU-23-4 Shilka" if pd_guns else "2S6"
+                        ),
+                        unit_type=SimpleNamespace(
+                            unit_class=UnitClass.AAA if pd_guns else UnitClass.SHORAD
+                        ),
+                    )
+                ],
             )
         )
     return SimpleNamespace(
@@ -612,6 +637,20 @@ def test_a_sam_without_live_point_defense_does_not_block() -> None:
     for kwargs in ({"point_defense": False}, {"pd_alive": False}):
         raids = plan_cruise_raids(cast(Any, _blocked_hq_game(**kwargs)))
         assert [r.target_name for r in raids] == ["Division HQ"]
+
+
+def test_guns_in_the_point_defense_slot_block_too() -> None:
+    """Test 62: six TLAMs flew past an SA-3 with a Shilka, an SA-6 with two and a
+    Hawk with an S-60. Gun PD carries Skynet's AAA role (EWR), not POINT_DEFENSE."""
+    raids = plan_cruise_raids(cast(Any, _blocked_hq_game(pd_guns=True)))
+    assert [r.target_name for r in raids] == ["Dump"]
+    raids = plan_cruise_raids(cast(Any, _blocked_hq_game(pd_guns=True, pd_alive=False)))
+    assert [r.target_name for r in raids] == ["Division HQ"]
+
+
+def test_a_gun_site_with_no_sam_does_not_block() -> None:
+    raids = plan_cruise_raids(cast(Any, _blocked_hq_game(pd_guns=True, sam=False)))
+    assert [r.target_name for r in raids] == ["Division HQ"]
 
 
 def test_blue_ignores_a_point_defended_sam_it_cannot_see() -> None:
