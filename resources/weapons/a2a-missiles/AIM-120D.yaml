@@ -1,15 +1,8 @@
-# AIM-120D (AMRAAM-D). Registered so the modern AMRAAM the F-22A and CJS Super
-# Hornet packs ship is date-gated and has a fallback like every other missile --
-# an unregistered clsid gets introduction_year=None, which `Weapon.available_on`
-# treats as "always available" with no downgrade path.
-#
-# `year` is 2019 rather than the real 2015 IOC on purpose: this fork dates the
-# whole AIM-120C family (C-5/C-7/C-8) at 2018, so 2019 keeps the fallback ladder
-# monotonic -- a weapon must never be available EARLIER than the one it falls
-# back to. Retune both together if the C group is ever split by variant.
+# AIM-120D (AMRAAM-D). Registered so the F-22A and CJS Super Hornet packs'
+# modern AMRAAM is date-gated with a fallback; an unregistered clsid is ungated.
 name: AIM-120D
-year: 2019
-fallback: AIM-120C
+year: 2015
+fallback: AIM-120C-8
 clsids:
   - "{AIM-120D-3}"   # AIM-120D3 - Active Radar AAM
   - "{AIM-120D}"   # AIM-120D

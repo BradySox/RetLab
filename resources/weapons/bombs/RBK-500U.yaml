@@ -1,0 +1,5 @@
+name: RBK-500U
+year: 1990
+fallback: RBK-500
+clsids:
+  - "{RBK_500U_OAB_2_5RT}"   # RBK-500U - 126 x OAB-2.5RT, 500kg CBU HE/Frag

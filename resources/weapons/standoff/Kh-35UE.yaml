@@ -1,0 +1,5 @@
+name: Kh-35UE
+year: 2015
+fallback: Kh-35
+clsids:
+  - "{Su30_KH_35UE}"   # Kh-35UE (AS-20 Kayak) - 520kg

@@ -69,7 +69,7 @@ def _group_of(clsid: str) -> WeaponGroup:
     [
         (r"AIM-120D|AIM_120D", "AIM-120D"),
         (r"AIM-260A|AIM_260A", "AIM-260A"),
-        (r"AIM9X-BLKII|2xAIM9X-II", "AIM-9X"),
+        (r"AIM9X-BLKII|2xAIM9X-II", "AIM-9X Block II"),
         (r"MAKO", "Mako"),
     ],
 )
@@ -83,14 +83,22 @@ def test_every_pack_store_is_registered_to_its_group(
 
 
 def test_the_amraam_ladder_is_ordered() -> None:
-    """C -> D -> 260A -> Mako must not let a later missile arrive before an earlier one.
+    """C -> C-7 -> C-8 -> D -> 260A -> Mako must not let a later missile arrive before an earlier one.
 
     Repo-wide monotonicity is deliberately NOT an invariant (cross-family
     fallbacks like a targeting pod falling back to a missile are intentional),
     so this is scoped to the one ladder these files add to.
     """
     ladder = [
-        WeaponGroup.named(name) for name in ("AIM-120C", "AIM-120D", "AIM-260A", "Mako")
+        WeaponGroup.named(name)
+        for name in (
+            "AIM-120C",
+            "AIM-120C-7",
+            "AIM-120C-8",
+            "AIM-120D",
+            "AIM-260A",
+            "Mako",
+        )
     ]
 
     for lower, higher in zip(ladder, ladder[1:]):
@@ -150,7 +158,7 @@ def test_mako_stays_registered_so_a_hand_load_is_still_gated() -> None:
     ("year", "available"),
     [
         (1991, False),  # Desert Storm -- falls back down the ladder
-        (2018, False),  # AIM-120C era
+        (2010, False),  # AIM-120C-7 era
         (2027, True),  # Baltic Fury
     ],
 )

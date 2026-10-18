@@ -285,3 +285,30 @@ group's year. Tick to confirm, or 💬 to carve any out as its own dated family 
    before their year rather than degrading)? ok
 2. 💬 Nuclear + WWII bombs — leave in Unknown, or date them? unknown
 3. 💬 Anything here you'd rather split or merge differently? Not really besides the aim 120 comment
+
+## 2026-10-18 re-audit: real service dates
+
+The DM asked for every date to be checked again (thread on the Turkish F-16s in Anatolian
+Reach, where 2004 Vipers flew AIM-120B because the C-5 sat in a 2018 group). Result: 304
+groups checked, 62 flagged, all applied on the DM's call ("all flagged rows").
+
+- **The June 2018 balance gates are gone.** Real years: AIM-120C 2000, AIM-9X 2003, R-77 1994,
+  AGM-65K 2008, AGM-154C 2005, AGM-114L 1998, GBU-54B 2008, GBU-39 2006, KAB-500S 2010.
+- **Mixed groups split by variant**, each falling back to the one before it: AIM-120C-7 2007,
+  AIM-120C-8 2015 (AIM-120D 2015 now falls back to C-8); AIM-9X Block II 2015; R-77-1 2015,
+  R-77M 2023, R-77PD 2030 (never fielded); Kh-31AD and Kh-31PD 2015; Kh-35UE 2015;
+  Kh-59MK 2005; Spike-ER2 2018; 9M220O 2000; FAB-500M62 UMPK 2023; FAB-500 M54 and
+  FAB-250 M54 1954; Mk 82 AIR 1985, Mk 83 AIR 2005, Mk 84 AIR 1990; RBK-500U 1990.
+- **Misfiled store:** the Kh-23L Grom sat in the Kh-36 group at 2015; it is its own group at 1975.
+- **Re-dated:** Magic 1 1975, Aspide 1986, R-40T 1972, R-27R/T 1985, Khibiny 2014, Sky Shadow
+  1983, Mk-77 1963, CBU-97 family 1997, JDAM-ER 2023, KAB-1500L/Kr 1987, KAB-500Kr 1984,
+  BetAB-500 1975, BetAB-500ShP 1983, BK-90 1998, BrahMos 2020, Kh-22 1967, Vikhr 1990,
+  Kh-41 1998. The Hydra pods (1985) and the OH-58D gun pod (1991) gained a year.
+- **Kept on purpose:** AGM-88C stays 1984 as the stand-in for the A/B DCS lacks, so Desert Storm
+  keeps HARM. LANTIRN stays undated (#729).
+- `{RVV-AE}` stays in the base R-77 group: it is the export R-77 and the Su-57 mod's main missile,
+  whatever its DCS label says.
+- Egypt 2000 and 2010s ban the new C-7, C-8 and D groups alongside the C they already banned.
+
+Years are from published service dates; the low-confidence ones (R-77M, Kh-35UE, Kh-59MK,
+BetAB, the AIR tails) are best guesses. Full table: the thread's `weapon-date-audit.md`.

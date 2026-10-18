@@ -1,0 +1,6 @@
+name: R-77M
+year: 2023
+fallback: R-77-1
+clsids:
+  - "{DUAL_77M}"   # R-77M (AA-12 Adder C) x 2
+  - "{SU30_R77M}"   # R-77M (AA-12 Adder C) - Active Rdr

@@ -1,0 +1,6 @@
+name: Kh-31PD
+type: ARM
+year: 2015
+fallback: Kh-31P
+clsids:
+  - "{SU30_KH31PD}"   # Kh-31PD (AS-17 Krypton) - 710kg

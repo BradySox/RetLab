@@ -1,5 +1,5 @@
 name: KAB-500S
-year: 2018
+year: 2010
 fallback: KAB-500LG
 clsids:
   - "{SU30_KAB_500S_LOADOUT}"   # KAB-500S - 500kg
