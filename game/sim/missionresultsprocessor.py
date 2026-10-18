@@ -80,6 +80,8 @@ class MissionResultsProcessor:
                 self.commit_pilot_careers(debriefing)
             with logged_duration("commit_pilot_profiles"):
                 self.commit_pilot_profiles(debriefing)
+            with logged_duration("commit_squadron_wear"):
+                self.commit_squadron_wear(debriefing)
             with logged_duration("commit_front_line_losses"):
                 self.commit_front_line_losses(debriefing)
             with logged_duration("commit_motorpool_losses"):
@@ -408,6 +410,23 @@ class MissionResultsProcessor:
             turn=self.game.turn,
             day=self.game.current_day.isoformat(),
             task_for=task_for,
+        )
+
+    def commit_squadron_wear(self, debriefing: Debriefing) -> None:
+        """§43: Heatblur squadrons wear with the hours they flew and recover each turn."""
+        from game.retlab.airframe_condition import (
+            airframe_hours_by_flight,
+            commit_squadron_wear,
+        )
+
+        def flight_for(unit_name: str) -> Any:
+            flying = debriefing.unit_map.flight(unit_name)
+            return None if flying is None else flying.flight
+
+        records = getattr(debriefing.state_data, "sortie_records", ())
+        commit_squadron_wear(
+            self.game.blue.air_wing.iter_squadrons(),
+            airframe_hours_by_flight(records, flight_for),
         )
 
     @staticmethod

@@ -31,6 +31,7 @@ COMMIT_STEPS = [
     "commit_pilot_experience",
     "commit_pilot_careers",
     "commit_pilot_profiles",
+    "commit_squadron_wear",
     "commit_front_line_losses",
     "commit_motorpool_losses",
     "commit_convoy_losses",

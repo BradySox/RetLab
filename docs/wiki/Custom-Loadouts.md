@@ -86,6 +86,10 @@ A player Heatblur F-4E or A-6E spawns at **Aircraft Condition 90**, Heatblur's s
 service jet, or 75 in a campaign set before 1980. The module's own default of 100 is a
 showroom jet. A value you set on the tab, or save as a default, wins.
 
+Their **Wear and Tear** follows the squadron's workload. Hours flown raise it and each
+turn brings it back down, between 0 and 50. A squadron that flies hard hands out more
+worn jets; one that stands down recovers.
+
 ## CLSID currency — the gotcha that bites
 
 A pylon's `CLSID` is the exact weapon identifier DCS uses internally. These strings change

@@ -4611,6 +4611,13 @@ service jet. `game/retlab/airframe_condition.py` `condition_defaults` gives an u
 - **Payload tab** — `PropertyEditor` passes the baseline to `PropertySpinBox` as the shown default, so
   the box reads what will fly. Switching members no longer writes the shown value into the member
   (signals are blocked in `set_flight_member`); before, that pinned a default onto a member nobody edited.
+- **Squadron wear (B250)** — `Squadron.airframe_wear` (0 to 50, saved; old saves load at 0).
+  `MissionResultsProcessor.commit_squadron_wear` runs after each mission for blue squadrons
+  whose airframe has the two properties: `airframe_hours_by_flight` takes each flight's
+  longest airborne §91 record times its aircraft count (an AI group has one sampled record),
+  and `next_wear` adds 10 per hour per owned airframe and takes 5 off. A turn with no sortie
+  records (nothing flew, or an old recorder) only recovers. The payload tab shows it as the
+  Wear and Tear default.
 - **Not built:** Heatblur's persistent airframe (`Aircraft Type On Spawn` = Persistent with a
   `Persistent Aircraft Key`). Brady passed on it 2026-10-18: the save lives on each player's PC
   and RetLab has no per-airframe identity.

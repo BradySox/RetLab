@@ -35,7 +35,7 @@ class PropertyEditor(QGridLayout):
         self.game = game
         self.flight_member_update_listeners: list[Callable[[FlightMember], None]] = []
         self.spawn_defaults = condition_defaults(
-            flight.unit_type.dcs_unit_type, game.date
+            flight.unit_type.dcs_unit_type, game.date, flight.squadron.airframe_wear
         )
 
         self.build_props(flight)

@@ -393,7 +393,9 @@ class FlightGroupConfigurator:
         unit: FlyingUnit
         member: FlightMember
         spawn_defaults = condition_defaults(
-            self.flight.unit_type.dcs_unit_type, self.game.date
+            self.flight.unit_type.dcs_unit_type,
+            self.game.date,
+            self.flight.squadron.airframe_wear,
         )
         for unit, member in zip(self.group.units, self.flight.iter_members()):
             props = dict(member.properties)
