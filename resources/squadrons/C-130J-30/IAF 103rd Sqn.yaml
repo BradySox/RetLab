@@ -1,0 +1,11 @@
+---
+name: 103rd Squadron
+nickname: Elephants
+female_pilot_percentage: 6
+country: Israel
+role: Transport
+aircraft: C-130J-30
+livery: "IDF 103 Sqn, Nevatim Airbase"
+mission_types:
+  - Transport
+  - Air Assault

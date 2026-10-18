@@ -1,0 +1,13 @@
+---
+name: 114th Squadron
+nickname: Night Leaders
+female_pilot_percentage: 6
+country: Israel
+role: Heavy Transport Helicopter
+aircraft: CH-53E
+# A user-files livery (CH-53E_ISRAEL); without it DCS shows the standard paint.
+livery: Squadron 114
+mission_types:
+  - Air Assault
+  - Transport
+  - CSAR

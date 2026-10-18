@@ -177,22 +177,48 @@ squadrons:
         - F-16CM Fighting Falcon (Block 50)
       size: 12
       country: Israel
+
+  # Tel Nof (135 stands) - the IAF's F-15 base (8th Airbase), with the 119th's
+  # Kurnass 2000 and the CH-53 squadrons. Farther from Turkey than Ramat David.
+  220:
     - primary: Escort
       secondary: air-to-air
       aircraft:
         - F-15C Eagle
       size: 12
       country: Israel
-
-  # Ramat David (86 stands) - forward staging, 254 nm to the nearest Turkish
-  # field and 62 nm off the Syrian corridor. Recovery field for deep packages.
-  30:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - F-15C Eagle
       size: 12
       country: Israel
+    - primary: Strike
+      secondary: air-to-ground
+      aircraft:
+        - IAF 119 FS
+        - F-4E-45MC Phantom II
+      size: 8
+      country: Israel
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - CH-53E
+      size: 4
+      country: Israel
+
+  # Ben Gurion (172 stands) - the airlift field. The IAF flew the C-130H here in
+  # 2004; the C-130J-30 is Retribution's only Hercules.
+  221:
+    - primary: Transport
+      aircraft:
+        - C-130J-30
+      size: 4
+      country: Israel
+
+  # Ramat David (86 stands) - forward staging, 254 nm to the nearest Turkish
+  # field and 62 nm off the Syrian corridor. Recovery field for deep packages.
+  30:
     - primary: SEAD
       secondary: air-to-ground
       aircraft:

@@ -163,6 +163,19 @@ the CJTF Red block:
 - **SA-2 sites became MERAD markers; the SA-5 at Kuweires was dropped.** Its
   only marker is LORAD, which spawns a second S-300 26 nm from Aleppo's.
 
+## Tel Nof and Ben Gurion (2026-10-18, DM call)
+
+The .miz sets both fields BLUE (warehouses airports 220 and 221).
+- **Tel Nof** is the IAF's F-15 base (8th Airbase), so both F-15C squadrons moved there
+  from Hatzerim and Ramat David. It also has the 119th's F-4E Kurnass 2000 (named in the
+  yaml as `IAF 119 FS`) and the 114th's CH-53E.
+- **Ben Gurion** has the 103rd's C-130J-30 transports. The IAF flew the C-130H there in
+  2004; the C-130J is Retribution's only Hercules, and DCS ships its "IDF 103 Sqn" paint.
+- The 114th's paint is a DCS User Files livery (`CH-53E_ISRAEL`, folder `Squadron 114`).
+  Without it, DCS shows the standard CH-53E paint.
+- Both fields are farther from Turkey than Ramat David, so they do not draw the planner
+  away from the Israeli strike fields the way Akrotiri would.
+
 ## What the first flown turn established
 
 Turn 2, 36.9 minutes, 2004-06-01 at 22:36 local (night — see below).
