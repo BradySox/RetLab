@@ -137,6 +137,8 @@ advanced_iads: true
 
 settings:
   squadron_start_full: true
+  # Tel Nof's Black Hawks are the UH-60L mod (Israeli Air Force paint).
+  uh_60l: true
   # 2004 loadouts. Without this the Israeli jets carry weapons that postdate the
   # scenario by a decade and the long-range problem solves itself.
   restrict_weapons_by_date: true
@@ -202,6 +204,23 @@ squadrons:
       secondary: any
       aircraft:
         - CH-53E
+      size: 4
+      country: Israel
+    # Helicopters have a 50 NM radius and Turkey is 250+ NM away: these sit
+    # until a forward field falls and they are moved there by hand.
+    - primary: CAS
+      secondary: air-to-ground
+      aircraft:
+        - AH-64D Apache Longbow
+      size: 4
+      country: Israel
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - UH-60L
+        # Without the mod: a stock Black Hawk, not the task fallback, which
+        # would take Ben Gurion's C-130J preset.
+        - UH-60A
       size: 4
       country: Israel
 

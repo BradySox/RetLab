@@ -175,6 +175,12 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
   2004; the C-130J is Retribution's only Hercules, and DCS ships its "IDF 103 Sqn" paint.
 - The 114th's paint is a DCS User Files livery (`CH-53E_ISRAEL`, folder `Squadron 114`).
   Without it, DCS shows the standard CH-53E paint.
+- Tel Nof also has the 113th's AH-64D (DCS's "IAF 113th Hornet Squadron" paint) and the
+  124th's Black Hawks: the UH-60L mod (ticked in `settings:`, "Israeli Air Force" paint),
+  with the stock UH-60A as the fallback so a mod-less game does not hand Ben Gurion's
+  C-130J preset to Tel Nof's Transport slot. **Helicopters never fly from Israel:** their
+  mission radius is 50 NM and the nearest red target is about 168 NM away. They are there
+  by DM call (2026-10-18) for when a forward field falls and he moves them by hand.
 - Both fields are farther from Turkey than Ramat David, so they do not draw the planner
   away from the Israeli strike fields the way Akrotiri would.
 

@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: Tel Nof adds the 113th Squadron's Apaches and the 124th Squadron's Black Hawks (UH-60L mod) in IAF paint. They can't reach Turkey from Israel, so they wait for a forward base.
