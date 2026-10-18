@@ -34,7 +34,7 @@ from game.theater import ConflictTheater
 
 YAML = Path("resources/campaigns/anatolian_reach.yaml")
 
-BLUE_FIELDS = {"Hatzerim", "Ramat David", "Akrotiri"}
+BLUE_FIELDS = {"Hatzerim", "Ramat David", "Tel Nof", "Ben Gurion", "Akrotiri"}
 RED_FIELDS = {
     # the nine Turkish fields, fixed by the campaign author
     "Gulechoba",
@@ -239,7 +239,7 @@ def test_konya_belt_is_on_the_land_map(tmp_path: Path) -> None:
     assert not off, "Konya belt markers off the land map: %s" % off
 
 
-ISRAELI_FIELD_IDS = (81, 30)  # Hatzerim, Ramat David
+ISRAELI_FIELD_IDS = (81, 30, 220, 221)  # Hatzerim, Ramat David, Tel Nof, Ben Gurion
 
 
 def _preset_counts() -> dict[tuple[str, str], int]:

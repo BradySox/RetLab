@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: Tel Nof and Ben Gurion are Israeli bases. Tel Nof has both F-15C squadrons, an F-4E Kurnass squadron and a CH-53E squadron; Ben Gurion has a C-130J transport squadron.
