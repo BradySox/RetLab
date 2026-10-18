@@ -14,10 +14,10 @@ from dcs.action import (
     SceneryDestructionZone,
 )
 from dcs.condition import (
-    AllOfCoalitionOutsideZone,
     FlagIsFalse,
     FlagIsTrue,
     PartOfCoalitionInZone,
+    Predicate,
     TimeAfter,
     TimeSinceFlag,
 )
@@ -201,11 +201,6 @@ class TriggerGenerator:
         """Helper method to create a single capture trigger with the given parameters."""
         trigger = TriggerCondition(Event.NoEvent, "Capture Trigger")
         trigger.add_condition(
-            AllOfCoalitionOutsideZone(
-                losing_coalition, trigger_zone_id, unit_type="GROUND"
-            )
-        )
-        trigger.add_condition(
             PartOfCoalitionInZone(
                 capturing_coalition, trigger_zone_id, unit_type="GROUND"
             )
@@ -217,6 +212,19 @@ class TriggerGenerator:
         else:
             trigger.add_condition(FlagIsFalse(flag=flag))
             trigger.add_action(SetFlag(flag=flag))
+        # Last, so the Lua runs only once DCS's own cheap check passes (the
+        # conditions compile to one `and` chain). It repeats both zone checks
+        # without downed pilots: dcs_retribution.lua capture_zone_taken.
+        trigger.add_condition(
+            Predicate(
+                String(
+                    "return capture_zone_taken ~= nil and capture_zone_taken("
+                    f"{cp.position.x}, {cp.position.y}, {TRIGGER_RADIUS_CAPTURE}, "
+                    f"coalition.side.{capturing_coalition.upper()}, "
+                    f"coalition.side.{losing_coalition.upper()})"
+                )
+            )
+        )
 
         script_string = String(
             f'base_capture_events[#base_capture_events + 1] = "{cp.id}||{capturing_coalition_int}||{cp.full_name}"\ndirty_state = true'

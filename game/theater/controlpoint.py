@@ -134,8 +134,8 @@ def warn_if_motorpool_inside_capture_zone(
     """Log a loud error when a motorpool preset sits inside its CP's capture zone.
 
     Motorpool vehicles render as live DCS ground units of the owning CP. While
-    any survive inside the capture radius, DCS's base-capture trigger
-    (AllOfCoalitionOutsideZone, unit_type=GROUND) counts them, so the base
+    any survive inside the capture radius, the base-capture trigger
+    (dcs_retribution.lua capture_zone_taken) counts them, so the base
     cannot be captured by ground assault -- and the AI commander's
     capture-blocking model ignores MotorpoolGroundObjects, so it won't clear
     them either. Motorpools must therefore be authored outside the capture
