@@ -269,7 +269,11 @@ against a predicted starvation failure that did not occur.
   `Conditions.advance` never consults `night_day_missions` — that setting governs
   turn 1 only. A full day cycles every 4–8 turns, so expect roughly a third of
   missions in darkness. Left unpinned on the DM's call.
-- **The S-300s are single sites, by choice.** This was an explicit DM call when
-  the campaign was built. CLAUDE.md no longer sets a SAM-belt rule (2026-10-08).
-  Layout is each campaign's own call, and this is the record of this one.
+- **One S-300, and blue holds the air-defense edge (DM call, 2026-10-18).** The .miz
+  keeps a single long-range marker, at Incirlik, which spawns an SA-10. The other five
+  (Diyarbakir, Konya, Konya Seydisehir, Aleppo, Latakia) became medium-range markers
+  (SA-11, SA-6, Hawk). The SA-20 preset needs the High Digit SAMs mod, which this
+  campaign does not tick, so it never spawned; it is out of the list. Blue gains a
+  Patriot and a Hawk at both Tel Nof and Ben Gurion (7 sites, from 3). Red had six
+  65 NM sites before.
 - Red engages civilian airliners (two lost in the first turn). Cosmetic.
