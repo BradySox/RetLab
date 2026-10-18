@@ -284,4 +284,5 @@ def test_every_pinned_squadron_has_a_national_preset() -> None:
 def test_airbase_threat_range_leaves_escorts_free() -> None:
     """At 300 NM every blue field draws BARCAPs that use up the escorts, and the
     Israeli strike squadrons sit idle (2026-10-18)."""
-    assert _data()["settings"]["airbase_threat_range"] <= 100
+    # Above ~220 the Israeli strikes collapse; below ~150 red flies no BARCAP.
+    assert 150 <= _data()["settings"]["airbase_threat_range"] <= 200

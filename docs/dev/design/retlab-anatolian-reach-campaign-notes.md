@@ -229,13 +229,16 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
   2016; in by DM call ("fudge the date"). The E-7 stays out. The F-5 squadron's name is generic; which
   Konya Filo flew F-5s in 2004 is not checked.
 
-## Airbase threat range is preseeded to 100 NM (2026-10-18)
+## Airbase threat range is preseeded to 200 NM (2026-10-18)
 
 Brady's Default settings carry a 300 NM airbase threat range. Every blue field is 108-258 NM
 from a red base, so each drew two BARCAPs: 14 on turn 1, using every F-15C, the 133rd's
 F-15Es and most of the Tomcats. With no escort left, no strike package from Israel could be
 planned and the 69th, 101st, 110th, 117th and 119th sat idle. Re-planned headless at 100 NM:
-4 BARCAPs, and the Israeli squadrons fly Strike, DEAD, Armed Recon and OCA/Runway.
+4 BARCAPs, and the Israeli squadrons fly Strike, DEAD, Armed Recon and OCA/Runway. But the
+setting is one range for both sides, and at 100 NM red planned no BARCAP at all. A sweep on
+turn 1 (blue BARCAP / Israeli aircraft on offensive missions / red BARCAP): 100 NM 4/49/0,
+150 NM 6/51/2, 200 NM 8/43/10, 225 NM 12/14/14, 300 NM 14/2/18. 200 NM is the setting.
 
 ## What the first flown turn established
 
