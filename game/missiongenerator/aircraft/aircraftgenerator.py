@@ -53,6 +53,7 @@ from game.retlab.ai_fill import (
 )
 from game.runways import RunwayData
 from game.settings import Settings
+from game.theater.blockedparking import occupy_blocked_stands
 from game.theater.controlpoint import (
     Airfield,
     ControlPoint,
@@ -126,9 +127,12 @@ class AircraftGenerator:
         return total
 
     def clear_parking_slots(self) -> None:
+        terrain_name = self.game.theater.terrain.name
         for cp in self.game.theater.controlpoints:
             for parking_slot in cp.parking_slots:
                 parking_slot.unit_id = None
+            if isinstance(cp, Airfield):
+                occupy_blocked_stands(terrain_name, cp.airport.name, cp.parking_slots)
 
     def _prioritized_packages(self, ato: AirTaskingOrder) -> List[Package]:
         """Returns the packages in the order they should be generated."""
