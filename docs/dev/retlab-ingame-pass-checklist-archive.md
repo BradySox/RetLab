@@ -5963,3 +5963,79 @@ the unit. Record which, in `retlab-tic-dynamic-fronts-notes.md`.
   FSM; wrap it or use the group name.
 - **`ANTIFREEZE ENABLED` still clusters on the retry peak** — the correlation holds
   and this is a framerate problem, not just log noise. That escalates the row.
+
+### B121 — Neutral border: AI intruders are never engaged · §98 · ☑ VERIFIED (2026-10-18, test 62; was ◐ PARTIAL)
+
+**2026-10-18, test 62** (Syria — Anatolian Reach turn 2, Brady in SLOTH Strike (F/A-18C), 42 min, `Tacview-20261018-180758`, main `0507d6680`, `Desktop\New test\62`) — **the field half passes; verified on Brady's call.** Ten AI aircraft were inside Lebanon with `engageAi=false`: red's SQUIRREL DEAD, SEAD Escort and Escort flights up to 9.3 mi deep, and blue's Ramat David BARCAP F-14s up to 7.7 mi deep. The log has no neutral-border line after `8 border zone(s) drawn, 4 defended`. The Lebanese SA-3 stayed neutral and fired nothing.
+
+**2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **the rate half is answered, the reaction half is unreachable until a stray happens.** Three AI-only or player missions on two maps (tests 30, 32, 33) put 12, 11 and 3 neutral batteries on the map for the whole mission, none fired, none changed colour, and in test 32 every aircraft track was tested against the polygons: no AI aircraft was ever inside a neutral country. Strays are rare, which is the fail signature the row was worried about in reverse. The never-engaged invariant stays harness-pinned; the field half closes on the first mission where an AI flight visibly crosses a shaded border and nothing happens.
+
+**2026-09-15, test 33** (Syria — Operation Peace Spring turn 2, multiplayer listen host with two humans in the MAVERICK Viper strike, 93 min, `Tacview-20260915-205127-DCS-Host`, DCS 2.9.29.27468, build `611eedfcd`; the turn-3 save `91526.retribution` is the auto-planner's own frag on the same build) — `8 border zone(s) drawn, 3 defended; warn 30s, engage 180s`; no hail or warn line in 93 min with two humans and 30 blue AI aircraft up. Not exercised beyond that; tracks were not tested against the polygons this time.
+
+**2026-09-15, test 32** (Persian Gulf — WRL Operation Noisy Cricket Redux turn 2, no player slot, 2 h 14 min of sim at acceleration, `Tacview-20260915-174631`, DCS 2.9.29.27468, build `fd04b4a66`, `engageAi` off) — **consistent, still not closed, and the polygon question is answered this time.** The zone table was read out of the flown `.miz` (Pakistan ×2, Saudi Arabia and Qatar neutral; UAE and Oman blue; Iran red) and every aircraft track in the recording was tested against it: no blue or red aircraft sample was inside a neutral country at any point in 2 h 14 min, and the neutral batteries (Saudi Patriot, Qatar SA-3, Pakistan SA-11 and SA-3) fired nothing. No stray happened, so the row cannot move; it needs a turn where one does.
+
+**2026-09-13, test 30** (Persian Gulf — Scenic Route turn 1, `Tacview-20260913-125128`, no
+player, DCS 2.9.29.27468, `engageAi=false`) — **consistent, not closed.** Twelve batteries
+stood from t=0 across the UAE (3 Hawk), Oman (2 Hawk, 1 Rapier), Saudi Arabia (2 Patriot),
+Qatar (SA-3) and Pakistan (SA-11, SA-3); every one was still there and still neutral at
+mission end, and no neutral weapon was fired all mission (the two neutral-coloured objects at
+t=1540 were an AV-8B's ordnance cooking off at its crash site). The log reads `9 border
+zone(s) drawn, 7 defended; warn 30s, engage 180s`, and no hail or warn line fired, which is the
+AI-only expectation. What the capture cannot show is whether an AI flight actually crossed a
+border: the closest approach was the Kish A-50 at 47.6 km from the second UAE Hawk and
+50.8 km from the Oman Rapier, and without the drawn polygon in hand that is not a crossing.
+Needs a map look on a turn with a red or blue AI flight visibly inside a shaded border.
+
+**REWRITTEN TWICE.** The 2026-09-07 rewrite dropped the scramble's
+`shadowHoldNm`/`maxShadows` language, which was right, but it then described the
+four-ship patrol — deleted the same week — and said an AI stray "gets the radio
+calls". **That is wrong and always was**: `hail` and `warn` are both gated on
+`state.is_player` (`neutralborder-config.lua`), so an AI stray draws **nothing at
+all**. Corrected 2026-09-09.
+
+**What this row now asks.** A country that refuses transit stands SAM batteries
+inside its own border for the whole mission. An **AI** flight that strays across
+gets **no reaction of any kind** — no radio call, no coalition swap, no SAM. Only
+a player earns those. The invariant is harness-covered; what needs eyes is that it
+holds in a real mission, and that AI strays happen at a believable rate rather
+than constantly.
+
+**Tick `engageAi` to watch the ladder run without flying it** (plugin options,
+default off, added 2026-09-10). It holds AI to the player's rules, so one
+generated turn exercises the hail, the dwell, the whole-country swap and the
+engagement. Use it to adjudicate **B120**, then untick it — this row is the
+default behaviour and must be checked with the option **off**.
+
+**Setup.** Any campaign with `neutral_border_defense` on —
+Into the Hornet's Nest (Lebanon) or Enduring Resolve (Pakistan, Iran) are the
+worked cases. Fly a normal mission and watch the F10 map for red or blue **AI**
+crossing a shaded border. You do not need to cross one yourself; if you do, that
+is B120's ladder, not this row.
+
+**Pass.**
+
+* An AI stray draws nothing. No radio call reaches you, and the batteries keep
+  their neutral colour on the F10 map.
+* No neutral battery goes weapons-free or alarm-red for an AI intruder.
+* Every battery the country stood is still there, still neutral, when the AI
+  leaves.
+
+**Fail signatures.**
+
+* The patrol turns hostile — its F10 colour flips to a coalition — with no player
+  inside the border. That is the players-only gate leaking.
+* A neutral SAM fires on an AI flight.
+* AI strays on every mission. That is a campaign-authoring problem, not a defect:
+  the border sits on the AI's routes, and the author should raise the altitude
+  floor or accept the theatre.
+* The patrol chases the AI out of its own airspace. It should not move.
+
+**Also record, because nothing else will:** whether a patrol on a **contested or
+already-aligned** country ever appears. It should not — only an uninvolved
+country that refuses transit gets one.
+
+**History:** built 2026-08-24 on the DM call that everyone trips the border and
+only players are ever engaged. Flown 2026-08-28 against the scramble: the
+never-engaged half held, and the alert pair was killed by the intruder's BARCAP
+in all four cases — the finding that helped kill the scramble. Superseded by the
+standing patrol; see the design note.

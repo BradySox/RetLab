@@ -11,21 +11,21 @@ next from the parking lot.
 
 ## The list
 
-*(Refilled 2026-08-22. Slots 1–2 carried over; 3–4 are new. The previous parking lot was
+*(Slot 1 refilled 2026-10-18 with `B251` when `B121` closed. Refilled 2026-08-22. Slots 1–2 carried over; 3–4 are new. The previous parking lot was
 cleared — both entries named rows that had already closed, `Q3` VERIFIED and the loadout
 watch pointing at RETIRED `B42`. Slots 4 and 5 (`B103`, `B108`) went 2026-10-15 with TIC.)*
 
-### 1 · An AI flight inside a shaded neutral border, and nothing happens — `B121`
+### 1 · A raid draws a few alert jets, not the whole reserve — `B251`
 
-**Where:** the F10 map, any campaign with neutral border defense on. **~2 min**, whenever an AI
-flight is near a shaded (hostile-neutral) border.
+**Where:** any mission where a big package goes into enemy airspace with QRA on, or the
+recording afterwards. **~5 min.**
 
-- **Pass:** an AI flight visibly inside the shading draws no hail, no warning and no fire, and
-  the country's batteries stay neutral.
-- **Fail:** a neutral battery fires at, or the country turns hostile over, an AI aircraft with
-  the `engageAi` option off.
-- **Why it's here:** pulled from the parking lot 2026-09-27 when `B77` closed on the DM's call.
-  No AI stray has crossed a border in three recorded missions, so it closes on the first one.
+- **Pass:** each raid draws 1 to 4 enemy alert jets at a time; alert squadrons far from
+  any raid keep their jets on the ground.
+- **Fail:** 5 or more alert jets go after one raid at once, or a base with no raid near it
+  empties.
+- **Why it's here:** pulled in 2026-10-18 when `B121` closed on test 62. Test 62 is why the
+  cap exists: red launched 32 alert jets from 10 squadrons in 15 minutes (#1302).
 
 ### 2 · A HARM at a Skynet site: does it go dark, or fight through — `G42`
 
