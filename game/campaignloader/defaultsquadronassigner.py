@@ -224,7 +224,10 @@ class DefaultSquadronAssigner:
     def find_squadron_by_name(
         self, name: str, task: FlightType, control_point: ControlPoint
     ) -> Optional[SquadronDef]:
-        for squadrons in self.air_wing.squadron_defs.values():
+        # A preset named in the campaign may be another nation's: the author
+        # asked for that unit.
+        foreign = getattr(self.air_wing, "foreign_squadron_defs", {})
+        for squadrons in [*self.air_wing.squadron_defs.values(), *foreign.values()]:
             for squadron in squadrons:
                 if (
                     not squadron.claimed

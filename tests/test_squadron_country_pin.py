@@ -235,3 +235,22 @@ def test_the_loader_keeps_other_nations_apart(
     foreign = [d for defs in loader.load_foreign().values() for d in defs]
     assert own == {"USA"}
     assert "106th Squadron" in {d.name for d in foreign if d.country.name == "Israel"}
+
+
+def test_a_named_preset_of_another_nation_is_found() -> None:
+    us = _squadron_def(USA.id, "US preset")
+    greek = _squadron_def(Greece.id, "Greek preset")
+    us.aircraft = greek.aircraft = "F-16"
+    assigner = DefaultSquadronAssigner.__new__(DefaultSquadronAssigner)
+    assigner.air_wing = cast(
+        Any,
+        SimpleNamespace(
+            squadron_defs={"F-16": [us]}, foreign_squadron_defs={"F-16": [greek]}
+        ),
+    )
+    picked = assigner.find_squadron_by_name(
+        "Greek preset",
+        cast(Any, None),
+        cast(Any, SimpleNamespace(can_operate=lambda a: True)),
+    )
+    assert picked is greek
