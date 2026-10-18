@@ -23,7 +23,11 @@ class AirWing:
     def __init__(self, player: Player, game: Game, faction: Faction) -> None:
         self.player = player
         self.squadrons: dict[AircraftType, list[Squadron]] = defaultdict(list)
-        self.squadron_defs = SquadronDefLoader(game, faction).load()
+        loader = SquadronDefLoader(game, faction)
+        self.squadron_defs = loader.load()
+        #: Other nations' presets: only a campaign squadron pinned to that
+        #: nation draws from these.
+        self.foreign_squadron_defs = loader.load_foreign()
         self.squadron_def_generator = SquadronDefGenerator(faction)
         self.settings = game.settings
         #: Whether populate_for_turn_0 filled this wing's squadrons. Recorded so
@@ -46,6 +50,7 @@ class AirWing:
         # (dropped 2026-08-16) -- that key is simply ignored now.
         state.pop("pending_arrivals", None)
         state.setdefault("squadrons_started_full", False)
+        state.setdefault("foreign_squadron_defs", {})
 
         self.__dict__.update(state)
 

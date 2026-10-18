@@ -82,7 +82,9 @@ Per-squadron `country:` pins put Turkish liveries and voices on the Turkish
 fields and Russian on the deep east and the Syrian gates.
 
 The Israeli fields pin `country: Israel` too: the blue faction's country is USA,
-so an unpinned squadron drew at random from US and Israeli presets (2026-10-18).
+so the preset loader only saw US presets and the Israeli squadrons flew US paint.
+Since 2026-10-18 the loader keeps other nations' presets apart
+(`AirWing.foreign_squadron_defs`) and only a pinned squadron draws from them.
 A pinned squadron with no unclaimed same-nation preset is generated with no
 livery and flies the DCS default paint. DCS ships one Turkish Viper livery and
 one Israeli F-15C livery, so 141 and 182 Filo reuse the 191 Filo paint and the

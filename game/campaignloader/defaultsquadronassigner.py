@@ -186,6 +186,19 @@ class DefaultSquadronAssigner:
             return control_point.can_operate(squadron.aircraft)
         return squadron.operates_from(control_point) and squadron.capable_of(task)
 
+    def _presets(
+        self, country: Optional[Country]
+    ) -> dict[AircraftType, list[SquadronDef]]:
+        """The faction's presets, plus other nations' when a country is pinned."""
+        own = self.air_wing.squadron_defs
+        foreign = getattr(self.air_wing, "foreign_squadron_defs", {})
+        if country is None or not foreign:
+            return own
+        merged: dict[AircraftType, list[SquadronDef]] = {}
+        for aircraft in set(own) | set(foreign):
+            merged[aircraft] = [*own.get(aircraft, []), *foreign.get(aircraft, [])]
+        return merged
+
     def find_squadron_for_airframe(
         self,
         aircraft: AircraftType,
@@ -194,7 +207,7 @@ class DefaultSquadronAssigner:
         country: Optional[Country] = None,
     ) -> Optional[SquadronDef]:
         choices = []
-        for squadron in self.air_wing.squadron_defs[aircraft]:
+        for squadron in self._presets(country).get(aircraft, []):
             if not squadron.claimed and self.squadron_compatible_with(
                 squadron, task, control_point
             ):
@@ -211,7 +224,10 @@ class DefaultSquadronAssigner:
     def find_squadron_by_name(
         self, name: str, task: FlightType, control_point: ControlPoint
     ) -> Optional[SquadronDef]:
-        for squadrons in self.air_wing.squadron_defs.values():
+        # A preset named in the campaign may be another nation's: the author
+        # asked for that unit.
+        foreign = getattr(self.air_wing, "foreign_squadron_defs", {})
+        for squadrons in [*self.air_wing.squadron_defs.values(), *foreign.values()]:
             for squadron in squadrons:
                 if (
                     not squadron.claimed
@@ -229,7 +245,7 @@ class DefaultSquadronAssigner:
         control_point: ControlPoint,
         country: Optional[Country] = None,
     ) -> Optional[SquadronDef]:
-        for squadrons in self.air_wing.squadron_defs.values():
+        for squadrons in self._presets(country).values():
             for squadron in squadrons:
                 if country is not None and squadron.country.id != country.id:
                     continue

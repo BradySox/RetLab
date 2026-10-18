@@ -180,3 +180,77 @@ def test_saved_country_round_trips() -> None:
     assert reloaded.country == "USA"
     resolved = resolve_config_country(reloaded)
     assert resolved is not None and resolved.id == USA.id
+
+
+def test_pinned_pick_reaches_other_nations_presets() -> None:
+    """Test 60: a USA faction's Israeli-pinned squadrons never saw the Israeli
+    presets, which the loader keeps apart, and flew US paint."""
+    us = _squadron_def(USA.id, "US preset")
+    greek = _squadron_def(Greece.id, "Greek preset")
+    assigner = DefaultSquadronAssigner.__new__(DefaultSquadronAssigner)
+    assigner.air_wing = cast(
+        Any,
+        SimpleNamespace(
+            squadron_defs={"F-16": [us]}, foreign_squadron_defs={"F-16": [greek]}
+        ),
+    )
+    pinned = cast(Any, SimpleNamespace(id=Greece.id))
+    assert (
+        assigner.find_squadron_for_airframe(
+            cast(Any, "F-16"), cast(Any, None), cast(Any, None), pinned
+        )
+        is greek
+    )
+    assert (
+        assigner.find_squadron_for_task(cast(Any, None), cast(Any, None), pinned)
+        is greek
+    )
+    # Unpinned squadrons still draw only the faction's own nation.
+    assert (
+        assigner.find_squadron_for_airframe(
+            cast(Any, "F-16"), cast(Any, None), cast(Any, None)
+        )
+        is us
+    )
+
+
+def test_the_loader_keeps_other_nations_apart(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Any
+) -> None:
+    from pathlib import Path
+
+    from game import persistency
+    from game.factions import FACTIONS
+
+    persistency.setup(str(tmp_path), False, 0)
+    from game.squadrons.squadrondefloader import SquadronDefLoader
+
+    monkeypatch.setattr(
+        SquadronDefLoader,
+        "squadron_directories",
+        staticmethod(lambda: iter([Path("resources/squadrons")])),
+    )
+    loader = SquadronDefLoader(cast(Any, None), FACTIONS["USA-Israel 2000"])
+    own = {d.country.name for defs in loader.load().values() for d in defs}
+    foreign = [d for defs in loader.load_foreign().values() for d in defs]
+    assert own == {"USA"}
+    assert "106th Squadron" in {d.name for d in foreign if d.country.name == "Israel"}
+
+
+def test_a_named_preset_of_another_nation_is_found() -> None:
+    us = _squadron_def(USA.id, "US preset")
+    greek = _squadron_def(Greece.id, "Greek preset")
+    us.aircraft = greek.aircraft = "F-16"
+    assigner = DefaultSquadronAssigner.__new__(DefaultSquadronAssigner)
+    assigner.air_wing = cast(
+        Any,
+        SimpleNamespace(
+            squadron_defs={"F-16": [us]}, foreign_squadron_defs={"F-16": [greek]}
+        ),
+    )
+    picked = assigner.find_squadron_by_name(
+        "Greek preset",
+        cast(Any, None),
+        cast(Any, SimpleNamespace(can_operate=lambda a: True)),
+    )
+    assert picked is greek

@@ -26,13 +26,29 @@ class SquadronDefLoader:
         yield Path("resources/squadrons")
 
     def load(self) -> dict[AircraftType, list[SquadronDef]]:
+        return self._load(foreign=False)
+
+    def load_foreign(self) -> dict[AircraftType, list[SquadronDef]]:
+        """Presets of other nations, for campaign squadrons that pin `country:`.
+
+        A USA faction flying Israeli squadrons never saw the Israeli presets, so
+        each pinned squadron was generated with no livery (test 60).
+        """
+        if self.faction.country.name.startswith("Combined Joint Task Forces "):
+            return {}
+        return self._load(foreign=True)
+
+    def _load(self, foreign: bool) -> dict[AircraftType, list[SquadronDef]]:
         squadrons: dict[AircraftType, list[SquadronDef]] = defaultdict(list)
         country = self.faction.country
         faction = self.faction
         any_country = country.name.startswith("Combined Joint Task Forces ")
         for directory in self.squadron_directories():
             for path, squadron_def in self.load_squadrons_from(directory):
-                if not any_country and squadron_def.country != country:
+                if foreign:
+                    if squadron_def.country == country:
+                        continue
+                elif not any_country and squadron_def.country != country:
                     logging.debug(
                         "Not using squadron for non-matching country (is "
                         f"{squadron_def.country.name}, need {country.name}: {path}"
