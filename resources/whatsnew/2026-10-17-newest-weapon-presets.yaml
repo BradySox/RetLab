@@ -1,0 +1,10 @@
+date: 2026-10-17
+title: Loadouts carry the newest missiles
+change: >-
+  Shipped loadouts now carry the newest version of their missiles that the
+  pylon takes, such as AIM-9M in place of AIM-9L and AIM-7M in place of
+  AIM-7E-2. With Restrict weapons by campaign date on, an early campaign
+  steps them back to what was in service. Most of the change is on the F-4E.
+watch: >-
+  With the date restriction on, a 1972 F-4E's Sparrows are AIM-7E-2 and a
+  1990 F-4E's are AIM-7M.

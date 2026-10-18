@@ -128,7 +128,7 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[6] = {
-					["CLSID"] = "LAU_117_AGM_65G",
+					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
 					["num"] = 7,
 				},
 				[7] = {
@@ -210,7 +210,7 @@ local unitPayloads = {
 			["name"] = "Retribution SEAD Sweep",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "LAU_117_AGM_65G",
+					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
 					["num"] = 7,
 				},
 				[2] = {
@@ -234,7 +234,7 @@ local unitPayloads = {
 					["num"] = 4,
 				},
 				[7] = {
-					["CLSID"] = "LAU_117_AGM_65G",
+					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
 					["num"] = 3,
 				},
 				[8] = {
@@ -609,7 +609,7 @@ local unitPayloads = {
 			["name"] = "Retribution DEAD",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "LAU_117_AGM_65G",
+					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
 					["num"] = 7,
 				},
 				[2] = {
@@ -633,7 +633,7 @@ local unitPayloads = {
 					["num"] = 4,
 				},
 				[7] = {
-					["CLSID"] = "LAU_117_AGM_65G",
+					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
 					["num"] = 3,
 				},
 				[8] = {

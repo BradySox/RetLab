@@ -395,7 +395,7 @@ local unitPayloads = {
 			["name"] = "Retribution TARPS",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9L}",
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
 					["num"] = 10,
 				},
 				[2] = {
@@ -419,7 +419,7 @@ local unitPayloads = {
 					["num"] = 2,
 				},
 				[7] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9L}",
+					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
 					["num"] = 1,
 				},
 			},

@@ -4,7 +4,8 @@ Upstream gives the Harrier no air-to-air task, so a side whose only jet is the
 Harrier (the 1982 task force, where it stands in for the Sea Harrier) had no
 fighter cover at all. DCS lets an AI AV-8B fly CAP and escort. The fork adds the
 four air-to-air lanes at a weight below every jet fighter, so a side with any
-real fighter still sends that first, and a BARCAP loadout of four AIM-9L.
+real fighter still sends that first, and a BARCAP loadout of four Sidewinders
+(AIM-9M on the rails, AIM-9L on the adapters, which take no 9M).
 """
 
 from __future__ import annotations
@@ -59,12 +60,12 @@ def test_every_jet_fighter_outranks_it() -> None:
                 assert harrier["tasks"][task] < tasks[task], (path.stem, task)
 
 
-def test_its_patrol_loadout_is_four_aim9l() -> None:
+def test_its_patrol_loadout_is_four_sidewinders() -> None:
     parsed = lua.loads(PAYLOADS.read_text(encoding="utf-8"))
     payloads = parsed["unitPayloads"]["payloads"].values()
     barcap = next(p for p in payloads if p["name"] == "Retribution BARCAP")
     stores = {pylon["num"]: pylon["CLSID"] for pylon in barcap["pylons"].values()}
-    assert stores[1] == stores[8] == "{AIM-9L}"
+    assert stores[1] == stores[8] == "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}"  # AIM-9M
     assert stores[2] == stores[7] == "{AIM-9L-ON-ADAPTER}"
     # CAP is task 11 in DCS's payload tables.
     assert list(barcap["tasks"].values()) == [11]

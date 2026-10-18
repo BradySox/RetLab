@@ -512,3 +512,31 @@ every store id resolves already covers what DCS removes.
 The public datamine (`Quaggles/dcs-lua-datamine`) carries resolved pylon tables for every
 vanilla unit. Its files label a shared table `<N>{...}` and refer to it as `<table N>`;
 resolve those before reading, or shared launcher and swap tables read as empty.
+
+## 2026-10-17 addendum — presets carry the newest variant
+
+The date restriction only steps a weapon down its `fallback` chain. A preset authored with an
+AIM-9L stays an AIM-9L in a 2020 campaign; one authored with an AIM-9M becomes an AIM-9L in
+1980. So a shipped preset carries the newest variant the pylon takes (DM call).
+
+The pass upgraded 169 pylons on 17 airframes, clear upgrades only:
+
+| Family | Steps |
+|---|---|
+| Sidewinder, single and twin rails | 9B, 9J, 9L, 9M, 9X |
+| Sparrow | 7E, 7E-2, 7F, 7M |
+| Maverick | 65G, 65K |
+| R-27 | R, ER |
+| Shrike | 45A, 45B |
+
+- Left out: AIM-9L to AIM-9P (newer by date, a weaker missile), the R-3S to R-3R seeker swap,
+  Kh-29T to Kh-59 (a different weapon), and mod-only missiles such as the AIM-260.
+- A newer store on a different rack or adapter is skipped (name similarity under 0.6).
+- `vwv_crusader.lua` is exempt: its header records that the mod's newer Sidewinders did not
+  load.
+- With **Restrict weapons by campaign date** off (the app default) every preset now flies its
+  newest store. The fork's era campaigns preseed the setting on.
+- Guard: `tests/data/test_payloads_carry_newest_variant.py`.
+
+Two data oddities seen, not changed: `AIM-7E.yaml` falls back to `AIM-9X` (upstream's own
+file), and `AIM-9X.yaml` dates the missile 2018.

@@ -10,11 +10,11 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
@@ -26,7 +26,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
@@ -46,19 +46,19 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[14] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 			},
@@ -74,7 +74,7 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 13,
 				},
 				[3] = {
@@ -82,19 +82,19 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -106,11 +106,11 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
@@ -118,11 +118,11 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 1,
 				},
 			},
@@ -138,11 +138,11 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
@@ -154,7 +154,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
@@ -198,35 +198,35 @@ local unitPayloads = {
 			["name"] = "Retribution Escort",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[2] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[5] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[8] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[9] = {
@@ -258,11 +258,11 @@ local unitPayloads = {
 					["num"] = 10,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[5] = {
@@ -270,11 +270,11 @@ local unitPayloads = {
 					["num"] = 7,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 6,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[8] = {
@@ -310,27 +310,27 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45A_SWA}",
+					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -342,23 +342,23 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{LAU_34_AGM_45A_SWA}",
+					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 1,
 				},
 			},
@@ -370,35 +370,35 @@ local unitPayloads = {
 			["name"] = "Retribution TARCAP",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[2] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[5] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[8] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[9] = {
@@ -422,11 +422,11 @@ local unitPayloads = {
 			["name"] = "Retribution Anti-ship",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[3] = {
@@ -434,7 +434,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[5] = {
@@ -486,11 +486,11 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
@@ -502,7 +502,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
@@ -518,19 +518,19 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[10] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[12] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
@@ -554,15 +554,15 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[5] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[6] = {
@@ -570,11 +570,11 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[8] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 3,
 				},
 				[9] = {
@@ -610,11 +610,11 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
@@ -626,7 +626,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[7] = {
@@ -634,19 +634,19 @@ local unitPayloads = {
 					["num"] = 1,
 				},
 				[8] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[9] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[10] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[12] = {
@@ -666,11 +666,11 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[2] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[4] = {
@@ -678,7 +678,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[5] = {
-					["CLSID"] = "{HB_F4E_AIM-7E-2}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[6] = {
@@ -690,19 +690,19 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[8] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[9] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[10] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[12] = {
@@ -722,27 +722,27 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45A_SWA}",
+					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -754,23 +754,23 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{LAU_34_AGM_45A_SWA}",
+					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45A}",
+					["CLSID"] = "{LAU_34_AGM_45B}",
 					["num"] = 1,
 				},
 			},
@@ -794,19 +794,19 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -818,11 +818,11 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
@@ -830,7 +830,7 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
@@ -858,11 +858,11 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[5] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[6] = {
@@ -870,7 +870,7 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[8] = {
@@ -918,19 +918,19 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -942,11 +942,11 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
@@ -954,7 +954,7 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {
@@ -982,19 +982,19 @@ local unitPayloads = {
 					["num"] = 11,
 				},
 				[4] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[5] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[6] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 9,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 8,
 				},
 				[8] = {
@@ -1006,11 +1006,11 @@ local unitPayloads = {
 					["num"] = 6,
 				},
 				[10] = {
-					["CLSID"] = "{HB_F4E_AIM-7F}",
+					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
 				[11] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[12] = {
@@ -1018,7 +1018,7 @@ local unitPayloads = {
 					["num"] = 3,
 				},
 				[13] = {
-					["CLSID"] = "{AIM-9L}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[14] = {

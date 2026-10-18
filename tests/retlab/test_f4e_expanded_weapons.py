@@ -44,7 +44,7 @@ STANDARD_B = "{LAU_77_AGM_78B}"
 # The stock pydcs AGM-88C entry the pack injects alongside it -- note the
 # ...C93 clsid, not the Hornet-rack ...C9C sibling.
 HARM = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}"
-SHRIKE_A = "{LAU_34_AGM_45A}"
+SHRIKE_B = "{LAU_34_AGM_45B}"
 
 RED_TIDE_DATE = date(1988, 7, 13)
 
@@ -104,7 +104,7 @@ def test_injected_pack_prefers_the_standard_arm_fit(
     # is the preferred ARM; the HARM fit is editor-only.
     assert _stations_with(loadout, STANDARD_B) == expected_stations
     assert not _stations_with(loadout, HARM)
-    assert not _stations_with(loadout, SHRIKE_A)
+    assert not _stations_with(loadout, SHRIKE_B)
 
 
 def test_ejected_pack_falls_back_to_the_stock_shrike_fit() -> None:
@@ -114,7 +114,7 @@ def test_ejected_pack_falls_back_to_the_stock_shrike_fit() -> None:
     assert loadout.name == "Retribution SEAD"
     assert not _stations_with(loadout, STANDARD_B)
     assert not _stations_with(loadout, HARM)
-    assert _stations_with(loadout, SHRIKE_A) == {1, 13}
+    assert _stations_with(loadout, SHRIKE_B) == {1, 13}
 
 
 def test_editor_list_tracks_the_mod_state() -> None:
