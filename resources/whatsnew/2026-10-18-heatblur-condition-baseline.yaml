@@ -1,0 +1,10 @@
+date: 2026-10-18
+title: Phantoms and Intruders spawn as service jets
+change: >-
+  A player F-4E or A-6E now spawns at Aircraft Condition 90, Heatblur's
+  standard service jet, or 75 in a campaign set before 1980. The module's
+  default of 100 is a showroom jet. A value you set on the Payload tab, or
+  saved as a default, still wins.
+watch: >-
+  Parts vary a little more from jet to jet and the odd failure is a bit
+  more likely. Set Aircraft Condition to 100 to fly a perfect jet.

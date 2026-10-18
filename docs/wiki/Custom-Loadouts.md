@@ -82,6 +82,10 @@ to engine defaults on every new flight. The tab now has a **"Save as default"** 
 - Stored on disk at `Saved Games/Retribution/flight_defaults.json`;
   no setting to enable — saving a default is the switch.
 
+A player Heatblur F-4E or A-6E spawns at **Aircraft Condition 90**, Heatblur's standard
+service jet, or 75 in a campaign set before 1980. The module's own default of 100 is a
+showroom jet. A value you set on the tab, or save as a default, wins.
+
 ## CLSID currency — the gotcha that bites
 
 A pylon's `CLSID` is the exact weapon identifier DCS uses internally. These strings change

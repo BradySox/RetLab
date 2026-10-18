@@ -29,6 +29,7 @@ from game.radio.tacan import (
     TacanUsage,
     OutOfTacanChannelsError,
 )
+from game.retlab.airframe_condition import condition_defaults
 from game.runways import RunwayData
 from game.missiongenerator.missiondata import EscortInfo
 from game.squadrons import Pilot
@@ -391,8 +392,14 @@ class FlightGroupConfigurator:
     def setup_props(self) -> None:
         unit: FlyingUnit
         member: FlightMember
+        spawn_defaults = condition_defaults(
+            self.flight.unit_type.dcs_unit_type, self.game.date
+        )
         for unit, member in zip(self.group.units, self.flight.iter_members()):
             props = dict(member.properties)
+            if member.is_player:
+                for prop_id, spawn_value in spawn_defaults.items():
+                    props.setdefault(prop_id, spawn_value)
             if (code := member.weapon_laser_code) is not None:
                 for laser_code_config in self.flight.unit_type.laser_code_configs:
                     props.update(laser_code_config.property_dict_for_code(code.code))

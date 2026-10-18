@@ -11,6 +11,7 @@ from dcs.unitpropertydescription import UnitPropertyDescription
 from game import Game
 from game.ato import Flight
 from game.ato.flightmember import FlightMember
+from game.retlab.airframe_condition import condition_defaults
 from .missingpropertydataerror import MissingPropertyDataError
 from .propertycheckbox import PropertyCheckBox
 from .propertycombobox import PropertyComboBox
@@ -33,6 +34,9 @@ class PropertyEditor(QGridLayout):
         self.flight_member = flight_member
         self.game = game
         self.flight_member_update_listeners: list[Callable[[FlightMember], None]] = []
+        self.spawn_defaults = condition_defaults(
+            flight.unit_type.dcs_unit_type, game.date
+        )
 
         self.build_props(flight)
 
@@ -102,7 +106,11 @@ class PropertyEditor(QGridLayout):
             case "groupbox" | "label":
                 return None
             case "slider" | "spinbox":
-                widget = PropertySpinBox(self.flight_member, prop)
+                widget = PropertySpinBox(
+                    self.flight_member,
+                    prop,
+                    self.spawn_defaults.get(prop.identifier),
+                )
                 self.flight_member_update_listeners.append(widget.set_flight_member)
                 return widget
             case "editbox":
