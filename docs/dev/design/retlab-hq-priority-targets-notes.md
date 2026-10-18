@@ -134,8 +134,14 @@ new games, older saves off.
   nearest blue base with aircraft, each mile inside a **known** red threat ring counted 3
   times. Known rings only, under `fog_intact()`, so a request never hints at a ring the map
   hides. His grid search and fighter term are not taken.
-- **Tiers:** the candidates split into thirds by difficulty. Within a tier, a random pick from
-  the more important half of its §103 family, else any. A request that just ran out comes back
+- **Tiers:** the candidates split into thirds by difficulty. Within a tier, a kind first, then
+  a random pick of that kind from the more important half of its §103 family, else any.
+- **Kinds (Brady, 2026-10-18):** "prioritize strike targets and especially IADS". Odds by
+  kind among the kinds the tier holds, not by head count: IADS nodes 3, strike 2, other 1.
+  IADS nodes are EWRs, plus command posts, comms and power the advanced network wires to a
+  site (`wired_into_iads`; none in basic mode, where they fall to strike). Strike is the C2,
+  Infrastructure and Logistics families plus missile sites. SAM sites are other: he left them
+  out because the auto-planner already goes after them. A request that just ran out comes back
   only if nothing else in its tier is left (his rule).
 - **Done** when every unit is dead, checked in `record_sitrep` after the losses are committed;
   the SITREP line is the only consequence. Gone (captured, or killed outside a mission) and

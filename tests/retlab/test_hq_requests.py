@@ -9,6 +9,7 @@ from game.retlab.hq_requests import (
     brief_line,
     difficulty,
     intel_line,
+    kind_of,
     record_results,
     refresh,
     thirds,
@@ -308,3 +309,80 @@ def test_the_kneeboard_and_panel_name_an_open_request() -> None:
     other = next(t for t in targets if t.name not in _names(game))
     assert brief_line(cast(Any, game), other) is None
     assert intel_line(cast(Any, game), other) is None
+
+
+class FakeGroup:
+    def __init__(self, tgo: Any) -> None:
+        self.ground_object = tgo
+
+
+class FakeNode:
+    def __init__(self, tgo: Any, *wired: Any) -> None:
+        self.group = FakeGroup(tgo)
+        self.connections = {uuid.uuid4(): FakeGroup(t) for t in wired}
+
+
+class FakeNetwork:
+    def __init__(self, advanced: bool, nodes: list[FakeNode]) -> None:
+        self.advanced_iads = advanced
+        self.nodes = nodes
+
+
+def test_kinds_put_iads_nodes_first_and_sams_last() -> None:
+    game = FakeGame()
+    sam = FakeTgo(game.enemy, "SAM", 10.0, category="aa")
+    ewr = FakeTgo(game.enemy, "EWR", 10.0, category="ewr")
+    wired = FakeTgo(game.enemy, "Wired comms", 10.0, category="comms")
+    loose = FakeTgo(game.enemy, "Loose power", 10.0, category="power")
+    command = FakeTgo(game.enemy, "Command", 10.0, category="commandcenter")
+    game.theater.iads_network = FakeNetwork(  # type: ignore[attr-defined]
+        True, [FakeNode(sam, wired), FakeNode(command)]
+    )
+    found = hq_requests.wired_into_iads(cast(Any, game))
+    assert kind_of(ewr, found) == "iads"
+    assert kind_of(wired, found) == "iads"
+    assert kind_of(command, found) == "iads"
+    assert kind_of(loose, found) == "strike"
+    assert kind_of(FakeTgo(game.enemy, "Ammo", 10.0, category="ammo"), found) == (
+        "strike"
+    )
+    assert kind_of(FakeTgo(game.enemy, "SCUD", 10.0, category="missile"), found) == (
+        "strike"
+    )
+    assert kind_of(sam, found) == "other"
+    assert kind_of(FakeTgo(game.enemy, "Tanks", 10.0, category="armor"), found) == (
+        "other"
+    )
+
+
+def test_the_basic_network_wires_no_command_posts() -> None:
+    game = FakeGame()
+    command = FakeTgo(game.enemy, "Command", 10.0, category="commandcenter")
+    game.theater.iads_network = FakeNetwork(  # type: ignore[attr-defined]
+        False, [FakeNode(command)]
+    )
+    assert hq_requests.wired_into_iads(cast(Any, game)) == set()
+
+
+def _kind_counts(categories: list[str], draws: int = 600) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for seed in range(draws):
+        game = FakeGame()
+        # One tier only: every target the same distance away.
+        for n, category in enumerate(categories):
+            FakeTgo(game.enemy, f"{category} {n}", 10.0, category=category)
+        tier = list(game.enemy.ground_objects)
+        chosen = hq_requests._pick(tier, cast(Any, game), random.Random(seed), set())
+        counts[chosen.category] = counts.get(chosen.category, 0) + 1
+    return counts
+
+
+def test_a_tier_leans_on_iads_then_strike() -> None:
+    # Odds go by kind, not by head count: one EWR against many tanks still wins most.
+    counts = _kind_counts(["ewr", "factory"] + ["armor"] * 8)
+    assert counts["ewr"] > counts["factory"] > counts["armor"]
+    assert 0.4 < counts["ewr"] / 600 < 0.6
+
+
+def test_a_tier_with_one_kind_still_draws() -> None:
+    assert _kind_counts(["armor", "armor"], draws=5) == {"armor": 5}

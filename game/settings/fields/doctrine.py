@@ -302,7 +302,9 @@ class DoctrineSettings:
         detail=(
             "Each turn HQ asks the players to take out up to three enemy targets "
             "that the BLUE auto-planner put no package on: one easy, one mid and "
-            "one hard to reach. Each stays open for 2 to 5 turns. They are listed "
+            "one hard to reach. EWRs and the command posts, comms and power wired "
+            "into the enemy air defense network are likeliest, then strike "
+            "targets. Each stays open for 2 to 5 turns. They are listed "
             "under HQ REQUESTS on the map's status bar, ringed on the map, and "
             "marked on the kneeboard of a flight sent against one. Sites hidden "
             "on your map are never picked. A request pays nothing; the SITREP "

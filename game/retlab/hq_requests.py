@@ -6,6 +6,7 @@ juanjux's High Command, without its prizes (DM call 2026-10-12).
 - Drawn after BLUE's auto-planner, from targets it left with no package: the jobs
   nobody else is flying.
 - One from each third of difficulty (easy, mid, hard); each stays open 2-5 turns.
+- Within a third, IADS nodes are likeliest, then strike targets (Brady, 2026-10-18).
 - Never a site hidden on blue's map (§3 fog), and difficulty counts only the SAM
   rings blue knows about, so a request never hints at a ring the map hides.
 - Achieving one pays nothing. The SITREP says so; that is all.
@@ -36,6 +37,12 @@ LONGEST_TURNS = 5
 RING_MILE_WEIGHT = 3.0
 
 METERS_PER_NM = 1852.0
+
+#: Brady's 2026-10-18 call: the odds of each kind of target within a tier. SAM
+#: sites sit in "other": the auto-planner already goes after them.
+KIND_WEIGHTS = {"iads": 3, "strike": 2, "other": 1}
+_STRIKE_FAMILIES = ("Command and control", "Infrastructure", "Logistics")
+_NETWORK_CATEGORIES = ("commandcenter", "comms", "power")
 
 
 @dataclass
@@ -205,17 +212,51 @@ def thirds(items: Sequence[Any], key: Any) -> list[list[Any]]:
     return [ranked[n * total // 3 : (n + 1) * total // 3] for n in range(3)]
 
 
-def _pick(tier: Sequence[Any], game: Game, rng: random.Random) -> Any:
-    """A random target from the more important half of its §103 family, if any."""
+def wired_into_iads(game: Game) -> set[int]:
+    """Command posts, comms and power the IADS network actually wires to a site.
+
+    Empty without the advanced network: Skynet then uses none of them.
+    """
+    network = getattr(game.theater, "iads_network", None)
+    if network is None or not network.advanced_iads:
+        return set()
+    wired = set()
+    for node in network.nodes:
+        for group in (node.group, *node.connections.values()):
+            wired.add(id(group.ground_object))
+    return wired
+
+
+def kind_of(tgo: Any, wired: set[int]) -> str:
+    """ "iads", "strike" or "other", for KIND_WEIGHTS."""
+    if tgo.category == "ewr":
+        return "iads"
+    if tgo.category in _NETWORK_CATEGORIES and id(tgo) in wired:
+        return "iads"
+    if family_of(tgo) in _STRIKE_FAMILIES or tgo.category == "missile":
+        return "strike"
+    return "other"
+
+
+def _pick(tier: Sequence[Any], game: Game, rng: random.Random, wired: set[int]) -> Any:
+    """A kind by KIND_WEIGHTS among those the tier holds, then a target of that
+    kind from the more important half of its §103 family, if any."""
     from game.retlab.hq_priorities import HqStandings
+
+    by_kind: dict[str, list[Any]] = {}
+    for tgo in tier:
+        by_kind.setdefault(kind_of(tgo, wired), []).append(tgo)
+    kinds = sorted(by_kind, key=list(KIND_WEIGHTS).index)
+    kind = rng.choices(kinds, weights=[KIND_WEIGHTS[k] for k in kinds])[0]
+    members = by_kind[kind]
 
     standings = HqStandings(game)
     important = []
-    for tgo in tier:
+    for tgo in members:
         standing = standings.standing(tgo)
         if standing is not None and standing.of and standing.rank <= standing.of / 2:
             important.append(tgo)
-    return rng.choice(important or list(tier))
+    return rng.choice(important or members)
 
 
 def _why(tgo: Any, game: Game) -> str:
@@ -265,6 +306,7 @@ def refresh(game: Game, rng: Optional[random.Random] = None) -> None:
     effort = {
         id(t): difficulty((t.position.x, t.position.y), bases, rings) for t in pool
     }
+    wired = wired_into_iads(game)
     busy = {r.tier for r in kept}
     taken = {r.tgo_id for r in kept}
     for tier, members in enumerate(thirds(pool, lambda t: (effort[id(t)], t.name))):
@@ -273,7 +315,7 @@ def refresh(game: Game, rng: Optional[random.Random] = None) -> None:
         choices = [t for t in choices if t.id not in expired] or choices
         if tier in busy or not choices:
             continue
-        chosen = _pick(choices, game, rng)
+        chosen = _pick(choices, game, rng, wired)
         taken.add(chosen.id)
         requests.requests.append(
             HqRequest(

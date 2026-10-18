@@ -338,7 +338,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   toward the top third of each kind, more gently than Target priorities. Off by default.
 - **HQ requests.** Each turn HQ asks you to take out up to three enemy targets the
   auto-planner put no package on: one easy, one mid and one hard to reach, each open for 2 to
-  5 turns. They are listed under HQ REQUESTS on the map's status bar and ringed in gold on the
+  5 turns. EWRs and the command posts, comms and power wired into the enemy air defense
+  network are likeliest, then strike targets. They are listed under HQ REQUESTS on the map's status bar and ringed in gold on the
   map, and a flight sent against one has an HQ REQUEST line on its kneeboard. There is no
   prize; the SITREP notes the ones you destroy. On for new games.
 - **Smart threat reaction.** One SAM launch no longer sends every jet in the area defensive.

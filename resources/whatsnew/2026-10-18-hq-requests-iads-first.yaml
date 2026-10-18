@@ -1,0 +1,11 @@
+date: 2026-10-18
+title: HQ requests favor the IADS and strike targets
+change: >-
+  Each HQ request is now most likely an IADS node: an EWR, or a command
+  post, comms tower or power station wired into the enemy air defense
+  network. Strike targets such as factories, fuel, ammo dumps and missile
+  sites come next. SAM sites, armor and ships are asked for less often,
+  since the auto-planner already goes after SAMs.
+watch: >-
+  Over a few turns most HQ requests are EWRs, command posts, comms, power
+  or strike targets.
