@@ -1939,6 +1939,14 @@ that code.
 - **A SEAD package's escorts held on the ingress, 60-80 NM out (2026-10-17).** The HARM's
   authored 80 NM range set the hold. SEAD and SEAD Sweep primaries now use their SEAD Search
   point (`WaypointBuilder.sead_search_point`), where the flight plan actually works from.
+- **AI leads held slow and low after takeoff until the flight joined (2026-10-17).** DCS's
+  close default formation kept a 4-ship lead at 250-270 kt and 1,700 ft AGL for about
+  4.5 min; a carrier Hornet lead sagged to about 140 kt and 200 ft. The 2026-10-06 call was
+  to leave it; on 2026-10-17 the DM asked for an experiment.
+  `AircraftBehavior.configure_takeoff_formation` gives every ground-start fixed-wing flight
+  of two or more a loose trail at its takeoff point; HOLD and JOIN still set the package
+  formation. Unproven until flown (row B245). If it does nothing, remove it. Tests:
+  `tests/missiongenerator/test_takeoff_formation.py`.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**
 - Flight-combat-exit `IndexError`: `game/ato/flightstate/inflight.py` guards in
