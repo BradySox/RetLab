@@ -10928,7 +10928,8 @@ choices, the algorithm and the step 2 notes.
 ## §112 — HQ requests
 
 Each turn HQ asks the players to take out up to three enemy targets the BLUE auto-planner put no
-package on: one easy, one mid and one hard to reach, each open 2 to 5 turns. No prize; the
+package on: one easy, one mid and one hard to reach, each open 2 to 5 turns. Within a tier the
+pick leans on IADS nodes, then strike targets (2026-10-18, row B248). No prize; the
 SITREP notes the ones destroyed. The order half of juanjux's High Command (Brady, 2026-10-12).
 Setting *HQ requests*, Doctrine page, on for new games; a save from before it loads with it
 off (`Game.__setstate__`). Built 2026-10-12, not flown (row B231).
@@ -10951,6 +10952,7 @@ off (`Game.__setstate__`). Built 2026-10-12, not flown (row B231).
 - Drawn once per turn, after blue's planning. A blue re-plan mid-turn never changes them.
 - Never a site `hidden_from(BLUE)`; difficulty counts only rings blue knows, overview ignored.
 - Motorpools are never requested: their vehicles are drawn afresh, so one never dies.
+- SAM sites are "other" (1x), not IADS: the auto-planner already goes after them (Brady).
 - No prize, ticket or loan. RetLab's line is a record, never a reward (§96, §108).
 
 ## §113 — AI fills empty player flights
