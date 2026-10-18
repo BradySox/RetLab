@@ -32,6 +32,38 @@ player_left_units = {} -- unit name -> mission time of S_EVENT_PLAYER_LEAVE_UNIT
 ejected_units = {}     -- unit name -> true; ejected = real loss, never suppress
 PLAYER_LEAVE_GRACE_S = 5 -- a crash within this long after a leave = the despawn
 
+-- Base capture: the capture trigger's last condition. A downed pilot is an
+-- infantry group, and DCS's own zone conditions counted one: test 59's ejected
+-- F-15E crew captured an empty Gazipasa. Survivors are pre-placed as "CSAR ...";
+-- Ops.CSAR spawns "Pilot <freq>kHz-<n>" in mission.
+local function is_downed_pilot_group(name)
+    return string.find(name, "^CSAR[ _]") ~= nil
+        or string.find(name, "^Pilot [%d%.]+kHz") ~= nil
+end
+
+local function side_holds_zone(side, x, z, radius_sq)
+    for _, group in pairs(coalition.getGroups(side, Group.Category.GROUND) or {}) do
+        if group:isExist() and not is_downed_pilot_group(group:getName()) then
+            for _, unit in pairs(group:getUnits() or {}) do
+                if unit:isExist() then
+                    local p = unit:getPoint()
+                    local dx, dz = p.x - x, p.z - z
+                    if dx * dx + dz * dz <= radius_sq then
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+function capture_zone_taken(x, z, radius, capturing_side, losing_side)
+    local radius_sq = radius * radius
+    return side_holds_zone(capturing_side, x, z, radius_sq)
+        and not side_holds_zone(losing_side, x, z, radius_sq)
+end
+
 -- Scenery objectives: credit a map-object death to the building it belongs to.
 --
 -- DCS reports a scenery death with the object's numeric id rather than a name,

@@ -231,3 +231,59 @@ def test_a_kill_by_something_with_no_name_is_not_given_a_cause() -> None:
     _kill(harness, _unit(harness, 12345), _unit(harness, "Truck 4"), None)
     assert not harness.to_python(harness.lua.eval("kill_causes"))
     assert harness.to_python(harness.lua.eval("kill_events")) == ["Truck 4"]
+
+
+# --- base capture ignores downed pilots ----------------------------------------
+
+_BLUE, _RED, _GROUND = 2, 1, 2
+
+
+def _infantry(harness: DcsPluginHarness, name: str, side: int, x: float) -> None:
+    harness.add_group(
+        {
+            "name": name,
+            "side": side,
+            "category": _GROUND,
+            "units": [{"name": f"{name}-1", "type": "Soldier M4", "x": x, "z": 0.0}],
+        }
+    )
+
+
+def _taken(harness: DcsPluginHarness, capturing: int, losing: int) -> bool:
+    fn = harness.lua.eval("capture_zone_taken")
+    return bool(fn(0.0, 0.0, 3000.0, capturing, losing))
+
+
+def test_a_downed_pilot_does_not_capture_an_empty_base() -> None:
+    """Test 59: an ejected F-15E crew landed inside empty Gazipasa and took it."""
+    harness = _load()
+    _infantry(harness, "CSAR Lt Smith 1a2b3c4d", _BLUE, 2000.0)
+    _infantry(harness, "Pilot 260.00kHz-42#001", _BLUE, 1000.0)
+    assert _taken(harness, _BLUE, _RED) is False
+    harness.assert_no_lua_errors()
+
+
+def test_ground_troops_capture_an_empty_base() -> None:
+    harness = _load()
+    _infantry(harness, "Armor 1", _BLUE, 2500.0)
+    assert _taken(harness, _BLUE, _RED) is True
+
+
+def test_a_downed_defender_does_not_hold_a_base() -> None:
+    harness = _load()
+    _infantry(harness, "Armor 1", _BLUE, 2500.0)
+    _infantry(harness, "CSAR Kpt Ivanov 5e6f7a8b", _RED, 100.0)
+    assert _taken(harness, _BLUE, _RED) is True
+
+
+def test_a_live_defender_holds_a_base() -> None:
+    harness = _load()
+    _infantry(harness, "Armor 1", _BLUE, 2500.0)
+    _infantry(harness, "Garrison 1", _RED, 100.0)
+    assert _taken(harness, _BLUE, _RED) is False
+
+
+def test_troops_outside_the_zone_capture_nothing() -> None:
+    harness = _load()
+    _infantry(harness, "Armor 1", _BLUE, 3500.0)
+    assert _taken(harness, _BLUE, _RED) is False
