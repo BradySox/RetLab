@@ -348,57 +348,6 @@ local unitPayloads = {
 				[1] = 31,
 			},
 		},
-		[8] = {
-			["displayName"] = "Aerial Minefield",
-			["name"] = "Aerial Minefield",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{BRU41A_6*MK82}",
-					["num"] = 1,
-					["settings"] = {
-						["NFP_VIS_DrawArgNo_57"] = 1,
-					},
-				},
-				[2] = {
-					["CLSID"] = "{BRU41A_6*CBU99_mod6}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{A7E_AERO1D}",
-					["num"] = 3,
-				},
-				[4] = {
-					["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-					["num"] = 4,
-				},
-				[5] = {
-					["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-					["num"] = 5,
-				},
-				[6] = {
-					["CLSID"] = "{A7E_AERO1D}",
-					["num"] = 6,
-				},
-				[7] = {
-					["CLSID"] = "{BRU41A_6*CBU99_mod6}",
-					["num"] = 7,
-				},
-				[8] = {
-					["CLSID"] = "{BRU41A_6*MK82}",
-					["num"] = 8,
-					["settings"] = {
-						["NFP_VIS_DrawArgNo_57"] = 1,
-					},
-				},
-				[9] = {
-					["CLSID"] = "{B1EF6B0E-3D91-4047-A7A5-A99E7D8B4A8B}",
-					["num"] = 9,
-				},
-			},
-			["tasks"] = {
-				[1] = 29,
-			},
-		},
 	},
 	["tasks"] = {
 	},

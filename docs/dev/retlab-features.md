@@ -317,7 +317,7 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   Sidewinder on the F-15E pair, two AIM-9X on the F-22 pair, two PL-5 on the JF-17s and
   empty pylons on the Mirage F1s; every scramble clone copies the template.
   `_arm_alert_template` now loads each unit with its flight member's loadout (the
-  squadron's BARCAP preset, a §73 pinned fit included), degraded for the campaign date
+  squadron's BARCAP preset), degraded for the campaign date
   when `restrict_weapons_by_date` is on. An airframe with no BARCAP preset keeps the
   pydcs default. The template's DCS task is unchanged. Tests:
   `tests/missiongenerator/test_alert_template_loadout.py`. Row **B227**.
@@ -4513,8 +4513,8 @@ The Edit-flight → **Payload** tab's aircraft knobs — **Internal Fuel Quantit
 **Aircraft Wear and Tear**, **Aircraft Type On Spawn**, and any other property-editor value (HMD, ripple,
 etc.) — are re-seeded from the pydcs engine defaults every time a flight is created. A player who always
 wants (say) their F/A-18C to spawn hot with 80% fuel had to redo those on every package. This feature gives
-that box the same persistence the loadout dropdown already has (its **Save Payload** button) and the player
-laser code already has (a campaign-wide setting): a **"Save as default"** button that remembers the current
+that box the persistence the player laser code already has (a campaign-wide setting): a
+**"Save as default"** button that remembers the current
 fuel + properties **per airframe**, so every new flight of that type starts pre-configured.
 
 **Opt-in and inert until used.** No Settings toggle — on-disk content is the switch, exactly like the DCS
@@ -6936,81 +6936,35 @@ variant, envelope + keep-out integrity, the no-static-aircraft rule, hull gate +
 rotation determinism, three-level link serialization against a real pydcs mission).
 Checklist B25 — verified 2026-08-06, capacity half closed 2026-08-20.
 
-## §73 — Per-airframe default loadout for a task
+## §73 — Per-airframe default loadout for a task — REMOVED (2026-10-17)
 
-**What it is.** A one-click *"every F-4E planned as CAS uses **this** loadout"* — the
-**Set as default for &lt;task&gt;** / **Clear default** pair under the pylon list in
-*Edit flight → Payload*, mirroring the §43 fuel-and-properties pair on the aircraft
-settings box. User ask 2026-07-19 ("what if this save button was a quick overwrite, so
-that anytime an F-4 gets planned as a CAS it takes that saved loadout").
+**Removed 2026-10-17 (DM call), with the user payload folder it wrote to.** From 2026-07-19 a
+**Set as default for &lt;task&gt;** / **Clear default** pair in *Edit flight → Payload* saved the
+edited loadout into `Saved Games/DCS/MissionEditor/UnitPayloads` under the name the planner
+resolves (`Retribution CAS` and so on). Upstream's **Save Payload** and **Create Backup**
+buttons wrote to the same folder.
 
-**The capability already existed — it was just unreachable.** Retribution resolves a
-planned flight's loadout **by name**: `Loadout.default_for` walks
-`default_loadout_names_for(task)` and takes the first preset the airframe supplies
-(`Retribution CAS`, `Liberation CAS`, the legacy names). `qt_ui/main.py` registers the
-user's `Saved Games/DCS/MissionEditor/UnitPayloads` as pydcs's **preferred** payload
-directory with the repo's `resources/customized_payloads` as **fallback**, and pydcs
-takes the first directory supplying a given name ("Payload directories are iterated in
-decreasing order of preference"). So a user payload saved as `Retribution CAS` has
-always overridden the shipped fit for every future F-4E CAS flight. Nobody could find
-that, because `_create_input_dialog` pre-fills **`Custom CAS`** — a name that appears
-nowhere in any resolution chain — so the obvious action produced a preset the planner
-would never pick.
+**Why it went:** a saved fit replaced the shipped preset by name for both coalitions in every
+campaign. On 2026-10-17 the DM's folder held 23 such fits across 10 airframes, several carrying
+AIM-9M and AIM-120B where the shipped fit has AIM-9X and AIM-120C. The era fallback only steps
+*down* (`Weapon.fallbacks`), so a fit authored with old weapons stays old in a modern campaign.
+The shipped presets carry the newest store the jet can mount and let the date degrade it.
 
-**Design.** The logic lives in `game/retlab/loadout_defaults.py` (game-side, so it
-is mypy-checked and unit-testable); the Qt buttons are a thin caller, and
-`QLoadoutEditor._save_payload` was refactored onto the same writer rather than keeping
-a second copy of the Lua read-modify-write.
+**What went:** `game/retlab/loadout_defaults.py`, `persistency.payloads_dir` and the
+`PayloadBackups` migration, the Save Payload / Create Backup / Set as default / Clear default
+buttons, `DcsPayload`, `QFlightPayloadTab.on_saved_payload`, and `tests/retlab/test_loadout_defaults.py`.
 
-- **`override_name_for(task, dcs_unit_type)`** returns the name that **currently wins**
-  — `Loadout.default_for_task_and_aircraft(...).name` — not a hardcoded
-  `Retribution <task>`. That matters where a higher-priority candidate exists: the §71
-  expanded-weapons `(XW)` fits sort *ahead* of the plain name, so a hardcoded name
-  would write an override the planner never reads. It also makes the operation
-  idempotent (once written, our entry is what wins, so the name is stable) and it
-  degrades to the first non-`(XW)` candidate for an airframe with no preset at all.
-- **Scope is global**, exactly like the `UnitPayloads` file it lives in, and the
-  confirm dialog says so in as many words: **both coalitions** (an enemy flight of the
-  same airframe+task resolves the same name), **every campaign** until cleared, and
-  **newly planned flights only** — flights already in the ATO keep what they have.
-- **Non-destructive writes.** `ensure_backup` copies the file into
-  `Retribution/PayloadBackups` before the first modification, and only the one
-  named entry is ever touched, so a hand-authored Mission Editor payload in the same
-  file survives a set *or* a clear. A file that exists but **cannot be parsed is left
-  byte-identical** and the save is refused with a warning — rewriting it from scratch
-  would silently destroy every other payload for that airframe.
-- **The backups moved out of `UnitPayloads` on 2026-08-29.** They used to sit in
-  `UnitPayloads/_retribution_backups`, and DCS enumerates that folder expecting only
-  payload `.lua` files: every launch logged `ERROR EDCORE: Can't open file
-  '...UnitPayloads//_retribution_backups' from real path fs`, twice. The store is now
-  `Saved Games/DCS/Retribution/PayloadBackups`, beside the other RetLab directories
-  (`Groups`, `Layouts`, `MapTiles`, `Settings`, `AirWing`, `Kneeboards`).
-  `persistency._migrate_legacy_payload_backups` moves existing backups across the
-  first time `payloads_dir` is called — either branch, since opening a payload tab is
-  a likelier first touch than saving a default — and removes the old folder, but
-  **only once it is empty**, so anything unexpected in there is kept rather than
-  deleted (at the cost of the DCS error surviving until it is dealt with by hand).
-  Do not move this back inside `UnitPayloads`.
-- **Key allocation fixed in passing.** The old `next_key = len(pdict) + 1` collides
-  with a live entry in any file whose keys don't start at 1 (`{2, 3}` → key 3),
-  silently overwriting a payload. Now `max(int keys) + 1`.
-- **No Settings field** — on-disk content is the switch, the §42 map-tiles / §43
-  flight-defaults precedent.
+**What stays:** per-flight editing (*Use custom loadout*), the named-preset dropdown, the §43
+fuel and properties defaults, and the files on disk: RetLab never deletes them, and the Mission
+Editor still reads them.
 
-**Clearing** removes the entry and calls `_reload_payloads` (`payloads = None` +
-`load_payloads()`), which re-reads from disk so the repo's shipped preset of the same
-name takes the slot back. `has_override_for` deliberately reads the *user's file*
-rather than the merged in-memory payloads, which cannot tell the user's entry from the
-repo's; it degrades to "no override" on any failure, since it is read on every
-payload-tab build including headless runs with no Saved Games tree.
+**Constraint: RetLab does not register the user's `UnitPayloads` folder** (`qt_ui/main.py`
+sets only the fallback directory). Upstream registers it as preferred. Re-adding it brings back
+name-shadowing of every shipped preset; a planned flight would again take whatever the user
+once saved under that name.
 
-**Tests.** `tests/retlab/test_loadout_defaults.py` registers the scratch directory
-as pydcs's *preferred* dir with the repo payloads behind it — the production
-arrangement — and pins the end-to-end claim: saving an override makes
-`Loadout.default_for_task_and_aircraft` return it, clearing hands the slot back. Plus
-the resolved-name identity, replace-not-duplicate, leave-other-payloads-alone,
-no-key-collision, unparseable-file-untouched, backup-on-first-write, and
-degrade-without-persistency cases. Checklist **Q2** — needs an in-app pass.
+**Saves:** a flight already in the ATO keeps the loadout it was planned with. Flights planned
+from the next turn take the shipped preset.
 
 ### Payload-tab cleanup shipped with it
 
@@ -7062,9 +7016,8 @@ teeth:
    instead of a bare "Edit flight" on every window, matching the sibling
    `QPackageDialog`/`QWeaponSettingsDialog` which already identify themselves.
    `Flight.__str__` is contractually non-raising.
-8. **`on_saved_payload` is idempotent** — saving over an existing name (the whole point
-   of setting a task default) updated nothing and stacked a second identical dropdown
-   entry; it now replaces the item's data and selects it.
+8. **`on_saved_payload` was made idempotent** (saving over a name stacked a duplicate
+   dropdown entry). It went with the save buttons on 2026-10-17.
 
 **Deliberately not touched:** the `TACAN Channel Presel` typo is pydcs mirroring the
 DCS module data (`planes.py`, alongside `ILS Channel Presel`) — not ours to patch.
@@ -7105,11 +7058,10 @@ Ported from juanjux/dcs-escalation #515. An A-10A, A-10C or A-10C II Payload tab
 - `game/data/gunammunition.py` — the three choices, as one-based indices into the
   `ammo_type` list in DCS's `CoreMods/aircraft/A-10/A-10A.lua` (the C models inherit it).
 - `Loadout.ammo_type` — `None` means the aircraft's default. Carried through `clone`,
-  `derive_custom`, `degrade_for_date`, named payloads and the §73 task default;
+  `derive_custom`, `degrade_for_date` and named payloads;
   `__setstate__` supplies `None` for older saves.
 - `FlightGroupConfigurator.setup_payload` writes it to the unit's `payload.ammo_type`,
   Combat Mix when unset. Other airframes are not touched.
-- `DcsPayload.to_dict` writes `ammo_type` into a saved payload only when one is set.
 
 Tests: `tests/test_gau8_ammunition.py` (one case reads the local DCS install and skips
 without it), `tests/qt_ui/test_gau8_payload_editor.py`. Checklist **B210**.

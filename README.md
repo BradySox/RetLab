@@ -262,14 +262,14 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   pilots recovered.
 - A Threat Intel Brief gives one card per enemy air-defence system — NATO name, guidance, ceiling,
   range, RWR symbol, how to beat it. It respects recon fog: un-engaged sites show only a threat tier.
-- **Set as default for &lt;task&gt;** in the payload editor pins a loadout for that airframe and
-  task across campaigns until cleared. Fuel and cockpit settings are already remembered per
-  airframe.
+- Planned flights always use RetLab's shipped loadouts, which carry the newest weapons and
+  step down for the campaign date. Loadouts saved in the DCS Mission Editor are not read.
+  Fuel and cockpit settings are remembered per airframe.
 - The payload editor hides practice, captive, inert, smoke and illumination stores, TCTS
   pods and travel pods until **Show training and non-combat stores** is ticked. White
   phosphorus marking rockets are always listed.
 - The payload editor picks the A-10's gun ammunition: Combat Mix, HEI or Target Practice.
-  It is saved with the payload.
+  It is set per flight.
 - Also: target intel panels, impact-first debriefs, custom kneeboard import, era-gated cockpit
   options.
 

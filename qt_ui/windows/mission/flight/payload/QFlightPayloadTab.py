@@ -261,7 +261,6 @@ class QFlightPayloadTab(QFrame):
             flight, self.flight.roster.members[0], game
         )
         self.payload_editor.toggled.connect(self.on_custom_toggled)
-        self.payload_editor.saved.connect(self.on_saved_payload)
 
         # Two columns, not one tall stack. Stacked, this tab asked for more height
         # than a 1440p panel at 150% scaling has (the screen-fit clamp then had to
@@ -403,7 +402,7 @@ class QFlightPayloadTab(QFrame):
 
         # RetLab (§43): remember the fuel + aircraft properties above as this
         # airframe's default so every new flight of the type starts pre-configured.
-        # (Loadout has its own "Save Payload"; laser code has a global setting.)
+        # (Laser code has a global setting.)
         aircraft_layout.addLayout(self._build_flight_defaults_row())
 
         # No stretch on the box itself: it sizes to its (content-bounded, capped)
@@ -579,18 +578,6 @@ class QFlightPayloadTab(QFrame):
             self.flight.roster.use_same_loadout_for_all_members()
         self.sync_loadout_selector()
         self.refresh_loadout_readouts()
-
-    def on_saved_payload(self, payload_name: str) -> None:
-        # Saving over an existing name (which is the whole point of setting a task
-        # default) must not stack a second identical entry in the list.
-        loadout = self.member_selector.selected_member.loadout
-        index = self.loadout_selector.findText(payload_name)
-        if index < 0:
-            self.loadout_selector.addItem(payload_name, loadout)
-            index = self.loadout_selector.count() - 1
-        else:
-            self.loadout_selector.setItemData(index, loadout)
-        self.loadout_selector.setCurrentIndex(index)
 
     def on_same_loadout_toggled(self, checked: bool) -> None:
         self.flight.use_same_loadout_for_all_members = checked

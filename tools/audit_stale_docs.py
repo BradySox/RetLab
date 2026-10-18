@@ -366,6 +366,14 @@ REMOVED: tuple[Removed, ...] = (
         allow=("removed", "no longer", "historical", "abandoned"),
     ),
     Removed(
+        # S73, with the user UnitPayloads folder. A bare "Save Payload" is upstream's
+        # wording in mirrored pages, so only the RetLab button labels are listed.
+        "the per-task default loadout and saved payloads (S73)",
+        "2026-10-17",
+        r"Set as default for &lt;task&gt;|Set as default for <task>|Save Payload / Create Backup",
+        allow=("removed", "no longer", "historical", "not read"),
+    ),
+    Removed(
         # S59. The setting label and plugin id are unique to the feature.
         "ground AI sleep (S59)",
         "2026-09-23",

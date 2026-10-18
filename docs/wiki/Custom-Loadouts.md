@@ -1,33 +1,30 @@
 # Custom Loadouts
 
-By default, Retribution picks a stock weapon loadout for each flight based on its mission
-type. You can override those defaults per aircraft so that, for example, every Strike F-16
-spawns with your preferred bombs. This page explains the two ways to set custom loadouts
-and the CLSID pitfall that silently breaks them.
+Retribution picks a weapon loadout for each flight based on its mission type. RetLab takes
+those loadouts only from the payload files it ships. This page explains where they come from,
+how to change one flight's pylons, and the CLSID pitfall that silently breaks a loadout.
 
-![The Edit flight Payload tab: flight-member and same-loadout/same-livery toggles, the assigned TGP laser code with a preset-code selector, an internal-fuel slider, the named-loadout dropdown, and the per-pylon station list with a Save Payload / Create Backup row](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/edit-flight-payload.png)
+![The Edit flight Payload tab: flight-member and same-loadout/same-livery toggles, the assigned TGP laser code with a preset-code selector, an internal-fuel slider, the named-loadout dropdown, and the per-pylon station list](https://raw.githubusercontent.com/BradySox/RetLab/main/docs/wiki/img/edit-flight-payload.png)
 
 *The flight payload editor. The named-loadout dropdown (here an `IRON` profile) is where a `Retribution <mission type>` loadout gets picked up; tick **Use custom loadout** to set pylons by hand. Laser code and internal fuel are set on the same tab.*
 
-## Two ways to customize
+## Changing a loadout
 
-### 1. Name a loadout in the Mission Editor (per-install)
+### One flight
 
-The simplest path needs no code:
+In *Edit flight → Payload*, tick **Use custom loadout** and set each pylon by hand. The change
+applies to that flight only. The named-loadout dropdown also lists every stock DCS loadout for
+the aircraft.
 
-1. Open the DCS Mission Editor, place the aircraft, and build a loadout.
-2. Name the loadout `Retribution <mission type>`, where the mission type matches what
-   appears in Retribution's UI — for example `Retribution OCA/Aircraft`,
-   `Retribution Strike`, or `Retribution TARPS`.
-3. Save. Retribution looks up a loadout with that exact name when it generates a flight of
-   that type.
+### Loadouts saved in the Mission Editor are not read
 
-If you don't define a loadout for a given mission type, Retribution falls back to the
-included defaults — missing names are harmless, not errors. All stock DCS loadouts also
-remain selectable in the flight-editing interface, so you can always change a payload by
-hand.
+**RetLab:** upstream Retribution also reads `Saved Games/DCS/MissionEditor/UnitPayloads`, so a
+Mission Editor loadout named `Retribution <mission type>` replaces the shipped one. RetLab
+removed this on 2026-10-17. Such a loadout replaced the shipped fit for both sides in every
+campaign, and an old weapon on it stayed old in a modern campaign. Your files are not deleted;
+the Mission Editor still uses them.
 
-### 2. Customized payload files (shipped with the fork)
+### Shipped payload files
 
 The fork ships curated default payloads as Lua files under
 `resources/customized_payloads/`, one per aircraft type (e.g. `F-14B.lua`, `F-16C_50.lua`).
@@ -45,8 +42,10 @@ convention, with pylons listing weapons by **CLSID**:
 }
 ```
 
-This is how the fork bakes in role-appropriate loadouts that ship with the build rather
-than depending on each player's Mission Editor.
+A preset should carry the newest weapon the aircraft can mount. When **Restrict weapons by campaign
+date** is on, a weapon newer than the campaign date steps down to an older one in its family
+(an AIM-120C becomes an AIM-120B, then an AIM-7). A preset built with old weapons cannot step
+up, so a change to a shipped preset uses the newest store.
 
 ## The fork's TARPS payload (worked example)
 
@@ -70,7 +69,7 @@ the photo-recon task is available whichever Tomcat a squadron flies.
 
 ## Per-aircraft flight defaults (fuel & aircraft options)
 
-The named loadout covers the *pylons* — but the Payload tab's other knobs (**Internal Fuel**,
+The loadout covers the *pylons* — but the Payload tab's other knobs (**Internal Fuel**,
 Aircraft Condition, Wear & Tear, Spawn Type, and any other property-editor value) used to reset
 to engine defaults on every new flight. The tab now has a **"Save as default"** button (plus
 "Clear default") that remembers the current fuel + properties **per airframe**:
@@ -79,8 +78,8 @@ to engine defaults on every new flight. The tab now has a **"Save as default"** 
   80% fuel, set it once and save.
 - It applies to fresh **blue** flights only (never enemy AI, never an existing flight you're
   editing), fuel is clamped to the airframe's tank, and it covers blue AI flights of the type
-  too — it's "the default for this aircraft," exactly like the saved payloads.
-- Stored on disk next to your saved payloads (`Saved Games/Retribution/flight_defaults.json`);
+  too — it's "the default for this aircraft."
+- Stored on disk at `Saved Games/Retribution/flight_defaults.json`;
   no setting to enable — saving a default is the switch.
 
 ## CLSID currency — the gotcha that bites
