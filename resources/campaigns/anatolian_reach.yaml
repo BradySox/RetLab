@@ -160,6 +160,8 @@ carriers:
 
 squadrons:
   # ---------------------------------------------------------------- BLUE ----
+  # The faction's country is USA, so the Israeli fields pin country: Israel or
+  # each squadron draws at random from the US and Israeli presets.
   # Hatzerim (191 stands) - the deep-strike home. Farthest Israeli field from
   # Turkey at 326-484 nm, which is the point rather than a problem.
   81:
@@ -168,16 +170,19 @@ squadrons:
       aircraft:
         - F-15E Strike Eagle (Suite 4+)
       size: 12
+      country: Israel
     - primary: DEAD
       secondary: air-to-ground
       aircraft:
         - F-16CM Fighting Falcon (Block 50)
       size: 12
+      country: Israel
     - primary: Escort
       secondary: air-to-air
       aircraft:
         - F-15C Eagle
       size: 12
+      country: Israel
 
   # Ramat David (86 stands) - forward staging, 254 nm to the nearest Turkish
   # field and 62 nm off the Syrian corridor. Recovery field for deep packages.
@@ -187,16 +192,20 @@ squadrons:
       aircraft:
         - F-15C Eagle
       size: 12
+      country: Israel
     - primary: SEAD
       secondary: air-to-ground
       aircraft:
         - F-16CM Fighting Falcon (Block 50)
       size: 12
+      country: Israel
+    # An F-16, not a second F-15E: the IAF flew one F-15I squadron (69th).
     - primary: OCA/Runway
       secondary: air-to-ground
       aircraft:
-        - F-15E Strike Eagle (Suite 4+)
+        - F-16CM Fighting Falcon (Block 50)
       size: 8
+      country: Israel
 
   # Akrotiri (45 stands) - SUPPORT ONLY. Deliberately no strike and no fighters.
   # Akrotiri is the closest blue base to seven of the nine Turkish fields
