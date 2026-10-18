@@ -1,0 +1,1 @@
+* **[Campaign]** Anatolian Reach: Diyarbakir adds a Russian Tu-22M3 regiment and its MiG-31s wear the 174th Guards paint; Bassel Al-Assad and Aleppo fly the Syrian Arab Air Force (MiG-29A, Su-24M, Mi-24P in Syrian paint).

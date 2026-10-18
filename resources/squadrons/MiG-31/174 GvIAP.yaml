@@ -1,0 +1,12 @@
+---
+name: 174th Guards Fighter Aviation Regiment
+nickname: Boris Safonov
+country: Russia
+role: Interceptor
+aircraft: MiG-31 Foxhound
+livery: 174 GvIAP_Boris Safonov
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Intercept
+  - Fighter sweep

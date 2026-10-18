@@ -79,7 +79,11 @@ incursion and still chose Iraq 1991 as the enemy, because Turkey 2005 fields onl
 two jet types.
 
 Per-squadron `country:` pins put Turkish liveries and voices on the Turkish
-fields and Russian on the deep east and the Syrian gates.
+fields and Russian on the deep east. Since 2026-10-18 (DM call) the Syrian gates
+(Bassel Al-Assad, Aleppo) fly the Syrian Arab Air Force: MiG-29A module Fulcrums in
+"Syria AF" paint (the only Fulcrum DCS paints Syrian; Bassel's MiG-29S became one),
+the 819th's Su-24Ms and the 765th's Mi-24Ps. Diyarbakir adds a Tu-22M3 regiment for
+long-range strike and the carrier threat, and its MiG-31s are the 174th Guards.
 
 The Israeli fields pin `country: Israel` too: the blue faction's country is USA,
 so the preset loader only saw US presets and the Israeli squadrons flew US paint.
