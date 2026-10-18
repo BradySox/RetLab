@@ -116,8 +116,9 @@ function AI_A2A_DISPATCHER:New(detection)
     function obj:SetSquadronGrouping(name, n) end
     function obj:SetSquadronLanguage(name, lang) end
     function obj:EvaluateGCI(item)
+        -- Moose: one defender per attacker, less those already engaged.
         table.insert(self.gciCalls, item)
-        return "defenders-missing", "friendlies"
+        return item.Set:Count() - (item.engaged or 0), "friendlies"
     end
     function obj:EvaluateENGAGE(item)
         table.insert(self.engageCalls, item)
@@ -178,6 +179,7 @@ function InterceptTest.fakeItem(groupNames)
     end
     return {
         Set = {
+            Count = function() return #units end,
             ForEachUnit = function(_, fn)
                 for _, u in ipairs(units) do
                     fn(u)
@@ -419,13 +421,34 @@ def test_dispatcher_evaluation_skips_react_free_clusters() -> None:
     assert len(dispatcher.engageCalls) == 0
 
     strike = fake_item(harness.to_lua(["PKG Strike|USA|2|F-15E|"]))
-    assert dispatcher.EvaluateGCI(dispatcher, strike) == (
-        "defenders-missing",
-        "friendlies",
-    )
+    assert dispatcher.EvaluateGCI(dispatcher, strike) == (1, "friendlies")
     assert dispatcher.EvaluateENGAGE(dispatcher, strike) == "friendlies"
     assert len(dispatcher.gciCalls) == 1
     assert len(dispatcher.engageCalls) == 1
+
+
+def test_one_raid_draws_at_most_four_defenders() -> None:
+    """Test 62: Moose sends one defender per attacker and, with spent squadrons
+    hidden, reaches every base inside the 200 NM GCI radius. Red launched 32 jets
+    from 10 squadrons in 15 minutes. A raid now draws at most 4."""
+    harness = DcsPluginHarness()
+    _load(harness, ewr_names=["0041 | LION (EWR)"])
+    harness.advance_to(BUILD_DELAY_S + 1)
+    harness.assert_no_lua_errors()
+
+    test_globals = harness.lua.globals().InterceptTest
+    dispatcher = test_globals.dispatchers[1]
+    names = ["PKG Strike|USA|2|F-15E|"] * 2 + ["PKG Escort|USA|1|F-16C_50|"] * 10
+    raid = test_globals.fakeItem(harness.to_lua(names))
+
+    assert dispatcher.EvaluateGCI(dispatcher, raid) == (4, "friendlies")
+    raid.engaged = 3
+    assert dispatcher.EvaluateGCI(dispatcher, raid) == (1, "friendlies")
+    raid.engaged = 4
+    assert dispatcher.EvaluateGCI(dispatcher, raid)[0] <= 0
+
+    pair = test_globals.fakeItem(harness.to_lua(["PKG Strike|USA|2|F-15E|"] * 2))
+    assert dispatcher.EvaluateGCI(dispatcher, pair) == (2, "friendlies")
 
 
 def test_a_jet_shot_down_is_not_handed_back_to_the_pool() -> None:

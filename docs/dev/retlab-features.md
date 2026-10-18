@@ -180,9 +180,11 @@ The two are separated by giving each dispatcher a **border zone**:
   far edge of its reach would otherwise launch and turn around mid-transit. This is the non-obvious
   half — without it the feature silently does nothing for the farther fields.
 
-**A wide reach does not mass-launch.** Moose's GCI loop keeps the squadron with the shortest
-*intercept* distance among those inside `GciRadius`, and only reaches back to a farther one once the
-closer squadron's alert is spent — an echelon: the front field answers, the rear fields backfill.
+**A raid draws at most 4 defenders** (`MAX_DEFENDERS_PER_RAID`, 2026-10-18, test 62). Moose's GCI
+loop keeps the squadron with the shortest *intercept* distance among those inside `GciRadius`, and
+reaches back to a farther one once the closer squadron's alert is spent — an echelon: the front field
+answers, the rear fields backfill. Moose sizes the launch at one defender per attacker in the
+detected cluster, escorts included, so without the cap a wide reach does mass-launch (see below).
 
 Zones are built by `defense_zone_entries` (`interceptluadata.py`): one circle per non-neutral,
 non-`OffMapSpawn` control point, radius `qra_defense_depth_nm`; a CP anchoring an active front is
@@ -344,6 +346,14 @@ Four upstream fixes the fork's QRA had drifted behind, ported with the fork coup
   pick that takes a squadron's last jet still stops there; the next 30 s detection cycle
   asks again and reaches the other squadron. Tests for both:
   `tests/lua/test_intercept_filter.py`. Row **B228**.
+- **One raid draws at most 4 alert jets (2026-10-18, test 62).** Anatolian Reach: red
+  launched 32 alert jets from 10 of its 13 squadrons in 15 minutes. Moose's `EvaluateGCI`
+  asks for `attackers - engaged` defenders, a 30 km `DETECTION_AREAS` cluster counts a
+  package's escorts and SEAD as attackers, and the spent-squadron hiding above lets every
+  30 s cycle reach the next base inside the 200 NM `GciRadius`. The plugin's `EvaluateGCI`
+  wrap recounts against `min(attackers, MAX_DEFENDERS_PER_RAID)` (4, Brady's pick); the
+  reach stays 200 NM. A defender lost or sent home drops out of `engaged` and is replaced up
+  to the cap. Test: `tests/lua/test_intercept_filter.py`. Row **B251**.
 
 ---
 

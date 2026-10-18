@@ -49,6 +49,9 @@ local intercept_registry = {}
 local NM = 1852  -- metres per nautical mile
 local DETECTION_GROUPING_M = 30000  -- contact-clustering radius for DETECTION_AREAS
 local BUILD_DELAY = 5  -- seconds; let the mission's groups register before SET_GROUP
+-- Moose sends one defender per attacker and, with spent squadrons hidden, reaches
+-- every base inside GciRadius: one raid drew 32 red jets from 10 squadrons (test 62).
+local MAX_DEFENDERS_PER_RAID = 4
 
 -- QRA scramble spawn profile (RetLab tuning, 2026-06-21).
 --   Speed: Moose's air-spawn (SpawnAtAirbase, Takeoff.Air) sets position + altitude
@@ -362,7 +365,14 @@ local function build_dispatcher(coalition_name, records)
             if not qra_cluster_has_react(detected_item) then
                 return nil, nil
             end
-            return orig_evaluate_gci(self, detected_item)
+            local missing, friendlies = orig_evaluate_gci(self, detected_item)
+            if missing then
+                -- Moose's missing = attackers - engaged; recount against the cap.
+                local attackers = detected_item.Set:Count()
+                local engaged = attackers - missing
+                missing = math.min(attackers, MAX_DEFENDERS_PER_RAID) - engaged
+            end
+            return missing, friendlies
         end
         local orig_evaluate_engage = dispatcher.EvaluateENGAGE
         function dispatcher:EvaluateENGAGE(detected_item)
