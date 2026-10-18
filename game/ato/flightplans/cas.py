@@ -254,7 +254,7 @@ class Builder(IBuilder[CasFlightPlan, CasLayout]):
         ingress = builder.ingress(
             FlightWaypointType.INGRESS_CAS, ingress_point, location
         )
-        ingress.description = f"Ingress to provide CAS at {location}"
+        ingress.description = f"Ingress to provide CAS at {location.name}"
 
         return CasLayout(
             departure=builder.takeoff(self.flight.departure),
