@@ -181,6 +181,10 @@ The .miz sets both fields BLUE (warehouses airports 220 and 221).
   C-130J preset to Tel Nof's Transport slot. **Helicopters never fly from Israel:** their
   mission radius is 50 NM and the nearest red target is about 168 NM away. They are there
   by DM call (2026-10-18) for when a forward field falls and he moves them by hand.
+- Tel Nof also has the 192nd's E-2C (DM call 2026-10-18; the IAF retired its Hawkeyes in
+  2002), in a DCS User Files livery (folder `IAF - 192nd`). The tankers and the E-3A stay
+  US: the KC-707 and the Phalcon are not in DCS, and a KC-130 cannot refuel the boom-only
+  Israeli F-15s and F-16s.
 - Both fields are farther from Turkey than Ramat David, so they do not draw the planner
   away from the Israeli strike fields the way Akrotiri would.
 

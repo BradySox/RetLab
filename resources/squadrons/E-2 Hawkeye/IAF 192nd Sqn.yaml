@@ -1,0 +1,13 @@
+---
+name: 192nd Squadron
+nickname: Eagle Eye
+female_pilot_percentage: 6
+country: Israel
+role: AEW&C
+aircraft: E-2C Hawkeye
+bases:
+  shore: true
+# A user-files livery (IAF - 192nd); without it DCS shows the default paint.
+livery: IAF - 192nd
+mission_types:
+  - AEW&C

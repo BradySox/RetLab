@@ -223,6 +223,12 @@ squadrons:
         - UH-60A
       size: 4
       country: Israel
+    # The IAF flew E-2Cs (192nd Squadron) until 2002; a user-files livery.
+    - primary: AEW&C
+      aircraft:
+        - E-2C Hawkeye
+      size: 2
+      country: Israel
 
   # Ben Gurion (172 stands) - the airlift field. The IAF flew the C-130H here in
   # 2004; the C-130J-30 is Retribution's only Hercules.
