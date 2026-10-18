@@ -1102,6 +1102,8 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
         if destination is None:
             squadron.refund_orders()
             self.capture_aircraft(game, squadron.aircraft, squadron.owned_aircraft)
+            # The enemy was paid for them; they must not stay on our roster too.
+            squadron.owned_aircraft = 0
             return
 
         parking_type = ParkingType().from_squadron(squadron)
