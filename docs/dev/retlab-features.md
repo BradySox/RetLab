@@ -4597,11 +4597,31 @@ fuel + properties **per airframe**, so every new flight of that type starts pre-
   `propertyspinbox.py` / `propertycombobox.py`), so a seeded value shows immediately when the tab opens for
   a new flight — the whole point of the feature.
 
+### Heatblur condition baseline (2026-10-18)
+
+Heatblur's F-4E and A-6E carry **Aircraft Condition** (`Quality`) and **Aircraft Wear and Tear**
+(`Wear`), both player-only in DCS. The module default of 100 condition is "showroom/prototype grade"
+on Heatblur's scale (F-4E manual, Mission Editor chapter, pages 1022 to 1025); 90 is a standard
+service jet. `game/retlab/airframe_condition.py` `condition_defaults` gives an untouched player jet
+90, or 75 when the mission date is before 1980. Any airframe with both properties qualifies
+(today the F-4E, QF-4E and A-6E).
+
+- **Generator** — `FlightGroupConfigurator.setup_props` fills the baseline only into a key the member
+  left unset, and only for player members. A value from the payload tab or a saved default wins.
+- **Payload tab** — `PropertyEditor` passes the baseline to `PropertySpinBox` as the shown default, so
+  the box reads what will fly. Switching members no longer writes the shown value into the member
+  (signals are blocked in `set_flight_member`); before, that pinned a default onto a member nobody edited.
+- **Not built:** Heatblur's persistent airframe (`Aircraft Type On Spawn` = Persistent with a
+  `Persistent Aircraft Key`). Brady passed on it 2026-10-18: the save lives on each player's PC
+  and RetLab has no per-airframe identity.
+- Checklist row B249.
+
 ### Files & tests
 
 | Area | Path |
 |---|---|
 | Store | `game/retlab/flight_defaults.py` |
+| Heatblur condition baseline | `game/retlab/airframe_condition.py`, `tests/retlab/test_airframe_condition.py` |
 | Path | `game/persistency.py` (`flight_defaults_path`) |
 | Apply hook | `game/ato/flight.py` (`Flight.__init__`, after `initialize_fuel`) |
 | UI | `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py` |
