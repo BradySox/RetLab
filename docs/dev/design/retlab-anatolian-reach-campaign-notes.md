@@ -79,7 +79,28 @@ incursion and still chose Iraq 1991 as the enemy, because Turkey 2005 fields onl
 two jet types.
 
 Per-squadron `country:` pins put Turkish liveries and voices on the Turkish
-fields and Russian on the deep east and the Syrian gates.
+fields and Russian on the deep east. Since 2026-10-18 (DM call) the Syrian gates
+(Bassel Al-Assad, Aleppo) fly the Syrian Arab Air Force: MiG-29A module Fulcrums in
+"Syria AF" paint (the only Fulcrum DCS paints Syrian; Bassel's MiG-29S became one),
+the 819th's Su-24Ms and the 765th's Mi-24Ps. Diyarbakir adds a Tu-22M3 regiment for
+long-range strike and the carrier threat, and its MiG-31s are the 174th Guards.
+Sanliurfa's Su-25Ts are the 368th Assault Aviation Regiment. Turkey's E-3A is gone
+(Turkey had no AWACS until the E-7 in 2014); red's only AEW&C is the A-50.
+
+The SyAAF's 2004 bulk joins red: MiG-21bis (TARCAP) and MiG-25PD (BARCAP) and Su-17M4
+(BAI) at Bassel, MiG-23MLD at Aleppo, all from the shipped Syrian presets. Red's T-80UD
+(Ukrainian) became the T-80B; DCS has no T-80U.
+
+**Blue's faction is inline since 2026-10-18 (DM call):** Starfire's USA-Israel 2000
+(still shipped, still Desert Trident's) minus the B-1B, B-52H, F-117A, A-10A, AV-8B,
+F-14A, EA-6B, C-17A, CH-47D/F, MH-60L DAP and the KC-130 (probe and drogue only; every
+Israeli jet is a boom receiver). The US brings tankers, control and a carrier. Its
+ground units are Israeli only: no LAV-25, M1A2, M2A2, M6 or Avenger; the M60A3 stands in
+for the Magach. Red adds the Syrian army's T-55A, BMP-1, BRDM-2 and S-60 guns.
+
+Squadrons are named where a random pick went wrong: the carrier flies VF-103 (a pick
+could land on VF-101, the Tomcat training squadron), VFA-87 and VAW-125; Ramat David
+flies the 110th and 117th, Hatzerim the 101st.
 
 The Israeli fields pin `country: Israel` too: the blue faction's country is USA,
 so the preset loader only saw US presets and the Israeli squadrons flew US paint.

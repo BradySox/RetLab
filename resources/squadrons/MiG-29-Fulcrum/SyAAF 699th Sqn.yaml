@@ -1,0 +1,11 @@
+---
+name: SyAAF 699th Squadron
+country: Syria
+role: Fighter
+aircraft: MIG-29-FULCRUM
+livery: Syria AF
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
