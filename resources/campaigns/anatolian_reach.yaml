@@ -161,11 +161,12 @@ recommended_enemy_faction:
     - Hawk
     - SA-3/S-125
     - Rapier
-    # Russian deployment - this is what makes a 300 nm penetration contested
+    # Russian deployment. One S-300 site (the .miz keeps a single long-range
+    # marker, at Incirlik) so blue holds the advantage (DM call, 2026-10-18). The
+    # SA-20 needs the High Digit SAMs mod, so the SA-10 is the one that spawns.
     - SA-6
     - SA-11
     - SA-10/S-300PS
-    - SA-20/S-300PMU-1
   frontline_units:
     - Leopard 2A4 Trs
     - M60A3 "Patton"
