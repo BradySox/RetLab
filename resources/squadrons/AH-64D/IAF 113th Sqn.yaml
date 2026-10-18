@@ -5,7 +5,7 @@ female_pilot_percentage: 5
 country: Israel
 role: Attack Helicopter
 aircraft: AH-64D Apache Longbow
-livery: standard
+livery: IAF 113th Hornet Squadron
 mission_types:
   - CAS
   - BAI

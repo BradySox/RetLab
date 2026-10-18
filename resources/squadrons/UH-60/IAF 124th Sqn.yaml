@@ -1,0 +1,12 @@
+---
+name: 124th Squadron
+nickname: Rolling Sword
+female_pilot_percentage: 6
+country: Israel
+role: Utility Helicopter
+aircraft: UH-60L
+livery: Israeli Air Force
+mission_types:
+  - Transport
+  - Air Assault
+  - CSAR
