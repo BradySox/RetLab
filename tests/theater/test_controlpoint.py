@@ -461,3 +461,20 @@ def test_a_nearer_enemy_far_out_in_open_country_is_not_reported() -> None:
     enemy.captured.is_blue = False
 
     assert ground_objects_beside_an_enemy_base([owner, enemy]) == []
+
+
+def test_aircraft_with_nowhere_to_retreat_leave_the_roster() -> None:
+    """Test 60: Gazipasa's UH-60s had no friendly field in range when red took the
+    base. Red was paid for them, but blue's squadron still owned both."""
+    cp = cast(Any, ControlPoint.__new__(Airfield))
+    cp.aircraft_retreat_destination = MagicMock(return_value=None)
+    cp.capture_aircraft = MagicMock()
+    squadron = MagicMock()
+    squadron.owned_aircraft = 2
+    game = MagicMock()
+
+    cp._retreat_squadron(game, squadron)
+
+    cp.capture_aircraft.assert_called_once_with(game, squadron.aircraft, 2)
+    squadron.refund_orders.assert_called_once_with()
+    assert squadron.owned_aircraft == 0
