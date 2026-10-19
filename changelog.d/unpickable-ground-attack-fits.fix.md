@@ -1,0 +1,1 @@
+* **[Loadouts]** 144 ground-attack fits the planner could never pick are gone from 68 airframes' Loadout lists. Among them are the MiG-25PD's STRIKE, CAS, ANTISHIP and SEAD fits, which held only air-to-air missiles.

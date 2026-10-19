@@ -173,55 +173,6 @@ local unitPayloads = {
 				[1] = 19,
 			},
 		},
-		[5] = {
-			["displayName"] = "SEAD",
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9L}",
-					["num"] = 2,
-				},
-				[2] = {
-					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-					["num"] = 3,
-				},
-				[3] = {
-					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-					["num"] = 5,
-				},
-				[5] = {
-					["CLSID"] = "{7A44FF09-527C-4B7E-B42B-3F111CFE50FB}",
-					["num"] = 6,
-				},
-				[6] = {
-					["CLSID"] = "{6CEB49FC-DED8-4DED-B053-E1F033FF72D3}",
-					["num"] = 7,
-				},
-				[7] = {
-					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-					["num"] = 8,
-				},
-				[8] = {
-					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
-					["num"] = 9,
-				},
-				[9] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9L}",
-					["num"] = 10,
-				},
-				[10] = {
-					["CLSID"] = "{0519A264-0AB6-11d6-9193-00A0249B6F00}",
-					["num"] = 11,
-				},
-			},
-			["tasks"] = {
-				[1] = 19,
-			},
-		},
 	},
 	["tasks"] = {
 	},

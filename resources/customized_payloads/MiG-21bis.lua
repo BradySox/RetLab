@@ -34,38 +34,6 @@ local unitPayloads = {
 			},
 		},
 		[2] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{ASO-2}",
-					["num"] = 6,
-				},
-				[2] = {
-					["CLSID"] = "{S-24B}",
-					["num"] = 5,
-				},
-				[3] = {
-					["CLSID"] = "{Kh-66_Grom}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{Kh-66_Grom}",
-					["num"] = 2,
-				},
-				[5] = {
-					["CLSID"] = "{S-24B}",
-					["num"] = 1,
-				},
-				[6] = {
-					["CLSID"] = "{PTB_490C_MIG21}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 11,
-			},
-		},
-		[3] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -97,39 +65,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[4] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{ASO-2}",
-					["num"] = 6,
-				},
-				[2] = {
-					["CLSID"] = "{S-24B}",
-					["num"] = 5,
-				},
-				[3] = {
-					["CLSID"] = "{Kh-66_Grom}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{Kh-66_Grom}",
-					["num"] = 2,
-				},
-				[5] = {
-					["CLSID"] = "{S-24B}",
-					["num"] = 1,
-				},
-				[6] = {
-					["CLSID"] = "{PTB_490C_MIG21}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 11,
-			},
-		},
-		[5] = {
+		[3] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -159,39 +95,6 @@ local unitPayloads = {
 			},
 			["tasks"] = {
 				[1] = 32,
-			},
-		},
-		[6] = {
-			["displayName"] = "DEAD",
-			["name"] = "DEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{ASO-2}",
-					["num"] = 6,
-				},
-				[2] = {
-					["CLSID"] = "{UB-16_S5M}",
-					["num"] = 5,
-				},
-				[3] = {
-					["CLSID"] = "{UB-16_S5M}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{UB-16_S5M}",
-					["num"] = 2,
-				},
-				[5] = {
-					["CLSID"] = "{UB-16_S5M}",
-					["num"] = 1,
-				},
-				[6] = {
-					["CLSID"] = "{PTB_490C_MIG21}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 11,
 			},
 		},
 	},

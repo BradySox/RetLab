@@ -30,18 +30,6 @@ local unitPayloads = {
 			},
 		},
 		[2] = {
-			["name"] = "CAS",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{AD5E5863-08FC-4283-B92C-162E2B2BD3FF}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 30,
-			},
-		},
-		[3] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -61,27 +49,7 @@ local unitPayloads = {
 				[1] = 30,
 			},
 		},
-		[4] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}",
-					["num"] = 5,
-				},
-				[2] = {
-					["CLSID"] = "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}",
-					["num"] = 1,
-				},
-				[3] = {
-					["CLSID"] = "{12429ECF-03F0-4DF6-BCBD-5D38B6343DE1}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 30,
-			},
-		},
-		[5] = {
+		[3] = {
 			["name"] = "ANTISHIP",
 			["pylons"] = {
 				[1] = {
@@ -101,7 +69,7 @@ local unitPayloads = {
 				[1] = 30,
 			},
 		},
-		[6] = {
+		[4] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {

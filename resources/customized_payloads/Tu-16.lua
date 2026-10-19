@@ -38,23 +38,6 @@ local unitPayloads = {
 			},
 		},
 		[3] = {
-			["displayName"] = "SEAD",
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{TU_16_KSR5ARM}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{TU_16_KSR5ARM}",
-					["num"] = 4,
-				},
-			},
-			["tasks"] = {
-				[1] = 15,
-			},
-		},
-		[4] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {

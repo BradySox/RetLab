@@ -184,58 +184,6 @@ local unitPayloads = {
 			},
 		},
 		[5] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{44EE8698-89F9-48EE-AF36-5FD31896A82D}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{CBC29BFE-3D24-4C64-B81D-941239D12249}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{752AF1D2-EBCC-4bd7-A1E7-2357F5601C70}",
-					["num"] = 3,
-				},
-				[4] = {
-					["CLSID"] = "{752AF1D2-EBCC-4bd7-A1E7-2357F5601C70}",
-					["num"] = 4,
-				},
-				[5] = {
-					["CLSID"] = "{601C99F7-9AF3-4ed7-A565-F8B8EC0D7AAC}",
-					["num"] = 5,
-				},
-				[6] = {
-					["CLSID"] = "{0519A264-0AB6-11d6-9193-00A0249B6F00}",
-					["num"] = 6,
-				},
-				[7] = {
-					["CLSID"] = "{601C99F7-9AF3-4ed7-A565-F8B8EC0D7AAC}",
-					["num"] = 7,
-				},
-				[8] = {
-					["CLSID"] = "{752AF1D2-EBCC-4bd7-A1E7-2357F5601C70}",
-					["num"] = 8,
-				},
-				[9] = {
-					["CLSID"] = "{752AF1D2-EBCC-4bd7-A1E7-2357F5601C70}",
-					["num"] = 9,
-				},
-				[10] = {
-					["CLSID"] = "{CBC29BFE-3D24-4C64-B81D-941239D12249}",
-					["num"] = 10,
-				},
-				[11] = {
-					["CLSID"] = "{44EE8698-89F9-48EE-AF36-5FD31896A82C}",
-					["num"] = 11,
-				},
-			},
-			["tasks"] = {
-				[1] = 29,
-			},
-		},
-		[6] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {

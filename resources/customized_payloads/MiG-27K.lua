@@ -94,34 +94,6 @@ local unitPayloads = {
 			},
 		},
 		[4] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{D4A8D9B9-5C45-42e7-BBD2-0E54F8308432}",
-					["num"] = 2,
-				},
-				[2] = {
-					["CLSID"] = "{APU-60-1_R_60M}",
-					["num"] = 3,
-				},
-				[3] = {
-					["CLSID"] = "{A5BAEAB7-6FAF-4236-AF72-0FD900F493F9}",
-					["num"] = 5,
-				},
-				[4] = {
-					["CLSID"] = "{APU-60-1_R_60M}",
-					["num"] = 7,
-				},
-				[5] = {
-					["CLSID"] = "{D4A8D9B9-5C45-42e7-BBD2-0E54F8308432}",
-					["num"] = 8,
-				},
-			},
-			["tasks"] = {
-				[1] = 29,
-			},
-		},
-		[5] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -144,7 +116,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[6] = {
+		[5] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {

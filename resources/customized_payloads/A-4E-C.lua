@@ -129,34 +129,6 @@ local unitPayloads = {
 			},
 		},
 		[5] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
-					["num"] = 5,
-				},
-				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
-					["num"] = 4,
-				},
-				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
-					["num"] = 2,
-				},
-				[4] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
-					["num"] = 1,
-				},
-				[5] = {
-					["CLSID"] = "{DFT-150gal}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 31,
-			},
-		},
-		[6] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {

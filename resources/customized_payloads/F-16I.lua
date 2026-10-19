@@ -225,61 +225,6 @@ local unitPayloads = {
 			},
 		},
 		[5] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{40EF17B7-F508-45de-8566-6FFECC0C1AB8}",
-					["num"] = 9,
-				},
-				[2] = {
-					["CLSID"] = "{5CE2FF2A-645A-4197-B48D-8720AC69394F}",
-					["num"] = 8,
-				},
-				[3] = {
-					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
-					["num"] = 7,
-				},
-				[4] = {
-					["CLSID"] = "{600gal+CFT Fuel Right 1500lb}",
-					["num"] = 6,
-				},
-				[5] = {
-					["CLSID"] = "{A111396E-D3E8-4b9c-8AC9-2432489304D5}",
-					["num"] = 11,
-				},
-				[6] = {
-					["CLSID"] = "<CLEAN>",
-					["num"] = 5,
-				},
-				[7] = {
-					["CLSID"] = "{600gal+CFT Fuel Left 1500lb}",
-					["num"] = 4,
-				},
-				[8] = {
-					["CLSID"] = "{69DC8AE7-8F77-427B-B8AA-B19D3F478B66}",
-					["num"] = 3,
-				},
-				[9] = {
-					["CLSID"] = "{5CE2FF2A-645A-4197-B48D-8720AC69394F}",
-					["num"] = 2,
-				},
-				[10] = {
-					["CLSID"] = "{40EF17B7-F508-45de-8566-6FFECC0C1AB8}",
-					["num"] = 1,
-				},
-				[11] = {
-					["CLSID"] = "{IDF Mods Project F-16I CFT}",
-					["num"] = 16,
-				},
-				[12] = {
-					["CLSID"] = "ALQ_184_Long",
-					["num"] = 13,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[6] = {
 			["name"] = "Retribution SEAD Escort",
 			["pylons"] = {
 				[1] = {
@@ -339,7 +284,7 @@ local unitPayloads = {
 				[1] = 29,
 			},
 		},
-		[7] = {
+		[6] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -390,7 +335,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[8] = {
+		[7] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {
@@ -445,7 +390,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[9] = {
+		[8] = {
 			["displayName"] = "Retribution DEAD",
 			["name"] = "Retribution DEAD",
 			["pylons"] = {

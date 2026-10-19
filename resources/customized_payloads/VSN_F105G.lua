@@ -118,39 +118,6 @@ local unitPayloads = {
 			},
 		},
         [5] = {
-			["displayName"] = "SEAD",
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{AGM_45A}",
-					["num"] = 5,
-				},
-				[2] = {
-					["CLSID"] = "{VSN_F105G_Center_PTB}",
-					["num"] = 6,
-				},
-				[3] = {
-					["CLSID"] = "{AGM_45A}",
-					["num"] = 8,
-				},
-				[4] = {
-					["CLSID"] = "{AGM_45A}",
-					["num"] = 7,
-				},
-				[5] = {
-					["CLSID"] = "{AGM_45A}",
-					["num"] = 4,
-				},
-				[6] = {
-					["CLSID"] = "{0519A264-0AB6-11d6-9193-00A0249B6F00}",
-					["num"] = 9,
-				},
-			},
-			["tasks"] = {
-				[1] = 19,
-			},
-		},
-        [6] = {
 			["displayName"] = "Retribution SEAD Escort",
 			["name"] = "Retribution SEAD Escort",
 			["pylons"] = {

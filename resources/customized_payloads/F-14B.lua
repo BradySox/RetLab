@@ -276,57 +276,6 @@ local unitPayloads = {
 			},
 		},
 		[6] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
-					["num"] = 10,
-				},
-				[2] = {
-					["CLSID"] = "{F14-LANTIRN-TP}",
-					["num"] = 9,
-				},
-				[3] = {
-					["CLSID"] = "{F14-300gal}",
-					["num"] = 8,
-				},
-				[4] = {
-					["CLSID"] = "{BRU3242_ADM141}",
-					["num"] = 7,
-				},
-				[5] = {
-					["CLSID"] = "{BRU-32 GBU-24}",
-					["num"] = 6,
-				},
-				[6] = {
-					["CLSID"] = "{BRU3242_ADM141}",
-					["num"] = 5,
-				},
-				[7] = {
-					["CLSID"] = "{BRU-32 GBU-24}",
-					["num"] = 4,
-				},
-				[8] = {
-					["CLSID"] = "{F14-300gal}",
-					["num"] = 3,
-				},
-				[9] = {
-					["CLSID"] = "{SHOULDER AIM_54C_Mk60 L}",
-					["num"] = 2,
-				},
-				[10] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 10,
-				[2] = 11,
-				[3] = 18,
-				[4] = 19,
-			},
-		},
-		[7] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {
@@ -390,7 +339,7 @@ local unitPayloads = {
 				[4] = 33,
 			},
 		},
-		[8] = {
+		[7] = {
 			["displayName"] = "Retribution TARPS",
 			["name"] = "Retribution TARPS",
 			["pylons"] = {

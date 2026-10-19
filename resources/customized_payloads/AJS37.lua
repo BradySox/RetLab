@@ -139,34 +139,6 @@ local unitPayloads = {
 			},
 		},
 		[5] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{BK90MJ1}",
-					["num"] = 2,
-				},
-				[2] = {
-					["CLSID"] = "{BK90MJ1}",
-					["num"] = 6,
-				},
-				[3] = {
-					["CLSID"] = "{VIGGEN_X-TANK}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{Robot74}",
-					["num"] = 5,
-				},
-				[5] = {
-					["CLSID"] = "{Robot74}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 32,
-			},
-		},
-		[6] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {
@@ -203,7 +175,7 @@ local unitPayloads = {
 				[1] = 34,
 			},
 		},
-		[7] = {
+		[6] = {
 			["displayName"] = "Retribution OCA/Aircraft",
 			["name"] = "Retribution OCA/Aircraft",
 			["pylons"] = {

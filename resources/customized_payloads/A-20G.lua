@@ -49,18 +49,6 @@ local unitPayloads = {
 				[1] = 31,
 			},
 		},
-		[5] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{4xAN-M64_on_InvCountedAttachmentPoints}",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 31,
-			},
-		},
 	},
 	["tasks"] = {
 		[1] = 32,

@@ -4,54 +4,6 @@ local unitPayloads = {
 	["name"] = "F-14A",
 	["payloads"] = {
 		[1] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{F14-LANTIRN-TP}",
-					["num"] = 9,
-				},
-				[2] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
-					["num"] = 10,
-				},
-				[3] = {
-					["CLSID"] = "{LAU-138 wtip - AIM-9M}",
-					["num"] = 1,
-				},
-				[4] = {
-					["CLSID"] = "{PHXBRU3242_2*LAU10 LS}",
-					["num"] = 2,
-				},
-				[5] = {
-					["CLSID"] = "{BRU3242_ADM141}",
-					["num"] = 7,
-				},
-				[6] = {
-					["CLSID"] = "{BRU-32 GBU-24}",
-					["num"] = 4,
-				},
-				[7] = {
-					["CLSID"] = "{BRU-32 GBU-24}",
-					["num"] = 6,
-				},
-				[8] = {
-					["CLSID"] = "{BRU3242_ADM141}",
-					["num"] = 5,
-				},
-				[9] = {
-					["CLSID"] = "{F14-300gal}",
-					["num"] = 3,
-				},
-				[10] = {
-					["CLSID"] = "{F14-300gal}",
-					["num"] = 8,
-				},
-			},
-			["tasks"] = {
-				[1] = 10,
-			},
-		},
-		[2] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {
@@ -111,7 +63,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[3] = {
+		[2] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -171,7 +123,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[4] = {
+		[3] = {
 			["name"] = "Retribution DEAD",
 			["pylons"] = {
 				[1] = {
@@ -215,7 +167,7 @@ local unitPayloads = {
 				[1] = 31,
 			},
 		},
-		[5] = {
+		[4] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -259,7 +211,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[6] = {
+		[5] = {
 			["name"] = "BAI",
 			["pylons"] = {
 				[1] = {
@@ -313,7 +265,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[7] = {
+		[6] = {
 			["displayName"] = "Retribution SEAD",
 			["name"] = "Retribution SEAD",
 			["pylons"] = {
@@ -362,7 +314,7 @@ local unitPayloads = {
 				[1] = 31,
 			},
 		},
-		[8] = {
+		[7] = {
 			["displayName"] = "Retribution OCA/Runway",
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {
@@ -426,7 +378,7 @@ local unitPayloads = {
 				[4] = 33,
 			},
 		},
-		[9] = {
+		[8] = {
 			["displayName"] = "Retribution TARPS",
 			["name"] = "Retribution TARPS",
 			["pylons"] = {
