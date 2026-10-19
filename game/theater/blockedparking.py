@@ -4,7 +4,8 @@ An AI pilot on these stands ejects on the ramp the moment the jet starts to taxi
 F-15Cs on Hatzerim 131-134 in the 2026-10-17 Syria test, with nothing else within 150 m,
 one on Hatzerim 116 in test 60, and 158 in the 53-stand F-15C survey (test 61), which
 confirmed 116 and 131-134 and found no others. Diyarbakir 116 and 117, its only two
-24 x 15 m stands, lost both Su-27 pilots on the 2026-10-18 Anatolian Reach ramp.
+24 x 15 m stands, lost both Su-27 pilots on the 2026-10-18 Anatolian Reach ramp. A survey
+of all 496 fighter stands at the nine Turkish fields (test 63) failed those two and 79.
 pydcs lists the stands as ordinary 21 x 15 m slots, so they are held here by name.
 """
 
@@ -17,7 +18,7 @@ from dcs.terrain.terrain import ParkingSlot
 #: Stand names (``ParkingSlot.slot_name``) per (terrain name, airfield name).
 BLOCKED_STANDS: dict[tuple[str, str], frozenset[str]] = {
     ("Syria", "Hatzerim"): frozenset({"116", "131", "132", "133", "134", "158"}),
-    ("Syria", "Diyarbakir"): frozenset({"116", "117"}),
+    ("Syria", "Diyarbakir"): frozenset({"79", "116", "117"}),
 }
 
 #: A non-None ``unit_id`` is how pydcs marks a slot taken.
