@@ -2126,6 +2126,9 @@ that code.
   moving. They are the field's only two 24 x 15 m stands, side by side in front of a hangar.
   Both join the blocked list. A survey of every fighter stand at the nine Turkish fields is
   `Missions\RetLab probes\turkey_stand_survey.miz` (row B253).
+- **The Turkish stand survey (test 63, 2026-10-19).** One AI jet on each of the 496 fighter
+  stands at the nine Turkish fields: Diyarbakir 79, 116 and 117 ejected 17-19 m into their
+  taxi, every other stand launched. Stand 79 joins the blocked list.
 
 ### Helicopters
 
