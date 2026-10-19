@@ -2,38 +2,6 @@ local unitPayloads = {
 	["name"] = "MiG-29G",
 	["payloads"] = {
 		[1] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{682A481F-0CB5-4693-A382-D00DD4A156D7}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 3,
-				},
-				[4] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 5,
-				},
-				[5] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 6,
-				},
-				[6] = {
-					["CLSID"] = "{682A481F-0CB5-4693-A382-D00DD4A156D7}",
-					["num"] = 7,
-				},
-			},
-			["tasks"] = {
-				[1] = 10,
-			},
-		},
-		[2] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -65,7 +33,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[3] = {
+		[2] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {
@@ -101,39 +69,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[4] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{682A481F-0CB5-4693-A382-D00DD4A156D7}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 3,
-				},
-				[4] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 5,
-				},
-				[5] = {
-					["CLSID"] = "{3858707D-F5D5-4bbb-BDD8-ABB0530EBC7C}",
-					["num"] = 6,
-				},
-				[6] = {
-					["CLSID"] = "{682A481F-0CB5-4693-A382-D00DD4A156D7}",
-					["num"] = 7,
-				},
-			},
-			["tasks"] = {
-				[1] = 10,
-			},
-		},
-		[5] = {
+		[3] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -169,7 +105,7 @@ local unitPayloads = {
 				[1] = 10,
 			},
 		},
-		[6] = {
+		[4] = {
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {
 				[1] = {

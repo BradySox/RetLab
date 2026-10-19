@@ -133,33 +133,6 @@ local unitPayloads = {
 			},
 		},
 		[8] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{P47_5_HVARS_ON_RIGHT_WING_RAILS}",
-					["num"] = 5,
-				},
-				[2] = {
-					["CLSID"] = "{P47_5_HVARS_ON_LEFT_WING_RAILS}",
-					["num"] = 4,
-				},
-				[3] = {
-					["CLSID"] = "{AN-M64}",
-					["num"] = 1,
-				},
-				[4] = {
-					["CLSID"] = "{AN-M64}",
-					["num"] = 3,
-				},
-				[5] = {
-					["CLSID"] = "{AN-M64}",
-					["num"] = 2,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[9] = {
 			["displayName"] = "Retribution SEAD Escort",
 			["name"] = "Retribution SEAD Escort",
 			["pylons"] = {
@@ -188,7 +161,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[10] = {
+		[9] = {
 			["displayName"] = "Retribution CAS",
 			["name"] = "Retribution CAS",
 			["pylons"] = {
@@ -217,7 +190,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[11] = {
+		[10] = {
 			["displayName"] = "Retribution TARCAP",
 			["name"] = "Retribution TARCAP",
 			["pylons"] = {
@@ -226,7 +199,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[12] = {
+		[11] = {
 			["displayName"] = "Retribution OCA/Aircraft",
 			["name"] = "Retribution OCA/Aircraft",
 			["pylons"] = {
@@ -255,7 +228,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[13] = {
+		[12] = {
 			["displayName"] = "Retribution BAI",
 			["name"] = "Retribution BAI",
 			["pylons"] = {

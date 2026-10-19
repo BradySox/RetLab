@@ -54,58 +54,6 @@ local unitPayloads = {
 			},
 		},
 		[2] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{F4B_LAU105_AIM9J_2_MER_MK20_3}",
-					["num"] = 9,
-				},
-				[2] = {
-					["CLSID"] = "{F4B_LAU105_AIM9J_2_MER_MK20_3}",
-					["num"] = 3,
-				},
-				[3] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 5,
-				},
-				[4] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 7,
-				},
-				[5] = {
-					["CLSID"] = "{BRU33_2*LAU10}",
-					["num"] = 2,
-				},
-				[6] = {
-					["CLSID"] = "{BRU33_2*LAU10}",
-					["num"] = 10,
-				},
-				[7] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 4,
-				},
-				[8] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 8,
-				},
-				[9] = {
-					["CLSID"] = "VSN_F4EC_PTB",
-					["num"] = 6,
-				},
-				[10] = {
-					["CLSID"] = "{B83CB620-5BBE-4BEA-910C-EB605A327EF9}",
-					["num"] = 11,
-				},
-				[11] = {
-					["CLSID"] = "{B83CB620-5BBE-4BEA-910C-EB605A327EF9}",
-					["num"] = 12,
-				},
-			},
-			["tasks"] = {
-				[1] = 11,
-			},
-		},
-		[3] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -159,7 +107,7 @@ local unitPayloads = {
 				[3] = 11,
 			},
 		},
-		[4] = {
+		[3] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -211,59 +159,7 @@ local unitPayloads = {
 				[1] = 11,
 			},
 		},
-		[5] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{F4B_LAU105_AIM9J_2_BRU42A_MK82_3}",
-					["num"] = 9,
-				},
-				[2] = {
-					["CLSID"] = "{F4B_LAU105_AIM9J_2_BRU42A_MK82_3}",
-					["num"] = 3,
-				},
-				[3] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 5,
-				},
-				[4] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 7,
-				},
-				[5] = {
-					["CLSID"] = "{BRU33_2*LAU10}",
-					["num"] = 2,
-				},
-				[6] = {
-					["CLSID"] = "{BRU33_2*LAU10}",
-					["num"] = 10,
-				},
-				[7] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 4,
-				},
-				[8] = {
-					["CLSID"] = "{AIM-7F}",
-					["num"] = 8,
-				},
-				[9] = {
-					["CLSID"] = "VSN_F4EC_PTB",
-					["num"] = 6,
-				},
-				[10] = {
-					["CLSID"] = "{F4B_BRU42A_MK82_3_LAU105_AIM9J_2}",
-					["num"] = 11,
-				},
-				[11] = {
-					["CLSID"] = "{F4B_BRU42A_MK82_3_LAU105_AIM9J_2}",
-					["num"] = 12,
-				},
-			},
-			["tasks"] = {
-				[1] = 11,
-			},
-		},
-		[6] = {
+		[4] = {
 			["displayName"] = "DEAD",
 			["name"] = "DEAD",
 			["pylons"] = {

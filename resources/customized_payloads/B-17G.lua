@@ -14,18 +14,6 @@ local unitPayloads = {
 			},
 		},
 		[2] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{12xM64}",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 32,
-			},
-		},
-		[3] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -37,31 +25,7 @@ local unitPayloads = {
 				[1] = 32,
 			},
 		},
-		[4] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{12xM64}",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 32,
-			},
-		},
-		[5] = {
-			["name"] = "CAS",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{12xM64}",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 32,
-			},
-		},
-		[6] = {
+		[3] = {
 			["name"] = "Retribution OCA/Runway",
 			["pylons"] = {
 				[1] = {

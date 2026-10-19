@@ -32,37 +32,7 @@ local unitPayloads = {
 			},
 		},
 		[3] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "FAB_50",
-					["num"] = 2,
-				},
-				[2] = {
-					["CLSID"] = "FAB_50",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[4] = {
 			["name"] = "STRIKE",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "FAB_100M",
-					["num"] = 2,
-				},
-				[2] = {
-					["CLSID"] = "FAB_100M",
-					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[5] = {
-			["name"] = "ANTISHIP",
 			["pylons"] = {
 				[1] = {
 					["CLSID"] = "FAB_100M",

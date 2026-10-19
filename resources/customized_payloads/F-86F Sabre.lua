@@ -2,29 +2,6 @@ local unitPayloads = {
 	["name"] = "F-86F Sabre",
 	["payloads"] = {
 		[1] = {
-			["name"] = "RUNWAY_ATTACK",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{PTB_200_F86F35}",
-					["num"] = 10,
-				},
-				[2] = {
-					["CLSID"] = "{PTB_200_F86F35}",
-					["num"] = 1,
-				},
-				[3] = {
-					["CLSID"] = "{00F5DAC4-0466-4122-998F-B1A298E34113}",
-					["num"] = 7,
-				},
-				[4] = {
-					["CLSID"] = "{00F5DAC4-0466-4122-998F-B1A298E34113}",
-					["num"] = 4,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[2] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {
@@ -63,7 +40,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[3] = {
+		[2] = {
 			["name"] = "CAP",
 			["pylons"] = {
 				[1] = {
@@ -86,30 +63,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[4] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{00F5DAC4-0466-4122-998F-B1A298E34113}",
-					["num"] = 7,
-				},
-				[2] = {
-					["CLSID"] = "{00F5DAC4-0466-4122-998F-B1A298E34113}",
-					["num"] = 4,
-				},
-				[3] = {
-					["CLSID"] = "{PTB_200_F86F35}",
-					["num"] = 1,
-				},
-				[4] = {
-					["CLSID"] = "{PTB_200_F86F35}",
-					["num"] = 10,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[5] = {
+		[3] = {
 			["name"] = "BAI",
 			["pylons"] = {
 				[1] = {
@@ -140,7 +94,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[6] = {
+		[4] = {
 			["name"] = "OCA",
 			["pylons"] = {
 				[1] = {
@@ -171,7 +125,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[7] = {
+		[5] = {
 			["name"] = "STRIKE",
 			["pylons"] = {
 				[1] = {
@@ -194,46 +148,7 @@ local unitPayloads = {
 			["tasks"] = {
 			},
 		},
-		[8] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 10,
-				},
-				[2] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 1,
-				},
-				[3] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 4,
-				},
-				[4] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 3,
-				},
-				[5] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 7,
-				},
-				[6] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 8,
-				},
-				[7] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 2,
-				},
-				[8] = {
-					["CLSID"] = "{HVARx2}",
-					["num"] = 9,
-				},
-			},
-			["tasks"] = {
-			},
-		},
-		[9] = {
+		[6] = {
 			["name"] = "Retribution Intercept",
 			["pylons"] = {
 				[1] = {

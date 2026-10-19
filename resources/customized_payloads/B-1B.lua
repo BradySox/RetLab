@@ -163,26 +163,6 @@ local unitPayloads = {
 			},
 		},
 		[8] = {
-			["name"] = "SEAD",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 3,
-				},
-			},
-			["tasks"] = {
-				[1] = 33,
-			},
-		},
-		[9] = {
 			["name"] = "CAS",
 			["pylons"] = {
 				[1] = {
@@ -196,26 +176,6 @@ local unitPayloads = {
 				[3] = {
 					["CLSID"] = "CBU97*10",
 					["num"] = 1,
-				},
-			},
-			["tasks"] = {
-				[1] = 33,
-			},
-		},
-		[10] = {
-			["name"] = "ANTISHIP",
-			["pylons"] = {
-				[1] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 1,
-				},
-				[2] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 2,
-				},
-				[3] = {
-					["CLSID"] = "{AABA1A14-78A1-4E85-94DD-463CF75BD9E4}",
-					["num"] = 3,
 				},
 			},
 			["tasks"] = {
