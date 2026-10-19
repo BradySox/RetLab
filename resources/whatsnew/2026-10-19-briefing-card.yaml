@@ -1,0 +1,12 @@
+date: 2026-10-19
+title: A briefing picture for each mission
+change: >-
+  The picture on the DCS briefing screen is now drawn for each mission. It
+  shows the campaign, turn, date and start time, the weather, and your
+  flights with callsign, aircraft, task, target and departure time. The
+  briefing text now starts each flight line with its callsign, labels the
+  target, lists ally flights in departure order, and prints AEW&C correctly.
+  Your own briefing.png still replaces the picture.
+watch: >-
+  The briefing screen shows this mission's card, and the text has no
+  "&amp;".

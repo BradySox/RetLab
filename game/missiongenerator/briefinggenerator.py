@@ -4,14 +4,18 @@ Briefing generation logic
 
 from __future__ import annotations
 
+import logging
+import tempfile
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Dict, List, TYPE_CHECKING
 
 from dcs.mission import Mission
-from jinja2 import Environment, FileSystemLoader, select_autoescape
+from jinja2 import Environment, FileSystemLoader
 
 from game.ato.flightwaypoint import FlightWaypoint
-from game.retlab.briefing_image import briefing_image_path
+from game.retlab.briefing_card import build_briefing_card, render_briefing_card
+from game.retlab.briefing_image import briefing_image_path, custom_briefing_image
 from game.retlab.cruise_raids import (
     CruiseRaid,
     LacmShip,
@@ -176,11 +180,9 @@ class BriefingGenerator(MissionInfoGenerator):
         self.cruise_missile_raids: List[CruiseRaid] = []
         env = Environment(
             loader=FileSystemLoader("resources/briefing/templates"),
-            autoescape=select_autoescape(
-                disabled_extensions=("",),
-                default_for_string=True,
-                default=True,
-            ),
+            # DCS shows the briefing as plain text: HTML escaping printed
+            # "AEW&C" as "AEW&amp;C".
+            autoescape=False,
             trim_blocks=True,
             lstrip_blocks=True,
         )
@@ -195,7 +197,21 @@ class BriefingGenerator(MissionInfoGenerator):
         self.generate_allied_flights_by_departure()
         self.owned_airbases = self._collect_owned_airbases()
         self.mission.set_description_text(self.template.render(vars(self)))
-        self.mission.add_picture_blue(str(briefing_image_path()))
+        self.mission.add_picture_blue(str(self._briefing_picture()))
+
+    def _briefing_picture(self) -> Path:
+        """The player's own picture, else this mission's card."""
+        custom = custom_briefing_image()
+        if custom is not None:
+            return custom
+        try:
+            card = build_briefing_card(self.game, self.player_flights)
+            path = Path(tempfile.gettempdir()) / "retlab_briefing_card.png"
+            return render_briefing_card(card, path)
+        except Exception:
+            # A picture is never worth a failed generation.
+            logging.exception("Briefing card failed; using the default picture")
+            return briefing_image_path()
 
     def _collect_owned_airbases(self) -> List[OwnedAirbaseInfo]:
         """List friendly airfields with their TACAN and ATC (when present).
@@ -258,3 +274,5 @@ class BriefingGenerator(MissionInfoGenerator):
                     self.allied_flights_by_departure[name].append(flight)
                 else:
                     self.allied_flights_by_departure[name] = [flight]
+        for flights in self.allied_flights_by_departure.values():
+            flights.sort(key=lambda f: f.departure_delay)

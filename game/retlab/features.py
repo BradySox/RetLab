@@ -882,7 +882,7 @@ FEATURES: tuple[Feature, ...] = (
     ),
     Feature(
         # Always on, no setting: a briefing.png/.jpg in Saved Games\DCS\Retribution
-        # replaces the RetLab default (game/retlab/briefing_image.py).
+        # replaces the per-mission card (game/retlab/briefing_card.py).
         "briefing_image",
         "Briefing screen picture",
         107,

@@ -337,7 +337,7 @@ linked design note.
 104. **Runway queue at busy fields** — taxi allowance and early mission start. Always on.
 105. **RetLab Iran Air Defense Pack** — support for RetLab's private mod.
 106. **Package route and map route editing** — routes edited on the map; package legs shared.
-107. **Briefing screen picture** — RetLab's, or your own `briefing.png`.
+107. **Briefing screen picture** — a per-mission card, or your own `briefing.png`.
 108. **Flight report cards** — debrief grades from §91. Never a reward.
 109. **Outside AI reads red's turn** — REST API under `/retribution-ai/*`; optionally plans red. Red only.
 111. **Sector war** — named sectors about 10 NM across; territory fill, a battle in every border sector, and (new games) sectors deciding the fight are built; the CAS card is agreed, not built.

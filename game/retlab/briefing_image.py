@@ -1,8 +1,9 @@
 """The picture DCS shows on the mission briefing screen (RetLab, §107).
 
 Drop ``briefing.png`` or ``briefing.jpg`` into ``Saved Games\\DCS\\Retribution`` and
-every generated mission shows it; with no file there the mission gets RetLab's own
-plain picture. On-disk content is the switch, as with §42 map tiles and §43 flight
+every generated mission shows it; with no file there the mission gets a card drawn
+for that mission (``briefing_card.py``), or RetLab's plain picture if drawing
+fails. On-disk content is the switch, as with §42 map tiles and §43 flight
 defaults, so there is no setting. The app's startup splash is not this picture.
 """
 
@@ -26,8 +27,8 @@ def user_briefing_image(retribution_dir: Path) -> Optional[Path]:
     return None
 
 
-def briefing_image_path(retribution_dir: Optional[Path] = None) -> Path:
-    """The image to embed: the user's drop-in file, else the RetLab default."""
+def custom_briefing_image(retribution_dir: Optional[Path] = None) -> Optional[Path]:
+    """The player's drop-in picture, if there is one."""
     if retribution_dir is None:
         try:
             from game import persistency
@@ -41,4 +42,10 @@ def briefing_image_path(retribution_dir: Optional[Path] = None) -> Path:
         if custom is not None:
             logging.info("Briefing image: using %s", custom)
             return custom.resolve()
-    return DEFAULT_BRIEFING_IMAGE.resolve()
+    return None
+
+
+def briefing_image_path(retribution_dir: Optional[Path] = None) -> Path:
+    """The image to embed: the user's drop-in file, else the RetLab default."""
+    custom = custom_briefing_image(retribution_dir)
+    return custom if custom is not None else DEFAULT_BRIEFING_IMAGE.resolve()

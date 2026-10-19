@@ -200,8 +200,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   The package window's **Package route** button lists it.
 - Insert NAV point in a flight's Waypoints tab adds a point beside any waypoint with a leg
   next to it. On the package route it asks whether the point is for the whole package.
-- RetLab starts with its own splash, and a generated mission loads with a RetLab picture on
-  the briefing screen. To use your own mission picture,
+- RetLab starts with its own splash. The briefing screen shows a card drawn for each
+  mission: campaign, turn, date and time, weather, and your flights. To use your own picture,
   save it as `briefing.png` or `briefing.jpg` in `Saved Games\DCS\Retribution`.
 - The debrief grades each flight: on time at the target or not, the package target, kills,
   shots and hits, losses, and your fuel on landing against the jet's reserve. Grades run Unsat, Below average,
