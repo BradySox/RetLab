@@ -23,6 +23,7 @@ from game.dcs.aircrafttype import AircraftType
 from game.factions import FACTIONS
 from game.persistency import base_path
 from game.profiling import logged_duration
+from game.server.phone import PhoneAccess
 from game.server import EventStream, Server
 from game.settings import Settings
 from game.sim import GameUpdateEvents
@@ -524,6 +525,9 @@ def main():
         return
 
     liberation_install.init()
+    PhoneAccess.configure(
+        liberation_install.phone_access(), liberation_install.phone_key()
+    )
     with Server(liberation_install.server_port()).run_in_thread():
         run_ui(game, UiFlags(args.dev, args.show_sim_speed_controls))
 

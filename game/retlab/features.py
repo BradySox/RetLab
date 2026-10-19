@@ -941,6 +941,13 @@ FEATURES: tuple[Feature, ...] = (
         "Coordinated TOT",
         114,
     ),
+    Feature(
+        # A preference, not a campaign setting (game/server/phone.py);
+        # docs/dev/design/retlab-phone-map-notes.md.
+        "phone_map",
+        "Phone map",
+        115,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

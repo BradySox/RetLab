@@ -63,6 +63,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   table; consent moved to airbases 2026-08-26; the measured country-per-map table)
 - **Strike targets / BDA** — `retlab-scenery-kill-tracking-notes.md` (position matcher adopted
   from upstream #957 on 2026-08-30; row B63 verified in test 33)
+- **Phone map** — `retlab-phone-map-notes.md` (§115: the map on a phone over home Wi-Fi,
+  view-only, behind its own key)
 - **Package route / waypoint editing** — `retlab-package-route-notes.md` (§106; routes are
   edited on the map, never by typed coordinates; rows B150/B151)
 - **Planning / doctrine** — `retlab-hq-priority-targets-notes.md` (§103, and §112 HQ requests),

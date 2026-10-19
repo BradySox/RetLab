@@ -126,5 +126,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §112 | HQ requests | — | `hq_requests` |
 | §113 | AI fills empty player flights | `aifill` | — |
 | §114 | Coordinated TOT | — | — |
+| §115 | Phone map | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
