@@ -2121,6 +2121,11 @@ that code.
   Eagle-sized stands: 116, 131-134 and 158 ejected, the other 47 launched. The jet on 134
   spawned clipped into the revetment wall, so these stands sit too close to a wall for an
   Eagle. Stand 158 joins the blocked list. The probe is `Missions\RetLab probes\hatzerim_stand_survey.miz`.
+- **Two Su-27s ejected on the Diyarbakir ramp (2026-10-18).** Anatolian Reach: both jets of
+  a red BARCAP lost their pilots about 15 s after spawning on stands 116 and 117, without
+  moving. They are the field's only two 24 x 15 m stands, side by side in front of a hangar.
+  Both join the blocked list. A survey of every fighter stand at the nine Turkish fields is
+  `Missions\RetLab probes\turkey_stand_survey.miz` (row B253).
 
 ### Helicopters
 
