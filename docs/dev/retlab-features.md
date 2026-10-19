@@ -11103,8 +11103,9 @@ dialog shows a QR code carrying a phone key. The phone can read, never write, an
 reaches the outside AI's routes. Off by default; turning it on takes a restart, turning it
 off holds at once. The phone gets its own layout: Map, Flights (blue flights by package)
 and Kneeboards (the last generated mission's briefing picture and kneeboard decks), and it
-can be added to the home screen. Built 2026-10-19; an ntfy turn ping follows. Not flown
-(row B254).
+can be added to the home screen. An ntfy topic set in the same dialog gets a turn ping
+when a mission's results are in: the turn, the SITREP news and the next plan's flight
+count. Built 2026-10-19. Not flown (row B254).
 
 **Design note:** [retlab-phone-map-notes.md](design/retlab-phone-map-notes.md).
 
@@ -11114,10 +11115,12 @@ can be added to the home screen. Built 2026-10-19; an ntfy turn ping follows. No
 - `game/server/server.py`: the home-network socket.
 - `qt_ui/windows/PhoneLinkDialog.py`, `qt_ui/liberation_install.py`, `qt_ui/main.py`.
 - `game/retlab/mission_pages.py`, `game/server/missionpages/`: the kneeboard tab's record and routes.
+- `game/retlab/turn_ping.py`, `qt_ui/windows/QWaitingForMissionResultWindow.py`: the turn ping.
 - `client/src/components/phone/`: the phone layout.
-- `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`.
+- `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`, `tests/retlab/test_turn_ping.py`.
 
 ### Constraints
 
 - Another device may only GET, and only with the phone key; the PC's map key is refused from outside.
 - One uvicorn server and event loop for the PC and the phone; never a second server thread.
+- A turn ping is sent in the background and never fails the turn.

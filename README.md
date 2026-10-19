@@ -276,6 +276,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   and scan the QR code. The phone can look but not change anything. It has three tabs: the
   map, your flights by package, and the last generated mission's briefing picture and
   kneeboards. Add it to the home screen to open it like an app.
+- **Turn ping.** Type an ntfy topic in File > Phone link and the free ntfy app on your phone
+  gets the turn summary when a mission's results are in.
 
 ### Campaign systems
 

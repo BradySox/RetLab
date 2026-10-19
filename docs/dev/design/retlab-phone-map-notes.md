@@ -9,8 +9,18 @@ user's own Tailscale with no RetLab change.
 
 1. **Server and link** (built): File > Phone link, a view-only phone key, a QR code.
 2. **Phone layout** (built): map, Flights and Kneeboards tabs; Add to Home Screen.
-3. **Turn ping** (not built): an ntfy topic in the preferences gets the SITREP when a
-   turn ends.
+3. **Turn ping** (built): an ntfy topic set in File > Phone link gets the turn summary
+   when a mission's results are in.
+
+## Turn ping
+
+ntfy is a free push service: the phone's ntfy app subscribes to a topic, and a POST to
+`https://ntfy.sh/<topic>` arrives as a notification. The topic name is the only secret, so
+the dialog asks for one only the host knows. After `pass_turn` the results window posts
+the campaign, turn and date, the §29 SITREP lines when the turn had news, and the next
+turn's blue flight count. The send runs on a daemon thread and logs a failure; building or
+sending a ping never fails the turn. An empty topic sends nothing. "Send test" posts a
+fixed message. Nothing is pushed for red's side or by the AI routes.
 
 ## How it works
 
@@ -70,13 +80,15 @@ user's own Tailscale with no RetLab change.
 
 - `game/server/phone.py`: `PhoneAccess`, `PhoneGate`, `lan_address`, `phone_url`.
 - `game/server/server.py`: the second socket; the app wrapped in `PhoneGate`.
-- `qt_ui/liberation_install.py`: `phone_access`, `phone_key` preferences.
+- `qt_ui/liberation_install.py`: `phone_access`, `phone_key`, `ntfy_topic` preferences.
+- `game/retlab/turn_ping.py`: the ping text and the background send.
+- `qt_ui/windows/QWaitingForMissionResultWindow.py`: sends the ping after `pass_turn`.
 - `qt_ui/windows/PhoneLinkDialog.py`: the dialog and QR code (`segno`).
 - `qt_ui/main.py`: `PhoneAccess.configure` before the server starts.
 - `game/retlab/mission_pages.py`, `game/server/missionpages/`: the kneeboard record and routes.
 - `client/src/components/phone/`, `client/public/manifest.json`, `client/public/index.html`.
 - `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`,
-  `client/src/components/phone/PhoneApp.test.tsx`.
+  `tests/retlab/test_turn_ping.py`, `client/src/components/phone/PhoneApp.test.tsx`.
 
 ## Later, not planned
 

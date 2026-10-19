@@ -1,0 +1,10 @@
+date: 2026-10-19
+title: A ping on your phone when the turn is ready
+change: >-
+  Install the free ntfy app on your phone and subscribe to a topic name only
+  you know. Type the same name in File > Phone link. When a mission's results
+  are in, your phone gets the turn, the SITREP and how many flights the next
+  turn has. Send test checks it works.
+watch: >-
+  The ping arrives after you accept the results, and a ping that cannot send
+  never holds up the turn.
