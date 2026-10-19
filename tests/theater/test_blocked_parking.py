@@ -6,7 +6,7 @@ Hatzerim 116: one more in test 60. 158: the stand survey (test 61).
 
 from __future__ import annotations
 
-from dcs.planes import F_15C
+from dcs.planes import F_15C, Su_27
 from dcs.terrain import Syria
 
 from game.theater.blockedparking import (
@@ -41,6 +41,23 @@ def test_hatzerim_blocked_stands_are_never_free() -> None:
     after = {s.slot_name for s in hatzerim.free_parking_slots(F_15C)}
     assert taken == 6
     assert after == before - {"116", "131", "132", "133", "134", "158"}
+
+
+def test_diyarbakir_blocked_stands_are_never_free() -> None:
+    terrain = Syria()
+    diyarbakir = _airport(terrain, "Diyarbakir")
+    for slot in diyarbakir.parking_slots:
+        slot.unit_id = None
+    before = {s.slot_name for s in diyarbakir.free_parking_slots(Su_27)}
+    assert {"116", "117"} <= before
+
+    taken = occupy_blocked_stands(
+        terrain.name, diyarbakir.name, diyarbakir.parking_slots
+    )
+
+    after = {s.slot_name for s in diyarbakir.free_parking_slots(Su_27)}
+    assert taken == 2
+    assert after == before - {"116", "117"}
 
 
 def test_other_fields_are_untouched() -> None:
