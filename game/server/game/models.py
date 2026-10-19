@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from dcs.mapping import Point
 from pydantic import BaseModel
+from shapely.geometry import Polygon, box
 
 from game.server.controlpoints.models import ControlPointJs
 from game.server.downedpilots.models import DownedPilotJs
@@ -186,6 +187,35 @@ def hq_requests_js(game: Game) -> list[HqRequestJs]:
     return rows
 
 
+#: A border piece smaller than this after the map-edge clip is a sliver, not drawn.
+MIN_BORDER_PIECE_M2 = 1_000_000.0
+
+
+def _border_pieces(
+    theater: Any, border: list[tuple[float, float]]
+) -> list[list[tuple[float, float]]]:
+    """The border ring cut to the land map's extent, one ring per piece.
+
+    Territory and sectors stop at the land map's edge; a border drawn past it
+    (Turkey to 29.5E on Syria, land map to 31.3E) looks like ground they miss.
+    """
+    landmap = getattr(theater, "landmap", None)
+    if landmap is None or landmap.inclusion_zones.is_empty or len(border) < 3:
+        return [border]
+    try:
+        shape = (
+            Polygon(border).buffer(0).intersection(box(*landmap.inclusion_zones.bounds))
+        )
+    except Exception:
+        return [border]
+    pieces = [shape] if isinstance(shape, Polygon) else getattr(shape, "geoms", [])
+    return [
+        [(x, y) for x, y in piece.exterior.coords[:-1]]
+        for piece in pieces
+        if isinstance(piece, Polygon) and piece.area >= MIN_BORDER_PIECE_M2
+    ]
+
+
 class NeutralBorderJs(BaseModel):
     """§98: one neutral country's defended airspace, for the planning map.
 
@@ -233,20 +263,21 @@ class NeutralBorderJs(BaseModel):
             # any altitude" over a mission that let you fly straight through.
             if posture == NEUTRAL and not zone.can_defend(game.current_day):
                 permits_blue = True
-            ring = [
-                LeafletPoint.from_latlng(Point(x, y, game.theater.terrain).latlng())
-                for x, y in zone.border
-            ]
-            borders.append(
-                NeutralBorderJs(
-                    country=zone.country,
-                    airfield=zone.origin_label(posture, enforced=not permits_blue),
-                    posture=posture,
-                    overflight=permits_blue,
-                    floor_ft=zone.floor_for(game.theater, True),
-                    border=[ring],
+            for piece in _border_pieces(game.theater, zone.border):
+                ring = [
+                    LeafletPoint.from_latlng(Point(x, y, game.theater.terrain).latlng())
+                    for x, y in piece
+                ]
+                borders.append(
+                    NeutralBorderJs(
+                        country=zone.country,
+                        airfield=zone.origin_label(posture, enforced=not permits_blue),
+                        posture=posture,
+                        overflight=permits_blue,
+                        floor_ft=zone.floor_for(game.theater, True),
+                        border=[ring],
+                    )
                 )
-            )
         return borders
 
 

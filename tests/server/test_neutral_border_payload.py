@@ -8,11 +8,15 @@ routes around empty sky. The Lebanon fixture's real bounding box is the oracle.
 
 from __future__ import annotations
 
+import dataclasses
+
 from datetime import date
 from types import SimpleNamespace
 from typing import Any
 
+from dcs.mapping import Point
 from dcs.terrain.syria import Syria
+from shapely.geometry import MultiPolygon, Polygon
 
 from game.server.game.models import NeutralBorderJs
 from game.theater.neutralborder import NeutralBorderZone
@@ -146,3 +150,26 @@ def test_a_country_that_can_defend_is_still_drawn_as_closed() -> None:
     borders = NeutralBorderJs.all_in_game(_game())
     assert len(borders) == 1
     assert borders[0].overflight is False, "a defended border was opened"
+
+
+def test_a_border_past_the_land_map_is_drawn_only_to_its_edge() -> None:
+    """Territory and sectors stop at the land map's edge; the border must too.
+
+    Syria's land map ends at 31.3E while the shipped Turkey border runs to
+    29.5E, which drew a strip of Turkey the sector fill never reached.
+    """
+    zone = dataclasses.replace(
+        _zone(),
+        border=[(0.0, 0.0), (0.0, 100_000.0), (50_000.0, 100_000.0), (50_000.0, 0.0)],
+    )
+    game = _game(zones=[zone])
+    game.theater.landmap = SimpleNamespace(
+        inclusion_zones=MultiPolygon(
+            [Polygon([(-1e6, 40_000), (-1e6, 1e6), (1e6, 1e6), (1e6, 40_000)])]
+        )
+    )
+    borders = NeutralBorderJs.all_in_game(game)
+    assert len(borders) == 1
+    ring = borders[0].border[0]
+    edge = Point(25_000, 40_000, Syria()).latlng().lng
+    assert min(p.lng for p in ring) >= edge - 0.01, "the border ran past the land map"

@@ -9893,6 +9893,9 @@ border undrawn, airspace unenforced. They now borrow a neighbour's units (DM cal
 it, and the plugin rewrites `CountryID` on escalation anyway, so the stand-in supplies
 skins and nothing else. It falls through when its first choice is already a
 belligerent, which Russia is on the Caucasus map.
+The web map draws each border only to the land map's extent (2026-10-19): territory and
+§111 sectors stop there, and Turkey drawn on to the 29.5E clip read as ground the sector
+fill missed (Syria's land map ends at 31.3E). The mission's own border zones are not cut.
 Colours: red / blue / contested grey / neutral mint, shading = enforcement. Design +
 the session's decisions: `docs/dev/design/retlab-neutral-border-defense-notes.md`
 (incl. the DECIDED-not-built automagic direction and the national-postures research
