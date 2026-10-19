@@ -28,6 +28,7 @@ class DeadFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
             self.layout.ingress.position,
             self.package.target.position,
             self.layout.split.position,
+            egress=[wp.position for wp in self.layout.egress_nav],
         )
 
 
