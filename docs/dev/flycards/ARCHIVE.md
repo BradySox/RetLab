@@ -12,6 +12,7 @@ The live card stays short. This is where its history lives.
 
 | Closed | Item | Row(s) | Verdict |
 |---|---|---|---|
+| 2026-10-18 | An AI flight inside a shaded neutral border, and nothing happens | `B121` | ☑ **VERIFIED** on test 62, Brady's call: ten AI aircraft from both sides were up to 9.3 mi inside Lebanon with `engageAi` off; no hail, no warning, and Lebanon's SA-3 fired nothing. |
 | 2026-10-15 | BMP-3s in a front fight fire single aimed shots; a stuck TIC unit names itself | `B103` `B108` | **Feature removed, not verified.** DM call: TIC (§9) was removed; both rows only tested TIC. |
 | 2026-09-27 | The ramp time you are given matches the airframe you are starting | `B77` | ☑ **VERIFIED** — "b77 is good", said while flying; the first start with the §104 runway queue in the build. |
 | 2026-09-27 | A striker and its escort hold one pace after the join | `B111` | ☑ **VERIFIED** — "b111 is good", said while flying. |
