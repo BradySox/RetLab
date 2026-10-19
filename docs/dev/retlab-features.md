@@ -10714,18 +10714,29 @@ delete), the window, the flight tab's question, and a flown package on an edited
 ## §107 — Briefing screen picture
 
 The picture on the DCS briefing screen when a generated mission loads. It used to be
-upstream's startup splash (`resources/ui/splash_screen.png`). It is now RetLab's own plain
-picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg` into
-`Saved Games\DCS\Retribution`. Built 2026-09-29, not flown.
+upstream's startup splash (`resources/ui/splash_screen.png`). Since 2026-10-19 it is a card
+drawn for each mission: campaign name, turn, date and start time, surface wind, clouds,
+temperature, QNH, and the player flights (callsign, aircraft, task, target, departure).
+A player can replace it by dropping `briefing.png` or `briefing.jpg` into
+`Saved Games\DCS\Retribution`. Built 2026-09-29 as a fixed picture, not flown.
+
+The briefing text changed with it (2026-10-19): each flight line leads with its callsign,
+names the aircraft by its display name, labels the package target `target:` (it read as a
+departure field), and ally flights list in departure order under their base. The text is no
+longer HTML-escaped; `AEW&C` printed as `AEW&amp;C`.
 
 ### Files
 
 - `game/retlab/briefing_image.py` — `briefing_image_path()`: the first of `briefing.png`,
   `briefing.jpg`, `briefing.jpeg` in the Retribution user folder, else
-  `resources/ui/retlab_briefing.png`.
-- `game/missiongenerator/briefinggenerator.py` — `generate()` passes it to
-  `add_picture_blue`.
-- `tests/retlab/test_briefing_image.py`.
+  `resources/ui/retlab_briefing.png`. `custom_briefing_image()` is the drop-in lookup alone.
+- `game/retlab/briefing_card.py` — `build_briefing_card()` reads the game;
+  `render_briefing_card()` draws the 1600 x 1067 PNG. The F-16 is lifted from
+  `retlab_briefing.png`, so both pictures share one drawing.
+- `game/missiongenerator/briefinggenerator.py` — `_briefing_picture()`: the drop-in, else the
+  card (written to the temp folder), else `retlab_briefing.png` if drawing raises.
+- `resources/briefing/templates/briefingtemplate_EN.j2` — the text.
+- `tests/retlab/test_briefing_image.py`, `tests/retlab/test_briefing_card.py`.
 
 ### Constraints
 
@@ -10734,6 +10745,10 @@ picture, and a player can replace it by dropping `briefing.png` or `briefing.jpg
   2026-09-29: the same look, an F-16 drawn to scale. It has no drop-in override. The About
   box no longer credits upstream's splash artist.
 - Blue only. The red briefing has no picture, as before.
+- The card's fonts are Windows': Bahnschrift, else Arial. CI falls back to Pillow's own font.
+- At most six flight rows; more add a "+N more player flights" line.
+- Some odd-looking briefing values are DCS's own data, not bugs: Tel Nof's TACAN 87X
+  transmits `AKR` (ED's Syria `Beacons.lua`), and several Syria fields share tower UHF 225.0.
 
 ## §108 — Flight report cards
 

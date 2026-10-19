@@ -67,7 +67,7 @@ Your flights:
 ====================
 {% for flight in player_flights %}
 --------------------------------------------------
-{{ flight.flight_type }} {{ flight.units[0].type }} x {{ flight.size }}{% if flight.ai_fill %} (optional, AI fills if empty){% endif %}, departing in {{ flight.departure_delay }}, {{ flight.package.target.name}}
+{{ flight.callsign }}: {{ flight.flight_type }} {{ flight.aircraft_type.display_name }} x {{ flight.size }}{% if flight.ai_fill %} (optional, AI fills if empty){% endif %}, departing in {{ flight.departure_delay }}, target: {{ flight.package.target.name}}
 Freq : {{ flight|intra_flight_channel }}
 {% for waypoint in flight.waypoints %}
 {{ loop.index0 }} {{waypoint|waypoint_timing("Depart ")}}-- {{waypoint.name}} : {{ waypoint.description}}
@@ -84,7 +84,7 @@ Planned ally flights:
 {{ dep }}
 ---------------------------------------------------
 {% for flight in allied_flights_by_departure[dep] %}
-{{ flight.flight_type }} {{ flight.units[0].type }} x {{flight.size}}, departing in {{ flight.departure_delay }}, {{ flight.package.target.name}}, TOT: {{ flight.package.time_over_target }}
+{{ flight.callsign }}: {{ flight.flight_type }} {{ flight.aircraft_type.display_name }} x {{flight.size}}, departing in {{ flight.departure_delay }}, target: {{ flight.package.target.name}}, TOT: {{ flight.package.time_over_target }}
 {% endfor %}
 
 {% endfor %}
