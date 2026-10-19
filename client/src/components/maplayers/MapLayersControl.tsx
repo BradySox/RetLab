@@ -33,6 +33,7 @@ import {
 import { ThreatZoneFilter, ThreatZonesLayer } from "../threatzones";
 import TgosLayer from "../tgoslayer/TgosLayer";
 import "./MapLayersControl.css";
+import usePhoneLayout from "../phone/usePhoneLayout";
 
 // A custom, dark-themed replacement for the two stock Leaflet layer controls.
 // Everything lives in one collapsible, grouped panel: common layers up top,
@@ -462,6 +463,9 @@ export default function MapLayersControl() {
   const [portalEl, setPortalEl] = useState<HTMLElement | null>(null);
 
   const persisted = useMemo(loadPersisted, []);
+  // On a phone the panel would cover the map, so it starts folded (§115).
+  const phone = usePhoneLayout();
+  const [panelOpen, setPanelOpen] = useState(!phone);
   const [visible, setVisible] = useState<Record<LayerId, boolean>>(() => ({
     ...fromList(DEFAULT_ON),
     ...normalizeAirDefenseFilters(persisted.visible ?? {}),
@@ -634,7 +638,19 @@ export default function MapLayersControl() {
 
   const panel = (
     <div className="ml-panel">
-      <div className="ml-header">Map layers</div>
+      <div className="ml-header">
+        Map layers
+        {phone && (
+          <button
+            type="button"
+            className="ml-close"
+            aria-label="Close map layers"
+            onClick={() => setPanelOpen(false)}
+          >
+            ×
+          </button>
+        )}
+      </div>
 
       <div className="ml-presets">
         {Object.keys(PRESETS).map((name) => (
@@ -716,7 +732,21 @@ export default function MapLayersControl() {
       {visible.airDefenses && (
         <TgosLayer categories={["aa"]} tasks={activeAirDefenseTasks} />
       )}
-      {portalEl && createPortal(panel, portalEl)}
+      {portalEl &&
+        createPortal(
+          panelOpen ? (
+            panel
+          ) : (
+            <button
+              type="button"
+              className="ml-open"
+              onClick={() => setPanelOpen(true)}
+            >
+              Layers
+            </button>
+          ),
+          portalEl
+        )}
     </>
   );
 }

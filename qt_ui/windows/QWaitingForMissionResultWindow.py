@@ -28,8 +28,10 @@ from game.debriefing import Debriefing
 from game.finaldebriefing import final_debriefing
 from game.theater import Player
 from game.profiling import logged_duration
+from game.retlab.turn_ping import send_turn_ping, turn_ping
 from game.server import EventStream
 from game.sim import GameUpdateEvents
+from qt_ui import liberation_install
 from qt_ui.simcontroller import SimController
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 
@@ -237,12 +239,23 @@ class QWaitingForMissionResultWindow(QDialog):
                 self.debriefing = debriefing
                 self.sim_controller.process_results(debriefing)
                 self.game.pass_turn()
+                self._ping_phone()
 
                 GameUpdateSignal.get_instance().sendDebriefing(debriefing)
                 GameUpdateSignal.get_instance().updateGame(self.game)
         finally:
             progress.close()
         return True
+
+    def _ping_phone(self) -> None:
+        topic = liberation_install.ntfy_topic()
+        if not topic:
+            return
+        try:
+            send_turn_ping(topic, turn_ping(self.game))
+        except Exception:
+            # A ping is a convenience; it never fails the turn.
+            logging.exception("Could not build the end-of-turn ping")
 
     def _debriefing_to_commit(self) -> Optional[Debriefing]:
         """Re-read state.json now rather than trusting the watcher's snapshot.

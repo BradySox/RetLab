@@ -1,3 +1,4 @@
+import { READ_ONLY } from "../../api/backend";
 // One saved point's pin on the map (§102): hover for its name, click to rename or
 // delete it, drag to move it.
 //
@@ -122,7 +123,7 @@ export default function SavedPointPin({
       ref={marker}
       position={position}
       icon={pinIcon(point.kind)}
-      draggable={!busy}
+      draggable={!busy && !READ_ONLY}
       bubblingMouseEvents={false}
       eventHandlers={{
         dragend: (event) => {

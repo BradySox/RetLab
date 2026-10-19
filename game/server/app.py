@@ -16,6 +16,7 @@ from . import (
     game,
     maptiles,
     mapzones,
+    missionpages,
     navmesh,
     qt,
     retributionai,
@@ -58,6 +59,7 @@ app.include_router(frontlines.router, dependencies=_MAP_KEY)
 app.include_router(game.router, dependencies=_MAP_KEY)
 app.include_router(maptiles.router, dependencies=_MAP_KEY)
 app.include_router(mapzones.router, dependencies=_MAP_KEY)
+app.include_router(missionpages.router, dependencies=_MAP_KEY)
 app.include_router(navmesh.router, dependencies=_MAP_KEY)
 app.include_router(qt.router, dependencies=_MAP_KEY)
 app.include_router(retributionai.router)  # keyed in its own module

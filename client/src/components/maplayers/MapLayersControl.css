@@ -179,3 +179,30 @@
 .ml-foot button:hover {
   background: #1d2b3f;
 }
+
+/* The phone layout's folded panel (§115). */
+.ml-open {
+  padding: 8px 14px;
+  background: #161e2b;
+  color: #d7dde6;
+  border: 1px solid #2b3647;
+  border-radius: 8px;
+  font: 600 14px system-ui, sans-serif;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.ml-close {
+  margin-left: auto;
+  padding: 0 4px;
+  border: none;
+  background: none;
+  color: #d7dde6;
+  font: 20px/1 system-ui, sans-serif;
+}
+
+@media (max-width: 700px) {
+  .ml-panel {
+    width: min(250px, calc(100vw - 80px));
+    max-height: calc(100vh - 220px);
+  }
+}

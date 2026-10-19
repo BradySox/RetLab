@@ -17,6 +17,7 @@ global __setup_preferences_on_every_start
 global __server_port
 global __phone_access
 global __phone_key
+global __ntfy_topic
 
 
 def _user_data_path() -> Path:
@@ -47,9 +48,11 @@ def init():
     global __server_port
     global __phone_access
     global __phone_key
+    global __ntfy_topic
 
     __phone_access = False
     __phone_key = ""
+    __ntfy_topic = ""
     if PREFERENCES_PATH.exists():
         try:
             logging.debug("Loading Retribution preferences from %s", PREFERENCES_PATH)
@@ -70,6 +73,7 @@ def init():
             __server_port = pref_data.get("server_port", 16880)
             __phone_access = bool(pref_data.get("phone_access", False))
             __phone_key = str(pref_data.get("phone_key", ""))
+            __ntfy_topic = str(pref_data.get("ntfy_topic", ""))
             is_first_start = __setup_preferences_on_every_start
         except (KeyError, json.JSONDecodeError):
             __dcs_saved_game_directory = ""
@@ -141,6 +145,7 @@ def save_config():
     global __server_port
     global __phone_access
     global __phone_key
+    global __ntfy_topic
     pref_data = {
         "saved_game_dir": __dcs_saved_game_directory,
         "dcs_install_dir": __dcs_installation_directory,
@@ -151,6 +156,7 @@ def save_config():
         "server_port": __server_port,
         "phone_access": __phone_access,
         "phone_key": __phone_key,
+        "ntfy_topic": __ntfy_topic,
     }
     PREFERENCES_PATH.parent.mkdir(exist_ok=True, parents=True)
     with PREFERENCES_PATH.open("w") as prefs:
@@ -202,6 +208,18 @@ def set_phone_access(enabled: bool, new_key: bool = False) -> None:
     __phone_access = enabled
     if new_key:
         __phone_key = new_phone_key()
+    save_config()
+
+
+def ntfy_topic() -> str:
+    """The ntfy topic that gets the end-of-turn ping; empty means off."""
+    global __ntfy_topic
+    return __ntfy_topic
+
+
+def set_ntfy_topic(topic: str) -> None:
+    global __ntfy_topic
+    __ntfy_topic = topic
     save_config()
 
 

@@ -344,7 +344,7 @@ linked design note.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 113. **AI fills empty player flights** — an AI copy launches when nobody takes a flight's player seats.
 114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
-115. **Phone map** — the map on a phone over home Wi-Fi, view-only, behind its own key. Off by default.
+115. **Phone map** — the map on a phone over home Wi-Fi, view-only, behind its own key; an ntfy turn ping. Off by default.
 
 ### Retired, removed or shelved — do not restore
 
