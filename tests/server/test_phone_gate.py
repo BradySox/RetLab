@@ -132,5 +132,5 @@ def test_the_link_carries_the_server_and_the_phone_key() -> None:
     url = phone_url("192.168.1.10", 16880, "abc")
     assert url == (
         "http://192.168.1.10:16880/phone/index.html"
-        "?server=192.168.1.10%3A16880&key=abc"
+        "?server=192.168.1.10%3A16880&key=abc&view=phone"
     )

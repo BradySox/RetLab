@@ -1,9 +1,12 @@
+import { READ_ONLY } from "../../api/backend";
+import { selectFlight as selectFlightLocally } from "../../api/flightsSlice";
 import { Flight } from "../../api/liberationApi";
 import {
   useGetTacticalOverlayForFlightQuery,
   useInsertWaypointMutation,
   useSelectFlightMutation,
 } from "../../api/liberationApi";
+import { useAppDispatch } from "../../app/hooks";
 import { measuring } from "../coordinatepicker/CoordinatePicker";
 import WaypointMarker from "../waypointmarker";
 import { refusal, showNotice } from "../waypointmarker/notice";
@@ -81,6 +84,7 @@ function FlightPlanPath(props: FlightPlanProps) {
   const waypoints = props.flight.waypoints;
   const [selectFlight] = useSelectFlightMutation();
   const [insertWaypoint] = useInsertWaypointMutation();
+  const dispatch = useAppDispatch();
   const map = useMap();
 
   const polylineRef = useRef<LPolyline | null>(null);
@@ -158,12 +162,17 @@ function FlightPlanPath(props: FlightPlanProps) {
             }
           },
           click: () => {
+            if (READ_ONLY) {
+              // The phone cannot ask the PC to select; it selects for itself.
+              dispatch(selectFlightLocally(props.flight.id));
+              return;
+            }
             selectFlight({ flightId: props.flight.id });
           },
           // A NAV point where the selected route is double-clicked. The server
           // picks the leg; on the package's way in or out it lands on every flight.
           dblclick: (event: LeafletMouseEvent) => {
-            if (!props.selected || measuring()) {
+            if (READ_ONLY || !props.selected || measuring()) {
               return;
             }
             // Otherwise the map zooms in as well.

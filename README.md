@@ -273,7 +273,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Also: target intel panels, impact-first debriefs, custom kneeboard import, era-gated cockpit
   options.
 - **File > Phone link** shows the map on a phone on the same Wi-Fi. Tick the box, restart,
-  and scan the QR code. The phone can look but not change anything.
+  and scan the QR code. The phone can look but not change anything. It has three tabs: the
+  map, your flights by package, and the last generated mission's briefing picture and
+  kneeboards. Add it to the home screen to open it like an app.
 
 ### Campaign systems
 

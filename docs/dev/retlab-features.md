@@ -11101,8 +11101,10 @@ File > Phone link turns on a view-only copy of the campaign map for a phone on t
 Wi-Fi: the server also listens on the home network and serves the map page itself, and the
 dialog shows a QR code carrying a phone key. The phone can read, never write, and never
 reaches the outside AI's routes. Off by default; turning it on takes a restart, turning it
-off holds at once. Built 2026-10-19 as the first of three steps (phone layout and an ntfy
-turn ping follow), not flown (row B254).
+off holds at once. The phone gets its own layout: Map, Flights (blue flights by package)
+and Kneeboards (the last generated mission's briefing picture and kneeboard decks), and it
+can be added to the home screen. Built 2026-10-19; an ntfy turn ping follows. Not flown
+(row B254).
 
 **Design note:** [retlab-phone-map-notes.md](design/retlab-phone-map-notes.md).
 
@@ -11111,7 +11113,9 @@ turn ping follow), not flown (row B254).
 - `game/server/phone.py`: the gate, the phone key, the link.
 - `game/server/server.py`: the home-network socket.
 - `qt_ui/windows/PhoneLinkDialog.py`, `qt_ui/liberation_install.py`, `qt_ui/main.py`.
-- `tests/server/test_phone_gate.py`.
+- `game/retlab/mission_pages.py`, `game/server/missionpages/`: the kneeboard tab's record and routes.
+- `client/src/components/phone/`: the phone layout.
+- `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`.
 
 ### Constraints
 

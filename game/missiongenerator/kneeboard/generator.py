@@ -12,6 +12,7 @@ from game.coordinates import (
     coordinate_format,
 )
 from game.dcs.aircrafttype import AircraftType
+from game.retlab.mission_pages import GENERATED_KNEEBOARDS_DIR, Deck, record_kneeboards
 from game.settings.settings import TargetIntelPrecision
 from game.sitrep import Sitrep, sitrep_for_kneeboard
 from game.theater import TheaterGroundObject
@@ -80,8 +81,9 @@ class KneeboardGenerator(MissionInfoGenerator):
         (callsign-sorted) order; when 2+ flights share a type a one-page index is
         prepended so a pilot can flip straight to their own block (#P4).
         """
-        temp_dir = Path("kneeboards")
+        temp_dir = GENERATED_KNEEBOARDS_DIR
         temp_dir.mkdir(exist_ok=True)
+        decks: List[Deck] = []
         for aircraft, flights in self.client_flights_by_airframe().items():
             aircraft_dir = temp_dir / aircraft.dcs_unit_type.id
             aircraft_dir.mkdir(exist_ok=True)
@@ -107,12 +109,16 @@ class KneeboardGenerator(MissionInfoGenerator):
             for _flight, concrete in flight_blocks:
                 ordered_pages.extend(concrete)
 
+            written: List[Path] = []
             for idx, page in enumerate(ordered_pages):
                 # The suffix picks the encoder: photographic recon basemaps go
                 # out as JPEG, line-art pages stay PNG (see KneeboardPage).
                 page_path = aircraft_dir / f"page{idx:02}{page.image_suffix}"
                 page.write(page_path)
                 self.mission.add_aircraft_kneeboard(aircraft.dcs_unit_type, page_path)
+                written.append(page_path)
+            decks.append(Deck(aircraft.display_name, written))
+        record_kneeboards(decks, temp_dir)
         for type in kneeboards_dir().iterdir():
             if type.is_dir():
                 for kneeboard in type.iterdir():

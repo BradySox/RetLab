@@ -8,8 +8,7 @@ user's own Tailscale with no RetLab change.
 ## Plan
 
 1. **Server and link** (built): File > Phone link, a view-only phone key, a QR code.
-2. **Phone layout** (not built): map, an ATO list, a kneeboard and briefing viewer;
-   Add to Home Screen.
+2. **Phone layout** (built): map, Flights and Kneeboards tabs; Add to Home Screen.
 3. **Turn ping** (not built): an ntfy topic in the preferences gets the SITREP when a
    turn ends.
 
@@ -35,6 +34,25 @@ user's own Tailscale with no RetLab change.
 - `lan_address` asks the OS which interface it would route through (a UDP connect sends
   nothing).
 
+## Phone layout
+
+- `client/src/components/phone/`. The phone link carries `view=phone`, which turns on
+  `READ_ONLY` (`client/src/api/backend.ts`) and the phone layout; any window 700 px wide
+  or less gets the layout too, still writable.
+- Three tabs: **Map**, **Flights** (blue flights by package, TOT order; a tap selects the
+  route on the phone only), **Kneeboards** (the briefing picture and each airframe's deck,
+  swiped sideways). The map stays mounted under the other tabs.
+- Read-only: no dragging of waypoints, mobile units or saved points, no route menu, no
+  double-click NAV point. A route tap selects locally instead of asking the PC.
+- The map-layers panel starts folded behind a **Layers** button on a phone.
+- `game/retlab/mission_pages.py` records what each generation handed DCS
+  (`kneeboards/phone.json`): the kneeboard generator starts the record, the briefing
+  generator adds its picture. `/mission-pages/*` serves by deck and page index, never by
+  path. A deck shorter than last time leaves old page files behind; the record is why the
+  phone never shows them.
+- Add to Home Screen opens `start_url` with no query, so the page saves the phone link in
+  `localStorage` and reuses it when opened without one.
+
 ## Constraints
 
 - **The phone never writes.** Every mutation route is non-GET; the gate refuses non-GET
@@ -55,7 +73,10 @@ user's own Tailscale with no RetLab change.
 - `qt_ui/liberation_install.py`: `phone_access`, `phone_key` preferences.
 - `qt_ui/windows/PhoneLinkDialog.py`: the dialog and QR code (`segno`).
 - `qt_ui/main.py`: `PhoneAccess.configure` before the server starts.
-- `tests/server/test_phone_gate.py`.
+- `game/retlab/mission_pages.py`, `game/server/missionpages/`: the kneeboard record and routes.
+- `client/src/components/phone/`, `client/public/manifest.json`, `client/public/index.html`.
+- `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`,
+  `client/src/components/phone/PhoneApp.test.tsx`.
 
 ## Later, not planned
 
