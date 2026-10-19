@@ -30,13 +30,16 @@ class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
             if self.flight.flight_type is FlightType.SEAD_ESCORT
             else doctrine.escort_engagement_range
         )
-        # AI escorts skip the ingress/target waypoints (only_for_player) and turn
-        # for home at the escort-hold anchor (the IP, or a stand-off package's
-        # launch range), without loitering. So the honest reach is the
-        # join->escort-hold leg, not a corridor all the way to the target and out.
+        # AI escorts fly the Escort task off the join, so they go where the package
+        # goes: through its SAM detours, then home at the escort-hold anchor (the IP,
+        # or a stand-off package's launch range). Not out to the target and back.
         hold = self.layout.initial
         far = hold.position if hold is not None else self.package.target.position
-        route = [self.layout.join.position, far]
+        route = [
+            self.layout.join.position,
+            *(wp.position for wp in self.layout.ingress_nav),
+            far,
+        ]
         return escort_overlay(route=route, engagement_range=rng)
 
     @property

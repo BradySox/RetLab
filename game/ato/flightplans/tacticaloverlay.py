@@ -76,11 +76,15 @@ def orbit_radius(speed: Speed, bank_deg: float = 25.0) -> Distance:
 
 
 def attack_run_overlay(
-    ingress: Point, target_position: Point, split: Point
+    ingress: Point,
+    target_position: Point,
+    split: Point,
+    egress: list[Point] | None = None,
 ) -> TacticalOverlay:
+    # egress: the package route's way out, round the SAMs it avoids.
     return TacticalOverlay(
         reach=[],
-        actual_path=[ingress, target_position, split],
+        actual_path=[ingress, target_position, *(egress or []), split],
         targets=[TacticalTarget(position=target_position)],
     )
 

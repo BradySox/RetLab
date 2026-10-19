@@ -1,0 +1,1 @@
+* **[UI]** On the map, an escort or SEAD escort flight's shaded reach follows the package route around SAM rings, and an attack flight's run line follows the route's detours on the way out. Both used to be drawn straight.

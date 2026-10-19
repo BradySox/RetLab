@@ -46,6 +46,7 @@ class SeadSweepFlightPlan(
             path=[
                 self.layout.ingress.position,
                 self._sweep_point.position,
+                *(wp.position for wp in self.layout.egress_nav),
                 self.layout.split.position,
             ],
             engagement_center=self.tot_waypoint.position,

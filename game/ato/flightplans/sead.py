@@ -47,6 +47,7 @@ class SeadFlightPlan(FormationAttackFlightPlan, UiZoneDisplay, TacticalOverlayDi
             path=[
                 self.layout.ingress.position,
                 search.position,
+                *(wp.position for wp in self.layout.egress_nav),
                 self.layout.split.position,
             ],
             engagement_center=search.position,
