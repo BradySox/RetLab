@@ -7,6 +7,7 @@ from shutil import copyfile
 import dcs
 
 from game import persistency
+from game.server.phone import new_phone_key
 
 global __dcs_saved_game_directory
 global __dcs_installation_directory
@@ -14,6 +15,8 @@ global __last_save_file
 global __prefer_liberation_payloads
 global __setup_preferences_on_every_start
 global __server_port
+global __phone_access
+global __phone_key
 
 
 def _user_data_path() -> Path:
@@ -42,7 +45,11 @@ def init():
     global __prefer_liberation_payloads
     global __setup_preferences_on_every_start
     global __server_port
+    global __phone_access
+    global __phone_key
 
+    __phone_access = False
+    __phone_key = ""
     if PREFERENCES_PATH.exists():
         try:
             logging.debug("Loading Retribution preferences from %s", PREFERENCES_PATH)
@@ -61,6 +68,8 @@ def init():
                 "setup_preferences_on_every_start", False
             )
             __server_port = pref_data.get("server_port", 16880)
+            __phone_access = bool(pref_data.get("phone_access", False))
+            __phone_key = str(pref_data.get("phone_key", ""))
             is_first_start = __setup_preferences_on_every_start
         except (KeyError, json.JSONDecodeError):
             __dcs_saved_game_directory = ""
@@ -130,6 +139,8 @@ def save_config():
     global __last_save_file
     global __ignore_empty_install_directory
     global __server_port
+    global __phone_access
+    global __phone_key
     pref_data = {
         "saved_game_dir": __dcs_saved_game_directory,
         "dcs_install_dir": __dcs_installation_directory,
@@ -138,6 +149,8 @@ def save_config():
         "prefer_liberation_payloads": __prefer_liberation_payloads,
         "setup_preferences_on_every_start": __setup_preferences_on_every_start,
         "server_port": __server_port,
+        "phone_access": __phone_access,
+        "phone_key": __phone_key,
     }
     PREFERENCES_PATH.parent.mkdir(exist_ok=True, parents=True)
     with PREFERENCES_PATH.open("w") as prefs:
@@ -167,6 +180,29 @@ def setup_preferences_on_every_start():
 def server_port():
     global __server_port
     return __server_port
+
+
+def phone_access() -> bool:
+    global __phone_access
+    return __phone_access
+
+
+def phone_key() -> str:
+    """The phone map's key, made on first use and kept so a saved home-screen
+    link keeps working across launches."""
+    global __phone_key
+    if not __phone_key:
+        __phone_key = new_phone_key()
+    return __phone_key
+
+
+def set_phone_access(enabled: bool, new_key: bool = False) -> None:
+    global __phone_access
+    global __phone_key
+    __phone_access = enabled
+    if new_key:
+        __phone_key = new_phone_key()
+    save_config()
 
 
 def ignore_empty_install_directory():

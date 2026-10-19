@@ -1,0 +1,11 @@
+date: 2026-10-19
+title: The map on your phone
+change: >-
+  File > Phone link shows the campaign map on a phone on the same Wi-Fi as
+  your PC. Tick "Let my phone see the map", restart Retribution, then scan
+  the QR code with the phone's camera. The phone can look but not change
+  anything. New link stops old phones at once. A phone-sized layout and an
+  end-of-turn ping are coming next.
+watch: >-
+  The phone opens the map from the QR code, and Windows asks once to allow
+  Retribution on private networks.

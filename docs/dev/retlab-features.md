@@ -11094,3 +11094,26 @@ change and at Take Off (Brady's choices, 2026-10-16). No setting. Built 2026-10-
 - Never earlier than ASAP. Only strike-class packages wait (Strike, BAI, OCA, CAS).
 - A site counts only if blue knows it, overview ignored (`fog_intact`). Red reads ground truth.
 - The Take Off pass times suppression packages first, so a strike waits for its SEAD's final TOT.
+
+## §115 — Phone map
+
+File > Phone link turns on a view-only copy of the campaign map for a phone on the same
+Wi-Fi: the server also listens on the home network and serves the map page itself, and the
+dialog shows a QR code carrying a phone key. The phone can read, never write, and never
+reaches the outside AI's routes. Off by default; turning it on takes a restart, turning it
+off holds at once. Built 2026-10-19 as the first of three steps (phone layout and an ntfy
+turn ping follow), not flown (row B254).
+
+**Design note:** [retlab-phone-map-notes.md](design/retlab-phone-map-notes.md).
+
+### Files
+
+- `game/server/phone.py`: the gate, the phone key, the link.
+- `game/server/server.py`: the home-network socket.
+- `qt_ui/windows/PhoneLinkDialog.py`, `qt_ui/liberation_install.py`, `qt_ui/main.py`.
+- `tests/server/test_phone_gate.py`.
+
+### Constraints
+
+- Another device may only GET, and only with the phone key; the PC's map key is refused from outside.
+- One uvicorn server and event loop for the PC and the phone; never a second server thread.

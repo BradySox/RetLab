@@ -272,6 +272,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   It is set per flight.
 - Also: target intel panels, impact-first debriefs, custom kneeboard import, era-gated cockpit
   options.
+- **File > Phone link** shows the map on a phone on the same Wi-Fi. Tick the box, restart,
+  and scan the QR code. The phone can look but not change anything.
 
 ### Campaign systems
 
