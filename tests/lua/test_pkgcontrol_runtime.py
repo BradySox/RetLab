@@ -237,9 +237,9 @@ def test_ready_to_push_pushes_early_when_everyone_is_up() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")])
     _request(h, "ready")
     h.advance_to(2)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     h.assert_no_lua_errors()
 
 
@@ -251,7 +251,7 @@ def test_the_push_is_called_at_the_push_time() -> None:
     h.advance_to(PUSH - 1)
     assert _texts(h) == []
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     h.assert_no_lua_errors()
 
 
@@ -301,7 +301,7 @@ def test_egress_is_called_when_the_strikers_open_from_the_target() -> None:
     h.advance_to(PUSH + 30)
     h.update_unit("Colt", {"x": 9 * NM})
     h.advance_to(PUSH + 40)
-    assert _texts(h)[-1] == "Package Colt, Anvil, push, push."
+    assert _texts(h)[-1] == "Package Colt, Anvil, push."
     h.update_unit("Colt", {"x": 12 * NM})
     h.advance_to(PUSH + 50)
     assert _texts(h)[-1] == "Package Colt, Anvil, all strikers egressed. RTB."
@@ -318,14 +318,14 @@ def test_no_controller_airborne_means_no_package_control() -> None:
     assert _said(h) == []
     h.update_unit("Anvil", {"airborne": True})
     h.advance_to(PUSH + 320)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     h.assert_no_lua_errors()
 
 
 def test_without_luasocket_the_calls_are_text_only() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")], link=False)
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     assert any("LuaSocket" in w for w in h.records("warnings"))
     h.assert_no_lua_errors()
 
@@ -389,7 +389,7 @@ def test_a_checked_in_player_pushes_on_time() -> None:
     h.advance_to(PUSH - 160)
     assert _texts(h) == ["Colt1 1, Anvil, copy ready. Push time 14 10."]
     h.advance_to(PUSH + 10)
-    assert _texts(h)[-1] == "Package Colt, Anvil, push, push."
+    assert _texts(h)[-1] == "Package Colt, Anvil, push."
     h.assert_no_lua_errors()
 
 
@@ -401,7 +401,7 @@ def test_a_silent_striker_is_left_behind_when_another_striker_is_up() -> None:
     h.advance_to(PUSH + 10)
     assert _texts(h)[-2:] == [
         "Colt1 1, Anvil, not checked in. Package pushing without you.",
-        "Package Colt, Anvil, push, push.",
+        "Package Colt, Anvil, push.",
     ]
     h.assert_no_lua_errors()
 
@@ -428,7 +428,7 @@ def test_a_silent_escort_gets_one_hold_then_the_package_pushes() -> None:
     h.advance_to(PUSH + 190)
     assert _texts(h)[-2:] == [
         "Package Colt, Anvil, hold, hold. Eagle1 1 not checked in. New push time 14 13.",
-        "Package Colt, Anvil, push, push.",
+        "Package Colt, Anvil, push.",
     ]
     h.assert_no_lua_errors()
 
@@ -454,5 +454,5 @@ def test_a_silent_sead_holds_twice_then_aborts() -> None:
 def test_an_empty_player_slot_is_not_waited_for() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")])
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Anvil, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push."]
     h.assert_no_lua_errors()
