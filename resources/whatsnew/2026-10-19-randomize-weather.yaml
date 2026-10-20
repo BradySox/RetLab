@@ -1,0 +1,9 @@
+date: 2026-10-19
+title: Randomize weather keeps your flight plans
+change: >-
+  The Time & Weather window has a Randomize weather button. Each press fills
+  the form with new weather near the turn's own. Press ACCEPT to use it; your
+  flight plans stay. The RE-ROLL TURN button is gone, and Re-roll RED on the
+  main bar is now Re-plan RED.
+watch: >-
+  Nothing changes until you press ACCEPT. REJECT keeps the turn's weather.

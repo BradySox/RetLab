@@ -28,7 +28,7 @@ class QTimeAdjustmentWidget(QWidget):
         vbox.addWidget(
             QLabel(
                 '<h4 style="color:orange"><b>ACCEPT keeps your flight plans and re-times '
-                "them. RE-ROLL TURN discards both sides' plans.</b></h4>"
+                "them. Randomize weather only fills in the form.</b></h4>"
             )
         )
 

@@ -1,0 +1,1 @@
+* **[UI]** The Time & Weather window has a Randomize weather button. It fills the form with new weather near the turn's own, and ACCEPT applies it and keeps the flight plans. The RE-ROLL TURN button is gone, and Re-roll RED is renamed Re-plan RED.

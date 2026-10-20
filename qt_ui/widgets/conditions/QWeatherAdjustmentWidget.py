@@ -10,23 +10,22 @@ from PySide6.QtWidgets import (
 from dcs.cloud_presets import CLOUD_PRESETS
 
 from game.utils import mps
-from game.weather.weather import ClearSkies, Cloudy, Raining, Thunderstorm
+from game.weather.weather import ClearSkies, Cloudy, Raining, Thunderstorm, Weather
 from game.weather.wind import MAX_WIND_SPEED
 from qt_ui.widgets.conditions.DcsCloudBaseSelector import DcsCloudBaseSelector
 from qt_ui.widgets.conditions.DcsCloudDensitySelector import DcsCloudDensitySelector
 from qt_ui.widgets.conditions.DcsCloudThicknessSelector import DcsCloudThicknessSelector
 from qt_ui.widgets.conditions.DcsPrecipitationSelector import DcsPrecipitationSelector
-from qt_ui.widgets.conditions.QWeatherWidget import QWeatherWidget
 
 
 class QWeatherAdjustmentWidget(QWidget):
-    def __init__(self, weather: QWeatherWidget) -> None:
+    def __init__(self, weather: Weather) -> None:
         super().__init__()
         self.weather = weather
         self.init_ui()
 
     def init_ui(self) -> None:
-        weather = self.weather.conditions.weather
+        weather = self.weather
 
         vbox = QVBoxLayout()
         label = QLabel("<h2><b>Weather:</b></h2>")

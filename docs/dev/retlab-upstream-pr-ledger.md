@@ -17,7 +17,7 @@ re-verify with GitHub before acting on any line.
 - **[#792](https://github.com/dcs-retribution/dcs-retribution/pull/792) carries four dialog fixes beside the wind rows.** Accept keeps the wind (already there), keeps temperature, pressure, turbulence and fog unless the date or weather type changed, and re-times the flight plans on a time change instead of re-initializing the turn (`AirTaskingOrder.shift_time`, fork #561). The cloud boxes are 100 px wide.
 - **[#977](https://github.com/dcs-retribution/dcs-retribution/pull/977) (draft, stacked on #792) is fork #1172:** sunrise, sunset and moon, the Air & Visibility column, `Weather.dust`, and the `enable_fog` fix.
 - **#977 is the fifth DM exception to the freeze**, granted 2026-10-11 in the project thread. One PR, not a lift.
-- **Upstream differs from the fork on purpose.** #977 has °C/°F and inHg/hPa pickers and 24-hour sun times (upstream's cloud rows have an m/ft picker and its kneeboard prints `%H:%M`). The fork is °F and inHg. Upstream gets no RE-ROLL TURN button (DM call 2026-10-11).
+- **Upstream differs from the fork on purpose.** #977 has °C/°F and inHg/hPa pickers and 24-hour sun times (upstream's cloud rows have an m/ft picker and its kneeboard prints `%H:%M`). The fork is °F and inHg. Upstream gets no RE-ROLL TURN button (DM call 2026-10-11); the fork dropped it too on 2026-10-19 for a Randomize weather button.
 - **Left fork-side:** the offscreen Qt test of the column (upstream's `tests/` imports no `qt_ui`), and the recon kneeboard's use of `sun_times`.
 - **Open list is now 11:** #977 (draft) · #966 (draft) · #925 (draft) · #920 · #896 · #884 · #881 · #874 · #872 (draft) · #792 · #788.
 
