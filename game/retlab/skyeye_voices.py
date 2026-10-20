@@ -1,8 +1,9 @@
 """SkyEye voices by squadron country (§117): the AWACS and the ABCCC sound like their crews.
 
 Each name is a Piper voice folder under SkyEye's voices directory, with ``#speaker`` for one
-speaker of a multi-speaker model. L2-ARCTIC is English read by native speakers of six
-languages, the nearest Piper has to a foreign accent. SkyEye falls back to its own voice
+speaker of a multi-speaker model. L2-ARCTIC is English read by native speakers of other
+languages, the nearest Piper has to a foreign accent; RetLab uses its Arabic and Spanish
+speakers only (user call, 2026-10-20). SkyEye falls back to its own voice
 when a voice is missing. docs/dev/retlab-features.md §117.
 """
 
@@ -33,35 +34,11 @@ ACCENT_VOICES: dict[str, tuple[tuple[str, str], ...]] = {
         (L2 + "SKA", "f"),
         (L2 + "ZHAA", "f"),
     ),
-    "mandarin": (
-        (L2 + "BWC", "m"),
-        (L2 + "TXHC", "m"),
-        (L2 + "LXC", "f"),
-        (L2 + "NCC", "f"),
-    ),
-    "hindi": (
-        (L2 + "ASI", "m"),
-        (L2 + "RRBI", "m"),
-        (L2 + "SVBI", "f"),
-        (L2 + "TNI", "f"),
-    ),
-    "korean": (
-        (L2 + "HKK", "m"),
-        (L2 + "YKWK", "m"),
-        (L2 + "HJK", "f"),
-        (L2 + "YDCK", "f"),
-    ),
     "spanish": (
         (L2 + "EBVS", "m"),
         (L2 + "ERMS", "m"),
         (L2 + "MBMPS", "f"),
         (L2 + "NJS", "f"),
-    ),
-    "vietnamese": (
-        (L2 + "HQTV", "m"),
-        (L2 + "TLV", "m"),
-        (L2 + "PNV", "f"),
-        (L2 + "THV", "f"),
     ),
 }
 
@@ -108,10 +85,6 @@ COUNTRY_ACCENTS: dict[str, str] = {
         ],
         "spanish",
     ),
-    **dict.fromkeys(["India", "Pakistan"], "hindi"),
-    **dict.fromkeys(["South Korea", "North Korea"], "korean"),
-    **dict.fromkeys(["China", "Taiwan"], "mandarin"),
-    "Vietnam": "vietnamese",
 }
 
 
