@@ -286,6 +286,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   The AWACS joins STRIKE only for threats and your own calls. Off by default.
 - **Vacuum ELINT.** On SEAD-heavy turns a KC-135 (Vacuum; a C-130J-30 if none is free) orbits behind the
   AWACS and calls each red radar by bullseye through SkyEye as it comes on. Off by default.
+- **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
+  client, connected to your own server. SkyEye closes after the mission. Off by default.
 
 ### Campaign systems
 

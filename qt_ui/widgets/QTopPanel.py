@@ -20,6 +20,7 @@ from game.profiling import logged_duration
 from game.settings.settings import FastForwardStopCondition
 from game.sim.missionstart import mission_start_time
 from game.utils import meters
+from qt_ui import liberation_install
 from qt_ui.models import GameModel
 from qt_ui.simcontroller import SimController
 from qt_ui.uiflags import UiFlags
@@ -415,6 +416,11 @@ class QTopPanel(QFrame):
         self.sim_controller.generate_miz(
             persistency.mission_path_for("retribution_nextturn.miz")
         )
+
+        if liberation_install.skyeye_autostart():
+            from game.retlab.skyeye_launcher import start_voice_bots
+
+            start_voice_bots(liberation_install.skyeye_dir())
 
         waiting = QWaitingForMissionResultWindow(self.game, self.sim_controller, self)
         waiting.exec_()

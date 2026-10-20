@@ -18,6 +18,8 @@ global __server_port
 global __phone_access
 global __phone_key
 global __ntfy_topic
+global __skyeye_autostart
+global __skyeye_dir
 
 
 def _user_data_path() -> Path:
@@ -49,7 +51,11 @@ def init():
     global __phone_access
     global __phone_key
     global __ntfy_topic
+    global __skyeye_autostart
+    global __skyeye_dir
 
+    __skyeye_autostart = False
+    __skyeye_dir = ""
     __phone_access = False
     __phone_key = ""
     __ntfy_topic = ""
@@ -74,6 +80,8 @@ def init():
             __phone_access = bool(pref_data.get("phone_access", False))
             __phone_key = str(pref_data.get("phone_key", ""))
             __ntfy_topic = str(pref_data.get("ntfy_topic", ""))
+            __skyeye_autostart = bool(pref_data.get("skyeye_autostart", False))
+            __skyeye_dir = str(pref_data.get("skyeye_dir", ""))
             is_first_start = __setup_preferences_on_every_start
         except (KeyError, json.JSONDecodeError):
             __dcs_saved_game_directory = ""
@@ -146,6 +154,8 @@ def save_config():
     global __phone_access
     global __phone_key
     global __ntfy_topic
+    global __skyeye_autostart
+    global __skyeye_dir
     pref_data = {
         "saved_game_dir": __dcs_saved_game_directory,
         "dcs_install_dir": __dcs_installation_directory,
@@ -157,6 +167,8 @@ def save_config():
         "phone_access": __phone_access,
         "phone_key": __phone_key,
         "ntfy_topic": __ntfy_topic,
+        "skyeye_autostart": __skyeye_autostart,
+        "skyeye_dir": __skyeye_dir,
     }
     PREFERENCES_PATH.parent.mkdir(exist_ok=True, parents=True)
     with PREFERENCES_PATH.open("w") as prefs:
@@ -220,6 +232,28 @@ def ntfy_topic() -> str:
 def set_ntfy_topic(topic: str) -> None:
     global __ntfy_topic
     __ntfy_topic = topic
+    save_config()
+
+
+def skyeye_autostart() -> bool:
+    """Whether Take Off starts SRS and SkyEye (§120)."""
+    global __skyeye_autostart
+    return __skyeye_autostart
+
+
+def skyeye_dir() -> Path:
+    """SkyEye's folder: the player's choice, else Retribution's Saved Games folder."""
+    global __skyeye_dir
+    if __skyeye_dir:
+        return Path(__skyeye_dir)
+    return Path(get_saved_game_dir()) / "Retribution" / "SkyEye"
+
+
+def set_skyeye(autostart: bool, folder: str) -> None:
+    global __skyeye_autostart
+    global __skyeye_dir
+    __skyeye_autostart = autostart
+    __skyeye_dir = folder
     save_config()
 
 
