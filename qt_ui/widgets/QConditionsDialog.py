@@ -5,7 +5,6 @@ from typing import Optional, Tuple
 from PySide6.QtWidgets import (
     QDialog,
     QHBoxLayout,
-    QMessageBox,
     QPushButton,
     QVBoxLayout,
 )
@@ -17,6 +16,7 @@ from qt_ui.simcontroller import SimController
 from game.sim import GameUpdateEvents
 from game.utils import knots
 from game.weather.clouds import Clouds
+from game.weather.conditions import Conditions
 from game.weather.wind import WindConditions
 from qt_ui.widgets.conditions.QAtmosphereAdjustmentWidget import (
     QAtmosphereAdjustmentWidget,
@@ -42,32 +42,35 @@ class QConditionsDialog(QDialog):
 
         self.time_adjuster = QTimeAdjustmentWidget(self.time_turn)
         vbox.addWidget(self.time_adjuster, 1)
-        columns = QHBoxLayout()
-        self.weather_adjuster = QWeatherAdjustmentWidget(self.weather)
-        columns.addWidget(self.weather_adjuster, 3)
+        # The weather the two columns started from: the turn's own until
+        # Randomize weather rolls another. ACCEPT keeps whatever was not edited.
+        self.base_weather = self.weather.conditions.weather
+        self.columns = QHBoxLayout()
+        self.weather_column = QVBoxLayout()
+        randomize_btn = QPushButton("Randomize weather")
+        randomize_btn.setToolTip(
+            "Roll new weather near this turn's for the date and time above. "
+            "Fills in the form only; nothing changes until ACCEPT."
+        )
+        randomize_btn.clicked.connect(self.randomize_weather)
+        self.weather_column.addWidget(randomize_btn)
+        self.weather_adjuster = QWeatherAdjustmentWidget(self.base_weather)
+        self.weather_column.addWidget(self.weather_adjuster, 1)
+        self.columns.addLayout(self.weather_column, 3)
         game_loop = self.time_turn.sim_controller.game_loop
         assert game_loop is not None
+        self.auto_fog = game_loop.game.settings.use_auto_fog
         self.atmosphere_adjuster = QAtmosphereAdjustmentWidget(
-            self.weather.conditions.weather, game_loop.game.settings.use_auto_fog
+            self.base_weather, self.auto_fog
         )
-        columns.addWidget(self.atmosphere_adjuster, 2)
-        vbox.addLayout(columns, 8)
+        self.columns.addWidget(self.atmosphere_adjuster, 2)
+        vbox.addLayout(self.columns, 8)
 
         hbox = QHBoxLayout()
         reject_btn = QPushButton("REJECT")
         reject_btn.setProperty("style", "btn-danger")
         reject_btn.clicked.connect(self.close)
         hbox.addWidget(reject_btn)
-        # Re-roll is the explicit, opt-in destructive path: it discards both
-        # ATOs and re-plans for the new conditions. Kept separate from ACCEPT so
-        # simply changing the clock/weather never wipes a hand-built frag.
-        reroll_btn = QPushButton("RE-ROLL TURN")
-        reroll_btn.setToolTip(
-            "Apply the new conditions and generate a fresh plan for both sides. "
-            "Discards the current flight plans."
-        )
-        reroll_btn.clicked.connect(self.reroll_turn)
-        hbox.addWidget(reroll_btn)
         accept_btn = QPushButton("ACCEPT")
         accept_btn.setProperty("style", "btn-success")
         accept_btn.setToolTip(
@@ -80,14 +83,37 @@ class QConditionsDialog(QDialog):
 
         self.setLayout(vbox)
 
+    def randomize_weather(self) -> None:
+        """Fill the form with a new roll near the turn's weather; apply nothing."""
+        qdt: datetime = self.time_adjuster.datetime_edit.dateTime().toPython()
+        game = self.time_turn.sim_controller.game_loop.game
+        theater = game.theater
+        # Nudged from the turn's own weather each press, never from the last
+        # roll, so pressing again does not walk the sky away from the forecast.
+        rolled = Conditions.generate_weather(
+            theater.seasonal_conditions,
+            qdt.date(),
+            theater.daytime_map.best_guess_time_of_day_at(qdt.time()),
+            previous=self.weather.conditions.weather,
+        )
+        self.base_weather = rolled
+        old_weather = self.weather_adjuster
+        self.weather_adjuster = QWeatherAdjustmentWidget(rolled)
+        self.weather_column.replaceWidget(old_weather, self.weather_adjuster)
+        old_weather.deleteLater()
+        old_atmosphere = self.atmosphere_adjuster
+        self.atmosphere_adjuster = QAtmosphereAdjustmentWidget(rolled, self.auto_fog)
+        self.columns.replaceWidget(old_atmosphere, self.atmosphere_adjuster)
+        old_atmosphere.deleteLater()
+
     def _apply_clock_and_weather(
         self,
     ) -> Tuple[Game, SimController, datetime, Optional[datetime]]:
         """Push the dialog's date/time/weather onto the game and sim.
 
-        Shared by both ACCEPT and RE-ROLL; leaves the ATO untouched. Returns the
-        game, sim controller, the new mission start, and the previous mission
-        start (so the caller can decide how to treat the planned flights).
+        Leaves the ATO untouched. Returns the game, sim controller, the new
+        mission start, and the previous mission start (so the caller can decide
+        how to treat the planned flights).
         """
         qdt: datetime = self.time_adjuster.datetime_edit.dateTime().toPython()
 
@@ -104,7 +130,7 @@ class QConditionsDialog(QDialog):
 
         # TODO: create new weather object
 
-        old_weather = self.weather.conditions.weather
+        old_weather = self.base_weather
         new_weather_type = self.weather_adjuster.type_selector.currentData()
         new_weather = new_weather_type(
             seasonal_conditions=game.theater.seasonal_conditions,
@@ -168,28 +194,4 @@ class QConditionsDialog(QDialog):
             game.blue.ato.shift_time(delta)
             game.red.ato.shift_time(delta)
             sim.sim_update.emit(GameUpdateEvents())
-        self.accept()
-
-    def reroll_turn(self) -> None:
-        """Apply the new conditions and RE-PLAN both sides from scratch."""
-        confirm = QMessageBox.question(
-            self,
-            "Re-roll this turn?",
-            (
-                "This discards the current flight plans for both sides and "
-                "generates a fresh plan for the new conditions.<br />"
-                "<br />"
-                "Any hand-built frag for this turn will be lost. Continue?"
-            ),
-            QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.Yes,
-        )
-        if confirm != QMessageBox.StandardButton.Yes:
-            return
-
-        game, sim, _qdt, _current_time = self._apply_clock_and_weather()
-        if game.turn > 0:
-            events = GameUpdateEvents()
-            game.initialize_turn(events, for_blue=True, for_red=True)
-            sim.sim_update.emit(events)
         self.accept()

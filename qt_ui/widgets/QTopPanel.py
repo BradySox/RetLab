@@ -54,7 +54,7 @@ class QTopPanel(QFrame):
             pass_turn_text = "Begin Campaign"
         # Exactly one control in this strip is the primary action, and it is the
         # one that generates and launches the mission. Everything else here —
-        # Pass Turn, Air Wing, Transfers, Re-roll RED — is an ordinary button.
+        # Pass Turn, Air Wing, Transfers, Re-plan RED — is an ordinary button.
         # They all used to carry "btn-primary" too, which is why nothing in the
         # strip read as more important than anything else.
         self.passTurnButton = QPushButton(pass_turn_text)
@@ -91,9 +91,8 @@ class QTopPanel(QFrame):
         # player's (BLUE) hand-built frag untouched -- the coalition-selective form of
         # initialize_turn (the same path the engine uses on a red TGO buy/sell). Handy
         # after editing the enemy laydown so RED retasks onto it without discarding
-        # your packages (unlike the conditions dialog's "Re-roll turn", which wipes
-        # both sides).
-        self.reroll_red_button = QPushButton("Re-roll RED")
+        # your packages.
+        self.reroll_red_button = QPushButton("Re-plan RED")
         self.reroll_red_button.setDisabled(True)
         self.reroll_red_button.setToolTip(
             "Discard and re-plan the RED (enemy) air tasking for this turn while "
@@ -219,7 +218,7 @@ class QTopPanel(QFrame):
 
         confirm = QMessageBox.question(
             self,
-            "Re-roll RED plan?",
+            "Re-plan RED?",
             (
                 "This discards RED's current flight plans and re-plans them for the "
                 "current laydown.<br /><br />"
@@ -231,7 +230,7 @@ class QTopPanel(QFrame):
         if confirm != QMessageBox.StandardButton.Yes:
             return
 
-        with logged_duration("Re-rolling RED plan"):
+        with logged_duration("Re-planning RED"):
             events = GameUpdateEvents()
             game.initialize_turn(events, for_red=True, for_blue=False)
             EventStream.put_nowait(events)
