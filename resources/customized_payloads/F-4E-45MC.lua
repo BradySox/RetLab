@@ -74,11 +74,11 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL_R}",
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{HB_F4E_AGM-65A_LAU117_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
@@ -114,7 +114,7 @@ local unitPayloads = {
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{HB_F4E_AGM-65A_LAU117_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
 				[13] = {
@@ -122,7 +122,7 @@ local unitPayloads = {
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
 			},
@@ -310,11 +310,11 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL_R}",
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
@@ -350,7 +350,7 @@ local unitPayloads = {
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
 				[13] = {
@@ -358,7 +358,7 @@ local unitPayloads = {
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
 			},
@@ -554,7 +554,7 @@ local unitPayloads = {
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
@@ -574,7 +574,7 @@ local unitPayloads = {
 					["num"] = 5,
 				},
 				[8] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
 				[9] = {
@@ -722,11 +722,11 @@ local unitPayloads = {
 					["num"] = 14,
 				},
 				[2] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL_R}",
 					["num"] = 13,
 				},
 				[3] = {
-					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 11,
 				},
 				[4] = {
@@ -762,7 +762,7 @@ local unitPayloads = {
 					["num"] = 4,
 				},
 				[12] = {
-					["CLSID"] = "{LAU_34_AGM_45B_SWA}",
+					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
 				[13] = {
@@ -770,7 +770,7 @@ local unitPayloads = {
 					["num"] = 2,
 				},
 				[14] = {
-					["CLSID"] = "{LAU_34_AGM_45B}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
 			},
