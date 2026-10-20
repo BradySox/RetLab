@@ -37,7 +37,7 @@ MIZ = Path("resources/campaigns/red_bear_1985.miz")
 USAF = "USAF 1985"
 USSR = "USSR 40th Army 1985"
 MAYMANA = "Maymana Zahiraddin Faryabi"
-BLUE = {"Herat", "Shindand", "Kandahar"}
+BLUE = {"Herat", "Shindand", "Camp Bastion"}
 RED = {
     "Qala i Naw",
     MAYMANA,
@@ -118,7 +118,7 @@ def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     }
     assert isinstance(theater.control_point_named("Termez"), OffMapSpawn)
     # The heavies' rear is on the map, and no road joins it to the war.
-    assert not theater.control_point_named("Kandahar").connected_points
+    assert not theater.control_point_named("Camp Bastion").connected_points
 
 
 def test_every_red_point_inverts_and_no_blue_one_does(

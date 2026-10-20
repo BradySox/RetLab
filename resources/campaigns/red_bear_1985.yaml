@@ -15,7 +15,7 @@ description:
   Bagram and Kabul. The south is out of the war.</p>
   <p>The F-4E carries the wing. It flies CAP, close support, Shrike work against the
   SA-6 and SA-8, and bombing in the valleys. The B-52s, tankers and the E-3A fly from
-  Kandahar, far behind the fighting. Take Bagram and Kabul to win; lose Herat and you
+  Camp Bastion, far behind the fighting. Take Bagram and Kabul to win; lose Herat and you
   lose.</p>
   <p>Every unit is stock DCS.</p>
 miz: red_bear_1985.miz
@@ -74,8 +74,8 @@ squadrons:
       aircraft:
         - 425th TFTS
       size: 8
-  # Kandahar, the rear: neither Herat nor Shindand has a stand for the heavies.
-  Kandahar:
+  # Camp Bastion, the rear: neither Herat nor Shindand has a stand for the heavies.
+  Camp Bastion:
     - primary: Strike
       aircraft:
         - 20th Bomb Squadron

@@ -11,7 +11,7 @@ Design note: docs/dev/design/retlab-red-bear-1985-campaign-notes.md
 
 What it writes:
 
-1.  **Ownership.** Blue holds Herat and Shindand, and Kandahar as a rear base for the
+1.  **Ownership.** Blue holds Herat and Shindand, and Camp Bastion as a rear base for the
     heavies with no road to the war; red holds the seven northern and eastern fields.
     Every other field is neutral, so the south stays out of the fighting.
 2.  **Invert Sides.** Every red control point carries the invert flag.
@@ -54,9 +54,9 @@ SOURCE_YAML = _REPO_ROOT / "resources/campaigns/graveyard_of_empires.yaml"
 DEST = _REPO_ROOT / "resources/campaigns/red_bear_1985.miz"
 
 MAYMANA = "Maymana Zahiraddin Faryabi"
-#: Kandahar is blue's rear: the only field in reach with stands for the heavies. No
+#: Camp Bastion is blue's rear, with stands for the heavies (the DM's pick). No
 #: road joins it to the war, so no front opens in the south.
-BLUE_AIRFIELDS = ("Herat", "Shindand", "Kandahar")
+BLUE_AIRFIELDS = ("Herat", "Shindand", "Camp Bastion")
 RED_AIRFIELDS = (
     "Qala i Naw",
     MAYMANA,
@@ -92,7 +92,7 @@ SCUD_SITE = ("RB85-Kabul-Scud", "Kabul")
 # or FOB name. Placement as in build_corporate_1982_miz.py. SAM and EWR markers go
 # in the red block, the loader's side-agnostic default.
 ADDED_MARKERS: tuple[tuple[str, str, Any, str, str], ...] = (
-    # Herat, Shindand and Kandahar: the wing's Hawk batteries, radars and guns.
+    # Herat, Shindand and Camp Bastion: the wing's Hawk batteries, radars and guns.
     ("RB85-Herat-EWR", "Herat", EWR, RED_BLOCK, "ring"),
     ("RB85-Herat-Hawk", "Herat", MEDIUM_SAM, RED_BLOCK, "axis"),
     ("RB85-Herat-AAA-1", "Herat", AAA, RED_BLOCK, "near"),
@@ -102,8 +102,8 @@ ADDED_MARKERS: tuple[tuple[str, str, Any, str, str], ...] = (
     ("RB85-Shindand-Hawk", "Shindand", MEDIUM_SAM, RED_BLOCK, "axis"),
     ("RB85-Shindand-AAA-1", "Shindand", AAA, RED_BLOCK, "near"),
     ("RB85-Shindand-AAA-2", "Shindand", AAA, RED_BLOCK, "near"),
-    ("RB85-Kandahar-Hawk", "Kandahar", MEDIUM_SAM, RED_BLOCK, "axis"),
-    ("RB85-Kandahar-AAA", "Kandahar", AAA, RED_BLOCK, "near"),
+    ("RB85-Bastion-Hawk", "Camp Bastion", MEDIUM_SAM, RED_BLOCK, "axis"),
+    ("RB85-Bastion-AAA", "Camp Bastion", AAA, RED_BLOCK, "near"),
     # The northern axis: Qala i Naw, Maymana and the two FOBs.
     ("RB85-QalaiNaw-SHORAD", "Qala i Naw", SHORAD, RED_BLOCK, "near"),
     ("RB85-QalaiNaw-AAA", "Qala i Naw", AAA, RED_BLOCK, "near"),
