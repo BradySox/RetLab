@@ -256,7 +256,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -346,6 +346,7 @@ linked design note.
 114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
 115. **Phone map** — the map on a phone over home Wi-Fi, view-only, behind its own key; an ntfy turn ping. Off by default.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
+117. **AWACS package controller** — the blue AWACS calls check-in, push, hold or abort and egress to player packages, live over SRS. Off by default.
 
 ### Retired, removed or shelved — do not restore
 

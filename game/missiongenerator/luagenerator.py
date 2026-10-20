@@ -45,6 +45,7 @@ from .navalmagazineluadata import populate_naval_magazines_lua
 from .neutralborderluadata import populate_neutral_border_lua
 from .redscrambleluadata import populate_red_scramble_lua
 from game.retlab.ai_fill import populate_ai_fill_lua
+from game.retlab.package_control import populate_package_control_lua
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
@@ -490,6 +491,11 @@ class LuaGenerator:
         # AI fills an empty player flight (§113) -- emits dcsRetribution.aiFill only when a
         # flight carries an AI twin; the aifill plugin launches a twin whose seats stay empty.
         populate_ai_fill_lua(lua_data, self.game, self.mission_data)
+
+        # AWACS package controller (§117) -- emits dcsRetribution.packageControl only when
+        # package_controller is on and a blue AWACS and a player package fly; the
+        # pkgcontrol plugin speaks the check-in, push, hold/abort and egress calls on SRS.
+        populate_package_control_lua(lua_data, self.game, self.mission_data)
 
         # Neutral-faction border defense (§98) -- emits dcsRetribution.neutralBorder
         # only when neutral_border_defense is on and the generator could build

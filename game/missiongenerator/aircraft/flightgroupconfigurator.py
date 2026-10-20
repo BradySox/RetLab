@@ -41,6 +41,7 @@ from .liveryallocator import LiveryAllocator
 from .waypoints import WaypointGenerator
 from ...ato.flightmember import FlightMember
 from ...ato.flightplans.aewc import AewcFlightPlan
+from ...ato.flightplans.loiter import LoiterFlightPlan
 from ...ato.flightplans.packagerefueling import PackageRefuelingFlightPlan
 from ...ato.flightplans.uizonedisplay import UiZoneDisplay
 from ...ato.flightplans.theaterrefueling import TheaterRefuelingFlightPlan
@@ -210,6 +211,12 @@ class FlightGroupConfigurator:
                 else None
             ),
             activation_delay=waypoint_generator.activation_delay,
+            push_time=(
+                flight_plan.push_time
+                if isinstance(flight_plan, LoiterFlightPlan)
+                and getattr(flight_plan.layout, "hold", None) is not None
+                else None
+            ),
         )
 
         self.register_escort_leash()

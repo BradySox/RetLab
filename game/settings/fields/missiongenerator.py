@@ -451,6 +451,32 @@ class MissionGeneratorSettings:
             "Match the callsign line in SkyEye's config.yaml."
         ),
     )
+    package_controller: bool = boolean_option(
+        "AWACS package controller (live SRS voice)",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            "The blue AWACS talks to your package on the package frequency through "
+            "SRS: a check-in reply from the F10 radio menu, the push call at your "
+            "push time, a hold when the SEAD or escort is not airborne, an abort when "
+            "the target is already destroyed or the SEAD is lost, and the egress call. "
+            "Needs the SRS server running and DCS's mission scripting sandbox opened "
+            "(Retribution's own install step). Without SRS the calls show as text."
+        ),
+    )
+    package_controller_srs_path: str = text_option(
+        "SRS External Audio folder",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=r"C:\ProgramData\DCS-SimpleRadio-Standalone\ExternalAudio",
+        placeholder=r"C:\ProgramData\DCS-SimpleRadio-Standalone\ExternalAudio",
+        enabled_when="package_controller",
+        detail=(
+            "The folder holding DCS-SR-ExternalAudio.exe, which speaks the AWACS "
+            "package controller's calls on SRS."
+        ),
+    )
     use_ai_combat_landing: bool = boolean_option(
         "Use AI combat landing waypoint task",
         page=MISSION_GENERATOR_PAGE,

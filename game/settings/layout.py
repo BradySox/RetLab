@@ -363,6 +363,8 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "voice_awacs",
                     "voice_awacs_frequency",
                     "voice_awacs_callsign",
+                    "package_controller",
+                    "package_controller_srs_path",
                 ],
             ),
             (
@@ -589,6 +591,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "dtc_data_cartridges",  # §74
         "generate_sitrep_kneeboard",  # §29
         "voice_awacs",  # §116
+        "package_controller",  # §117
     ],
     "Carrier": [
         "carrier_deck_decorations",  # §72

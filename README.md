@@ -281,6 +281,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Voice AWACS on SRS (SkyEye).** If you run the free SkyEye GCI bot on your SRS server,
   this setting makes blue AWACS go quiet, keeps SkyEye's frequency free, and lists it on the
   kneeboard and briefing. Off by default.
+- **AWACS package controller.** The blue AWACS talks to your package on its frequency
+  over SRS: check-in from the F10 menu, the push call, holds and aborts, and egress.
+  Off by default.
 
 ### Campaign systems
 

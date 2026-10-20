@@ -11128,6 +11128,45 @@ count. Built 2026-10-19. Not flown (row B254).
 - One uvicorn server and event loop for the PC and the phone; never a second server thread.
 - A turn ping is sent in the background and never fails the turn.
 
+## §117 — AWACS package controller
+
+A setting on the RetLab Features page, **AWACS package controller (live SRS voice)**, off by
+default. The first live blue AWACS talks to each blue package with a player in it, on that
+package's frequency, through SRS's External Audio program (MOOSE `MSRS`, Windows voice, male
+en-US). Every call is also shown as text to the package's player groups, so it works without
+SRS. With no blue AWACS alive nothing is said.
+
+- **Check-in:** F10 > AWACS > Check in. "Colt 1, Darkstar, radar contact. Cleared direct
+  hold, angels 20. Push time 14 32."
+- **Push:** at the package push time (the earliest strike flight's HOLD departure).
+- **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
+  After that the package pushes if any SEAD is airborne (or it has none), else aborts.
+- **Abort:** at the push, when every target unit of the strike flights is dead, or every
+  SEAD flight has been lost after it appeared.
+- **Egress:** once every live striker has come within 30 NM of the target and is opening
+  past 10 NM. Given up an hour after the push.
+
+Built 2026-10-20 from a survey of how hand-built campaigns use an AWACS as the package
+controller (recorded clips on scripted triggers, F10 check-in, a push-time hack). The
+2026-08-18 removal of the synthesized voice net (§89 P4) was on "the AI already uses the
+radio"; this one speaks live instead of pre-rendering, and pairs with §116's silenced E-3.
+A test call through SRS 2.4.1 External Audio went out cleanly on 251.0 AM. Not flown (row
+B258).
+
+### Files
+
+- `game/retlab/package_control.py`: `dcsRetribution.packageControl`.
+- `game/missiongenerator/aircraft/flightdata.py` (`push_time`), `flightgroupconfigurator.py`.
+- `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SRS voice.
+- `game/settings/fields/missiongenerator.py`, `game/settings/layout.py`: the setting and the
+  External Audio folder.
+- `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
+
+### Constraints
+
+- Speech needs DCS's mission scripting sandbox opened (`os`, `io`), Retribution's own install
+  step. MSRS starts each call with `os.execute`, which can cost a short hitch per call.
+- Calls only for packages with a player seat; AI-only packages get none.
 ## §116 — Voice AWACS on SRS
 
 A setting on the RetLab Features page, **Voice AWACS on SRS (SkyEye)**, off by default, for a SkyEye
