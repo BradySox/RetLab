@@ -488,8 +488,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Red Bear 1985** — fictional: a USAF F-4E wing holds Herat and Shindand in January 1985,
   and the Soviet 40th Army holds the north and Kabul. One axis follows the ring road through
   Maymana and Mazar-i-Sharif to the Salang; the other crosses the mountains through Chaghcharan
-  and Bamyan. Take Bagram and Kabul to win, lose Herat and you lose. The B-52s, tankers and E-3A
-  fly from Kandahar, behind the fighting. Stock DCS units only.
+  and Bamyan. Take Bagram and Kabul to win, lose Herat and you lose. A networked Soviet IADS runs
+  from the 40th Army HQ in Kabul: bomb its comms towers, power plants and HQs to blind it. The
+  B-52s, tankers and E-3A fly from Camp Bastion, behind the fighting. Stock DCS units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

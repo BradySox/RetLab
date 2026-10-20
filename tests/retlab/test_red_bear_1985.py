@@ -2,7 +2,7 @@
 
 A fictional winter war across the top of the Afghanistan map: the USAF holds Herat
 and Shindand, the Soviet 40th Army holds the north and Kabul, and the south is out
-of play. Built from the map by ``tools/build_red_bear_1985_miz.py``.
+of play. The .miz is the DM's hand laydown (no build tool).
 
 What these pin is what fails silently:
 
@@ -37,7 +37,7 @@ MIZ = Path("resources/campaigns/red_bear_1985.miz")
 USAF = "USAF 1985"
 USSR = "USSR 40th Army 1985"
 MAYMANA = "Maymana Zahiraddin Faryabi"
-BLUE = {"Herat", "Shindand", "Kandahar"}
+BLUE = {"Herat", "Shindand", "Camp Bastion"}
 RED = {
     "Qala i Naw",
     MAYMANA,
@@ -118,7 +118,7 @@ def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     }
     assert isinstance(theater.control_point_named("Termez"), OffMapSpawn)
     # The heavies' rear is on the map, and no road joins it to the war.
-    assert not theater.control_point_named("Kandahar").connected_points
+    assert not theater.control_point_named("Camp Bastion").connected_points
 
 
 def test_every_red_point_inverts_and_no_blue_one_does(
@@ -212,10 +212,12 @@ def test_every_squadron_flies_a_type_in_its_sides_faction(
     assert phantoms == 44
 
 
-def test_the_miz_matches_the_tool() -> None:
+def test_the_laydown_keeps_its_flavor() -> None:
+    """The DM's hand laydown plus the scenery lifted from the Starfire campaigns."""
     mission = Mission()
     mission.load_file(str(MIZ))
     names = set()
+    types = set()
     for coalition in mission.coalition.values():
         for country in coalition.countries.values():
             for group in (
@@ -224,11 +226,84 @@ def test_the_miz_matches_the_tool() -> None:
                 + list(country.plane_group)
             ):
                 names.add(group.name)
+                types.add(group.units[0].type)
     assert {
         "Mazar-i-Sharif",
         "Pul-i-Khumri",
         "Termez",
         "RB85-Kabul-Scud",
-        "RB85-Herat-Factory",
+        "RB85-Bastion-Hawk",
         "RB85 Road Pul-i-Khumri - Bagram (Salang)",
     } <= names
+    # An AAV7 is no marker the loader reads; the DM's three are armor now.
+    assert "AAV7" not in types
+    zones = {zone.name for zone in mission.triggers.zones()}
+    assert {"Salma Dam Turbine", "Kabul Ammo Depot Office", "Malan Bridge"} <= zones
+    assert not any(name.startswith("Parwan Police") for name in zones)
+
+
+def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    """Skynet in range mode: two HQs, comms towers and power on real places."""
+    campaign, _ = loaded
+    assert campaign.advanced_iads
+    mission = Mission()
+    mission.load_file(str(MIZ))
+    statics = [
+        group.units[0].type
+        for country in mission.coalition["red"].countries.values()
+        for group in country.static_group
+        if group.name.startswith("RB85-IADS-")
+    ]
+    assert statics.count(".Command Center") == 2
+    assert statics.count("Comms tower M") == 14
+    assert statics.count("GeneratorF") == 10
+    # One SA-5 guards Kabul and Bagram; the faction's only long-range preset.
+    sa5 = [
+        group
+        for country in mission.coalition["red"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "S-300PS 5P85C ln"
+    ]
+    assert [group.name for group in sa5] == ["RB85-Shomali-SA5"]
+    # Every red base has its own early-warning radar; Herat and Shindand hold the
+    # other two (EWR markers sit in the red block whichever side owns them).
+    ewrs = {
+        group.name
+        for country in mission.coalition["red"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "1L13 EWR"
+    }
+    assert len(ewrs) == 11
+    # Blue's Hawks fight on their own: no node is blue.
+    for country in mission.coalition["blue"].countries.values():
+        assert not any(g.name.startswith("RB85-IADS-") for g in country.static_group)
+
+
+def test_every_scenery_set_loads(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    _, theater = loaded
+    # Sixteen sets: ten from Graveyard of Empires, six from Clash of the Titans.
+    assert sum(len(cp.preset_locations.scenery) for cp in theater.controlpoints) == 16
+    salma = next(
+        cp
+        for cp in theater.controlpoints
+        for group in cp.preset_locations.scenery
+        if any(zone.name == "Salma Dam Turbine" for zone in group.zones)
+    )
+    # The dam is red's, a target on the central axis.
+    assert salma.starting_coalition.is_red
+
+
+def test_every_road_leaves_its_bases_off_road() -> None:
+    """An On Road first leg the editor cannot path crashes it (dcs.log, 2026-10-20)."""
+    mission = Mission()
+    mission.load_file(str(MIZ))
+    roads = [
+        group
+        for country in mission.coalition["blue"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "M-113"
+    ]
+    assert len(roads) == len(ROADS)
+    for group in roads:
+        assert group.points[0].action.value == "Off Road", group.name
+        assert group.points[-1].action.value == "Off Road", group.name

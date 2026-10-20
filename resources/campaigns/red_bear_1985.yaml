@@ -5,23 +5,29 @@ authors: RetLab
 recommended_player_faction: USAF 1985
 recommended_enemy_faction: USSR 40th Army 1985
 description:
-  <p>Winter 1985, and the Cold War has gone hot. A USAF expeditionary wing holds
-  Herat and Shindand in the west. The Soviet 40th Army holds the north and Kabul,
-  and its MiG-21s and MiG-23s fly from Maymana, Bagram and Kabul.</p>
-  <p>The war runs across the top of the map on two axes. The northern axis follows
-  the ring road through Qala i Naw, Maymana and Mazar-i-Sharif, then south through
-  the Salang to Bagram. The central axis follows the Hari Rud road over the
-  mountains through Chaghcharan and Bamyan to Kabul. SA-2 and SA-3 rings guard
-  Bagram and Kabul. The south is out of the war.</p>
-  <p>The F-4E carries the wing. It flies CAP, close support, Shrike work against the
-  SA-6 and SA-8, and bombing in the valleys. The B-52s, tankers and the E-3A fly from
-  Kandahar, far behind the fighting. Take Bagram and Kabul to win; lose Herat and you
-  lose.</p>
-  <p>Every unit is stock DCS.</p>
+  <p><strong>Note -</strong> This campaign was designed for the F-4E Phantom II. Every
+  unit is stock DCS.</p>
+  <p>In the autumn of 1984, the Kremlin decided the war in Afghanistan would be won
+  before another winter set in. When mujahideen under Ismail Khan seized Herat and the
+  Soviet air base at Shindand, Moscow massed the 40th Army to retake the west.
+  Washington, invoking the Carter Doctrine, answered by flying a USAF expeditionary wing
+  into the captured fields. What began as a covert war is now an open one.</p>
+  <p>It is January 1985, and snow has closed the high passes. The Phantoms at Herat and
+  Shindand face a Soviet front that runs from the northern plains to the valleys of the
+  Hindu Kush. Two roads lead to Kabul. The northern route runs through Maymana and
+  Mazar-i-Sharif and over the Salang Pass to Bagram. The central route follows the Hari
+  Rud past the Salma Dam, through Chaghcharan and Bamyan.</p>
+  <p>Every Soviet SAM site answers to an integrated air defense network commanded from
+  the Darul Aman Palace in Kabul, and its radars, comms towers and power plants matter
+  as much as its missiles. Take Bagram and Kabul, and the Soviet war in Afghanistan is
+  over. Lose Herat, and so is ours.</p>
 miz: red_bear_1985.miz
 performance: 1
 recommended_start_date: 1985-01-15
 version: "10.9"
+# The Soviet net is wired by range from the .miz's command centres, comms towers and
+# power sources (comms within 15 NM, power within 35 NM). Blue has no nodes.
+advanced_iads: true
 settings:
   squadron_start_full: true
   # 1985: AIM-9L and AGM-45 yes, AMRAAM and HARM no.
@@ -74,8 +80,8 @@ squadrons:
       aircraft:
         - 425th TFTS
       size: 8
-  # Kandahar, the rear: neither Herat nor Shindand has a stand for the heavies.
-  Kandahar:
+  # Camp Bastion, the rear: neither Herat nor Shindand has a stand for the heavies.
+  Camp Bastion:
     - primary: Strike
       aircraft:
         - 20th Bomb Squadron
