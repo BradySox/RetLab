@@ -978,6 +978,26 @@ def test_enable_csar_if_capable_skips_incapable_squadron() -> None:
     assert FlightType.CSAR not in squadron.auto_assignable_mission_types
 
 
+def test_skyeye_roles_seed_into_capable_squadrons() -> None:
+    """ABCCC (§117) and ELINT (§118): no campaign lists them, so capable squadrons
+    are opted in like CSAR; a fighter gets neither."""
+    from game.squadrons.squadron import Squadron
+
+    def seeded(name: str, tasks: set[FlightType]) -> set[FlightType]:
+        squadron = Squadron.__new__(Squadron)
+        squadron.aircraft = _aircraft_named(name)
+        squadron.auto_assignable_mission_types = set(tasks)
+        squadron.enable_skyeye_roles_if_capable()
+        return squadron.auto_assignable_mission_types
+
+    c130 = seeded("C-130J-30", {FlightType.TRANSPORT})
+    assert {FlightType.ABCCC, FlightType.ELINT} <= c130
+    kc135 = seeded("KC-135 Stratotanker", {FlightType.REFUELING})
+    assert FlightType.ELINT in kc135 and FlightType.ABCCC not in kc135
+    hornet = seeded("F/A-18C Hornet (Lot 20)", {FlightType.CAS})
+    assert hornet == {FlightType.CAS}
+
+
 def test_set_auto_assignable_does_not_force_csar_on() -> None:
     """The Air Wing dialog applies the player's explicit choices through this
     method, so it must stay a pure filter or CSAR could never be turned off."""
