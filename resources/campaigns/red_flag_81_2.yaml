@@ -3,20 +3,21 @@ name: Nevada - Red Flag 81-2
 era: vietnam
 theater: Nevada
 authors: RetLab (laydown after Reflected Simulations' F-4E Red Flag 81-2)
-description:
-    <p><strong>Nellis AFB, January 1981.</strong> Your F-4E wing detachment has arrived for
-    <strong>Red Flag 81-2</strong> &mdash; the ultimate war game, flown over the Nevada
-    ranges the way it was meant to be fought &mdash; the war the exercise was built to rehearse.
-    The Red Force holds the north ranges &mdash; <strong>64th/65th Aggressor F-5Es</strong>
-    flying MiG-21 GCI doctrine, the <strong>4477th "Red Eagles" Constant Peg MiGs out of
-    Tonopah Test Range</strong>, an SA-2/SA-3/SA-6 emulator array around <strong>Tolicha
-    Peak</strong>, Fire Can-directed KS-19 flak belts on every corridor, and a simulated
-    enemy army dug in on the FEBA north of <strong>Camp Mercury</strong>.</p>
-    <p>The flag escalates week by week &mdash; restrictions release as you prove the force
-    &mdash; but the <strong>Groom Lake box never opens</strong> &mdash; enter it and the
-    assessment bleeds. Break the Red Force's capacity to contest before the TAC assessment breaks you,
-    and the detachment graduates.</p>
-    <p><strong>Check six &mdash; the aggressors brief your kills at the bar tonight.</strong></p>
+description: >-
+  <p><strong>Note -</strong> Built for High Digit SAMs, the OV-10A mod and Vietnam War
+  Vessels; New Game ticks them.</p>
+  <p>Red Flag was born of Vietnam, where most aircrew who were lost went down in their
+  first ten combat missions. Since 1975, the Air Force has flown those ten missions over
+  the Nevada ranges instead, against aggressor pilots who fly like the enemy and SAM
+  emulators that track like the real thing.</p>
+  <p>It is January 1981, and your F-4E wing detachment has arrived at Nellis for Red
+  Flag 81-2. The Red Force holds the north ranges. The 64th and 65th Aggressor Squadrons
+  fly their F-5Es on MiG-21 ground-controlled tactics, the Red Eagles bring real MiGs
+  out of Tonopah Test Range, an SA-2, SA-3 and SA-6 emulator array surrounds Tolicha
+  Peak, Fire Can-directed flak covers every corridor, and a simulated enemy army is dug
+  in north of Camp Mercury. The Groom Lake box never opens.</p>
+  <p>Break the Red Force, or take the range complex, and the detachment graduates. Check
+  six. The aggressors brief your kills at the bar tonight.</p>
 
 recommended_player_faction: USA Red Flag 1981
 recommended_enemy_faction: Red Force 1981 (Nellis Aggressors)

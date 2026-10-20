@@ -4,23 +4,26 @@ theater: GermanyCW
 authors: RetLab
 recommended_player_faction: NATO Baltic 2027
 recommended_enemy_faction: Redfor (Russia) 2020
-description: >
-  <p>The Russian drive across the North German Plain has spent itself. In three weeks the
-  spearhead overran Schleswig-Holstein, seized the Baltic coast, forced the Danish straits and
-  put the red banner over Copenhagen -- and then it culminated, outrunning its fuel and ground
-  down by the first NATO air. The line has stalled along the Lübeck neck. Now the initiative
-  changes hands, and it comes from the sea.</p>
-  <p>The United States Sixth Fleet is in the German Bight. A carrier strike group built around
-  USS Harry S. Truman steams off the Frisian coast, its Super Hornet wing wing-to-wing with the
-  RetLab's Raptors and Strike Eagles surging into Nordholz. Ahead lies the
-  hardest air-defense problem in Europe: a coastal anti-ship wall of Bastion-P and Bal missiles
-  that keeps the fleet at arm's length, S-400 regiments over Rostock and Copenhagen, and the
-  Baltic Fleet loose in the approaches.</p>
-  <p>Break the coastal belt. Win the air battle over the Bight and the Baltic approaches. Roll
-  the Red Army back up the coast -- Lübeck, Rostock, Peenemünde -- force the Danish straits, and
-  liberate Copenhagen. He is reeling and out of position. Do not let him set his feet.</p>
-  <p><em>A red storm over the Baltic Approaches -- the maritime flank of the war the Cold War
-  never had.</em></p>
+description: >-
+  <p><strong>Note -</strong> Built for the Super Hornet and F-22 mods, CurrentHill's
+  USA, UK, Sweden and Russia Asset Packs and High Digit SAMs; New Game ticks them
+  all.</p>
+  <p>In the summer of 2027, the Russian drive across the North German Plain spent
+  itself. In three weeks the spearhead overran Schleswig-Holstein, seized the Baltic
+  coast, forced the Danish straits and put the red banner over Copenhagen. Then it
+  culminated, outrunning its fuel and ground down by the first NATO air. The line has
+  stalled along the Lübeck neck, and the initiative is about to change hands. It will
+  come from the sea.</p>
+  <p>The Sixth Fleet is in the German Bight. A carrier strike group built around USS
+  Harry S. Truman steams off the Frisian coast, and Raptors and Strike Eagles are
+  surging into Nordholz. Ahead lies the hardest air defense problem in Europe: a coastal
+  wall of Bastion-P and Bal missiles that keeps the fleet at arm's length, S-400
+  regiments over Rostock and Copenhagen, and the Baltic Fleet loose in the
+  approaches.</p>
+  <p>Break the coastal belt, win the air over the Bight, and roll the Red Army back up
+  the coast through Lübeck, Rostock and Peenemünde. Force the Danish straits and
+  liberate Copenhagen. He is reeling and out of position. Do not let him set his
+  feet.</p>
 miz: operation_baltic_fury.miz
 performance: 2
 # Advanced (networked) IADS: red SAM bases carry co-located Command Center + Comms + Generator

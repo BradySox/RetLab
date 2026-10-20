@@ -4,19 +4,22 @@ theater: Iraq
 authors: Flash, RetLab
 recommended_player_faction: NATO Desert Storm
 recommended_enemy_faction: Iraq 1991
-description:
-  <p>It was said Baghdad was the most well defended city in the world before Desert
-  Storm -- denser than Hanoi at the height of Rolling Thunder. The French-built KARI
-  network ties every SA-2, SA-3 and Roland ring back through sector operations centers
-  to one air defense operations center in Baghdad, and the Iraqi Air Force sits on
-  GCI alert behind it -- the Foxbats of Qadessiya at Al-Asad closest of all.</p>
-  <p>Tonight that claim gets tested. In the war's opening hours the coalition seized
-  the three H-3 desert strips on the western border; the tanker bridge and the AWACS
-  orbits run from the Saudi rear behind them. Strike east up the old pipeline road --
-  put out KARI's eyes, collapse the SAM rings, hunt the Scud launchers in the western
-  baskets, and climb the ladder -- H-2, then Qadessiya, then the Habbaniyah line --
-  until the ground offensive can end it at Baghdad's gates. Saddam has promised his people
-  <em>Umm al-Ma'arik</em> -- the Mother of all Battles. Give it to him.</p>
+description: >-
+  <p><strong>Note -</strong> Built by RetLab from Flash's campaign. Every unit is stock
+  DCS.</p>
+  <p>It was said that Baghdad was the best-defended city in the world, denser than Hanoi
+  at the height of Rolling Thunder. The French-built KARI network ties every SA-2, SA-3
+  and Roland ring back through sector operations centers to one air defense operations
+  center in Baghdad, and the Iraqi Air Force sits on alert behind it, with the Foxbats
+  of Qadessiya at Al-Asad closest of all.</p>
+  <p>On the night of 17 January 1991, that claim gets tested. In the war's opening hours
+  the coalition seized the three H-3 desert strips on the western border, and the tanker
+  bridge and AWACS orbits run from the Saudi rear behind them. Strike east up the old
+  pipeline road. Put out KARI's eyes, collapse the SAM rings, hunt the Scud launchers in
+  the western baskets, and climb the ladder through H-2, Qadessiya and the Habbaniyah
+  line until the ground offensive can end it at Baghdad's gates.</p>
+  <p>Saddam has promised his people Umm al-Ma'arik, the Mother of all Battles. Give it
+  to him.</p>
 miz: iraq_desert_storm.miz
 performance: 2
 # Advanced (networked) IADS -- the KARI network: red SAM hubs carry co-located Command
