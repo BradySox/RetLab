@@ -276,13 +276,14 @@ local function playerUnits(flight)
 end
 
 -- The flight and ship number a heard callsign is: "viper 1 1" is the lead, "viper 1 2" ship 2.
+-- The flight callsign alone, "viper 1", is the lead: the AWACS and ABCCC cards teach it.
 local function findFlight(callsign)
     local key = normalize(callsign or "")
     if key == "" then
         return nil, nil
     end
     for _, flight in ipairs(flights) do
-        if key == flight.key then
+        if key == flight.key or key == flight.prefix then
             return flight, 1
         end
         local member = tonumber(key:sub(-1))

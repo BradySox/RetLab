@@ -295,6 +295,14 @@ def test_a_wingman_gets_their_own_landing_clearance() -> None:
     h.assert_no_lua_errors()
 
 
+def test_the_flight_callsign_alone_is_the_lead() -> None:
+    h = _harness()
+    _call(h, "startup", callsign="viper 1")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, cleared for engine start."]
+    h.assert_no_lua_errors()
+
+
 def test_an_unknown_callsign_is_asked_again() -> None:
     h = _harness()
     _call(h, "taxi", callsign="cobra 2 1")
