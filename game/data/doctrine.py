@@ -420,6 +420,7 @@ VIETNAM_TASK_DISPLAY_NAMES: Mapping[FlightType, str] = {
     FlightType.OCA_AIRCRAFT: "Airfield Strike",
     FlightType.TARPS: "Photo Recon",
     FlightType.JAMMING: "Standoff Jamming",
+    FlightType.PACKAGE_CONTROL: "ABCCC",
     FlightType.AEWC: "College Eye",
     FlightType.TRANSPORT: "Airlift",
 }

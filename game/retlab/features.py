@@ -956,7 +956,7 @@ FEATURES: tuple[Feature, ...] = (
     ),
     Feature(
         "package_controller",
-        "AWACS package controller",
+        "Airborne package control",
         117,
         plugin_id="pkgcontrol",
         settings_fields=("package_controller",),

@@ -15,6 +15,7 @@ from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.luagenerator import LuaData
 from game.radio.radios import MHz
 from game.retlab.package_control import (
+    other_voice,
     populate_package_control_lua,
     role_for,
     spoken_callsign,
@@ -42,79 +43,83 @@ def _flight(
         mission_start=START,
         push_time=START + timedelta(minutes=push_minutes),
         waypoints=[_waypoint(FlightWaypointType.LOITER, 20000)],
+        arrival=SimpleNamespace(airfield_name="Incirlik"),
     )
 
 
-def _game(on: bool = True) -> Any:
-    return SimpleNamespace(
-        settings=SimpleNamespace(
-            package_controller=on, package_controller_srs_path="C:\\SRS"
-        ),
-        conditions=SimpleNamespace(start_time=START),
-    )
+def _game() -> Any:
+    return SimpleNamespace(conditions=SimpleNamespace(start_time=START))
 
 
-def _mission_data(awacs: bool = True) -> Any:
+def _mission_data(controller: bool = True, player: bool = True) -> Any:
     package = SimpleNamespace(
         frequency=MHz(251, 250),
         time_over_target=START + timedelta(minutes=25),
         target=SimpleNamespace(name="Bridge", position=Point(0, 0, Caucasus())),
     )
     flights = [
-        _flight(package, "Colt", FlightType.STRIKE, True, 10),
+        _flight(package, "Colt", FlightType.STRIKE, player, 10),
         _flight(package, "Weasel", FlightType.SEAD, False, 8),
     ]
+    control_package = SimpleNamespace(
+        frequency=MHz(240), time_over_target=START, target=package.target
+    )
+    controllers = (
+        [_flight(control_package, "Bookshelf", FlightType.PACKAGE_CONTROL, False, 0)]
+        if controller
+        else []
+    )
     return SimpleNamespace(
-        packages={1: flights},
-        flights=flights,
-        awacs=(
-            [
-                SimpleNamespace(
-                    group_name="E-3", callsign="Darkstar1-1", blue=Player.BLUE
-                )
-            ]
-            if awacs
-            else []
-        ),
+        packages={1: flights, 2: controllers},
+        flights=flights + controllers,
+        strike_frequency=MHz(264, 500) if controller else None,
+        awacs_voice="feminine",
     )
 
 
-def _serialized(game: Any, mission_data: Any) -> str:
+def _serialized(mission_data: Any) -> str:
     root = LuaData("dcsRetribution")
-    populate_package_control_lua(root, game, mission_data)
+    populate_package_control_lua(root, _game(), mission_data)
     return root.serialize()
 
 
-def test_off_writes_nothing() -> None:
-    assert "packageControl" not in _serialized(_game(on=False), _mission_data())
+def test_no_controller_writes_nothing() -> None:
+    assert "packageControl" not in _serialized(_mission_data(controller=False))
 
 
-def test_no_awacs_writes_nothing() -> None:
-    assert "packageControl" not in _serialized(_game(), _mission_data(awacs=False))
+def test_no_player_package_writes_nothing() -> None:
+    assert "packageControl" not in _serialized(_mission_data(player=False))
 
 
-def test_a_player_package_carries_its_frequency_push_and_roles() -> None:
-    text = _serialized(_game(), _mission_data())
+def test_a_player_package_runs_on_strike_with_opposite_voices() -> None:
+    text = _serialized(_mission_data())
     for expected in (
         'startSeconds = "50400"',
-        'callsign = "Darkstar"',
+        'strikeFreq = "264.500"',
+        'strikeModulation = "AM"',
+        'awacsVoice = "feminine"',
+        'controllerVoice = "masculine"',
+        'callsign = "Bookshelf"',
         'name = "Colt"',
-        'freq = "251.250"',
-        'modulation = "AM"',
         'totAfter = "1500"',
         'role = "strike"',
         'role = "sead"',
         'pushAfter = "600"',
         'pushAfter = "480"',
         'holdAngels = "20"',
+        'holdIndex = "1"',
+        'home = "Incirlik"',
         'client = "true"',
     ):
         assert expected in text, expected
+    assert 'freq = "251.250"' not in text
 
 
 def test_roles_and_spoken_callsigns() -> None:
     assert role_for(FlightType.SEAD_ESCORT) == "sead"
     assert role_for(FlightType.ESCORT) == "escort"
     assert role_for(FlightType.BAI) == "strike"
-    assert spoken_callsign("Darkstar1-1") == "Darkstar"
+    assert spoken_callsign("Bookshelf1-1") == "Bookshelf"
     assert spoken_callsign("Magic 1") == "Magic"
+    assert other_voice("feminine") == "masculine"
+    assert other_voice("masculine") == "feminine"

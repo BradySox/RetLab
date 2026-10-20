@@ -4,7 +4,7 @@ import dataclasses
 import itertools
 import math
 from collections.abc import Iterable, Iterator
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional, TYPE_CHECKING, TypeVar, Union, Dict
 
@@ -204,6 +204,8 @@ class TheaterState(WorldState["TheaterState"]):
     vulnerable_control_points: list[ControlPoint]
     control_point_priority_queue: list[ControlPoint]
     priority_cp: Optional[ControlPoint]
+    #: Where this side's one airborne package controller C-130J orbits (§117).
+    package_control_targets: list[MissionTarget] = field(default_factory=list)
 
     def _rebuild_threat_zones(self) -> None:
         """Recreates the theater's threat zones based on the current planned state."""
@@ -284,6 +286,7 @@ class TheaterState(WorldState["TheaterState"]):
             vulnerable_control_points=self.vulnerable_control_points,
             control_point_priority_queue=self.control_point_priority_queue,
             priority_cp=self.priority_cp,
+            package_control_targets=list(self.package_control_targets),
         )
 
     @classmethod
@@ -399,7 +402,25 @@ class TheaterState(WorldState["TheaterState"]):
             priority_cp=(
                 ordered_capturable_points[0] if ordered_capturable_points else None
             ),
+            package_control_targets=_package_control_targets(finder, game.settings),
         )
+
+
+def _package_control_targets(
+    finder: ObjectiveFinder, settings: Settings
+) -> list[MissionTarget]:
+    """The AEW&C land station, when package control is on (§117).
+
+    The controller shares the AWACS station and orbits one slot back from it
+    (STATION_TASKS in aewc.py), behind the front and clear of the threat.
+    """
+    if not settings.package_controller:
+        return []
+    if any(True for _ in finder.front_lines()):
+        anchor = finder.aewc_land_anchor()
+    else:
+        anchor = finder.forward_aewc_land_anchor()
+    return [anchor] if anchor is not None else []
 
 
 def _carriers_flying_their_own(

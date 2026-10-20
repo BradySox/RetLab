@@ -72,6 +72,8 @@ class FlightPlanBuilderTypes:
             # JAMMING = standoff EW orbit — C-130J holds a racetrack outside the
             # threat zone (same pattern as AEWC) and other flights plan around it.
             FlightType.JAMMING: AewcFlightPlan.builder_type(),
+            # The package controller holds the AEW&C station's racetrack, one slot back.
+            FlightType.PACKAGE_CONTROL: AewcFlightPlan.builder_type(),
             FlightType.TARCAP: TarCapFlightPlan.builder_type(),
             FlightType.AEWC: AewcFlightPlan.builder_type(),
             FlightType.TRANSPORT: AirliftFlightPlan.builder_type(),
