@@ -8,13 +8,14 @@ import logging
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, Optional, TYPE_CHECKING
 
 from dcs.mission import Mission
 from jinja2 import Environment, FileSystemLoader
 
 from game.ato.flightwaypoint import FlightWaypoint
 from game.retlab.mission_pages import record_briefing_picture
+from game.retlab.voiceawacs import VoiceAwacsInfo
 from game.retlab.briefing_card import build_briefing_card, render_briefing_card
 from game.retlab.briefing_image import briefing_image_path, custom_briefing_image
 from game.retlab.cruise_raids import (
@@ -76,6 +77,7 @@ class MissionInfoGenerator:
         self.mission = mission
         self.game = game
         self.awacs: List[AwacsInfo] = []
+        self.voice_awacs: Optional[VoiceAwacsInfo] = None
         self.comms: List[CommInfo] = []
         self.flights: List[FlightData] = []
         self.player_flights: List[FlightData] = []

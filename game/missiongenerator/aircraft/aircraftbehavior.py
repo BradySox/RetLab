@@ -368,6 +368,9 @@ class AircraftBehavior:
         )
 
         group.points[0].tasks.append(AWACSTaskAction())
+        # §116: SkyEye talks for blue on SRS; the DCS voice would talk over it.
+        if flight.blue.is_blue and flight.coalition.game.settings.voice_awacs:
+            group.points[0].tasks.append(OptRadioSilence(True))
 
     def configure_refueling(self, group: FlyingGroup[Any], flight: Flight) -> None:
         self.configure_task(flight, group, Refueling)

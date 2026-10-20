@@ -948,6 +948,12 @@ FEATURES: tuple[Feature, ...] = (
         "Phone map",
         115,
     ),
+    Feature(
+        "voice_awacs",
+        "Voice AWACS on SRS",
+        116,
+        settings_fields=("voice_awacs",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),
