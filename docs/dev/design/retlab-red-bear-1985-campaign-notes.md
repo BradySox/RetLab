@@ -8,8 +8,8 @@ Owner: this note. CI lock: `tests/retlab/test_red_bear_1985.py`.
 | | |
 |---|---|
 | Files | `resources/campaigns/red_bear_1985.yaml` + `.miz` |
-| Build tool | `python tools/build_red_bear_1985_miz.py`. **Never hand-edit the `.miz`** |
-| Routes | drawn by the build tool from real town lat/lon (`ROADS`) |
+| `.miz` | **Hand-authored: the DM's laydown.** Edit it in the Mission Editor; there is no build tool |
+| Routes | M-113 groups traced from real town lat/lon, first and last waypoints Off Road |
 | Factions | `USAF 1985` (stock), `USSR 40th Army 1985` (stock) |
 | Squadrons | existing presets plus one generic MiG-23MLD squadron |
 | Checklist row | B255 |
@@ -31,6 +31,24 @@ of the Afghanistan map either.
 - **The heavies stay on the map.** Herat and Shindand have no stand for them, so Camp Bastion
   is a blue rear base with no road to the war.
 - **Winter 1985.** The start date is 15 January.
+
+## The DM's laydown (2026-10-20)
+
+The first `.miz` came from a build tool (`git show 08f987be3:tools/build_red_bear_1985_miz.py`)
+that ringed every base with the same markers. The DM called it generic and redid the laydown
+in the Mission Editor; that save is the `.miz` now and the tool is deleted. On top of it:
+
+- **33 added SAM markers.** Within 6 NM of a base they stay medium-SAM markers (base rings,
+  `RB85-<base>-SAM-Ring-N`); the 25 along the roads became SHORAD markers (`RB85-Road-SHORAD-NN`).
+- **Three AAV7s near Kabul** became armor markers (`RB85-Kabul-Garrison-AAV-N`).
+- **Scenery strike targets** copied with their scenery object ids from Starfire's
+  `graveyard_of_empires.miz` (Herat and Shindand sites, the Salma Dam) and
+  `clash_of_the_titans.miz` (Bagram, Gulbahar, Kapisa, Parwan, the Kabul ammo depot),
+  parents renamed `RB85 Scenery N`. The Parwan police centre reads as a garrison. Their
+  modern insurgent joke sites are left out.
+
+**Flavor first.** A new campaign's laydown starts from what the shipped campaigns on the same
+map already carry, not from generic marker rings.
 
 ## The laydown
 
@@ -58,9 +76,10 @@ Panjab); Bamyan – Kabul (Hajigak and Unai passes, Maidan Shahr); Kabul – Bag
 Kabul – Jalalabad (Sarobi). Two fronts open from Herat: north to Qala i Naw, east to
 Chaghcharan.
 
-**Air defence**: Hawk at Herat, Shindand and Camp Bastion. Medium-SAM markers at Mazar, Bamyan, and two
-each at Bagram and Kabul draw from the faction's SA-2, SA-3, SA-2/3 and SA-6 presets.
-SHORAD markers draw SA-8, SA-9 or SA-13. A Scud battery sits on the Shomali plain north of
+**Air defence**: Hawk at Herat, Shindand and Camp Bastion. Medium-SAM markers ring Mazar,
+Bamyan, Qala i Naw, Chaghcharan, Jalalabad, Bagram and Kabul and draw from the faction's SA-2,
+SA-3, SA-2/3 and SA-6 presets. SHORAD markers at the bases and 25 along the roads draw SA-8,
+SA-9 or SA-13. A Scud battery sits on the Shomali plain north of
 Kabul.
 
 ## Constraints
@@ -72,6 +91,8 @@ Kabul.
   the 150 NM default; Bagram and Kabul (about 350 NM) stay out of reach at the start.
 - **Motorpools sit 3,500 m or more from their base.** Parked reserve armor inside a 3,000 m
   capture zone blocks the capture, and New Game errors on it.
+- **A road's first and last waypoints are Off Road.** The Mission Editor crashed
+  (`calc_route_length`) on an On Road first leg it could not path from a runway.
 - **Every red point carries the invert flag**; blue's do not. A test checks both.
 - **Neutral fields have dynamic spawn off**, or they read as red control points.
 

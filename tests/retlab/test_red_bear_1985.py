@@ -2,7 +2,7 @@
 
 A fictional winter war across the top of the Afghanistan map: the USAF holds Herat
 and Shindand, the Soviet 40th Army holds the north and Kabul, and the south is out
-of play. Built from the map by ``tools/build_red_bear_1985_miz.py``.
+of play. The .miz is the DM's hand laydown (no build tool).
 
 What these pin is what fails silently:
 
@@ -212,10 +212,12 @@ def test_every_squadron_flies_a_type_in_its_sides_faction(
     assert phantoms == 44
 
 
-def test_the_miz_matches_the_tool() -> None:
+def test_the_laydown_keeps_its_flavor() -> None:
+    """The DM's hand laydown plus the scenery lifted from the Starfire campaigns."""
     mission = Mission()
     mission.load_file(str(MIZ))
     names = set()
+    types = set()
     for coalition in mission.coalition.values():
         for country in coalition.countries.values():
             for group in (
@@ -224,14 +226,34 @@ def test_the_miz_matches_the_tool() -> None:
                 + list(country.plane_group)
             ):
                 names.add(group.name)
+                types.add(group.units[0].type)
     assert {
         "Mazar-i-Sharif",
         "Pul-i-Khumri",
         "Termez",
         "RB85-Kabul-Scud",
-        "RB85-Herat-Factory",
+        "RB85-Bastion-Hawk",
         "RB85 Road Pul-i-Khumri - Bagram (Salang)",
     } <= names
+    # An AAV7 is no marker the loader reads; the DM's three are armor now.
+    assert "AAV7" not in types
+    zones = {zone.name for zone in mission.triggers.zones()}
+    assert {"Salma Dam Turbine", "Kabul Ammo Depot Office", "Malan Bridge"} <= zones
+    assert not any(name.startswith("Parwan Police") for name in zones)
+
+
+def test_every_scenery_set_loads(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    _, theater = loaded
+    # Sixteen sets: ten from Graveyard of Empires, six from Clash of the Titans.
+    assert sum(len(cp.preset_locations.scenery) for cp in theater.controlpoints) == 16
+    salma = next(
+        cp
+        for cp in theater.controlpoints
+        for group in cp.preset_locations.scenery
+        if any(zone.name == "Salma Dam Turbine" for zone in group.zones)
+    )
+    # The dam is red's, a target on the central axis.
+    assert salma.starting_coalition.is_red
 
 
 def test_every_road_leaves_its_bases_off_road() -> None:
