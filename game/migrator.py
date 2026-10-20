@@ -235,6 +235,11 @@ class Migrator:
                 if not s.csar_auto_assign_seeded:
                     s.enable_csar_if_capable()
                     s.csar_auto_assign_seeded = True
+                # ABCCC and ELINT (§117, §118) came after every campaign config.
+                try_set_attr(s, "skyeye_roles_seeded", False)
+                if not s.skyeye_roles_seeded:
+                    s.enable_skyeye_roles_if_capable()
+                    s.skyeye_roles_seeded = True
         # SquadronDefs
         for coa in self.game.coalitions:
             for ac, sdefs in coa.air_wing.squadron_defs.items():

@@ -90,6 +90,8 @@ class DefaultSquadronAssigner:
                 # Air Wing configuration dialog. Done before the wing-growth branch
                 # below so a scheduled arrival is opted in the same way.
                 squadron.enable_csar_if_capable()
+                squadron.enable_skyeye_roles_if_capable()
+                squadron.skyeye_roles_seeded = True
                 self.air_wing.add_squadron(squadron)
 
     def find_squadron_for(

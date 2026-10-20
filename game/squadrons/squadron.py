@@ -117,6 +117,10 @@ class Squadron:
     csar_auto_assign_seeded: bool = field(
         init=False, hash=False, compare=False, default=False
     )
+    #: The same once-only opt-in for the ABCCC and ELINT roles (§117, §118).
+    skyeye_roles_seeded: bool = field(
+        init=False, hash=False, compare=False, default=False
+    )
 
     #: Points the player saved for the aircraft flown out of here. On the squadron,
     #: not the flight: a flight is cancelled and rebuilt several times a turn.
@@ -156,6 +160,8 @@ class Squadron:
         if "csar_auto_assign_seeded" not in state:
             # Pre-CSAR save: let the migrator opt this squadron in once.
             state["csar_auto_assign_seeded"] = False
+        if "skyeye_roles_seeded" not in state:
+            state["skyeye_roles_seeded"] = False
         self.__dict__.update(state)
 
     def __str__(self) -> str:
@@ -257,6 +263,16 @@ class Squadron:
         """
         if self.capable_of(FlightType.CSAR):
             self.auto_assignable_mission_types.add(FlightType.CSAR)
+
+    def enable_skyeye_roles_if_capable(self) -> None:
+        """Seeds the ABCCC (§117) and ELINT (§118) roles, which no campaign lists.
+
+        Their settings decide whether either is planned at all. Same reason and
+        call sites as ``enable_csar_if_capable``.
+        """
+        for task in (FlightType.ABCCC, FlightType.ELINT):
+            if self.capable_of(task):
+                self.auto_assignable_mission_types.add(task)
 
     def claim_new_pilot_if_allowed(self) -> Optional[Pilot]:
         if self.pilot_limits_enabled:
