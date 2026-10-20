@@ -1,0 +1,1 @@
+* **[Payloads]** The Heatblur F-4E's SEAD, SEAD Sweep, SEAD Escort and DEAD presets carry two Mavericks and outboard fuel tanks instead of Shrikes, which the AI was not seen to fire. A Maverick stepped down for an older campaign date keeps the F-4E's Special Weapons Adapter mount.

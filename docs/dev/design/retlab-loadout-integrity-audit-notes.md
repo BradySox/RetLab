@@ -540,3 +540,20 @@ The pass upgraded 169 pylons on 17 airframes, clear upgrades only:
 
 Two data oddities seen, not changed: `AIM-7E.yaml` falls back to `AIM-9X` (upstream's own
 file), and `AIM-9X.yaml` dates the missile 2018.
+
+## 2026-10-19 addendum — the Heatblur F-4E SEAD fits carry Mavericks
+
+The AI F-4E-45MC carried Shrikes on SEAD, SEAD Sweep, SEAD Escort and DEAD and was not seen
+to fire one (Red Bear 1985, turn 1: six Shrike jets lived through the mission, no AGM-45 in
+the Tacview). The SAMs that engaged were SA-9 and SA-13, which have no radar to home on, so
+the flight is not proof that the AI refuses the Shrike. The DM moved the fits to Mavericks.
+
+- Inboard pylons 3 and 11: AGM-65D on the LAU-117 Special Weapons Adapter, the CAS mount, so
+  the four Sidewinder stations stay usable. Date restriction steps it to the 65B in 1985 and
+  the 65A before 1975.
+- Outboard pylons 1 and 13 take only Shrikes or tanks, so they carry 370-gallon tanks.
+- The SEAD ingress tasks ARM, then ASM, so no planner change was needed.
+- The §71 Weasel (XW) presets keep their AGM-78s.
+- `AGM-65A.yaml` and `AGM-65B.yaml` list the F-4E Special Weapons Adapter mount first, because
+  `Loadout._fallback_for` takes the first pylon-legal id: a step-down keeps the SWA mount
+  (the #341 Rockeye fix, same reason). The CAS preset gains the same.
