@@ -5,7 +5,7 @@ The pack's ``inject_F4E``/``eject_F4E`` mutate the pydcs F-4E pylon tables
 generation and on save load). The loadout layer keys off that live state:
 payload names ending in ``Loadout.EXPANDED_WEAPONS_SUFFIX`` are tried first
 for their task but only picked while every store fits the current tables --
-so the mod fits fly exactly when the mod is on, and the stock Shrike fits
+so the mod fits fly exactly when the mod is on, and the stock Maverick fits
 are the automatic fallback when it is off (a store the unmodded pylon tables
 can't mount would be silently stripped by DCS at spawn, i.e. a naked Weasel).
 
@@ -45,6 +45,9 @@ STANDARD_B = "{LAU_77_AGM_78B}"
 # ...C93 clsid, not the Hornet-rack ...C9C sibling.
 HARM = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}"
 SHRIKE_B = "{LAU_34_AGM_45B}"
+MAVERICK_D = "{HB_F4E_AGM-65D_LAU117_SWA}"
+MAVERICK_B = "{HB_F4E_AGM-65B_LAU117_SWA}"
+RED_BEAR_DATE = date(1985, 1, 15)
 
 RED_TIDE_DATE = date(1988, 7, 13)
 
@@ -107,14 +110,27 @@ def test_injected_pack_prefers_the_standard_arm_fit(
     assert not _stations_with(loadout, SHRIKE_B)
 
 
-def test_ejected_pack_falls_back_to_the_stock_shrike_fit() -> None:
+def test_ejected_pack_falls_back_to_the_stock_maverick_fit() -> None:
+    # The AI F-4E was not seen to fire a Shrike (2026-10-19), so the stock fits
+    # carry Mavericks inboard; the outboard stations take only Shrikes or tanks.
     loadout = Loadout.default_for_task_and_aircraft(
         FlightType.SEAD, _phantom().dcs_unit_type
     )
     assert loadout.name == "Retribution SEAD"
     assert not _stations_with(loadout, STANDARD_B)
     assert not _stations_with(loadout, HARM)
-    assert _stations_with(loadout, SHRIKE_B) == {1, 13}
+    assert not _stations_with(loadout, SHRIKE_B)
+    assert _stations_with(loadout, MAVERICK_D) == {3, 11}
+
+
+def test_stock_maverick_fit_steps_down_to_the_65b_in_1985() -> None:
+    loadout = Loadout.default_for_task_and_aircraft(
+        FlightType.SEAD, _phantom().dcs_unit_type
+    )
+    degraded = loadout.degrade_for_date(
+        _phantom(), RED_BEAR_DATE, SimpleNamespace()  # type: ignore[arg-type]
+    )
+    assert _stations_with(degraded, MAVERICK_B) == {3, 11}
 
 
 def test_editor_list_tracks_the_mod_state() -> None:

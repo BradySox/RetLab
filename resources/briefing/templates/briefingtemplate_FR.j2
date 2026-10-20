@@ -99,10 +99,11 @@ TACAN : {{ runway.tacan }} {{ runway.tacan_callsign }}
 {% endif %}
 
 {% endfor %}
-{%- if awacs|length > 0 %}
+{%- if awacs|length > 0 or voice_awacs %}
 AWACS:
 ====================
-{% for i in awacs %}{{ i.callsign }} -- Fréq : {{i.freq.mhz}}
+{% if voice_awacs %}{{ voice_awacs.callsign }} (SkyEye) -- Fréq : {{ voice_awacs.freq.mhz }} {{ voice_awacs.freq.modulation.name }}
+{% endif %}{% for i in awacs %}{{ i.callsign }} -- Fréq : {{i.freq.mhz}}
 {% endfor %}
 {% endif %}
 

@@ -278,6 +278,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   kneeboards. Add it to the home screen to open it like an app.
 - **Turn ping.** Type an ntfy topic in File > Phone link and the free ntfy app on your phone
   gets the turn summary when a mission's results are in.
+- **Voice AWACS on SRS (SkyEye).** If you run the free SkyEye GCI bot on your SRS server,
+  this setting makes blue AWACS go quiet, keeps SkyEye's frequency free, and lists it on the
+  kneeboard and briefing. Off by default.
 - **AWACS package controller.** The blue AWACS talks to your package on its frequency
   over SRS: check-in from the F10 menu, the push call, holds and aborts, and egress.
   Off by default.

@@ -273,6 +273,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                 self.dark_kneeboard,
                 airfield_rows=airfield_rows,
                 zulu_tz=zulu_tz,
+                voice_awacs=self.voice_awacs,
             ),
         ]
 

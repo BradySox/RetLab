@@ -127,6 +127,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §113 | AI fills empty player flights | `aifill` | — |
 | §114 | Coordinated TOT | — | — |
 | §115 | Phone map | — | — |
+| §116 | Voice AWACS on SRS | — | `voice_awacs` |
 | §117 | AWACS package controller | `pkgcontrol` | `package_controller` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

@@ -949,6 +949,12 @@ FEATURES: tuple[Feature, ...] = (
         115,
     ),
     Feature(
+        "voice_awacs",
+        "Voice AWACS on SRS",
+        116,
+        settings_fields=("voice_awacs",),
+    ),
+    Feature(
         "package_controller",
         "AWACS package controller",
         117,
