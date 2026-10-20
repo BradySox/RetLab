@@ -29,6 +29,7 @@ tasks:
   Air Assault: 40
   Transport: 140
   Jamming: 140
+  ABCCC: 140
   # The "King" CSAR role, kept as a deliberate RetLab override (2026-08-07 squadron call).
   #
   # Upstream derives CSAR capability from the airframe and restricts it to HELICOPTERS with a

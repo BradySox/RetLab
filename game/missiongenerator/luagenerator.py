@@ -760,6 +760,7 @@ class LuaGenerator:
             FlightType.TRANSPORT,
             FlightType.AIR_ASSAULT,
             FlightType.CSAR,
+            FlightType.ABCCC,
         )
         c130j = AircraftType.named("C-130J-30")
         return [

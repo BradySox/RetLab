@@ -23,6 +23,12 @@ from game.utils import Distance, Heading, Speed, knots, meters, nautical_miles
 #: and an E-3A's drawn box is 15.6 NM wide.
 AEWC_ORBIT_SPACING = nautical_miles(20)
 
+#: Flights that share an AEW&C station and must not fly the same racetrack.
+STATION_TASKS = frozenset({FlightType.AEWC})
+
+#: The ABCCC works close behind the front, not at the AWACS's standoff (§117).
+ABCCC_THREAT_BUFFER = nautical_miles(30)
+
 
 class AewcFlightPlan(PatrollingFlightPlan[PatrollingLayout]):
     @property
@@ -69,7 +75,7 @@ class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
         centres = []
         for package in packages:
             for flight in package.flights:
-                if flight is self.flight or flight.flight_type is not FlightType.AEWC:
+                if flight is self.flight or flight.flight_type not in STATION_TASKS:
                     continue
                 layout = getattr(flight.laid_out_flight_plan, "layout", None)
                 start = getattr(layout, "patrol_start", None)
@@ -86,7 +92,7 @@ class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
         was deleted and another fragged, because the ones already laid out never
         move. JAMMING shares this builder and always takes 0.
         """
-        if self.flight.flight_type is not FlightType.AEWC:
+        if self.flight.flight_type not in STATION_TASKS:
             return 0
         taken = self._peer_orbit_centres()
         clear_m = AEWC_ORBIT_SPACING.meters / 2
@@ -115,6 +121,8 @@ class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
         threat_buffer = nautical_miles(
             self.coalition.game.settings.aewc_threat_buffer_min_distance
         )
+        if self.flight.flight_type is FlightType.ABCCC:
+            threat_buffer = ABCCC_THREAT_BUFFER
         threatened = self.threat_zones.threatened(location.position)
         if threatened:
             orbit_distance = distance_to_threat + threat_buffer

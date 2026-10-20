@@ -68,7 +68,12 @@ class PackageBuilder:
             target = (
                 pf.departure
                 if pf.flight_type
-                in [FlightType.AEWC, FlightType.REFUELING, FlightType.RECOVERY]
+                in [
+                    FlightType.AEWC,
+                    FlightType.REFUELING,
+                    FlightType.RECOVERY,
+                    FlightType.ABCCC,
+                ]
                 else target
             )
             heli = pf.is_helo
@@ -148,7 +153,12 @@ class PackageBuilder:
                 not has_players
                 and settings.support_air_start
                 and flight.flight_type
-                in (FlightType.AEWC, FlightType.REFUELING, FlightType.RECOVERY)
+                in (
+                    FlightType.AEWC,
+                    FlightType.REFUELING,
+                    FlightType.RECOVERY,
+                    FlightType.ABCCC,
+                )
             ):
                 # Air-start AWACS/tankers so they hold station from mission start
                 # rather than burning the first minutes taxiing and climbing out.

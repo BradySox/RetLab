@@ -77,6 +77,7 @@ STATION_TASKS = frozenset(
         FlightType.AEWC,
         FlightType.REFUELING,
         FlightType.JAMMING,
+        FlightType.ABCCC,
     }
 )
 

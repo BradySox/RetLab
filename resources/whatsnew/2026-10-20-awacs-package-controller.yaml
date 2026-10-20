@@ -1,12 +1,13 @@
 date: 2026-10-20
-title: The AWACS runs your package over SRS
+title: A C-130 command post runs your package
 change: >-
-  Turn on AWACS package controller in Settings > RetLab Features and run your
-  SRS server. Check in from the F10 menu and the AWACS answers on your package
-  frequency with your hold altitude and push time. It calls the push, holds
-  the push up to twice if your SEAD or escort is not airborne, aborts if the
-  target is already destroyed or the SEAD is lost, and calls egress when the
-  strikers are clear. Each call also shows as text.
+  Turn on ABCCC C-130 (SkyEye) in Settings > RetLab Features. The
+  planner adds a C-130J-30 ABCCC (Anvil, Ramrod, Blackjack...) to the
+  AWACS package. Check in with it on STRIKE, the common frequency on your
+  kneeboard: it gives your hold altitude and push time, calls the push, holds
+  the push if your SEAD or escort is not airborne, aborts if the target is
+  already destroyed, and calls egress. The AI in your package follow its
+  calls. The AWACS joins STRIKE only for threats and your own calls, in the
+  other voice. Needs SkyEye running with its mission link.
 watch: >-
-  The voice should come over SRS on your package frequency, in a male voice,
-  without a stutter.
+  No package calls at all while the C-130 is on the ground or shot down.

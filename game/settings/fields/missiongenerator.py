@@ -440,41 +440,32 @@ class MissionGeneratorSettings:
         ),
     )
     voice_awacs_callsign: str = text_option(
-        "SkyEye callsign",
+        "SkyEye callsigns",
         page=MISSION_GENERATOR_PAGE,
         section=GAMEPLAY_SECTION,
-        default="Sentinel",
-        placeholder="Sentinel",
+        default="Chalice, Chainsaw, Image",
+        placeholder="Chalice, Chainsaw, Image",
         enabled_when="voice_awacs",
         detail=(
-            "The name SkyEye answers to, as shown on the kneeboard and briefing. "
-            "Match the callsign line in SkyEye's config.yaml."
+            "The names SkyEye answers to, one per turn in this order, separated by "
+            "commas. RetLab tells SkyEye the name at mission start and puts it on "
+            "the kneeboard and briefing."
         ),
     )
     package_controller: bool = boolean_option(
-        "AWACS package controller (live SRS voice)",
+        "ABCCC C-130 (SkyEye)",
         page=MISSION_GENERATOR_PAGE,
         section=GAMEPLAY_SECTION,
         default=False,
         detail=(
-            "The blue AWACS talks to your package on the package frequency through "
-            "SRS: a check-in reply from the F10 radio menu, the push call at your "
-            "push time, a hold when the SEAD or escort is not airborne, an abort when "
-            "the target is already destroyed or the SEAD is lost, and the egress call. "
-            "Needs the SRS server running and DCS's mission scripting sandbox opened "
-            "(Retribution's own install step). Without SRS the calls show as text."
-        ),
-    )
-    package_controller_srs_path: str = text_option(
-        "SRS External Audio folder",
-        page=MISSION_GENERATOR_PAGE,
-        section=GAMEPLAY_SECTION,
-        default=r"C:\ProgramData\DCS-SimpleRadio-Standalone\ExternalAudio",
-        placeholder=r"C:\ProgramData\DCS-SimpleRadio-Standalone\ExternalAudio",
-        enabled_when="package_controller",
-        detail=(
-            "The folder holding DCS-SR-ExternalAudio.exe, which speaks the AWACS "
-            "package controller's calls on SRS."
+            "Adds a C-130J-30 ABCCC flight to the AWACS package each turn when one "
+            "is free. While it is airborne it runs every package with a player in "
+            "it on STRIKE, one common frequency: a check-in reply, the push call, a "
+            "hold when the SEAD or escort is not airborne, an abort when the target "
+            "is already destroyed or the SEAD is lost, and the egress call. AI "
+            "flights in the package follow its calls. With no ABCCC C-130 airborne "
+            "there is no package control. SkyEye, running with its mission link, "
+            "speaks the calls; they also show as text."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

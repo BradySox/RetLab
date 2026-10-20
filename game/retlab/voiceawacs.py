@@ -20,7 +20,8 @@ from game.radio.radios import RadioFrequency
 if TYPE_CHECKING:
     from game.settings import Settings
 
-DEFAULT_CALLSIGN = "Sentinel"
+#: The AWACS takes the next name each turn (user call, 2026-10-20).
+DEFAULT_CALLSIGNS = ("Chalice", "Chainsaw", "Image")
 
 _FREQUENCY = re.compile(
     r"^\s*(\d{2,3})(?:\.(\d{1,3}))?\s*(?:MHz)?\s*(AM|FM)?\s*$", re.IGNORECASE
@@ -49,7 +50,13 @@ def parse_voice_awacs_frequency(text: str) -> Optional[RadioFrequency]:
     return RadioFrequency(whole * 1_000_000 + khz * 1_000, modulation)
 
 
-def voice_awacs_for(settings: Settings) -> Optional[VoiceAwacsInfo]:
+def callsign_for_turn(text: str, turn: int) -> str:
+    """The comma-separated callsign list's name for this turn."""
+    names = [n.strip() for n in text.split(",") if n.strip()] or list(DEFAULT_CALLSIGNS)
+    return names[turn % len(names)]
+
+
+def voice_awacs_for(settings: Settings, turn: int = 0) -> Optional[VoiceAwacsInfo]:
     """The SkyEye line for this mission, or None when the setting is off."""
     if not settings.voice_awacs:
         return None
@@ -60,5 +67,5 @@ def voice_awacs_for(settings: Settings) -> Optional[VoiceAwacsInfo]:
             settings.voice_awacs_frequency,
         )
         freq = RadioFrequency(251_000_000, Modulation.AM)
-    callsign = settings.voice_awacs_callsign.strip() or DEFAULT_CALLSIGN
+    callsign = callsign_for_turn(settings.voice_awacs_callsign, turn)
     return VoiceAwacsInfo(callsign=callsign, freq=freq)

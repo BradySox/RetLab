@@ -133,6 +133,12 @@ class JoinPointBuilder(PydcsWaypointBuilder):
         group_id = None
         if self.package.primary_flight is not None:
             group_id = self.package.primary_flight.group_id
+        # §117: in the AWACS package the escort covers the ABCCC, which works
+        # far ahead of the AWACS's standoff orbit.
+        flights = getattr(self.package, "flights", [])
+        abccc = [f for f in flights if f.flight_type is FlightType.ABCCC]
+        if abccc:
+            group_id = abccc[0].group_id
 
         escort = ControlledTask(
             EscortTaskAction(

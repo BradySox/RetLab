@@ -31,7 +31,17 @@ def test_role_callsign_by_type_and_airframe() -> None:
     assert role_callsign(FlightType.SANDY, is_helicopter=True) == "Sandy"
     # Everything else keeps its normal callsign.
     assert role_callsign(FlightType.CAS, is_helicopter=False) is None
-    assert set(ROLE_CALLSIGNS) == {"Toxic", "Sandy"}
+    # The ABCCC rotates through its family; the first is the default.
+    assert role_callsign(FlightType.ABCCC, is_helicopter=False) == "Anvil"
+    assert set(ROLE_CALLSIGNS) == {
+        "Toxic",
+        "Sandy",
+        "Anvil",
+        "Ramrod",
+        "Blackjack",
+        "Crown",
+        "Sentinel",
+    }
 
 
 def _spawner(callsign_name: str, category: str, pool: list[str]) -> Any:

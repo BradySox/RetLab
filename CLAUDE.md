@@ -346,7 +346,7 @@ linked design note.
 114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
 115. **Phone map** — the map on a phone over home Wi-Fi, view-only, behind its own key; an ntfy turn ping. Off by default.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
-117. **AWACS package controller** — the blue AWACS calls check-in, push, hold or abort and egress to player packages, live over SRS. Off by default.
+117. **Airborne package control** — a C-130J-30 ABCCC runs player packages on STRIKE through SkyEye; nothing without it airborne. Off by default.
 
 ### Retired, removed or shelved — do not restore
 

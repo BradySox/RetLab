@@ -26,7 +26,14 @@ EARLY_START_CAP = timedelta(minutes=30)
 
 #: ASAP support launches at the mission's own start, early or not, so a tanker is up
 #: before the flights that start early to reach it (DM call 2026-10-08).
-_SUPPORT_TASKS = frozenset({FlightType.REFUELING, FlightType.AEWC, FlightType.BARCAP})
+_SUPPORT_TASKS = frozenset(
+    {
+        FlightType.REFUELING,
+        FlightType.AEWC,
+        FlightType.ABCCC,
+        FlightType.BARCAP,
+    }
+)
 
 #: Moving support can reorder a runway queue and push another flight's startup
 #: ahead of the start just chosen. One more pass settles a real field.

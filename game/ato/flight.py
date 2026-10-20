@@ -72,13 +72,35 @@ _ROLE_CALLSIGN_BY_TYPE: dict[FlightType, str] = {
     FlightType.SANDY: "Sandy",  # A-10/AH-64 rescue escort
 }
 
+#: Role callsign families: a fresh flight takes the next name each turn (user call,
+#: 2026-10-20).
+_ROLE_CALLSIGN_FAMILY_BY_TYPE: dict[FlightType, tuple[str, ...]] = {
+    FlightType.ABCCC: (
+        "Anvil",
+        "Ramrod",
+        "Blackjack",
+        "Crown",
+        "Sentinel",
+    ),
+}
+
 #: Every fixed role callsign, for the spawner's "is this a custom callsign?" guard.
-ROLE_CALLSIGNS: frozenset[str] = frozenset({"Toxic", "Sandy"})
+ROLE_CALLSIGNS: frozenset[str] = frozenset(
+    {"Toxic", "Sandy"}.union(*_ROLE_CALLSIGN_FAMILY_BY_TYPE.values())
+)
+
+
+def role_callsign_family(flight_type: FlightType) -> tuple[str, ...]:
+    """Every role callsign a flight of this type may take, first choice first."""
+    if (single := _ROLE_CALLSIGN_BY_TYPE.get(flight_type)) is not None:
+        return (single,)
+    return _ROLE_CALLSIGN_FAMILY_BY_TYPE.get(flight_type, ())
 
 
 def role_callsign(flight_type: FlightType, is_helicopter: bool) -> Optional[str]:
-    """The fixed role callsign for a RetLab EW role, or None if there isn't one."""
-    return _ROLE_CALLSIGN_BY_TYPE.get(flight_type)
+    """The fixed role callsign for a RetLab role, or None if there isn't one."""
+    family = role_callsign_family(flight_type)
+    return family[0] if family else None
 
 
 class Flight(
@@ -113,7 +135,7 @@ class Flight(
             is_heli = bool(
                 getattr(getattr(squadron, "aircraft", None), "helicopter", False)
             )
-            role = role_callsign(flight_type, is_heli)
+            role = self._turn_role_callsign(flight_type, is_heli)
             if role is not None:
                 self.callsign = Callsign(role, self._next_role_callsign_nr(role))
             else:
@@ -250,15 +272,25 @@ class Flight(
                         callsigns.add(name)
         # RetLab: offer the flight's fixed role callsign (King/Jolly/Sandy/Toxic) in
         # the picker too, so the rescue/EW roles can keep their callsign.
-        role = role_callsign(self.flight_type, self.squadron.aircraft.helicopter)
-        if role is not None:
-            callsigns.add(role)
+        callsigns.update(role_callsign_family(self.flight_type))
         # RetLab: and the squadron's custom event callsign (e.g. "Voodoo"), so it
         # stays selectable in the picker like the role callsigns.
         squadron_callsign = getattr(self.squadron, "callsign", None)
         if squadron_callsign:
             callsigns.add(squadron_callsign)
         return sorted(callsigns)
+
+    def _turn_role_callsign(
+        self, flight_type: FlightType, is_helicopter: bool
+    ) -> Optional[str]:
+        family = role_callsign_family(flight_type)
+        if len(family) < 2:
+            return role_callsign(flight_type, is_helicopter)
+        try:
+            turn = int(self.coalition.game.turn)
+        except (AttributeError, TypeError, ValueError):
+            turn = 0
+        return family[turn % len(family)]
 
     def _next_role_callsign_nr(self, role: str) -> int:
         # Number a defaulted role callsign after any same-role flights already

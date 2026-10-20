@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import random
 from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime
@@ -26,6 +27,12 @@ from game.naming import namegen
 from game.spatialindex import LiveUnitIndex
 from game.radio.radios import RadioFrequency, RadioRegistry, MHz
 from game.radio.tacan import TacanRegistry
+from game.retlab.package_control import (
+    VOICES,
+    abccc_callsign,
+    has_package_control,
+    strike_comm_name,
+)
 from game.retlab.voiceawacs import voice_awacs_for
 from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
@@ -260,10 +267,15 @@ class MissionGenerator:
         # Allocate UHF/VHF Guard Freq first!
         unique_map_frequencies.add(MHz(243))
         unique_map_frequencies.add(MHz(121, 500))
-        if (voice_awacs := voice_awacs_for(self.game.settings)) is not None:
+        if (
+            voice_awacs := voice_awacs_for(self.game.settings, self.game.turn)
+        ) is not None:
             unique_map_frequencies.add(voice_awacs.freq)
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
+        self.mission_data.awacs_voice = random.choice(VOICES)
+        if has_package_control(self.game.blue.ato):
+            self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
 
     def initialize_tacan_registry(
         self, unique_map_frequencies: set[RadioFrequency]
@@ -481,8 +493,15 @@ class MissionGenerator:
             KneeboardGenerator(self.mission, self.game),
             BriefingGenerator(self.mission, self.game),
         ]
-        voice_awacs = voice_awacs_for(self.game.settings)
+        voice_awacs = voice_awacs_for(self.game.settings, self.game.turn)
+        strike_name = strike_comm_name(mission_data)
         for gen in gens:
+            if strike_name is not None and mission_data.strike_frequency is not None:
+                gen.add_comm(strike_name, mission_data.strike_frequency)
+                gen.abccc = (
+                    abccc_callsign(mission_data),
+                    mission_data.strike_frequency,
+                )
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 

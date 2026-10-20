@@ -78,6 +78,8 @@ class MissionInfoGenerator:
         self.game = game
         self.awacs: List[AwacsInfo] = []
         self.voice_awacs: Optional[VoiceAwacsInfo] = None
+        #: The ABCCC's spoken callsign and STRIKE (common), when one flies (§117).
+        self.abccc: Optional[tuple[str, RadioFrequency]] = None
         self.comms: List[CommInfo] = []
         self.flights: List[FlightData] = []
         self.player_flights: List[FlightData] = []

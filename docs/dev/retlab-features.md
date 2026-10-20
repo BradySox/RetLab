@@ -11128,45 +11128,69 @@ count. Built 2026-10-19. Not flown (row B254).
 - One uvicorn server and event loop for the PC and the phone; never a second server thread.
 - A turn ping is sent in the background and never fails the turn.
 
-## §117 — AWACS package controller
+## §117 — Airborne package control
 
-A setting on the RetLab Features page, **AWACS package controller (live SRS voice)**, off by
-default. The first live blue AWACS talks to each blue package with a player in it, on that
-package's frequency, through SRS's External Audio program (MOOSE `MSRS`, Windows voice, male
-en-US). Every call is also shown as text to the package's player groups, so it works without
-SRS. With no blue AWACS alive nothing is said.
+An **ABCCC** flight type (the EC-130E ABCCC role) for the C-130J-30 only. With
+**ABCCC C-130 (SkyEye)** on (RetLab Features page, off by default) the planner
+adds one, optional, to each land AWACS package (`PlanAewc`). It orbits 30 NM outside
+the threat rings (`ABCCC_THREAT_BUFFER` in `aewc.py`), well ahead of the AWACS's 80 NM
+standoff, and the package's 2-ship escort always flies and covers the ABCCC instead of
+the AWACS (`joinpoint.py`). It can also be fragged by hand. Callsigns rotate
+each turn through Anvil, Ramrod, Blackjack, Crown and Sentinel.
 
-- **Check-in:** F10 > AWACS > Check in. "Colt 1, Darkstar, radar contact. Cleared direct
-  hold, angels 20. Push time 14 32."
+While an ABCCC C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
+blue package with a player seat on **STRIKE (common)**, one UHF channel allocated per
+mission and listed on the kneeboard comms as "STRIKE (Anvil)":
+
+- **Check-in:** F10 > Package control > Check in, or spoken ("Anvil, Colt 1-1, check
+  in"). The reply gives radar contact, the hold angels and the push time.
+- **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
+  are airborne, else says what is missing.
 - **Push:** at the package push time (the earliest strike flight's HOLD departure).
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
-  After that the package pushes if any SEAD is airborne (or it has none), else aborts.
-- **Abort:** at the push, when every target unit of the strike flights is dead, or every
-  SEAD flight has been lost after it appeared.
-- **Egress:** once every live striker has come within 30 NM of the target and is opening
-  past 10 NM. Given up an hour after the push.
+  After that the package pushes if a SEAD is airborne (or it has none), else aborts.
+- **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
+- **Egress:** once every live striker has been within 30 NM of the target and is opening
+  past 10 NM.
 
-Built 2026-10-20 from a survey of how hand-built campaigns use an AWACS as the package
-controller (recorded clips on scripted triggers, F10 check-in, a push-time hack). The
-2026-08-18 removal of the synthesized voice net (§89 P4) was on "the AI already uses the
-radio"; this one speaks live instead of pre-rendering, and pairs with §116's silenced E-3.
-A test call through SRS 2.4.1 External Audio went out cleanly on 251.0 AM. Not flown (row
-B258).
+Airborne AI flights in the package obey: a hold pushes a 3-minute orbit at their HOLD
+point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces their
+route with a landing at home. Parked AI is left alone (a pushed task would replace its
+takeoff).
+
+With no ABCCC C-130 airborne there is no package control: nothing is said and
+the push waits for one. The AWACS never stands in (user call, 2026-10-20).
+
+**Voice.** SkyEye speaks every call through RetLab's SkyEye copy (`BradySox/skyeye`, the
+mission link). The plugin talks to SkyEye over local UDP (127.0.0.1:42690, SkyEye's
+`mission-link-address`) through DCS's LuaSocket. SkyEye tunes STRIKE as a listen radio,
+answers to the controller callsign, passes the package calls to the mission and speaks the
+mission's lines. The AWACS (SkyEye's own GCI) works STRIKE trimmed: it answers calls heard
+there and repeats threat and merge calls, nothing else. The AWACS takes a random voice each
+mission and the controller the other. Every call is also text to the package's players.
+
+Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
+(recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
 
 ### Files
 
-- `game/retlab/package_control.py`: `dcsRetribution.packageControl`.
-- `game/missiongenerator/aircraft/flightdata.py` (`push_time`), `flightgroupconfigurator.py`.
-- `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SRS voice.
-- `game/settings/fields/missiongenerator.py`, `game/settings/layout.py`: the setting and the
-  External Audio folder.
+- `game/retlab/package_control.py`: `dcsRetribution.packageControl`, voices, STRIKE name.
+- `game/ato/flighttype.py`, `flight.py` (callsign family), `flightplans/aewc.py`,
+  `game/commander/tasks/primitive/aewc.py`: the ABCCC in the AWACS package.
+- `game/missiongenerator/missiongenerator.py`: STRIKE allocation and the kneeboard comm.
+- `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_package_control`).
+- `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SkyEye link.
+- `game/missiongenerator/kneeboard/voicepages.py`: the two cheat-sheet pages after the comms
+  page, "Talking to <ABCCC>" and "Talking to <AWACS>", for pilots new to voice bots.
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
 
 ### Constraints
 
-- Speech needs DCS's mission scripting sandbox opened (`os`, `io`), Retribution's own install
-  step. MSRS starts each call with `os.execute`, which can cost a short hitch per call.
-- Calls only for packages with a player seat; AI-only packages get none.
+- Never an AWACS task on the C-130: DCS would make it a second AWACS voice.
+- The C-130J EW plugin claims every C-130J-30 by airframe, so an ABCCC flight is
+  on its deny-list (`_ew_excluded_c130j_groups`).
+- The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
+  Retribution's own install step. Without it the calls are text only.
 ## §116 — Voice AWACS on SRS
 
 A setting on the RetLab Features page, **Voice AWACS on SRS (SkyEye)**, off by default, for a SkyEye
@@ -11180,7 +11204,7 @@ the way. With the setting on:
   flight is given a channel. The AWACS keeps its own channel, picked the normal way or set on
   the flight in the flight editor.
 - The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
-  (default `Sentinel`) first as "Sentinel (SkyEye)", and each blue AWACS as "(silent)".
+  (default `Chainsaw`) first as "Chainsaw (SkyEye)", and each blue AWACS as "(silent)".
 
 Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
 player named themselves in the call. Not flown with the setting on (row B257). The DTC

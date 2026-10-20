@@ -101,6 +101,8 @@ class AircraftBehavior:
             self.configure_oca_strike(group, flight)
         elif self.task == FlightType.JAMMING:
             self.configure_jamming(group, flight)
+        elif self.task == FlightType.ABCCC:
+            self.configure_package_control(group, flight)
         elif self.task == FlightType.TARPS:
             self.configure_tarps(group, flight)
         elif self.task in [
@@ -543,6 +545,22 @@ class AircraftBehavior:
         # it to a non-AWACS jammer like the C-130J does nothing useful, so skip it.
         if AWACS in flight.unit_type.dcs_unit_type.tasks:
             group.points[0].tasks.append(AWACSTaskAction())
+
+    def configure_package_control(
+        self, group: FlyingGroup[Any], flight: Flight
+    ) -> None:
+        # §117: the pkgcontrol plugin speaks for it through SkyEye; never an AWACS
+        # task, which would make it a second DCS AWACS on the radio.
+        self.configure_task(flight, group, Transport, fallback_tasks=[Nothing])
+        self.configure_behavior(
+            flight,
+            group,
+            react_on_threat=OptReactOnThreat.Values.EvadeFire,
+            roe=OptROE.Values.WeaponHold,
+            restrict_jettison=True,
+            mission_uses_gun=False,
+        )
+        group.points[0].tasks.append(OptRadioSilence(True))
 
     def configure_tarps(self, group: FlyingGroup[Any], flight: Flight) -> None:
         # Photo-recon overflight (F-14 TARPS / recon drone). The flight routes over the

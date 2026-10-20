@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 @dataclass
 class PlanAewc(PackagePlanningTask[MissionTarget]):
     _air_wing: Optional["AirWing"] = field(default=None, compare=False)
+    #: §117: the ABCCC C-130 rides in the AWACS package when the setting is on.
+    _with_abccc: bool = field(default=False, compare=False)
 
     def preconditions_met(self, state: TheaterState) -> bool:
         if (
@@ -36,12 +38,23 @@ class PlanAewc(PackagePlanningTask[MissionTarget]):
         # propose_flights() gets no state, so stash the wing for the
         # basing-aware squadron preference below.
         self._air_wing = state.context.coalition.air_wing
+        self._with_abccc = state.context.settings.package_controller and not (
+            getattr(self.target, "is_carrier", False)
+            or getattr(self.target, "is_fleet", False)
+        )
         return super().fulfill_mission(state)
 
     def propose_flights(self) -> None:
         self.propose_flight(
             FlightType.AEWC, 1, preferred_type=self._preferred_aewc_type()
         )
+        if self._with_abccc:
+            # Optional: a wing with no C-130J-30 free still gets its AWACS. The
+            # escort then rides with the ABCCC, close to the front, on every turn
+            # (user call, 2026-10-20); optional so a fighter shortage scrubs nothing.
+            self.propose_flight(FlightType.ABCCC, 1, optional=True)
+            self.propose_flight(FlightType.ESCORT, 2, optional=True)
+            return
         # An escort with no escort_type is a primary flight: planned even with no
         # air threat, and an unfillable one scrubs the whole AEW&C package -- no
         # AWACS that turn. Tagged so it is threat-gated and prunable instead.
