@@ -257,6 +257,14 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert statics.count(".Command Center") == 2
     assert statics.count("Comms tower M") == 14
     assert statics.count("GeneratorF") == 10
+    # One SA-5 guards Kabul and Bagram; the faction's only long-range preset.
+    sa5 = [
+        group
+        for country in mission.coalition["red"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "S-300PS 5P85C ln"
+    ]
+    assert [group.name for group in sa5] == ["RB85-Shomali-SA5"]
     # Blue's Hawks fight on their own: no node is blue.
     for country in mission.coalition["blue"].countries.values():
         assert not any(g.name.startswith("RB85-IADS-") for g in country.static_group)

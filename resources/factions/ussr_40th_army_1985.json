@@ -2,7 +2,7 @@
   "country": "Russia",
   "name": "USSR 40th Army 1985",
   "authors": "RetLab",
-  "description": "<p>The Soviet 40th Army and its air force in 1985: MiG-21s and MiG-23s, MiG-27, Su-17, Su-24 and Su-25 strike jets, Hind gunships, and SA-2, SA-3 and SA-6 belts around the big bases. No MiG-29s, Su-27s or tankers.</p>",
+  "description": "<p>The Soviet 40th Army and its air force in 1985: MiG-21s and MiG-23s, MiG-27, Su-17, Su-24 and Su-25 strike jets, Hind gunships, SA-2, SA-3 and SA-6 belts around the big bases, and one SA-5. No MiG-29s, Su-27s or tankers.</p>",
   "locales": [
     "ru_RU"
   ],
@@ -51,6 +51,7 @@
     "SA-2/S-75",
     "SA-2/SA-3 Mixed Site",
     "SA-3/S-125",
+    "SA-5/S-200",
     "SA-6",
     "KS-19/SON-9"
   ],
