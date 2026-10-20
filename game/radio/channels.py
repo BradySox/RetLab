@@ -92,15 +92,22 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         flight: FlightData, mission_data: MissionData
     ) -> list[RadioFrequency]:
         frequencies: list[RadioFrequency] = []
-        if flight.departure.atc is not None:
+        # Voice ATC (§119) replaces a field's DCS tower with its Ground and Tower.
+        voice_atc = mission_data.atc_frequencies
+        if (departure_atc := voice_atc.get(flight.departure.airfield_name)) is not None:
+            frequencies.extend(departure_atc)
+        elif flight.departure.atc is not None:
             frequencies.append(flight.departure.atc)
         # TODO: If there ever are multiple AWACS, limit to mission relevant.
         frequencies.extend(awacs.freq for awacs in mission_data.awacs)
         frequencies.extend(jtac.freq for jtac in mission_data.jtacs)
         if (freq := flight.package.frequency) is not None:
             frequencies.append(freq)
-        if flight.arrival != flight.departure and flight.arrival.atc is not None:
-            frequencies.append(flight.arrival.atc)
+        if flight.arrival != flight.departure:
+            if (arrival_atc := voice_atc.get(flight.arrival.airfield_name)) is not None:
+                frequencies.extend(arrival_atc)
+            elif flight.arrival.atc is not None:
+                frequencies.append(flight.arrival.atc)
         # Only preset tankers this flight can actually take fuel from (boom vs probe).
         # can_refuel_from is permissive for untagged airframes, so a flight whose
         # refueling method is unspecified still gets every tanker (legacy behavior).

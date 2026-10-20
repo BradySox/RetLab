@@ -968,6 +968,13 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="vacuum",
         settings_fields=("vacuum_elint",),
     ),
+    Feature(
+        "voice_atc",
+        "Voice ATC",
+        119,
+        plugin_id="voiceatc",
+        settings_fields=("voice_atc", "voice_atc_strict"),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),
