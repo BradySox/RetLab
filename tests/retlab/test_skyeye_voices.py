@@ -16,7 +16,8 @@ def test_accents_by_country() -> None:
     assert accent_for("USA") == "american"
     assert accent_for("UK") == "british"
     assert accent_for("Saudi Arabia") == "arabic"
-    assert accent_for("South Korea") == "korean"
+    assert accent_for("South Korea") == "british"
+    assert accent_for("China") == "british"
     assert accent_for(None) == "british"
 
 

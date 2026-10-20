@@ -11180,8 +11180,8 @@ Built 2026-10-20 from a survey of how hand-built campaigns run packages from an 
 
 **Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a Piper voice
 from their own squadron's DCS country: American, British (one Scottish), or English read by
-native Arabic, Mandarin, Hindi, Korean, Spanish and Vietnamese speakers (the multi-speaker
-`en_US-l2arctic-medium` model). The two are always opposite genders. SkyEye loads the voices
+native Arabic and Spanish speakers (the multi-speaker `en_US-l2arctic-medium` model). Every
+other country sounds British; the Asian accents were dropped (user call, 2026-10-20). The two are always opposite genders. SkyEye loads the voices
 from its `voices-dir` (default `voices`, one folder per voice) and falls back to its own voice
 when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, RetLab ships none.
 
