@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import logging
-import random
 from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime
@@ -28,7 +27,6 @@ from game.spatialindex import LiveUnitIndex
 from game.radio.radios import RadioFrequency, RadioRegistry, MHz
 from game.radio.tacan import TacanRegistry
 from game.retlab.package_control import (
-    VOICES,
     abccc_callsign,
     has_package_control,
     strike_comm_name,
@@ -274,7 +272,6 @@ class MissionGenerator:
             unique_map_frequencies.add(voice_awacs.freq)
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
-        self.mission_data.awacs_voice = random.choice(VOICES)
         if has_package_control(self.game.blue.ato):
             self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
         if has_vacuum(self.game.blue.ato):

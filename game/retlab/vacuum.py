@@ -20,8 +20,10 @@ from game.theater.theatergroundobject import NavalGroundObject
 from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
     SKYEYE_LINK_PORT,
+    _country,
     player_packages,
 )
+from game.retlab.skyeye_voices import pick_another_voice
 
 if TYPE_CHECKING:
     from game import Game
@@ -214,7 +216,10 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
     node.add_key_value("frequency", f"{frequency.mhz:.3f}{frequency.modulation.name}")
     if (strike := mission_data.strike_frequency) is not None:
         node.add_key_value("strike", f"{strike.mhz:.3f}{strike.modulation.name}")
-    node.add_key_value("voice", mission_data.vacuum_voice)
+    node.add_key_value(
+        "voice",
+        pick_another_voice(_country(flights[0]), mission_data.skyeye_voices),
+    )
     node.add_key_value("linkHost", SKYEYE_LINK_HOST)
     node.add_key_value("linkPort", str(SKYEYE_LINK_PORT))
     node.add_key_value("rangeMeters", str(int(VACUUM_RANGE_NM * 1852)))

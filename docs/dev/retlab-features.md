@@ -11147,6 +11147,12 @@ mission and listed on the kneeboard comms as "STRIKE (Anvil)":
 - **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
   are airborne, else says what is missing.
 - **Push:** at the package push time (the earliest strike flight's HOLD departure).
+- **Roll call:** 3 minutes before the push, "All players, <ABCCC>, check in". Seated player
+  flights answer (voice or F10) and get "copy ready"; AI flights are read out as up or not
+  airborne. A player still silent at the push, by role (user call, 2026-10-20): SEAD holds
+  like a SEAD on the ground (two holds, then abort), an escort gets one hold, a striker is
+  left behind if another striker is set (else one hold, then abort). Empty slots are not
+  waited for.
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
   After that the package pushes if a SEAD is airborne (or it has none), else aborts.
 - **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
@@ -11172,6 +11178,13 @@ mission and the controller the other. Every call is also text to the package's p
 Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
 (recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
 
+**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a Piper voice
+from their own squadron's DCS country: American, British (one Scottish), or English read by
+native Arabic, Mandarin, Hindi, Korean, Spanish and Vietnamese speakers (the multi-speaker
+`en_US-l2arctic-medium` model). The two are always opposite genders. SkyEye loads the voices
+from its `voices-dir` (default `voices`, one folder per voice) and falls back to its own voice
+when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, RetLab ships none.
+
 ### Files
 
 - `game/retlab/package_control.py`: `dcsRetribution.packageControl`, voices, STRIKE name.
@@ -11180,6 +11193,7 @@ Built 2026-10-20 from a survey of how hand-built campaigns run packages from an 
 - `game/missiongenerator/missiongenerator.py`: STRIKE allocation and the kneeboard comm.
 - `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_package_control`).
 - `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SkyEye link.
+- `game/retlab/skyeye_voices.py`: the voices by squadron country (below).
 - `game/missiongenerator/kneeboard/voicepages.py`: the two cheat-sheet pages after the comms
   page, "Talking to <ABCCC>" and "Talking to <AWACS>", for pilots new to voice bots.
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
@@ -11218,7 +11232,9 @@ Calls are spaced 8 s apart.
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
 and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
 SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
-matches its AWACS calls. Calls are voice only; there is no text.
+matches its AWACS calls. Vacuum speaks in a voice from its squadron country's accent that
+neither the AWACS nor the ABCCC uses (`pick_another_voice`). Calls are voice only; there is
+no text.
 
 Built 2026-10-20. Not flown (row B260).
 
