@@ -95,7 +95,9 @@ Chaghcharan.
 Bamyan, Qala i Naw, Chaghcharan, Jalalabad, Bagram and Kabul and draw from the faction's SA-2,
 SA-3, SA-2/3 and SA-6 presets. One long-range marker on the Shomali plain between Kabul and Bagram
 (`RB85-Shomali-SA5`) draws the SA-5, the faction's only long-range preset (DM call
-2026-10-20). SHORAD markers at the bases and 25 along the roads draw SA-8,
+2026-10-20). Red EWRs: Mazar, Bagram and Kabul, plus Maymana, Qala i Naw, Chaghcharan,
+Bamyan, Jalalabad and Pul-i-Khumri (DM ask, same day), each within reach of a comms tower.
+SHORAD markers at the bases and 25 along the roads draw SA-8,
 SA-9 or SA-13. A Scud battery sits on the Shomali plain north of
 Kabul.
 

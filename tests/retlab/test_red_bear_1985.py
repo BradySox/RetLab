@@ -265,6 +265,15 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
         if group.units[0].type == "S-300PS 5P85C ln"
     ]
     assert [group.name for group in sa5] == ["RB85-Shomali-SA5"]
+    # Every red base has its own early-warning radar; Herat and Shindand hold the
+    # other two (EWR markers sit in the red block whichever side owns them).
+    ewrs = {
+        group.name
+        for country in mission.coalition["red"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "1L13 EWR"
+    }
+    assert len(ewrs) == 11
     # Blue's Hawks fight on their own: no node is blue.
     for country in mission.coalition["blue"].countries.values():
         assert not any(g.name.startswith("RB85-IADS-") for g in country.static_group)
