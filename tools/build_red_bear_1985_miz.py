@@ -475,6 +475,11 @@ def _author_roads(mission: Mission, anchors: dict[str, Point]) -> None:
             points.append((p.x, p.y))
         points.append((anchors[end].x, anchors[end].y))
         draw(mission, country, "route", name, points)
+        # The end points sit on runways, off any road. An On Road leg the editor
+        # cannot path leaves a hole in its spans; a hole in the first leg crashes it.
+        group = mission.find_group(name)
+        group.points[0].action = PointAction.OffRoad
+        group.points[-1].action = PointAction.OffRoad
         print(f"  {name} ({len(points)} waypoints)")
 
 

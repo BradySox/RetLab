@@ -232,3 +232,19 @@ def test_the_miz_matches_the_tool() -> None:
         "RB85-Herat-Factory",
         "RB85 Road Pul-i-Khumri - Bagram (Salang)",
     } <= names
+
+
+def test_every_road_leaves_its_bases_off_road() -> None:
+    """An On Road first leg the editor cannot path crashes it (dcs.log, 2026-10-20)."""
+    mission = Mission()
+    mission.load_file(str(MIZ))
+    roads = [
+        group
+        for country in mission.coalition["blue"].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].type == "M-113"
+    ]
+    assert len(roads) == len(ROADS)
+    for group in roads:
+        assert group.points[0].action.value == "Off Road", group.name
+        assert group.points[-1].action.value == "Off Road", group.name
