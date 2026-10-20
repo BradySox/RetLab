@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
+from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -25,6 +26,7 @@ from game.naming import namegen
 from game.spatialindex import LiveUnitIndex
 from game.radio.radios import RadioFrequency, RadioRegistry, MHz
 from game.radio.tacan import TacanRegistry
+from game.retlab.voiceawacs import voice_awacs_for
 from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
 from game.theater.fogofwar import fog_intact
@@ -258,6 +260,8 @@ class MissionGenerator:
         # Allocate UHF/VHF Guard Freq first!
         unique_map_frequencies.add(MHz(243))
         unique_map_frequencies.add(MHz(121, 500))
+        if (voice_awacs := voice_awacs_for(self.game.settings)) is not None:
+            unique_map_frequencies.add(voice_awacs.freq)
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
 
@@ -477,6 +481,7 @@ class MissionGenerator:
             KneeboardGenerator(self.mission, self.game),
             BriefingGenerator(self.mission, self.game),
         ]
+        voice_awacs = voice_awacs_for(self.game.settings)
         for gen in gens:
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
@@ -485,8 +490,11 @@ class MissionGenerator:
                 if tanker.blue.is_blue:
                     gen.add_tanker(tanker)
 
+            gen.voice_awacs = voice_awacs
             for aewc in mission_data.awacs:
                 if aewc.blue.is_blue:
+                    if voice_awacs is not None:
+                        aewc = replace(aewc, callsign=f"{aewc.callsign} (silent)")
                     gen.add_awacs(aewc)
 
             for jtac in mission_data.jtacs:

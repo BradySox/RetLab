@@ -11127,3 +11127,37 @@ count. Built 2026-10-19. Not flown (row B254).
 - Another device may only GET, and only with the phone key; the PC's map key is refused from outside.
 - One uvicorn server and event loop for the PC and the phone; never a second server thread.
 - A turn ping is sent in the background and never fails the turn.
+
+## §116 — Voice AWACS on SRS
+
+A setting on the RetLab Features page, **Voice AWACS on SRS (SkyEye)**, off by default, for a SkyEye
+GCI bot (github.com/dharmab/skyeye) running on the player's SRS server. SkyEye reads the
+picture from Tacview's real-time feed and talks on its own SRS frequency; RetLab only clears
+the way. With the setting on:
+
+- Blue AEW&C flights get DCS radio silence, so the DCS voice does not talk over SkyEye.
+  They keep the AWACS task, their orbit and their datalink role. Red AWACS are untouched.
+- The SkyEye frequency (**SkyEye frequency**, default `251.0 AM`) is reserved before any
+  flight is given a channel. The AWACS keeps its own channel, picked the normal way or set on
+  the flight in the flight editor.
+- The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
+  (default `Sentinel`) first as "Sentinel (SkyEye)", and each blue AWACS as "(silent)".
+
+Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
+player named themselves in the call. Not flown with the setting on (row B257). The DTC
+cartridges still preset the AWACS channel, not SkyEye's.
+
+### Files
+
+- `game/retlab/voiceawacs.py`: the frequency parse and the kneeboard/briefing line.
+- `game/settings/fields/missiongenerator.py`, `game/settings/layout.py`: the three settings.
+- `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_awacs`): the silence.
+- `game/missiongenerator/missiongenerator.py`: the reservation and the "(silent)" label.
+- `game/missiongenerator/kneeboard/support.py`, `resources/briefing/templates/*.j2`: the line.
+- `tests/retlab/test_voice_awacs.py`.
+
+### Constraints
+
+- SkyEye's own config (`srs-frequencies`, `callsign`) must match the two settings; RetLab
+  never writes it (Brady's call, 2026-10-20).
+- Player calls must start with the SkyEye callsign, then the player's own DCS name.

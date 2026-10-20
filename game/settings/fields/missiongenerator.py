@@ -9,6 +9,7 @@ from ..booleanoption import boolean_option
 from ..boundedintoption import bounded_int_option
 from ..choicesoption import choices_option
 from ..minutesoption import minutes_option
+from ..textoption import text_option
 from ...ato.starttype import StartType
 
 if TYPE_CHECKING:
@@ -411,6 +412,43 @@ class MissionGeneratorSettings:
             "Controls AI wingmen in flights containing human slots. Normal keeps "
             "standard DCS calls; Suppress contact reports removes target-detection "
             "spam; Radio silence suppresses all AI calls. AWACS flights are unaffected."
+        ),
+    )
+    voice_awacs: bool = boolean_option(
+        "Voice AWACS on SRS (SkyEye)",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            "For a SkyEye GCI bot running on your SRS server. Blue AWACS flights go "
+            "radio silent but still fly their orbit and feed the datalink. The "
+            "SkyEye frequency is kept free of every other flight, and the kneeboard "
+            "and briefing list it with the SkyEye callsign. SkyEye itself runs "
+            "outside DCS and is set up separately."
+        ),
+    )
+    voice_awacs_frequency: str = text_option(
+        "SkyEye frequency",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default="251.0 AM",
+        placeholder="251.0 AM",
+        enabled_when="voice_awacs",
+        detail=(
+            "The frequency in MHz, with AM or FM, that SkyEye listens and talks on. "
+            "Match the srs-frequencies line in SkyEye's config.yaml."
+        ),
+    )
+    voice_awacs_callsign: str = text_option(
+        "SkyEye callsign",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default="Sentinel",
+        placeholder="Sentinel",
+        enabled_when="voice_awacs",
+        detail=(
+            "The name SkyEye answers to, as shown on the kneeboard and briefing. "
+            "Match the callsign line in SkyEye's config.yaml."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

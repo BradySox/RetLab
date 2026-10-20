@@ -7,6 +7,7 @@ from typing import List, Optional, TYPE_CHECKING, Tuple
 from PIL import ImageFont
 
 from game.radio.radios import RadioFrequency
+from game.retlab.voiceawacs import VoiceAwacsInfo
 from game.theater.controlpoint import Airfield
 from ..aircraft.flightdata import FlightData
 from ..briefinggenerator import CommInfo, JtacInfo
@@ -106,11 +107,13 @@ class SupportPage(KneeboardPage):
         dark_kneeboard: bool,
         airfield_rows: Optional[List[List[str]]] = None,
         zulu_tz: Optional[datetime.tzinfo] = None,
+        voice_awacs: Optional[VoiceAwacsInfo] = None,
     ) -> None:
         self.flight = flight
         self.package_flights = package_flights
         self.comms = list(comms)
         self.awacs = awacs
+        self.voice_awacs = voice_awacs
         self.tankers = tankers
         self.jtacs = jtacs
         self.zulu_tz = zulu_tz
@@ -213,6 +216,15 @@ class SupportPage(KneeboardPage):
             )
 
         aewc_ladder = []
+        if self.voice_awacs is not None:
+            aewc_ladder.append(
+                [
+                    f"{self.voice_awacs.callsign}\n(SkyEye)",
+                    self.format_frequency(self.voice_awacs.freq),
+                    "SRS",
+                    "-",
+                ]
+            )
         for single_aewc in self.awacs:
             if single_aewc.depature_location is None:
                 tot_a = "-"

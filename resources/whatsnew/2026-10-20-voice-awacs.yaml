@@ -1,0 +1,10 @@
+date: 2026-10-20
+title: Talk to a voice AWACS over SRS
+change: >-
+  If you run the free SkyEye GCI bot on your SRS server, turn on Voice AWACS
+  on SRS (SkyEye) in Settings > RetLab Features. Blue AWACS stop talking so
+  they do not cover SkyEye, no other flight gets SkyEye's frequency, and the
+  kneeboard and briefing show its callsign and frequency (Sentinel on 251.0 AM
+  unless you change them).
+watch: >-
+  The AWACS should go quiet but keep its orbit and its datalink picture.
