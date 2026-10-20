@@ -27,6 +27,8 @@ local POLL_SECONDS = 10
 local LINK_POLL_SECONDS = 1
 local ANNOUNCE_SECONDS = 30
 local HOLD_SLIP_SECONDS = 180
+-- The roll call goes out this long before the push (user call, 2026-10-20).
+local ROLL_CALL_LEAD_SECONDS = 180
 local MAX_SLIPS = 2
 local NM = 1852
 local EGRESS_NM = 10
@@ -404,6 +406,91 @@ local function seadLost(pkg)
     return true
 end
 
+-- A player flight counts only with someone in a seat: an empty slot is not waited for.
+local function seated(flight)
+    if flight.client ~= "true" then
+        return false
+    end
+    for _, u in ipairs(liveUnits(flight.group)) do
+        local ok, name = pcall(function()
+            return u:getPlayerName()
+        end)
+        if ok and name and name ~= "" then
+            return true
+        end
+    end
+    return false
+end
+
+local function silentPlayers(pkg, role)
+    local out = {}
+    for _, f in ipairs(flightsWithRole(pkg, role)) do
+        if seated(f) and not f.ready then
+            table.insert(out, f)
+        end
+    end
+    return out
+end
+
+local function callsigns(flights)
+    local names = {}
+    for _, f in ipairs(flights) do
+        table.insert(names, spokenCallsign(f.callsign))
+    end
+    return table.concat(names, " and ")
+end
+
+-- A striker other than the silent ones is set to go: a ready player or an airborne AI flight.
+local function anotherStrikerReady(pkg)
+    for _, f in ipairs(flightsWithRole(pkg, "strike")) do
+        if f.client == "true" then
+            if f.ready and seated(f) then
+                return true
+            end
+        elseif airborne(f) then
+            return true
+        end
+    end
+    return false
+end
+
+local function slip(pkg, reason)
+    pkg.slips = pkg.slips + 1
+    pkg.pushAt = pkg.pushAt + HOLD_SLIP_SECONDS
+    holdAI(pkg)
+    return say(
+        pkg,
+        string.format(
+            "Package %s, {controller}, hold, hold. %s. New push time %s.",
+            pkg.name,
+            reason,
+            clock(pkg.pushAt)
+        )
+    )
+end
+
+-- The roll call: players answer; AI flights are read out by what they are doing.
+local function rollCall(pkg)
+    pkg.rollCalled = true
+    say(pkg, string.format("All players, {controller}, check in. Push in %d minutes.", ROLL_CALL_LEAD_SECONDS / 60))
+    local up, down = {}, {}
+    for _, f in ipairs(pkg.flights or {}) do
+        if f.client ~= "true" and not lost(f) then
+            table.insert(airborne(f) and up or down, f)
+        end
+    end
+    if #up + #down > 0 then
+        local parts = {}
+        if #up > 0 then
+            table.insert(parts, callsigns(up) .. " up")
+        end
+        if #down > 0 then
+            table.insert(parts, callsigns(down) .. " not airborne")
+        end
+        say(pkg, string.format("Package %s, {controller}, %s.", pkg.name, table.concat(parts, ". ")))
+    end
+end
+
 local function decidePush(pkg)
     if targetDestroyed(pkg) then
         return abort(pkg, "Target " .. tostring(pkg.targetName) .. " destroyed")
@@ -411,28 +498,45 @@ local function decidePush(pkg)
     if seadLost(pkg) then
         return abort(pkg, "SEAD lost")
     end
+    -- Silent players, by role (user call, 2026-10-20): SEAD holds like a SEAD on the
+    -- ground, an escort gets one hold, a striker is left behind unless they are the strike.
+    local silentSead = pkg.rollCalled and silentPlayers(pkg, "sead") or {}
+    local silentEscort = pkg.rollCalled and silentPlayers(pkg, "escort") or {}
+    local silentStrike = pkg.rollCalled and silentPlayers(pkg, "strike") or {}
     local missing = notReady(pkg)
-    if #missing == 0 then
-        return push(pkg)
+    if #missing > 0 or #silentSead > 0 then
+        if pkg.slips < MAX_SLIPS then
+            local reasons = {}
+            if #missing > 0 then
+                table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
+            end
+            if #silentSead > 0 then
+                table.insert(reasons, callsigns(silentSead) .. " not checked in")
+            end
+            return slip(pkg, table.concat(reasons, ". "))
+        end
+        if #silentSead > 0 then
+            return abort(pkg, callsigns(silentSead) .. " not checked in")
+        end
+        if not (#flightsWithRole(pkg, "sead") == 0 or anySeadAirborne(pkg)) then
+            return abort(pkg, "No SEAD")
+        end
     end
-    if pkg.slips < MAX_SLIPS then
-        pkg.slips = pkg.slips + 1
-        pkg.pushAt = pkg.pushAt + HOLD_SLIP_SECONDS
-        holdAI(pkg)
-        return say(
-            pkg,
-            string.format(
-                "Package %s, {controller}, hold, hold. %s not airborne. New push time %s.",
-                pkg.name,
-                table.concat(missing, " and "),
-                clock(pkg.pushAt)
-            )
-        )
+    if #silentEscort > 0 and not pkg.escortHoldUsed then
+        pkg.escortHoldUsed = true
+        return slip(pkg, callsigns(silentEscort) .. " not checked in")
     end
-    if #flightsWithRole(pkg, "sead") == 0 or anySeadAirborne(pkg) then
-        return push(pkg)
+    if #silentStrike > 0 and not anotherStrikerReady(pkg) then
+        if not pkg.strikeHoldUsed then
+            pkg.strikeHoldUsed = true
+            return slip(pkg, callsigns(silentStrike) .. " not checked in")
+        end
+        return abort(pkg, "No strikers checked in")
     end
-    return abort(pkg, "No SEAD")
+    if #silentStrike > 0 then
+        say(pkg, string.format("%s, {controller}, not checked in. Package pushing without you.", callsigns(silentStrike)))
+    end
+    return push(pkg)
 end
 
 local function distanceNm(unit, x, y)
@@ -477,6 +581,9 @@ local function tick(_, now)
             end
         elseif pkg.state == "waiting" and pkg.pushAt and now >= pkg.pushAt then
             decidePush(pkg)
+        elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled
+            and now >= pkg.pushAt - ROLL_CALL_LEAD_SECONDS then
+            rollCall(pkg)
         elseif pkg.state == "pushed" then
             if strikersEgressed(pkg) then
                 pkg.state = "done"
@@ -493,7 +600,10 @@ local function checkIn(arg)
     local pkg, flight = arg.pkg, arg.flight
     local callsign = spokenCallsign(flight.callsign)
     local text
-    if pkg.state == "waiting" and pkg.pushAt then
+    if pkg.state == "waiting" and pkg.rollCalled then
+        flight.ready = true
+        text = string.format("%s, {controller}, copy ready. Push time %s.", callsign, clock(pkg.pushAt))
+    elseif pkg.state == "waiting" and pkg.pushAt then
         local hold = flight.holdAngels and string.format(" Cleared direct hold, angels %s.", flight.holdAngels) or ""
         text = string.format("%s, {controller}, radar contact.%s Push time %s.", callsign, hold, clock(pkg.pushAt))
     elseif pkg.state == "pushed" then
@@ -509,17 +619,31 @@ local function readyToPush(pkg, flight)
     if pkg.state ~= "waiting" then
         return say(pkg, string.format("%s, {controller}, package %s has pushed.", callsign, pkg.name))
     end
+    flight.ready = pkg.rollCalled or flight.ready
+    local reasons = {}
     local missing = notReady(pkg)
-    if #missing == 0 then
+    if #missing > 0 then
+        table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
+    end
+    local silent = {}
+    for _, role in ipairs({ "sead", "escort", "strike" }) do
+        for _, f in ipairs(silentPlayers(pkg, role)) do
+            table.insert(silent, f)
+        end
+    end
+    if #silent > 0 then
+        table.insert(reasons, callsigns(silent) .. " not checked in")
+    end
+    if #reasons == 0 then
         releaseAI(pkg)
         return push(pkg)
     end
     say(
         pkg,
         string.format(
-            "%s, {controller}, negative, %s not airborne. Push time %s.",
+            "%s, {controller}, negative, %s. Push time %s.",
             callsign,
-            table.concat(missing, " and "),
+            table.concat(reasons, ". "),
             clock(pkg.pushAt or timer.getTime())
         )
     )

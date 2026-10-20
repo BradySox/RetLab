@@ -124,6 +124,8 @@ class AbcccPage(KneeboardPage):
             [
                 '"Radar contact ... angels 20, push time 14 32": go to your HOLD '
                 "point at that altitude and wait.",
+                '"All players, check in" (3 min before push): answer with your '
+                f'name and "ready", e.g. "{c}, {me}, ready".',
                 '"Push, push": leave the HOLD now for the target.',
                 '"Hold, hold ... new push time": stay at the HOLD; SEAD or escort '
                 "is not up yet. At most two holds.",

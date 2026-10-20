@@ -11147,6 +11147,12 @@ mission and listed on the kneeboard comms as "STRIKE (Anvil)":
 - **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
   are airborne, else says what is missing.
 - **Push:** at the package push time (the earliest strike flight's HOLD departure).
+- **Roll call:** 3 minutes before the push, "All players, <ABCCC>, check in". Seated player
+  flights answer (voice or F10) and get "copy ready"; AI flights are read out as up or not
+  airborne. A player still silent at the push, by role (user call, 2026-10-20): SEAD holds
+  like a SEAD on the ground (two holds, then abort), an escort gets one hold, a striker is
+  left behind if another striker is set (else one hold, then abort). Empty slots are not
+  waited for.
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
   After that the package pushes if a SEAD is airborne (or it has none), else aborts.
 - **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
