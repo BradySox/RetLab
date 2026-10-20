@@ -4,17 +4,21 @@ theater: Iraq
 authors: Starfire, RetLab
 recommended_player_faction: USA 2012
 recommended_enemy_faction: Republic of Wadiya 1991
-description:
+description: >-
+  <p><strong>Note -</strong> Starfire's Operation Desert Aladeen, reversed and fought
+  east from H-3. The original still ships unchanged. Every unit is stock DCS.</p>
   <p>Admiral-General Haffaz Aladeen did not wait for the United Nations vote. While the
-  coalition was still arguing over the wording, Wadiyan armour rolled south and took
+  coalition was still arguing over the wording, Wadiyan armor rolled south and took
   Baghdad, Al-Salam and every airfield from Mosul to Al-Kut, and his navy ran a flag up
   over Kharg Island because it looked nice on the map.</p>
   <p>The coalition holds three desert strips at H-3 on the Jordanian border, with its
-  AWACS, tankers and bombers flying in from the Jordanian rear. Push east up the old
-  pipeline road. Take FOB Wadi Hauran, then Al-Asad, then the Habbaniyah line, and keep
-  going until Baghdad is free. Out in the north-west, Aladeen has hidden his Scuds, his
-  SA-10s and a superphosphate works that is definitely not refining uranium.</p>
-  <p>Stock DCS units only. Neither side needs a mod.</p>
+  AWACS, tankers and bombers flying in from the Jordanian rear. Out in the north-west,
+  Aladeen has hidden his Scuds, his SA-10s and a superphosphate works that is definitely
+  not refining uranium.</p>
+  <p>Push east up the old pipeline road. Take FOB Wadi Hauran, then Al-Asad, then the
+  Habbaniyah line, and keep going until every airfield from Baghdad to Mosul, Erbil and
+  Sulaimaniyah is free. Kharg Island does not count. Lose H-3 Main, and Aladeen wins.
+  Aladeen luck, Commander.</p>
 miz: desert_aladeen_h3_front.miz
 performance: 2
 recommended_start_date: 2012-05-16

@@ -4,24 +4,22 @@ theater: Kola
 authors: RetLab (laydown forked from Starfire's Able Archer 83)
 recommended_player_faction: NATO Northern Flank 1985
 recommended_enemy_faction: USSR Northern Fleet 1985
-description:
-  <p>September 1985. The Soviet 6th Army has crossed the border at Kirkenes and
-  come down the only road there is. Finnmark is gone. Kirkenes, Banak and Alta
-  are Soviet airfields now, and the spearhead is closing on the Lyngen position,
-  the narrow neck of fjord and mountain where Norway always planned to stand.
-  Behind it are Bardufoss, Evenes and the port of Narvik.</p>
-  <p>Sweden and Finland are not in this war and intend to stay out of it. Both
-  have live missile batteries on their borders and both will warn you once. The
-  short way round the front is through their airspace, and it is closed to
-  everyone.</p>
-  <p>So the war is fought on one road and on the sea beside it. You fly from the
-  four Norwegian fields NATO still holds and from a carrier in the Norwegian Sea.
-  The Northern Fleet has come out of Murmansk, its supply ships are running to
-  Kirkenes and round the North Cape to Banak, and the Backfires at Olenya are
-  looking for your boat.</p>
+description: >-
+  <p><strong>Note -</strong> Laydown built by RetLab from Starfire's Able Archer 83,
+  which still ships unchanged. Every unit is stock DCS.</p>
+  <p>In September 1985, the Soviet 6th Army crossed the border at Kirkenes and came down
+  the only road there is. Finnmark is gone. Kirkenes, Banak and Alta are Soviet
+  airfields now, and the spearhead is closing on the Lyngen position, the narrow neck of
+  fjord and mountain where Norway always planned to stand. Behind it are Bardufoss,
+  Evenes and the port of Narvik.</p>
+  <p>Sweden and Finland are not in this war and intend to stay out of it. Both have live
+  missile batteries on their borders, and both will warn you once. The short way round
+  the front is closed to everyone, so the war is fought on one road and on the sea
+  beside it. You fly from the four Norwegian fields NATO still holds and from a carrier
+  in the Norwegian Sea. The Northern Fleet has come out of Murmansk, its supply ships
+  are running round the North Cape, and the Backfires at Olenya are looking for your
+  boat.</p>
   <p>Hold the Lyngen line, break the road behind it, and take Finnmark back.</p>
-  <p>Stock DCS units only. Laydown built by RetLab from Starfire's <i>Able Archer
-  83</i>, which still ships unchanged.</p>
 miz: northern_flank_1985.miz
 performance: 1
 recommended_start_date: 1985-09-10

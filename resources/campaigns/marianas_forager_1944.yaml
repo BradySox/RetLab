@@ -4,18 +4,21 @@ theater: MarianasWWII
 authors: RetLab
 recommended_player_faction: USA 1944 (Marianas)
 recommended_enemy_faction: Japan 1944 (Marianas)
-description:
-  <p>15 June 1944. The 2nd and 4th Marine Divisions are ashore on Saipan's west
-  coast at Chalan Kanoa and hold nothing else. Aslito Field is four miles south
-  and still Japanese. Task Force 58 stands off to the west.</p>
-  <p>Take Saipan, then Tinian across the strait, then Guam. Rota was bypassed in
-  1944 and its garrison never surrendered; it is yours to bypass or reduce.</p>
-  <p><strong>Substitutions.</strong> DCS ships no Japanese aircraft, so the I-16
-  and Fw 190 A-8 stand in for the defenders, wearing the IJN liveries DCS ships
-  for that purpose. Only the F4U-1D can fly from the carrier -- it is the one
-  carrier-capable type of the period in DCS. The P-47D is not a substitute. The
-  318th Fighter Group really did fly Thunderbolts from this island in June
-  1944.</p>
+description: >-
+  <p><strong>Note -</strong> DCS ships no Japanese aircraft, so the I-16 and Fw 190 A-8
+  stand in for the defenders, in the IJN liveries DCS ships for that purpose. The F4U-1D
+  is the only carrier type of the period in DCS. The P-47D is no stand-in; the 318th
+  Fighter Group really did fly Thunderbolts from Saipan in June 1944. Needs the WWII
+  Assets Pack.</p>
+  <p>In June 1944, the United States reached for the Marianas, the islands from which a
+  B-29 could reach Tokyo. Japan answered by sending its carrier fleet to break the
+  invasion, and the Philippine Sea was about to see the largest carrier battle in
+  history.</p>
+  <p>It is 15 June 1944. The 2nd and 4th Marine Divisions are ashore on Saipan's west
+  coast at Chalan Kanoa and hold nothing else. Aslito Field is four miles south and
+  still Japanese. Task Force 58 stands off to the west.</p>
+  <p>Take Saipan, then Tinian across the strait, then Guam. Rota was bypassed in 1944
+  and its garrison never surrendered. It is yours to bypass or to reduce.</p>
 miz: marianas_forager_1944.miz
 performance: 1
 recommended_start_date: 1944-06-15

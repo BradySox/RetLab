@@ -4,21 +4,21 @@ theater: Falklands
 authors: RetLab
 recommended_player_faction: UK-US Falklands Garrison 2032
 recommended_enemy_faction: Argentina 2032
-description:
-  <p>November 2032, fictional. A rearmed Argentina has tried again. Its marines
-  came ashore at San Carlos and its paratroops took the strip at Goose Green, and
-  their HQ-7 batteries are already up. The garrison holds Mount Pleasant and
-  Stanley, with Sky Sabre, a Type 45 offshore, and a US Air Force detachment of
-  F-16s and F-15Es that was on the islands for an exercise. The AWACS and tankers
-  come from Ascension. The rest is a long way off.</p>
+description: >-
+  <p><strong>Note -</strong> Play it from either side; New Game's Invert Sides gives you
+  the Argentine landing. Built for CurrentHill's UK Asset Pack and the community A-4E
+  Skyhawk mod; New Game ticks both.</p>
+  <p>Fifty years after 1982, a rearmed Argentina has tried again. In November 2032, its
+  marines came ashore at San Carlos and its paratroops took the strip at Goose Green,
+  and their HQ-7 batteries were up before dawn.</p>
+  <p>The garrison holds Mount Pleasant and Stanley, with Sky Sabre, a Type 45 offshore,
+  and a US Air Force detachment of F-16s and F-15Es that was on the islands for an
+  exercise. The AWACS and tankers come from Ascension. Everything else is a long way
+  off. The Argentine F-16s and Skyhawks fly 360 to 430 nautical miles from the mainland,
+  and the mainland fields cannot be taken. Chile is not in this war and will warn you
+  once.</p>
   <p>Hold Mount Pleasant and push them off the islands. Clear Goose Green and San
-  Carlos and the war is won. Lose Mount Pleasant and it is lost. The Argentine
-  F-16s and Skyhawks fly 360 to 430 NM from the mainland, and the mainland
-  fields cannot be taken. Chile is not in this war and will warn you once.</p>
-  <p>Play it from either side. New Game's Invert Sides gives you the Argentine
-  landing, with the win and loss rules turned round.</p>
-  <p>Needs the CurrentHill UK asset pack and the community A-4E Skyhawk mod. Both
-  are ticked under Mods at New Game already.</p>
+  Carlos, and the war is won. Lose Mount Pleasant, and it is lost.</p>
 miz: mount_pleasant_2032.miz
 performance: 1
 recommended_start_date: 2032-11-15

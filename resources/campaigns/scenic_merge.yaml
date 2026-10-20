@@ -2,7 +2,18 @@
 name: Persian Gulf - Scenic Route Merged
 theater: Persian Gulf
 authors: Fuzzle, merged by tmz42, RetLab cleanup pass
-description: <p>A merge of the two Scenic Route campaigns. <p><strong>Backstory:</strong> Iran has declared war on all US forces in the Gulf resulting in all local allies withdrawing their support for American troops. A carrier group, aided by USAF units stationed on the south bank must pacify Iran's coastal defences and push inland. Iran has assembled the full might of its air and ground divisions to defend their heartland.</p><p>Tuned for the <strong>[CH] Iran 2020</strong> faction (Shahed-136 drone barrages, IRGCN fast attack craft, Tor point defense) &mdash; install the CurrentHill Iran asset pack and enable it on the New Game Mods page for the full experience; without it the faction gracefully loses the CH units.</p>
+description: >-
+  <p><strong>Note -</strong> Fuzzle's two Scenic Route campaigns, merged by tmz42 and
+  cleaned up by RetLab. Built for CurrentHill's Iran Asset Pack, with Shahed-136 drones,
+  IRGCN fast attack craft and Tor point defense, and the RetLab Iran Air Defense Pack;
+  New Game ticks both, and without them the Iranian faction loses those units.</p>
+  <p>Iran has declared war on every US force in the Gulf, and the local allies have
+  withdrawn their support for American troops. A lone carrier group and the USAF units
+  still on the south bank are all that stand between the region and an American
+  exit.</p>
+  <p>Pacify Iran's coastal defenses, seize a foothold on the far shore, and push inland.
+  Iran has assembled the full weight of its air and ground divisions to defend its
+  heartland, and the drones will come in waves.</p>
 version: "10.7"
 advanced_iads: true
 recommended_player_faction: USA 2005

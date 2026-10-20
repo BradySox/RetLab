@@ -3,33 +3,25 @@ name: Caucasus - 1968 Yankee Station
 era: vietnam
 theater: Caucasus
 authors: NoGoodNews (coastal-ladder recast + Niagara/Steel Tiger consolidation by the RetLab)
-description:
-    <p><strong>The Gulf of Tonkin, summer 1968.</strong> A fictional recreation of the whole
-    in-country air war &mdash; the route packages, the trail, and the siege &mdash; on one map.
-    The Kolkheti delta plays the Red River delta &mdash; <strong>Hanoi
-    (Kutaisi)</strong> inland up the river behind its SA-2 ring, <strong>Haiphong
-    (Senaki)</strong> on the coast &mdash; and the route packages ladder south down the
-    panhandle through <strong>Vinh (Sukhumi)</strong> and <strong>Dong Hoi (Gudauta)</strong>
-    to the <strong>DMZ at the Psou narrows</strong>, where the single front is held from
-    <strong>Da Nang (Sochi-Adler)</strong> and the hill outpost at <strong>FOB Khe
-    Sanh</strong>.</p>
-    <p>The Navy fights the coastal packages &mdash; two carriers on <strong>Yankee Station</strong>
-    stand off the delta with Crusaders, Skyhawks and Intruders. The Air Force crosses the
-    mountains from "Thailand" &mdash; <strong>Ubon (Maykop)</strong> and <strong>Takhli
-    (Mineralnye Vody)</strong> &mdash; the same over-the-ridge run the Thuds flew, with
-    the <strong>Arc Light</strong> B-52 wing out of U-Tapao. MiGs flushed to the
-    <strong>Tbilisi "Chinese border" fields</strong> sit in a sanctuary your ROE never
-    releases &mdash; exactly like the real one.</p>
-    <p><strong>Steel Tiger:</strong> everything the NVA throws at the South moves down a real,
-    cuttable <strong>Ho Chi Minh Trail</strong> &mdash; truck convoys run FOB Mu Gia &rarr;
-    Ban Karai &rarr; Tchepone to the front, night after night under wall-to-wall AAA, and
-    every leg crosses a bridge. Find the column, kill it, and roll the next one back before
-    the cargo ever reaches the line.</p>
-    <p><strong>Operation Niagara:</strong> at the DMZ the NVA has the line pressed in tight.
-    The forward strips draw rocket and mortar fire, the encircled hill outpost at <strong>FOB
-    Khe Sanh</strong> lives on round-the-clock tac air, Arc Light, and the <strong>Super
-    Gaggle</strong> helicopter resupply. Hold the garrison while the deep war runs north.</p>
-    <p><strong>Pump up the volume on "Fortunate Son" and enjoy.</strong></p>
+description: >-
+  <p><strong>Note -</strong> A fictional recreation of the 1968 air war over Vietnam,
+  played on the Caucasus map. Built for the A-4E, OV-10A and OH-6 mods, Vietnam War
+  Vessels, CurrentHill's Russia Asset Pack and High Digit SAMs; New Game ticks them all.
+  Original campaign by NoGoodNews, recast by RetLab.</p>
+  <p>By the summer of 1968, Rolling Thunder has been running for three years and North
+  Vietnam has turned it into a war of attrition. Hanoi sits behind the densest SAM and
+  flak belts in the world, the Ho Chi Minh Trail feeds the war in the South every night,
+  and at Khe Sanh a Marine garrison is surrounded in the hills below the DMZ.</p>
+  <p>The Kolkheti delta plays the Red River. Hanoi is Kutaisi, Haiphong is Senaki, and
+  the route packages ladder south through Vinh at Sukhumi and Dong Hoi at Gudauta to the
+  DMZ at the Psou narrows. Two carriers on Yankee Station fly the coastal packages with
+  Crusaders, Skyhawks and Intruders. The Air Force crosses the mountains from Ubon and
+  Takhli, at Maykop and Mineralnye Vody, and the Arc Light B-52s fly out of U-Tapao.
+  Down the Trail, truck columns run from Mu Gia through Ban Karai to Tchepone, and every
+  leg crosses a bridge.</p>
+  <p>You will not take Hanoi. Break the North's air force, or cut the Trail at the
+  passes, and hold Khe Sanh while you do it. Pump up the volume on "Fortunate Son" and
+  enjoy.</p>
 
 recommended_player_faction: USA 1970 Vietnam War
 recommended_enemy_faction: Vietnam 1970

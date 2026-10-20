@@ -86,20 +86,21 @@ recommended_player_faction:
   has_jtac: true
   jtac_unit: MQ-9 Reaper
   liveries_overrides: {}
-description:
-  <p>In 2004 a rupture between Ankara and Washington ends with Turkish airspace
-  and Incirlik closed to coalition traffic. Moscow moves into the gap. An
-  air-defence protocol puts Russian long-range SAM regiments on the Anatolian
-  plateau and Russian squadrons at Diyarbakir within the year. Damascus, a
-  client of Moscow since the Soviet era and isolated since the occupation of
-  Lebanon began to draw sanction, signs on as the third partner. The combined
-  network now reaches from the Black Sea coast to the Golan.</p><p>Israel
-  cannot reach Anatolia without help. Every target that matters sits between
-  250 and 400 nautical miles from the Negev, and the direct routes run through
-  the Syrian corridor. A US tanker and control package operating from Akrotiri,
-  and a carrier in the eastern Mediterranean, are what turn Israeli strike
-  squadrons into a force that can hold Turkish airfields at risk.</p><p>The
-  fight is in Turkey. Getting there is the campaign.</p>
+description: >-
+  <p><strong>Note -</strong> A fictional long-range strike campaign. Israeli squadrons
+  fly from the Negev with a US tanker, control and carrier package. Built for the UH-60L
+  mod; New Game ticks it.</p>
+  <p>In 2004, a rupture between Ankara and Washington ended with Turkish airspace and
+  Incirlik closed to coalition traffic. Moscow moved into the gap. Within the year, an
+  air-defense protocol had put Russian long-range SAM regiments on the Anatolian plateau
+  and Russian squadrons at Diyarbakir. Damascus, a Soviet client since the Cold War and
+  isolated since its occupation of Lebanon drew sanctions, signed on as the third
+  partner. The combined network now reaches from the Black Sea coast to the Golan.</p>
+  <p>Israel cannot reach Anatolia alone. Every target that matters lies 250 to 400
+  nautical miles from the Negev, and the direct routes run through the Syrian corridor.
+  A US tanker and control package at Akrotiri and a carrier in the eastern Mediterranean
+  are what let Israeli strike squadrons hold Turkish airfields at risk.</p>
+  <p>The fight is in Turkey. Getting there is the campaign.</p>
 
 # Retribution allows one faction per coalition, so an alliance has to be written
 # inline. This follows Fuzzle's shipped Operation Allied Sword, which does the

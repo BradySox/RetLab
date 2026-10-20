@@ -3,31 +3,23 @@ name: Iraq - Operation Inherent Resolve (COIN)
 theater: Iraq
 authors: RetLab
 description: >-
-  <p><strong>Nineveh, October 2016 &ndash; July 2017 &mdash; the fight to retake Mosul.</strong>
-  The caliphate holds the city and a ring of towns across the Nineveh plain, and it does not
-  fight like an army. Its cells <strong>regenerate</strong>: every insurgent-held stronghold
-  quietly refills toward its original strength each turn, fed by hidden <strong>ammo caches</strong>
-  and the ratline running west toward Tal Afar and Syria. Body count alone wins nothing here.</p>
-  <p>Find the caches (recon them &mdash; then strike them) to collapse a stronghold's regeneration,
-  interdict the trail, hunt the emirs, and grind the ring back with the Iraqi Security Forces up
-  Highway 1 out of Balad &mdash; Tikrit, then Mosul &mdash; while air assaults peel the outer towns. And check your
-  map before you roll in: <strong>Mosul itself sits inside a big no-strike positive-control box</strong>,
-  because the caliphate fights from among the people &mdash; and in the last phase the
-  <strong>Old City</strong> tightens to almost nothing. Every weapon released in the city prices
-  collateral into the Coalition's mandate, kill by kill. The war is decided by the
-  <strong>will meters</strong>: the mandate bleeds from airframes, lost bases, civilian casualties
-  in the city, and plain time; the caliphate's resolve bleeds from its caches, its convoys, its
-  emirs, and its strongholds &mdash; almost never from its dead fighters. Break their resolve
-  before your mandate runs out.</p>
-  <p>You fly with the <strong>CJTF-OIR coalition out of Balad</strong>: A-10s, Hornets and
-  Vipers on the ramp, Marine Harriers, French Mirages and the Iraqi Air Force at Al-Taqaddum, the
-  CENTAF heavies &mdash; Strike Eagles, the Bone, and the KC-135 bridge &mdash; alongside, and
-  E-3s and Reapers overhead. The enemy has no air force, but answers with guns, shoulder-fired
-  SAMs and the truck bomb at every stronghold &mdash; and <strong>a thin captured-SAM crust</strong>:
-  an SA-6 over Mosul, SA-8/9/13 across the ring. Enough to make SEAD a real job; never enough to
-  stop the war. Low is where the flak lives.</p>
-  <p>The COIN layer &mdash; cache-throttled cell regeneration, the inverted will economy, and the
-  three-phase Mosul arc &mdash; is RetLab's; sibling to Operation Enduring Resolve.</p>
+  <p><strong>Note -</strong> A counterinsurgency campaign. Islamic State strongholds
+  refill every turn from hidden ammunition caches and a ratline to the west, so body
+  count alone wins nothing. Built for High Digit SAMs; New Game ticks it. A sibling to
+  Operation Enduring Resolve.</p>
+  <p>In June 2014, a few thousand Islamic State fighters drove the Iraqi Army out of
+  Mosul and declared a caliphate from the city's Great Mosque. Two years later, the
+  Iraqi Security Forces and the coalition are ready to take it back. The caliphate holds
+  the city and a ring of towns across the Nineveh plain, fed by caches and a ratline
+  running west toward Tal Afar and Syria, and it fights from among the people.</p>
+  <p>It is October 2016. The coalition flies from Balad, with A-10s, Hornets and Vipers
+  on the ramp, Marine Harriers, French Mirages and the Iraqi Air Force at Al-Taqaddum,
+  Strike Eagles, the Bone and the KC-135 bridge alongside, and E-3s and Reapers
+  overhead. The enemy has no air force, but it answers with guns, shoulder-fired
+  missiles and truck bombs at every stronghold, and a thin crust of captured SAMs, an
+  SA-6 over Mosul and SA-8s, SA-9s and SA-13s across the ring.</p>
+  <p>Find the caches, hunt the emirs, and grind the ring back up Highway 1 through
+  Tikrit to Mosul. The Old City will be the last to fall.</p>
 recommended_player_faction: CJTF-OIR 2016
 recommended_enemy_faction: Islamic State 2016
 miz: iraq_inherent_resolve.miz

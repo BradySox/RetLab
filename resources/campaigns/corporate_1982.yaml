@@ -4,21 +4,23 @@ theater: Falklands
 authors: RetLab
 recommended_player_faction: UK Falklands Task Force 1982
 recommended_enemy_faction: Argentina Falklands 1982
-description:
-  <p>21 May 1982. 3 Commando Brigade is ashore at San Carlos. HMS Hermes and HMS
-  Invincible stand off to the east, beyond the reach of the Argentine strike
-  groups, with every Harrier the task force has. Argentina holds Stanley, the
-  Condor strip at Goose Green and the hills west of Stanley, and its Skyhawks, Daggers
-  and Super Etendards fly 350 to 430 NM from the Patagonian coast to reach you.</p>
-  <p>Hold the beachhead and the ships in Falkland Sound, take Goose Green and Mount
-  Kent, then take Stanley. Lose San Carlos and the war is lost. Chile is not in
-  this war and will warn you once.</p>
-  <p>Play it from either side. New Game's Invert Sides gives you Argentina, with
-  the win and loss rules turned round.</p>
-  <p>Needs the community A-4E Skyhawk mod; New Game ticks it for you. Untick it
-  and Argentina loses its Skyhawk squadrons. Everything else is stock DCS. The AV-8B
-  stands in for the Sea Harrier and Harrier GR.3, the Mirage F1 for the
-  Mirage III and Dagger, and the Tornado IDS for the Super Etendard.</p>
+description: >-
+  <p><strong>Note -</strong> Play it from either side; New Game's Invert Sides gives you
+  Argentina. Built for the community A-4E Skyhawk mod, which New Game ticks; without it
+  Argentina loses its Skyhawks. The AV-8B stands in for the Sea Harrier and Harrier
+  GR.3, the Mirage F1 for the Mirage III and Dagger, and the Tornado IDS for the Super
+  Etendard.</p>
+  <p>On 2 April 1982, Argentine forces landed at Port Stanley and the Falkland Islands
+  became Las Malvinas. Britain answered by sending a task force 8,000 miles south. Seven
+  weeks later it has arrived.</p>
+  <p>It is 21 May 1982, and 3 Commando Brigade is ashore at San Carlos. HMS Hermes and
+  HMS Invincible stand off to the east, beyond the reach of the Argentine strike groups,
+  with every Harrier the task force has. Argentina holds Stanley, the Condor strip at
+  Goose Green and the hills west of Stanley, and its Skyhawks, Daggers and Super
+  Etendards fly 350 to 430 nautical miles from the Patagonian coast to reach the ships
+  in Falkland Sound. Chile is not in this war and will warn you once.</p>
+  <p>Hold the beachhead, take Goose Green and Mount Kent, and then take Stanley. Lose
+  San Carlos, and the war is lost.</p>
 miz: corporate_1982.miz
 performance: 1
 recommended_start_date: 1982-05-21

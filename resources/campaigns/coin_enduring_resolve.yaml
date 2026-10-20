@@ -3,33 +3,23 @@ name: Afghanistan - Operation Enduring Resolve (COIN)
 theater: Afghanistan
 authors: RetLab (fork of Starfire's Operation Shattered Dagger)
 description: >-
-  <p><strong>Helmand and Kandahar, 2006 — the first living counterinsurgency campaign.</strong>
-  The insurgency holds a web of strongholds and captured FOBs across the south, and it does not
-  fight like an army. Its cells <strong>regenerate</strong>: every insurgent-held stronghold
-  quietly refills toward its original strength each turn, fed by hidden <strong>ammo caches</strong>
-  and the ratline of trail convoys. Body count alone wins nothing here.</p>
-  <p>Find the caches (recon them — then strike them) to collapse a stronghold's regeneration,
-  interdict the supply trail, and take the strongholds back with air assaults. And check your
-  map before you roll in: <strong>the named towns of Helmand — Sangin, Musa Qala, Kajaki,
-  Now Zad, Gereshk, Marjah, Lashkar Gah — sit inside big no-strike positive-control
-  valleys</strong>, because the insurgency lives among the people. Much of its cells and caches
-  sit inside those valleys; every weapon released there prices collateral into the Coalition's
-  mandate, kill by kill. The war
-  is decided by the <strong>will meters</strong>: the mandate bleeds from airframes, lost
-  bases, strikes into the towns, and plain time; the insurgency's momentum bleeds from its
-  caches, its convoys, and its strongholds — almost never from its dead fighters. Break their
-  momentum before your mandate runs out.</p>
-  <p>You fly with the real 2006 coalition off the <strong>Kandahar ramp</strong>: A-10s,
-  Dutch F-16s, RAF Harriers, and the CENTAF heavies — Strike Eagles, B-1s, and the KC-135
-  bridge — with Marine Harriers at Bastion and <strong>a real carrier in the Gulf of
-  Oman</strong> (Hornets, a Hawkeye, and A-6 buddy tankers running the 800 km cycle north).
-  Each squadron flies under its own flag. The enemy answers with guns and shoulder-fired
-  SAMs at every stronghold — and <strong>a thin radar-SAM crust at the anchors</strong>:
-  an SA-6 battery over Farah, an SA-3 site at Tarinkot, a Kub at the Kandahar gate, with
-  SA-8/13/15 in the short-range mix. Enough to make SEAD a real job again; never enough
-  to stop the war. Low is still where it hurts most.</p>
-  <p>Laydown by Starfire (Operation Shattered Dagger); the COIN layer — cache-throttled cell
-  regeneration, the inverted will economy, and the campaign arc — is RetLab's.</p>
+  <p><strong>Note -</strong> A counterinsurgency campaign. Insurgent strongholds refill
+  every turn from hidden ammunition caches and a convoy ratline, so body count alone
+  wins nothing. Built for High Digit SAMs; New Game ticks it. Laydown from Starfire's
+  Operation Shattered Dagger; the counterinsurgency layer is RetLab's.</p>
+  <p>In the spring of 2006, the insurgency in Helmand and Kandahar stopped hiding. It
+  holds a web of strongholds and captured FOBs across the south, and it does not fight
+  like an army. Its cells live among the people of Sangin, Musa Qala, Now Zad, Gereshk
+  and Lashkar Gah, and they come back as fast as they are killed.</p>
+  <p>The coalition flies from the Kandahar ramp with A-10s, Dutch F-16s, RAF Harriers,
+  Strike Eagles, B-1s and the KC-135 bridge, with Marine Harriers at Bastion and a
+  carrier in the Gulf of Oman. The enemy answers with guns and shoulder-fired missiles
+  at every stronghold, and a thin crust of radar SAMs at the anchors, an SA-6 over
+  Farah, an SA-3 at Tarinkot and a Kub at the Kandahar gate. It is enough to make SEAD a
+  real job again, and never enough to stop the war.</p>
+  <p>Find the caches and kill them, cut the trail, and take the strongholds back. Kill
+  every cache, or clear and hold the three strongholds that anchor the network, and the
+  insurgency breaks.</p>
 recommended_player_faction: OEF Coalition 2006
 recommended_enemy_faction: Toyota Al Gaib 2001
 miz: coin_enduring_resolve.miz
