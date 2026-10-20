@@ -54,5 +54,6 @@ def test_a_plugin_that_only_runs_a_setting_has_no_checkbox() -> None:
         "briefing",
         "redscramble",
         "neutralborder",
+        "pkgcontrol",
     ):
         assert not _plugin(name).show_in_ui, name

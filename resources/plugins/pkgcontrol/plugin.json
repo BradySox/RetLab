@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "AWACS package controller",
+    "descriptionInUI": "The blue AWACS talks to player packages on SRS: check-in, push, hold or abort, egress. Settings > RetLab Features holds the switch.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "pkgcontrol-config.lua",
+            "mnemonic": "pkgcontrol-config"
+        }
+    ]
+}

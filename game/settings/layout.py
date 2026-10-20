@@ -360,6 +360,8 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "default_player_laser_code",
                     "switch_baro_fix",
                     "ai_radio_behavior",
+                    "package_controller",
+                    "package_controller_srs_path",
                 ],
             ),
             (
@@ -585,6 +587,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     "Cockpit & kneeboard": [
         "dtc_data_cartridges",  # §74
         "generate_sitrep_kneeboard",  # §29
+        "package_controller",  # §117
     ],
     "Carrier": [
         "carrier_deck_decorations",  # §72

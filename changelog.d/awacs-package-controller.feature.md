@@ -1,0 +1,1 @@
+* **[Mission Generation]** New setting, AWACS package controller: the blue AWACS talks to player packages on their frequency over SRS, with check-in, push, hold or abort, and egress calls. Off by default.

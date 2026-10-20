@@ -278,6 +278,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   kneeboards. Add it to the home screen to open it like an app.
 - **Turn ping.** Type an ntfy topic in File > Phone link and the free ntfy app on your phone
   gets the turn summary when a mission's results are in.
+- **AWACS package controller.** The blue AWACS talks to your package on its frequency
+  over SRS: check-in from the F10 menu, the push call, holds and aborts, and egress.
+  Off by default.
 
 ### Campaign systems
 

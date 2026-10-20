@@ -948,6 +948,13 @@ FEATURES: tuple[Feature, ...] = (
         "Phone map",
         115,
     ),
+    Feature(
+        "package_controller",
+        "AWACS package controller",
+        117,
+        plugin_id="pkgcontrol",
+        settings_fields=("package_controller",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

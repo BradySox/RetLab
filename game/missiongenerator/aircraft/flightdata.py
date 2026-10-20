@@ -120,6 +120,9 @@ class FlightData:
     #: When a late-activated group appears; None spawns at mission start.
     activation_delay: Optional[timedelta] = None
 
+    #: When the flight leaves its HOLD point; None without one (§117 push call).
+    push_time: Optional[datetime] = None
+
     def __post_init__(self) -> None:
         self.callsign = create_group_callsign_from_unit(self.units[0])
 
