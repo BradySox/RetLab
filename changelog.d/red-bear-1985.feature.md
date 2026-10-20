@@ -1,0 +1,1 @@
+* **[Campaigns]** New Afghanistan campaign, Red Bear 1985: a fictional winter war across the top of the map, a USAF F-4E wing out of Herat and Shindand against the Soviet 40th Army. Ships two stock factions, USAF 1985 and USSR 40th Army 1985.
