@@ -430,6 +430,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Northern Flank 1985 | Kola | The coast road from Narvik to Murmansk, and the sea beside it |
 | Operation Corporate 1982 | Falklands | The Falklands War from the San Carlos landing, either side |
 | Mount Pleasant 2032 | Falklands | Hold the islands against a rearmed Argentina, either side |
+| Red Bear 1985 | Afghanistan | USAF F-4Es against the Soviet 40th Army across the top of the map, in winter |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -484,6 +485,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   tankers flying in from Ascension. Take both landings to win, lose Mount Pleasant and you lose;
   the mainland can't be taken. Play the landing with Invert Sides. Needs the CurrentHill UK
   pack and the community A-4E.
+- **Red Bear 1985** — fictional: a USAF F-4E wing holds Herat and Shindand in January 1985,
+  and the Soviet 40th Army holds the north and Kabul. One axis follows the ring road through
+  Maymana and Mazar-i-Sharif to the Salang; the other crosses the mountains through Chaghcharan
+  and Bamyan. Take Bagram and Kabul to win, lose Herat and you lose. The B-52s, tankers and E-3A
+  fly from Kandahar, behind the fighting. Stock DCS units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

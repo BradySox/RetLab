@@ -143,7 +143,7 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
   Enduring Resolve (Afghanistan COIN), Red Flag 81-2 (Nevada 1981), Operation Inherent Resolve
   (Iraq 2016), Umm al-Ma'arik (Desert Storm 1991), Desert Aladeen: The H-3 Front (Iraq 2012), Second Island Chain (Marianas 2027),
   Operation Baltic Fury, Anatolian Reach (Syria 2004), Northern Flank 1985 (Kola), Operation
-  Corporate 1982 and Mount Pleasant 2032 (Falklands). Briefing
+  Corporate 1982 and Mount Pleasant 2032 (Falklands), Red Bear 1985 (Afghanistan). Briefing
   packs for several are in the
   Campaigns section of [Home](Home).
 - **Mod integration**: CurrentHill Iran (Shahed-136, IRGCN FAC, `[CH] Iran 2020` faction), High
