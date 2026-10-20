@@ -22,6 +22,9 @@ miz: red_bear_1985.miz
 performance: 1
 recommended_start_date: 1985-01-15
 version: "10.9"
+# The Soviet net is wired by range from the .miz's command centres, comms towers and
+# power sources (comms within 15 NM, power within 35 NM). Blue has no nodes.
+advanced_iads: true
 settings:
   squadron_start_full: true
   # 1985: AIM-9L and AGM-45 yes, AMRAAM and HARM no.

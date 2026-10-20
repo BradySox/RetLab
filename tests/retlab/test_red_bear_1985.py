@@ -242,6 +242,26 @@ def test_the_laydown_keeps_its_flavor() -> None:
     assert not any(name.startswith("Parwan Police") for name in zones)
 
 
+def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
+    """Skynet in range mode: two HQs, comms towers and power on real places."""
+    campaign, _ = loaded
+    assert campaign.advanced_iads
+    mission = Mission()
+    mission.load_file(str(MIZ))
+    statics = [
+        group.units[0].type
+        for country in mission.coalition["red"].countries.values()
+        for group in country.static_group
+        if group.name.startswith("RB85-IADS-")
+    ]
+    assert statics.count(".Command Center") == 2
+    assert statics.count("Comms tower M") == 14
+    assert statics.count("GeneratorF") == 10
+    # Blue's Hawks fight on their own: no node is blue.
+    for country in mission.coalition["blue"].countries.values():
+        assert not any(g.name.startswith("RB85-IADS-") for g in country.static_group)
+
+
 def test_every_scenery_set_loads(loaded: tuple[Campaign, ConflictTheater]) -> None:
     _, theater = loaded
     # Sixteen sets: ten from Graveyard of Empires, six from Clash of the Titans.

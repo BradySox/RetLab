@@ -47,6 +47,21 @@ in the Mission Editor; that save is the `.miz` now and the tool is deleted. On t
   parents renamed `RB85 Scenery N`. The Parwan police centre reads as a garrison. Their
   modern insurgent joke sites are left out.
 
+**The Soviet IADS** (DM calls, same day): red only, Skynet's advanced mode wired by range
+(`advanced_iads: true`; a site links to every comms tower within 15 NM and power source
+within 35 NM). Statics in the `.miz`, named `RB85-IADS-*`:
+
+- **Command centres**: 40th Army HQ at the Darul Aman Palace, Kabul (the real one), and a
+  northern sector HQ at Mazar-i-Sharif.
+- **14 comms towers** at towns on both axes: Qala i Naw, Almar, Andkhoy, Sheberghan, Mazar,
+  Pul-i-Khumri, the Salang, Bagram, Kabul, Jalalabad, Ghazni, the Unai Pass, Bamyan, Chaghcharan.
+- **10 power sources**: Naghlu Dam, Kabul thermal plant, Pul-i-Khumri hydro, Mazar thermal
+  plant, the Sheberghan gas field, and diesel yards at Maymana, Qala i Naw, Chaghcharan, Bamyan
+  and Jalalabad.
+
+Headless at turn 0: 50 of 58 red sites and both HQs reach a tower. The eight that do not are
+remote road SHORAD; Skynet keeps a site with no tower on the net, so only tower strikes miss them.
+
 **Flavor first.** A new campaign's laydown starts from what the shipped campaigns on the same
 map already carry, not from generic marker rings.
 
