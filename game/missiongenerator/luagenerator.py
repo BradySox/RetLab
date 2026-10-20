@@ -46,6 +46,7 @@ from .neutralborderluadata import populate_neutral_border_lua
 from .redscrambleluadata import populate_red_scramble_lua
 from game.retlab.ai_fill import populate_ai_fill_lua
 from game.retlab.package_control import populate_package_control_lua
+from game.retlab.vacuum import populate_vacuum_lua
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
@@ -497,6 +498,10 @@ class LuaGenerator:
         # pkgcontrol plugin speaks the check-in, push, hold/abort and egress calls on SRS.
         populate_package_control_lua(lua_data, self.game, self.mission_data)
 
+        # Vacuum ELINT (§118) -- emits dcsRetribution.vacuum only when a blue Vacuum
+        # flies; the vacuum plugin calls each red radar by bullseye as it comes on.
+        populate_vacuum_lua(lua_data, self.game, self.mission_data)
+
         # Neutral-faction border defense (§98) -- emits dcsRetribution.neutralBorder
         # only when neutral_border_defense is on and the generator could build
         # templates for the map's zones; the neutralborder plugin runs the
@@ -761,6 +766,7 @@ class LuaGenerator:
             FlightType.AIR_ASSAULT,
             FlightType.CSAR,
             FlightType.ABCCC,
+            FlightType.ELINT,
         )
         c130j = AircraftType.named("C-130J-30")
         return [

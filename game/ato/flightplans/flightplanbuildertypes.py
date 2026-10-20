@@ -74,6 +74,8 @@ class FlightPlanBuilderTypes:
             FlightType.JAMMING: AewcFlightPlan.builder_type(),
             # The package controller holds the AEW&C station's racetrack, one slot back.
             FlightType.ABCCC: AewcFlightPlan.builder_type(),
+            # §118 Vacuum holds the AWACS station, one slot back from the E-3.
+            FlightType.ELINT: AewcFlightPlan.builder_type(),
             FlightType.TARCAP: TarCapFlightPlan.builder_type(),
             FlightType.AEWC: AewcFlightPlan.builder_type(),
             FlightType.TRANSPORT: AirliftFlightPlan.builder_type(),

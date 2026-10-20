@@ -284,6 +284,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Airborne package control.** A C-130J-30 command post (Anvil, Ramrod...) runs
   your package on STRIKE through SkyEye: check-in, push, holds, aborts and egress.
   The AWACS joins STRIKE only for threats and your own calls. Off by default.
+- **Vacuum ELINT.** On SEAD-heavy turns a KC-135 (Vacuum; a C-130J-30 if none is free) orbits behind the
+  AWACS and calls each red radar by bullseye through SkyEye as it comes on. Off by default.
 
 ### Campaign systems
 

@@ -153,6 +153,7 @@ class FrontLine(MissionTarget):
             FlightType.CAS,
             FlightType.AEWC,
             FlightType.ABCCC,
+            FlightType.ELINT,
             FlightType.REFUELING,
             # TODO: FlightType.TROOP_TRANSPORT
             # TODO: FlightType.EVAC

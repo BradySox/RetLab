@@ -101,7 +101,8 @@ class AircraftBehavior:
             self.configure_oca_strike(group, flight)
         elif self.task == FlightType.JAMMING:
             self.configure_jamming(group, flight)
-        elif self.task == FlightType.ABCCC:
+        elif self.task in (FlightType.ABCCC, FlightType.ELINT):
+            # §118 Vacuum flies the same silent, weapons-hold orbit as the ABCCC.
             self.configure_package_control(group, flight)
         elif self.task == FlightType.TARPS:
             self.configure_tarps(group, flight)

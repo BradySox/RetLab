@@ -159,6 +159,11 @@ class MissionData:
     #: STRIKE (common): the one frequency the ABCCC C-130 runs every player
     #: package on, and the AWACS joins (§117). None with no controller fragged.
     strike_frequency: Optional[RadioFrequency] = None
+    #: Vacuum's own frequency, where it calls every red radar (§118). None with
+    #: no Vacuum fragged.
+    vacuum_frequency: Optional[RadioFrequency] = None
+    #: The SkyEye voices the AWACS and ABCCC speak with this mission (§117).
+    skyeye_voices: list[str] = field(default_factory=list)
     runways: list[RunwayData] = field(default_factory=list)
     carriers: list[CarrierInfo] = field(default_factory=list)
     flights: list[FlightData] = field(default_factory=list)

@@ -173,6 +173,8 @@ def populate_package_control_lua(
         _country(_blue_awacs_flight(mission_data)),
         _country(controllers[0] if controllers else None),
     )
+    # Vacuum (§118) picks a third voice clear of these two.
+    mission_data.skyeye_voices = [awacs_voice, controller_voice]
     node.add_key_value("awacsVoice", awacs_voice)
     node.add_key_value("controllerVoice", controller_voice)
 

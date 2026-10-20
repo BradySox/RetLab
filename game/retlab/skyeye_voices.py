@@ -135,3 +135,16 @@ def pick_voices(
     ]
     abccc = rng.choice(abccc_pool)[0] if abccc_pool else awacs_pool[0][0]
     return awacs, abccc
+
+
+def pick_another_voice(
+    country: Optional[str], taken: list[str], rng: Optional[random.Random] = None
+) -> str:
+    """A voice from the crew's accent that no other bot this mission speaks with (§118)."""
+    rng = rng or random.Random()
+    pool = [v for v, _ in ACCENT_VOICES[accent_for(country)] if v not in taken]
+    if not pool:
+        pool = [
+            v for voices in ACCENT_VOICES.values() for v, _ in voices if v not in taken
+        ]
+    return rng.choice(pool)

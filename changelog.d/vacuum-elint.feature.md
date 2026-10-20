@@ -1,0 +1,1 @@
+* **[Mission Generation]** New setting, Vacuum ELINT (SkyEye): on SEAD-heavy turns a KC-135 (Vacuum, or a C-130J-30 when none is free) joins the AWACS package and calls each red radar by bullseye through SkyEye as it comes on. Off by default.

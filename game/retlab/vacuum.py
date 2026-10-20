@@ -1,0 +1,247 @@
+"""Vacuum ELINT (§118): an orbit that calls radiating red radars by bullseye.
+
+A KC-135 (any era), or a C-130J-30 when none is free, holds the AWACS station one slot back. While it is
+airborne the ``vacuum`` plugin calls each red ground radar once each time it comes on,
+on Vacuum's own frequency, and on STRIKE only when the radar covers a player package's
+route or target. SkyEye speaks the calls over its mission link and works out the
+bullseye itself. It never jams, lases or designates. docs/dev/retlab-features.md §118.
+"""
+
+from __future__ import annotations
+
+import logging
+import re
+from typing import TYPE_CHECKING, Iterable, Optional
+
+from game.ato.flight import Flight
+from game.ato.flighttype import FlightType
+from game.data.units import UnitClass
+from game.theater.theatergroundobject import NavalGroundObject
+from game.retlab.package_control import (
+    SKYEYE_LINK_HOST,
+    SKYEYE_LINK_PORT,
+    _country,
+    player_packages,
+)
+from game.retlab.skyeye_voices import pick_another_voice
+
+if TYPE_CHECKING:
+    from game import Game
+    from game.ato.airtaaskingorder import AirTaskingOrder
+    from game.ato.package import Package
+    from game.coalition import Coalition
+    from game.missiongenerator.aircraft.flightdata import FlightData
+    from game.missiongenerator.luagenerator import LuaData
+    from game.missiongenerator.missiondata import MissionData
+    from game.theater.theatergroup import TheaterGroup, TheaterUnit
+
+#: Turns with this many SEAD, SEAD Escort or DEAD flights get a Vacuum (user call,
+#: 2026-10-20).
+SEAD_FLIGHTS_FOR_VACUUM = 2
+SEAD_TYPES = frozenset(
+    {
+        FlightType.SEAD,
+        FlightType.SEAD_ESCORT,
+        FlightType.SEAD_SWEEP,
+        FlightType.DEAD,
+    }
+)
+
+#: Unit classes that carry a radar. Radar-laid guns (AAA_RADAR) are left out: a
+#: Shilka on every road would drown the calls that matter.
+RADAR_CLASSES = frozenset(
+    {
+        UnitClass.EARLY_WARNING_RADAR,
+        UnitClass.SEARCH_RADAR,
+        UnitClass.SEARCH_TRACK_RADAR,
+        UnitClass.TRACK_RADAR,
+        UnitClass.SPECIALIZED_RADAR,
+        UnitClass.TELAR,
+    }
+)
+
+#: How far Vacuum hears a radar, about an RC-135's horizon at altitude.
+VACUUM_RANGE_NM = 250
+
+CALLSIGN = "Vacuum"
+
+_NATO = re.compile(r"\b((?:SA|HQ)-\d+[A-Z]?)\b")
+_SITE_SUFFIX = {"TR", "SR", "STR", "LN", "CP", "CWAR", "PCP", "RADAR", "EWR"}
+
+
+def plan_vacuum(coalition: Coalition) -> Optional[Flight]:
+    """Add a Vacuum to the AWACS package on a SEAD-heavy turn, when the setting is on."""
+    game = coalition.game
+    if not coalition.player.is_blue or not game.settings.vacuum_elint:
+        return None
+    ato = coalition.ato
+    if _flights(ato, {FlightType.ELINT}):
+        return None
+    if len(_flights(ato, SEAD_TYPES)) < SEAD_FLIGHTS_FOR_VACUUM:
+        return None
+    package = _awacs_package(ato)
+    if package is None or package.primary_flight is None:
+        return None
+    squadron = coalition.air_wing.best_squadron_for(
+        package.primary_flight.departure,
+        FlightType.ELINT,
+        1,
+        False,
+        this_turn=True,
+    )
+    if squadron is None:
+        logging.info("Vacuum: no C-130J-30 or KC-135 free this turn")
+        return None
+    start_type = squadron.location.required_aircraft_start_type
+    if start_type is None:
+        start_type = game.settings.start_type_for(FlightType.ELINT, has_players=False)
+        if game.settings.support_air_start:
+            from game.ato.starttype import StartType
+
+            start_type = StartType.IN_FLIGHT
+    flight = Flight(package, squadron, 1, FlightType.ELINT, start_type, divert=None)
+    package.add_flight(flight)
+    flight.recreate_flight_plan()
+    logging.info("Vacuum: %s joins %s", squadron.aircraft.display_name, package)
+    return flight
+
+
+def has_vacuum(ato: AirTaskingOrder) -> bool:
+    """Whether the ATO fields a Vacuum flight."""
+    return bool(_flights(ato, {FlightType.ELINT}))
+
+
+def vacuum_comm_name() -> str:
+    return f"{CALLSIGN.upper()} (ELINT)"
+
+
+def _flights(ato: AirTaskingOrder, types: Iterable[FlightType]) -> list[Flight]:
+    wanted = set(types)
+    return [f for p in ato.packages for f in p.flights if f.flight_type in wanted]
+
+
+def _awacs_package(ato: AirTaskingOrder) -> Optional[Package]:
+    """The land AWACS package: Vacuum orbits like the AWACS, never over a boat."""
+    for package in ato.packages:
+        if package.primary_task is not FlightType.AEWC:
+            continue
+        target = package.target
+        if getattr(target, "is_carrier", False) or getattr(target, "is_fleet", False):
+            continue
+        return package
+    return None
+
+
+def emitter_label(unit: TheaterUnit) -> str:
+    """What Vacuum calls a radar: its NATO name, else the system's own name."""
+    unit_type = unit.unit_type
+    name = unit_type.display_name if unit_type is not None else unit.type.id
+    if (nato := _NATO.search(name)) is not None:
+        return nato.group(1)
+    if unit_type is not None and unit_type.unit_class is UnitClass.EARLY_WARNING_RADAR:
+        return "early warning radar"
+    name = re.sub(r'"[^"]*"|\([^)]*\)', "", name)
+    words = [w for w in name.split() if w.upper() != "SAM"]
+    while len(words) > 1 and words[-1].upper() in _SITE_SUFFIX:
+        words.pop()
+    return " ".join(words) or "radar"
+
+
+def _radar_units(group: TheaterGroup) -> list[TheaterUnit]:
+    return [
+        u
+        for u in group.units
+        if u.alive
+        and not u.is_static
+        and u.unit_type is not None
+        and u.unit_type.unit_class in RADAR_CLASSES
+    ]
+
+
+Route = list[tuple[float, float]]
+
+
+def _segment_distance(
+    p: tuple[float, float], a: tuple[float, float], b: tuple[float, float]
+) -> float:
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    length = dx * dx + dy * dy
+    t = 0.0
+    if length > 0:
+        t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / length))
+    cx, cy = a[0] + t * dx, a[1] + t * dy
+    return float(((p[0] - cx) ** 2 + (p[1] - cy) ** 2) ** 0.5)
+
+
+def covers_route(
+    position: tuple[float, float], reach_m: float, routes: list[Route]
+) -> bool:
+    """Whether a radar's threat ring touches any leg (or lone point) of a route."""
+    for route in routes:
+        legs = list(zip(route, route[1:])) or [(route[0], route[0])]
+        if any(_segment_distance(position, a, b) <= reach_m for a, b in legs):
+            return True
+    return False
+
+
+def player_routes(mission_data: MissionData) -> list[Route]:
+    """Every player-package flight's route, and each package's target."""
+    routes: list[Route] = []
+    for flights in player_packages(mission_data):
+        for flight in flights:
+            route = [(w.x, w.y) for w in flight.waypoints]
+            if route:
+                routes.append(route)
+        target = flights[0].package.target.position
+        routes.append([(target.x, target.y)])
+    return routes
+
+
+def vacuum_flights(mission_data: MissionData) -> list[FlightData]:
+    return [
+        f
+        for f in mission_data.flights
+        if f.flight_type is FlightType.ELINT and f.friendly.is_blue
+    ]
+
+
+def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) -> None:
+    """Build ``dcsRetribution.vacuum``: Vacuum's groups, its frequency and the radars."""
+    flights = vacuum_flights(mission_data)
+    frequency = mission_data.vacuum_frequency
+    if not flights or frequency is None:
+        return
+    node = root.add_item("vacuum")
+    node.add_key_value("callsign", CALLSIGN)
+    node.add_key_value("frequency", f"{frequency.mhz:.3f}{frequency.modulation.name}")
+    if (strike := mission_data.strike_frequency) is not None:
+        node.add_key_value("strike", f"{strike.mhz:.3f}{strike.modulation.name}")
+    node.add_key_value(
+        "voice",
+        pick_another_voice(_country(flights[0]), mission_data.skyeye_voices),
+    )
+    node.add_key_value("linkHost", SKYEYE_LINK_HOST)
+    node.add_key_value("linkPort", str(SKYEYE_LINK_PORT))
+    node.add_key_value("rangeMeters", str(int(VACUUM_RANGE_NM * 1852)))
+    node.add_data_array("groups", [f.group_name for f in flights])
+
+    routes = player_routes(mission_data)
+    emitters = node.add_item("emitters")
+    for control_point in game.theater.controlpoints:
+        if not control_point.captured.is_red:
+            continue
+        for tgo in control_point.ground_objects:
+            if isinstance(tgo, NavalGroundObject):
+                continue
+            for group in tgo.groups:
+                radars = _radar_units(group)
+                if not radars:
+                    continue
+                main = max(radars, key=lambda u: u.detection_range().meters)
+                reach = group.max_threat_range().meters
+                item = emitters.add_item()
+                item.add_key_value("label", emitter_label(main))
+                item.add_data_array("units", [u.unit_name for u in radars])
+                position = (group.position.x, group.position.y)
+                covers = reach > 0 and covers_route(position, reach, routes)
+                item.add_key_value("strike", "true" if covers else "")

@@ -1463,6 +1463,7 @@ class Airfield(ControlPoint, CTLD, TacanContainer):
             yield from [
                 FlightType.AEWC,
                 FlightType.ABCCC,
+                FlightType.ELINT,
                 FlightType.ESCORT,
                 # TODO: FlightType.LOGISTICS
             ]
@@ -1911,6 +1912,7 @@ class Fob(ControlPoint, RadioFrequencyContainer, CTLD):
             yield from [
                 FlightType.AEWC,
                 FlightType.ABCCC,
+                FlightType.ELINT,
                 FlightType.ESCORT,
                 FlightType.REFUELING,
             ]

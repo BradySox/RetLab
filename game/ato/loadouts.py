@@ -473,6 +473,7 @@ class Loadout:
         # Jamming EW aircraft carry no weapons; fall back to Transport loadout.
         loadout_names[FlightType.JAMMING].extend(loadout_names[FlightType.TRANSPORT])
         loadout_names[FlightType.ABCCC].extend(loadout_names[FlightType.TRANSPORT])
+        loadout_names[FlightType.ELINT].extend(loadout_names[FlightType.TRANSPORT])
         # TARPS recon Tomcat: prefer the dedicated recon-pod payload, but fall back to a
         # clean CAP loadout if a variant-specific TARPS payload is missing/invalid so
         # the flight still spawns with sane self-defense stores.

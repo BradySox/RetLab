@@ -17,6 +17,9 @@ variants:
   KC-135 Stratotanker MPRS: {}
 tasks:
   Refueling: 40
+  # §118 Vacuum: an RC-135 stand-in in any era, picked before a C-130J-30 (user call,
+  # 2026-10-20). It flies only when picked for ELINT.
+  ELINT: 150
 
 # Air-to-air refueling provided as a tanker.
 tanker_refuel_types:
