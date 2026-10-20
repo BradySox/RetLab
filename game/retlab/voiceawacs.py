@@ -20,7 +20,7 @@ from game.radio.radios import RadioFrequency
 if TYPE_CHECKING:
     from game.settings import Settings
 
-DEFAULT_CALLSIGN = "Sentinel"
+DEFAULT_CALLSIGN = "Chainsaw"
 
 _FREQUENCY = re.compile(
     r"^\s*(\d{2,3})(?:\.(\d{1,3}))?\s*(?:MHz)?\s*(AM|FM)?\s*$", re.IGNORECASE

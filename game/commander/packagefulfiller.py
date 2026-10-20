@@ -109,7 +109,7 @@ class PackageFulfiller:
         if (
             pf
             and pf.flight_type
-            in [FlightType.AEWC, FlightType.REFUELING, FlightType.PACKAGE_CONTROL]
+            in [FlightType.AEWC, FlightType.REFUELING, FlightType.ABCCC]
             and flight.task is FlightType.ESCORT
         ):
             target = pf.departure

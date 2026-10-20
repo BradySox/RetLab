@@ -38,6 +38,7 @@ from .support import (
     build_airfield_directory_rows,
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
+from .voicepages import AbcccPage, SkyEyeAwacsPage
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
 from .threatintel import (
@@ -276,6 +277,28 @@ class KneeboardGenerator(MissionInfoGenerator):
                 voice_awacs=self.voice_awacs,
             ),
         ]
+        # The voice controller cheat sheets sit right after the comms (§116, §117).
+        callsign = str(flight.callsign)
+        if self.abccc is not None:
+            pages.append(
+                AbcccPage(
+                    self.abccc[0],
+                    self.abccc[1],
+                    self.voice_awacs.callsign if self.voice_awacs else None,
+                    callsign,
+                    self.dark_kneeboard,
+                )
+            )
+        if self.voice_awacs is not None:
+            pages.append(
+                SkyEyeAwacsPage(
+                    self.voice_awacs.callsign,
+                    self.voice_awacs.freq,
+                    self.abccc[1] if self.abccc else None,
+                    callsign,
+                    self.dark_kneeboard,
+                )
+            )
 
         # Previous turn's campaign SITREP (§29) on its own page: a busy turn's
         # POW/MIA list clipped at the Mission Info page edge (flown 2026-07-19).

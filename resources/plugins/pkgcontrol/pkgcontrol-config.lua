@@ -1,14 +1,14 @@
 ---------------------------------------------------------------------------------------------------
 -- Airborne package control (§117). docs/dev/retlab-features.md §117
 --
--- Reads dcsRetribution.packageControl (emitted only when a blue Package Control C-130 and a player
+-- Reads dcsRetribution.packageControl (emitted only when a blue ABCCC C-130 and a player
 -- package fly): startSeconds, linkHost, linkPort, strikeFreq, strikeModulation, awacsVoice,
 --   controllerVoice, controllers = { { group, callsign } },
 --   packages = { { name, totAfter, targetName, targetX, targetY,
 --   targetUnits = {...}, flights = { { group, callsign, role = strike|sead|escort, client,
 --   pushAfter, holdX, holdY, holdAngels, holdIndex, home } } } }
 --
--- While a Package Control C-130 is alive AND airborne it runs every package on STRIKE (common):
+-- While a ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
 -- check-in (F10 or spoken), ready to push, say push time, the push call, up to two 3-minute holds
 -- while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD, and
 -- the egress call. AI flights in the package obey: a hold adds a 3-minute orbit at their HOLD
@@ -61,7 +61,7 @@ local function airborneUnit(groupName)
     return nil
 end
 
--- The controller on station: the first Package Control C-130 that is alive and airborne.
+-- The controller on station: the first ABCCC C-130 that is alive and airborne.
 local function controller()
     for _, c in ipairs(data.controllers or {}) do
         if airborneUnit(c.group) then

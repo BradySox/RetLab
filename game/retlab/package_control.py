@@ -1,6 +1,6 @@
 """Airborne package control (§117): a C-130J-30 runs the player packages.
 
-A Package Control flight (an EC-130 ABCCC role) orbits behind the front. While it is
+A ABCCC flight (an EC-130 ABCCC role) orbits behind the front. While it is
 alive and airborne the ``pkgcontrol`` plugin runs every blue package with a player
 seat on STRIKE (common), one frequency for every package: the check-in reply, the
 push call, a hold or abort before the push, and the egress call. The AWACS joins
@@ -40,9 +40,9 @@ def other_voice(voice: str) -> str:
 
 
 def has_package_control(ato: AirTaskingOrder) -> bool:
-    """Whether the ATO fields a Package Control flight."""
+    """Whether the ATO fields a ABCCC flight."""
     return any(
-        flight.flight_type is FlightType.PACKAGE_CONTROL
+        flight.flight_type is FlightType.ABCCC
         for package in ato.packages
         for flight in package.flights
     )
@@ -104,8 +104,14 @@ def player_packages(mission_data: MissionData) -> list[list[FlightData]]:
         if flights
         and flights[0].friendly.is_blue
         and any(f.client_units for f in flights)
-        and not any(f.flight_type is FlightType.PACKAGE_CONTROL for f in flights)
+        and not any(f.flight_type is FlightType.ABCCC for f in flights)
     ]
+
+
+def abccc_callsign(mission_data: MissionData) -> str:
+    """The first blue ABCCC's spoken callsign."""
+    controllers = package_controllers(mission_data)
+    return spoken_callsign(controllers[0].callsign) if controllers else "ABCCC"
 
 
 def strike_comm_name(mission_data: MissionData) -> Optional[str]:
@@ -117,11 +123,11 @@ def strike_comm_name(mission_data: MissionData) -> Optional[str]:
 
 
 def package_controllers(mission_data: MissionData) -> list[FlightData]:
-    """The blue Package Control flights."""
+    """The blue ABCCC flights."""
     return [
         f
         for f in mission_data.flights
-        if f.flight_type is FlightType.PACKAGE_CONTROL and f.friendly.is_blue
+        if f.flight_type is FlightType.ABCCC and f.friendly.is_blue
     ]
 
 

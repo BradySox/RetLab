@@ -1,1 +1,1 @@
-* **[Mission Generation]** New Package Control task for the C-130J-30 (ABCCC): it runs player packages on a common STRIKE frequency through SkyEye with check-in, push, hold or abort, and egress calls, and the package's AI follow them. Off by default.
+* **[Mission Generation]** New ABCCC task for the C-130J-30 (ABCCC): it runs player packages on a common STRIKE frequency through SkyEye with check-in, push, hold or abort, and egress calls, and the package's AI follow them. Off by default.

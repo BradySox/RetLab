@@ -65,7 +65,7 @@ def _mission_data(controller: bool = True, player: bool = True) -> Any:
         frequency=MHz(240), time_over_target=START, target=package.target
     )
     controllers = (
-        [_flight(control_package, "Bookshelf", FlightType.PACKAGE_CONTROL, False, 0)]
+        [_flight(control_package, "Bookshelf", FlightType.ABCCC, False, 0)]
         if controller
         else []
     )

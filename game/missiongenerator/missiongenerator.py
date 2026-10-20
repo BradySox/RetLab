@@ -29,6 +29,7 @@ from game.radio.radios import RadioFrequency, RadioRegistry, MHz
 from game.radio.tacan import TacanRegistry
 from game.retlab.package_control import (
     VOICES,
+    abccc_callsign,
     has_package_control,
     strike_comm_name,
 )
@@ -495,6 +496,10 @@ class MissionGenerator:
         for gen in gens:
             if strike_name is not None and mission_data.strike_frequency is not None:
                 gen.add_comm(strike_name, mission_data.strike_frequency)
+                gen.abccc = (
+                    abccc_callsign(mission_data),
+                    mission_data.strike_frequency,
+                )
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 

@@ -443,8 +443,8 @@ class MissionGeneratorSettings:
         "SkyEye callsign",
         page=MISSION_GENERATOR_PAGE,
         section=GAMEPLAY_SECTION,
-        default="Sentinel",
-        placeholder="Sentinel",
+        default="Chainsaw",
+        placeholder="Chainsaw",
         enabled_when="voice_awacs",
         detail=(
             "The name SkyEye answers to, as shown on the kneeboard and briefing. "
@@ -452,19 +452,19 @@ class MissionGeneratorSettings:
         ),
     )
     package_controller: bool = boolean_option(
-        "Package Control C-130 (SkyEye)",
+        "ABCCC C-130 (SkyEye)",
         page=MISSION_GENERATOR_PAGE,
         section=GAMEPLAY_SECTION,
         default=False,
         detail=(
-            "Plans one C-130J-30 Package Control flight per side each turn, orbiting "
-            "behind the AWACS. While it is airborne it runs every package with a "
-            "player in it on that package's frequency: a check-in reply, the push "
-            "call, a hold when the SEAD or escort is not airborne, an abort when the "
-            "target is already destroyed or the SEAD is lost, and the egress call. "
-            "With no Package Control C-130 airborne there is no package control. "
-            "SkyEye, running with its mission link, speaks the calls; they also show "
-            "as text."
+            "Adds a C-130J-30 ABCCC flight to the AWACS package each turn when one "
+            "is free. While it is airborne it runs every package with a player in "
+            "it on STRIKE, one common frequency: a check-in reply, the push call, a "
+            "hold when the SEAD or escort is not airborne, an abort when the target "
+            "is already destroyed or the SEAD is lost, and the egress call. AI "
+            "flights in the package follow its calls. With no ABCCC C-130 airborne "
+            "there is no package control. SkyEye, running with its mission link, "
+            "speaks the calls; they also show as text."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

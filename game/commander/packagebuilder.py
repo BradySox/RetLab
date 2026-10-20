@@ -72,7 +72,7 @@ class PackageBuilder:
                     FlightType.AEWC,
                     FlightType.REFUELING,
                     FlightType.RECOVERY,
-                    FlightType.PACKAGE_CONTROL,
+                    FlightType.ABCCC,
                 ]
                 else target
             )
@@ -157,7 +157,7 @@ class PackageBuilder:
                     FlightType.AEWC,
                     FlightType.REFUELING,
                     FlightType.RECOVERY,
-                    FlightType.PACKAGE_CONTROL,
+                    FlightType.ABCCC,
                 )
             ):
                 # Air-start AWACS/tankers so they hold station from mission start

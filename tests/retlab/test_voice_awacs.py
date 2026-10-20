@@ -48,7 +48,7 @@ def test_off_by_default() -> None:
 def test_on_gives_the_default_skyeye_line() -> None:
     settings = Settings()
     settings.voice_awacs = True
-    assert voice_awacs_for(settings) == VoiceAwacsInfo("Sentinel", MHz(251))
+    assert voice_awacs_for(settings) == VoiceAwacsInfo("Chainsaw", MHz(251))
 
 
 def test_a_bad_frequency_falls_back_to_251_and_a_blank_callsign_to_sentinel() -> None:
@@ -56,7 +56,7 @@ def test_a_bad_frequency_falls_back_to_251_and_a_blank_callsign_to_sentinel() ->
     settings.voice_awacs = True
     settings.voice_awacs_frequency = "two fifty one"
     settings.voice_awacs_callsign = "  "
-    assert voice_awacs_for(settings) == VoiceAwacsInfo("Sentinel", MHz(251))
+    assert voice_awacs_for(settings) == VoiceAwacsInfo("Chainsaw", MHz(251))
 
 
 @pytest.mark.parametrize("lang", ["EN", "CN", "FR"])
@@ -68,7 +68,7 @@ def test_every_briefing_lists_skyeye_above_the_silent_awacs(lang: str) -> None:
     text = (
         Environment()
         .from_string(block + "{% endif %}")
-        .render(awacs=[], voice_awacs=VoiceAwacsInfo("Sentinel", MHz(251)))
+        .render(awacs=[], voice_awacs=VoiceAwacsInfo("Chainsaw", MHz(251)))
     )
-    assert "Sentinel (SkyEye)" in text
+    assert "Chainsaw (SkyEye)" in text
     assert "251.0 AM" in text

@@ -156,7 +156,7 @@ class CsarPilotGroupInfo:
 @dataclass
 class MissionData:
     awacs: list[AwacsInfo] = field(default_factory=list)
-    #: STRIKE (common): the one frequency the Package Control C-130 runs every player
+    #: STRIKE (common): the one frequency the ABCCC C-130 runs every player
     #: package on, and the AWACS joins (§117). None with no controller fragged.
     strike_frequency: Optional[RadioFrequency] = None
     #: "masculine" or "feminine": the AWACS's SkyEye voice this mission; the

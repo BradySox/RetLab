@@ -24,7 +24,10 @@ from game.utils import Distance, Heading, Speed, knots, meters, nautical_miles
 AEWC_ORBIT_SPACING = nautical_miles(20)
 
 #: Flights that share an AEW&C station and must not fly the same racetrack.
-STATION_TASKS = frozenset({FlightType.AEWC, FlightType.PACKAGE_CONTROL})
+STATION_TASKS = frozenset({FlightType.AEWC})
+
+#: The ABCCC works close behind the front, not at the AWACS's standoff (§117).
+ABCCC_THREAT_BUFFER = nautical_miles(30)
 
 
 class AewcFlightPlan(PatrollingFlightPlan[PatrollingLayout]):
@@ -118,6 +121,8 @@ class Builder(IBuilder[AewcFlightPlan, PatrollingLayout]):
         threat_buffer = nautical_miles(
             self.coalition.game.settings.aewc_threat_buffer_min_distance
         )
+        if self.flight.flight_type is FlightType.ABCCC:
+            threat_buffer = ABCCC_THREAT_BUFFER
         threatened = self.threat_zones.threatened(location.position)
         if threatened:
             orbit_distance = distance_to_threat + threat_buffer

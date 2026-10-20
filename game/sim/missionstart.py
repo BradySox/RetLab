@@ -30,7 +30,7 @@ _SUPPORT_TASKS = frozenset(
     {
         FlightType.REFUELING,
         FlightType.AEWC,
-        FlightType.PACKAGE_CONTROL,
+        FlightType.ABCCC,
         FlightType.BARCAP,
     }
 )

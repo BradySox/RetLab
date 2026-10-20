@@ -217,7 +217,7 @@ class Package(RadioFrequencyContainer):
             # and departure time. TotEstimator.earliest_tot() takes max() across
             # all flights, so the C-130J's slower transit already drives TOT.
             FlightType.JAMMING,
-            FlightType.PACKAGE_CONTROL,
+            FlightType.ABCCC,
             FlightType.FERRY,
             FlightType.RECOVERY,
             FlightType.REFUELING,

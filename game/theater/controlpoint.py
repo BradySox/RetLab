@@ -1462,7 +1462,7 @@ class Airfield(ControlPoint, CTLD, TacanContainer):
         if self.is_friendly(for_player):
             yield from [
                 FlightType.AEWC,
-                FlightType.PACKAGE_CONTROL,
+                FlightType.ABCCC,
                 FlightType.ESCORT,
                 # TODO: FlightType.LOGISTICS
             ]
@@ -1910,7 +1910,7 @@ class Fob(ControlPoint, RadioFrequencyContainer, CTLD):
         else:
             yield from [
                 FlightType.AEWC,
-                FlightType.PACKAGE_CONTROL,
+                FlightType.ABCCC,
                 FlightType.ESCORT,
                 FlightType.REFUELING,
             ]

@@ -71,7 +71,7 @@ class FlightType(Enum):
     SANDY = "Sandy"
     # Airborne package control (§117): a C-130J-30 command post that runs player
     # packages on their own frequencies through SkyEye. Only it runs packages.
-    PACKAGE_CONTROL = "Package Control"
+    ABCCC = "ABCCC"
 
     @classmethod
     def _missing_(cls, value: object) -> FlightType | None:
@@ -200,7 +200,7 @@ class FlightType(Enum):
             FlightType.STRIKE: AirEntity.ATTACK_STRIKE,
             FlightType.SWEEP: AirEntity.FIGHTER,
             FlightType.JAMMING: AirEntity.ELECTRONIC_COMBAT_JAMMER,
-            FlightType.PACKAGE_CONTROL: AirEntity.AIRBORNE_COMMAND_POST,
+            FlightType.ABCCC: AirEntity.AIRBORNE_COMMAND_POST,
             FlightType.TARPS: AirEntity.RECONNAISSANCE,
             FlightType.TARCAP: AirEntity.FIGHTER,
             FlightType.TRANSPORT: AirEntity.UTILITY,

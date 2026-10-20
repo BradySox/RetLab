@@ -135,7 +135,7 @@ class PackagePlanningTask(TheaterCommanderTask, Generic[MissionTargetT]):
         if not doctrine.escort_support_aircraft and self.flights[0].task in (
             FlightType.AEWC,
             FlightType.REFUELING,
-            FlightType.PACKAGE_CONTROL,
+            FlightType.ABCCC,
         ):
             self.flights = [f for f in self.flights if f.task is not FlightType.ESCORT]
         fulfiller = PackageFulfiller(

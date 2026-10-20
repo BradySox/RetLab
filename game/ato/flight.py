@@ -72,15 +72,16 @@ _ROLE_CALLSIGN_BY_TYPE: dict[FlightType, str] = {
     FlightType.SANDY: "Sandy",  # A-10/AH-64 rescue escort
 }
 
-#: Role callsign families: a fresh flight takes the next name each turn. The ABCCC
-#: names are the EC-130E's own (Vietnam, the Gulf War).
+#: Role callsign families: a fresh flight takes the next name each turn (user call,
+#: 2026-10-20; Bookshelf is the EC-130E's own Gulf War callsign).
 _ROLE_CALLSIGN_FAMILY_BY_TYPE: dict[FlightType, tuple[str, ...]] = {
-    FlightType.PACKAGE_CONTROL: (
+    FlightType.ABCCC: (
         "Bookshelf",
-        "Moonbeam",
-        "Cricket",
-        "Hillsboro",
-        "Alleycat",
+        "Anvil",
+        "Ramrod",
+        "Blackjack",
+        "Crown",
+        "Sentinel",
     ),
 }
 

@@ -37,7 +37,7 @@ _EW = ("JAMMING",)
 _RECON = ("TARPS",)
 _SUPPORT = (
     "AEWC",
-    "PACKAGE_CONTROL",
+    "ABCCC",
     "REFUELING",
     "TRANSPORT",
     "FERRY",

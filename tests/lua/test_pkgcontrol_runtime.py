@@ -1,6 +1,6 @@
 """Headless runtime checks for the pkgcontrol plugin (pkgcontrol-config.lua, §117).
 
-The contract: while a Package Control C-130 is alive and airborne it runs each
+The contract: while a ABCCC C-130 is alive and airborne it runs each
 player package on STRIKE (common): an F10 Check in menu and spoken check-in, ready
 to push and push time requests from SkyEye, the push call, up to two holds for a
 SEAD or escort on the ground, aborts for a dead target or a lost SEAD, and the

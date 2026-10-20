@@ -11130,13 +11130,15 @@ count. Built 2026-10-19. Not flown (row B254).
 
 ## §117 — Airborne package control
 
-A **Package Control** flight type (the EC-130E ABCCC role) for the C-130J-30 only. With
-**Package Control C-130 (SkyEye)** on (RetLab Features page, off by default) the planner
-plans one per side each turn at the AEW&C land station; it orbits one slot (20 NM) back from
-the AWACS (`STATION_TASKS` in `aewc.py`). It can also be fragged by hand. Callsigns rotate
-each turn through Bookshelf, Moonbeam, Cricket, Hillsboro and Alleycat.
+An **ABCCC** flight type (the EC-130E ABCCC role) for the C-130J-30 only. With
+**ABCCC C-130 (SkyEye)** on (RetLab Features page, off by default) the planner
+adds one, optional, to each land AWACS package (`PlanAewc`). It orbits 30 NM outside
+the threat rings (`ABCCC_THREAT_BUFFER` in `aewc.py`), well ahead of the AWACS's 80 NM
+standoff, and the package's 2-ship escort always flies and covers the ABCCC instead of
+the AWACS (`joinpoint.py`). It can also be fragged by hand. Callsigns rotate
+each turn through Bookshelf, Anvil, Ramrod, Blackjack, Crown and Sentinel.
 
-While a Package Control C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
+While an ABCCC C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
 blue package with a player seat on **STRIKE (common)**, one UHF channel allocated per
 mission and listed on the kneeboard comms as "STRIKE (Bookshelf)":
 
@@ -11156,7 +11158,7 @@ point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces
 route with a landing at home. Parked AI is left alone (a pushed task would replace its
 takeoff).
 
-With no Package Control C-130 airborne there is no package control: nothing is said and
+With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
 
 **Voice.** SkyEye speaks every call through RetLab's SkyEye copy (`BradySox/skyeye`, the
@@ -11174,16 +11176,18 @@ Built 2026-10-20 from a survey of how hand-built campaigns run packages from an 
 
 - `game/retlab/package_control.py`: `dcsRetribution.packageControl`, voices, STRIKE name.
 - `game/ato/flighttype.py`, `flight.py` (callsign family), `flightplans/aewc.py`,
-  `game/commander/tasks/primitive/packagecontrol.py`, `theaterstate.py`: the task.
+  `game/commander/tasks/primitive/aewc.py`: the ABCCC in the AWACS package.
 - `game/missiongenerator/missiongenerator.py`: STRIKE allocation and the kneeboard comm.
 - `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_package_control`).
 - `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SkyEye link.
+- `game/missiongenerator/kneeboard/voicepages.py`: the two cheat-sheet pages after the comms
+  page, "Talking to <ABCCC>" and "Talking to <AWACS>", for pilots new to voice bots.
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
 
 ### Constraints
 
 - Never an AWACS task on the C-130: DCS would make it a second AWACS voice.
-- The C-130J EW plugin claims every C-130J-30 by airframe, so a Package Control flight is
+- The C-130J EW plugin claims every C-130J-30 by airframe, so an ABCCC flight is
   on its deny-list (`_ew_excluded_c130j_groups`).
 - The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
   Retribution's own install step. Without it the calls are text only.
@@ -11200,7 +11204,7 @@ the way. With the setting on:
   flight is given a channel. The AWACS keeps its own channel, picked the normal way or set on
   the flight in the flight editor.
 - The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
-  (default `Sentinel`) first as "Sentinel (SkyEye)", and each blue AWACS as "(silent)".
+  (default `Chainsaw`) first as "Chainsaw (SkyEye)", and each blue AWACS as "(silent)".
 
 Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
 player named themselves in the call. Not flown with the setting on (row B257). The DTC
