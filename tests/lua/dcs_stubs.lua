@@ -164,6 +164,13 @@ country = {
     id = { RUSSIA = 0, USA = 2 },
 }
 
+-- Flat-earth stand-in: one degree is 111 km, so a test can read a position back.
+coord = coord or {
+    LOtoLL = function(p)
+        return p.x / 111000, p.z / 111000, 0
+    end,
+}
+
 local UnitFake = {}
 UnitFake.__index = UnitFake
 
@@ -203,6 +210,11 @@ end
 
 function UnitFake:hasAttribute(attr)
     return (self.attributes or {})[attr] == true
+end
+
+-- A spec {radar = true} models a radar that is on (radiating).
+function UnitFake:getRadar()
+    return self.radar == true, nil
 end
 
 function UnitFake:inAir()
@@ -409,6 +421,7 @@ function Harness.addGroup(spec)
             life = u.life,
             exists = u.exists,
             airborne = u.airborne,
+            radar = u.radar,
             attributes = u.attributes,
             velocity = u.velocity,
             playerName = u.playerName,

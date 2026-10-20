@@ -325,6 +325,10 @@ class Coalition:
                     plan_carrier_strike(self, now, tracer)
                 with tracer.trace(f"{color} mission identification"):
                     TheaterCommander(self.game, self.player).plan_missions(now, tracer)
+                with tracer.trace(f"{color} Vacuum ELINT"):
+                    from game.retlab.vacuum import plan_vacuum
+
+                    plan_vacuum(self)
                 with tracer.trace(f"{color} carrier buddy-tanker routing"):
                     from game.retlab.carrier_ops import (
                         route_carrier_flights_to_buddy_tanker,

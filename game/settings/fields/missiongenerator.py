@@ -468,6 +468,20 @@ class MissionGeneratorSettings:
             "speaks the calls; they also show as text."
         ),
     )
+    vacuum_elint: bool = boolean_option(
+        "Vacuum ELINT (SkyEye)",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            "Adds a Vacuum ELINT flight, a KC-135 or, with none free, a C-130J-30, to the AWACS "
+            "package on turns with two or more SEAD, SEAD Escort or DEAD flights. "
+            "It can also be fragged by hand. While it is airborne it calls each red "
+            "ground radar by bullseye once each time the radar comes on, on its own "
+            "frequency, and on STRIKE only when the radar covers a player package's "
+            "route or target. SkyEye, running with its mission link, speaks the calls."
+        ),
+    )
     use_ai_combat_landing: bool = boolean_option(
         "Use AI combat landing waypoint task",
         page=MISSION_GENERATOR_PAGE,

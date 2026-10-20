@@ -162,6 +162,11 @@ class MissionData:
     #: "masculine" or "feminine": the AWACS's SkyEye voice this mission; the
     #: package controller takes the other (§117).
     awacs_voice: str = "feminine"
+    #: Vacuum's own frequency, where it calls every red radar (§118). None with
+    #: no Vacuum fragged.
+    vacuum_frequency: Optional[RadioFrequency] = None
+    #: Vacuum's SkyEye voice; empty is SkyEye's own (§118).
+    vacuum_voice: str = ""
     runways: list[RunwayData] = field(default_factory=list)
     carriers: list[CarrierInfo] = field(default_factory=list)
     flights: list[FlightData] = field(default_factory=list)

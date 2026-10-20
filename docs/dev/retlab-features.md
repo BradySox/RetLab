@@ -11191,6 +11191,50 @@ Built 2026-10-20 from a survey of how hand-built campaigns run packages from an 
   on its deny-list (`_ew_excluded_c130j_groups`).
 - The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
   Retribution's own install step. Without it the calls are text only.
+## §118 — Vacuum ELINT
+
+An **ELINT** flight type, callsign **Vacuum**, for the C-130J-30 and the KC-135 (and
+KC-135 MPRS) in any era, standing in for an RC-135. With **Vacuum ELINT (SkyEye)** on
+(RetLab Features page, off by default) the planner adds one to the land AWACS package on a
+turn with two or more SEAD, SEAD Escort or DEAD flights (`plan_vacuum`, run after the
+theater commander). A KC-135 is picked first and a C-130J-30 only when no KC-135 is
+free (user call, 2026-10-20: the KC-135 is Vacuum, the C-130 the ABCCC). It can also be
+fragged by hand.
+It flies the AWACS plan one 20 NM slot behind the E-3 (`STATION_TASKS` in `aewc.py`), silent
+and weapons-hold like the ABCCC (`configure_package_control`).
+
+While a Vacuum is **alive and airborne** the `vacuum` plugin watches every red ground radar
+within 250 NM of it (radar unit classes only; radar-laid guns are left out). A radar that
+comes on is called once: "Vacuum, new emitter, SA-6, bullseye 090, 25." It must stay off a
+full minute before it counts as a new on-cycle, so a site Skynet blinks is one call.
+Calls are spaced 8 s apart.
+
+- **Own frequency:** every call, on a UHF channel allocated per mission and listed on the
+  kneeboard comms as "VACUUM (ELINT)".
+- **STRIKE:** only for a radar whose threat ring touches a player package's route or
+  target, worked out at generation. STRIKE exists only when an ABCCC flies.
+- **Silent** with no Vacuum airborne. It never jams, lases or designates.
+
+**Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
+and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
+SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
+matches its AWACS calls. Calls are voice only; there is no text.
+
+Built 2026-10-20. Not flown (row B260).
+
+### Files
+
+- `game/retlab/vacuum.py`: the planner rule, the radar labels, `dcsRetribution.vacuum`.
+- `resources/plugins/vacuum/`: the watch and the SkyEye link.
+- `resources/units/aircraft/C-130J-30.yaml`, `KC-135.yaml`, `KC135MPRS.yaml`: `ELINT` task.
+- `tests/retlab/test_vacuum.py`, `tests/lua/test_vacuum_runtime.py`.
+
+### Constraints
+
+- The labels come from the unit's display name: a NATO `SA-n`/`HQ-n` code, else the system
+  name. A radar with neither is called by its DCS name.
+- Needs the SkyEye copy with `tune` and `emitter` messages (`BradySox/skyeye`).
+
 ## §116 — Voice AWACS on SRS
 
 A setting on the RetLab Features page, **Voice AWACS on SRS (SkyEye)**, off by default, for a SkyEye

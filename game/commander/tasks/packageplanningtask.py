@@ -136,6 +136,7 @@ class PackagePlanningTask(TheaterCommanderTask, Generic[MissionTargetT]):
             FlightType.AEWC,
             FlightType.REFUELING,
             FlightType.ABCCC,
+            FlightType.ELINT,
         ):
             self.flights = [f for f in self.flights if f.task is not FlightType.ESCORT]
         fulfiller = PackageFulfiller(

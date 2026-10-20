@@ -33,6 +33,7 @@ def test_role_callsign_by_type_and_airframe() -> None:
     assert role_callsign(FlightType.CAS, is_helicopter=False) is None
     # The ABCCC rotates through its family; the first is the default.
     assert role_callsign(FlightType.ABCCC, is_helicopter=False) == "Anvil"
+    assert role_callsign(FlightType.ELINT, is_helicopter=False) == "Vacuum"
     assert set(ROLE_CALLSIGNS) == {
         "Toxic",
         "Sandy",
@@ -41,6 +42,7 @@ def test_role_callsign_by_type_and_airframe() -> None:
         "Blackjack",
         "Crown",
         "Sentinel",
+        "Vacuum",
     }
 
 

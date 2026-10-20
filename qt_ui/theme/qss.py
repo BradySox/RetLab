@@ -38,6 +38,7 @@ _RECON = ("TARPS",)
 _SUPPORT = (
     "AEWC",
     "ABCCC",
+    "ELINT",
     "REFUELING",
     "TRANSPORT",
     "FERRY",

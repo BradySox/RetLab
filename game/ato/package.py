@@ -218,6 +218,7 @@ class Package(RadioFrequencyContainer):
             # all flights, so the C-130J's slower transit already drives TOT.
             FlightType.JAMMING,
             FlightType.ABCCC,
+            FlightType.ELINT,
             FlightType.FERRY,
             FlightType.RECOVERY,
             FlightType.REFUELING,

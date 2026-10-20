@@ -961,6 +961,13 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="pkgcontrol",
         settings_fields=("package_controller",),
     ),
+    Feature(
+        "vacuum_elint",
+        "Vacuum ELINT",
+        118,
+        plugin_id="vacuum",
+        settings_fields=("vacuum_elint",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

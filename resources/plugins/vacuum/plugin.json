@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "Vacuum ELINT",
+    "descriptionInUI": "A Vacuum ELINT orbit calls each red ground radar by bullseye through SkyEye as it comes on. Settings > RetLab Features holds the switch.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "vacuum-config.lua",
+            "mnemonic": "vacuum-config"
+        }
+    ]
+}

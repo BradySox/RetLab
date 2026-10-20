@@ -70,6 +70,7 @@ def roll_plane_altitude_offset(low: int, high: int) -> int:
 _ROLE_CALLSIGN_BY_TYPE: dict[FlightType, str] = {
     FlightType.JAMMING: "Toxic",  # EC-130H/RC-130H EW C-130
     FlightType.SANDY: "Sandy",  # A-10/AH-64 rescue escort
+    FlightType.ELINT: "Vacuum",  # §118 ELINT orbit, named by the squadron
 }
 
 #: Role callsign families: a fresh flight takes the next name each turn (user call,
@@ -86,7 +87,7 @@ _ROLE_CALLSIGN_FAMILY_BY_TYPE: dict[FlightType, tuple[str, ...]] = {
 
 #: Every fixed role callsign, for the spawner's "is this a custom callsign?" guard.
 ROLE_CALLSIGNS: frozenset[str] = frozenset(
-    {"Toxic", "Sandy"}.union(*_ROLE_CALLSIGN_FAMILY_BY_TYPE.values())
+    {"Toxic", "Sandy", "Vacuum"}.union(*_ROLE_CALLSIGN_FAMILY_BY_TYPE.values())
 )
 
 

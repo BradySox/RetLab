@@ -72,6 +72,9 @@ class FlightType(Enum):
     # Airborne package control (§117): a C-130J-30 command post that runs player
     # packages on their own frequencies through SkyEye. Only it runs packages.
     ABCCC = "ABCCC"
+    # Vacuum (§118): an ELINT orbit that calls radiating red radars by bullseye
+    # through SkyEye. A C-130J-30 or a KC-135; it never jams or lases.
+    ELINT = "ELINT"
 
     @classmethod
     def _missing_(cls, value: object) -> FlightType | None:
@@ -201,6 +204,7 @@ class FlightType(Enum):
             FlightType.SWEEP: AirEntity.FIGHTER,
             FlightType.JAMMING: AirEntity.ELECTRONIC_COMBAT_JAMMER,
             FlightType.ABCCC: AirEntity.AIRBORNE_COMMAND_POST,
+            FlightType.ELINT: AirEntity.RECONNAISSANCE,
             FlightType.TARPS: AirEntity.RECONNAISSANCE,
             FlightType.TARCAP: AirEntity.FIGHTER,
             FlightType.TRANSPORT: AirEntity.UTILITY,
