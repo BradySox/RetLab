@@ -5,18 +5,23 @@ authors: RetLab
 recommended_player_faction: USAF 1985
 recommended_enemy_faction: USSR 40th Army 1985
 description:
-  <p>Winter 1985, and the Cold War has gone hot. A USAF expeditionary wing holds
-  Herat and Shindand in the west. The Soviet 40th Army holds the north and Kabul,
-  and its MiG-21s and MiG-23s fly from Maymana, Bagram and Kabul.</p>
-  <p>The war runs across the top of the map on two axes. The northern axis follows
-  the ring road through Qala i Naw, Maymana and Mazar-i-Sharif, then south through
-  the Salang to Bagram. The central axis follows the Hari Rud road over the
-  mountains through Chaghcharan and Bamyan to Kabul. SA-2 and SA-3 rings guard
-  Bagram and Kabul. The south is out of the war.</p>
-  <p>The F-4E carries the wing. It flies CAP, close support, Shrike work against the
-  SA-6 and SA-8, and bombing in the valleys. The B-52s, tankers and the E-3A fly from
-  Camp Bastion, far behind the fighting. Take Bagram and Kabul to win; lose Herat and you
-  lose.</p>
+  <p>January 1985. The Cold War has gone hot in the mountains. A USAF expeditionary
+  wing holds Herat and Shindand in the west, and its B-52s, tankers and E-3A work
+  from Camp Bastion far to the south. Across the Hindu Kush, the Soviet 40th Army
+  holds everything north and east, from Maymana to Kabul.</p>
+  <p>There are two ways in. The northern road runs through Qala i Naw and Maymana,
+  across the plains to Mazar-i-Sharif, then south over the Salang to Bagram. The
+  central road follows the Hari Rud past the Salma Dam to Chaghcharan, then climbs
+  over the passes through Bamyan to Kabul. Winter keeps the cloud low in the
+  valleys.</p>
+  <p>The 40th Army's air defense is a network. Two headquarters, at the Darul Aman
+  Palace in Kabul and at Mazar-i-Sharif, run it through comms towers and power
+  plants from the Naghlu Dam to the Sheberghan gas fields, and an SA-5 guards the
+  Shomali plain. Cut the towers and the power, kill the headquarters, and the SAMs
+  fight alone.</p>
+  <p>The F-4E carries the war. It flies CAP against MiG-21s and MiG-23s, Shrike
+  missions against the SAMs, and bombing runs in the valleys. Take Bagram and Kabul
+  to win. Lose Herat and you lose.</p>
   <p>Every unit is stock DCS.</p>
 miz: red_bear_1985.miz
 performance: 1
