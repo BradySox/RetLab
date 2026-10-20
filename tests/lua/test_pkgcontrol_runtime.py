@@ -103,6 +103,7 @@ def _group(
     airborne: bool = True,
     exists: bool = True,
     category: int = 0,
+    player: str | None = None,
 ) -> dict[str, Any]:
     return {
         "name": name,
@@ -118,6 +119,7 @@ def _group(
                 "z": 0,
                 "exists": exists,
                 "airborne": airborne,
+                "playerName": player,
             }
         ],
     }
@@ -145,8 +147,23 @@ def _harness(
     return h
 
 
+def _all_texts(h: DcsPluginHarness) -> list[str]:
+    # Each call is texted to every player group in the package; keep one copy.
+    out: list[str] = []
+    for t in h.records("texts"):
+        if not out or out[-1] != t["text"]:
+            out.append(t["text"])
+    return out
+
+
 def _texts(h: DcsPluginHarness) -> list[str]:
-    return [t["text"] for t in h.records("texts")]
+    # The roll call and its AI read-out have their own tests below.
+    return [
+        t
+        for t in _all_texts(h)
+        if not t.startswith("All players")
+        and not t.endswith((" up.", " not airborne."))
+    ]
 
 
 def _sent(h: DcsPluginHarness) -> list[dict[str, Any]]:
@@ -343,4 +360,99 @@ def test_an_early_push_releases_the_ai_from_hold() -> None:
     assert [(c["group"], c["commandId"]) for c in commands] == [
         ("Hawg", "SwitchWaypoint")
     ]
+    h.assert_no_lua_errors()
+
+
+def test_the_roll_call_goes_out_three_minutes_before_the_push() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Hawg"), _flight("Weasel", role="sead")],
+        [
+            _group("Colt", player="Flash"),
+            _group("Hawg"),
+            _group("Weasel", airborne=False),
+        ],
+    )
+    h.advance_to(PUSH - 190)
+    assert _all_texts(h) == []
+    h.advance_to(PUSH - 170)
+    assert _all_texts(h) == [
+        "All players, Anvil, check in. Push in 3 minutes.",
+        "Package Colt, Anvil, Hawg1 1 up. Weasel1 1 not airborne.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_checked_in_player_pushes_on_time() -> None:
+    h = _harness([_flight("Colt", client=True)], [_group("Colt", player="Flash")])
+    h.advance_to(PUSH - 170)
+    _request(h, "checkin")
+    h.advance_to(PUSH - 160)
+    assert _texts(h) == ["Colt1 1, Anvil, copy ready. Push time 14 10."]
+    h.advance_to(PUSH + 10)
+    assert _texts(h)[-1] == "Package Colt, Anvil, push, push."
+    h.assert_no_lua_errors()
+
+
+def test_a_silent_striker_is_left_behind_when_another_striker_is_up() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Hawg")],
+        [_group("Colt", player="Flash"), _group("Hawg")],
+    )
+    h.advance_to(PUSH + 10)
+    assert _texts(h)[-2:] == [
+        "Colt1 1, Anvil, not checked in. Package pushing without you.",
+        "Package Colt, Anvil, push, push.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_lone_silent_striker_holds_once_then_aborts() -> None:
+    h = _harness([_flight("Colt", client=True)], [_group("Colt", player="Flash")])
+    h.advance_to(PUSH + 10)
+    h.advance_to(PUSH + 190)
+    assert _texts(h) == [
+        "Package Colt, Anvil, hold, hold. Colt1 1 not checked in. New push time 14 13.",
+        "Package Colt, Anvil, abort, abort, abort. No strikers checked in. RTB.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_silent_escort_gets_one_hold_then_the_package_pushes() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Eagle", role="escort", client=True)],
+        [_group("Colt", player="Flash"), _group("Eagle", player="Joe")],
+    )
+    h.advance_to(PUSH - 170)
+    _request(h, "checkin")
+    h.advance_to(PUSH + 10)
+    h.advance_to(PUSH + 190)
+    assert _texts(h)[-2:] == [
+        "Package Colt, Anvil, hold, hold. Eagle1 1 not checked in. New push time 14 13.",
+        "Package Colt, Anvil, push, push.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_silent_sead_holds_twice_then_aborts() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Weasel", role="sead", client=True)],
+        [_group("Colt", player="Flash"), _group("Weasel", player="Joe")],
+    )
+    h.advance_to(PUSH - 170)
+    _request(h, "checkin")
+    h.advance_to(PUSH + 10)
+    h.advance_to(PUSH + 190)
+    h.advance_to(PUSH + 370)
+    assert _texts(h)[-3:] == [
+        "Package Colt, Anvil, hold, hold. Weasel1 1 not checked in. New push time 14 13.",
+        "Package Colt, Anvil, hold, hold. Weasel1 1 not checked in. New push time 14 16.",
+        "Package Colt, Anvil, abort, abort, abort. Weasel1 1 not checked in. RTB.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_an_empty_player_slot_is_not_waited_for() -> None:
+    h = _harness([_flight("Colt", client=True)], [_group("Colt")])
+    h.advance_to(PUSH + 10)
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     h.assert_no_lua_errors()

@@ -1,7 +1,7 @@
 {
     "skipUI": true,
     "nameInUI": "Airborne package control",
-    "descriptionInUI": "A ABCCC C-130J-30 runs player packages on STRIKE through SkyEye: check-in, push, hold or abort, egress. Settings > RetLab Features holds the switch.",
+    "descriptionInUI": "An ABCCC C-130J-30 runs player packages on STRIKE through SkyEye: check-in, push, hold or abort, egress. Settings > RetLab Features holds the switch.",
     "defaultValue": true,
     "specificOptions": [],
     "scriptsWorkOrders": [],

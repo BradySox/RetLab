@@ -1,0 +1,10 @@
+date: 2026-10-20
+title: The ABCCC takes a roll call before the push
+change: >-
+  Three minutes before the push the ABCCC calls "All players, check in". Answer
+  with your name and "ready" (or F10 > Package control > Check in) and it
+  confirms. It reads out the AI flights too. If you stay silent: SEAD holds the
+  package (twice, then it aborts), an escort gets one hold, and a striker is
+  left behind if another striker is ready.
+watch: >-
+  Empty player slots are not waited for.
