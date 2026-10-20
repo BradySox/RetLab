@@ -11178,6 +11178,13 @@ mission and the controller the other. Every call is also text to the package's p
 Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
 (recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
 
+**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a Piper voice
+from their own squadron's DCS country: American, British (one Scottish), or English read by
+native Arabic, Mandarin, Hindi, Korean, Spanish and Vietnamese speakers (the multi-speaker
+`en_US-l2arctic-medium` model). The two are always opposite genders. SkyEye loads the voices
+from its `voices-dir` (default `voices`, one folder per voice) and falls back to its own voice
+when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, RetLab ships none.
+
 ### Files
 
 - `game/retlab/package_control.py`: `dcsRetribution.packageControl`, voices, STRIKE name.
@@ -11186,6 +11193,7 @@ Built 2026-10-20 from a survey of how hand-built campaigns run packages from an 
 - `game/missiongenerator/missiongenerator.py`: STRIKE allocation and the kneeboard comm.
 - `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_package_control`).
 - `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SkyEye link.
+- `game/retlab/skyeye_voices.py`: the voices by squadron country (below).
 - `game/missiongenerator/kneeboard/voicepages.py`: the two cheat-sheet pages after the comms
   page, "Talking to <ABCCC>" and "Talking to <AWACS>", for pilots new to voice bots.
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.

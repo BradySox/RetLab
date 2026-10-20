@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Optional
 
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
+from game.retlab.skyeye_voices import pick_voices
 from game.retlab.voiceawacs import voice_awacs_for
 
 if TYPE_CHECKING:
@@ -30,14 +31,6 @@ if TYPE_CHECKING:
 #: SkyEye's mission-link-address. The plugin sends to it from an ephemeral port.
 SKYEYE_LINK_HOST = "127.0.0.1"
 SKYEYE_LINK_PORT = 42690
-
-#: SkyEye's two voices. The AWACS takes one at random each mission and the package
-#: controller the other, so the two are never the same voice (user call, 2026-10-20).
-VOICES = ("feminine", "masculine")
-
-
-def other_voice(voice: str) -> str:
-    return VOICES[1] if voice == VOICES[0] else VOICES[0]
 
 
 def has_package_control(ato: AirTaskingOrder) -> bool:
@@ -123,6 +116,18 @@ def strike_comm_name(mission_data: MissionData) -> Optional[str]:
     return f"STRIKE ({spoken_callsign(controllers[0].callsign)})"
 
 
+def _blue_awacs_flight(mission_data: MissionData) -> Optional[FlightData]:
+    for flight in mission_data.flights:
+        if flight.flight_type is FlightType.AEWC and flight.friendly.is_blue:
+            return flight
+    return None
+
+
+def _country(flight: Optional[FlightData]) -> Optional[str]:
+    country = getattr(getattr(flight, "squadron", None), "country", None)
+    return getattr(country, "name", None)
+
+
 def package_controllers(mission_data: MissionData) -> list[FlightData]:
     """The blue ABCCC flights."""
     return [
@@ -164,8 +169,12 @@ def populate_package_control_lua(
         node.add_key_value("strikeModulation", strike.modulation.name)
     if voice_awacs is not None:
         node.add_key_value("awacsCallsign", voice_awacs.callsign)
-    node.add_key_value("awacsVoice", mission_data.awacs_voice)
-    node.add_key_value("controllerVoice", other_voice(mission_data.awacs_voice))
+    awacs_voice, controller_voice = pick_voices(
+        _country(_blue_awacs_flight(mission_data)),
+        _country(controllers[0] if controllers else None),
+    )
+    node.add_key_value("awacsVoice", awacs_voice)
+    node.add_key_value("controllerVoice", controller_voice)
 
     controllers_node = node.add_item("controllers")
     for controller in controllers:

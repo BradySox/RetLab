@@ -15,7 +15,6 @@ from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.luagenerator import LuaData
 from game.radio.radios import MHz
 from game.retlab.package_control import (
-    other_voice,
     populate_package_control_lua,
     role_for,
     spoken_callsign,
@@ -44,6 +43,7 @@ def _flight(
         push_time=START + timedelta(minutes=push_minutes),
         waypoints=[_waypoint(FlightWaypointType.LOITER, 20000)],
         arrival=SimpleNamespace(airfield_name="Incirlik"),
+        squadron=SimpleNamespace(country=SimpleNamespace(name="USA")),
     )
 
 
@@ -80,7 +80,6 @@ def _mission_data(controller: bool = True, player: bool = True) -> Any:
         packages={1: flights, 2: controllers},
         flights=flights + controllers,
         strike_frequency=MHz(264, 500) if controller else None,
-        awacs_voice="feminine",
     )
 
 
@@ -93,7 +92,7 @@ def _serialized(mission_data: Any, voice_awacs: bool = False) -> str:
 def test_without_an_abccc_skyeye_still_gets_its_name_for_the_turn() -> None:
     text = _serialized(_mission_data(controller=False), voice_awacs=True)
     assert 'awacsCallsign = "Chainsaw"' in text
-    assert 'awacsVoice = "feminine"' in text
+    assert "awacsVoice = " in text
     assert "strikeFreq" not in text
 
 
@@ -111,8 +110,6 @@ def test_a_player_package_runs_on_strike_with_opposite_voices() -> None:
         'startSeconds = "50400"',
         'strikeFreq = "264.500"',
         'strikeModulation = "AM"',
-        'awacsVoice = "feminine"',
-        'controllerVoice = "masculine"',
         'callsign = "Anvil"',
         'name = "Colt"',
         'totAfter = "1500"',
@@ -135,5 +132,3 @@ def test_roles_and_spoken_callsigns() -> None:
     assert role_for(FlightType.BAI) == "strike"
     assert spoken_callsign("Anvil1-1") == "Anvil"
     assert spoken_callsign("Magic 1") == "Magic"
-    assert other_voice("feminine") == "masculine"
-    assert other_voice("masculine") == "feminine"
