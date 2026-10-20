@@ -440,15 +440,16 @@ class MissionGeneratorSettings:
         ),
     )
     voice_awacs_callsign: str = text_option(
-        "SkyEye callsign",
+        "SkyEye callsigns",
         page=MISSION_GENERATOR_PAGE,
         section=GAMEPLAY_SECTION,
-        default="Chainsaw",
-        placeholder="Chainsaw",
+        default="Chalice, Chainsaw, Image",
+        placeholder="Chalice, Chainsaw, Image",
         enabled_when="voice_awacs",
         detail=(
-            "The name SkyEye answers to, as shown on the kneeboard and briefing. "
-            "Match the callsign line in SkyEye's config.yaml."
+            "The names SkyEye answers to, one per turn in this order, separated by "
+            "commas. RetLab tells SkyEye the name at mission start and puts it on "
+            "the kneeboard and briefing."
         ),
     )
     package_controller: bool = boolean_option(

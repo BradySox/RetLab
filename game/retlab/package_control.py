@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING, Optional
 
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
+from game.retlab.voiceawacs import voice_awacs_for
 
 if TYPE_CHECKING:
     from game import Game
@@ -134,12 +135,21 @@ def package_controllers(mission_data: MissionData) -> list[FlightData]:
 def populate_package_control_lua(
     root: LuaData, game: Game, mission_data: MissionData
 ) -> None:
-    """Build ``dcsRetribution.packageControl``; nothing without a controller."""
+    """Build ``dcsRetribution.packageControl``.
+
+    With no ABCCC running packages it still carries SkyEye's AWACS name and voice
+    when the Voice AWACS setting is on, and nothing at all otherwise.
+    """
     controllers = package_controllers(mission_data)
     packages = player_packages(mission_data)
     strike = mission_data.strike_frequency
-    if not controllers or not packages or strike is None:
+    voice_awacs = voice_awacs_for(game.settings, game.turn)
+    running = bool(controllers and packages and strike is not None)
+    if not running and voice_awacs is None:
         return
+    if not running:
+        # SkyEye still takes this mission's AWACS name and voice from the link.
+        controllers, packages, strike = [], [], None
 
     start = mission_data.flights[0].mission_start if mission_data.flights else None
     start = start or game.conditions.start_time
@@ -149,8 +159,11 @@ def populate_package_control_lua(
     )
     node.add_key_value("linkHost", SKYEYE_LINK_HOST)
     node.add_key_value("linkPort", str(SKYEYE_LINK_PORT))
-    node.add_key_value("strikeFreq", f"{strike.mhz:.3f}")
-    node.add_key_value("strikeModulation", strike.modulation.name)
+    if strike is not None:
+        node.add_key_value("strikeFreq", f"{strike.mhz:.3f}")
+        node.add_key_value("strikeModulation", strike.modulation.name)
+    if voice_awacs is not None:
+        node.add_key_value("awacsCallsign", voice_awacs.callsign)
     node.add_key_value("awacsVoice", mission_data.awacs_voice)
     node.add_key_value("controllerVoice", other_voice(mission_data.awacs_voice))
 

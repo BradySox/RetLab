@@ -10,7 +10,7 @@ from game.radio.radios import MHz
 
 def test_abccc_page_writes_with_the_mission_names(tmp_path: Path) -> None:
     out = tmp_path / "abccc.png"
-    page = AbcccPage("Bookshelf", MHz(264, 500), "Chainsaw", "Colt 1-1", False)
+    page = AbcccPage("Anvil", MHz(264, 500), "Chainsaw", "Colt 1-1", False)
     page.write(out)
     assert out.stat().st_size > 0
 

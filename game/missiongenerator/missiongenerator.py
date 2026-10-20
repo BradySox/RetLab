@@ -267,13 +267,15 @@ class MissionGenerator:
         # Allocate UHF/VHF Guard Freq first!
         unique_map_frequencies.add(MHz(243))
         unique_map_frequencies.add(MHz(121, 500))
-        if (voice_awacs := voice_awacs_for(self.game.settings)) is not None:
+        if (
+            voice_awacs := voice_awacs_for(self.game.settings, self.game.turn)
+        ) is not None:
             unique_map_frequencies.add(voice_awacs.freq)
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
+        self.mission_data.awacs_voice = random.choice(VOICES)
         if has_package_control(self.game.blue.ato):
             self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
-            self.mission_data.awacs_voice = random.choice(VOICES)
 
     def initialize_tacan_registry(
         self, unique_map_frequencies: set[RadioFrequency]
@@ -491,7 +493,7 @@ class MissionGenerator:
             KneeboardGenerator(self.mission, self.game),
             BriefingGenerator(self.mission, self.game),
         ]
-        voice_awacs = voice_awacs_for(self.game.settings)
+        voice_awacs = voice_awacs_for(self.game.settings, self.game.turn)
         strike_name = strike_comm_name(mission_data)
         for gen in gens:
             if strike_name is not None and mission_data.strike_frequency is not None:

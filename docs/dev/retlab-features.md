@@ -11136,13 +11136,13 @@ adds one, optional, to each land AWACS package (`PlanAewc`). It orbits 30 NM out
 the threat rings (`ABCCC_THREAT_BUFFER` in `aewc.py`), well ahead of the AWACS's 80 NM
 standoff, and the package's 2-ship escort always flies and covers the ABCCC instead of
 the AWACS (`joinpoint.py`). It can also be fragged by hand. Callsigns rotate
-each turn through Bookshelf, Anvil, Ramrod, Blackjack, Crown and Sentinel.
+each turn through Anvil, Ramrod, Blackjack, Crown and Sentinel.
 
 While an ABCCC C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
 blue package with a player seat on **STRIKE (common)**, one UHF channel allocated per
-mission and listed on the kneeboard comms as "STRIKE (Bookshelf)":
+mission and listed on the kneeboard comms as "STRIKE (Anvil)":
 
-- **Check-in:** F10 > Package control > Check in, or spoken ("Bookshelf, Colt 1-1, check
+- **Check-in:** F10 > Package control > Check in, or spoken ("Anvil, Colt 1-1, check
   in"). The reply gives radar contact, the hold angels and the push time.
 - **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
   are airborne, else says what is missing.

@@ -47,8 +47,15 @@ def _flight(
     )
 
 
-def _game() -> Any:
-    return SimpleNamespace(conditions=SimpleNamespace(start_time=START))
+def _game(voice_awacs: bool = False) -> Any:
+    settings = SimpleNamespace(
+        voice_awacs=voice_awacs,
+        voice_awacs_frequency="251.0 AM",
+        voice_awacs_callsign="Chalice, Chainsaw, Image",
+    )
+    return SimpleNamespace(
+        conditions=SimpleNamespace(start_time=START), settings=settings, turn=1
+    )
 
 
 def _mission_data(controller: bool = True, player: bool = True) -> Any:
@@ -65,7 +72,7 @@ def _mission_data(controller: bool = True, player: bool = True) -> Any:
         frequency=MHz(240), time_over_target=START, target=package.target
     )
     controllers = (
-        [_flight(control_package, "Bookshelf", FlightType.ABCCC, False, 0)]
+        [_flight(control_package, "Anvil", FlightType.ABCCC, False, 0)]
         if controller
         else []
     )
@@ -77,10 +84,17 @@ def _mission_data(controller: bool = True, player: bool = True) -> Any:
     )
 
 
-def _serialized(mission_data: Any) -> str:
+def _serialized(mission_data: Any, voice_awacs: bool = False) -> str:
     root = LuaData("dcsRetribution")
-    populate_package_control_lua(root, _game(), mission_data)
+    populate_package_control_lua(root, _game(voice_awacs), mission_data)
     return root.serialize()
+
+
+def test_without_an_abccc_skyeye_still_gets_its_name_for_the_turn() -> None:
+    text = _serialized(_mission_data(controller=False), voice_awacs=True)
+    assert 'awacsCallsign = "Chainsaw"' in text
+    assert 'awacsVoice = "feminine"' in text
+    assert "strikeFreq" not in text
 
 
 def test_no_controller_writes_nothing() -> None:
@@ -99,7 +113,7 @@ def test_a_player_package_runs_on_strike_with_opposite_voices() -> None:
         'strikeModulation = "AM"',
         'awacsVoice = "feminine"',
         'controllerVoice = "masculine"',
-        'callsign = "Bookshelf"',
+        'callsign = "Anvil"',
         'name = "Colt"',
         'totAfter = "1500"',
         'role = "strike"',
@@ -119,7 +133,7 @@ def test_roles_and_spoken_callsigns() -> None:
     assert role_for(FlightType.SEAD_ESCORT) == "sead"
     assert role_for(FlightType.ESCORT) == "escort"
     assert role_for(FlightType.BAI) == "strike"
-    assert spoken_callsign("Bookshelf1-1") == "Bookshelf"
+    assert spoken_callsign("Anvil1-1") == "Anvil"
     assert spoken_callsign("Magic 1") == "Magic"
     assert other_voice("feminine") == "masculine"
     assert other_voice("masculine") == "feminine"

@@ -84,11 +84,11 @@ local function clock(missionSeconds)
     return string.format("%02d %02d", math.floor(t / 3600), math.floor(t / 60) % 60)
 end
 
-local STRIKE = string.format(
-    "%.3f%s",
-    tonumber(data.strikeFreq) or 0,
-    data.strikeModulation == "FM" and "FM" or "AM"
-)
+-- No strikeFreq: no ABCCC flies, and the link only tells SkyEye its AWACS name and voice.
+local STRIKE = data.strikeFreq
+        and string.format("%.3f%s", tonumber(data.strikeFreq) or 0, data.strikeModulation == "FM" and "FM" or "AM")
+    or ""
+
 
 ---------------------------------------------------------------------------------------------------
 -- SkyEye link
@@ -180,6 +180,7 @@ local function announcePackages()
         { "packages", list },
         { "strike", STRIKE },
         { "gciVoice", data.awacsVoice or "" },
+        { "gciCallsign", data.awacsCallsign or "" },
     })
 end
 

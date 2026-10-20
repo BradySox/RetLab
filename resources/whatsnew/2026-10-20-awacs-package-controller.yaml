@@ -2,7 +2,7 @@ date: 2026-10-20
 title: A C-130 command post runs your package
 change: >-
   Turn on ABCCC C-130 (SkyEye) in Settings > RetLab Features. The
-  planner adds a C-130J-30 ABCCC (Bookshelf, Anvil, Ramrod...) to the
+  planner adds a C-130J-30 ABCCC (Anvil, Ramrod, Blackjack...) to the
   AWACS package. Check in with it on STRIKE, the common frequency on your
   kneeboard: it gives your hold altitude and push time, calls the push, holds
   the push if your SEAD or escort is not airborne, aborts if the target is

@@ -81,7 +81,7 @@ def _config(flights: list[dict[str, Any]], targets: list[str]) -> dict[str, Any]
             "strikeModulation": "AM",
             "awacsVoice": "feminine",
             "controllerVoice": "masculine",
-            "controllers": [{"group": "Bookshelf", "callsign": "Bookshelf"}],
+            "controllers": [{"group": "Anvil", "callsign": "Anvil"}],
             "packages": [
                 {
                     "name": "Colt",
@@ -137,7 +137,7 @@ def _harness(
     h.lua.globals().dcsRetribution = h.to_lua(
         {"plugins": {}, **_config(flights, list(targets))}
     )
-    h.add_group(_group("Bookshelf", x=100 * NM, airborne=controller_airborne))
+    h.add_group(_group("Anvil", x=100 * NM, airborne=controller_airborne))
     h.add_group(_group("Bridge", x=0, category=2))
     for spec in groups:
         h.add_group(spec)
@@ -178,7 +178,7 @@ def test_skyeye_is_told_the_controllers_strike_and_awacs_voice() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")])
     h.advance_to(2)
     packages = [m for m in _sent(h) if m["type"] == "packages"][0]
-    assert packages["controllers"] == ["Bookshelf"]
+    assert packages["controllers"] == ["Anvil"]
     assert packages["strike"] == "264.500AM"
     assert packages["gciVoice"] == "feminine"
     assert packages["packages"] == [{"name": "Colt", "frequency": "264.500AM"}]
@@ -191,7 +191,7 @@ def test_the_f10_check_in_answers_on_strike_in_the_controller_voice() -> None:
     check_in = h.lua.globals().DcsHarness.records.menus[2]
     check_in.fn(check_in.arg)
     line = (
-        "Colt1 1, Bookshelf, radar contact. Cleared direct hold, angels 20. "
+        "Colt1 1, Anvil, radar contact. Cleared direct hold, angels 20. "
         "Push time 14 10."
     )
     assert _texts(h) == [line]
@@ -210,8 +210,8 @@ def test_spoken_requests_from_skyeye_are_answered() -> None:
     _request(h, "ready")
     h.advance_to(2)
     assert _texts(h) == [
-        "Colt1 1, Bookshelf, push time 14 10.",
-        "Colt1 1, Bookshelf, negative, SEAD not airborne. Push time 14 10.",
+        "Colt1 1, Anvil, push time 14 10.",
+        "Colt1 1, Anvil, negative, SEAD not airborne. Push time 14 10.",
     ]
     h.assert_no_lua_errors()
 
@@ -220,9 +220,9 @@ def test_ready_to_push_pushes_early_when_everyone_is_up() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")])
     _request(h, "ready")
     h.advance_to(2)
-    assert _texts(h) == ["Package Colt, Bookshelf, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Bookshelf, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     h.assert_no_lua_errors()
 
 
@@ -234,7 +234,7 @@ def test_the_push_is_called_at_the_push_time() -> None:
     h.advance_to(PUSH - 1)
     assert _texts(h) == []
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Bookshelf, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     h.assert_no_lua_errors()
 
 
@@ -247,9 +247,9 @@ def test_a_sead_on_the_ground_holds_twice_then_aborts() -> None:
     h.advance_to(PUSH + 190)
     h.advance_to(PUSH + 370)
     assert _texts(h) == [
-        "Package Colt, Bookshelf, hold, hold. SEAD not airborne. New push time 14 13.",
-        "Package Colt, Bookshelf, hold, hold. SEAD not airborne. New push time 14 16.",
-        "Package Colt, Bookshelf, abort, abort, abort. No SEAD. RTB.",
+        "Package Colt, Anvil, hold, hold. SEAD not airborne. New push time 14 13.",
+        "Package Colt, Anvil, hold, hold. SEAD not airborne. New push time 14 16.",
+        "Package Colt, Anvil, abort, abort, abort. No SEAD. RTB.",
     ]
     h.assert_no_lua_errors()
 
@@ -258,7 +258,7 @@ def test_a_dead_target_aborts() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")], targets=("Gone #1",))
     h.advance_to(PUSH + 10)
     assert _texts(h) == [
-        "Package Colt, Bookshelf, abort, abort, abort. Target Bridge destroyed. RTB."
+        "Package Colt, Anvil, abort, abort, abort. Target Bridge destroyed. RTB."
     ]
     h.assert_no_lua_errors()
 
@@ -271,9 +271,7 @@ def test_a_lost_sead_aborts() -> None:
     h.advance_to(20)
     h.update_unit("Weasel", {"exists": False})
     h.advance_to(PUSH + 10)
-    assert _texts(h) == [
-        "Package Colt, Bookshelf, abort, abort, abort. SEAD lost. RTB."
-    ]
+    assert _texts(h) == ["Package Colt, Anvil, abort, abort, abort. SEAD lost. RTB."]
     h.assert_no_lua_errors()
 
 
@@ -286,10 +284,10 @@ def test_egress_is_called_when_the_strikers_open_from_the_target() -> None:
     h.advance_to(PUSH + 30)
     h.update_unit("Colt", {"x": 9 * NM})
     h.advance_to(PUSH + 40)
-    assert _texts(h)[-1] == "Package Colt, Bookshelf, push, push."
+    assert _texts(h)[-1] == "Package Colt, Anvil, push, push."
     h.update_unit("Colt", {"x": 12 * NM})
     h.advance_to(PUSH + 50)
-    assert _texts(h)[-1] == "Package Colt, Bookshelf, all strikers egressed. RTB."
+    assert _texts(h)[-1] == "Package Colt, Anvil, all strikers egressed. RTB."
     h.assert_no_lua_errors()
 
 
@@ -301,16 +299,16 @@ def test_no_controller_airborne_means_no_package_control() -> None:
     h.advance_to(PUSH + 300)
     assert _texts(h) == []
     assert _said(h) == []
-    h.update_unit("Bookshelf", {"airborne": True})
+    h.update_unit("Anvil", {"airborne": True})
     h.advance_to(PUSH + 320)
-    assert _texts(h) == ["Package Colt, Bookshelf, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     h.assert_no_lua_errors()
 
 
 def test_without_luasocket_the_calls_are_text_only() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")], link=False)
     h.advance_to(PUSH + 10)
-    assert _texts(h) == ["Package Colt, Bookshelf, push, push."]
+    assert _texts(h) == ["Package Colt, Anvil, push, push."]
     assert any("LuaSocket" in w for w in h.records("warnings"))
     h.assert_no_lua_errors()
 

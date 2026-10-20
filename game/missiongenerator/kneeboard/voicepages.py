@@ -23,6 +23,49 @@ def _lines(writer: KneeboardPageWriter, lines: list[str]) -> None:
         writer.text(line, wrap=True)
 
 
+#: The package's life, left to right, with the two side branches under it.
+FLOW_STEPS = ("CHECK IN", "HOLD", "PUSH", "EGRESS", "RTB")
+FLOW_BRANCHES = (
+    (1, ('"Hold, hold":', "stay, max 2")),
+    (2, ('"Abort":', "go home")),
+)
+
+
+def _flow_chart(writer: KneeboardPageWriter) -> None:
+    """A row of boxes joined by arrows, with the hold and abort branches below."""
+    draw, font = writer.draw, writer.content_font
+    left = writer.page_margin
+    width = writer.image_size[0] - 2 * writer.page_margin
+    gap = 22
+    box_w = (width - gap * (len(FLOW_STEPS) - 1)) // len(FLOW_STEPS)
+    box_h = 44
+    top = writer.y + 4
+    ink = writer.foreground_fill
+    for i, step in enumerate(FLOW_STEPS):
+        x0 = left + i * (box_w + gap)
+        draw.rectangle((x0, top, x0 + box_w, top + box_h), outline=ink, width=2)
+        tw = draw.textlength(step, font=font)
+        draw.text((x0 + (box_w - tw) / 2, top + 12), step, font=font, fill=ink)
+        if i < len(FLOW_STEPS) - 1:
+            ax, ay = x0 + box_w + 3, top + box_h / 2
+            draw.line((ax, ay, ax + gap - 6, ay), fill=ink, width=2)
+            draw.polygon(
+                [(ax + gap - 6, ay - 5), (ax + gap - 1, ay), (ax + gap - 6, ay + 5)],
+                fill=ink,
+            )
+    below = top + box_h + 8
+    for index, label in FLOW_BRANCHES:
+        x0 = left + index * (box_w + gap)
+        draw.line(
+            (x0 + box_w / 2, top + box_h, x0 + box_w / 2, below + 4), fill=ink, width=2
+        )
+        for n, line in enumerate(label):
+            draw.text(
+                (x0, below + 8 + n * 22), line, font=font, fill=writer.col_caution
+            )
+    writer.y = below + 58
+
+
 class AbcccPage(KneeboardPage):
     """How to work with the ABCCC on STRIKE."""
 
@@ -59,6 +102,9 @@ class AbcccPage(KneeboardPage):
                 f"No {c} in the air means no package control: fly your planned times.",
             ],
         )
+        w.rule()
+        w.heading("The flow")
+        _flow_chart(w)
         w.rule()
         w.heading("How to call")
         _lines(
