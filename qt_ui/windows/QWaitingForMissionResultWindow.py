@@ -28,6 +28,7 @@ from game.debriefing import Debriefing
 from game.finaldebriefing import final_debriefing
 from game.theater import Player
 from game.profiling import logged_duration
+from game.retlab.skyeye_launcher import stop_skyeye
 from game.retlab.turn_ping import send_turn_ping, turn_ping
 from game.server import EventStream
 from game.sim import GameUpdateEvents
@@ -209,6 +210,7 @@ class QWaitingForMissionResultWindow(QDialog):
 
     def process_debriefing(self):
         if self._process_turn():
+            stop_skyeye()
             self.close()
 
     def _process_turn(self) -> bool:
@@ -293,6 +295,7 @@ class QWaitingForMissionResultWindow(QDialog):
             )
 
     def reject(self):
+        stop_skyeye()
         self.reset_game_state()
         super().reject()
 

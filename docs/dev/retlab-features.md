@@ -11207,6 +11207,37 @@ when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, Ret
   on its deny-list (`_ew_excluded_c130j_groups`).
 - The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
   Retribution's own install step. Without it the calls are text only.
+## §120 — Voice bots on Take Off
+
+A machine preference, not a campaign setting: **File > Voice bots**, off by default. With
+it on, Take off (`QTopPanel.launch_mission`) calls `start_voice_bots` on a background
+thread (`game/retlab/skyeye_launcher.py`):
+
+1. The SRS server starts if it is not running (`SRS-Server.exe` under the installer's
+   `HKCU\Software\DCS-SR-Standalone\SRPathStandalone`), and RetLab waits up to 60 s
+   for port 5002.
+2. SkyEye starts in a minimized console from its folder with `--config-file config.yaml`.
+   No `skyeye.exe` or no `config.yaml` means no SkyEye.
+3. The SRS client starts if it is not running and is sent `127.0.0.1:5002` on UDP 5069,
+   the message SRS's own DCS hook sends. The hook sends it only to a server's guests,
+   never to the host, so a single-player host was never auto-connected. The client
+   acts on it only with its Auto Connect option on.
+
+Anything already running is left alone. On debrief (or when the waiting window is
+closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
+2026-10-20). The folder defaults to `Saved Games\DCS\Retribution\SkyEye`. Built
+2026-10-20. Not flown (row B262).
+
+### Files
+
+- `game/retlab/skyeye_launcher.py`, `qt_ui/windows/VoiceBotsDialog.py`,
+  `qt_ui/liberation_install.py` (`skyeye_autostart`, `skyeye_dir`),
+  `tests/retlab/test_skyeye_launcher.py`.
+
+### Constraints
+
+- Never block Take off on SRS or SkyEye: the start runs on a daemon thread.
+- At most two connect messages: each can make a connected client reconnect.
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground

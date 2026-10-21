@@ -261,6 +261,9 @@ class QLiberationWindow(QMainWindow):
         self.openPhoneLinkAction = QAction("Phone link", self)
         self.openPhoneLinkAction.triggered.connect(self.showPhoneLinkDialog)
 
+        self.openVoiceBotsAction = QAction("Voice bots", self)
+        self.openVoiceBotsAction.triggered.connect(self.showVoiceBotsDialog)
+
         self.copyAiConnectLinkAction = QAction("Copy AI connect link", self)
         self.copyAiConnectLinkAction.triggered.connect(self.copy_ai_connect_link)
 
@@ -317,6 +320,7 @@ class QLiberationWindow(QMainWindow):
         file_menu.addSeparator()
         file_menu.addAction(self.showLiberationPrefDialogAction)
         file_menu.addAction(self.openPhoneLinkAction)
+        file_menu.addAction(self.openVoiceBotsAction)
         file_menu.addSeparator()
         file_menu.addAction("E&xit", self.close)
 
@@ -706,6 +710,11 @@ class QLiberationWindow(QMainWindow):
         from qt_ui.windows.PhoneLinkDialog import PhoneLinkDialog
 
         PhoneLinkDialog(self).exec()
+
+    def showVoiceBotsDialog(self) -> None:
+        from qt_ui.windows.VoiceBotsDialog import VoiceBotsDialog
+
+        VoiceBotsDialog(self).exec()
 
     def copy_ai_connect_link(self) -> None:
         from game.agent import service

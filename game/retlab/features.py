@@ -975,6 +975,12 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="voiceatc",
         settings_fields=("voice_atc", "voice_atc_strict"),
     ),
+    Feature(
+        # A preference, not a campaign setting (qt_ui/liberation_install.py).
+        "voice_bots_on_takeoff",
+        "Voice bots on Take Off",
+        120,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

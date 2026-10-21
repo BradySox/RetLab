@@ -288,6 +288,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   AWACS and calls each red radar by bullseye through SkyEye as it comes on. Off by default.
 - **Voice ATC.** Ground and Tower for player flights through SkyEye: engine start, taxi with
   a squawk, takeoff and landing, with readback checks and an F10 ATC menu. Off by default.
+- **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
+  client, connected to your own server. SkyEye closes after the mission. Off by default.
 
 ### Campaign systems
 
