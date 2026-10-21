@@ -12,15 +12,12 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QDialog,
     QHBoxLayout,
-    QFrame,
     QLabel,
-    QLineEdit,
     QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
-from game.retlab.turn_ping import TurnPing, send_turn_ping, valid_topic
 from game.server.phone import PhoneAccess, lan_address, phone_url
 from game.server.settings import ServerSettings
 from qt_ui import liberation_install
@@ -84,38 +81,10 @@ class PhoneLinkDialog(QDialog):
         self.new_key.clicked.connect(self._new_link)
         buttons.addWidget(self.new_key)
         buttons.addStretch()
-        layout.addLayout(buttons)
-
-        rule = QFrame()
-        rule.setFrameShape(QFrame.Shape.HLine)
-        layout.addWidget(rule)
-        ping_intro = QLabel(
-            "<b>Turn ping.</b> Install the free ntfy app on your phone, subscribe to "
-            "a topic name only you know, and type the same name here. When a "
-            "mission's results are in, your phone gets the turn summary. Leave it "
-            "empty for no ping."
-        )
-        ping_intro.setWordWrap(True)
-        layout.addWidget(ping_intro)
-        ping_row = QHBoxLayout()
-        self.topic = QLineEdit(liberation_install.ntfy_topic())
-        self.topic.setPlaceholderText("ntfy topic, e.g. retlab-brady-7f3k")
-        self.topic.editingFinished.connect(self._save_topic)
-        ping_row.addWidget(self.topic)
-        self.test_ping = QPushButton("Send test")
-        self.test_ping.clicked.connect(self._send_test)
-        ping_row.addWidget(self.test_ping)
-        layout.addLayout(ping_row)
-        self.ping_status = QLabel()
-        self.ping_status.setWordWrap(True)
-        layout.addWidget(self.ping_status)
-
-        closing = QHBoxLayout()
-        closing.addStretch()
         close = QPushButton("Close")
         close.clicked.connect(self.accept)
-        closing.addWidget(close)
-        layout.addLayout(closing)
+        buttons.addWidget(close)
+        layout.addLayout(buttons)
 
         self._refresh()
 
@@ -170,23 +139,3 @@ class PhoneLinkDialog(QDialog):
         url = self._url()
         if url is not None:
             QGuiApplication.clipboard().setText(url)
-
-    def _save_topic(self) -> bool:
-        topic = self.topic.text().strip()
-        if topic and not valid_topic(topic):
-            self.ping_status.setText(
-                "Use only letters, numbers, - and _ (up to 64), as ntfy does."
-            )
-            return False
-        liberation_install.set_ntfy_topic(topic)
-        self.ping_status.setText("Saved." if topic else "No ping.")
-        return True
-
-    def _send_test(self) -> None:
-        if not self._save_topic() or not liberation_install.ntfy_topic():
-            return
-        send_turn_ping(
-            liberation_install.ntfy_topic(),
-            TurnPing("RetLab: test ping", "Your phone will get this when a turn ends."),
-        )
-        self.ping_status.setText("Sent. It should reach your phone in a few seconds.")

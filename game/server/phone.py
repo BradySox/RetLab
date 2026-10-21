@@ -79,7 +79,7 @@ def lan_address() -> Optional[str]:
 
 def phone_url(address: str, port: int, key: str) -> str:
     server = f"{address}:{port}"
-    query = urlencode({"server": server, "key": key, "view": "phone"})
+    query = urlencode({"server": server, "key": key})
     return f"http://{server}{PAGE_PREFIX}/index.html?{query}"
 
 

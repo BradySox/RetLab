@@ -1,5 +1,4 @@
 import logging
-import os
 import socket
 import time
 from collections.abc import Iterator
@@ -52,10 +51,6 @@ class Server(uvicorn.Server):
             # The phone map: the home network too, IPv4 because that is what a
             # phone on Wi-Fi is handed.
             phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if os.name != "nt":
-                # As uvicorn does: a restart must not wait out TIME_WAIT. On
-                # Windows the flag would let another program share the port.
-                phone.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             try:
                 phone.bind(("0.0.0.0", self.config.port))
             except OSError:

@@ -14,7 +14,6 @@ from dcs.mission import Mission
 from jinja2 import Environment, FileSystemLoader
 
 from game.ato.flightwaypoint import FlightWaypoint
-from game.retlab.mission_pages import record_briefing_picture
 from game.retlab.voiceawacs import VoiceAwacsInfo
 from game.retlab.briefing_card import build_briefing_card, render_briefing_card
 from game.retlab.briefing_image import briefing_image_path, custom_briefing_image
@@ -205,9 +204,7 @@ class BriefingGenerator(MissionInfoGenerator):
         self.generate_allied_flights_by_departure()
         self.owned_airbases = self._collect_owned_airbases()
         self.mission.set_description_text(self.template.render(vars(self)))
-        picture = self._briefing_picture()
-        self.mission.add_picture_blue(str(picture))
-        record_briefing_picture(picture)
+        self.mission.add_picture_blue(str(self._briefing_picture()))
 
     def _briefing_picture(self) -> Path:
         """The player's own picture, else this mission's card."""
