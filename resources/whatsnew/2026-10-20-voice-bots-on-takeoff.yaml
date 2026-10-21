@@ -1,0 +1,9 @@
+date: 2026-10-20
+title: Take off starts SRS and SkyEye
+change: >-
+  Open File > Voice bots, tick the box and pick your SkyEye folder. Then Take
+  off starts the SRS server, SkyEye in a minimized window and your SRS client,
+  and connects the client to your own server. Anything already running is left
+  alone. SkyEye closes when the mission results come in; SRS stays up.
+watch: >-
+  Your SRS client needs its Auto Connect option on.

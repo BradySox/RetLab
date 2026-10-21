@@ -976,6 +976,12 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("voice_atc", "voice_atc_strict"),
     ),
     Feature(
+        # A preference, not a campaign setting (qt_ui/liberation_install.py).
+        "voice_bots_on_takeoff",
+        "Voice bots on Take Off",
+        120,
+    ),
+    Feature(
         "radio_discipline",
         "Radio discipline",
         121,
