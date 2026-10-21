@@ -344,7 +344,6 @@ linked design note.
 112. **HQ requests** — up to three targets a turn that the auto-planner left alone. No prize.
 113. **AI fills empty player flights** — an AI copy launches when nobody takes a flight's player seats.
 114. **Coordinated TOT** — a hand-planned package lands 2 to 8 min behind its SEAD; else ASAP with a warning.
-115. **Phone map** — the map on a phone over home Wi-Fi, view-only, behind its own key; an ntfy turn ping. Off by default.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
 117. **Airborne package control** — a C-130J-30 ABCCC runs player packages on STRIKE through SkyEye; nothing without it airborne. Off by default.
 118. **Vacuum ELINT** — a KC-135 (C-130J-30 backup) calls red radars by bullseye through SkyEye as they come on; SEAD-heavy turns. Off by default.
@@ -389,6 +388,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 110 | Ballistic missile call-for-fire (`bmstrike`) | Removed 2026-10-12 — ported 2026-10-10, never flown |
 | 9 | TIC — Troops In Contact (the `tic` plugin and the late-init pass) | Removed 2026-10-15 — the front fights with DCS's own ground AI |
 | 73 | Per-airframe default loadout for a task (and the user `UnitPayloads` folder) | Removed 2026-10-17 — saved fits replaced shipped presets by name in every campaign and pinned old weapons; RetLab reads only the shipped payloads |
+| 115 | Phone map (File > Phone link) and the ntfy turn ping | Removed 2026-10-21 — never flown; the map on a phone over home Wi-Fi was not wanted |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush

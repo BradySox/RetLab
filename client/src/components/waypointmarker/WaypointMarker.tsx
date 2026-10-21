@@ -1,4 +1,3 @@
-import { READ_ONLY } from "../../api/backend";
 import {
   Flight,
   Waypoint,
@@ -111,7 +110,7 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
     <Marker
       position={waypoint.position}
       icon={WAYPOINT_ICON}
-      draggable={!READ_ONLY}
+      draggable
       eventHandlers={{
         dragstart: (e) => {
           const m: LMarker = e.target;
@@ -119,9 +118,7 @@ const WaypointMarker = (props: WaypointMarkerProps) => {
         },
         contextmenu: (e) => {
           L.DomEvent.stopPropagation(e);
-          if (!READ_ONLY) {
-            openMenu();
-          }
+          openMenu();
         },
         dragend: async (e) => {
           const m: LMarker = e.target;

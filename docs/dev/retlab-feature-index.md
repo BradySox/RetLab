@@ -126,7 +126,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §112 | HQ requests | — | `hq_requests` |
 | §113 | AI fills empty player flights | `aifill` | — |
 | §114 | Coordinated TOT | — | — |
-| §115 | Phone map | — | — |
+| §115 | Phone map _(retired)_ | — | — |
 | §116 | Voice AWACS on SRS | — | `voice_awacs` |
 | §117 | Airborne package control | `pkgcontrol` | `package_controller` |
 | §118 | Vacuum ELINT | `vacuum` | `vacuum_elint` |

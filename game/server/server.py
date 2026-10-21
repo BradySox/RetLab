@@ -1,11 +1,8 @@
 import logging
-import os
-import socket
 import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 from threading import Thread
-from pathlib import Path
 from typing import Optional
 
 import uvicorn
@@ -13,7 +10,6 @@ from uvicorn import Config
 
 from game.server import EventStream
 from game.server.app import app
-from game.server.phone import PhoneAccess, PhoneGate
 from game.server.security import TokenRedactingFilter
 from game.server.settings import ServerSettings
 from game.sim import GameUpdateEvents
@@ -37,7 +33,7 @@ class Server(uvicorn.Server):
                 logger.addFilter(TokenRedactingFilter())
         super().__init__(
             Config(
-                app=PhoneGate(app, Path("client/build").resolve()),
+                app=app,
                 host=settings.server_bind_address,
                 port=settings.server_port,
                 # Configured explicitly with default_logging.yaml or logging.yaml.
@@ -45,30 +41,6 @@ class Server(uvicorn.Server):
                 timeout_graceful_shutdown=GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS,
             )
         )
-
-    def _sockets(self) -> list[socket.socket]:
-        sockets = [self.config.bind_socket()]
-        if PhoneAccess.enabled and self.config.host not in ("0.0.0.0", "::"):
-            # The phone map: the home network too, IPv4 because that is what a
-            # phone on Wi-Fi is handed.
-            phone = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if os.name != "nt":
-                # As uvicorn does: a restart must not wait out TIME_WAIT. On
-                # Windows the flag would let another program share the port.
-                phone.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            try:
-                phone.bind(("0.0.0.0", self.config.port))
-            except OSError:
-                # The map on this PC must still come up.
-                phone.close()
-                logging.exception("The phone map could not listen on the network")
-                return sockets
-            sockets.append(phone)
-            PhoneAccess.listening = True
-        return sockets
-
-    def run(self, sockets: Optional[list[socket.socket]] = None) -> None:
-        super().run(sockets=sockets if sockets is not None else self._sockets())
 
     @contextmanager
     def run_in_thread(self) -> Iterator[None]:

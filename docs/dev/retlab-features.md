@@ -11098,35 +11098,24 @@ change and at Take Off (Brady's choices, 2026-10-16). No setting. Built 2026-10-
 - A site counts only if blue knows it, overview ignored (`fog_intact`). Red reads ground truth.
 - The Take Off pass times suppression packages first, so a strike waits for its SEAD's final TOT.
 
-## §115 — Phone map
+## §115 — Phone map — REMOVED (2026-10-21)
 
-File > Phone link turns on a view-only copy of the campaign map for a phone on the same
-Wi-Fi: the server also listens on the home network and serves the map page itself, and the
-dialog shows a QR code carrying a phone key. The phone can read, never write, and never
-reaches the outside AI's routes. Off by default; turning it on takes a restart, turning it
-off holds at once. The phone gets its own layout: Map, Flights (blue flights by package)
-and Kneeboards (the last generated mission's briefing picture and kneeboard decks), and it
-can be added to the home screen. An ntfy topic set in the same dialog gets a turn ping
-when a mission's results are in: the turn, the SITREP news and the next plan's flight
-count. Built 2026-10-19. Not flown (row B254).
+**Removed 2026-10-21 (DM call), two days after it was built and before it was flown.**
+File > Phone link turned on a view-only copy of the campaign map for a phone on the same
+Wi-Fi, behind its own phone key and a QR code. The phone had its own layout (Map, Flights,
+Kneeboards), and an ntfy topic set in the same dialog got a ping when a turn's results were
+in. Built in #1313 and #1314.
 
-**Design note:** [retlab-phone-map-notes.md](design/retlab-phone-map-notes.md).
+**Why it went:** the DM did not want it. Its row (B254) was never run.
 
-### Files
-
-- `game/server/phone.py`: the gate, the phone key, the link.
-- `game/server/server.py`: the home-network socket.
-- `qt_ui/windows/PhoneLinkDialog.py`, `qt_ui/liberation_install.py`, `qt_ui/main.py`.
-- `game/retlab/mission_pages.py`, `game/server/missionpages/`: the kneeboard tab's record and routes.
-- `game/retlab/turn_ping.py`, `qt_ui/windows/QWaitingForMissionResultWindow.py`: the turn ping.
-- `client/src/components/phone/`: the phone layout.
-- `tests/server/test_phone_gate.py`, `tests/server/test_mission_pages_route.py`, `tests/retlab/test_turn_ping.py`.
-
-### Constraints
-
-- Another device may only GET, and only with the phone key; the PC's map key is refused from outside.
-- One uvicorn server and event loop for the PC and the phone; never a second server thread.
-- A turn ping is sent in the background and never fails the turn.
+**What went:** `game/server/phone.py` and the home-network socket in `game/server/server.py`,
+`qt_ui/windows/PhoneLinkDialog.py` and its File menu entry, the phone and ntfy preferences in
+`qt_ui/liberation_install.py`, `game/retlab/turn_ping.py`, `game/retlab/mission_pages.py` and
+`game/server/missionpages/` (the Kneeboards tab's record), `client/src/components/phone/` and
+the client's read-only switch, the `segno` requirement, the design note, three test files,
+row B254, and the changelog and What's New entries. The map page keeps the RetLab name and
+logo from #1314. Old preference files keep their `phone_*` and `ntfy_topic` keys; nothing
+reads them.
 
 ## §117 — Airborne package control
 

@@ -1,0 +1,8 @@
+date: 2026-10-21
+title: Phone map removed
+change: >-
+  File > Phone link is gone, along with the phone layout and the ntfy turn
+  ping. The campaign map no longer listens on your home Wi-Fi.
+watch: >-
+  The File menu goes from Preferences straight to Voice bots, and the map
+  on the PC works as before.

@@ -258,9 +258,6 @@ class QLiberationWindow(QMainWindow):
         self.importTemplatesAction = QAction("Import Layouts", self)
         self.importTemplatesAction.triggered.connect(self.import_templates)
 
-        self.openPhoneLinkAction = QAction("Phone link", self)
-        self.openPhoneLinkAction.triggered.connect(self.showPhoneLinkDialog)
-
         self.openVoiceBotsAction = QAction("Voice bots", self)
         self.openVoiceBotsAction.triggered.connect(self.showVoiceBotsDialog)
 
@@ -319,7 +316,6 @@ class QLiberationWindow(QMainWindow):
         file_menu.addAction(self.saveAsAction)
         file_menu.addSeparator()
         file_menu.addAction(self.showLiberationPrefDialogAction)
-        file_menu.addAction(self.openPhoneLinkAction)
         file_menu.addAction(self.openVoiceBotsAction)
         file_menu.addSeparator()
         file_menu.addAction("E&xit", self.close)
@@ -705,11 +701,6 @@ class QLiberationWindow(QMainWindow):
 
     def import_templates(self):
         LAYOUTS.import_templates()
-
-    def showPhoneLinkDialog(self) -> None:
-        from qt_ui.windows.PhoneLinkDialog import PhoneLinkDialog
-
-        PhoneLinkDialog(self).exec()
 
     def showVoiceBotsDialog(self) -> None:
         from qt_ui.windows.VoiceBotsDialog import VoiceBotsDialog

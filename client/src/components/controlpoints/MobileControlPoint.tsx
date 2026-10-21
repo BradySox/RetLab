@@ -1,4 +1,3 @@
-import { READ_ONLY } from "../../api/backend";
 import { ControlPoint } from "../../api/_liberationApi";
 import backend from "../../api/backend";
 import {
@@ -117,7 +116,7 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
       <Marker
         position={position}
         icon={iconForControlPoint(props.controlPoint)}
-        draggable={!isLoading && !READ_ONLY}
+        draggable={!isLoading}
         autoPan
         // We might draw other markers on top of the CP. The tooltips from the
         // other markers are helpful so we want to keep them, but make sure the CP

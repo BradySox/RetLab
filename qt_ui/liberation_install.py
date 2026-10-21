@@ -7,7 +7,6 @@ from shutil import copyfile
 import dcs
 
 from game import persistency
-from game.server.phone import new_phone_key
 
 global __dcs_saved_game_directory
 global __dcs_installation_directory
@@ -15,9 +14,6 @@ global __last_save_file
 global __prefer_liberation_payloads
 global __setup_preferences_on_every_start
 global __server_port
-global __phone_access
-global __phone_key
-global __ntfy_topic
 global __skyeye_autostart
 global __skyeye_dir
 
@@ -48,17 +44,11 @@ def init():
     global __prefer_liberation_payloads
     global __setup_preferences_on_every_start
     global __server_port
-    global __phone_access
-    global __phone_key
-    global __ntfy_topic
     global __skyeye_autostart
     global __skyeye_dir
 
     __skyeye_autostart = False
     __skyeye_dir = ""
-    __phone_access = False
-    __phone_key = ""
-    __ntfy_topic = ""
     if PREFERENCES_PATH.exists():
         try:
             logging.debug("Loading Retribution preferences from %s", PREFERENCES_PATH)
@@ -77,9 +67,6 @@ def init():
                 "setup_preferences_on_every_start", False
             )
             __server_port = pref_data.get("server_port", 16880)
-            __phone_access = bool(pref_data.get("phone_access", False))
-            __phone_key = str(pref_data.get("phone_key", ""))
-            __ntfy_topic = str(pref_data.get("ntfy_topic", ""))
             __skyeye_autostart = bool(pref_data.get("skyeye_autostart", False))
             __skyeye_dir = str(pref_data.get("skyeye_dir", ""))
             is_first_start = __setup_preferences_on_every_start
@@ -151,9 +138,6 @@ def save_config():
     global __last_save_file
     global __ignore_empty_install_directory
     global __server_port
-    global __phone_access
-    global __phone_key
-    global __ntfy_topic
     global __skyeye_autostart
     global __skyeye_dir
     pref_data = {
@@ -164,9 +148,6 @@ def save_config():
         "prefer_liberation_payloads": __prefer_liberation_payloads,
         "setup_preferences_on_every_start": __setup_preferences_on_every_start,
         "server_port": __server_port,
-        "phone_access": __phone_access,
-        "phone_key": __phone_key,
-        "ntfy_topic": __ntfy_topic,
         "skyeye_autostart": __skyeye_autostart,
         "skyeye_dir": __skyeye_dir,
     }
@@ -198,41 +179,6 @@ def setup_preferences_on_every_start():
 def server_port():
     global __server_port
     return __server_port
-
-
-def phone_access() -> bool:
-    global __phone_access
-    return __phone_access
-
-
-def phone_key() -> str:
-    """The phone map's key, made on first use and kept so a saved home-screen
-    link keeps working across launches."""
-    global __phone_key
-    if not __phone_key:
-        __phone_key = new_phone_key()
-    return __phone_key
-
-
-def set_phone_access(enabled: bool, new_key: bool = False) -> None:
-    global __phone_access
-    global __phone_key
-    __phone_access = enabled
-    if new_key:
-        __phone_key = new_phone_key()
-    save_config()
-
-
-def ntfy_topic() -> str:
-    """The ntfy topic that gets the end-of-turn ping; empty means off."""
-    global __ntfy_topic
-    return __ntfy_topic
-
-
-def set_ntfy_topic(topic: str) -> None:
-    global __ntfy_topic
-    __ntfy_topic = topic
-    save_config()
 
 
 def skyeye_autostart() -> bool:

@@ -1,4 +1,3 @@
-import { READ_ONLY } from "../../api/backend";
 import { Tgo as TgoModel } from "../../api/liberationApi";
 import backend from "../../api/backend";
 import {
@@ -137,7 +136,7 @@ function PrimaryMarker(props: PrimaryMarkerProps) {
       <Marker
         position={position}
         icon={icon}
-        draggable={!isLoading && !READ_ONLY}
+        draggable={!isLoading}
         autoPan
         zIndexOffset={raised ? 10000 : 1000}
         // Opacity (and the right-click branch below) follow the backend
