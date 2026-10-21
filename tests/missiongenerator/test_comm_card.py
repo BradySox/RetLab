@@ -91,3 +91,11 @@ def test_a_uhf_only_comm1_cannot_carry_a_vhf_flight_frequency() -> None:
     flight.aircraft_type.inter_flight_radio = uhf
     CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
     assert _channels(flight, 1)[0] == MHz(251)
+
+
+def test_running_out_of_presets_is_logged(caplog: Any) -> None:
+    flight = _Flight()
+    flight.num_radio_channels = lambda radio_id: 2  # type: ignore[method-assign]
+    with caplog.at_level("WARNING"):
+        CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    assert "out of presets" in caplog.text

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -199,12 +201,18 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         frequencies: list[RadioFrequency],
     ) -> None:
         channels = iter(range(first_channel, flight.num_radio_channels(radio_id) + 1))
-        for frequency in frequencies:
+        for index, frequency in enumerate(frequencies):
             try:
                 flight.assign_channel(radio_id, next(channels), frequency)
             except StopIteration:
-                # Any remaining channels are nice-to-haves, but not necessary
-                # for the few aircraft with a small number of channels.
+                # The rest are nice-to-haves, but say so: a dropped ATC or tanker
+                # preset is otherwise only noticed in the cockpit.
+                logging.warning(
+                    "%s: radio %d is out of presets; left off %s",
+                    flight.callsign,
+                    radio_id,
+                    ", ".join(str(f) for f in frequencies[index:]),
+                )
                 break
 
     @classmethod
