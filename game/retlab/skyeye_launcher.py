@@ -28,6 +28,10 @@ STOPPED_SERVER_SECONDS = 15
 CLIENT_START_SECONDS = 8
 SKYEYE_EXE = "skyeye.exe"
 SKYEYE_CONFIG = "config.yaml"
+#: SkyEye's output when Take off starts it, for working out a failed flight.
+SKYEYE_LOG = "skyeye-takeoff.log"
+#: A SkyEye that quits this soon after starting is reported in RetLab's log.
+EARLY_EXIT_SECONDS = 60
 SRS_SERVER_EXE = "SRS-Server.exe"
 SRS_CLIENT_EXE = "SR-ClientRadio.exe"
 DEFAULT_SRS_DIR = Path(r"C:\ProgramData\DCS-SimpleRadio-Standalone")
@@ -100,7 +104,7 @@ def _wait(condition: Callable[[], bool], seconds: float, step: float = 1.0) -> b
 
 
 def _start(
-    exe: Path, args: list[str], minimized: bool = False
+    exe: Path, args: list[str], minimized: bool = False, log: Optional[Path] = None
 ) -> subprocess.Popen[bytes]:
     kwargs: dict[str, object] = {"cwd": str(exe.parent)}
     if sys.platform == "win32":
@@ -110,7 +114,16 @@ def _start(
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
             info.wShowWindow = _SW_SHOWMINNOACTIVE
             kwargs["startupinfo"] = info
-    return subprocess.Popen([str(exe), *args], **kwargs)  # type: ignore[call-overload]
+    if log is None:
+        return subprocess.Popen([str(exe), *args], **kwargs)  # type: ignore[call-overload]
+    stamp = time.strftime("%Y-%m-%d %H:%M:%S")
+    with log.open("ab") as out:
+        out.write(f"\n==== {stamp} Take off ====\n".encode())
+        out.flush()
+        # The child gets its own copy of the handle, so ours can close.
+        return subprocess.Popen(  # type: ignore[call-overload]
+            [str(exe), *args], stdout=out, stderr=subprocess.STDOUT, **kwargs
+        )
 
 
 def autoconnect_message(port: int = SRS_PORT) -> bytes:
@@ -149,6 +162,7 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
             kill(SRS_SERVER_EXE)
             _wait(lambda: not running(SRS_SERVER_EXE), 10)
         if not running(SRS_SERVER_EXE):
+            logging.info("Voice bots: starting the SRS server")
             if not server.exists():
                 logging.warning("Voice bots: no SRS server at %s", server)
                 return
@@ -160,7 +174,14 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
         if running(SKYEYE_EXE):
             logging.info("Voice bots: SkyEye already running, left alone")
         elif skyeye.exists() and (skyeye_dir / SKYEYE_CONFIG).exists():
-            _skyeye = _start(skyeye, ["--config-file", SKYEYE_CONFIG], minimized=True)
+            log = skyeye_dir / SKYEYE_LOG
+            _skyeye = _start(
+                skyeye, ["--config-file", SKYEYE_CONFIG], minimized=True, log=log
+            )
+            logging.info(
+                "Voice bots: started SkyEye (pid %d), output in %s", _skyeye.pid, log
+            )
+            _watch_early_exit(_skyeye, log)
         else:
             logging.warning("Voice bots: no SkyEye or config.yaml in %s", skyeye_dir)
         just_started = not running(SRS_CLIENT_EXE)
@@ -170,8 +191,33 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
                 return
             _start(client, [])
         _connect_client(just_started)
+        logging.info("Voice bots: SRS client told to connect to 127.0.0.1:%d", SRS_PORT)
     except OSError:
         logging.exception("Voice bots: could not start SRS or SkyEye")
+
+
+def _tail(log: Path, lines: int = 15) -> str:
+    try:
+        text = log.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return ""
+    return "\n".join(text.splitlines()[-lines:])
+
+
+def _watch_early_exit(process: subprocess.Popen[bytes], log: Path) -> None:
+    def watch() -> None:
+        try:
+            code = process.wait(timeout=EARLY_EXIT_SECONDS)
+        except subprocess.TimeoutExpired:
+            return
+        logging.warning(
+            "Voice bots: SkyEye quit %d s after starting (exit %s). Last output:\n%s",
+            EARLY_EXIT_SECONDS,
+            code,
+            _tail(log),
+        )
+
+    threading.Thread(target=watch, daemon=True, name="skyeye-watch").start()
 
 
 def stop_skyeye() -> None:
@@ -181,6 +227,7 @@ def stop_skyeye() -> None:
     if process is None or process.poll() is not None:
         return
     try:
+        logging.info("Voice bots: stopping the SkyEye Take off started")
         process.terminate()
         process.wait(timeout=10)
     except (OSError, subprocess.TimeoutExpired):
