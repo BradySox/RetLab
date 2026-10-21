@@ -1,8 +1,10 @@
 """SkyEye voices by squadron country (§117): the AWACS and the ABCCC sound like their crews.
 
-Each name is a Piper voice folder under SkyEye's voices directory, with ``#speaker`` for one
-speaker of a multi-speaker model. L2-ARCTIC is English read by native speakers of six
-languages, the nearest Piper has to a foreign accent. SkyEye falls back to its own voice
+Each name is a voice folder under SkyEye's voices directory, with ``#speaker`` for one
+speaker of a multi-speaker model: Kokoro for American and British, Piper's L2-ARCTIC for the
+accents. L2-ARCTIC is English read by native speakers of other
+languages, the nearest Piper has to a foreign accent; RetLab uses its Arabic and Spanish
+speakers only (user call, 2026-10-20). SkyEye falls back to its own voice
 when a voice is missing. docs/dev/retlab-features.md §117.
 """
 
@@ -12,20 +14,22 @@ import random
 from typing import Optional
 
 L2 = "en_US-l2arctic-medium#"
+KOKORO = "kokoro#"
 
 #: (voice, "m" or "f") by accent.
 ACCENT_VOICES: dict[str, tuple[tuple[str, str], ...]] = {
+    # Kokoro, picked by ear for adult, military-age voices (user call, 2026-10-20).
     "american": (
-        ("en_US-ryan-medium", "m"),
-        ("en_US-joe-medium", "m"),
-        ("en_US-amy-medium", "f"),
-        ("en_US-kristin-medium", "f"),
+        (KOKORO + "am_eric", "m"),
+        (KOKORO + "am_michael", "m"),
+        (KOKORO + "af_heart", "f"),
+        (KOKORO + "af_sarah", "f"),
     ),
     "british": (
-        ("en_GB-alan-medium", "m"),
-        ("en_GB-northern_english_male-medium", "m"),
-        ("en_GB-cori-medium", "f"),
-        ("en_GB-alba-medium", "f"),
+        (KOKORO + "bm_daniel", "m"),
+        (KOKORO + "bm_lewis", "m"),
+        (KOKORO + "bf_emma", "f"),
+        (KOKORO + "bf_isabella", "f"),
     ),
     "arabic": (
         (L2 + "ABA", "m"),
@@ -33,35 +37,11 @@ ACCENT_VOICES: dict[str, tuple[tuple[str, str], ...]] = {
         (L2 + "SKA", "f"),
         (L2 + "ZHAA", "f"),
     ),
-    "mandarin": (
-        (L2 + "BWC", "m"),
-        (L2 + "TXHC", "m"),
-        (L2 + "LXC", "f"),
-        (L2 + "NCC", "f"),
-    ),
-    "hindi": (
-        (L2 + "ASI", "m"),
-        (L2 + "RRBI", "m"),
-        (L2 + "SVBI", "f"),
-        (L2 + "TNI", "f"),
-    ),
-    "korean": (
-        (L2 + "HKK", "m"),
-        (L2 + "YKWK", "m"),
-        (L2 + "HJK", "f"),
-        (L2 + "YDCK", "f"),
-    ),
     "spanish": (
         (L2 + "EBVS", "m"),
         (L2 + "ERMS", "m"),
         (L2 + "MBMPS", "f"),
         (L2 + "NJS", "f"),
-    ),
-    "vietnamese": (
-        (L2 + "HQTV", "m"),
-        (L2 + "TLV", "m"),
-        (L2 + "PNV", "f"),
-        (L2 + "THV", "f"),
     ),
 }
 
@@ -108,10 +88,6 @@ COUNTRY_ACCENTS: dict[str, str] = {
         ],
         "spanish",
     ),
-    **dict.fromkeys(["India", "Pakistan"], "hindi"),
-    **dict.fromkeys(["South Korea", "North Korea"], "korean"),
-    **dict.fromkeys(["China", "Taiwan"], "mandarin"),
-    "Vietnam": "vietnamese",
 }
 
 

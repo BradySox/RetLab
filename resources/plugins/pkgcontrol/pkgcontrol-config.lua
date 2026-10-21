@@ -368,7 +368,7 @@ end
 local function push(pkg)
     pkg.state = "pushed"
     pkg.pushedAt = timer.getTime()
-    say(pkg, string.format("Package %s, {controller}, push, push.", pkg.name))
+    say(pkg, string.format("Package %s, {controller}, push.", pkg.name))
 end
 
 local function notReady(pkg)

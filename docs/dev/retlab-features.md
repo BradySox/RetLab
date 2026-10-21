@@ -11178,10 +11178,12 @@ mission and the controller the other. Every call is also text to the package's p
 Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
 (recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
 
-**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a Piper voice
-from their own squadron's DCS country: American, British (one Scottish), or English read by
-native Arabic, Mandarin, Hindi, Korean, Spanish and Vietnamese speakers (the multi-speaker
-`en_US-l2arctic-medium` model). The two are always opposite genders. SkyEye loads the voices
+**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a voice
+from their own squadron's DCS country: American or British from Kokoro (`kokoro#am_eric`,
+four adult voices each, picked by ear; run by sherpa-onnx's TTS tool in the Kokoro folder's
+`bin`), or English read by
+native Arabic and Spanish speakers (the multi-speaker `en_US-l2arctic-medium` model). Every
+other country sounds British; the Asian accents were dropped (user call, 2026-10-20). The two are always opposite genders. SkyEye loads the voices
 from its `voices-dir` (default `voices`, one folder per voice) and falls back to its own voice
 when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, RetLab ships none.
 
@@ -11236,6 +11238,83 @@ closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
 
 - Never block Take off on SRS or SkyEye: the start runs on a daemon thread.
 - At most two connect messages: each can make a connected client reconnect.
+## §119 — Voice ATC
+
+**Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground
+and a Tower controller at every airfield a player flight takes off from or lands at. AI-only
+fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
+Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step 3.
+
+- **Frequencies:** each field gets two new UHF channels, Ground and Tower, reserved like
+  STRIKE (`allocate_atc_frequencies`). Never the field's DCS tower frequency: DCS's own ATC
+  on it keeps telling a player who taxis without its permission to hold position (user call,
+  2026-10-20).
+- **Presets and kneeboard:** a player jet's inter-flight presets carry the field's Ground and
+  Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
+  presets keeps them). The comms ladder lists "<field> GROUND" and "<field> TOWER" with
+  their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
+  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20).
+- **Squawks:** a four-digit code per player flight, digits 0 to 7, never repeated in a mission
+  (4101, 4102 ... 4177, 4201 ...). Read back, nothing else checks it.
+- **Runway:** the one the briefing picks (`RunwayData.runway_name`). Wind is read live at the
+  field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH.
+- **No taxiway names.** DCS gives scripts none; the terrain's `AirfieldsTaxiways` files are an
+  unlabeled road graph. Every field says "taxi to runway 25, hold short" (user call,
+  2026-10-20).
+
+The calls (lead calls for the flight going out; a player wingman may ask for their own landing):
+
+| Position | Pilot | ATC | Readback items |
+|---|---|---|---|
+| Ground | request engine start | cleared for engine start | none |
+| Ground | request taxi | squawk 4101, taxi to runway 25, hold short, contact Tower 262.0 | squawk, runway |
+| Tower | holding short runway 25, ready | runway 25, wind, altimeter, cleared for takeoff | runway |
+| Tower | 5 miles, full stop / request the overhead | runway 25, wind, cleared to land (busy: enter the pattern at 3,000) | runway |
+| Tower | (lands) | clear the runway, taxi to parking | none |
+| either | Mayday, emergency fuel | cleared to land any runway | none |
+
+"Say again" repeats the last call; "radio check" answers 5 by 5. A call to the wrong position
+gets "contact Ground/Tower <freq>". An unknown callsign gets "say again your callsign".
+
+**Readbacks.** With **Strict readbacks** on (default) a readback missing an item gets
+"<callsign>, readback incomplete, squawk 4101." Off, the callsign alone counts. ATC stays
+silent on a good readback, as real controllers do.
+
+**Rule busts** get one scolding call each and never block: rolling faster than about 6 kt
+before a taxi clearance ("not cleared for taxi"), a takeoff without clearance, a landing
+without clearance.
+
+**F10 menu.** "ATC" per player group makes the same requests (user call, 2026-10-20). A menu
+readback is always complete. Without LuaSocket the menu is the only way in and the replies
+are text only.
+
+**Voice.** SkyEye hears the calls and speaks the replies over the §117 mission link: an `atc`
+message lists each field's positions and frequencies; SkyEye parses every call heard on one
+as an ATC call and sends an `atcRequest` (kind, callsign, numbers heard, text); the plugin
+answers with `say` messages carrying separate `speech` ("squawk four one zero one") so Piper
+does not read numbers as amounts. Ground and Tower each get their own voice from the blue
+faction's accent, never one the AWACS, ABCCC or Vacuum uses. Every reply is also text to the
+flight.
+
+Built 2026-10-20. Not flown (row B261).
+
+### Files
+
+- `game/retlab/voice_atc.py`: frequencies, squawks, the plan, `dcsRetribution.voiceAtc`.
+- `resources/plugins/voiceatc/`: the state machine, the readback check, the F10 menu.
+- `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
+- `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,
+  `tests/missiongenerator/test_voice_kneeboard_pages.py`.
+
+### Constraints
+
+- Needs the SkyEye copy with the `atc` message (`BradySox/skyeye` branch `retlab/voice-atc`).
+  SkyEye replies to each mission script by what it announced, so `pkgcontrol` and
+  `voiceatc` share the link.
+- SkyEye finds the field by frequency, not by the spoken name, so a misheard field name
+  still works.
+- Callsigns are a name and two digits; a third digit spoken right after ("Viper 1-1, 5
+  miles") is not read into the callsign.
 
 ## §118 — Vacuum ELINT
 

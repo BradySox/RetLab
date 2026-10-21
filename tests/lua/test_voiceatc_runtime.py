@@ -1,0 +1,368 @@
+"""Headless runtime checks for the voiceatc plugin (voiceatc-config.lua, §119).
+
+The contract: SkyEye passes each call heard on a field's Ground or Tower frequency;
+the plugin answers on that frequency in that position's voice, as text to the flight
+too. Engine start, taxi with the squawk, takeoff, landing; a strict readback missing
+an item gets "readback incomplete"; a rule bust gets one scolding call. How SkyEye
+hears and says it is in-game only (B261).
+"""
+
+from __future__ import annotations
+
+import json
+from typing import Any
+
+from tests.lua.harness import DcsPluginHarness
+
+PLUGIN = "resources/plugins/voiceatc/voiceatc-config.lua"
+BLUE = 2
+NM = 1852
+GROUND = "260.000AM"
+TOWER = "262.000AM"
+
+FAKE_AIRBASE = """
+Airbase = Airbase or {}
+Airbase.getByName = function(name)
+    return { getPoint = function() return { x = 0, y = 10, z = 0 } end }
+end
+"""
+
+# A LuaSocket stand-in: sendto() is recorded, receivefrom() pops INBOX.
+FAKE_SOCKET = """
+SENT = {}
+INBOX = {}
+package.preload["socket"] = function()
+    return {
+        udp = function()
+            return {
+                settimeout = function() end,
+                setsockname = function() end,
+                sendto = function(self, msg, host, port)
+                    table.insert(SENT, { msg = msg, host = host, port = port })
+                end,
+                receivefrom = function(self)
+                    return table.remove(INBOX, 1)
+                end,
+            }
+        end,
+    }
+end
+"""
+
+
+def _config(strict: bool = True) -> dict[str, Any]:
+    return {
+        "voiceAtc": {
+            "linkHost": "127.0.0.1",
+            "linkPort": "42690",
+            "strict": "true" if strict else "",
+            "fields": [
+                {
+                    "name": "Kobuleti",
+                    "airbase": "Kobuleti",
+                    "runway": "25",
+                    "altimeter": "29.92",
+                    "ground": GROUND,
+                    "tower": TOWER,
+                    "groundVoice": "en_US-ryan-medium",
+                    "towerVoice": "en_US-amy-medium",
+                }
+            ],
+            "flights": [
+                {
+                    "group": "Viper",
+                    "callsign": "Viper 1-1",
+                    "squawk": "4101",
+                    "departure": "Kobuleti",
+                    "arrival": "Kobuleti",
+                }
+            ],
+        }
+    }
+
+
+def _viper(airborne: bool = False, x: float = 0, ships: int = 1) -> dict[str, Any]:
+    return {
+        "name": "Viper",
+        "id": 77,
+        "side": BLUE,
+        "category": 0,
+        "units": [
+            {
+                "name": f"Viper #{i}",
+                "type": "F-16C_50",
+                "x": x,
+                "z": 0,
+                "airborne": airborne,
+                "playerName": f"Flash{i}",
+            }
+            for i in range(1, ships + 1)
+        ],
+    }
+
+
+def _harness(
+    strict: bool = True,
+    airborne: bool = False,
+    x: float = 0,
+    ships: int = 1,
+    link: bool = True,
+) -> DcsPluginHarness:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    if link:
+        h.lua.execute(FAKE_SOCKET)
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **_config(strict)})
+    h.add_group(_viper(airborne, x, ships))
+    h.load_plugin_script(PLUGIN)
+    return h
+
+
+def _sent(h: DcsPluginHarness) -> list[dict[str, Any]]:
+    sent = h.to_python(h.lua.globals().SENT)
+    return [json.loads(s["msg"]) for s in sent] if isinstance(sent, list) else []
+
+
+def _said(h: DcsPluginHarness) -> list[dict[str, Any]]:
+    return [m for m in _sent(h) if m["type"] == "say"]
+
+
+def _texts(h: DcsPluginHarness) -> list[str]:
+    return [m["text"] for m in _said(h)]
+
+
+def _call(
+    h: DcsPluginHarness,
+    kind: str,
+    frequency: str = GROUND,
+    callsign: str = "viper 1 1",
+    numbers: str = "",
+    text: str = "",
+    detail: str = "",
+) -> None:
+    message = json.dumps(
+        {
+            "type": "atcRequest",
+            "kind": kind,
+            "callsign": callsign,
+            "numbers": numbers,
+            "text": text,
+            "detail": detail,
+            "frequency": frequency,
+        }
+    )
+    h.lua.execute(f"table.insert(INBOX, {json.dumps(message)})")
+
+
+def _event(h: DcsPluginHarness, event_id: int, ship: int = 1) -> None:
+    h.lua.execute(
+        "DcsHarness.fireEvent({ id = %d, initiator = Group.getByName('Viper'):getUnit(%d) })"
+        % (event_id, ship)
+    )
+
+
+def test_no_node_is_a_clean_noop() -> None:
+    h = DcsPluginHarness()
+    h.set_retribution_config()
+    h.load_plugin_script(PLUGIN)
+    h.advance_to(100)
+    h.assert_no_lua_errors()
+
+
+def test_skyeye_is_told_the_field_frequencies() -> None:
+    h = _harness()
+    h.advance_to(2)
+    atc = [m for m in _sent(h) if m["type"] == "atc"][0]
+    assert atc["fields"] == [
+        {
+            "name": "Kobuleti",
+            "positions": [
+                {"position": "ground", "frequency": GROUND},
+                {"position": "tower", "frequency": TOWER},
+            ],
+        }
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_sortie_from_engine_start_to_parking() -> None:
+    h = _harness()
+    _call(h, "startup")
+    _call(h, "taxi")
+    _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
+    _call(h, "ready", TOWER)
+    _call(h, "readback", TOWER, numbers="25")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, cleared for engine start.",
+        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
+    ]
+    said = _said(h)
+    assert [m["frequency"] for m in said] == [GROUND, GROUND, TOWER]
+    assert [m["voice"] for m in said] == [
+        "en_US-ryan-medium",
+        "en_US-ryan-medium",
+        "en_US-amy-medium",
+    ]
+    assert said[1]["speech"] == (
+        "Viper one one, squawk four one zero one, taxi to runway two five, "
+        "hold short, contact Tower two six two decimal zero."
+    )
+
+    _event(h, 3)
+    h.update_unit("Viper", {"airborne": True, "x": 4 * NM})
+    _call(h, "inbound", TOWER, numbers="5")
+    _call(h, "readback", TOWER, numbers="25")
+    h.advance_to(4)
+    assert _texts(h)[3:] == ["Viper 1-1, runway 25, cleared to land."]
+    h.update_unit("Viper", {"airborne": False, "x": 0})
+    _event(h, 4)
+    h.advance_to(6)
+    assert _texts(h)[4:] == ["Viper 1-1, clear the runway, taxi to parking."]
+    h.assert_no_lua_errors()
+
+
+def test_a_strict_readback_missing_an_item_is_incomplete() -> None:
+    h = _harness()
+    _call(h, "taxi")
+    _call(h, "readback", numbers="25")
+    _call(h, "readback", numbers="4101 25")
+    h.advance_to(2)
+    assert _texts(h)[1:] == ["Viper 1-1, readback incomplete, squawk 4101."]
+    assert _said(h)[1]["speech"] == (
+        "Viper one one, readback incomplete, squawk four one zero one."
+    )
+    h.assert_no_lua_errors()
+
+
+def test_with_strict_off_the_callsign_is_a_readback() -> None:
+    h = _harness(strict=False)
+    _call(h, "taxi")
+    _call(h, "readback")
+    h.advance_to(2)
+    assert len(_texts(h)) == 1
+    h.assert_no_lua_errors()
+
+
+def test_a_call_to_the_wrong_position_is_sent_to_the_right_one() -> None:
+    h = _harness()
+    _call(h, "taxi", TOWER)
+    _call(h, "ready", GROUND)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, contact Ground 260.0.",
+        "Viper 1-1, contact Tower 262.0.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_rule_busts_get_one_scolding_call_each() -> None:
+    h = _harness()
+    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+    h.advance_to(10)
+    _event(h, 3)
+    _event(h, 3)
+    h.update_unit("Viper", {"airborne": False, "velocity": {"x": 0, "y": 0, "z": 0}})
+    _event(h, 4)
+    h.advance_to(12)
+    assert _texts(h) == [
+        "Viper 1-1, not cleared for taxi.",
+        "Viper 1-1, you were not cleared for takeoff.",
+        "Viper 1-1, you landed without clearance.",
+        "Viper 1-1, clear the runway, taxi to parking.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_tower_asks_for_a_call_at_5_miles_when_far_out() -> None:
+    h = _harness(airborne=True, x=40 * NM)
+    _call(h, "inbound", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, report 5 miles."]
+    h.assert_no_lua_errors()
+
+
+def test_a_wingman_gets_their_own_landing_clearance() -> None:
+    h = _harness(airborne=True, x=4 * NM, ships=2)
+    _call(h, "inbound", TOWER, detail="overhead")
+    _call(h, "inbound", TOWER, callsign="viper 1 2")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, overhead approved, runway 25, cleared to land.",
+        "Viper 1-2, runway 25, cleared to land.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_the_flight_callsign_alone_is_the_lead() -> None:
+    h = _harness()
+    _call(h, "startup", callsign="viper 1")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, cleared for engine start."]
+    h.assert_no_lua_errors()
+
+
+def test_an_unknown_callsign_is_asked_again() -> None:
+    h = _harness()
+    _call(h, "taxi", callsign="cobra 2 1")
+    h.advance_to(2)
+    assert _texts(h) == ["Station calling Kobuleti Ground, say again your callsign."]
+    h.assert_no_lua_errors()
+
+
+def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
+    h = _harness()
+    _call(h, "startup")
+    _call(h, "sayagain")
+    _call(h, "radiocheck", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, cleared for engine start.",
+        "Viper 1-1, cleared for engine start.",
+        "Viper 1-1, Kobuleti Tower, read you 5 by 5.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_mayday_is_cleared_to_land_any_runway() -> None:
+    h = _harness(airborne=True, x=20 * NM)
+    _call(h, "emergency", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, cleared to land any runway."]
+    h.assert_no_lua_errors()
+
+
+def _menu(h: DcsPluginHarness, label: str) -> None:
+    menus = h.lua.globals().DcsHarness.records.menus
+    for i in range(1, len(menus) + 1):
+        if menus[i].path == label:
+            menus[i].fn(menus[i].arg)
+            return
+    raise AssertionError(f"no menu {label}")
+
+
+def test_the_f10_menu_makes_the_same_requests() -> None:
+    h = _harness()
+    paths = [m["path"] for m in h.records("menus")]
+    assert paths[0] == "ATC"
+    assert "Ground: request taxi" in paths and "Mayday" in paths
+    _menu(h, "Ground: request taxi")
+    _menu(h, "Read back")
+    _menu(h, "Tower: holding short, ready")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_without_luasocket_the_menu_answers_in_text() -> None:
+    h = _harness(link=False)
+    _menu(h, "Ground: request engine start")
+    h.advance_to(10)
+    assert [t["text"] for t in h.records("texts")] == [
+        "Kobuleti Ground: Viper 1-1, cleared for engine start."
+    ]
+    h.assert_no_lua_errors()

@@ -1,0 +1,1 @@
+* **[Mission Generation]** SkyEye voices: American and British bots speak with Kokoro voices (Eric, Michael, Heart, Sarah; Daniel, Lewis, Emma, Isabella), which sound far more natural than the Piper ones. Needs RetLab's SkyEye build 5 and the Kokoro model in SkyEye's voices folder.

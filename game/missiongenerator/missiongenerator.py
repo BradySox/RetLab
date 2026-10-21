@@ -32,6 +32,7 @@ from game.retlab.package_control import (
     strike_comm_name,
 )
 from game.retlab.vacuum import has_vacuum, vacuum_comm_name
+from game.retlab.voice_atc import allocate_atc_frequencies, voice_atc_plan
 from game.retlab.voiceawacs import voice_awacs_for
 from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
@@ -276,6 +277,7 @@ class MissionGenerator:
             self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
         if has_vacuum(self.game.blue.ato):
             self.mission_data.vacuum_frequency = self.radio_registry.alloc_uhf()
+        allocate_atc_frequencies(self.game, self.radio_registry, self.mission_data)
 
     def initialize_tacan_registry(
         self, unique_map_frequencies: set[RadioFrequency]
@@ -504,6 +506,9 @@ class MissionGenerator:
                 )
             if mission_data.vacuum_frequency is not None:
                 gen.add_comm(vacuum_comm_name(), mission_data.vacuum_frequency)
+            for field_name, (ground, tower) in mission_data.atc_frequencies.items():
+                gen.add_comm(f"{field_name} GROUND", ground)
+                gen.add_comm(f"{field_name} TOWER", tower)
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 
@@ -512,6 +517,7 @@ class MissionGenerator:
                     gen.add_tanker(tanker)
 
             gen.voice_awacs = voice_awacs
+            gen.voice_atc = voice_atc_plan(self.game, mission_data)
             for aewc in mission_data.awacs:
                 if aewc.blue.is_blue:
                     if voice_awacs is not None:

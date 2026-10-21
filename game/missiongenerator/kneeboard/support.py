@@ -108,8 +108,11 @@ class SupportPage(KneeboardPage):
         airfield_rows: Optional[List[List[str]]] = None,
         zulu_tz: Optional[datetime.tzinfo] = None,
         voice_awacs: Optional[VoiceAwacsInfo] = None,
+        squawk: Optional[str] = None,
     ) -> None:
         self.flight = flight
+        #: The flight's Voice ATC squawk (§119), on the FREQ / TOT line.
+        self.squawk = squawk
         self.package_flights = package_flights
         self.comms = list(comms)
         self.awacs = awacs
@@ -179,6 +182,8 @@ class SupportPage(KneeboardPage):
         custom = f' "{package.custom_name}"' if package.custom_name else ""
         freq = self.format_frequency(package.frequency).replace("\n", " - ")
         tot = self._format_time(package.time_over_target)
+        if self.squawk:
+            tot = f"{tot}    SQUAWK: {self.squawk}"
         one_line = f"  FREQ: {freq}    TOT: {tot}"
         content_px = writer.image_size[0] - 2 * writer.page_margin
         if writer.table_font.getlength(one_line) <= content_px:

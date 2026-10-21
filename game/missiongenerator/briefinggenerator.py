@@ -32,6 +32,7 @@ from .missiondata import AtisInfo, AwacsInfo, JtacInfo, TankerInfo
 
 if TYPE_CHECKING:
     from game import Game
+    from game.retlab.voice_atc import VoiceAtcPlan
 
 
 @dataclass
@@ -80,6 +81,8 @@ class MissionInfoGenerator:
         self.voice_awacs: Optional[VoiceAwacsInfo] = None
         #: The ABCCC's spoken callsign and STRIKE (common), when one flies (§117).
         self.abccc: Optional[tuple[str, RadioFrequency]] = None
+        #: Voice ATC's fields and squawks, when the setting is on (§119).
+        self.voice_atc: Optional[VoiceAtcPlan] = None
         self.comms: List[CommInfo] = []
         self.flights: List[FlightData] = []
         self.player_flights: List[FlightData] = []

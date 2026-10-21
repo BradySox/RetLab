@@ -482,6 +482,33 @@ class MissionGeneratorSettings:
             "route or target. SkyEye, running with its mission link, speaks the calls."
         ),
     )
+    voice_atc: bool = boolean_option(
+        "Voice ATC (SkyEye)",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            "Ground and Tower for player flights at every airfield a player flight "
+            "takes off from or lands at: engine start, taxi with a squawk code, "
+            "takeoff with the wind and altimeter, and landing. Each field gets its "
+            "own Ground and Tower frequencies, apart from DCS's tower frequency. The "
+            "kneeboard lists both and your squawk. Busting a rule gets a radio call "
+            "and nothing more. AI flights keep DCS's own ATC. SkyEye, running with "
+            "its mission link, hears the calls and speaks the replies."
+        ),
+    )
+    voice_atc_strict: bool = boolean_option(
+        "Strict readbacks",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=True,
+        enabled_when="voice_atc",
+        detail=(
+            "Voice ATC checks each readback for the runway and the squawk and "
+            'answers "readback incomplete" when one is missing. '
+            "Unticked, your callsign alone counts as a readback."
+        ),
+    )
     use_ai_combat_landing: bool = boolean_option(
         "Use AI combat landing waypoint task",
         page=MISSION_GENERATOR_PAGE,
