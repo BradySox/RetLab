@@ -16,6 +16,7 @@ from game.retlab.mission_pages import GENERATED_KNEEBOARDS_DIR, Deck, record_kne
 from game.settings.settings import TargetIntelPrecision
 from game.sitrep import Sitrep, sitrep_for_kneeboard
 from game.theater import TheaterGroundObject
+from game.radio.radios import RadioFrequency
 from ..aircraft.flightdata import FlightData
 from ..csarbeacon import sar_beacon_brief
 from ..briefinggenerator import MissionInfoGenerator
@@ -32,6 +33,7 @@ if TYPE_CHECKING:
     from game import Game
     from game.customkneeboard import CustomKneeboard
 from .briefing import BriefingPage, _brief_loadout
+from .commcard import CommCardPage
 from .support import (
     FriendlyPackagesPage,
     SupportPage,
@@ -56,6 +58,41 @@ from .writer import (
 
 
 class KneeboardGenerator(MissionInfoGenerator):
+    def _preset_labels(
+        self, flight: FlightData, package_flights: List[FlightData]
+    ) -> dict[RadioFrequency, str]:
+        """A name for every frequency the comm card may show; the first name wins."""
+        labels: dict[RadioFrequency, str] = {}
+
+        def add(freq: Optional[RadioFrequency], name: str) -> None:
+            if freq is not None and freq not in labels:
+                labels[freq] = name
+
+        add(flight.intra_flight_channel, str(flight.callsign))
+        if self.abccc is not None:
+            add(self.abccc[1], f"STRIKE ({self.abccc[0]})")
+        add(flight.package.frequency, "Package")
+        if self.voice_awacs is not None:
+            add(self.voice_awacs.freq, self.voice_awacs.callsign)
+        for comm in self.comms:
+            add(comm.freq, comm.name)
+        for awacs in self.awacs:
+            add(awacs.freq, str(awacs.callsign))
+        for tanker in self.tankers:
+            add(tanker.freq, str(tanker.callsign))
+        for jtac in self.jtacs:
+            add(jtac.freq, f"JTAC {jtac.callsign}")
+        if self.voice_atc is not None:
+            for atc_field in self.voice_atc.fields.values():
+                add(atc_field.ground, f"{atc_field.name} Ground")
+                add(atc_field.tower, f"{atc_field.name} Tower")
+        for runway in (flight.departure, flight.arrival, flight.divert):
+            if runway is not None:
+                add(runway.atc, f"{runway.airfield_name} Tower")
+        for other in package_flights:
+            add(other.intra_flight_channel, str(other.callsign))
+        return labels
+
     """Creates kneeboard pages for each client flight in the mission."""
 
     #: Tasks shown with a patrol window (start - end) instead of a single TOT.
@@ -279,6 +316,14 @@ class KneeboardGenerator(MissionInfoGenerator):
                 squawk=atc.squawk if atc else None,
             ),
         ]
+        # The comm card, every preset by name, right after the comms page.
+        pages.append(
+            CommCardPage(
+                flight,
+                self._preset_labels(flight, package_flights),
+                self.dark_kneeboard,
+            )
+        )
         # The voice controller cheat sheets sit right after the comms (§116, §117).
         callsign = str(flight.callsign)
         if self.abccc is not None:

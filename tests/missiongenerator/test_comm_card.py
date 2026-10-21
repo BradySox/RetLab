@@ -1,0 +1,83 @@
+"""The comm card (2026-10-21): presets split like a squadron card, every one named."""
+
+from __future__ import annotations
+
+from pathlib import Path
+from types import SimpleNamespace
+from typing import Any
+
+from game.missiongenerator.aircraft.flightdata import ChannelAssignment
+from game.missiongenerator.kneeboard.commcard import CommCardPage, preset_rows
+from game.missiongenerator.missiondata import MissionData
+from game.radio.channels import CommonRadioChannelAllocator
+from game.radio.radios import MHz
+
+
+class _Flight:
+    def __init__(self, radio: Any = None) -> None:
+        self.callsign = "Colt 1"
+        self.intra_flight_channel = MHz(140)
+        self.frequency_to_channel_map: dict[Any, list[ChannelAssignment]] = {}
+        self.departure = SimpleNamespace(airfield_name="Kobuleti", atc=MHz(262))
+        self.arrival = self.departure
+        self.divert = None
+        self.package = SimpleNamespace(frequency=MHz(264))
+        self.friendly = SimpleNamespace(is_blue=True)
+        self.client_units = [object()]
+        self.squadron = SimpleNamespace(radio_presets={})
+        self.aircraft_type = SimpleNamespace(
+            intra_flight_radio=radio, can_refuel_from=lambda _: True
+        )
+
+    def assign_channel(self, radio_id: int, channel: int, freq: Any) -> None:
+        self.frequency_to_channel_map.setdefault(freq, []).append(
+            ChannelAssignment(radio_id, channel)
+        )
+
+    def num_radio_channels(self, radio_id: int) -> int:
+        return 20
+
+
+def _channels(flight: _Flight, radio: int) -> list[Any]:
+    return [
+        f
+        for f, a in sorted(
+            ((f, a) for f, v in flight.frequency_to_channel_map.items() for a in v),
+            key=lambda fa: fa[1].channel,
+        )
+        if a.radio_id == radio
+    ]
+
+
+def _data() -> MissionData:
+    data = MissionData()
+    data.skyeye_frequency = MHz(251)
+    data.vacuum_frequency = MHz(270)
+    data.atc_frequencies = {"Kobuleti": (MHz(255), MHz(256))}
+    return data
+
+
+def test_support_on_comm1_flight_and_atc_on_comm2() -> None:
+    flight = _Flight()
+    CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    assert _channels(flight, 1) == [MHz(251), MHz(270), MHz(264)]
+    assert _channels(flight, 2) == [MHz(140), MHz(255), MHz(256)]
+
+
+def test_a_vhf_comm2_keeps_uhf_towers_on_comm1() -> None:
+    vhf = SimpleNamespace(ranges=[SimpleNamespace(minimum=MHz(116), maximum=MHz(156))])
+    flight = _Flight(vhf)
+    CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    assert _channels(flight, 2) == [MHz(140)]
+    assert _channels(flight, 1)[-2:] == [MHz(255), MHz(256)]
+
+
+def test_the_card_names_every_preset(tmp_path: Path) -> None:
+    flight = _Flight()
+    CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    labels = {MHz(251): "Chainsaw", MHz(255): "Kobuleti Ground", MHz(140): "Colt 1"}
+    rows = preset_rows(flight, labels)  # type: ignore[arg-type]
+    assert rows[0] == ["Chainsaw\n251.000 MHz AM", "1", "Colt 1\n140.000 MHz AM"]
+    assert rows[1][2] == "Kobuleti Ground\n255.000 MHz AM"
+    CommCardPage(flight, labels, False).write(tmp_path / "card.png")  # type: ignore[arg-type]
+    assert (tmp_path / "card.png").exists()
