@@ -15,6 +15,7 @@ from dcs.terrain import Airport
 from dcs.unit import Static
 from dcs.unitgroup import Group
 
+from game.ato.flighttype import FlightType
 from game.atcdata import AtcData
 from game.dcs.beacons import Beacons
 from game.dcs.helpers import unit_type_from_name
@@ -271,10 +272,20 @@ class MissionGenerator:
             voice_awacs := voice_awacs_for(self.game.settings, self.game.turn)
         ) is not None:
             unique_map_frequencies.add(voice_awacs.freq)
+            self.mission_data.skyeye_frequency = voice_awacs.freq
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
         if has_package_control(self.game.blue.ato):
-            self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
+            strike = self.radio_registry.alloc_uhf()
+            self.mission_data.strike_frequency = strike
+            # STRIKE is each player package's own frequency, so it is already the
+            # package preset and the kneeboard's FREQ line (user call, 2026-10-21).
+            for package in self.game.blue.ato.packages:
+                flights = package.flights
+                if any(f.client_count for f in flights) and not any(
+                    f.flight_type is FlightType.ABCCC for f in flights
+                ):
+                    package.frequency = strike
         if has_vacuum(self.game.blue.ato):
             self.mission_data.vacuum_frequency = self.radio_registry.alloc_uhf()
         allocate_atc_frequencies(self.game, self.radio_registry, self.mission_data)

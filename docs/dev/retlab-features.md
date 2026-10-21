@@ -11164,6 +11164,12 @@ point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces
 route with a landing at home. Parked AI is left alone (a pushed task would replace its
 takeoff).
 
+**Presets (2026-10-21).** STRIKE is each player package's own frequency, so it is the
+package preset and the kneeboard's FREQ line; nobody dials it by hand. With Voice AWACS on,
+SkyEye's frequency and Vacuum's take the presets the silent blue AI AWACS had
+(`awacs_presets` in `game/radio/channels.py`); the AI AWACS stay on the kneeboard with no
+preset.
+
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
 
