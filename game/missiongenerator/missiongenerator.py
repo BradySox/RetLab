@@ -276,6 +276,8 @@ class MissionGenerator:
             self.mission_data.skyeye_frequency = voice_awacs.freq
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
+        # Pinned Voice ATC pairs before anything else this turn allocates (§119).
+        allocate_atc_frequencies(self.game, self.radio_registry, self.mission_data)
         if has_package_control(self.game.blue.ato):
             strike = self.radio_registry.alloc_uhf()
             self.mission_data.strike_frequency = strike
@@ -289,7 +291,6 @@ class MissionGenerator:
                     package.frequency = strike
         if has_vacuum(self.game.blue.ato):
             self.mission_data.vacuum_frequency = self.radio_registry.alloc_uhf()
-        allocate_atc_frequencies(self.game, self.radio_registry, self.mission_data)
 
     def initialize_tacan_registry(
         self, unique_map_frequencies: set[RadioFrequency]

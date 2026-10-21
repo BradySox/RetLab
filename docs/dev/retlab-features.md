@@ -11287,6 +11287,11 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
 - **Frequencies:** each field gets two new VHF AM channels (118-136 MHz), Ground and Tower,
   reserved like STRIKE (`allocate_atc_frequencies`, `RadioRegistry.alloc_vhf`). VHF so a jet
   whose second radio is VHF only, such as the F-16, can preset them (user call, 2026-10-21).
+  A field's pair is **pinned for the campaign** the first time a player flight uses it
+  (`Game.voice_atc_frequencies`, saved; user call, 2026-10-21), so pilots can learn it. Every
+  pinned pair is reserved before anything else that turn, and a hand-set package or flight
+  frequency that lands on one moves (`RadioRegistry.atc_pinned`), never the ATC pair. Old
+  saves pin on their next generate.
   Never the field's DCS tower frequency: DCS's own ATC on it keeps telling a player who taxis
   without its permission to hold position (user call, 2026-10-20).
 - **Presets and kneeboard:** a player jet's inter-flight presets carry the field's Ground and

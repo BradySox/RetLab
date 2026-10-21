@@ -189,3 +189,71 @@ def test_atc_lines_name_the_preset_channels() -> None:
     )
     field = AtcField("Kobuleti", "25", MHz(126, 500), MHz(124, 300))
     assert atc_lines(flight, field) == ("GND 124.300 (COMM2 Ch 2)\nTWR 126.500")
+
+
+def _pin_game(*names: str) -> Any:
+    from game.theater.controlpoint import Airfield
+
+    fields = []
+    for name in names:
+        field: Any = Airfield.__new__(Airfield)
+        field.airport = SimpleNamespace(name=name)
+        fields.append(field)
+    flights = [
+        SimpleNamespace(client_count=1, departure=f, arrival=f, divert=None)
+        for f in fields
+    ]
+    return SimpleNamespace(
+        settings=SimpleNamespace(voice_atc=True),
+        blue=SimpleNamespace(
+            ato=SimpleNamespace(packages=[SimpleNamespace(flights=flights)])
+        ),
+        voice_atc_frequencies={},
+    )
+
+
+def test_a_field_keeps_its_ground_and_tower_every_turn() -> None:
+    import pickle
+
+    from game.radio.radios import RadioRegistry
+    from game.retlab.voice_atc import allocate_atc_frequencies
+
+    game = _pin_game("Hatzerim", "Akrotiri")
+    first = MissionData()
+    allocate_atc_frequencies(game, RadioRegistry(), first)
+    # Next turn: a fresh registry, and the pairs survive a save and load.
+    game.voice_atc_frequencies = pickle.loads(pickle.dumps(game.voice_atc_frequencies))
+    second = MissionData()
+    allocate_atc_frequencies(game, RadioRegistry(), second)
+    assert second.atc_frequencies == first.atc_frequencies
+    used = [f for pair in second.atc_frequencies.values() for f in pair]
+    assert len(set(used)) == 4
+
+
+def test_a_new_field_never_takes_a_pinned_frequency() -> None:
+    from game.radio.radios import RadioRegistry
+    from game.retlab.voice_atc import allocate_atc_frequencies
+
+    game = _pin_game("Hatzerim")
+    allocate_atc_frequencies(game, RadioRegistry(), MissionData())
+    hatzerim = game.voice_atc_frequencies["Hatzerim"]
+    # A later turn flies only from Akrotiri: Hatzerim's pair stays reserved.
+    later = _pin_game("Akrotiri")
+    later.voice_atc_frequencies = game.voice_atc_frequencies
+    registry = RadioRegistry()
+    allocate_atc_frequencies(later, registry, MissionData())
+    assert set(later.voice_atc_frequencies["Akrotiri"]).isdisjoint(hatzerim)
+    assert set(hatzerim) <= registry.allocated_channels
+    assert set(hatzerim) <= registry.atc_pinned
+
+
+def test_old_saves_get_an_empty_pin_table() -> None:
+    from game.game import Game
+
+    game: Any = Game.__new__(Game)
+    state = {"settings": SimpleNamespace(), "hq_requests": object()}
+    try:
+        game.__setstate__(state)
+    except Exception:
+        pass
+    assert state["voice_atc_frequencies"] == {}

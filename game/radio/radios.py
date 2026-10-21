@@ -476,6 +476,9 @@ class RadioRegistry:
 
     def __init__(self) -> None:
         self.allocated_channels: Set[RadioFrequency] = set()
+        #: Voice ATC's pinned Ground and Tower (§119): a preset package or flight
+        #: frequency that lands on one moves, never the ATC pair.
+        self.atc_pinned: Set[RadioFrequency] = set()
         self.radio_allocators: Dict[Radio, Iterator[RadioFrequency]] = {}
 
         radios = itertools.chain(RADIOS, [self.BLUFOR_UHF, self.BLUFOR_VHF, self.LINK4])
