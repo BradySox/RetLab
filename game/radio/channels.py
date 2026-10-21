@@ -27,6 +27,20 @@ def tunable_atc(
     return None
 
 
+def awacs_presets(
+    flight: FlightData, mission_data: MissionData
+) -> list[RadioFrequency]:
+    """The AWACS frequencies worth a preset. With SkyEye on, the blue AI AWACS are
+    silent (§116), so a blue flight gets SkyEye, then Vacuum (§118) in their place."""
+    if mission_data.skyeye_frequency is None or not flight.friendly.is_blue:
+        return [awacs.freq for awacs in mission_data.awacs]
+    frequencies = [mission_data.skyeye_frequency]
+    if mission_data.vacuum_frequency is not None:
+        frequencies.append(mission_data.vacuum_frequency)
+    frequencies.extend(a.freq for a in mission_data.awacs if not a.blue.is_blue)
+    return frequencies
+
+
 class RadioChannelAllocator:
     """Base class for radio channel allocators."""
 
@@ -99,7 +113,7 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         elif flight.departure.atc is not None:
             frequencies.append(flight.departure.atc)
         # TODO: If there ever are multiple AWACS, limit to mission relevant.
-        frequencies.extend(awacs.freq for awacs in mission_data.awacs)
+        frequencies.extend(awacs_presets(flight, mission_data))
         frequencies.extend(jtac.freq for jtac in mission_data.jtacs)
         if (freq := flight.package.frequency) is not None:
             frequencies.append(freq)
@@ -219,8 +233,8 @@ class ViggenRadioChannelAllocator(RadioChannelAllocator):
             radio_id, next(channel_alloc), flight.intra_flight_channel
         )
 
-        for awacs in mission_data.awacs:
-            flight.assign_channel(radio_id, next(channel_alloc), awacs.freq)
+        for awacs_freq in awacs_presets(flight, mission_data):
+            flight.assign_channel(radio_id, next(channel_alloc), awacs_freq)
 
         for jtac in mission_data.jtacs:
             flight.assign_channel(radio_id, next(channel_alloc), jtac.freq)

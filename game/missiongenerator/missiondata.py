@@ -160,6 +160,9 @@ class MissionData:
     #: STRIKE (common): the one frequency the ABCCC C-130 runs every player
     #: package on, and the AWACS joins (§117). None with no controller fragged.
     strike_frequency: Optional[RadioFrequency] = None
+    #: SkyEye's AWACS frequency when Voice AWACS is on (§116). The blue AI AWACS are
+    #: then silent, so this takes their preset.
+    skyeye_frequency: Optional[RadioFrequency] = None
     #: Vacuum's own frequency, where it calls every red radar (§118). None with
     #: no Vacuum fragged.
     vacuum_frequency: Optional[RadioFrequency] = None
