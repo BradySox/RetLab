@@ -77,7 +77,7 @@ def test_the_card_names_every_preset(tmp_path: Path) -> None:
     CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
     labels = {MHz(251): "Chainsaw", MHz(255): "Kobuleti Ground", MHz(140): "Colt 1"}
     rows = preset_rows(flight, labels)  # type: ignore[arg-type]
-    assert rows[0] == ["Chainsaw\n251.000 MHz AM", "1", "Colt 1\n140.000 MHz AM"]
-    assert rows[1][2] == "Kobuleti Ground\n255.000 MHz AM"
+    assert rows[0] == ["Chainsaw\nUHF 251.000", "1", "Colt 1\nVHF 140.000"]
+    assert rows[1][2] == "Kobuleti Ground\nUHF 255.000"
     CommCardPage(flight, labels, False).write(tmp_path / "card.png")  # type: ignore[arg-type]
     assert (tmp_path / "card.png").exists()
