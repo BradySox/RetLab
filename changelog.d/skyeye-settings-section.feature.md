@@ -1,0 +1,1 @@
+* **[UI]** Settings: every SkyEye voice-bot setting (Voice AWACS, its frequency and callsigns, ABCCC, Vacuum, Voice ATC, Radio discipline) is in one SkyEye voice bots section, with its own group on the RetLab Features page.
