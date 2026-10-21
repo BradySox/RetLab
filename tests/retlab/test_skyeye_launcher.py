@@ -13,6 +13,7 @@ from game.retlab import skyeye_launcher as launcher
 class _FakeProcess:
     def __init__(self) -> None:
         self.terminated = False
+        self.pid = 4242
 
     def poll(self) -> None:
         return None
@@ -44,8 +45,12 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
         "skyeye": skyeye,
     }
 
-    def start(exe: Path, args: list[str], minimized: bool = False) -> _FakeProcess:
+    def start(
+        exe: Path, args: list[str], minimized: bool = False, log: Any = None
+    ) -> _FakeProcess:
         state["started"].append((exe.name, minimized))
+        if log is not None:
+            state["log"] = log
         state["running"].add(exe.name)
         return _FakeProcess()
 
@@ -68,6 +73,7 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
         launcher, "_wait", lambda condition, seconds, step=1.0: condition()
     )
     monkeypatch.setattr(launcher, "_start", start)
+    monkeypatch.setattr(launcher, "_watch_early_exit", lambda process, log: None)
     monkeypatch.setattr(launcher, "_connect_client", state["connects"].append)
     monkeypatch.setattr(launcher, "_skyeye", None)
     return state
@@ -129,3 +135,20 @@ def test_a_listening_srs_server_is_left_alone(world: dict[str, Any]) -> None:
     launcher._start_voice_bots(world["skyeye"])
     assert "killed" not in world
     assert (launcher.SRS_SERVER_EXE, False) not in world["started"]
+
+
+def test_skyeye_output_goes_to_its_take_off_log(world: dict[str, Any]) -> None:
+    launcher._start_voice_bots(world["skyeye"])
+    assert world["log"] == world["skyeye"] / launcher.SKYEYE_LOG
+
+
+def test_a_real_start_writes_the_log(tmp_path: Path) -> None:
+    import sys
+
+    log = tmp_path / "out.log"
+    process = launcher._start(
+        Path(sys.executable), ["-c", "print('hello from skyeye')"], log=log
+    )
+    process.wait(timeout=30)
+    text = log.read_text()
+    assert "Take off" in text and "hello from skyeye" in text
