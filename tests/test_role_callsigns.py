@@ -170,3 +170,27 @@ def test_override_squadron_defaults_applies_callsign() -> None:
     config = SquadronConfig.from_data({"primary": "CAS", "callsign": "Voodoo"})
     DefaultSquadronAssigner.override_squadron_defaults(squadron_def, config)
     assert squadron_def.callsign == "Voodoo"
+
+
+def test_a_blue_awacs_takes_skyeyes_callsign_for_the_turn() -> None:
+    """Voice AWACS on: the AI E-3 is named what SkyEye answers to (2026-10-21)."""
+    from types import SimpleNamespace
+
+    from game.ato.flight import Flight
+
+    def flight(voice_awacs: bool, blue: bool = True) -> Flight:
+        f = Flight.__new__(Flight)
+        settings = SimpleNamespace(
+            voice_awacs=voice_awacs,
+            voice_awacs_frequency="251.0 AM",
+            voice_awacs_callsign="Chalice, Chainsaw, Image",
+        )
+        f.coalition = SimpleNamespace(  # type: ignore[assignment]
+            player=SimpleNamespace(is_blue=blue),
+            game=SimpleNamespace(settings=settings, turn=2),
+        )
+        return f
+
+    assert flight(True)._turn_role_callsign(FlightType.AEWC, False) == "Image"
+    assert flight(False)._turn_role_callsign(FlightType.AEWC, False) is None
+    assert flight(True, blue=False)._turn_role_callsign(FlightType.AEWC, False) is None

@@ -284,6 +284,8 @@ class Flight(
     def _turn_role_callsign(
         self, flight_type: FlightType, is_helicopter: bool
     ) -> Optional[str]:
+        if flight_type is FlightType.AEWC and (skyeye := self._skyeye_callsign()):
+            return skyeye
         family = role_callsign_family(flight_type)
         if len(family) < 2:
             return role_callsign(flight_type, is_helicopter)
@@ -292,6 +294,20 @@ class Flight(
         except (AttributeError, TypeError, ValueError):
             turn = 0
         return family[turn % len(family)]
+
+    def _skyeye_callsign(self) -> Optional[str]:
+        """With Voice AWACS on, a blue AEW&C takes SkyEye's callsign for the turn, so
+        the F10 map, kneeboard and voice agree (user call, 2026-10-21)."""
+        try:
+            if not self.coalition.player.is_blue:
+                return None
+            from game.retlab.voiceawacs import voice_awacs_for
+
+            game = self.coalition.game
+            info = voice_awacs_for(game.settings, int(game.turn))
+        except (AttributeError, TypeError, ValueError):
+            return None
+        return info.callsign if info is not None else None
 
     def _next_role_callsign_nr(self, role: str) -> int:
         # Number a defaulted role callsign after any same-role flights already
