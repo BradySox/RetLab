@@ -60,6 +60,7 @@ def _config() -> dict[str, Any]:
                     "name": "Kobuleti",
                     "airbase": "Kobuleti",
                     "runway": "25",
+                    "runways": "07,25",
                     "altimeter": "29.92",
                     "ground": GROUND,
                     "tower": TOWER,
@@ -444,4 +445,66 @@ def test_landing_at_the_divert_is_answered_by_its_tower() -> None:
     said = _said(h)
     assert [m["frequency"] for m in said] == ["127.000AM", "127.000AM"]
     assert said[-1]["text"] == "Viper 1-1, clear the runway, taxi to parking."
+    h.assert_no_lua_errors()
+
+
+def _ai_takeoff(h: DcsPluginHarness, name: str, x: float, heading: float) -> None:
+    h.add_group(
+        {
+            "name": name,
+            "id": sum(map(ord, name)),
+            "side": BLUE,
+            "category": 0,
+            "units": [
+                {
+                    "name": name + " #1",
+                    "type": "F-15C",
+                    "x": x,
+                    "z": 0,
+                    "airborne": True,
+                }
+            ],
+        }
+    )
+    h.lua.execute(
+        "local u = Group.getByName('%s'):getUnit(1) "
+        "u.getPosition = function(self) local r = math.rad(%f) "
+        "return { x = { x = math.cos(r), y = 0, z = math.sin(r) } } end "
+        "DcsHarness.fireEvent({ id = 3, initiator = u })" % (name, heading)
+    )
+
+
+def test_the_first_ai_takeoff_sets_the_runway_in_use() -> None:
+    h = _harness()
+    _ai_takeoff(h, "Eagle", 1000, 72)
+    # A later AI on the other end does not flip it back and forth.
+    _ai_takeoff(h, "Hawk", 1000, 252)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, runway 07, altimeter 29.92, cleared for takeoff."]
+    h.assert_no_lua_errors()
+
+
+def test_an_ai_takeoff_elsewhere_changes_nothing() -> None:
+    h = _harness()
+    _ai_takeoff(h, "Eagle", 40 * NM, 72)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff."]
+    h.assert_no_lua_errors()
+
+
+def test_the_briefed_strip_wins_between_parallels() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    h.lua.execute(FAKE_SOCKET)
+    config = _config()
+    config["voiceAtc"]["fields"][0].update(runway="28L", runways="10R,28L,10L,28R")
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
+    h.add_group(_viper())
+    h.load_plugin_script(PLUGIN)
+    _ai_takeoff(h, "Eagle", 1000, 100)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, runway 10R, altimeter 29.92, cleared for takeoff."]
     h.assert_no_lua_errors()
