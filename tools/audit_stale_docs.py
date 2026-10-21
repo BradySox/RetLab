@@ -516,6 +516,13 @@ REMOVED: tuple[Removed, ...] = (
         r"`supply_routes:`|`shipping_lanes:`",
         allow=("retired", "never a yaml", "RetLab once used"),
     ),
+    Removed(
+        # S115. Not a bare "phone": the What's New and pilot pages may mention one.
+        "the phone map, File > Phone link and the ntfy turn ping (S115)",
+        "2026-10-21",
+        r"Phone link|[Pp]hone map|\bntfy\b|[Tt]urn ping",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
 )
 
 

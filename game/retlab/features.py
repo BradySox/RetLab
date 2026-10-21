@@ -942,11 +942,11 @@ FEATURES: tuple[Feature, ...] = (
         114,
     ),
     Feature(
-        # A preference, not a campaign setting (game/server/phone.py);
-        # docs/dev/design/retlab-phone-map-notes.md.
+        # Built 2026-10-19, REMOVED 2026-10-21 on the DM's call, never flown.
         "phone_map",
         "Phone map",
         115,
+        retired=True,
     ),
     Feature(
         "voice_awacs",

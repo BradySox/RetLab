@@ -181,11 +181,6 @@ def server_port():
     return __server_port
 
 
-
-
-
-
-
 def skyeye_autostart() -> bool:
     """Whether Take Off starts SRS and SkyEye (§120)."""
     global __skyeye_autostart
