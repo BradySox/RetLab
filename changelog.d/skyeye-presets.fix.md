@@ -1,1 +1,1 @@
-* **[Mission Generation]** SkyEye presets: STRIKE is the player package's own preset, and the SkyEye AWACS and Vacuum frequencies take the presets the silent AI AWACS had.
+* **[Mission Generation]** Presets laid out like a squadron comm card: COMM1 the support nets (SkyEye AWACS, Vacuum, STRIKE, JTAC, tankers), COMM2 your flight then Ground and Tower. STRIKE is the player package's own preset, the silent AI AWACS get none, and a new Comm Card kneeboard page lists every preset by name.

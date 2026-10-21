@@ -1,0 +1,1 @@
+* **[Kneeboard]** The Comm Card page (left out of the presets change): every preset by name, your flight on channel 1 of both radios where it can tune, TACANs next to tankers and fields. STRIKE, VACUUM and ATC no longer show as fake flights in the package table, and an old "Sentinel" Voice AWACS callsign becomes the Chalice, Chainsaw, Image rotation.

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from dataclasses import dataclass
 from typing import Any, Optional, TYPE_CHECKING
 
@@ -39,6 +41,12 @@ def awacs_presets(
         frequencies.append(mission_data.vacuum_frequency)
     frequencies.extend(a.freq for a in mission_data.awacs if not a.blue.is_blue)
     return frequencies
+
+
+def _tunable(radio: Any, freq: RadioFrequency) -> bool:
+    return radio is None or any(
+        r.minimum.hertz <= freq.hertz < r.maximum.hertz for r in radio.ranges
+    )
 
 
 class RadioChannelAllocator:
@@ -89,17 +97,68 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
 
         if self.inter_flight_radio_index is None:
             return
-
-        # The ordered set of inter-flight preset frequencies (departure ATC,
-        # AWACS, JTAC, package, arrival ATC, tankers, divert ATC).
-        frequencies = self._inter_flight_frequencies(flight, mission_data)
-
-        # For cases where the inter-flight and intra-flight radios share presets
-        # (the JF-17 only has one set of channels, even though it can use two
-        # channels simultaneously), start assigning inter-flight channels at 2.
         radio_id = self.inter_flight_radio_index
-        first_channel = 2 if self.intra_flight_radio_index == radio_id else 1
-        self._assign_sequential(flight, radio_id, first_channel, frequencies)
+        intra = self.intra_flight_radio_index
+
+        if intra is None or intra == radio_id:
+            # One set of channels (the JF-17 shares its presets across both radios):
+            # one list, after the intra-flight channel.
+            frequencies = self._inter_flight_frequencies(flight, mission_data)
+            first_channel = 2 if intra == radio_id else 1
+            self._assign_sequential(flight, radio_id, first_channel, frequencies)
+            return
+
+        # Two radios, laid out like a squadron comm card (user call, 2026-10-21):
+        # COMM1 the support nets, COMM2 the flight then each field's Ground and
+        # Tower, where that radio can tune them (an F-16's VHF COM2 cannot).
+        radio = flight.aircraft_type.intra_flight_radio
+        atc = self._atc_frequencies(flight, mission_data)
+        on_intra = [f for f in atc if _tunable(radio, f)]
+        support = self._support_frequencies(flight, mission_data)
+        support.extend(f for f in atc if f not in on_intra)
+        # Ch 1 on both radios is the flight's own frequency (user call, 2026-10-21).
+        self._assign_sequential(flight, intra, 2, on_intra)
+        inter_radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
+        first = 1
+        if _tunable(inter_radio, flight.intra_flight_channel):
+            flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
+            first = 2
+        self._assign_sequential(flight, radio_id, first, support)
+
+    @staticmethod
+    def _atc_frequencies(
+        flight: FlightData, mission_data: MissionData
+    ) -> list[RadioFrequency]:
+        """Departure, arrival and divert ATC: Voice ATC's Ground and Tower (§119),
+        else the field's DCS tower."""
+        frequencies: list[RadioFrequency] = []
+        voice_atc = mission_data.atc_frequencies
+        fields = [flight.departure, flight.arrival]
+        if flight.divert is not None:
+            fields.append(flight.divert)
+        for field in fields:
+            pair = voice_atc.get(field.airfield_name)
+            for freq in pair if pair is not None else (field.atc,):
+                if freq is not None and freq not in frequencies:
+                    frequencies.append(freq)
+        return frequencies
+
+    @staticmethod
+    def _support_frequencies(
+        flight: FlightData, mission_data: MissionData
+    ) -> list[RadioFrequency]:
+        """AWACS (SkyEye and Vacuum when on), the package (STRIKE with an ABCCC),
+        JTACs and the tankers this flight can take fuel from."""
+        frequencies = awacs_presets(flight, mission_data)
+        if (freq := flight.package.frequency) is not None:
+            frequencies.append(freq)
+        frequencies.extend(jtac.freq for jtac in mission_data.jtacs)
+        frequencies.extend(
+            tanker.freq
+            for tanker in mission_data.tankers
+            if flight.aircraft_type.can_refuel_from(tanker.aircraft_type)
+        )
+        return frequencies
 
     @staticmethod
     def _inter_flight_frequencies(
@@ -142,12 +201,18 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         frequencies: list[RadioFrequency],
     ) -> None:
         channels = iter(range(first_channel, flight.num_radio_channels(radio_id) + 1))
-        for frequency in frequencies:
+        for index, frequency in enumerate(frequencies):
             try:
                 flight.assign_channel(radio_id, next(channels), frequency)
             except StopIteration:
-                # Any remaining channels are nice-to-haves, but not necessary
-                # for the few aircraft with a small number of channels.
+                # The rest are nice-to-haves, but say so: a dropped ATC or tanker
+                # preset is otherwise only noticed in the cockpit.
+                logging.warning(
+                    "%s: radio %d is out of presets; left off %s",
+                    flight.callsign,
+                    radio_id,
+                    ", ".join(str(f) for f in frequencies[index:]),
+                )
                 break
 
     @classmethod
