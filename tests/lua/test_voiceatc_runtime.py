@@ -50,12 +50,11 @@ end
 """
 
 
-def _config(strict: bool = True) -> dict[str, Any]:
+def _config() -> dict[str, Any]:
     return {
         "voiceAtc": {
             "linkHost": "127.0.0.1",
             "linkPort": "42690",
-            "strict": "true" if strict else "",
             "fields": [
                 {
                     "name": "Kobuleti",
@@ -102,7 +101,7 @@ def _viper(airborne: bool = False, x: float = 0, ships: int = 1) -> dict[str, An
 
 
 def _harness(
-    strict: bool = True,
+    discipline: str = "strict",
     airborne: bool = False,
     x: float = 0,
     ships: int = 1,
@@ -112,7 +111,9 @@ def _harness(
     h.lua.execute(FAKE_AIRBASE)
     if link:
         h.lua.execute(FAKE_SOCKET)
-    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **_config(strict)})
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {"plugins": {}, "radioDiscipline": discipline, **_config()}
+    )
     h.add_group(_viper(airborne, x, ships))
     h.load_plugin_script(PLUGIN)
     return h
@@ -236,12 +237,65 @@ def test_a_strict_readback_missing_an_item_is_incomplete() -> None:
     h.assert_no_lua_errors()
 
 
-def test_with_strict_off_the_callsign_is_a_readback() -> None:
-    h = _harness(strict=False)
+def test_relaxed_lets_an_item_go_but_corrects_a_wrong_number() -> None:
+    h = _harness(discipline="relaxed")
     _call(h, "taxi")
-    _call(h, "readback")
+    _call(h, "readback", numbers="25")
+    _call(h, "taxi")
+    _call(h, "readback", numbers="4110 25")
     h.advance_to(2)
-    assert len(_texts(h)) == 1
+    assert _texts(h)[1:] == [
+        _texts(h)[0],
+        "Viper 1-1, negative, squawk 4101.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_relaxed_and_casual_never_scold() -> None:
+    for discipline in ("relaxed", "casual"):
+        h = _harness(discipline=discipline)
+        h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+        h.advance_to(10)
+        _event(h, 3)
+        h.update_unit("Viper", {"velocity": {"x": 0, "y": 0, "z": 0}})
+        _event(h, 4)
+        h.advance_to(12)
+        expected = (
+            []
+            if discipline == "casual"
+            else ["Viper 1-1, clear the runway, taxi to parking."]
+        )
+        assert _texts(h) == expected, discipline
+        h.assert_no_lua_errors()
+
+
+def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
+    h = _harness(discipline="casual")
+    _call(h, "taxi", TOWER)
+    _call(h, "readback", TOWER, numbers="9999")
+    h.advance_to(2)
+    said = _said(h)
+    assert [m["text"] for m in said] == [
+        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0."
+    ]
+    assert said[0]["frequency"] == TOWER
+    h.assert_no_lua_errors()
+
+
+def test_casual_matches_a_misheard_or_missing_callsign() -> None:
+    h = _harness(discipline="casual")
+    _call(h, "startup", callsign="cobra 1 1")
+    _call(h, "startup", callsign="")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, cleared for engine start."] * 2
+    h.assert_no_lua_errors()
+
+
+def test_the_discipline_goes_to_skyeye() -> None:
+    h = _harness(discipline="casual")
+    h.advance_to(2)
+    atc = [m for m in _sent(h) if m["type"] == "atc"][0]
+    assert atc["discipline"] == "casual"
     h.assert_no_lua_errors()
 
 

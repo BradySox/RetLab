@@ -2,15 +2,16 @@
 -- Voice ATC (§119). docs/dev/retlab-features.md §119
 --
 -- Reads dcsRetribution.voiceAtc (emitted only with the Voice ATC setting on and a player flight
--- at an airfield): linkHost, linkPort, strict, declination,
+-- at an airfield): linkHost, linkPort, declination,
+-- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
 --   fields = { { name, airbase, runway, altimeter, ground, tower, groundVoice, towerVoice } },
 --   flights = { { group, callsign, squawk, departure, arrival } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
 -- the field frequencies and this script decides every reply. Engine start, taxi with a squawk,
--- takeoff with wind and altimeter, landing, clear of the runway. A rule bust (moving before taxi,
--- taking off or landing without clearance) gets a scolding call and nothing more: ATC never
--- blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same requests; without
+-- takeoff with wind and altimeter, landing, clear of the runway. Under Strict radio discipline a
+-- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
+-- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same requests; without
 -- LuaSocket it is the only way in and replies are text. AI traffic is left to DCS's own ATC.
 ---------------------------------------------------------------------------------------------------
 
@@ -19,7 +20,12 @@ if not (dcsRetribution and dcsRetribution.voiceAtc) then
 end
 
 local data = dcsRetribution.voiceAtc
-local STRICT = data.strict == "true"
+-- Radio discipline (§116-§119, user call 2026-10-20). Strict: readbacks checked, busts scolded.
+-- Relaxed: any acknowledgement counts, only a wrong number is corrected, no scolding. Casual:
+-- answer only when called, never expect a call, accept a loose call or a misheard callsign.
+local DISCIPLINE = dcsRetribution.radioDiscipline or "strict"
+local STRICT = DISCIPLINE == "strict"
+local CASUAL = DISCIPLINE == "casual"
 local LINK_POLL_SECONDS = 1
 local ANNOUNCE_SECONDS = 30
 local WATCH_SECONDS = 2
@@ -240,7 +246,7 @@ local function announce(_, now)
         end
         table.insert(list, { { "name", f.name }, { "positions", positions } })
     end
-    send({ { "type", "atc" }, { "fields", list } })
+    send({ { "type", "atc" }, { "fields", list }, { "discipline", DISCIPLINE } })
     return now + ANNOUNCE_SECONDS
 end
 
@@ -427,13 +433,29 @@ local function heardNumber(numbers, wanted)
     return false
 end
 
+-- A number in the readback that is none of the cleared items: "squawk 4110" for 4101.
+local function wrongNumber(pending, numbers)
+    for n in tostring(numbers):gmatch("%S+") do
+        local known = false
+        for _, item in ipairs(pending.items) do
+            if heardNumber(n, item.value) then
+                known = true
+            end
+        end
+        if not known then
+            return true
+        end
+    end
+    return false
+end
+
 local function checkReadback(flight, member, request)
     local pending = flight.pending[member]
     if not pending then
         return
     end
     flight.pending[member] = nil
-    if not STRICT then
+    if CASUAL then
         return
     end
     local missing = {}
@@ -445,7 +467,15 @@ local function checkReadback(flight, member, request)
     if #missing == 0 then
         return
     end
-    local parts = { callsignPart(memberCallsign(flight, member)), ", readback incomplete" }
+    local opening = ", readback incomplete"
+    if not STRICT then
+        -- Relaxed: a readback that leaves an item out is fine; one with a wrong number is not.
+        if not wrongNumber(pending, request.numbers) then
+            return
+        end
+        opening = ", negative"
+    end
+    local parts = { callsignPart(memberCallsign(flight, member)), opening }
     for _, part in ipairs(missing) do
         table.insert(parts, ", ")
         table.insert(parts, part)
@@ -466,25 +496,25 @@ local function contact(field, position, flight, member, other)
     }))
 end
 
-local function startup(field, flight, member)
+local function startup(field, flight, member, on)
     if flight.state == "parked" then
         flight.state = "started"
     end
-    say(field, "ground", flight, line({ callsignPart(memberCallsign(flight, member)), ", cleared for engine start." }))
+    say(field, on or "ground", flight, line({ callsignPart(memberCallsign(flight, member)), ", cleared for engine start." }))
 end
 
 -- No taxiway names: DCS gives scripts none, so every field taxis "to runway 25" (user call,
 -- 2026-10-20).
-local function taxi(field, flight, member)
+local function taxi(field, flight, member, on)
     if flight.state == "parked" or flight.state == "started" then
         flight.state = "taxi"
     end
     local runway = field.runway
-    pend(flight, member, field, "ground", {
+    pend(flight, member, field, on or "ground", {
         { kind = "number", value = flight.squawk, say = phrase({ "squawk ", digits(flight.squawk) }) },
         { kind = "number", value = runway, say = phrase({ "hold short runway ", digits(runway) }) },
     })
-    say(field, "ground", flight, line({
+    say(field, on or "ground", flight, line({
         callsignPart(memberCallsign(flight, member)),
         ", squawk ",
         digits(flight.squawk),
@@ -504,7 +534,7 @@ local function altimeterPart(field)
     return { inches, spokenDigits((inches:gsub("%.", ""))) }
 end
 
-local function takeoff(field, flight, member)
+local function takeoff(field, flight, member, on)
     local parts = { callsignPart(memberCallsign(flight, member)), ", runway ", digits(field.runway), ", " }
     withWind(parts, field)
     local altimeter = altimeterPart(field)
@@ -515,10 +545,10 @@ local function takeoff(field, flight, member)
     end
     table.insert(parts, "cleared for takeoff.")
     flight.state = "cleared"
-    pend(flight, member, field, "tower", {
+    pend(flight, member, field, on or "tower", {
         { kind = "number", value = field.runway, say = phrase({ "cleared for takeoff runway ", digits(field.runway) }) },
     })
-    say(field, "tower", flight, line(parts))
+    say(field, on or "tower", flight, line(parts))
 end
 
 -- Another player ship cleared to land and not down yet: the runway is busy.
@@ -546,14 +576,15 @@ local function memberUnit(flight, member)
     return liveUnits(flight.group)[member]
 end
 
-local function inbound(field, flight, member, detail)
+local function inbound(field, flight, member, detail, on)
+    on = on or "tower"
     local callsign = memberCallsign(flight, member)
     local unit = memberUnit(flight, member)
     if unit and distanceNm(unit, field) > TOWER_RANGE_NM then
-        return say(field, "tower", flight, line({ callsignPart(callsign), ", report ", { "5", "five" }, " miles." }))
+        return say(field, on, flight, line({ callsignPart(callsign), ", report ", { "5", "five" }, " miles." }))
     end
     if runwayBusy(field, flight, member) then
-        return say(field, "tower", flight, line({
+        return say(field, on, flight, line({
             callsignPart(callsign),
             ", enter the pattern at ",
             { "3,000", "three thousand" },
@@ -570,10 +601,10 @@ local function inbound(field, flight, member, detail)
     withWind(parts, field)
     table.insert(parts, "cleared to land.")
     flight.landing[member] = field.name
-    pend(flight, member, field, "tower", {
+    pend(flight, member, field, on, {
         { kind = "number", value = field.runway, say = phrase({ "cleared to land runway ", digits(field.runway) }) },
     })
-    say(field, "tower", flight, line(parts))
+    say(field, on, flight, line(parts))
 end
 
 local function emergency(field, position, flight, member)
@@ -613,25 +644,56 @@ local function handleCall(field, position, flight, member, kind, detail)
     end
     local ground = kind == "startup" or kind == "taxi"
     local tower = kind == "ready" or kind == "inbound" or kind == "clear" or kind == "airborne"
-    if position == "ground" and tower then
+    -- Casual answers whoever was called; the others send the pilot to the right position.
+    local on = nil
+    if CASUAL then
+        on = position
+    elseif position == "ground" and tower then
         return contact(field, position, flight, member, "tower")
     elseif position == "tower" and ground then
         return contact(field, position, flight, member, "ground")
     end
     if kind == "startup" then
-        startup(field, flight, member)
+        startup(field, flight, member, on)
     elseif kind == "taxi" then
-        taxi(field, flight, member)
+        taxi(field, flight, member, on)
     elseif kind == "ready" then
-        takeoff(field, flight, member)
+        takeoff(field, flight, member, on)
     elseif kind == "inbound" then
-        inbound(field, flight, member, detail)
+        inbound(field, flight, member, detail, on)
     elseif kind == "clear" then
         flight.landing[member] = nil
-        say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", taxi to parking." }))
+        say(field, on or "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", taxi to parking." }))
     else
         say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", say again." }))
     end
+end
+
+-- Casual: a misheard or missing callsign is the flight with the same numbers at this field, or
+-- the only player flight using it.
+local function guessFlight(field, callsign)
+    local wanted = normalize(callsign or ""):gsub("%a", "")
+    local here = {}
+    for _, flight in ipairs(flights) do
+        if flight.departure == field.name or flight.arrival == field.name then
+            table.insert(here, flight)
+        end
+    end
+    if wanted ~= "" then
+        for _, flight in ipairs(here) do
+            local numbers = flight.key:gsub("%a", "")
+            if wanted == numbers then
+                return flight, 1
+            end
+            if #wanted == #numbers and wanted:sub(1, -2) == numbers:sub(1, -2) then
+                return flight, tonumber(wanted:sub(-1)) or 1
+            end
+        end
+    end
+    if #here == 1 then
+        return here[1], 1
+    end
+    return nil, nil
 end
 
 local function handleRequest(request)
@@ -641,6 +703,9 @@ local function handleRequest(request)
     end
     local field, position = station.field, station.position
     local flight, member = findFlight(request.callsign)
+    if not flight and CASUAL then
+        flight, member = guessFlight(field, request.callsign)
+    end
     if not flight then
         return say(field, position, nil, line({ "Station calling ", stationLabel(field, position), ", say again your callsign." }))
     end
@@ -672,7 +737,7 @@ end
 ---------------------------------------------------------------------------------------------------
 
 local function scold(flight, key, field, position, member, text)
-    if flight.scolded[key] then
+    if not STRICT or flight.scolded[key] then
         return
     end
     flight.scolded[key] = true
@@ -796,7 +861,9 @@ function handler:onEvent(event)
     end
     flight.landing[member] = nil
     flight.state = "landed"
-    say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
+    if not CASUAL then
+        say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
+    end
 end
 
 ---------------------------------------------------------------------------------------------------

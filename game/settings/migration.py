@@ -13,6 +13,7 @@ from .enums import (
     CombatResolutionMethod,
     DatalinkPolicy,
     FastForwardStopCondition,
+    RadioDiscipline,
 )
 
 
@@ -79,7 +80,13 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
     ):
         migrated["min_plane_altitude_offset"] = -migrated["max_plane_altitude_offset"]
 
+    # Voice ATC's own "Strict readbacks" (one day on main) became the shared
+    # Radio discipline (§121). A save that had it unticked keeps lenient readbacks.
+    if "radio_discipline" not in migrated and migrated.get("voice_atc_strict") is False:
+        migrated["radio_discipline"] = RadioDiscipline.RELAXED
+
     for obsolete_key in (
+        "voice_atc_strict",
         "limit_ai_radios",
         "silence_ai_radios",
         "prefer_squadrons_with_matching_primary_task",

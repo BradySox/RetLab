@@ -498,18 +498,6 @@ class MissionGeneratorSettings:
             "its mission link, hears the calls and speaks the replies."
         ),
     )
-    voice_atc_strict: bool = boolean_option(
-        "Strict readbacks",
-        page=MISSION_GENERATOR_PAGE,
-        section=GAMEPLAY_SECTION,
-        default=True,
-        enabled_when="voice_atc",
-        detail=(
-            "Voice ATC checks each readback for the runway and the squawk and "
-            'answers "readback incomplete" when one is missing. '
-            "Unticked, your callsign alone counts as a readback."
-        ),
-    )
     radio_discipline: RadioDiscipline = choices_option(
         "Radio discipline",
         page=MISSION_GENERATOR_PAGE,
@@ -524,7 +512,11 @@ class MissionGeneratorSettings:
             "and a call with only your own callsign reaches the ABCCC. Casual: no "
             "roll call; the ABCCC speaks only when called, at the push, or to hold "
             "for SEAD that is not airborne; Vacuum calls only radars that threaten "
-            "your package; and the AWACS gives only threat calls on STRIKE."
+            "your package; and the AWACS gives only threat calls on STRIKE. Voice "
+            "ATC: Strict checks readbacks and calls out taxiing or taking off "
+            "without clearance; Relaxed takes any acknowledgement and corrects only "
+            "a wrong number; Casual answers only when called and accepts a loose "
+            "call or a misheard callsign."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

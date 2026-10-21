@@ -973,7 +973,7 @@ FEATURES: tuple[Feature, ...] = (
         "Voice ATC",
         119,
         plugin_id="voiceatc",
-        settings_fields=("voice_atc", "voice_atc_strict"),
+        settings_fields=("voice_atc",),
     ),
     Feature(
         # A preference, not a campaign setting (qt_ui/liberation_install.py).
