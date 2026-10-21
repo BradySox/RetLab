@@ -8,7 +8,7 @@
 --   targetUnits = {...}, flights = { { group, callsign, role = strike|sead|escort, client,
 --   pushAfter, holdX, holdY, holdAngels, holdIndex, home } } } }
 --
--- While a ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
+-- While an ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
 -- check-in (F10 or spoken), ready to push, say push time, the push call, up to two 3-minute holds
 -- while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD, and
 -- the egress call. AI flights in the package obey: a hold adds a 3-minute orbit at their HOLD

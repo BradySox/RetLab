@@ -1,12 +1,13 @@
 """Airborne package control (§117): a C-130J-30 runs the player packages.
 
-A ABCCC flight (an EC-130 ABCCC role) orbits behind the front. While it is
+An ABCCC flight (an EC-130 ABCCC role) orbits behind the front. While it is
 alive and airborne the ``pkgcontrol`` plugin runs every blue package with a player
-seat on STRIKE (common), one frequency for every package: the check-in reply, the
-push call, a hold or abort before the push, and the egress call. The AWACS joins
-STRIKE as the second voice for the picture and intercepts. SkyEye speaks for both
-over a local UDP link, in opposite voices; every call is also text. With no
-controller airborne there is no package control, and the AWACS never stands in. This module builds ``dcsRetribution.packageControl``.
+seat on STRIKE (common), one frequency set as each such package's own (so it is the
+package preset): the check-in reply, the push call, a hold or abort before the push,
+and the egress call. The AWACS joins STRIKE as the second voice for the picture and
+intercepts. SkyEye speaks for both over a local UDP link, in opposite voices; every
+call is also text. With no controller airborne there is no package control, and the
+AWACS never stands in. This module builds ``dcsRetribution.packageControl``.
 docs/dev/retlab-features.md §117.
 """
 
@@ -34,7 +35,7 @@ SKYEYE_LINK_PORT = 42690
 
 
 def has_package_control(ato: AirTaskingOrder) -> bool:
-    """Whether the ATO fields a ABCCC flight."""
+    """Whether the ATO fields an ABCCC flight."""
     return any(
         flight.flight_type is FlightType.ABCCC
         for package in ato.packages

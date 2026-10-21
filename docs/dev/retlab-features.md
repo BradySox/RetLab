@@ -11140,7 +11140,8 @@ each turn through Anvil, Ramrod, Blackjack, Crown and Sentinel.
 
 While an ABCCC C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
 blue package with a player seat on **STRIKE (common)**, one UHF channel allocated per
-mission and listed on the kneeboard comms as "STRIKE (Anvil)":
+mission and set as each of those packages' own frequency (see Presets below), listed on the
+kneeboard comms as "STRIKE (Anvil)":
 
 - **Check-in:** F10 > Package control > Check in, or spoken ("Anvil, Colt 1-1, check
   in"). The reply gives radar contact, the hold angels and the push time.
@@ -11164,13 +11165,14 @@ point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces
 route with a landing at home. Parked AI is left alone (a pushed task would replace its
 takeoff).
 
-**Presets (2026-10-21).** STRIKE is each player package's own frequency, so it is the
+**Presets (2026-10-21).** STRIKE is set as each player package's own frequency, so it is the
 package preset and the kneeboard's FREQ line; nobody dials it by hand. With Voice AWACS on,
 SkyEye's frequency and Vacuum's take the presets the silent blue AI AWACS had
 (`awacs_presets` in `game/radio/channels.py`); the AI AWACS stay on the kneeboard with no
 preset. On a two-radio jet the presets follow a squadron comm card: COMM1 the support nets
 (SkyEye, Vacuum, STRIKE, JTAC, tankers), COMM2 the flight on Ch 1 then each field's Ground
-and Tower when that radio can tune them (an F-16's VHF COM2 cannot, so they stay on COMM1).
+and Tower when that radio can tune them (Voice ATC's pair is VHF AM, so an F-16's VHF COM2
+holds it).
 A **Comm Card** kneeboard page after the comms page lists every preset on both radios by
 name (`kneeboard/commcard.py`).
 
