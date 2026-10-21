@@ -6,6 +6,7 @@ from typing import List, Optional, TYPE_CHECKING, Tuple
 
 from PIL import ImageFont
 
+from game.dcs.aircrafttype import AirRefuelType
 from game.radio.radios import RadioFrequency
 from game.retlab.voiceawacs import VoiceAwacsInfo
 from game.theater.controlpoint import Airfield
@@ -122,14 +123,6 @@ class SupportPage(KneeboardPage):
         self.zulu_tz = zulu_tz
         self.dark_kneeboard = dark_kneeboard
         self.airfield_rows = airfield_rows or []
-        # Every other row in this table is a callsign, so this one is too. It
-        # used to fall back to the literal "Flight", which read as a placeholder
-        # on the one row the reader is looking for (flown 2026-08-17: the page
-        # header said "Colt 9" and the table said "Flight").
-        flight_name = str(self.flight.callsign)
-        if self.flight.custom_name:
-            flight_name = f"{flight_name}\n({self.flight.custom_name})"
-        self.comms.append(CommInfo(flight_name, self.flight.intra_flight_channel))
 
     #: Folded "Airfield Directory" table presentation, shared by the inline
     #: render and any continuation page that catches its overflow.
@@ -195,25 +188,7 @@ class SupportPage(KneeboardPage):
         # Build each support section as (title, rows, headers); they render as
         # bordered boxes with header bars (the professional-campaign look) and
         # are spaced to fill the page rather than leaving the bottom half blank.
-        comm_ladder = []
-        for comm in self.comms:
-            # A net, not a flight: no task, type or count (they read as this flight's).
-            comm_ladder.append(
-                [comm.name, "", "", "", self.format_frequency(comm.freq)]
-            )
-        for f in self.package_flights:
-            callsign = f.callsign
-            if f.custom_name:
-                callsign = f"{callsign}\n({f.custom_name})"
-            comm_ladder.append(
-                [
-                    callsign,
-                    f.task_display_name,
-                    KneeboardPageWriter.wrap_line(str(f.aircraft_type), 23),
-                    str(len(f.units)),
-                    self.format_frequency(f.intra_flight_channel),
-                ]
-            )
+        comm_ladder = self.package_rows()
 
         aewc_ladder = []
         if self.voice_awacs is not None:
@@ -226,6 +201,9 @@ class SupportPage(KneeboardPage):
                 ]
             )
         for single_aewc in self.awacs:
+            if self.voice_awacs is not None and single_aewc.blue.is_blue:
+                # Silent under SkyEye (§116), with no preset; listing it only confused.
+                continue
             if single_aewc.depature_location is None:
                 tot_a = "-"
                 tos_a = "-"
@@ -247,9 +225,17 @@ class SupportPage(KneeboardPage):
         for tanker in self.tankers:
             tot_t = format_kneeboard_time(tanker.start_time, self.zulu_tz)
             tos_t = self._format_duration(tanker.end_time - tanker.start_time)
+            callsign = tanker.callsign
+            if not self.flight.aircraft_type.can_refuel_from(tanker.aircraft_type):
+                # No preset: this jet cannot take its fuel.
+                takes_probe = (
+                    self.flight.aircraft_type.air_refuel_type is AirRefuelType.PROBE
+                )
+                kind = "boom only" if takes_probe else "probe only"
+                callsign = f"{callsign}\n({kind})"
             tanker_ladder.append(
                 [
-                    tanker.callsign,
+                    callsign,
                     KneeboardPageWriter.wrap_line(tanker.variant, 21),
                     str(tanker.tacan) if tanker.tacan else "N/A",
                     self.format_frequency(tanker.freq),
@@ -333,6 +319,25 @@ class SupportPage(KneeboardPage):
                 headers=self.AIRFIELD_HEADERS,
             )
         return overflow
+
+    def package_rows(self) -> List[List[str]]:
+        """The package table: flights only, this one first. The nets (STRIKE,
+        Vacuum, ATC) are on the Comm Card (kneeboard review, 2026-10-21)."""
+        rows: List[List[str]] = []
+        for f in [self.flight, *self.package_flights]:
+            callsign = f.callsign
+            if f.custom_name:
+                callsign = f"{callsign}\n({f.custom_name})"
+            rows.append(
+                [
+                    callsign,
+                    f.task_display_name,
+                    KneeboardPageWriter.wrap_line(str(f.aircraft_type), 23),
+                    str(len(f.units)),
+                    self.format_frequency(f.intra_flight_channel),
+                ]
+            )
+        return rows
 
     def format_frequency(self, frequency: Optional[RadioFrequency]) -> str:
         if frequency is None:

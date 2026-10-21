@@ -50,6 +50,23 @@ def _tunable(radio: Any, freq: RadioFrequency) -> bool:
     )
 
 
+def _fill_unused(flight: FlightData, radio_id: int) -> None:
+    """Point every preset left over at the radio's Ch 1. The module's own default
+    fillers (121, 126, 128 MHz...) landed players on AI chatter (2026-10-20).
+    Not recorded as an assignment, so the comm card leaves those rows blank."""
+    used: dict[int, RadioFrequency] = {}
+    for freq, assignments in flight.frequency_to_channel_map.items():
+        for a in assignments:
+            if a.radio_id == radio_id:
+                used[a.channel] = freq
+    if 1 not in used:
+        return
+    for channel in range(1, flight.num_radio_channels(radio_id) + 1):
+        if channel not in used:
+            for unit in flight.client_units:
+                unit.set_radio_channel_preset(radio_id, channel, used[1].mhz)
+
+
 class RadioChannelAllocator:
     """Base class for radio channel allocators."""
 
@@ -88,6 +105,14 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
     def assign_channels_for_flight(
         self, flight: FlightData, mission_data: MissionData
     ) -> None:
+        if flight.client_units and flight.squadron.radio_presets:
+            return self.assign_from_squadron_presets(flight)
+        self._assign_presets(flight, mission_data)
+        for radio_id in {self.inter_flight_radio_index, self.intra_flight_radio_index}:
+            if radio_id is not None:
+                _fill_unused(flight, radio_id)
+
+    def _assign_presets(self, flight: FlightData, mission_data: MissionData) -> None:
         if flight.client_units and flight.squadron.radio_presets:
             return self.assign_from_squadron_presets(flight)
 

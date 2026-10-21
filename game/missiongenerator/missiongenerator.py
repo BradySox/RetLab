@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 import dcs.lua
 from dcs import Mission, Point
@@ -197,6 +197,7 @@ class MissionGenerator:
 
         logging.info("MIZ generation: air units")
         self.generate_air_units(tgo_generator)
+        self._move_ai_off_skyeye()
 
         logging.info("MIZ generation: scripts, triggers, visuals, and drawings")
         RebellionGenerator(self.mission, self.game).generate()
@@ -353,6 +354,33 @@ class MissionGenerator:
                 self.mission_data,
             )
             ground_conflict_gen.generate()
+
+    def _move_ai_off_skyeye(self) -> None:
+        """AI groups never given a radio sit on DCS's default 251.000, which is also
+        SkyEye's default; their chatter filled its channel (2026-10-20). Move them."""
+        skyeye = self.mission_data.skyeye_frequency
+        if skyeye is None:
+            return
+        moved = 0
+        elsewhere: Optional[RadioFrequency] = None
+        for coalition in self.mission.coalition.values():
+            for country in coalition.countries.values():
+                for group in [*country.plane_group, *country.helicopter_group]:
+                    if (
+                        group.frequency is None
+                        or abs(group.frequency - skyeye.mhz) > 1e-3
+                    ):
+                        continue
+                    if any(u.is_human() for u in group.units):
+                        continue
+                    if elsewhere is None:
+                        elsewhere = self.radio_registry.alloc_uhf()
+                    group.frequency = elsewhere.mhz  # type: ignore[assignment]
+                    moved += 1
+        if moved:
+            logging.info(
+                "Voice AWACS: moved %d AI groups off %s to %s", moved, skyeye, elsewhere
+            )
 
     def generate_air_units(self, tgo_generator: TgoGenerator) -> None:
         """Generate the air units for the Operation"""

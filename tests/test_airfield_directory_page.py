@@ -129,7 +129,7 @@ def test_the_flights_own_package_row_shows_its_callsign() -> None:
         jtacs=[],
         dark_kneeboard=False,
     )
-    names = [comm.name for comm in page.comms]
+    names = [row[0] for row in page.package_rows()]
     assert names == ["Enfield 1-1"], names
     assert "Flight" not in names
 
@@ -147,4 +147,4 @@ def test_a_custom_named_flight_keeps_both() -> None:
         jtacs=[],
         dark_kneeboard=False,
     )
-    assert page.comms[0].name == "Enfield 1-1\n(Sandy)"
+    assert page.package_rows()[0][0] == "Enfield 1-1\n(Sandy)"
