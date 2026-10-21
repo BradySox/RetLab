@@ -416,3 +416,32 @@ def test_without_luasocket_the_menu_answers_in_text() -> None:
         "contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
+
+
+def test_landing_at_the_divert_is_answered_by_its_tower() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(
+        "Airbase = Airbase or {} "
+        "Airbase.getByName = function(name) "
+        "  local x = name == 'Batumi' and 50000 or 0 "
+        "  return { getPoint = function() return { x = x, y = 10, z = 0 } end } "
+        "end"
+    )
+    h.lua.execute(FAKE_SOCKET)
+    config = _config()
+    batumi = dict(config["voiceAtc"]["fields"][0], name="Batumi", airbase="Batumi")
+    batumi.update(ground="126.000AM", tower="127.000AM")
+    config["voiceAtc"]["fields"].append(batumi)
+    config["voiceAtc"]["flights"][0]["divert"] = "Batumi"
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
+    h.add_group(_viper(airborne=True, x=49000))
+    h.load_plugin_script(PLUGIN)
+    _call(h, "emergency", "127.000AM")
+    h.advance_to(2)
+    h.update_unit("Viper", {"airborne": False})
+    _event(h, 4)
+    h.advance_to(4)
+    said = _said(h)
+    assert [m["frequency"] for m in said] == ["127.000AM", "127.000AM"]
+    assert said[-1]["text"] == "Viper 1-1, clear the runway, taxi to parking."
+    h.assert_no_lua_errors()

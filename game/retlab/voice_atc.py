@@ -29,13 +29,13 @@ if TYPE_CHECKING:
 
 
 def player_airfields(ato: AirTaskingOrder) -> list[Airfield]:
-    """Airfields a player flight takes off from or lands at, in ATO order."""
+    """Airfields a player flight takes off from, lands at or diverts to, in ATO order."""
     fields: list[Airfield] = []
     for package in ato.packages:
         for flight in package.flights:
             if not flight.client_count:
                 continue
-            for cp in (flight.departure, flight.arrival):
+            for cp in (flight.departure, flight.arrival, flight.divert):
                 if isinstance(cp, Airfield) and cp not in fields:
                     fields.append(cp)
     return fields
@@ -111,6 +111,7 @@ class AtcFlight:
     squawk: str
     departure: Optional[str]
     arrival: Optional[str]
+    divert: Optional[str] = None
 
 
 @dataclass
@@ -134,7 +135,10 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
         if not (flight.client_units and flight.friendly.is_blue):
             continue
         names: list[Optional[str]] = []
-        for runway in (flight.departure, flight.arrival):
+        for runway in (flight.departure, flight.arrival, flight.divert):
+            if runway is None:
+                names.append(None)
+                continue
             frequencies = mission_data.atc_frequencies.get(runway.airfield_name)
             if frequencies is None:
                 names.append(None)
@@ -145,7 +149,7 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
                 runway.airfield_name,
                 AtcField(runway.airfield_name, runway.runway_name, tower, ground),
             )
-        if names[0] is None and names[1] is None:
+        if not any(names):
             continue
         plan.flights.append(
             AtcFlight(
@@ -154,6 +158,7 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
                 next(codes),
                 names[0],
                 names[1],
+                names[2],
             )
         )
     country = game.blue.faction.country.name
@@ -197,3 +202,4 @@ def populate_voice_atc_lua(
         item.add_key_value("squawk", flight.squawk)
         item.add_key_value("departure", flight.departure or "")
         item.add_key_value("arrival", flight.arrival or "")
+        item.add_key_value("divert", flight.divert or "")

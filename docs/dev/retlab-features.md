@@ -11275,7 +11275,8 @@ closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground
-and a Tower controller at every airfield a player flight takes off from or lands at. AI-only
+and a Tower controller at every airfield a player flight takes off from, lands at or diverts
+to (divert added 2026-10-21, user call). AI-only
 fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
 Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step 3.
 
@@ -11290,8 +11291,8 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
   (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The Mission Info
   airfield table and the departure page's ATC box show "GND ... / TWR ..." with their preset
-  channels in place of the DCS tower (`atc_lines`, user call 2026-10-21); a divert field has
-  no voice ATC and keeps its DCS tower.
+  channels in place of the DCS tower (`atc_lines`, user call 2026-10-21), for the departure,
+  arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
 - **Squawks:** a four-digit code per player flight, digits 0 to 7, never repeated in a mission
   (4101, 4102 ... 4177, 4201 ...). Read back, nothing else checks it.
 - **Runway:** the one the briefing picks (`RunwayData.runway_name`). Wind is read live at the

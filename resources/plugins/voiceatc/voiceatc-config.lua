@@ -5,7 +5,7 @@
 -- at an airfield): linkHost, linkPort, declination,
 -- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
 --   fields = { { name, airbase, runway, altimeter, ground, tower, groundVoice, towerVoice } },
---   flights = { { group, callsign, squawk, departure, arrival } }
+--   flights = { { group, callsign, squawk, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
 -- the field frequencies and this script decides every reply. Taxi with a squawk,
@@ -842,7 +842,17 @@ function handler:onEvent(event)
         flight.state = "airborne"
         return
     end
-    local field = fieldsByName[flight.arrival] or fieldsByName[flight.departure]
+    -- The field it landed at: the nearest of the arrival, the divert and the departure.
+    local field, best = nil, nil
+    for _, name in ipairs({ flight.arrival, flight.divert, flight.departure }) do
+        local candidate = fieldsByName[name or ""]
+        if candidate then
+            local d = distanceNm(event.initiator, candidate)
+            if best == nil or d < best then
+                field, best = candidate, d
+            end
+        end
+    end
     if not field then
         return
     end
