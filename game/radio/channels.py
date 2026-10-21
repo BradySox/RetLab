@@ -114,8 +114,14 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         on_intra = [f for f in atc if _tunable(radio, f)]
         support = self._support_frequencies(flight, mission_data)
         support.extend(f for f in atc if f not in on_intra)
+        # Ch 1 on both radios is the flight's own frequency (user call, 2026-10-21).
         self._assign_sequential(flight, intra, 2, on_intra)
-        self._assign_sequential(flight, radio_id, 1, support)
+        inter_radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
+        first = 1
+        if _tunable(inter_radio, flight.intra_flight_channel):
+            flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
+            first = 2
+        self._assign_sequential(flight, radio_id, first, support)
 
     @staticmethod
     def _atc_frequencies(

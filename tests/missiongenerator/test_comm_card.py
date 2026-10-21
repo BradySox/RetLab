@@ -60,7 +60,7 @@ def _data() -> MissionData:
 def test_support_on_comm1_flight_and_atc_on_comm2() -> None:
     flight = _Flight()
     CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
-    assert _channels(flight, 1) == [MHz(251), MHz(270), MHz(264)]
+    assert _channels(flight, 1) == [MHz(140), MHz(251), MHz(270), MHz(264)]
     assert _channels(flight, 2) == [MHz(140), MHz(255), MHz(256)]
 
 
@@ -77,7 +77,17 @@ def test_the_card_names_every_preset(tmp_path: Path) -> None:
     CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
     labels = {MHz(251): "Chainsaw", MHz(255): "Kobuleti Ground", MHz(140): "Colt 1"}
     rows = preset_rows(flight, labels)  # type: ignore[arg-type]
-    assert rows[0] == ["Chainsaw\nUHF 251.000", "1", "Colt 1\nVHF 140.000"]
+    # Ch 1 on both radios is the flight's own frequency.
+    assert rows[0] == ["Colt 1\nVHF 140.000", "1", "Colt 1\nVHF 140.000"]
+    assert rows[1][0] == "Chainsaw\nUHF 251.000"
     assert rows[1][2] == "Kobuleti Ground\nUHF 255.000"
     CommCardPage(flight, labels, False).write(tmp_path / "card.png")  # type: ignore[arg-type]
     assert (tmp_path / "card.png").exists()
+
+
+def test_a_uhf_only_comm1_cannot_carry_a_vhf_flight_frequency() -> None:
+    flight = _Flight()
+    uhf = SimpleNamespace(ranges=[SimpleNamespace(minimum=MHz(225), maximum=MHz(400))])
+    flight.aircraft_type.inter_flight_radio = uhf
+    CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    assert _channels(flight, 1)[0] == MHz(251)

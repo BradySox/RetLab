@@ -197,14 +197,9 @@ class SupportPage(KneeboardPage):
         # are spaced to fill the page rather than leaving the bottom half blank.
         comm_ladder = []
         for comm in self.comms:
+            # A net, not a flight: no task, type or count (they read as this flight's).
             comm_ladder.append(
-                [
-                    comm.name,
-                    self.flight.task_display_name,
-                    KneeboardPageWriter.wrap_line(str(self.flight.aircraft_type), 23),
-                    str(len(self.flight.units)),
-                    self.format_frequency(comm.freq),
-                ]
+                [comm.name, "", "", "", self.format_frequency(comm.freq)]
             )
         for f in self.package_flights:
             callsign = f.callsign

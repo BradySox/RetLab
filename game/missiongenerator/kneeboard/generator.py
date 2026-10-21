@@ -79,16 +79,22 @@ class KneeboardGenerator(MissionInfoGenerator):
         for awacs in self.awacs:
             add(awacs.freq, str(awacs.callsign))
         for tanker in self.tankers:
-            add(tanker.freq, str(tanker.callsign))
+            tacan = f" {tanker.tacan}" if tanker.tacan else ""
+            add(tanker.freq, f"{tanker.callsign}{tacan}")
         for jtac in self.jtacs:
             add(jtac.freq, f"JTAC {jtac.callsign}")
+        runways = [r for r in (flight.departure, flight.arrival, flight.divert) if r]
+        tacans = {r.airfield_name: f" {r.tacan}" for r in runways if r.tacan}
         if self.voice_atc is not None:
             for atc_field in self.voice_atc.fields.values():
+                tacan = tacans.get(atc_field.name, "")
                 add(atc_field.ground, f"{atc_field.name} Ground")
-                add(atc_field.tower, f"{atc_field.name} Tower")
-        for runway in (flight.departure, flight.arrival, flight.divert):
-            if runway is not None:
-                add(runway.atc, f"{runway.airfield_name} Tower")
+                add(atc_field.tower, f"{atc_field.name} Tower{tacan}")
+        for runway in runways:
+            add(
+                runway.atc,
+                f"{runway.airfield_name} Tower{tacans.get(runway.airfield_name, '')}",
+            )
         for other in package_flights:
             add(other.intra_flight_channel, str(other.callsign))
         return labels

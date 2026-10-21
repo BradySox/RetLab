@@ -327,6 +327,8 @@ class AircraftType(UnitType[Type[FlyingType]]):
     #: Whether this tanker can refuel helicopters / slow receivers (e.g. the KC-130's
     #: low-and-slow drogue). Only consulted when both sides are tagged.
     tanker_refuels_helicopters: bool = False
+    #: The inter-flight radio, for the presets' band checks (comm card, 2026-10-21).
+    inter_flight_radio: Optional[Radio] = None
 
     #: Date gate for era-specific payload-editor properties (e.g. the helmet-mounted
     #: cueing selection), built from the aircraft data file's
@@ -859,6 +861,7 @@ class AircraftType(UnitType[Type[FlyingType]]):
             fuel_consumption=fuel_consumption,
             default_livery=data.get("default_livery"),
             intra_flight_radio=radio_config.intra_flight,
+            inter_flight_radio=radio_config.inter_flight,
             channel_allocator=radio_config.channel_allocator,
             channel_namer=radio_config.channel_namer,
             kneeboard_units=units,
