@@ -11439,6 +11439,9 @@ the way. With the setting on:
   the flight in the flight editor.
 - The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
   (default `Chainsaw`) first as "Chainsaw (SkyEye)", and each blue AWACS as "(silent)".
+- A blue AEW&C flight fragged that turn takes SkyEye's callsign for the turn (Chalice, Chainsaw
+  or Image), so the F10 map, the kneeboard and the voice use one name (2026-10-21).
+  A flight fragged before the setting was turned on keeps its callsign.
 
 Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
 player named themselves in the call. Not flown with the setting on (row B257). The DTC
@@ -11449,6 +11452,7 @@ cartridges still preset the AWACS channel, not SkyEye's.
 - `game/retlab/voiceawacs.py`: the frequency parse and the kneeboard/briefing line.
 - `game/settings/fields/missiongenerator.py`, `game/settings/layout.py`: the three settings.
 - `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_awacs`): the silence.
+- `game/ato/flight.py` (`_skyeye_callsign`): the AEW&C callsign.
 - `game/missiongenerator/missiongenerator.py`: the reservation and the "(silent)" label.
 - `game/missiongenerator/kneeboard/support.py`, `resources/briefing/templates/*.j2`: the line.
 - `tests/retlab/test_voice_awacs.py`.
