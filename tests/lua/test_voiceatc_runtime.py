@@ -508,3 +508,15 @@ def test_the_briefed_strip_wins_between_parallels() -> None:
     h.advance_to(2)
     assert _texts(h) == ["Viper 1-1, runway 10R, altimeter 29.92, cleared for takeoff."]
     h.assert_no_lua_errors()
+
+
+def test_startup_and_airborne_get_a_short_answer_not_say_again() -> None:
+    h = _harness()
+    _call(h, "startup")
+    _call(h, "airborne", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, start at your discretion. Call ready to taxi.",
+        "Viper 1-1, frequency change approved.",
+    ]
+    h.assert_no_lua_errors()

@@ -110,10 +110,13 @@ class SupportPage(KneeboardPage):
         zulu_tz: Optional[datetime.tzinfo] = None,
         voice_awacs: Optional[VoiceAwacsInfo] = None,
         squawk: Optional[str] = None,
+        strike: Optional[RadioFrequency] = None,
     ) -> None:
         self.flight = flight
         #: The flight's Voice ATC squawk (§119), on the FREQ / TOT line.
         self.squawk = squawk
+        #: STRIKE, when the ABCCC runs this package on it (§117): the FREQ line.
+        self.strike = strike
         self.package_flights = package_flights
         self.comms = list(comms)
         self.awacs = awacs
@@ -173,7 +176,11 @@ class SupportPage(KneeboardPage):
         # never clipped off the right edge.
         package = self.flight.package
         custom = f' "{package.custom_name}"' if package.custom_name else ""
-        freq = self.format_frequency(package.frequency).replace("\n", " - ")
+        if self.strike is not None:
+            freq = "STRIKE " + self.format_frequency(self.strike)
+        else:
+            freq = self.format_frequency(package.frequency)
+        freq = freq.replace("\n", " - ")
         tot = self._format_time(package.time_over_target)
         if self.squawk:
             tot = f"{tot}    SQUAWK: {self.squawk}"

@@ -80,6 +80,8 @@ class MissionInfoGenerator:
         self.voice_awacs: Optional[VoiceAwacsInfo] = None
         #: The ABCCC's spoken callsign and STRIKE (common), when one flies (§117).
         self.abccc: Optional[tuple[str, RadioFrequency]] = None
+        #: The player packages the ABCCC runs on STRIKE (``id(package)``).
+        self.strike_packages: set[int] = set()
         #: Voice ATC's fields and squawks, when the setting is on (§119).
         self.voice_atc: Optional[VoiceAtcPlan] = None
         self.comms: List[CommInfo] = []
@@ -98,6 +100,12 @@ class MissionInfoGenerator:
             awacs: AWACS information.
         """
         self.awacs.append(awacs)
+
+    def package_frequency(self, flight: FlightData) -> Optional[RadioFrequency]:
+        """The flight's package frequency as its players use it: STRIKE, if run."""
+        if self.abccc is not None and id(flight.package) in self.strike_packages:
+            return self.abccc[1]
+        return flight.package.frequency
 
     def add_comm(self, name: str, freq: RadioFrequency) -> None:
         """Adds communications info to the mission.

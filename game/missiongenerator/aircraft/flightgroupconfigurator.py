@@ -281,10 +281,11 @@ class FlightGroupConfigurator:
         if freq is None and (freq := self.flight.package.frequency) is None:
             freq = self.radio_registry.alloc_uhf()
             self.flight.package.frequency = freq
-        if freq in self.radio_registry.atc_pinned:
-            # A hand-set frequency on a pinned Voice ATC channel moves (§119).
+        voice_bots = self.mission_data.voice_bot_frequencies()
+        if freq in self.radio_registry.atc_pinned or freq in voice_bots:
+            # A hand-set frequency on a voice bot's channel moves, never the bot's.
             logging.warning(
-                "%s: %s is a Voice ATC channel; using another", self.flight, freq
+                "%s: %s is a voice bot channel; using another", self.flight, freq
             )
             freq = self.radio_registry.alloc_uhf()
         if freq not in self.radio_registry.allocated_channels:

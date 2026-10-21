@@ -675,8 +675,10 @@ local function callsignWord(callsign)
     return (tostring(callsign):lower():gsub("[^%a]", ""))
 end
 
--- The package and flight a SkyEye request is from, by the caller's callsign. Off Strict, a
--- close-enough callsign ("Colt" for "Colt 1-1") finds the one player flight it names.
+-- The package and flight a SkyEye request is from, by the caller's callsign. A player flight
+-- is its lead's seat ("Ford 5-1"); "ford 5" is the flight and "ford 5 2" its ship 2, as
+-- voiceatc hears them. Off Strict, a close-enough callsign ("Colt" for "Colt 1-1") finds
+-- the one player flight it names.
 local function findCaller(request)
     local wanted = normalize(request.callsign or "")
     if wanted == "" then
@@ -686,6 +688,21 @@ local function findCaller(request)
         for _, f in ipairs(pkg.flights or {}) do
             if normalize(f.callsign) == wanted then
                 return pkg, f
+            end
+        end
+    end
+    -- The flight alone before a ship number, so "ford 12" is Ford 12-1, not Ford 1-2.
+    for pass = 1, 2 do
+        for _, pkg in ipairs(packages) do
+            for _, f in ipairs(pkg.flights or {}) do
+                local prefix = normalize(f.callsign):sub(1, -2)
+                if f.client == "true" and prefix ~= "" then
+                    if pass == 1 and wanted == prefix then
+                        return pkg, f
+                    elseif pass == 2 and tonumber(wanted:sub(-1)) and wanted:sub(1, -2) == prefix then
+                        return pkg, f
+                    end
+                end
             end
         end
     end

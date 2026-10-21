@@ -527,3 +527,18 @@ def test_off_strict_a_close_enough_callsign_finds_the_flight() -> None:
         _request(h, "pushtime", callsign="colt")
         h.advance_to(2)
         assert bool(_texts(h)) is answered, discipline
+
+
+def test_a_seat_callsign_finds_its_flight_on_strict() -> None:
+    flight = _flight("Ford", client=True)
+    flight["callsign"] = "Ford 5-1"
+    for heard in ("ford 5 1", "ford 5", "ford 5 2"):
+        h = _harness([flight], [_group("Ford")])
+        _request(h, "pushtime", callsign=heard)
+        h.advance_to(2)
+        assert _texts(h) == ["Ford 5 1, Anvil, push time 14 10."], heard
+        h.assert_no_lua_errors()
+    h = _harness([flight], [_group("Ford")])
+    _request(h, "pushtime", callsign="ford 6 1")
+    h.advance_to(2)
+    assert _texts(h) == []

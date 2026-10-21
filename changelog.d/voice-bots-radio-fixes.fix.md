@@ -1,0 +1,5 @@
+* **[Mission Generation]** The ABCCC runs the player packages again: red's generation pass no longer wipes blue's package list, so package control and Vacuum's STRIKE calls have their packages.
+* **[Mission Generation]** Voice ATC's Ground and Tower are UHF on every jet, so the F-4E, F-5E and a Tomcat without a RIO can tune them. A campaign's old VHF pair is picked again.
+* **[Mission Generation]** Radio presets carry only your own side's tankers and JTACs, never a frequency the radio cannot tune, and the F-15E has the support nets on COMM1 and the flight, Ground and Tower on COMM2.
+* **[Mission Generation]** AI flights stay off every voice bot frequency (SkyEye, STRIKE, Vacuum, Ground, Tower), and the voice bots stay off DCS's default group frequencies. AI flights in a player package keep their own frequency; the players keep STRIKE.
+* **[Plugins]** Package control answers "Ford 5-1" on Strict, Vacuum finds LuaSocket, and Voice ATC answers a start or airborne call instead of "say again".

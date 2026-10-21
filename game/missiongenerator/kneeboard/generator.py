@@ -71,7 +71,7 @@ class KneeboardGenerator(MissionInfoGenerator):
         add(flight.intra_flight_channel, str(flight.callsign))
         if self.abccc is not None:
             add(self.abccc[1], f"STRIKE ({self.abccc[0]})")
-        add(flight.package.frequency, "Package")
+        add(self.package_frequency(flight), "Package")
         if self.voice_awacs is not None:
             add(self.voice_awacs.freq, self.voice_awacs.callsign)
         for comm in self.comms:
@@ -323,6 +323,12 @@ class KneeboardGenerator(MissionInfoGenerator):
                 zulu_tz=zulu_tz,
                 voice_awacs=self.voice_awacs,
                 squawk=atc.squawk if atc else None,
+                strike=(
+                    self.abccc[1]
+                    if self.abccc is not None
+                    and id(flight.package) in self.strike_packages
+                    else None
+                ),
             ),
         ]
         # The comm card, every preset by name, right after the comms page.

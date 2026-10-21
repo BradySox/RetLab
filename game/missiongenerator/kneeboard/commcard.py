@@ -7,7 +7,7 @@ number in the middle, COMM2 on the right (user call, 2026-10-21).
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable, Optional
 
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
@@ -70,8 +70,27 @@ class CommCardPage(KneeboardPage):
             w.text("This aircraft has no preset channels.", wrap=True)
             w.write(path)
             return
-        _grid(w, by_radio, radios, self.labels)
+        names = [radio_name(self.flight, r) for r in radios]
+        _grid(w, by_radio, radios, self.labels, names)
         w.write(path)
+
+
+def radio_name(flight: FlightData, radio_id: int) -> str:
+    """The radio as the other pages name its presets: ``COM1``, ``UHF``, ``AUX``."""
+    name = flight.aircraft_type.channel_name(radio_id, 1)
+    if name.endswith(" Ch 1") and len(name) > len(" Ch 1"):
+        return name[: -len(" Ch 1")]
+    return f"COMM {radio_id}"
+
+
+def fit(text: str, max_px: float, length: Callable[[str], float]) -> str:
+    """The text cut down with an ellipsis until it fits; a long tower name ran into
+    the Ch column (2026-10-21)."""
+    if length(text) <= max_px:
+        return text
+    while text and length(text + "...") > max_px:
+        text = text[:-1]
+    return text.rstrip() + "..."
 
 
 def _grid(
@@ -79,6 +98,7 @@ def _grid(
     by_radio: dict[int, dict[int, RadioFrequency]],
     radios: list[int],
     labels: dict[RadioFrequency, str],
+    names: Optional[list[str]] = None,
 ) -> None:
     """A ruled 20-row card: COMM1, channel, COMM2."""
     draw, font, ink = w.draw, w.table_font, w.foreground_fill
@@ -90,11 +110,8 @@ def _grid(
     top = w.y + 6
     rows = max(20, max(max(c) for c in by_radio.values()))
     row_h = min(44, (w.image_size[1] - top - w.page_margin) // (rows + 1))
-    headers = [
-        f"COMM {radios[0]}",
-        "Ch",
-        f"COMM {radios[1]}" if len(radios) > 1 else "",
-    ]
+    names = names or [f"COMM {r}" for r in radios]
+    headers = [names[0], "Ch", names[1] if len(radios) > 1 else ""]
 
     def centred(text: str, x0: int, x1: int, y: int) -> None:
         tw = draw.textlength(text, font=font)
@@ -105,7 +122,12 @@ def _grid(
         if freq is None:
             return ""
         name = labels.get(freq, "")
-        return f"{name}  {freq.mhz:.3f}" if name else f"{freq.mhz:.3f}"
+        number = f"{freq.mhz:.3f}"
+        if not name:
+            return number
+        room = col_w - 16 - draw.textlength(f"  {number}", font=font)
+        name = fit(name, room, lambda t: draw.textlength(t, font=font))
+        return f"{name}  {number}"
 
     for r in range(rows + 1):
         y = top + r * row_h

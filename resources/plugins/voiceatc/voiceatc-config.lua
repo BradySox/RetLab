@@ -636,9 +636,14 @@ local function handleCall(field, position, flight, member, kind, detail)
         return sayAgain(field, position, flight, member)
     elseif kind == "emergency" then
         return emergency(field, position, flight, member)
+    elseif kind == "startup" or kind == "airborne" then
+        -- A short answer from whoever was called, never "say again": start needs no
+        -- clearance (taxi is the first call), and airborne needs nothing more.
+        local reply = kind == "startup" and ", start at your discretion. Call ready to taxi." or ", frequency change approved."
+        return say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), reply }))
     end
     local ground = kind == "taxi"
-    local tower = kind == "ready" or kind == "inbound" or kind == "clear" or kind == "airborne"
+    local tower = kind == "ready" or kind == "inbound" or kind == "clear"
     -- Casual answers whoever was called; the others send the pilot to the right position.
     local on = nil
     if CASUAL then

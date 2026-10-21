@@ -12,11 +12,14 @@ docs/dev/retlab-features.md §119.
 from __future__ import annotations
 
 import logging
-import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterator, Optional
 
-from game.retlab.package_control import SKYEYE_LINK_HOST, SKYEYE_LINK_PORT
+from game.retlab.package_control import (
+    SKYEYE_LINK_HOST,
+    SKYEYE_LINK_PORT,
+    lead_callsign,
+)
 from game.retlab.skyeye_voices import pick_another_voice
 from game.theater.controlpoint import Airfield
 
@@ -45,15 +48,20 @@ def player_airfields(ato: AirTaskingOrder) -> list[Airfield]:
 def allocate_atc_frequencies(
     game: Game, registry: RadioRegistry, mission_data: MissionData
 ) -> None:
-    """VHF AM Ground and Tower frequencies for each player airfield, reserved like STRIKE.
+    """UHF Ground and Tower frequencies for each player airfield, reserved like STRIKE.
 
-    A field keeps its pair for the whole campaign (``Game.voice_atc_frequencies``), so a
-    pilot can learn it. Every pinned pair is reserved first, used this turn or not, so a
-    new field never takes another field's frequency.
+    UHF because the F-4E, the F-5E and a Tomcat pilot without a RIO have no VHF
+    radio (user call, 2026-10-21). A field keeps its pair for the whole campaign
+    (``Game.voice_atc_frequencies``), so a pilot can learn it. Every pinned pair is
+    reserved first, used this turn or not, so a new field never takes another
+    field's frequency.
     """
     if not game.settings.voice_atc:
         return
     pinned = game.voice_atc_frequencies
+    # A pair pinned while Ground and Tower were VHF AM (#1340) is picked again.
+    for name in [n for n, pair in pinned.items() if not all(is_uhf(f) for f in pair)]:
+        del pinned[name]
     for name, pair in pinned.items():
         for frequency in pair:
             if frequency in registry.allocated_channels:
@@ -68,9 +76,13 @@ def allocate_atc_frequencies(
     for airfield in player_airfields(game.blue.ato):
         name = airfield.airport.name
         if name not in pinned:
-            pinned[name] = (registry.alloc_vhf(), registry.alloc_vhf())
+            pinned[name] = (registry.alloc_uhf(), registry.alloc_uhf())
             registry.atc_pinned.update(pinned[name])
         mission_data.atc_frequencies[name] = pinned[name]
+
+
+def is_uhf(frequency: RadioFrequency) -> bool:
+    return frequency.band == "UHF"
 
 
 def squawk_codes() -> Iterator[str]:
@@ -84,13 +96,6 @@ def squawk_codes() -> Iterator[str]:
 def frequency_text(frequency: RadioFrequency) -> str:
     """``262.000AM``: the string SkyEye prints a frequency as."""
     return f"{frequency.mhz:.3f}{frequency.modulation.name}"
-
-
-def lead_callsign(flight: FlightData) -> str:
-    """``"Viper 1"`` -> ``"Viper 1-1"``: the lead's callsign, which ATC answers to."""
-    if re.fullmatch(r"\D+ \d+", flight.callsign):
-        return f"{flight.callsign}-1"
-    return flight.callsign
 
 
 def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:

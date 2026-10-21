@@ -18,6 +18,7 @@ from game.runways import RunwayData
 if TYPE_CHECKING:
     from dcs import Point
 
+    from game.ato.package import Package
     from game.radio.radios import RadioFrequency
     from game.radio.tacan import TacanChannel
     from game.retlab.ai_fill import AiFillPair
@@ -166,6 +167,9 @@ class MissionData:
     #: Vacuum's own frequency, where it calls every red radar (§118). None with
     #: no Vacuum fragged.
     vacuum_frequency: Optional[RadioFrequency] = None
+    #: The player packages STRIKE is the package frequency of (``id(package)``). Kept
+    #: here, not on the package, so STRIKE is never saved as a package's frequency.
+    strike_packages: set[int] = field(default_factory=set)
     #: The SkyEye voices the AWACS and ABCCC speak with this mission (§117).
     skyeye_voices: list[str] = field(default_factory=list)
     #: Voice ATC (§119): each player airfield's Ground and Tower frequencies, by DCS
@@ -219,3 +223,24 @@ class MissionData:
     renamed_units: dict[str, str] = field(default_factory=dict)
     #: Player flights with an AI twin waiting to replace them (§113).
     ai_fill_pairs: list[AiFillPair] = field(default_factory=list)
+
+    def package_frequency(self, package: Package) -> Optional[RadioFrequency]:
+        """The package frequency its players use: STRIKE in a package the ABCCC runs."""
+        if self.strike_frequency is not None and id(package) in self.strike_packages:
+            return self.strike_frequency
+        return package.frequency
+
+    def voice_bot_frequencies(self) -> set[RadioFrequency]:
+        """SkyEye's AWACS, STRIKE, Vacuum and every Ground and Tower: no AI on these."""
+        frequencies = {
+            f
+            for f in (
+                self.skyeye_frequency,
+                self.strike_frequency,
+                self.vacuum_frequency,
+            )
+            if f is not None
+        }
+        for pair in self.atc_frequencies.values():
+            frequencies.update(pair)
+        return frequencies
