@@ -41,7 +41,7 @@ from .support import (
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
 from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage
-from game.retlab.voice_atc import atc_lines
+from game.retlab.voice_atc import atc_lines, preset_name
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
 from .threatintel import (
@@ -384,6 +384,8 @@ class KneeboardGenerator(MissionInfoGenerator):
                     self.voice_atc.fields.get(atc.departure or ""),
                     self.voice_atc.fields.get(atc.arrival or ""),
                     self.dark_kneeboard,
+                    divert=self.voice_atc.fields.get(atc.divert or ""),
+                    preset=lambda frequency: preset_name(flight, frequency),
                 )
             )
 
