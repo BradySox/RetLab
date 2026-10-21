@@ -2294,6 +2294,26 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   (`_holds_sam_system`). A save written after the strip stays stripped. Tests:
   `tests/theater/test_aaa_radar_migration.py`.
 
+- **The app closed with no error 20-40 s after a mission ended (2026-10-21; row B265).**
+  15 crashes from 2026-10-17, each Windows event 1000 in `pyside6.abi3.dll` (0xc0000005,
+  offset 0x14394); the minidumps fault in PySide's signal code. The cause is inferred, not
+  proven: three paths emitted Qt signals carrying Python objects from non-Qt threads. The
+  debrief poll ran on a `threading.Thread`; it is now `DebriefingFilePoller`
+  (`game/debriefingfilepoller.py`, Qt-free, one check per `poll()`) driven by a GUI-thread
+  `QTimer` (`DebriefingPollTimer`, `qt_ui/simcontroller.py`), same 2 s interval and retry.
+  The game loop ticks on a `threading.Timer`; `SimController._on_loop_update` queues its
+  events under a lock and a payload-free queued signal flushes them in order on the GUI
+  thread, completion last. The saved-point routes run on uvicorn's thread;
+  `GameUpdateSignal.notify_saved_points_changed` relays the notice the same way. On the GUI
+  thread all three still emit at once. The waiting window disconnects from the shared
+  debrief signal in `done()`/`closeEvent` and is `WA_DeleteOnClose`; before, every Take off
+  left a hidden dialog connected. `qt_ui/main.py` `enable_fault_log` turns on
+  `faulthandler` (all threads) into `logs/faulthandler.log` before logging starts, a header
+  per start, restarted past 1 MB; the next crash's stack confirms or refutes the cause.
+  Windows also logs some handled access violations there, so a stack without a crash is not
+  a crash. PySide6 stays 6.8.3. Tests: `tests/qt_ui/test_main_thread_handoff.py`,
+  `tests/qt_ui/test_fault_log.py`.
+
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
 **Removed 2026-10-15 (DM call).** The `tic` plugin (default on) ran Grendel's TIC v1.1 (MIT,
@@ -6518,7 +6538,7 @@ before hosting each event.
 
 **The fixed output does not move.** Nothing downstream ever depended on that name, which is
 what makes this cheap: DCS writes `state.json` to a fixed path of its own, and
-`PollDebriefingFileThread` decides "is this result mine?" by comparing the file's mtime
+`DebriefingFilePoller` decides "is this result mine?" by comparing the file's mtime
 against `MissionSimulation.miz_generated_at` — never by filename. The wiki (Dedicated Server
 Guide, Your First Operation), the bug-report template and every server workflow keep naming
 `retribution_nextturn.miz`, and it keeps being exactly what they say it is.

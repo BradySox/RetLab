@@ -68,11 +68,16 @@ class QWaitingForMissionResultWindow(QDialog):
         self.setWindowTitle("Waiting for mission completion.")
         self.setWindowIcon(QIcon("./resources/icon.png"))
         self.setMinimumHeight(570)
+        # Nothing reads the dialog after exec_(). Kept alive, every old dialog
+        # stayed connected to the shared signal and rebuilt its hidden layout
+        # on each later mission's updates.
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
 
         self.initUi()
         DebriefingFileWrittenSignal.get_instance().debriefingReceived.connect(
             self.updateLayout
         )
+        self._listening = True
         self.wait_thread = sim_controller.wait_for_debriefing(
             lambda debriefing: self.on_debriefing_update(debriefing)
         )
@@ -261,10 +266,22 @@ class QWaitingForMissionResultWindow(QDialog):
             ),
         )
 
-    def closeEvent(self, evt):
-        super(QWaitingForMissionResultWindow, self).closeEvent(evt)
+    def _stop_listening(self) -> None:
         if self.wait_thread is not None:
             self.wait_thread.stop()
+        if self._listening:
+            self._listening = False
+            DebriefingFileWrittenSignal.get_instance().debriefingReceived.disconnect(
+                self.updateLayout
+            )
+
+    def closeEvent(self, evt):
+        super(QWaitingForMissionResultWindow, self).closeEvent(evt)
+        self._stop_listening()
+
+    def done(self, result: int) -> None:
+        self._stop_listening()
+        super().done(result)
 
     def submit_manually(self):
         file = QFileDialog.getOpenFileName(

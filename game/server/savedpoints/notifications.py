@@ -14,4 +14,5 @@ def publish_points_changed() -> None:
 
     signal = GameUpdateSignal.get_instance()
     if signal is not None:
-        signal.saved_points_changed.emit()
+        # The routes run on the web server's thread, not Qt's.
+        signal.notify_saved_points_changed()
