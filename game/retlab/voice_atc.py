@@ -157,7 +157,6 @@ def populate_voice_atc_lua(
     node = root.add_item("voiceAtc")
     node.add_key_value("linkHost", SKYEYE_LINK_HOST)
     node.add_key_value("linkPort", str(SKYEYE_LINK_PORT))
-    node.add_key_value("strict", "true" if game.settings.voice_atc_strict else "")
     altimeter = game.conditions.weather.atmospheric.qnh.inches_hg
     fields_node = node.add_item("fields")
     for atc_field in plan.fields.values():

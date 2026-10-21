@@ -11310,13 +11310,27 @@ The calls (lead calls for the flight going out; a player wingman may ask for the
 "Say again" repeats the last call; "radio check" answers 5 by 5. A call to the wrong position
 gets "contact Ground/Tower <freq>". An unknown callsign gets "say again your callsign".
 
-**Readbacks.** With **Strict readbacks** on (default) a readback missing an item gets
-"<callsign>, readback incomplete, squawk 4101." Off, the callsign alone counts. ATC stays
-silent on a good readback, as real controllers do.
+**Radio discipline.** ATC reads the shared **Radio discipline** setting (§121, default
+Strict) as `dcsRetribution.radioDiscipline` and passes it to SkyEye in the `atc` message.
+It replaced Voice ATC's own "Strict readbacks" (2026-10-21; a save with that unticked
+migrates to Relaxed).
 
-**Rule busts** get one scolding call each and never block: rolling faster than about 6 kt
-before a taxi clearance ("not cleared for taxi"), a takeoff without clearance, a landing
-without clearance.
+| | Strict | Relaxed | Casual |
+|---|---|---|---|
+| Readback missing an item | "readback incomplete, squawk 4101" | fine | fine |
+| Readback with a wrong number | "readback incomplete, ..." | "negative, squawk 4101" | fine |
+| Rule busts | one scolding call each | none | none |
+| Call to the wrong position | "contact Ground/Tower <freq>" | the same | answered where called |
+| Unprompted "clear the runway" | yes | yes | no: ATC speaks only when called |
+| Callsign | must match | must match | a misheard name with the right numbers, or none when one player flight uses the field |
+| SkyEye parsing | station, callsign, request | the same | the station or callsign may be left out |
+
+ATC stays silent on a good readback, as real controllers do. Under Casual you may taxi and
+take off unannounced; Departure (step 2) will still pick you up.
+
+**Rule busts** (Strict only) get one scolding call each and never block: rolling faster than
+about 6 kt before a taxi clearance ("not cleared for taxi"), a takeoff without clearance, a
+landing without clearance.
 
 **F10 menu.** "ATC" per player group makes the same requests (user call, 2026-10-20). A menu
 readback is always complete. Without LuaSocket the menu is the only way in and the replies

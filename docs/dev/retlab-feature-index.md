@@ -130,7 +130,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §116 | Voice AWACS on SRS | — | `voice_awacs` |
 | §117 | Airborne package control | `pkgcontrol` | `package_controller` |
 | §118 | Vacuum ELINT | `vacuum` | `vacuum_elint` |
-| §119 | Voice ATC | `voiceatc` | `voice_atc`, `voice_atc_strict` |
+| §119 | Voice ATC | `voiceatc` | `voice_atc` |
 | §120 | Voice bots on Take Off | — | — |
 | §121 | Radio discipline | — | `radio_discipline` |
 | — | Skynet IADS engine | `skynetiads` | — |
