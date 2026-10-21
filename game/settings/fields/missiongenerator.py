@@ -20,6 +20,7 @@ from ..enums import (
     DatalinkPolicy,
     DefaultPlayerLaserCode,
     FastForwardStopCondition,
+    RadioDiscipline,
     TargetIntelPrecision,
 )
 from ..layout import GAMEPLAY_SECTION, KNEEBOARD_SECTION, MISSION_GENERATOR_PAGE
@@ -480,6 +481,23 @@ class MissionGeneratorSettings:
             "ground radar by bullseye once each time the radar comes on, on its own "
             "frequency, and on STRIKE only when the radar covers a player package's "
             "route or target. SkyEye, running with its mission link, speaks the calls."
+        ),
+    )
+    radio_discipline: RadioDiscipline = choices_option(
+        "Radio discipline",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        choices={level.value: level for level in RadioDiscipline},
+        default=RadioDiscipline.STRICT,
+        detail=(
+            "How by the book the SkyEye controllers expect you to be. Strict: the "
+            "ABCCC calls a roll call before the push and holds or aborts for players "
+            "who stay silent, and every call names the controller first. Relaxed: "
+            "the roll call is still asked, but an airborne player counts as ready, "
+            "and a call with only your own callsign reaches the ABCCC. Casual: no "
+            "roll call; the ABCCC speaks only when called, at the push, or to hold "
+            "for SEAD that is not airborne; Vacuum calls only radars that threaten "
+            "your package; and the AWACS gives only threat calls on STRIKE."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

@@ -348,6 +348,7 @@ linked design note.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
 117. **Airborne package control** — a C-130J-30 ABCCC runs player packages on STRIKE through SkyEye; nothing without it airborne. Off by default.
 118. **Vacuum ELINT** — a KC-135 (C-130J-30 backup) calls red radars by bullseye through SkyEye as they come on; SEAD-heavy turns. Off by default.
+121. **Radio discipline** — Strict, Relaxed or Casual: how by the book the SkyEye controllers expect players to be. Strict by default.
 
 ### Retired, removed or shelved — do not restore
 

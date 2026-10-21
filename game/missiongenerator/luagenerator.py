@@ -496,6 +496,10 @@ class LuaGenerator:
         # AWACS package controller (§117) -- emits dcsRetribution.packageControl only when
         # package_controller is on and a blue AWACS and a player package fly; the
         # pkgcontrol plugin speaks the check-in, push, hold/abort and egress calls on SRS.
+        # Radio discipline (§121), read by every SkyEye voice plugin.
+        lua_data.add_key_value(
+            "radioDiscipline", self.game.settings.radio_discipline.value.lower()
+        )
         populate_package_control_lua(lua_data, self.game, self.mission_data)
 
         # Vacuum ELINT (§118) -- emits dcsRetribution.vacuum only when a blue Vacuum

@@ -38,6 +38,10 @@ local EGRESS_GIVE_UP_SECONDS = 3600
 local TEXT_SECONDS = 15
 
 local START_SECONDS = tonumber(data.startSeconds) or 0
+-- Radio discipline (§121): strict (by the book), relaxed or casual (user call, 2026-10-20).
+local DISCIPLINE = (dcsRetribution.radioDiscipline or "strict")
+local STRICT = DISCIPLINE == "strict"
+local CASUAL = DISCIPLINE == "casual"
 local packages = data.packages or {}
 
 local function liveUnits(groupName)
@@ -113,7 +117,9 @@ local function jsonObject(fields)
     for _, kv in ipairs(fields) do
         local key, value = kv[1], kv[2]
         local encoded
-        if type(value) == "table" then
+        if type(value) == "boolean" then
+            encoded = value and "true" or "false"
+        elseif type(value) == "table" then
             local items = {}
             for _, item in ipairs(value) do
                 if type(item) == "table" then
@@ -183,6 +189,8 @@ local function announcePackages()
         { "strike", STRIKE },
         { "gciVoice", data.awacsVoice or "" },
         { "gciCallsign", data.awacsCallsign or "" },
+        { "looseCalls", not STRICT },
+        { "strikeThreatsOnly", CASUAL },
     })
 end
 
@@ -373,7 +381,7 @@ end
 
 local function notReady(pkg)
     local missing = {}
-    for _, role in ipairs({ "sead", "escort" }) do
+    for _, role in ipairs(CASUAL and { "sead" } or { "sead", "escort" }) do
         for _, f in ipairs(flightsWithRole(pkg, role)) do
             if not lost(f) and not airborne(f) then
                 table.insert(missing, role == "sead" and "SEAD" or "escort")
@@ -424,6 +432,10 @@ end
 
 local function silentPlayers(pkg, role)
     local out = {}
+    if not STRICT then
+        -- Relaxed and casual never wait on a player who stays quiet.
+        return out
+    end
     for _, f in ipairs(flightsWithRole(pkg, role)) do
         if seated(f) and not f.ready then
             table.insert(out, f)
@@ -581,13 +593,15 @@ local function tick(_, now)
             end
         elseif pkg.state == "waiting" and pkg.pushAt and now >= pkg.pushAt then
             decidePush(pkg)
-        elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled
+        elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled and not CASUAL
             and now >= pkg.pushAt - ROLL_CALL_LEAD_SECONDS then
             rollCall(pkg)
         elseif pkg.state == "pushed" then
             if strikersEgressed(pkg) then
                 pkg.state = "done"
-                say(pkg, string.format("Package %s, {controller}, all strikers egressed. RTB.", pkg.name))
+                if not CASUAL then
+                    say(pkg, string.format("Package %s, {controller}, all strikers egressed. RTB.", pkg.name))
+                end
             elseif now - pkg.pushedAt > EGRESS_GIVE_UP_SECONDS then
                 pkg.state = "done"
             end
@@ -657,17 +671,39 @@ local function sayPushTime(pkg, flight)
     say(pkg, string.format("%s, {controller}, package %s has pushed.", callsign, pkg.name))
 end
 
--- The package and flight a SkyEye request is from, by the caller's callsign.
+local function callsignWord(callsign)
+    return (tostring(callsign):lower():gsub("[^%a]", ""))
+end
+
+-- The package and flight a SkyEye request is from, by the caller's callsign. Off Strict, a
+-- close-enough callsign ("Colt" for "Colt 1-1") finds the one player flight it names.
 local function findCaller(request)
     local wanted = normalize(request.callsign or "")
+    if wanted == "" then
+        return nil, nil
+    end
     for _, pkg in ipairs(packages) do
         for _, f in ipairs(pkg.flights or {}) do
-            if wanted ~= "" and normalize(f.callsign) == wanted then
+            if normalize(f.callsign) == wanted then
                 return pkg, f
             end
         end
     end
-    return nil, nil
+    if STRICT then
+        return nil, nil
+    end
+    local word, foundPkg, found = callsignWord(request.callsign), nil, nil
+    for _, pkg in ipairs(packages) do
+        for _, f in ipairs(pkg.flights or {}) do
+            if f.client == "true" and word ~= "" and callsignWord(f.callsign) == word then
+                if found then
+                    return nil, nil
+                end
+                foundPkg, found = pkg, f
+            end
+        end
+    end
+    return foundPkg, found
 end
 
 local function handleRequest(request)

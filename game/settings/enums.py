@@ -93,6 +93,15 @@ class AiRadioBehavior(Enum):
 
 
 @unique
+class RadioDiscipline(Enum):
+    """How by-the-book the voice controllers expect the players to be."""
+
+    STRICT = "Strict"
+    RELAXED = "Relaxed"
+    CASUAL = "Casual"
+
+
+@unique
 class DatalinkPolicy(Enum):
     """Who gets the DCS ``EPLRS`` task -- the group's datalink-enable switch.
 
@@ -153,6 +162,7 @@ SERIALIZABLE_ENUM_TYPES = (
     DatalinkPolicy,
     DefaultPlayerLaserCode,
     IadsEngine,
+    RadioDiscipline,
     CombatStance,
     StartType,
     Views,

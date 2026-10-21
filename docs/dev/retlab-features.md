@@ -11205,6 +11205,35 @@ when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, Ret
   on its deny-list (`_ew_excluded_c130j_groups`).
 - The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
   Retribution's own install step. Without it the calls are text only.
+## §121 — Radio discipline
+
+One campaign setting, **Radio discipline** (Mission Generator page, Cockpit & nav aids),
+read by every SkyEye voice plugin as `dcsRetribution.radioDiscipline`. Default **Strict**;
+a squadron that does not fly by the book picks Relaxed or Casual (user call, 2026-10-20).
+Voice ATC (#1328) reads the same setting.
+
+| | Strict | Relaxed | Casual |
+|---|---|---|---|
+| Roll call 3 min before the push | yes | yes | none |
+| Silent player | held or aborted by role (§117) | counts as ready | counts as ready |
+| Hold for a flight on the ground | SEAD or escort | SEAD or escort | SEAD only |
+| Egress call | yes | yes | none |
+| Call that names only the pilot on STRIKE | ignored | reaches the ABCCC | reaches the ABCCC |
+| Close-enough callsign ("Colt" for Colt 1-1) | no | yes | yes |
+| Vacuum | every radar | every radar | only radars over a player package |
+| AWACS on STRIKE | threats, merges, answers | threats, merges, answers | threat calls only |
+
+The ABCCC tells SkyEye `looseCalls` (off Strict) and `strikeThreatsOnly` (Casual) in its
+packages message. SkyEye parses a pilot-only call heard on STRIKE for the first package
+controller; with threats only it drops merges on STRIKE and answers calls heard there on
+its own frequency. Built 2026-10-20. Not flown (row B263).
+
+### Files
+
+- `game/settings/enums.py` (`RadioDiscipline`), `fields/missiongenerator.py`.
+- `resources/plugins/pkgcontrol/pkgcontrol-config.lua`, `resources/plugins/vacuum/vacuum-config.lua`.
+- `tests/lua/test_pkgcontrol_runtime.py`, `tests/lua/test_vacuum_runtime.py`.
+
 ## §118 — Vacuum ELINT
 
 An **ELINT** flight type, callsign **Vacuum**, for the C-130J-30 and the KC-135 (and

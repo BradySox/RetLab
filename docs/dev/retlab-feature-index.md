@@ -130,5 +130,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §116 | Voice AWACS on SRS | — | `voice_awacs` |
 | §117 | Airborne package control | `pkgcontrol` | `package_controller` |
 | §118 | Vacuum ELINT | `vacuum` | `vacuum_elint` |
+| §121 | Radio discipline | — | `radio_discipline` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
