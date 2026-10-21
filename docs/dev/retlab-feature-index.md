@@ -132,5 +132,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §118 | Vacuum ELINT | `vacuum` | `vacuum_elint` |
 | §119 | Voice ATC | `voiceatc` | `voice_atc`, `voice_atc_strict` |
 | §120 | Voice bots on Take Off | — | — |
+| §121 | Radio discipline | — | `radio_discipline` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

@@ -131,13 +131,18 @@ def _harness(
     targets: tuple[str, ...] = ("Bridge #1",),
     link: bool = True,
     controller_airborne: bool = True,
+    discipline: str = "strict",
 ) -> DcsPluginHarness:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_AIRBASE)
     if link:
         h.lua.execute(FAKE_SOCKET)
     h.lua.globals().dcsRetribution = h.to_lua(
-        {"plugins": {}, **_config(flights, list(targets))}
+        {
+            "plugins": {},
+            "radioDiscipline": discipline,
+            **_config(flights, list(targets)),
+        }
     )
     h.add_group(_group("Anvil", x=100 * NM, airborne=controller_airborne))
     h.add_group(_group("Bridge", x=0, category=2))
@@ -456,3 +461,69 @@ def test_an_empty_player_slot_is_not_waited_for() -> None:
     h.advance_to(PUSH + 10)
     assert _texts(h) == ["Package Colt, Anvil, push."]
     h.assert_no_lua_errors()
+
+
+def _holds(h: DcsPluginHarness) -> list[str]:
+    return [t for t in _texts(h) if "hold, hold" in t or "abort" in t]
+
+
+def test_skyeye_is_told_how_loose_the_calls_may_be() -> None:
+    for discipline, loose, threats_only in (
+        ("strict", False, False),
+        ("relaxed", True, False),
+        ("casual", True, True),
+    ):
+        h = _harness(
+            [_flight("Colt", client=True)], [_group("Colt")], discipline=discipline
+        )
+        h.advance_to(2)
+        packages = [m for m in _sent(h) if m["type"] == "packages"][0]
+        assert packages["looseCalls"] is loose
+        assert packages["strikeThreatsOnly"] is threats_only
+
+
+def test_relaxed_never_holds_for_a_silent_player() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Weasel", role="sead", client=True)],
+        [_group("Colt", player="Flash"), _group("Weasel", player="Joe")],
+        discipline="relaxed",
+    )
+    h.advance_to(PUSH + 10)
+    assert any(t.startswith("All players, Anvil, check in") for t in _all_texts(h))
+    assert _holds(h) == []
+    assert "push" in _texts(h)[-1]
+    h.assert_no_lua_errors()
+
+
+def test_casual_has_no_roll_call_and_no_hold_for_the_escort() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Uzi", role="escort")],
+        [_group("Colt", player="Flash"), _group("Uzi", airborne=False)],
+        discipline="casual",
+    )
+    h.advance_to(PUSH + 10)
+    assert not any("check in" in t for t in _all_texts(h))
+    assert _holds(h) == []
+    assert "push" in _texts(h)[-1]
+
+
+def test_casual_still_holds_for_sead_on_the_ground() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Weasel", role="sead")],
+        [_group("Colt", player="Flash"), _group("Weasel", airborne=False)],
+        discipline="casual",
+    )
+    h.advance_to(PUSH + 10)
+    assert _holds(h) == [
+        "Package Colt, Anvil, hold, hold. SEAD not airborne. New push time 14 13."
+    ]
+
+
+def test_off_strict_a_close_enough_callsign_finds_the_flight() -> None:
+    for discipline, answered in (("strict", False), ("relaxed", True)):
+        h = _harness(
+            [_flight("Colt", client=True)], [_group("Colt")], discipline=discipline
+        )
+        _request(h, "pushtime", callsign="colt")
+        h.advance_to(2)
+        assert bool(_texts(h)) is answered, discipline

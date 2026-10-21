@@ -981,6 +981,12 @@ FEATURES: tuple[Feature, ...] = (
         "Voice bots on Take Off",
         120,
     ),
+    Feature(
+        "radio_discipline",
+        "Radio discipline",
+        121,
+        settings_fields=("radio_discipline",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),
