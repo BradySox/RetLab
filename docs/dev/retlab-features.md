@@ -11178,8 +11178,10 @@ mission and the controller the other. Every call is also text to the package's p
 Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
 (recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
 
-**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a Piper voice
-from their own squadron's DCS country: American, British (one Scottish), or English read by
+**Voices by country (2026-10-20).** The AWACS and the ABCCC each speak with a voice
+from their own squadron's DCS country: American or British from Kokoro (`kokoro#am_eric`,
+four adult voices each, picked by ear; run by sherpa-onnx's TTS tool in the Kokoro folder's
+`bin`), or English read by
 native Arabic and Spanish speakers (the multi-speaker `en_US-l2arctic-medium` model). Every
 other country sounds British; the Asian accents were dropped (user call, 2026-10-20). The two are always opposite genders. SkyEye loads the voices
 from its `voices-dir` (default `voices`, one folder per voice) and falls back to its own voice
