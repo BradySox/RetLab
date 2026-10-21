@@ -52,7 +52,20 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     monkeypatch.setattr(launcher, "srs_dir", lambda: srs)
     monkeypatch.setattr(launcher, "running", lambda image: image in state["running"])
     monkeypatch.setattr(
-        launcher, "port_open", lambda port: launcher.SRS_SERVER_EXE in state["running"]
+        launcher,
+        "port_open",
+        lambda port: launcher.SRS_SERVER_EXE in state["running"]
+        and not state.get("stopped"),
+    )
+
+    def kill(image: str) -> None:
+        state["running"].discard(image)
+        state["killed"] = image
+        state["stopped"] = False
+
+    monkeypatch.setattr(launcher, "kill", kill)
+    monkeypatch.setattr(
+        launcher, "_wait", lambda condition, seconds, step=1.0: condition()
     )
     monkeypatch.setattr(launcher, "_start", start)
     monkeypatch.setattr(launcher, "_connect_client", state["connects"].append)
@@ -100,3 +113,19 @@ def test_only_the_skyeye_retlab_started_is_stopped(world: dict[str, Any]) -> Non
 
 def test_the_connect_message_is_what_srs_sends() -> None:
     assert launcher.autoconnect_message() == b"127.0.0.1:5002\n"
+
+
+def test_a_stopped_srs_server_is_restarted(world: dict[str, Any]) -> None:
+    world["running"].add(launcher.SRS_SERVER_EXE)
+    world["stopped"] = True
+    launcher._start_voice_bots(world["skyeye"])
+    assert world["killed"] == launcher.SRS_SERVER_EXE
+    assert world["started"][0] == (launcher.SRS_SERVER_EXE, False)
+    assert (launcher.SKYEYE_EXE, True) in world["started"]
+
+
+def test_a_listening_srs_server_is_left_alone(world: dict[str, Any]) -> None:
+    world["running"].add(launcher.SRS_SERVER_EXE)
+    launcher._start_voice_bots(world["skyeye"])
+    assert "killed" not in world
+    assert (launcher.SRS_SERVER_EXE, False) not in world["started"]

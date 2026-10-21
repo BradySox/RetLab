@@ -23,6 +23,8 @@ SRS_PORT = 5002
 #: sends "host:port" here, but only to a server's guests, never to the host.
 SRS_AUTOCONNECT_PORT = 5069
 SERVER_WAIT_SECONDS = 60
+#: How long an open SRS server may take to listen before it counts as stopped.
+STOPPED_SERVER_SECONDS = 15
 CLIENT_START_SECONDS = 8
 SKYEYE_EXE = "skyeye.exe"
 SKYEYE_CONFIG = "config.yaml"
@@ -66,6 +68,18 @@ def running(image: str) -> bool:
     except OSError:
         return False
     return image.lower() in out.lower()
+
+
+def kill(image: str) -> None:
+    """Close every process with this .exe name."""
+    if sys.platform != "win32":
+        return
+    subprocess.run(
+        ["taskkill", "/IM", image, "/F"],
+        capture_output=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+        check=False,
+    )
 
 
 def port_open(port: int, host: str = "127.0.0.1") -> bool:
@@ -126,6 +140,14 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
     server = srs / "Server" / SRS_SERVER_EXE
     client = srs / "Client" / SRS_CLIENT_EXE
     try:
+        # An SRS server window whose Stop button was pressed runs without listening;
+        # Take off restarts it (user call, 2026-10-21).
+        if running(SRS_SERVER_EXE) and not _wait(
+            lambda: port_open(SRS_PORT), STOPPED_SERVER_SECONDS
+        ):
+            logging.info("Voice bots: SRS server is open but stopped; restarting it")
+            kill(SRS_SERVER_EXE)
+            _wait(lambda: not running(SRS_SERVER_EXE), 10)
         if not running(SRS_SERVER_EXE):
             if not server.exists():
                 logging.warning("Voice bots: no SRS server at %s", server)
