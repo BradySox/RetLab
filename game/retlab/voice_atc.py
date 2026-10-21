@@ -117,6 +117,16 @@ def atc_lines(flight: FlightData, atc_field: AtcField) -> str:
     )
 
 
+def runway_ends(game: Game, airfield_name: str) -> list[str]:
+    """``["10R", "28L", "10L", "28R"]``: each runway's two ends, in pairs."""
+    terrain = getattr(getattr(game, "theater", None), "terrain", None)
+    airport = getattr(terrain, "airports", {}).get(airfield_name) if terrain else None
+    ends: list[str] = []
+    for runway in getattr(airport, "runways", []):
+        ends.extend([runway.main.name, runway.opposite.name])
+    return ends
+
+
 @dataclass
 class AtcField:
     name: str
@@ -125,6 +135,9 @@ class AtcField:
     ground: RadioFrequency
     ground_voice: str = ""
     tower_voice: str = ""
+    #: Every runway end at the field, in pairs ("10R", "28L", ...), for the plugin to
+    #: switch to the one DCS's AI is using.
+    runways: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -170,7 +183,13 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
             names.append(runway.airfield_name)
             plan.fields.setdefault(
                 runway.airfield_name,
-                AtcField(runway.airfield_name, runway.runway_name, tower, ground),
+                AtcField(
+                    runway.airfield_name,
+                    runway.runway_name,
+                    tower,
+                    ground,
+                    runways=runway_ends(game, runway.airfield_name),
+                ),
             )
         if not any(names):
             continue
@@ -212,6 +231,7 @@ def populate_voice_atc_lua(
         item.add_key_value("name", atc_field.name)
         item.add_key_value("airbase", atc_field.name)
         item.add_key_value("runway", atc_field.runway)
+        item.add_key_value("runways", ",".join(atc_field.runways))
         item.add_key_value("altimeter", f"{altimeter:.2f}")
         item.add_key_value("ground", frequency_text(atc_field.ground))
         item.add_key_value("tower", frequency_text(atc_field.tower))

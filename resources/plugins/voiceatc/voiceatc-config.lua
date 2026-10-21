@@ -4,7 +4,8 @@
 -- Reads dcsRetribution.voiceAtc (emitted only with the Voice ATC setting on and a player flight
 -- at an airfield): linkHost, linkPort, declination,
 -- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
---   fields = { { name, airbase, runway, altimeter, ground, tower, groundVoice, towerVoice } },
+--   fields = { { name, airbase, runway, runways ('10R,28L,...' in pairs), altimeter, ground,
+--     tower, groundVoice, towerVoice } },
 --   flights = { { group, callsign, squawk, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
@@ -811,6 +812,83 @@ local function addMenu(flight)
     end
 end
 
+---------------------------------------------------------------------------------------------------
+-- Runway in use
+---------------------------------------------------------------------------------------------------
+
+-- DCS's AI does not always take the into-wind runway the briefing picks (flown 2026-10-21:
+-- Tower cleared 28L, the AI used 10L at Hatzerim), so the first AI takeoff at a field sets
+-- the runway Ground and Tower give from then on.
+local LEARN_NM = 5
+local RUNWAY_MATCH_DEG = 35
+
+local function runwayNumber(name)
+    return tonumber(tostring(name):match("^(%d+)"))
+end
+
+local function angleOff(a, b)
+    local d = math.abs(a - b) % 360
+    return d > 180 and 360 - d or d
+end
+
+local function nearestField(unit)
+    local field, best = nil, nil
+    for _, f in ipairs(fields) do
+        if airbasePoint(f) then
+            local d = distanceNm(unit, f)
+            if d <= LEARN_NM and (best == nil or d < best) then
+                field, best = f, d
+            end
+        end
+    end
+    return field
+end
+
+local function learnRunway(unit)
+    local field = nearestField(unit)
+    if not field or field.learned then
+        return
+    end
+    local ok, pos = pcall(function()
+        return unit:getPosition()
+    end)
+    if not (ok and pos and pos.x) then
+        return
+    end
+    local heading = (math.deg(math.atan2(pos.x.z, pos.x.x)) - declination()) % 360
+    local ends, pairOf = {}, {}
+    for name in tostring(field.runways or ""):gmatch("[^,]+") do
+        table.insert(ends, name)
+        if #ends % 2 == 0 then
+            pairOf[ends[#ends - 1]], pairOf[name] = name, ends[#ends - 1]
+        end
+    end
+    -- The briefed runway's own strip first, so 28L turns into 10R rather than 10L.
+    local choice = nil
+    for _, name in ipairs(ends) do
+        local number = runwayNumber(name)
+        if number and angleOff(number * 10, heading) <= RUNWAY_MATCH_DEG then
+            if choice == nil or name == field.runway or pairOf[name] == field.runway then
+                choice = name
+            end
+        end
+    end
+    if choice then
+        field.learned = true
+        if choice ~= field.runway then
+            env.info(string.format("voiceatc: %s AI took off on %s; runway %s -> %s", field.name, choice, field.runway, choice))
+            field.runway = choice
+        end
+    end
+end
+
+local function isAirplane(unit)
+    local ok, desc = pcall(function()
+        return unit:getDesc()
+    end)
+    return not (ok and desc and desc.category ~= nil and desc.category ~= 0)
+end
+
 local handler = {}
 function handler:onEvent(event)
     if event.id == S_EVENT_BIRTH and event.initiator then
@@ -822,6 +900,14 @@ function handler:onEvent(event)
     end
     if not event.initiator or (event.id ~= S_EVENT_TAKEOFF and event.id ~= S_EVENT_LAND) then
         return
+    end
+    if event.id == S_EVENT_TAKEOFF then
+        local ok, name = pcall(function()
+            return event.initiator:getPlayerName()
+        end)
+        if not (ok and name and name ~= "") and isAirplane(event.initiator) then
+            learnRunway(event.initiator)
+        end
     end
     local flight = flightOfUnit(event.initiator)
     if not flight then

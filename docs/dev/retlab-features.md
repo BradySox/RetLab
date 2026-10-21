@@ -11308,7 +11308,14 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
 - **Squawks:** a four-digit code per player flight, digits 0 to 7, never repeated in a mission
   (4101, 4102 ... 4177, 4201 ...). Read back, nothing else checks it.
-- **Runway:** the one the briefing picks (`RunwayData.runway_name`). Wind is read live at the
+- **Runway:** the one the briefing picks (`RunwayData.runway_name`) until the first AI
+  airplane takes off within 5 NM of the field; its heading then sets the runway end ATC
+  gives (the briefed strip's other end first, so 28L becomes 10R). DCS's AI does not always
+  take the into-wind runway: on 2026-10-21 Tower cleared 28L and the AI used 10 at Hatzerim.
+  Tacview of five Syria flights with light wind (2-4 m/s) showed the AI on each field's
+  first-listed runway end (Hatzerim 10, Bassel Al-Assad 17, Incirlik 05, Konya 01) whatever
+  the wind, but Tel Nof broke the pattern, so the rule is not settled and the planner is
+  unchanged. In 7.7 m/s (Afghanistan) the AI went into the wind. Wind is read live at the
   field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH.
 - **No taxiway names.** DCS gives scripts none; the terrain's `AirfieldsTaxiways` files are an
   unlabeled road graph. Every field says "taxi to runway 25, hold short" (user call,
