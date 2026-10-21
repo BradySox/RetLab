@@ -74,6 +74,7 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     )
     monkeypatch.setattr(launcher, "_start", start)
     monkeypatch.setattr(launcher, "_watch_early_exit", lambda process, log: None)
+    monkeypatch.setattr(launcher, "_kill_tree", lambda process: process.terminate())
     monkeypatch.setattr(launcher, "_connect_client", state["connects"].append)
     monkeypatch.setattr(launcher, "_skyeye", None)
     return state

@@ -119,11 +119,38 @@ def _start(
     stamp = time.strftime("%Y-%m-%d %H:%M:%S")
     with log.open("ab") as out:
         out.write(f"\n==== {stamp} Take off ====\n".encode())
-        out.flush()
-        # The child gets its own copy of the handle, so ours can close.
-        return subprocess.Popen(  # type: ignore[call-overload]
-            [str(exe), *args], stdout=out, stderr=subprocess.STDOUT, **kwargs
-        )
+    if sys.platform != "win32":
+        with log.open("ab") as out:
+            return subprocess.Popen(  # type: ignore[call-overload]
+                [str(exe), *args], stdout=out, stderr=subprocess.STDOUT, **kwargs
+            )
+    # A blank window got closed as broken (2026-10-20), so the window shows the
+    # text and the log keeps a copy. PowerShell is the tee every Windows PC has.
+    return subprocess.Popen(  # type: ignore[call-overload]
+        [
+            "powershell.exe",
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            tee_command(exe, args, log),
+        ],
+        **kwargs,
+    )
+
+
+def _ps_quote(text: str) -> str:
+    return "'" + text.replace("'", "''") + "'"
+
+
+def tee_command(exe: Path, args: list[str], log: Path) -> str:
+    """PowerShell that runs exe, shows each line and appends it to log as UTF-8."""
+    call = " ".join(["&", _ps_quote(str(exe)), *(_ps_quote(a) for a in args)])
+    return (
+        f"$Host.UI.RawUI.WindowTitle = {_ps_quote('SkyEye')}; "
+        f'{call} 2>&1 | ForEach-Object {{ $line = "$_"; $line; '
+        f"Add-Content -LiteralPath {_ps_quote(str(log))} -Value $line -Encoding UTF8 }}"
+    )
 
 
 def autoconnect_message(port: int = SRS_PORT) -> bytes:
@@ -220,6 +247,19 @@ def _watch_early_exit(process: subprocess.Popen[bytes], log: Path) -> None:
     threading.Thread(target=watch, daemon=True, name="skyeye-watch").start()
 
 
+def _kill_tree(process: subprocess.Popen[bytes]) -> None:
+    if sys.platform != "win32":
+        process.terminate()
+        return
+    # The process is PowerShell; /T takes SkyEye under it too.
+    subprocess.run(
+        ["taskkill", "/T", "/F", "/PID", str(process.pid)],
+        capture_output=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+        check=False,
+    )
+
+
 def stop_skyeye() -> None:
     """Stop the SkyEye RetLab started; one the player started is left running."""
     global _skyeye
@@ -228,7 +268,7 @@ def stop_skyeye() -> None:
         return
     try:
         logging.info("Voice bots: stopping the SkyEye Take off started")
-        process.terminate()
+        _kill_tree(process)
         process.wait(timeout=10)
     except (OSError, subprocess.TimeoutExpired):
         logging.exception("Voice bots: could not stop SkyEye")
