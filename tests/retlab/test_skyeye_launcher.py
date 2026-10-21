@@ -11,15 +11,14 @@ from game.retlab import skyeye_launcher as launcher
 
 
 class _FakeProcess:
+    next_pid = 4242
+
     def __init__(self) -> None:
-        self.terminated = False
-        self.pid = 4242
+        self.pid = _FakeProcess.next_pid
+        _FakeProcess.next_pid += 1
 
     def poll(self) -> None:
         return None
-
-    def terminate(self) -> None:
-        self.terminated = True
 
     def wait(self, timeout: float) -> int:
         return 0
@@ -43,6 +42,11 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
         "started": [],
         "connects": [],
         "skyeye": skyeye,
+        # Live processes by PID, with their creation time.
+        "alive": {},
+        "taskkills": [],
+        # Whether a taskkill without /F closes SkyEye.
+        "graceful_works": True,
     }
 
     def start(
@@ -52,7 +56,10 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
         if log is not None:
             state["log"] = log
         state["running"].add(exe.name)
-        return _FakeProcess()
+        process = _FakeProcess()
+        if exe.name == launcher.SKYEYE_EXE:
+            state["alive"][process.pid] = 1000 + process.pid
+        return process
 
     monkeypatch.setattr(launcher, "srs_dir", lambda: srs)
     monkeypatch.setattr(launcher, "running", lambda image: image in state["running"])
@@ -74,9 +81,18 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     )
     monkeypatch.setattr(launcher, "_start", start)
     monkeypatch.setattr(launcher, "_watch_early_exit", lambda process, log: None)
-    monkeypatch.setattr(launcher, "_kill_tree", lambda process: process.terminate())
     monkeypatch.setattr(launcher, "_connect_client", state["connects"].append)
-    monkeypatch.setattr(launcher, "_skyeye", None)
+    monkeypatch.setattr(launcher, "record_path", lambda: tmp_path / "record.json")
+    monkeypatch.setattr(launcher, "process_started", state["alive"].get)
+
+    def taskkill(pid: int, force: bool) -> None:
+        state["taskkills"].append((pid, force))
+        if force or state["graceful_works"]:
+            state["alive"].pop(pid, None)
+            state["running"].discard(launcher.SKYEYE_EXE)
+
+    monkeypatch.setattr(launcher, "_taskkill", taskkill)
+    monkeypatch.setattr(launcher, "_starting", False)
     return state
 
 
@@ -111,11 +127,127 @@ def test_no_config_starts_no_skyeye(world: dict[str, Any]) -> None:
 
 def test_only_the_skyeye_retlab_started_is_stopped(world: dict[str, Any]) -> None:
     launcher._start_voice_bots(world["skyeye"])
-    process: Any = launcher._skyeye
-    assert isinstance(process, _FakeProcess)
+    (pid,) = world["alive"]
     launcher.stop_skyeye()
-    assert process.terminated
-    assert launcher._skyeye is None
+    assert world["taskkills"] == [(pid, False)]
+    assert pid not in world["alive"]
+    assert not launcher.record_path().exists()
+
+
+def test_a_restart_does_not_orphan_retlabs_skyeye(world: dict[str, Any]) -> None:
+    launcher._start_voice_bots(world["skyeye"])
+    (pid,) = world["alive"]
+    # Nothing in memory survives a restart; only the record file does.
+    assert launcher.record_path().exists()
+    launcher._start_voice_bots(world["skyeye"])
+    assert [s for s in world["started"] if s[0] == launcher.SKYEYE_EXE] == [
+        (launcher.SKYEYE_EXE, True)
+    ]
+    launcher.stop_skyeye()
+    assert world["taskkills"] == [(pid, False)]
+
+
+def test_a_reused_pid_is_not_retlabs(world: dict[str, Any]) -> None:
+    launcher._start_voice_bots(world["skyeye"])
+    (pid,) = world["alive"]
+    world["alive"][pid] = 1  # the same PID, a different process
+    launcher.stop_skyeye()
+    assert world["taskkills"] == []
+    assert not launcher.record_path().exists()
+
+
+def test_the_players_skyeye_is_left_on_debrief(world: dict[str, Any]) -> None:
+    world["running"].add(launcher.SKYEYE_EXE)
+    launcher._start_voice_bots(world["skyeye"])
+    launcher.stop_skyeye()
+    assert world["taskkills"] == []
+
+
+def test_skyeye_is_forced_only_when_it_will_not_close(
+    world: dict[str, Any],
+) -> None:
+    world["graceful_works"] = False
+    launcher._start_voice_bots(world["skyeye"])
+    (pid,) = world["alive"]
+    launcher.stop_skyeye()
+    assert world["taskkills"] == [(pid, False), (pid, True)]
+
+
+def test_a_second_take_off_during_a_start_starts_nothing(
+    world: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    threads: list[Any] = []
+
+    class _Thread:
+        def __init__(self, target: Any, args: Any, **kwargs: Any) -> None:
+            threads.append((target, args))
+
+        def start(self) -> None:
+            pass
+
+    monkeypatch.setattr(launcher.threading, "Thread", _Thread)
+    launcher.start_voice_bots(world["skyeye"])
+    launcher.start_voice_bots(world["skyeye"])
+    assert len(threads) == 1
+    target, args = threads[0]
+    target(*args)
+    assert not launcher._starting
+    launcher.start_voice_bots(world["skyeye"])
+    assert len(threads) == 2
+
+
+def test_skyeye_started_while_waiting_for_srs_is_not_doubled(
+    world: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def wait(condition: Any, seconds: float, step: float = 1.0) -> bool:
+        # Someone starts SkyEye while this Take off waits for the SRS port.
+        world["running"].add(launcher.SKYEYE_EXE)
+        return bool(condition())
+
+    monkeypatch.setattr(launcher, "_wait", wait)
+    launcher._start_voice_bots(world["skyeye"])
+    assert (launcher.SKYEYE_EXE, True) not in world["started"]
+
+
+def test_the_early_exit_warning_gives_the_real_time_and_skips_a_stop(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, caplog: pytest.LogCaptureFixture
+) -> None:
+    clock = [100.0, 112.4]
+    monkeypatch.setattr(
+        launcher.time, "monotonic", lambda: clock.pop(0) if len(clock) > 1 else clock[0]
+    )
+    ran: list[Any] = []
+
+    class _Thread:
+        def __init__(self, target: Any, **kwargs: Any) -> None:
+            ran.append(target)
+
+        def start(self) -> None:
+            pass
+
+    monkeypatch.setattr(launcher.threading, "Thread", _Thread)
+    process: Any = _FakeProcess()
+    with caplog.at_level("WARNING"):
+        launcher._watch_early_exit(process, tmp_path / "none.log")
+        ran[0]()
+    assert "quit 12 s after starting" in caplog.text
+    caplog.clear()
+    stopped: Any = _FakeProcess()
+    monkeypatch.setattr(launcher, "_stopped", {stopped.pid})
+    with caplog.at_level("WARNING"):
+        launcher._watch_early_exit(stopped, tmp_path / "none.log")
+        ran[1]()
+    assert "quit" not in caplog.text
+
+
+def test_this_process_is_alive_with_a_fixed_creation_time() -> None:
+    import os
+    import sys
+
+    if sys.platform != "win32":
+        pytest.skip("Windows process times")
+    first = launcher.process_started(os.getpid())
+    assert first is not None and first == launcher.process_started(os.getpid())
 
 
 def test_the_connect_message_is_what_srs_sends() -> None:

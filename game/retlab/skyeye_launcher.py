@@ -4,12 +4,15 @@ On Take Off, with the preference on: the SRS server starts if it is not running 
 RetLab waits for its port; SkyEye starts minimized from its folder; the SRS client
 starts if it is not running and is told to connect to 127.0.0.1:5002. Anything already
 running is left alone. On debrief only the SkyEye that RetLab started is stopped (user
-call, 2026-10-20). docs/dev/retlab-features.md §120.
+call, 2026-10-20), found by a record file so a Retribution restart in between does not
+orphan it. docs/dev/retlab-features.md §120.
 """
 
 from __future__ import annotations
 
+import json
 import logging
+import os
 import socket
 import subprocess
 import sys
@@ -32,13 +35,31 @@ SKYEYE_CONFIG = "config.yaml"
 SKYEYE_LOG = "skyeye-takeoff.log"
 #: A SkyEye that quits this soon after starting is reported in RetLab's log.
 EARLY_EXIT_SECONDS = 60
+#: How long SkyEye gets to sign off SRS before it is closed by force.
+GRACEFUL_STOP_SECONDS = 5
+#: The SkyEye Take off started, by PID and process creation time (a reused PID has a
+#: different creation time). Kept beside Retribution's preferences.
+RECORD_FILE = "skyeye-takeoff.json"
 SRS_SERVER_EXE = "SRS-Server.exe"
 SRS_CLIENT_EXE = "SR-ClientRadio.exe"
 DEFAULT_SRS_DIR = Path(r"C:\ProgramData\DCS-SimpleRadio-Standalone")
 
 _SW_SHOWMINNOACTIVE = 7
 
-_skyeye: Optional[subprocess.Popen[bytes]] = None
+#: Held while a Take off decides whether to start SkyEye, and while debrief stops it.
+_lock = threading.Lock()
+_starting = False
+#: PIDs stop_skyeye closed, so their exit is not reported as an early quit.
+_stopped: set[int] = set()
+
+
+def record_path() -> Path:
+    """The record file, in the folder liberation_install keeps the preferences in."""
+    if os.name == "nt":
+        root = Path(os.environ.get("LOCALAPPDATA", Path.home() / "AppData" / "Local"))
+    else:
+        root = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+    return root / "DCSRetribution" / RECORD_FILE
 
 
 def srs_dir() -> Path:
@@ -84,6 +105,73 @@ def kill(image: str) -> None:
         creationflags=subprocess.CREATE_NO_WINDOW,
         check=False,
     )
+
+
+def process_started(pid: int) -> Optional[int]:
+    """The creation time of a live process with this PID, or None if none is running."""
+    if sys.platform != "win32":
+        return None
+    import ctypes
+    from ctypes import wintypes
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel32.GetExitCodeProcess.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+    kernel32.GetProcessTimes.argtypes = [wintypes.HANDLE, *[ctypes.c_void_p] * 4]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    handle = kernel32.OpenProcess(0x1000, False, pid)  # QUERY_LIMITED_INFORMATION
+    if not handle:
+        return None
+    try:
+        code = wintypes.DWORD()
+        if not kernel32.GetExitCodeProcess(handle, ctypes.byref(code)):
+            return None
+        if code.value != 259:  # STILL_ACTIVE
+            return None
+        times = [wintypes.FILETIME() for _ in range(4)]
+        if not kernel32.GetProcessTimes(handle, *(ctypes.byref(t) for t in times)):
+            return None
+        return (times[0].dwHighDateTime << 32) | times[0].dwLowDateTime
+    finally:
+        kernel32.CloseHandle(handle)
+
+
+def _read_record() -> Optional[tuple[int, int]]:
+    try:
+        data = json.loads(record_path().read_text(encoding="utf-8"))
+        return int(data["pid"]), int(data["created"])
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def _write_record(pid: int, created: int) -> None:
+    path = record_path()
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps({"pid": pid, "created": created}), encoding="utf-8")
+    except OSError:
+        logging.exception("Voice bots: could not write %s", path)
+
+
+def _clear_record() -> None:
+    try:
+        record_path().unlink()
+    except FileNotFoundError:
+        pass
+    except OSError:
+        logging.exception("Voice bots: could not remove %s", record_path())
+
+
+def _ours() -> Optional[tuple[int, int]]:
+    """The SkyEye a Take off started, as (pid, creation time), if it still runs."""
+    record = _read_record()
+    if record is None:
+        return None
+    if process_started(record[0]) != record[1]:
+        _clear_record()
+        return None
+    return record
 
 
 def port_open(port: int, host: str = "127.0.0.1") -> bool:
@@ -169,13 +257,52 @@ def _connect_client(just_started: bool) -> None:
 
 def start_voice_bots(skyeye_dir: Path) -> None:
     """Start what is missing, on a background thread so Take Off never waits."""
+    global _starting
+    with _lock:
+        # A second Take off while the first still waits for SRS would start a
+        # second SkyEye; the start under way covers both.
+        if _starting:
+            logging.info("Voice bots: a start is already under way")
+            return
+        _starting = True
     threading.Thread(
-        target=_start_voice_bots, args=(skyeye_dir,), daemon=True, name="voicebots"
+        target=_run_start, args=(skyeye_dir,), daemon=True, name="voicebots"
     ).start()
 
 
+def _run_start(skyeye_dir: Path) -> None:
+    global _starting
+    try:
+        _start_voice_bots(skyeye_dir)
+    finally:
+        with _lock:
+            _starting = False
+
+
+def _start_skyeye(skyeye_dir: Path) -> None:
+    skyeye = skyeye_dir / SKYEYE_EXE
+    with _lock:
+        if _ours() is not None:
+            logging.info("Voice bots: the SkyEye Take off started is still running")
+        elif running(SKYEYE_EXE):
+            logging.info("Voice bots: SkyEye already running, left alone")
+        elif skyeye.exists() and (skyeye_dir / SKYEYE_CONFIG).exists():
+            log = skyeye_dir / SKYEYE_LOG
+            process = _start(
+                skyeye, ["--config-file", SKYEYE_CONFIG], minimized=True, log=log
+            )
+            created = process_started(process.pid)
+            if created is not None:
+                _write_record(process.pid, created)
+            logging.info(
+                "Voice bots: started SkyEye (pid %d), output in %s", process.pid, log
+            )
+            _watch_early_exit(process, log)
+        else:
+            logging.warning("Voice bots: no SkyEye or config.yaml in %s", skyeye_dir)
+
+
 def _start_voice_bots(skyeye_dir: Path) -> None:
-    global _skyeye
     srs = srs_dir()
     server = srs / "Server" / SRS_SERVER_EXE
     client = srs / "Client" / SRS_CLIENT_EXE
@@ -197,20 +324,7 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
         if not _wait(lambda: port_open(SRS_PORT), SERVER_WAIT_SECONDS):
             logging.warning("Voice bots: SRS server never opened port %d", SRS_PORT)
             return
-        skyeye = skyeye_dir / SKYEYE_EXE
-        if running(SKYEYE_EXE):
-            logging.info("Voice bots: SkyEye already running, left alone")
-        elif skyeye.exists() and (skyeye_dir / SKYEYE_CONFIG).exists():
-            log = skyeye_dir / SKYEYE_LOG
-            _skyeye = _start(
-                skyeye, ["--config-file", SKYEYE_CONFIG], minimized=True, log=log
-            )
-            logging.info(
-                "Voice bots: started SkyEye (pid %d), output in %s", _skyeye.pid, log
-            )
-            _watch_early_exit(_skyeye, log)
-        else:
-            logging.warning("Voice bots: no SkyEye or config.yaml in %s", skyeye_dir)
+        _start_skyeye(skyeye_dir)
         just_started = not running(SRS_CLIENT_EXE)
         if just_started:
             if not client.exists():
@@ -232,14 +346,18 @@ def _tail(log: Path, lines: int = 15) -> str:
 
 
 def _watch_early_exit(process: subprocess.Popen[bytes], log: Path) -> None:
+    started = time.monotonic()
+
     def watch() -> None:
         try:
             code = process.wait(timeout=EARLY_EXIT_SECONDS)
         except subprocess.TimeoutExpired:
             return
+        if process.pid in _stopped:
+            return
         logging.warning(
             "Voice bots: SkyEye quit %d s after starting (exit %s). Last output:\n%s",
-            EARLY_EXIT_SECONDS,
+            round(time.monotonic() - started),
             code,
             _tail(log),
         )
@@ -247,13 +365,13 @@ def _watch_early_exit(process: subprocess.Popen[bytes], log: Path) -> None:
     threading.Thread(target=watch, daemon=True, name="skyeye-watch").start()
 
 
-def _kill_tree(process: subprocess.Popen[bytes]) -> None:
+def _taskkill(pid: int, force: bool) -> None:
     if sys.platform != "win32":
-        process.terminate()
         return
-    # The process is PowerShell; /T takes SkyEye under it too.
+    # The process is PowerShell; /T takes SkyEye under it too. Without /F its console
+    # is asked to close, so SkyEye gets a close event and can sign off SRS.
     subprocess.run(
-        ["taskkill", "/T", "/F", "/PID", str(process.pid)],
+        ["taskkill", "/T", *(["/F"] if force else []), "/PID", str(pid)],
         capture_output=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
         check=False,
@@ -261,14 +379,21 @@ def _kill_tree(process: subprocess.Popen[bytes]) -> None:
 
 
 def stop_skyeye() -> None:
-    """Stop the SkyEye RetLab started; one the player started is left running."""
-    global _skyeye
-    process, _skyeye = _skyeye, None
-    if process is None or process.poll() is not None:
-        return
-    try:
+    """Stop the SkyEye a Take off started, even before a restart; the player's stays."""
+    with _lock:
+        ours = _ours()
+        if ours is None:
+            return
+        pid, created = ours
+        _stopped.add(pid)
         logging.info("Voice bots: stopping the SkyEye Take off started")
-        _kill_tree(process)
-        process.wait(timeout=10)
-    except (OSError, subprocess.TimeoutExpired):
-        logging.exception("Voice bots: could not stop SkyEye")
+        try:
+            _taskkill(pid, force=False)
+            if not _wait(
+                lambda: process_started(pid) != created, GRACEFUL_STOP_SECONDS, 0.25
+            ):
+                logging.info("Voice bots: SkyEye did not close; closing it by force")
+                _taskkill(pid, force=True)
+        except OSError:
+            logging.exception("Voice bots: could not stop SkyEye")
+        _clear_record()

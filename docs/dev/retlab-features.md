@@ -11252,10 +11252,27 @@ thread (`game/retlab/skyeye_launcher.py`):
    never to the host, so a single-player host was never auto-connected. The client
    acts on it only with its Auto Connect option on.
 
-Anything already running is left alone. On debrief (or when the waiting window is
-closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
-2026-10-20). The folder defaults to `Saved Games\DCS\Retribution\SkyEye`. Built
-2026-10-20. Not flown (row B262).
+Anything already running is left alone. On debrief only the SkyEye RetLab started is
+stopped; SRS keeps running (user call, 2026-10-20). The folder defaults to
+`Saved Games\DCS\Retribution\SkyEye`. Built 2026-10-20. Not flown (row B262).
+
+**Which SkyEye is RetLab's (2026-10-21).** The SkyEye a Take off starts is recorded in
+`%LOCALAPPDATA%\DCSRetribution\skyeye-takeoff.json`, beside the preferences: the PID of
+its PowerShell console (SkyEye runs under it) and that process's creation time. A
+running process with that PID and creation time is RetLab's, across a Retribution
+restart; a reused PID has another creation time. Any other `skyeye.exe` is the player's.
+Before this the record was in memory only, and Retribution restarted five times on
+2026-10-20, each leaving a SkyEye that debrief no longer stopped.
+
+- **Stop:** `taskkill /T` without `/F` asks the console to close, so SkyEye gets a close
+  event and can sign off SRS. After 5 s it is forced with `/F`. The record is cleared.
+- **One start at a time:** a Take off while a start is still waiting for SRS (up to 75 s)
+  starts nothing; the start under way covers it. SkyEye is checked for again, under a
+  lock, right before it is started.
+- **Early quit:** a SkyEye that quits within 60 s is logged with its real run time and
+  last output, unless debrief stopped it.
+
+Row B264.
 
 ### Files
 
@@ -11267,6 +11284,8 @@ closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
 
 - Never block Take off on SRS or SkyEye: the start runs on a daemon thread.
 - At most two connect messages: each can make a connected client reconnect.
+- Never stop a `skyeye.exe` by name: only the recorded PID with its creation time is
+  RetLab's.
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground
