@@ -29,7 +29,8 @@ def test_skyeye_and_vacuum_replace_the_silent_blue_awacs() -> None:
     data.awacs = [_awacs(MHz(372), True), _awacs(MHz(380), False)]
     data.skyeye_frequency = MHz(251)
     data.vacuum_frequency = MHz(262)
-    assert awacs_presets(_flight(), data) == [MHz(251), MHz(262), MHz(380)]
+    # The enemy AWACS (380) never takes a preset.
+    assert awacs_presets(_flight(), data) == [MHz(251), MHz(262)]
 
 
 def test_red_flights_keep_their_own_awacs() -> None:
@@ -37,3 +38,9 @@ def test_red_flights_keep_their_own_awacs() -> None:
     data.awacs = [_awacs(MHz(380), False)]
     data.skyeye_frequency = MHz(251)
     assert awacs_presets(_flight(blue=False), data) == [MHz(380)]
+
+
+def test_without_skyeye_only_own_side_awacs_get_a_preset() -> None:
+    data = MissionData()
+    data.awacs = [_awacs(MHz(372), True), _awacs(MHz(328), False)]
+    assert awacs_presets(_flight(), data) == [MHz(372)]
