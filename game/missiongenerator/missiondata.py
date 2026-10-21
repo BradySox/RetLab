@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from game.radio.radios import RadioFrequency
     from game.radio.tacan import TacanChannel
     from game.retlab.ai_fill import AiFillPair
+    from game.retlab.voice_atc import VoiceAtcPlan
     from game.theater.player import Player
     from game.utils import Distance
     from uuid import UUID
@@ -164,6 +165,13 @@ class MissionData:
     vacuum_frequency: Optional[RadioFrequency] = None
     #: The SkyEye voices the AWACS and ABCCC speak with this mission (§117).
     skyeye_voices: list[str] = field(default_factory=list)
+    #: Voice ATC (§119): each player airfield's Ground and Tower frequencies, by DCS
+    #: airbase name.
+    atc_frequencies: dict[str, tuple[RadioFrequency, RadioFrequency]] = field(
+        default_factory=dict
+    )
+    #: Voice ATC's fields, flights and squawks, built once for the Lua and the kneeboard.
+    voice_atc: Optional[VoiceAtcPlan] = None
     runways: list[RunwayData] = field(default_factory=list)
     carriers: list[CarrierInfo] = field(default_factory=list)
     flights: list[FlightData] = field(default_factory=list)

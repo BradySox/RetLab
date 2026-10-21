@@ -47,6 +47,7 @@ from .redscrambleluadata import populate_red_scramble_lua
 from game.retlab.ai_fill import populate_ai_fill_lua
 from game.retlab.package_control import populate_package_control_lua
 from game.retlab.vacuum import populate_vacuum_lua
+from game.retlab.voice_atc import populate_voice_atc_lua
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
@@ -505,6 +506,11 @@ class LuaGenerator:
         # Vacuum ELINT (§118) -- emits dcsRetribution.vacuum only when a blue Vacuum
         # flies; the vacuum plugin calls each red radar by bullseye as it comes on.
         populate_vacuum_lua(lua_data, self.game, self.mission_data)
+
+        # Voice ATC (§119) -- emits dcsRetribution.voiceAtc only when voice_atc is on
+        # and a player flight uses an airfield; runs after the two above so its
+        # voices stay clear of theirs.
+        populate_voice_atc_lua(lua_data, self.game, self.mission_data)
 
         # Neutral-faction border defense (§98) -- emits dcsRetribution.neutralBorder
         # only when neutral_border_defense is on and the generator could build

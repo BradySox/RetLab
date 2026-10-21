@@ -365,6 +365,8 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "voice_awacs_callsign",
                     "package_controller",
                     "vacuum_elint",
+                    "voice_atc",
+                    "voice_atc_strict",
                     "radio_discipline",
                 ],
             ),
@@ -594,6 +596,8 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "voice_awacs",  # §116
         "package_controller",  # §117
         "vacuum_elint",  # §118
+        "voice_atc",  # §119
+        "voice_atc_strict",  # §119
     ],
     "Carrier": [
         "carrier_deck_decorations",  # §72

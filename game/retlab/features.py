@@ -969,6 +969,13 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("vacuum_elint",),
     ),
     Feature(
+        "voice_atc",
+        "Voice ATC",
+        119,
+        plugin_id="voiceatc",
+        settings_fields=("voice_atc", "voice_atc_strict"),
+    ),
+    Feature(
         "radio_discipline",
         "Radio discipline",
         121,

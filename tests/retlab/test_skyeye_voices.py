@@ -37,11 +37,11 @@ def test_every_accent_has_both_genders() -> None:
 
 
 def test_vacuum_takes_a_voice_neither_other_bot_has() -> None:
-    taken = ["en_US-ryan-medium", "en_US-amy-medium"]
+    taken = ["kokoro#am_eric", "kokoro#af_heart"]
     for seed in range(20):
         voice = pick_another_voice("USA", taken, random.Random(seed))
         assert voice not in taken
-        assert voice.startswith("en_US-")
+        assert voice.startswith("kokoro#a")
 
 
 def test_a_full_accent_borrows_another() -> None:

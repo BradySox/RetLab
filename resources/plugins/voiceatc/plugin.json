@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "Voice ATC",
+    "descriptionInUI": "Ground and Tower for player flights through SkyEye: engine start, taxi with a squawk, takeoff and landing. Settings > RetLab Features holds the switch.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "voiceatc-config.lua",
+            "mnemonic": "voiceatc-config"
+        }
+    ]
+}

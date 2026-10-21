@@ -38,7 +38,7 @@ from .support import (
     build_airfield_directory_rows,
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
-from .voicepages import AbcccPage, SkyEyeAwacsPage
+from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
 from .threatintel import (
@@ -243,6 +243,7 @@ class KneeboardGenerator(MissionInfoGenerator):
         bluf_lines = self._bluf_lines(flight, threat_cards)
 
         support_comms = list(self.comms)
+        atc = self.voice_atc.flight(flight.group_name) if self.voice_atc else None
 
         pages: List[KneeboardPage] = [
             BriefingPage(
@@ -275,6 +276,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                 airfield_rows=airfield_rows,
                 zulu_tz=zulu_tz,
                 voice_awacs=self.voice_awacs,
+                squawk=atc.squawk if atc else None,
             ),
         ]
         # The voice controller cheat sheets sit right after the comms (§116, §117).
@@ -296,6 +298,17 @@ class KneeboardGenerator(MissionInfoGenerator):
                     self.voice_awacs.freq,
                     self.abccc[1] if self.abccc else None,
                     callsign,
+                    self.dark_kneeboard,
+                )
+            )
+
+        if self.voice_atc is not None and atc is not None:
+            pages.append(
+                AtcPage(
+                    atc.callsign,
+                    atc.squawk,
+                    self.voice_atc.fields.get(atc.departure or ""),
+                    self.voice_atc.fields.get(atc.arrival or ""),
                     self.dark_kneeboard,
                 )
             )

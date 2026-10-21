@@ -256,7 +256,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -348,6 +348,7 @@ linked design note.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
 117. **Airborne package control** — a C-130J-30 ABCCC runs player packages on STRIKE through SkyEye; nothing without it airborne. Off by default.
 118. **Vacuum ELINT** — a KC-135 (C-130J-30 backup) calls red radars by bullseye through SkyEye as they come on; SEAD-heavy turns. Off by default.
+119. **Voice ATC** — Ground and Tower for player flights through SkyEye: start, taxi with a squawk, takeoff, landing, readbacks. Off by default.
 121. **Radio discipline** — Strict, Relaxed or Casual: how by the book the SkyEye controllers expect players to be. Strict by default.
 
 ### Retired, removed or shelved — do not restore

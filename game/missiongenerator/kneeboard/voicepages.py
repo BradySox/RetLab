@@ -1,4 +1,4 @@
-"""Cheat sheets for the voice controllers (§116, §117): the ABCCC and SkyEye's AWACS.
+"""Cheat sheets for the voice controllers (§116, §117, §119): the ABCCC, SkyEye's AWACS and ATC.
 
 Written for pilots new to talking to a bot on SRS: who is who, which frequency, the
 exact words to say, what the answers mean, and what to do when nobody answers.
@@ -10,12 +10,19 @@ from pathlib import Path
 from typing import Optional
 
 from game.radio.radios import RadioFrequency
+from game.retlab.voice_atc import AtcField
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
 
 
 def _freq(frequency: RadioFrequency) -> str:
     return f"{frequency.mhz:.3f} {frequency.modulation.name}"
+
+
+def _spoken_freq(frequency: RadioFrequency) -> str:
+    """``262.0`` or ``270.45``: a frequency as ATC says it."""
+    label = f"{frequency.mhz:.3f}".rstrip("0")
+    return label + "0" if label.endswith(".") else label
 
 
 def _lines(writer: KneeboardPageWriter, lines: list[str]) -> None:
@@ -126,7 +133,7 @@ class AbcccPage(KneeboardPage):
                 "point at that altitude and wait.",
                 '"All players, check in" (3 min before push): answer with your '
                 f'name and "ready", e.g. "{c}, {me}, ready".',
-                '"Push, push": leave the HOLD now for the target.',
+                '"Push": leave the HOLD now for the target.',
                 '"Hold, hold ... new push time": stay at the HOLD; SEAD or escort '
                 "is not up yet. At most two holds.",
                 '"Abort, abort, abort ... RTB": the strike is off. Go home.',
@@ -213,6 +220,98 @@ class SkyEyeAwacsPage(KneeboardPage):
                 "2. Does the SRS radio light up when you transmit?",
                 "3. Did you start with its name? It ignores calls that don't.",
                 "4. Say it again, slower.",
+            ],
+        )
+        w.write(path)
+
+
+class AtcPage(KneeboardPage):
+    """Voice ATC (§119): the field frequencies, the squawk and the calls in order."""
+
+    def __init__(
+        self,
+        callsign: str,
+        squawk: str,
+        departure: Optional[AtcField],
+        arrival: Optional[AtcField],
+        dark_kneeboard: bool,
+    ) -> None:
+        self.callsign = callsign
+        self.squawk = squawk
+        self.departure = departure
+        self.arrival = arrival
+        self.dark_kneeboard = dark_kneeboard
+
+    def write(self, path: Path) -> None:
+        w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
+        me = self.callsign
+        out, home = self.departure, self.arrival or self.departure
+        w.title("Talking to ATC")
+        fields = [f for f in (out, self.arrival) if f is not None]
+        if (
+            out is not None
+            and self.arrival is not None
+            and out.name == self.arrival.name
+        ):
+            fields = [out]
+        for f in fields:
+            w.text(
+                f"{f.name}: Ground {_freq(f.ground)}, Tower {_freq(f.tower)}, "
+                f"runway {f.runway}",
+                fill=w.col_nav,
+                wrap=True,
+            )
+        w.text(f"Your squawk: {self.squawk}", fill=w.col_nav)
+        _lines(
+            w,
+            [
+                "Say the station, then YOUR name, then the request. Read back what "
+                "ATC gives you, then your name.",
+                '"Readback incomplete" means say the missing part again.',
+            ],
+        )
+        if out is not None:
+            o = out.name
+            w.rule()
+            w.heading("Going out")
+            _lines(
+                w,
+                [
+                    f'"{o} Ground, {me}, request engine start."',
+                    f'"{o} Ground, {me}, request taxi."',
+                    f'  ATC: "Squawk {self.squawk}, taxi to runway {out.runway}, hold '
+                    f'short, contact Tower {_spoken_freq(out.tower)}."',
+                    f'  You: "Squawk {self.squawk}, hold short {out.runway}, {me}."',
+                    f'"{o} Tower, {me}, holding short runway {out.runway}, ready."',
+                    f'  ATC: "Runway {out.runway}, wind, altimeter, cleared for takeoff."',
+                    f'  You: "Cleared for takeoff {out.runway}, {me}."',
+                ],
+            )
+        if home is not None:
+            h = home.name
+            w.rule()
+            w.heading("Coming home, at 5 NM")
+            _lines(
+                w,
+                [
+                    f'"{h} Tower, {me}, 5 miles, full stop."  (or "request the overhead")',
+                    f'  ATC: "Runway {home.runway}, wind, cleared to land."  You: '
+                    f'"Cleared to land {home.runway}, {me}."',
+                    '  Runway busy: "Enter the pattern at 3,000."',
+                    '  After landing: "Clear the runway, taxi to parking."',
+                    f'Emergency: "Mayday, {me}, emergency fuel." Land on any runway.',
+                ],
+            )
+        w.rule()
+        _lines(
+            w,
+            [
+                "The lead talks for the flight going out. Coming home, a wingman "
+                "may ask for their own landing.",
+                "Moving, taking off or landing without clearance gets a radio call. "
+                "Nothing stops you.",
+                '"Say again" and "radio check" work on both frequencies. No voice? '
+                "F10 menu > ATC makes the same calls.",
             ],
         )
         w.write(path)
