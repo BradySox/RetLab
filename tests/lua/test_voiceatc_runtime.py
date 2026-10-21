@@ -186,27 +186,21 @@ def test_skyeye_is_told_the_field_frequencies() -> None:
     h.assert_no_lua_errors()
 
 
-def test_a_sortie_from_engine_start_to_parking() -> None:
+def test_a_sortie_from_taxi_to_parking() -> None:
     h = _harness()
-    _call(h, "startup")
     _call(h, "taxi")
     _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
     _call(h, "ready", TOWER)
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, cleared for engine start.",
         "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
     ]
     said = _said(h)
-    assert [m["frequency"] for m in said] == [GROUND, GROUND, TOWER]
-    assert [m["voice"] for m in said] == [
-        "en_US-ryan-medium",
-        "en_US-ryan-medium",
-        "en_US-amy-medium",
-    ]
-    assert said[1]["speech"] == (
+    assert [m["frequency"] for m in said] == [GROUND, TOWER]
+    assert [m["voice"] for m in said] == ["en_US-ryan-medium", "en_US-amy-medium"]
+    assert said[0]["speech"] == (
         "Viper one one, squawk four one zero one, taxi to runway two five, "
         "hold short, contact Tower two six two decimal zero."
     )
@@ -216,11 +210,11 @@ def test_a_sortie_from_engine_start_to_parking() -> None:
     _call(h, "inbound", TOWER, numbers="5")
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(4)
-    assert _texts(h)[3:] == ["Viper 1-1, runway 25, cleared to land."]
+    assert _texts(h)[2:] == ["Viper 1-1, runway 25, cleared to land."]
     h.update_unit("Viper", {"airborne": False, "x": 0})
     _event(h, 4)
     h.advance_to(6)
-    assert _texts(h)[4:] == ["Viper 1-1, clear the runway, taxi to parking."]
+    assert _texts(h)[3:] == ["Viper 1-1, clear the runway, taxi to parking."]
     h.assert_no_lua_errors()
 
 
@@ -284,10 +278,10 @@ def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
 
 def test_casual_matches_a_misheard_or_missing_callsign() -> None:
     h = _harness(discipline="casual")
-    _call(h, "startup", callsign="cobra 1 1")
-    _call(h, "startup", callsign="")
+    _call(h, "radiocheck", callsign="cobra 1 1")
+    _call(h, "radiocheck", callsign="")
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, cleared for engine start."] * 2
+    assert _texts(h) == ["Viper 1-1, Kobuleti Ground, read you 5 by 5."] * 2
     h.assert_no_lua_errors()
 
 
@@ -351,9 +345,9 @@ def test_a_wingman_gets_their_own_landing_clearance() -> None:
 
 def test_the_flight_callsign_alone_is_the_lead() -> None:
     h = _harness()
-    _call(h, "startup", callsign="viper 1")
+    _call(h, "radiocheck", callsign="viper 1")
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, cleared for engine start."]
+    assert _texts(h) == ["Viper 1-1, Kobuleti Ground, read you 5 by 5."]
     h.assert_no_lua_errors()
 
 
@@ -367,13 +361,13 @@ def test_an_unknown_callsign_is_asked_again() -> None:
 
 def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
     h = _harness()
-    _call(h, "startup")
+    _call(h, "taxi")
     _call(h, "sayagain")
     _call(h, "radiocheck", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, cleared for engine start.",
-        "Viper 1-1, cleared for engine start.",
+        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1-1, Kobuleti Tower, read you 5 by 5.",
     ]
     h.assert_no_lua_errors()
@@ -399,6 +393,7 @@ def _menu(h: DcsPluginHarness, label: str) -> None:
 def test_the_f10_menu_makes_the_same_requests() -> None:
     h = _harness()
     paths = [m["path"] for m in h.records("menus")]
+    assert not any("engine start" in p for p in paths)
     assert paths[0] == "ATC"
     assert "Ground: request taxi" in paths and "Mayday" in paths
     _menu(h, "Ground: request taxi")
@@ -414,9 +409,10 @@ def test_the_f10_menu_makes_the_same_requests() -> None:
 
 def test_without_luasocket_the_menu_answers_in_text() -> None:
     h = _harness(link=False)
-    _menu(h, "Ground: request engine start")
+    _menu(h, "Ground: request taxi")
     h.advance_to(10)
     assert [t["text"] for t in h.records("texts")] == [
-        "Kobuleti Ground: Viper 1-1, cleared for engine start."
+        "Kobuleti Ground: Viper 1-1, squawk 4101, taxi to runway 25, hold short, "
+        "contact Tower 262.0."
     ]
     h.assert_no_lua_errors()

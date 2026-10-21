@@ -130,3 +130,28 @@ def test_voice_atc_fields_preset_ground_and_tower_instead_of_dcs_tower() -> None
         MHz(264),
     ]
     assert presets(_preset_flight("Senaki", "Senaki"), MissionData()) == [MHz(250)]
+
+
+def test_ground_and_tower_are_vhf_am_airband() -> None:
+    from game.radio.radios import RadioRegistry
+
+    registry = RadioRegistry()
+    pair = [registry.alloc_vhf() for _ in range(40)]
+    assert all(118 <= f.mhz < 136 for f in pair)
+    assert all(f.modulation.name == "AM" for f in pair)
+    assert len(set(pair)) == len(pair)
+
+
+def test_atc_lines_name_the_preset_channels() -> None:
+    from game.missiongenerator.aircraft.flightdata import ChannelAssignment
+    from game.retlab.voice_atc import AtcField, atc_lines
+
+    channels = {MHz(124, 300): [ChannelAssignment(2, 2)]}
+    flight: Any = SimpleNamespace(
+        channels_for=lambda f: channels.get(f, []),
+        aircraft_type=SimpleNamespace(
+            channel_name=lambda radio, channel: f"COMM{radio} Ch {channel}"
+        ),
+    )
+    field = AtcField("Kobuleti", "25", MHz(126, 500), MHz(124, 300))
+    assert atc_lines(flight, field) == ("GND 124.300 (COMM2 Ch 2)\nTWR 126.500")

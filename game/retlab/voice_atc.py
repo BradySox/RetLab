@@ -44,13 +44,13 @@ def player_airfields(ato: AirTaskingOrder) -> list[Airfield]:
 def allocate_atc_frequencies(
     game: Game, registry: RadioRegistry, mission_data: MissionData
 ) -> None:
-    """Ground and Tower frequencies for each player airfield, reserved like STRIKE."""
+    """VHF AM Ground and Tower frequencies for each player airfield, reserved like STRIKE."""
     if not game.settings.voice_atc:
         return
     for airfield in player_airfields(game.blue.ato):
         mission_data.atc_frequencies[airfield.airport.name] = (
-            registry.alloc_uhf(),
-            registry.alloc_uhf(),
+            registry.alloc_vhf(),
+            registry.alloc_vhf(),
         )
 
 
@@ -72,6 +72,26 @@ def lead_callsign(flight: FlightData) -> str:
     if re.fullmatch(r"\D+ \d+", flight.callsign):
         return f"{flight.callsign}-1"
     return flight.callsign
+
+
+def _preset(flight: FlightData, frequency: RadioFrequency) -> str:
+    """``124.300 (COMM2 Ch 2)``: a frequency and the preset it sits on, if any."""
+    label = f"{frequency.mhz:.3f}"
+    channels = flight.channels_for(frequency)
+    if not channels:
+        return label
+    first = channels[0]
+    return (
+        f"{label} ({flight.aircraft_type.channel_name(first.radio_id, first.channel)})"
+    )
+
+
+def atc_lines(flight: FlightData, atc_field: AtcField) -> str:
+    """The Ground and Tower lines an airfield's ATC box shows under Voice ATC."""
+    return (
+        f"GND {_preset(flight, atc_field.ground)}\n"
+        f"TWR {_preset(flight, atc_field.tower)}"
+    )
 
 
 @dataclass
