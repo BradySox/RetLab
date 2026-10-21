@@ -189,8 +189,8 @@ class SkyEyeAwacsPage(KneeboardPage):
             [
                 f"{a} is a voice AWACS (SkyEye). It sees the air picture and answers "
                 "when you talk to it.",
-                "It knows you by your DCS player name, e.g. 'Viper 1 | Joe' is "
-                "VIPER 1. Call yourself that.",
+                f"Call yourself by your callsign and seat, {me}. Start your DCS "
+                f"player name with it ('{me} | Joe'): that is how it finds your jet.",
             ],
         )
         w.rule()

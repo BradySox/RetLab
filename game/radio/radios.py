@@ -6,8 +6,9 @@ import itertools
 import logging
 import random
 import re
+from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, Iterator, List, Set, Tuple
+from typing import Dict, FrozenSet, Iterable, Iterator, List, Set, Tuple
 
 from dcs.task import Modulation
 
@@ -463,13 +464,6 @@ class RadioRegistry:
         "BLUFOR UHF", (RadioRange(MHz(225), MHz(400), MHz(1), Modulation.AM),)
     )
 
-    # Not a real radio. Voice ATC's Ground and Tower (§119) are VHF AM so a jet whose
-    # second radio is VHF only, such as the F-16, can preset them (user call, 2026-10-21).
-    # 118-136 MHz is the airband every VHF AM set in the game tunes.
-    BLUFOR_VHF = Radio(
-        "BLUFOR VHF", (RadioRange(MHz(118), MHz(136), kHz(100), Modulation.AM),)
-    )
-
     # Not a real radio. A carrier's Link 4 has to sit where the F-14's data link
     # panel can dial it: 300.0-324.9 MHz (Heatblur manual, Data Link Control Panel).
     LINK4 = Radio("LINK4", (RadioRange(MHz(300), MHz(325), kHz(100), Modulation.AM),))
@@ -481,7 +475,7 @@ class RadioRegistry:
         self.atc_pinned: Set[RadioFrequency] = set()
         self.radio_allocators: Dict[Radio, Iterator[RadioFrequency]] = {}
 
-        radios = itertools.chain(RADIOS, [self.BLUFOR_UHF, self.BLUFOR_VHF, self.LINK4])
+        radios = itertools.chain(RADIOS, [self.BLUFOR_UHF, self.LINK4])
         for radio in radios:
             self.radio_allocators[radio] = radio.range()
 
@@ -529,10 +523,6 @@ class RadioRegistry:
         """
         return self.alloc_for_radio(self.BLUFOR_UHF)
 
-    def alloc_vhf(self) -> RadioFrequency:
-        """Allocates a VHF AM airband channel, for Voice ATC's Ground and Tower."""
-        return self.alloc_for_radio(self.BLUFOR_VHF)
-
     def alloc_link4(self) -> RadioFrequency:
         """Allocates a carrier Link 4 channel the F-14 can tune.
 
@@ -540,6 +530,16 @@ class RadioRegistry:
             OutOfChannelsError: Every channel in the band is already allocated.
         """
         return self.alloc_for_radio(self.LINK4)
+
+    @contextmanager
+    def holding(self, frequencies: Iterable[RadioFrequency]) -> Iterator[None]:
+        """Keeps these frequencies off every allocation inside the block only."""
+        held = set(frequencies) - self.allocated_channels
+        self.allocated_channels |= held
+        try:
+            yield
+        finally:
+            self.allocated_channels -= held
 
     def reserve(self, frequency: RadioFrequency) -> None:
         """Reserves the given channel.

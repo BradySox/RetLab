@@ -50,6 +50,27 @@ def _tunable(radio: Any, freq: RadioFrequency) -> bool:
     )
 
 
+def friendly_jtacs(
+    flight: FlightData, mission_data: MissionData
+) -> list[RadioFrequency]:
+    """The flight's own side's JTACs; a red JTAC was a blue preset (2026-10-21)."""
+    return [j.freq for j in mission_data.jtacs if j.blue == flight.friendly]
+
+
+def friendly_tankers(
+    flight: FlightData, mission_data: MissionData
+) -> list[RadioFrequency]:
+    """Own-side tankers this flight can take fuel from (boom vs probe). A red KC-135
+    was COM1 Ch 5 in a blue F-16 (2026-10-21). can_refuel_from is permissive for
+    untagged airframes, so one with no refueling method still gets every tanker."""
+    return [
+        tanker.freq
+        for tanker in mission_data.tankers
+        if tanker.blue == flight.friendly
+        and flight.aircraft_type.can_refuel_from(tanker.aircraft_type)
+    ]
+
+
 def _fill_unused(flight: FlightData, radio_id: int) -> None:
     """Point every preset left over at the radio's Ch 1. The module's own default
     fillers (121, 126, 128 MHz...) landed players on AI chatter (2026-10-20).
@@ -126,25 +147,31 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         radio_id = self.inter_flight_radio_index
         intra = self.intra_flight_radio_index
 
+        # A preset the set cannot tune is a dead channel in the cockpit.
+        inter_radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
         if intra is None or intra == radio_id:
             # One set of channels (the JF-17 shares its presets across both radios):
             # one list, after the intra-flight channel.
-            frequencies = self._inter_flight_frequencies(flight, mission_data)
+            frequencies = [
+                f
+                for f in self._inter_flight_frequencies(flight, mission_data)
+                if _tunable(inter_radio, f)
+            ]
             first_channel = 2 if intra == radio_id else 1
             self._assign_sequential(flight, radio_id, first_channel, frequencies)
             return
 
         # Two radios, laid out like a squadron comm card (user call, 2026-10-21):
         # COMM1 the support nets, COMM2 the flight then each field's Ground and
-        # Tower, where that radio can tune them (an F-16's VHF COM2 cannot).
+        # Tower, where that radio tunes UHF (an F-16's COM2 is VHF only).
         radio = flight.aircraft_type.intra_flight_radio
         atc = self._atc_frequencies(flight, mission_data)
         on_intra = [f for f in atc if _tunable(radio, f)]
         support = self._support_frequencies(flight, mission_data)
         support.extend(f for f in atc if f not in on_intra)
+        support = [f for f in support if _tunable(inter_radio, f)]
         # Ch 1 on both radios is the flight's own frequency (user call, 2026-10-21).
         self._assign_sequential(flight, intra, 2, on_intra)
-        inter_radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
         first = 1
         if _tunable(inter_radio, flight.intra_flight_channel):
             flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
@@ -176,14 +203,10 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         """AWACS (SkyEye and Vacuum when on), the package (STRIKE with an ABCCC),
         JTACs and the tankers this flight can take fuel from."""
         frequencies = awacs_presets(flight, mission_data)
-        if (freq := flight.package.frequency) is not None:
+        if (freq := mission_data.package_frequency(flight.package)) is not None:
             frequencies.append(freq)
-        frequencies.extend(jtac.freq for jtac in mission_data.jtacs)
-        frequencies.extend(
-            tanker.freq
-            for tanker in mission_data.tankers
-            if flight.aircraft_type.can_refuel_from(tanker.aircraft_type)
-        )
+        frequencies.extend(friendly_jtacs(flight, mission_data))
+        frequencies.extend(friendly_tankers(flight, mission_data))
         return frequencies
 
     @staticmethod
@@ -199,22 +222,15 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
             frequencies.append(flight.departure.atc)
         # TODO: If there ever are multiple AWACS, limit to mission relevant.
         frequencies.extend(awacs_presets(flight, mission_data))
-        frequencies.extend(jtac.freq for jtac in mission_data.jtacs)
-        if (freq := flight.package.frequency) is not None:
+        frequencies.extend(friendly_jtacs(flight, mission_data))
+        if (freq := mission_data.package_frequency(flight.package)) is not None:
             frequencies.append(freq)
         if flight.arrival != flight.departure:
             if (arrival_atc := voice_atc.get(flight.arrival.airfield_name)) is not None:
                 frequencies.extend(arrival_atc)
             elif flight.arrival.atc is not None:
                 frequencies.append(flight.arrival.atc)
-        # Only preset tankers this flight can actually take fuel from (boom vs probe).
-        # can_refuel_from is permissive for untagged airframes, so a flight whose
-        # refueling method is unspecified still gets every tanker (legacy behavior).
-        frequencies.extend(
-            tanker.freq
-            for tanker in mission_data.tankers
-            if flight.aircraft_type.can_refuel_from(tanker.aircraft_type)
-        )
+        frequencies.extend(friendly_tankers(flight, mission_data))
         if flight.divert is not None and flight.divert.atc is not None:
             frequencies.append(flight.divert.atc)
         return frequencies
@@ -327,8 +343,8 @@ class ViggenRadioChannelAllocator(RadioChannelAllocator):
         for awacs_freq in awacs_presets(flight, mission_data):
             flight.assign_channel(radio_id, next(channel_alloc), awacs_freq)
 
-        for jtac in mission_data.jtacs:
-            flight.assign_channel(radio_id, next(channel_alloc), jtac.freq)
+        for jtac_freq in friendly_jtacs(flight, mission_data):
+            flight.assign_channel(radio_id, next(channel_alloc), jtac_freq)
 
         if flight.departure.atc is not None:
             flight.assign_channel(radio_id, 44, flight.departure.atc)  # FR24 E
