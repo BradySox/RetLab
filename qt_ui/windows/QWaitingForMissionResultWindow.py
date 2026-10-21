@@ -295,7 +295,8 @@ class QWaitingForMissionResultWindow(QDialog):
             )
 
     def reject(self):
-        stop_skyeye()
+        # Not stop_skyeye(): closing this window to replan and Take off again kept
+        # killing a SkyEye the player was mid-flight with (2026-10-20).
         self.reset_game_state()
         super().reject()
 
