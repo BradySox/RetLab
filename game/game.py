@@ -54,6 +54,7 @@ from .timeofday import TimeOfDay
 from .weather.conditions import Conditions
 
 if TYPE_CHECKING:
+    from game.radio.radios import RadioFrequency
     from .ato.airtaaskingorder import AirTaskingOrder
     from .retlab.flight_grades import FlightCard
     from .factions.faction import Faction
@@ -189,6 +190,11 @@ class Game:
         # §109: the outside AI's own notes between turns, saved with the campaign.
         # Whether it plans red is the setting outside_ai_plans_red.
         self.opfor_ai_notes: dict[str, str] = {}
+        #: Voice ATC's Ground and Tower per airfield (§119), pinned for the campaign
+        #: the first time a player flight uses the field (user call, 2026-10-21).
+        self.voice_atc_frequencies: dict[str, tuple[RadioFrequency, RadioFrequency]] = (
+            {}
+        )
         # Player-imported kneeboard images injected into client flights at mission
         # generation (managed in the UI; see game/customkneeboard.py).
         self.custom_kneeboards: list[CustomKneeboard] = []
@@ -245,6 +251,7 @@ class Game:
         if state.pop("opfor_ai_enabled", False):
             state["settings"].outside_ai_plans_red = True
         state.setdefault("opfor_ai_notes", {})
+        state.setdefault("voice_atc_frequencies", {})
         state.setdefault("last_flight_cards", [])
         # §112 is on for new games only: a save from before it keeps playing as it was.
         if "hq_requests" not in state:

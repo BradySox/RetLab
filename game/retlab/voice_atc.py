@@ -11,6 +11,7 @@ docs/dev/retlab-features.md §119.
 
 from __future__ import annotations
 
+import logging
 import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterator, Optional
@@ -44,14 +45,32 @@ def player_airfields(ato: AirTaskingOrder) -> list[Airfield]:
 def allocate_atc_frequencies(
     game: Game, registry: RadioRegistry, mission_data: MissionData
 ) -> None:
-    """VHF AM Ground and Tower frequencies for each player airfield, reserved like STRIKE."""
+    """VHF AM Ground and Tower frequencies for each player airfield, reserved like STRIKE.
+
+    A field keeps its pair for the whole campaign (``Game.voice_atc_frequencies``), so a
+    pilot can learn it. Every pinned pair is reserved first, used this turn or not, so a
+    new field never takes another field's frequency.
+    """
     if not game.settings.voice_atc:
         return
+    pinned = game.voice_atc_frequencies
+    for name, pair in pinned.items():
+        for frequency in pair:
+            if frequency in registry.allocated_channels:
+                logging.warning(
+                    "Voice ATC: %s's pinned %s is also a map frequency; keeping it",
+                    name,
+                    frequency,
+                )
+            else:
+                registry.reserve(frequency)
+            registry.atc_pinned.add(frequency)
     for airfield in player_airfields(game.blue.ato):
-        mission_data.atc_frequencies[airfield.airport.name] = (
-            registry.alloc_vhf(),
-            registry.alloc_vhf(),
-        )
+        name = airfield.airport.name
+        if name not in pinned:
+            pinned[name] = (registry.alloc_vhf(), registry.alloc_vhf())
+            registry.atc_pinned.update(pinned[name])
+        mission_data.atc_frequencies[name] = pinned[name]
 
 
 def squawk_codes() -> Iterator[str]:
