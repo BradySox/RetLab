@@ -11,6 +11,8 @@ import dcs.lua
 from dcs import Mission, Point
 from dcs.coalition import Coalition
 from dcs.countries import country_dict
+from dcs.helicopters import helicopter_map
+from dcs.planes import plane_map
 from dcs.terrain import Airport
 from dcs.unit import Static
 from dcs.unitgroup import Group
@@ -73,6 +75,31 @@ if TYPE_CHECKING:
     from game import Game
 
 CARCASS_SUPPRESS_RADIUS_M = 5.0
+
+
+def dcs_default_group_frequencies() -> set[RadioFrequency]:
+    """Every frequency pydcs gives a new aircraft group of some type (124.0, 127.5,
+    251.0 ...). A group this generator never tunes keeps one, so no voice bot may."""
+    frequencies: set[RadioFrequency] = set()
+    for unit_type in [*plane_map.values(), *helicopter_map.values()]:
+        mhz = getattr(unit_type, "radio_frequency", None)
+        if mhz:
+            frequencies.add(RadioFrequency(round(float(mhz) * 1_000_000)))
+    return frequencies
+
+
+def reserve_ato_frequencies(game: Game, registry: RadioRegistry) -> None:
+    """Hand-set package and flight frequencies, both sides, before anything this
+    mission allocates, so STRIKE, Vacuum or a Ground and Tower never land on one."""
+    for coalition in (game.blue, game.red):
+        for package in coalition.ato.packages:
+            frequencies = [package.frequency, *(f.frequency for f in package.flights)]
+            for frequency in frequencies:
+                if (
+                    frequency is not None
+                    and frequency not in registry.allocated_channels
+                ):
+                    registry.reserve(frequency)
 
 
 def keeps_stored_tacan(cp: TacanContainer) -> bool:
@@ -197,7 +224,7 @@ class MissionGenerator:
 
         logging.info("MIZ generation: air units")
         self.generate_air_units(tgo_generator)
-        self._move_ai_off_skyeye()
+        self._move_ai_off_voice_bots()
 
         logging.info("MIZ generation: scripts, triggers, visuals, and drawings")
         RebellionGenerator(self.mission, self.game).generate()
@@ -276,19 +303,26 @@ class MissionGenerator:
             self.mission_data.skyeye_frequency = voice_awacs.freq
         for frequency in unique_map_frequencies:
             self.radio_registry.reserve(frequency)
+        reserve_ato_frequencies(self.game, self.radio_registry)
+        # The voice bots stay off every DCS default group frequency; a carrier's
+        # curated 305.0 and the AI may still use them, so they are held, not reserved.
+        with self.radio_registry.holding(dcs_default_group_frequencies()):
+            self._allocate_voice_bot_frequencies()
+
+    def _allocate_voice_bot_frequencies(self) -> None:
         # Pinned Voice ATC pairs before anything else this turn allocates (§119).
         allocate_atc_frequencies(self.game, self.radio_registry, self.mission_data)
         if has_package_control(self.game.blue.ato):
-            strike = self.radio_registry.alloc_uhf()
-            self.mission_data.strike_frequency = strike
-            # STRIKE is each player package's own frequency, so it is already the
-            # package preset and the kneeboard's FREQ line (user call, 2026-10-21).
+            self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
+            # STRIKE is each player package's own frequency, so it is the package
+            # preset and the kneeboard's FREQ line (user call, 2026-10-21). The AI
+            # in it keep the package's own frequency, off STRIKE (user call).
             for package in self.game.blue.ato.packages:
                 flights = package.flights
                 if any(f.client_count for f in flights) and not any(
                     f.flight_type is FlightType.ABCCC for f in flights
                 ):
-                    package.frequency = strike
+                    self.mission_data.strike_packages.add(id(package))
         if has_vacuum(self.game.blue.ato):
             self.mission_data.vacuum_frequency = self.radio_registry.alloc_uhf()
 
@@ -356,20 +390,20 @@ class MissionGenerator:
             )
             ground_conflict_gen.generate()
 
-    def _move_ai_off_skyeye(self) -> None:
+    def _move_ai_off_voice_bots(self) -> None:
         """AI groups never given a radio sit on DCS's default 251.000, which is also
-        SkyEye's default; their chatter filled its channel (2026-10-20). Move them."""
-        skyeye = self.mission_data.skyeye_frequency
-        if skyeye is None:
+        SkyEye's default; their chatter filled its channel (2026-10-20). Move every AI
+        group off each voice bot's frequency: SkyEye, STRIKE, Vacuum, Ground, Tower."""
+        voice = self.mission_data.voice_bot_frequencies()
+        if not voice:
             return
         moved = 0
         elsewhere: Optional[RadioFrequency] = None
         for coalition in self.mission.coalition.values():
             for country in coalition.countries.values():
                 for group in [*country.plane_group, *country.helicopter_group]:
-                    if (
-                        group.frequency is None
-                        or abs(group.frequency - skyeye.mhz) > 1e-3
+                    if group.frequency is None or not any(
+                        abs(group.frequency - f.mhz) < 1e-3 for f in voice
                     ):
                         continue
                     if any(u.is_human() for u in group.units):
@@ -380,7 +414,9 @@ class MissionGenerator:
                     moved += 1
         if moved:
             logging.info(
-                "Voice AWACS: moved %d AI groups off %s to %s", moved, skyeye, elsewhere
+                "Voice bots: moved %d AI groups off their frequencies to %s",
+                moved,
+                elsewhere,
             )
 
     def generate_air_units(self, tgo_generator: TgoGenerator) -> None:
@@ -544,6 +580,7 @@ class MissionGenerator:
                     abccc_callsign(mission_data),
                     mission_data.strike_frequency,
                 )
+                gen.strike_packages = set(mission_data.strike_packages)
             if mission_data.vacuum_frequency is not None:
                 gen.add_comm(vacuum_comm_name(), mission_data.vacuum_frequency)
             for field_name, (ground, tower) in mission_data.atc_frequencies.items():

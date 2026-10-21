@@ -865,7 +865,7 @@ def frequency_labels(
         put(tanker.freq, short_callsign(tanker.callsign))
     for jtac in mission_data.jtacs:
         put(jtac.freq, "JTAC")
-    put(flight.package.frequency, "PKG")
+    put(mission_data.package_frequency(flight.package), "PKG")
     put(flight.departure.atc, "DEP")
     if flight.arrival != flight.departure:
         put(flight.arrival.atc, "ARR")

@@ -85,13 +85,13 @@ local function jsonValue(value)
         end
         return "[" .. table.concat(items, ",") .. "]"
     end
-    local escaped = tostring(value):gsub('[%c"\]', function(c)
+    local escaped = tostring(value):gsub('[%c"\\]', function(c)
         if c == '"' then
             return '\\"'
         elseif c == "\\" then
             return "\\\\"
         end
-        return string.format("\u%04x", string.byte(c))
+        return string.format("\\u%04x", string.byte(c))
     end)
     return '"' .. escaped .. '"'
 end
@@ -109,8 +109,8 @@ local function openLink()
         return nil
     end
     local ok, socket = pcall(function()
-        package.path = package.path .. ";.\LuaSocket\?.lua;"
-        package.cpath = package.cpath .. ";.\LuaSocket\?.dll;"
+        package.path = package.path .. ";.\\LuaSocket\\?.lua;"
+        package.cpath = package.cpath .. ";.\\LuaSocket\\?.dll;"
         return require("socket")
     end)
     if not ok or not socket then

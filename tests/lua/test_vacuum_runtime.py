@@ -219,3 +219,23 @@ def test_casual_calls_only_radars_over_a_player_package() -> None:
     h.advance_to(60)
     assert [c["label"] for c in _sent(h, "emitter")] == ["SA-6"]
     h.assert_no_lua_errors()
+
+
+def test_luasocket_is_looked_for_in_the_dcs_folder() -> None:
+    # Single backslashes in the path read as ".LuaSocket?.lua" in Lua 5.1, so the
+    # require only worked where something had already put LuaSocket on the path.
+    h = DcsPluginHarness()
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {"plugins": {}, "vacuum": {"callsign": "Vacuum", "groups": ["Vacuum"]}}
+    )
+    h.load_plugin_script(PLUGIN)
+    assert ";.\\LuaSocket\\?.lua;" in h.lua.eval("package.path")
+    assert ";.\\LuaSocket\\?.dll;" in h.lua.eval("package.cpath")
+
+
+def test_a_label_with_a_backslash_or_control_character_is_valid_json() -> None:
+    label = 'SA-6 "Kub"\\1\tB'
+    h = _harness([_emitter(label, "Kub #1")], [_group("Kub", RED, 50 * NM, radar=True)])
+    h.advance_to(60)
+    assert [c["label"] for c in _sent(h, "emitter")] == [label]
+    h.assert_no_lua_errors()

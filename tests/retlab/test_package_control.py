@@ -132,3 +132,12 @@ def test_roles_and_spoken_callsigns() -> None:
     assert role_for(FlightType.BAI) == "strike"
     assert spoken_callsign("Anvil1-1") == "Anvil"
     assert spoken_callsign("Magic 1") == "Magic"
+
+
+def test_a_player_flight_is_its_leads_seat_and_the_ai_its_flight() -> None:
+    data = _mission_data()
+    colt, weasel = data.packages[1]
+    colt.callsign, weasel.callsign = "Ford 5", "Uzi 8"
+    text = _serialized(data)
+    assert 'callsign = "Ford 5-1"' in text
+    assert 'callsign = "Uzi 8"' in text

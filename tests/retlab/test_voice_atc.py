@@ -166,14 +166,19 @@ def test_voice_atc_fields_preset_ground_and_tower_instead_of_dcs_tower() -> None
     assert presets(_preset_flight("Senaki", "Senaki"), MissionData()) == [MHz(250)]
 
 
-def test_ground_and_tower_are_vhf_am_airband() -> None:
+def test_ground_and_tower_are_uhf_and_a_vhf_pin_is_picked_again() -> None:
+    # The F-4E, the F-5E and a Tomcat pilot without a RIO have no VHF (2026-10-21).
     from game.radio.radios import RadioRegistry
+    from game.retlab.voice_atc import allocate_atc_frequencies
 
-    registry = RadioRegistry()
-    pair = [registry.alloc_vhf() for _ in range(40)]
-    assert all(118 <= f.mhz < 136 for f in pair)
-    assert all(f.modulation.name == "AM" for f in pair)
-    assert len(set(pair)) == len(pair)
+    game = _pin_game("Hatzerim", "Akrotiri")
+    game.voice_atc_frequencies = {"Hatzerim": (MHz(124, 300), MHz(126, 500))}
+    data = MissionData()
+    allocate_atc_frequencies(game, RadioRegistry(), data)
+    used = [f for pair in data.atc_frequencies.values() for f in pair]
+    assert len(used) == 4 and len(set(used)) == 4
+    assert all(f.band == "UHF" and f.modulation.name == "AM" for f in used)
+    assert game.voice_atc_frequencies == data.atc_frequencies
 
 
 def test_atc_lines_name_the_preset_channels() -> None:

@@ -1,0 +1,11 @@
+date: 2026-10-21
+title: Voice bots fixed, Ground and Tower on UHF
+change: >-
+  The ABCCC now runs your package: it had lost the player packages before
+  the mission started. Ground and Tower are UHF, so every jet can tune
+  them. Your presets carry only your own side's tankers and JTACs. The
+  F-15E has the support nets on COMM1 and your flight, Ground and Tower on
+  COMM2. AI flights stay off STRIKE and every voice bot frequency. Call
+  yourself by your seat, such as Ford 2-1; package control now hears that.
+watch: >-
+  An F-16's COM2 is VHF only, so its Ground and Tower are on COM1.

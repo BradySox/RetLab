@@ -169,7 +169,6 @@ class AircraftGenerator:
             dynamic_runways: Runway data for carriers and FARPs.
         """
         self._reserve_frequencies_and_tacan(ato)
-        self.mission_data.packages.clear()
 
         for package in reversed(self._prioritized_packages(ato)):
             logging.info(f"Generating package for target: {package.target.name}")
@@ -213,10 +212,14 @@ class AircraftGenerator:
                     self.mission.triggerrules.triggers.append(splittrigger)
 
         # at this point all flights were generated, so now start setting up datalink...
-        self._link_datalink_on_package_level_and_awacs()
+        # Blue and red each run this pass, so only this side's packages are linked.
+        # Clearing the table here instead wiped blue's before package control (§117).
+        self._link_datalink_on_package_level_and_awacs({id(p) for p in ato.packages})
 
-    def _link_datalink_on_package_level_and_awacs(self) -> None:
-        for _, flights in self.mission_data.packages.items():
+    def _link_datalink_on_package_level_and_awacs(self, packages: set[int]) -> None:
+        for key, flights in self.mission_data.packages.items():
+            if key not in packages:
+                continue
             for f in flights:
                 if not f.aircraft_type.dcs_unit_type.networked_datalink:
                     continue

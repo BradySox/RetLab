@@ -232,6 +232,7 @@ def _mission_data(flights: list[Any], carriers: Optional[list[Any]] = None) -> A
         tankers=[],
         jtacs=[],
         carriers=carriers or [],
+        package_frequency=lambda package: package.frequency,
     )
 
 
