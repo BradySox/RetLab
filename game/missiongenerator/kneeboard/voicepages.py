@@ -286,6 +286,8 @@ class AtcPage(KneeboardPage):
                 "Say the station, then YOUR name, then the request. Read back what "
                 "ATC gives you, then your name.",
                 '"Readback incomplete" means say the missing part again.',
+                "Use the runway ATC gives you: once AI traffic takes off, it is the "
+                "one they use, which can differ from the planned runway.",
             ],
         )
         if out is not None:

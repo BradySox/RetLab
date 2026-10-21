@@ -257,3 +257,22 @@ def test_old_saves_get_an_empty_pin_table() -> None:
     except Exception:
         pass
     assert state["voice_atc_frequencies"] == {}
+
+
+def test_runway_ends_come_in_pairs_from_the_map() -> None:
+    from game.retlab.voice_atc import runway_ends
+
+    def end(name: str) -> Any:
+        return SimpleNamespace(name=name)
+
+    airport = SimpleNamespace(
+        runways=[
+            SimpleNamespace(main=end("10R"), opposite=end("28L")),
+            SimpleNamespace(main=end("10L"), opposite=end("28R")),
+        ]
+    )
+    game: Any = SimpleNamespace(
+        theater=SimpleNamespace(terrain=SimpleNamespace(airports={"Hatzerim": airport}))
+    )
+    assert runway_ends(game, "Hatzerim") == ["10R", "28L", "10L", "28R"]
+    assert runway_ends(game, "Nowhere") == []
