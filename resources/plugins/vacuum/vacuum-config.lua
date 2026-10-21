@@ -24,6 +24,16 @@ local TUNE_SECONDS = 60
 local OFF_RESET_SECONDS = 60
 local RANGE = tonumber(data.rangeMeters) or (250 * 1852)
 local emitters = data.emitters or {}
+-- Casual radio discipline (§121): only the radars that threaten a player package.
+if dcsRetribution.radioDiscipline == "casual" then
+    local threats = {}
+    for _, e in ipairs(emitters) do
+        if e.strike == "true" then
+            table.insert(threats, e)
+        end
+    end
+    emitters = threats
+end
 
 local function airborneVacuum()
     for _, name in ipairs(data.groups or {}) do

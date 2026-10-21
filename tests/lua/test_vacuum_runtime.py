@@ -191,3 +191,31 @@ def test_calls_are_spaced_out() -> None:
     h.advance_to(30)
     assert len(_sent(h, "emitter")) == 3
     h.assert_no_lua_errors()
+
+
+def test_casual_calls_only_radars_over_a_player_package() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_SOCKET)
+    node = {
+        "callsign": "Vacuum",
+        "frequency": "262.000AM",
+        "strike": "264.500AM",
+        "linkHost": "127.0.0.1",
+        "linkPort": "42690",
+        "rangeMeters": str(250 * NM),
+        "groups": ["Vacuum"],
+        "emitters": [
+            _emitter("SA-6", "Kub #1", strike=True),
+            _emitter("EWR", "Ewr #1"),
+        ],
+    }
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {"plugins": {}, "radioDiscipline": "casual", "vacuum": node}
+    )
+    h.add_group(_group("Vacuum", BLUE, 0, airborne=True))
+    h.add_group(_group("Kub", RED, 50 * NM, radar=True))
+    h.add_group(_group("Ewr", RED, 60 * NM, radar=True))
+    h.load_plugin_script(PLUGIN)
+    h.advance_to(60)
+    assert [c["label"] for c in _sent(h, "emitter")] == ["SA-6"]
+    h.assert_no_lua_errors()

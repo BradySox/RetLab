@@ -1,0 +1,12 @@
+date: 2026-10-20
+title: Radio discipline for casual squadrons
+change: >-
+  Settings > Mission Generator > Radio discipline. Strict (the default) is by
+  the book: a roll call, holds for players who stay quiet, and every call
+  names the controller first. Relaxed keeps the roll call but never waits on a
+  quiet player, and "Colt 1-1, ready to push" works without the controller's
+  name. Casual drops the roll call; the ABCCC talks only when called, at the
+  push, or to hold for SEAD; Vacuum calls only radars over your route; and the
+  AWACS gives only threat calls on STRIKE.
+watch: >-
+  Needs RetLab's SkyEye build 5 for the loose calls and the quieter AWACS.
