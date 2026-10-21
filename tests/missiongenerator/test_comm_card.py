@@ -23,7 +23,7 @@ class _Flight:
         self.divert = None
         self.package = SimpleNamespace(frequency=MHz(264))
         self.friendly = SimpleNamespace(is_blue=True)
-        self.client_units = [object()]
+        self.client_units = [SimpleNamespace(set_radio_channel_preset=lambda *a: None)]
         self.squadron = SimpleNamespace(radio_presets={})
         self.aircraft_type = SimpleNamespace(
             intra_flight_radio=radio, can_refuel_from=lambda _: True
@@ -99,3 +99,19 @@ def test_running_out_of_presets_is_logged(caplog: Any) -> None:
     with caplog.at_level("WARNING"):
         CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
     assert "out of presets" in caplog.text
+
+
+def test_unused_presets_repeat_channel_1_instead_of_module_fillers() -> None:
+    set_calls: list[tuple[int, int, float]] = []
+    flight = _Flight()
+    flight.client_units = [
+        SimpleNamespace(
+            set_radio_channel_preset=lambda r, c, f: set_calls.append((r, c, f))
+        )
+    ]
+    flight.num_radio_channels = lambda radio_id: 6  # type: ignore[method-assign]
+    CommonRadioChannelAllocator(1, 2).assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
+    comm2_fill = sorted(c for r, c, f in set_calls if r == 2 and f == 140.0 and c > 3)
+    assert comm2_fill == [4, 5, 6]
+    # Fillers are not assignments, so the comm card leaves them blank.
+    assert _channels(flight, 2) == [MHz(140), MHz(255), MHz(256)]

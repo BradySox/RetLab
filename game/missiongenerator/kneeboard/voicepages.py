@@ -83,7 +83,10 @@ class AbcccPage(KneeboardPage):
         awacs: Optional[str],
         callsign: str,
         dark_kneeboard: bool,
+        fmt: Callable[[RadioFrequency], str] = _freq,
     ) -> None:
+        #: How a frequency prints: with its preset channel when the generator knows it.
+        self.fmt = fmt
         self.controller = controller
         self.strike = strike
         self.awacs = awacs
@@ -94,7 +97,7 @@ class AbcccPage(KneeboardPage):
         w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         c, me = self.controller, self.callsign
         w.title(f"Talking to {c} (ABCCC)")
-        w.text(f"STRIKE: {_freq(self.strike)}", fill=w.col_nav)
+        w.text(f"STRIKE: {self.fmt(self.strike)}", fill=w.col_nav)
         _lines(
             w,
             [
@@ -160,7 +163,10 @@ class SkyEyeAwacsPage(KneeboardPage):
         strike: Optional[RadioFrequency],
         callsign: str,
         dark_kneeboard: bool,
+        fmt: Callable[[RadioFrequency], str] = _freq,
     ) -> None:
+        #: How a frequency prints: with its preset channel when the generator knows it.
+        self.fmt = fmt
         self.awacs = awacs
         self.frequency = frequency
         self.strike = strike
@@ -171,10 +177,10 @@ class SkyEyeAwacsPage(KneeboardPage):
         w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         a, me = self.awacs, self.callsign
         w.title(f"Talking to {a} (AWACS)")
-        w.text(f"{a}: {_freq(self.frequency)}", fill=w.col_nav)
+        w.text(f"{a}: {self.fmt(self.frequency)}", fill=w.col_nav)
         if self.strike is not None:
             w.text(
-                f"Also on STRIKE {_freq(self.strike)} for threats and your calls.",
+                f"Also on STRIKE {self.fmt(self.strike)} for threats and your calls.",
                 fill=w.col_nav,
                 wrap=True,
             )

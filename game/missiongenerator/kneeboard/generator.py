@@ -340,7 +340,19 @@ class KneeboardGenerator(MissionInfoGenerator):
             )
         )
         # The voice controller cheat sheets sit right after the comms (§116, §117).
+        # The lead's own seat on every card (user call, 2026-10-21: "Ford 5-1").
         callsign = str(flight.callsign)
+        if "-" not in callsign:
+            callsign = f"{callsign}-1"
+
+        def fmt(freq: RadioFrequency) -> str:
+            channel = flight.channel_for(freq)
+            text = f"{freq.mhz:.3f} {freq.modulation.name}"
+            if channel is None:
+                return text
+            name = flight.aircraft_type.channel_name(channel.radio_id, channel.channel)
+            return f"{name}, {text}"
+
         if self.abccc is not None:
             pages.append(
                 AbcccPage(
@@ -349,6 +361,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                     self.voice_awacs.callsign if self.voice_awacs else None,
                     callsign,
                     self.dark_kneeboard,
+                    fmt,
                 )
             )
         if self.voice_awacs is not None:
@@ -359,6 +372,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                     self.abccc[1] if self.abccc else None,
                     callsign,
                     self.dark_kneeboard,
+                    fmt,
                 )
             )
 
