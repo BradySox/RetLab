@@ -1,0 +1,1 @@
+* **[UI]** Voice bots: debrief stops the SkyEye that Take off started even after Retribution was restarted in between, and asks it to close (so it signs off SRS) before forcing it. A second Take off while the first is still waiting for SRS no longer starts a second SkyEye.
