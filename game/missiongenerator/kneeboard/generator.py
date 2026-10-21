@@ -41,6 +41,7 @@ from .support import (
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
 from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage
+from game.retlab.voice_atc import atc_lines
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
 from .threatintel import (
@@ -242,6 +243,13 @@ class KneeboardGenerator(MissionInfoGenerator):
             self.game.settings.generate_sitrep_kneeboard,
         )
 
+    def _departure_atc(self, flight: FlightData) -> Optional[str]:
+        """Voice ATC's Ground and Tower for the departure page, when it runs there."""
+        if self.voice_atc is None:
+            return None
+        atc_field = self.voice_atc.fields.get(flight.departure.airfield_name)
+        return atc_lines(flight, atc_field) if atc_field else None
+
     def generate_task_page(self, flight: FlightData) -> Optional[KneeboardPage]:
         if flight.flight_type in (FlightType.DEAD, FlightType.SEAD):
             return SeadTaskPage(
@@ -307,6 +315,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                 bullseye_anchor=self.game.coalition_for(
                     flight.friendly
                 ).bullseye_anchor_name,
+                atc_fields=self.voice_atc.fields if self.voice_atc else None,
             ),
             SupportPage(
                 flight,
@@ -429,6 +438,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                     game=self.game,
                     weather=self.game.conditions.weather,
                     dark=self.dark_kneeboard,
+                    departure_atc=self._departure_atc(flight),
                 )
             )
 

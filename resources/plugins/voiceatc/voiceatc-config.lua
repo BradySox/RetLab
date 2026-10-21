@@ -5,10 +5,10 @@
 -- at an airfield): linkHost, linkPort, declination,
 -- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
 --   fields = { { name, airbase, runway, altimeter, ground, tower, groundVoice, towerVoice } },
---   flights = { { group, callsign, squawk, departure, arrival } }
+--   flights = { { group, callsign, squawk, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
--- the field frequencies and this script decides every reply. Engine start, taxi with a squawk,
+-- the field frequencies and this script decides every reply. Taxi with a squawk,
 -- takeoff with wind and altimeter, landing, clear of the runway. Under Strict radio discipline a
 -- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
 -- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same requests; without
@@ -496,17 +496,11 @@ local function contact(field, position, flight, member, other)
     }))
 end
 
-local function startup(field, flight, member, on)
-    if flight.state == "parked" then
-        flight.state = "started"
-    end
-    say(field, on or "ground", flight, line({ callsignPart(memberCallsign(flight, member)), ", cleared for engine start." }))
-end
-
 -- No taxiway names: DCS gives scripts none, so every field taxis "to runway 25" (user call,
--- 2026-10-20).
+-- 2026-10-20). Taxi is the first call: there is no engine-start request, since SRS radios
+-- are dead until the jet is powered (user call, 2026-10-21).
 local function taxi(field, flight, member, on)
-    if flight.state == "parked" or flight.state == "started" then
+    if flight.state == "parked" then
         flight.state = "taxi"
     end
     local runway = field.runway
@@ -642,7 +636,7 @@ local function handleCall(field, position, flight, member, kind, detail)
     elseif kind == "emergency" then
         return emergency(field, position, flight, member)
     end
-    local ground = kind == "startup" or kind == "taxi"
+    local ground = kind == "taxi"
     local tower = kind == "ready" or kind == "inbound" or kind == "clear" or kind == "airborne"
     -- Casual answers whoever was called; the others send the pilot to the right position.
     local on = nil
@@ -653,9 +647,7 @@ local function handleCall(field, position, flight, member, kind, detail)
     elseif position == "tower" and ground then
         return contact(field, position, flight, member, "ground")
     end
-    if kind == "startup" then
-        startup(field, flight, member, on)
-    elseif kind == "taxi" then
+    if kind == "taxi" then
         taxi(field, flight, member, on)
     elseif kind == "ready" then
         takeoff(field, flight, member, on)
@@ -756,11 +748,11 @@ local function watch(_, now)
         for _, seat in ipairs(playerUnits(flight)) do
             local u = seat.unit
             if u:inAir() then
-                if flight.state == "parked" or flight.state == "started" or flight.state == "taxi" then
+                if flight.state == "parked" or flight.state == "taxi" then
                     -- An air start, or a takeoff the event missed.
                     flight.state = "airborne"
                 end
-            elseif field and (flight.state == "parked" or flight.state == "started") and speed(u) > TAXI_MPS then
+            elseif field and flight.state == "parked" and speed(u) > TAXI_MPS then
                 scold(flight, "taxi", field, "ground", seat.member, ", not cleared for taxi.")
             end
         end
@@ -777,7 +769,7 @@ local menus = {}
 -- Outbound calls go to the departure field, inbound calls to the arrival field.
 local function menuCall(arg)
     local flight, kind, detail = arg.flight, arg.kind, arg.detail
-    local outbound = kind == "startup" or kind == "taxi" or kind == "ready"
+    local outbound = kind == "taxi" or kind == "ready"
     local field = fieldsByName[outbound and flight.departure or flight.arrival]
         or fieldsByName[flight.departure]
         or fieldsByName[flight.arrival]
@@ -789,12 +781,11 @@ local function menuCall(arg)
         flight.pending[1] = nil
         return
     end
-    local position = (kind == "startup" or kind == "taxi") and "ground" or "tower"
+    local position = kind == "taxi" and "ground" or "tower"
     handleCall(field, position, flight, 1, kind, detail)
 end
 
 local MENU = {
-    { "Ground: request engine start", "startup" },
     { "Ground: request taxi", "taxi" },
     { "Tower: holding short, ready", "ready" },
     { "Tower: 5 miles, full stop", "inbound" },
@@ -851,7 +842,17 @@ function handler:onEvent(event)
         flight.state = "airborne"
         return
     end
-    local field = fieldsByName[flight.arrival] or fieldsByName[flight.departure]
+    -- The field it landed at: the nearest of the arrival, the divert and the departure.
+    local field, best = nil, nil
+    for _, name in ipairs({ flight.arrival, flight.divert, flight.departure }) do
+        local candidate = fieldsByName[name or ""]
+        if candidate then
+            local d = distanceNm(event.initiator, candidate)
+            if best == nil or d < best then
+                field, best = candidate, d
+            end
+        end
+    end
     if not field then
         return
     end

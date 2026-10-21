@@ -277,7 +277,6 @@ class AtcPage(KneeboardPage):
             _lines(
                 w,
                 [
-                    f'"{o} Ground, {me}, request engine start."',
                     f'"{o} Ground, {me}, request taxi."',
                     f'  ATC: "Squawk {self.squawk}, taxi to runway {out.runway}, hold '
                     f'short, contact Tower {_spoken_freq(out.tower)}."',

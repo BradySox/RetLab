@@ -39,7 +39,11 @@ def _runway(name: str) -> Any:
 
 
 def _flight(
-    group: str, client: bool, field: str = "Kobuleti", blue: bool = True
+    group: str,
+    client: bool,
+    field: str = "Kobuleti",
+    blue: bool = True,
+    divert: Any = None,
 ) -> Any:
     return SimpleNamespace(
         group_name=group,
@@ -48,6 +52,7 @@ def _flight(
         friendly=SimpleNamespace(is_blue=blue),
         departure=_runway(field),
         arrival=_runway(field),
+        divert=_runway(divert) if divert else None,
     )
 
 
@@ -83,6 +88,35 @@ def test_only_blue_player_flights_at_atc_fields_get_atc() -> None:
     assert len(voices) == 2 and not voices & set(data.skyeye_voices)
     # Built once: the kneeboard sees the same squawks as the mission.
     assert voice_atc_plan(_game(), data) is plan
+
+
+def test_a_divert_field_gets_its_own_ground_and_tower() -> None:
+    data = MissionData()
+    data.atc_frequencies = {
+        "Kobuleti": (MHz(124), MHz(125)),
+        "Batumi": (MHz(126), MHz(127)),
+    }
+    data.flights = [_flight("Viper", True, divert="Batumi")]
+    plan = voice_atc_plan(_game(), data)
+    assert plan is not None
+    assert plan.flights[0].divert == "Batumi"
+    assert (plan.fields["Batumi"].ground, plan.fields["Batumi"].tower) == (
+        MHz(126),
+        MHz(127),
+    )
+
+
+def test_player_airfields_include_the_divert() -> None:
+    from game.retlab.voice_atc import player_airfields
+    from game.theater.controlpoint import Airfield
+
+    home: Any = Airfield.__new__(Airfield)
+    divert: Any = Airfield.__new__(Airfield)
+    flight = SimpleNamespace(
+        client_count=1, departure=home, arrival=home, divert=divert
+    )
+    ato: Any = SimpleNamespace(packages=[SimpleNamespace(flights=[flight])])
+    assert player_airfields(ato) == [home, divert]
 
 
 def test_nothing_with_the_setting_off() -> None:
@@ -130,3 +164,28 @@ def test_voice_atc_fields_preset_ground_and_tower_instead_of_dcs_tower() -> None
         MHz(264),
     ]
     assert presets(_preset_flight("Senaki", "Senaki"), MissionData()) == [MHz(250)]
+
+
+def test_ground_and_tower_are_vhf_am_airband() -> None:
+    from game.radio.radios import RadioRegistry
+
+    registry = RadioRegistry()
+    pair = [registry.alloc_vhf() for _ in range(40)]
+    assert all(118 <= f.mhz < 136 for f in pair)
+    assert all(f.modulation.name == "AM" for f in pair)
+    assert len(set(pair)) == len(pair)
+
+
+def test_atc_lines_name_the_preset_channels() -> None:
+    from game.missiongenerator.aircraft.flightdata import ChannelAssignment
+    from game.retlab.voice_atc import AtcField, atc_lines
+
+    channels = {MHz(124, 300): [ChannelAssignment(2, 2)]}
+    flight: Any = SimpleNamespace(
+        channels_for=lambda f: channels.get(f, []),
+        aircraft_type=SimpleNamespace(
+            channel_name=lambda radio, channel: f"COMM{radio} Ch {channel}"
+        ),
+    )
+    field = AtcField("Kobuleti", "25", MHz(126, 500), MHz(124, 300))
+    assert atc_lines(flight, field) == ("GND 124.300 (COMM2 Ch 2)\nTWR 126.500")

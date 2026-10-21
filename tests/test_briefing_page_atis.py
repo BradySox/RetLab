@@ -11,6 +11,7 @@ def _page(atis_by_name: dict[str, RadioFrequency]) -> BriefingPage:
     page.flight = MagicMock()
     page.flight.channel_for.return_value = None  # bare freq, no preset
     page.atis_by_name = atis_by_name
+    page.atc_fields = {}
     return page
 
 
@@ -39,3 +40,21 @@ def test_none_runway_row_has_empty_atis_cell() -> None:
     row = _page({})._row_with_atis("Divert", None)
     assert len(row) == 7
     assert row[-1] == ""
+
+
+def test_voice_atc_ground_and_tower_replace_the_dcs_tower() -> None:
+    from game.radio.radios import MHz
+    from game.retlab.voice_atc import AtcField
+
+    page = _page({})
+    page.flight.channels_for.return_value = []  # type: ignore[attr-defined]
+    page.atc_fields = {"Batumi": AtcField("Batumi", "13", MHz(126, 500), MHz(124, 300))}
+    runway = MagicMock()
+    runway.airfield_name = "Batumi"
+    runway.atc = MHz(260)
+    runway.atc_vhf = None
+    runway.tacan = None
+    runway.ils = None
+    runway.icls = None
+    row = page.airfield_info_row("Departure", runway)
+    assert row[2] == "GND 124.300\nTWR 126.500"

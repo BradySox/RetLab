@@ -500,12 +500,15 @@ class AirfieldDeparturePage(_RecordingPage):
         game: "Game",
         weather: "Weather",
         dark: bool = False,
+        atc: Optional[str] = None,
     ) -> None:
         super().__init__()
         self.flight = flight
         self.game = game
         self.weather = weather
         self.dark = dark
+        #: Voice ATC's Ground and Tower lines (§119), shown in place of the DCS tower.
+        self.atc = atc
         self._p = _palette(dark)
 
     def write(self, path: Path) -> None:
@@ -557,7 +560,7 @@ class AirfieldDeparturePage(_RecordingPage):
             sunset=sunset,
             runway_name=self.flight.departure.runway_name,
             runway_heading_deg=int(self.flight.departure.runway_heading.degrees),
-            atc_freq_str=self._format_freq(self.flight.departure.atc),
+            atc_freq_str=self.atc or self._format_freq(self.flight.departure.atc),
             tacan_str=self._format_tacan(),
             field_elevation_m=_field_elevation_m(airport, self.game.theater.terrain),
         )
@@ -1954,6 +1957,7 @@ def generate_recon_pages(
     game: "Game",
     weather: "Weather",
     dark: bool = False,
+    departure_atc: Optional[str] = None,
 ) -> List[KneeboardPage]:
     # Re-arm the once-per-pass WARNING log for tile-fetch failures so a new
     # generation pass surfaces the first failure even if the previous pass
@@ -1969,6 +1973,7 @@ def generate_recon_pages(
                 game=game,
                 weather=weather,
                 dark=dark,
+                atc=departure_atc,
             )
         )
 

@@ -11279,19 +11279,24 @@ closed) only the SkyEye RetLab started is stopped; SRS keeps running (user call,
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground
-and a Tower controller at every airfield a player flight takes off from or lands at. AI-only
+and a Tower controller at every airfield a player flight takes off from, lands at or diverts
+to (divert added 2026-10-21, user call). AI-only
 fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
 Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step 3.
 
-- **Frequencies:** each field gets two new UHF channels, Ground and Tower, reserved like
-  STRIKE (`allocate_atc_frequencies`). Never the field's DCS tower frequency: DCS's own ATC
-  on it keeps telling a player who taxis without its permission to hold position (user call,
-  2026-10-20).
+- **Frequencies:** each field gets two new VHF AM channels (118-136 MHz), Ground and Tower,
+  reserved like STRIKE (`allocate_atc_frequencies`, `RadioRegistry.alloc_vhf`). VHF so a jet
+  whose second radio is VHF only, such as the F-16, can preset them (user call, 2026-10-21).
+  Never the field's DCS tower frequency: DCS's own ATC on it keeps telling a player who taxis
+  without its permission to hold position (user call, 2026-10-20).
 - **Presets and kneeboard:** a player jet's inter-flight presets carry the field's Ground and
   Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
   presets keeps them). The comms ladder lists "<field> GROUND" and "<field> TOWER" with
   their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
-  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20).
+  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The Mission Info
+  airfield table and the departure page's ATC box show "GND ... / TWR ..." with their preset
+  channels in place of the DCS tower (`atc_lines`, user call 2026-10-21), for the departure,
+  arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
 - **Squawks:** a four-digit code per player flight, digits 0 to 7, never repeated in a mission
   (4101, 4102 ... 4177, 4201 ...). Read back, nothing else checks it.
 - **Runway:** the one the briefing picks (`RunwayData.runway_name`). Wind is read live at the
@@ -11300,11 +11305,12 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   unlabeled road graph. Every field says "taxi to runway 25, hold short" (user call,
   2026-10-20).
 
-The calls (lead calls for the flight going out; a player wingman may ask for their own landing):
+The calls (lead calls for the flight going out; a player wingman may ask for their own landing).
+Taxi is the first call: there is no engine-start request, since SRS radios are dead until the
+jet is powered (user call, 2026-10-21).
 
 | Position | Pilot | ATC | Readback items |
 |---|---|---|---|
-| Ground | request engine start | cleared for engine start | none |
 | Ground | request taxi | squawk 4101, taxi to runway 25, hold short, contact Tower 262.0 | squawk, runway |
 | Tower | holding short runway 25, ready | runway 25, wind, altimeter, cleared for takeoff | runway |
 | Tower | 5 miles, full stop / request the overhead | runway 25, wind, cleared to land (busy: enter the pattern at 3,000) | runway |

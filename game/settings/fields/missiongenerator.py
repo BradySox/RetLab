@@ -490,7 +490,7 @@ class MissionGeneratorSettings:
         default=False,
         detail=(
             "Ground and Tower for player flights at every airfield a player flight "
-            "takes off from or lands at: engine start, taxi with a squawk code, "
+            "takes off from or lands at: taxi with a squawk code, "
             "takeoff with the wind and altimeter, and landing. Each field gets its "
             "own Ground and Tower frequencies, apart from DCS's tower frequency. The "
             "kneeboard lists both and your squawk. Busting a rule gets a radio call "

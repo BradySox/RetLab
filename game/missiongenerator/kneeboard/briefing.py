@@ -14,6 +14,7 @@ from game.coordinates import (
 )
 from game.data.weapons import Weapon, WeaponType
 from game.radio.radios import RadioFrequency
+from game.retlab.voice_atc import AtcField, atc_lines
 from game.runways import RunwayData
 from game.theater.bullseye import Bullseye
 from game.utils import inches_hg, meters, mps, pounds
@@ -72,6 +73,7 @@ class BriefingPage(KneeboardPage):
         zulu_tz: Optional[datetime.tzinfo] = None,
         bullseye_moved: bool = False,
         bullseye_anchor: Optional[str] = None,
+        atc_fields: Optional[dict[str, AtcField]] = None,
         route_labels: Optional[List[str]] = None,
     ) -> None:
         self.flight = flight
@@ -85,6 +87,8 @@ class BriefingPage(KneeboardPage):
         # map beats a coordinate they have to plot; the BLUF's second BULLSEYE
         # line was struck as a duplicate, so this stays the only one.
         self.bullseye_anchor = bullseye_anchor
+        #: Voice ATC's fields (§119): their Ground and Tower replace the DCS tower.
+        self.atc_fields = atc_fields or {}
         self.weather = weather
         self.zulu_tz = zulu_tz
         self.dark_kneeboard = dark_kneeboard
@@ -376,6 +380,8 @@ class BriefingPage(KneeboardPage):
             tower = runway.atc_vhf
         if tower is not None:
             atc = self.format_frequency(tower)
+        if (atc_field := self.atc_fields.get(runway.airfield_name)) is not None:
+            atc = atc_lines(self.flight, atc_field)
         if runway.tacan is None:
             tacan = ""
         else:
