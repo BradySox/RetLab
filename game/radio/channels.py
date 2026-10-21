@@ -32,14 +32,15 @@ def tunable_atc(
 def awacs_presets(
     flight: FlightData, mission_data: MissionData
 ) -> list[RadioFrequency]:
-    """The AWACS frequencies worth a preset. With SkyEye on, the blue AI AWACS are
-    silent (§116), so a blue flight gets SkyEye, then Vacuum (§118) in their place."""
+    """The flight's own side's AWACS frequencies worth a preset; the enemy's never
+    (they showed as unnamed rows on the comm card). With SkyEye on, the blue AI
+    AWACS are silent (§116), so a blue flight gets SkyEye, then Vacuum (§118)."""
+    own = [a.freq for a in mission_data.awacs if a.blue == flight.friendly]
     if mission_data.skyeye_frequency is None or not flight.friendly.is_blue:
-        return [awacs.freq for awacs in mission_data.awacs]
+        return own
     frequencies = [mission_data.skyeye_frequency]
     if mission_data.vacuum_frequency is not None:
         frequencies.append(mission_data.vacuum_frequency)
-    frequencies.extend(a.freq for a in mission_data.awacs if not a.blue.is_blue)
     return frequencies
 
 
