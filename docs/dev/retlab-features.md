@@ -11168,7 +11168,11 @@ takeoff).
 package preset and the kneeboard's FREQ line; nobody dials it by hand. With Voice AWACS on,
 SkyEye's frequency and Vacuum's take the presets the silent blue AI AWACS had
 (`awacs_presets` in `game/radio/channels.py`); the AI AWACS stay on the kneeboard with no
-preset.
+preset. On a two-radio jet the presets follow a squadron comm card: COMM1 the support nets
+(SkyEye, Vacuum, STRIKE, JTAC, tankers), COMM2 the flight on Ch 1 then each field's Ground
+and Tower when that radio can tune them (an F-16's VHF COM2 cannot, so they stay on COMM1).
+A **Comm Card** kneeboard page after the comms page lists every preset on both radios by
+name (`kneeboard/commcard.py`).
 
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
