@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import logging
+import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Callable, Optional, TYPE_CHECKING
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, QTimer, Qt, Signal, Slot
 
-from game.polldebriefingfilethread import PollDebriefingFileThread
+from game.debriefingfilepoller import DebriefingFilePoller, POLL_INTERVAL_SECONDS
 from game.sim.gameloop import GameLoop
 from game.sim.gameupdatecallbacks import GameUpdateCallbacks
 from game.sim.gameupdateevents import GameUpdateEvents
@@ -20,13 +21,56 @@ if TYPE_CHECKING:
     from game.debriefing import Debriefing
 
 
+def _on_main_thread() -> bool:
+    return threading.current_thread() is threading.main_thread()
+
+
+class DebriefingPollTimer(QObject):
+    """Runs a DebriefingFilePoller on the GUI thread's event loop."""
+
+    def __init__(self, poller: DebriefingFilePoller) -> None:
+        super().__init__()
+        self.poller = poller
+        self._timer = QTimer(self)
+        self._timer.setInterval(POLL_INTERVAL_SECONDS * 1000)
+        self._timer.timeout.connect(self._poll)
+
+    def start(self) -> None:
+        self._timer.start()
+        # The old poll thread checked once as soon as it started.
+        QTimer.singleShot(0, self._poll)
+
+    def stop(self) -> None:
+        self.poller.stop()
+        self._timer.stop()
+
+    def is_active(self) -> bool:
+        return self._timer.isActive()
+
+    @Slot()
+    def _poll(self) -> None:
+        self.poller.poll()
+        if self.poller.stopped():
+            self._timer.stop()
+
+
 class SimController(QObject):
     sim_update = Signal(GameUpdateEvents)
     sim_speed_reset = Signal(SimSpeedSetting)
     simulation_complete = Signal()
+    # The game loop ticks on a threading.Timer thread. Its updates are queued
+    # here and this payload-free signal hands them to the GUI thread: PySide
+    # crashed emitting Python payloads from a non-Qt thread (features doc §8).
+    _updates_pending = Signal()
 
     def __init__(self, game: Optional[Game]) -> None:
         super().__init__()
+        self._pending_lock = threading.Lock()
+        self._pending_updates: list[GameUpdateEvents] = []
+        self._pending_complete = False
+        self._updates_pending.connect(
+            self._flush_pending_updates, Qt.ConnectionType.QueuedConnection
+        )
         self.game_loop: Optional[GameLoop] = None
         self.recreate_game_loop(game)
         self.started = False
@@ -65,7 +109,7 @@ class SimController(QObject):
         if game is not None:
             self.game_loop = GameLoop(
                 game,
-                GameUpdateCallbacks(self.on_simulation_complete, self.sim_update.emit),
+                GameUpdateCallbacks(self.on_simulation_complete, self._on_loop_update),
             )
         self.started = False
 
@@ -91,10 +135,10 @@ class SimController(QObject):
 
     def wait_for_debriefing(
         self, callback: Callable[[Debriefing], None]
-    ) -> PollDebriefingFileThread:
-        thread = PollDebriefingFileThread(callback, self.game_loop.sim)
-        thread.start()
-        return thread
+    ) -> DebriefingPollTimer:
+        poll = DebriefingPollTimer(DebriefingFilePoller(callback, self.game_loop.sim))
+        poll.start()
+        return poll
 
     def debrief_current_state(
         self, state_path: Path, force_end: bool = False
@@ -104,6 +148,41 @@ class SimController(QObject):
     def process_results(self, debriefing: Debriefing) -> None:
         return self.game_loop.complete_with_results(debriefing)
 
+    def _on_loop_update(self, events: GameUpdateEvents) -> None:
+        if _on_main_thread():
+            self._flush_pending_updates()
+            self.sim_update.emit(events)
+            return
+        self._queue(events=events)
+
     def on_simulation_complete(self) -> None:
         logging.debug("Simulation complete")
-        self.simulation_complete.emit()
+        if _on_main_thread():
+            self._flush_pending_updates()
+            self.simulation_complete.emit()
+            return
+        self._queue(complete=True)
+
+    def _queue(
+        self, events: Optional[GameUpdateEvents] = None, complete: bool = False
+    ) -> None:
+        with self._pending_lock:
+            was_empty = not self._pending_updates and not self._pending_complete
+            if events is not None:
+                self._pending_updates.append(events)
+            if complete:
+                self._pending_complete = True
+        if was_empty:
+            self._updates_pending.emit()
+
+    @Slot()
+    def _flush_pending_updates(self) -> None:
+        with self._pending_lock:
+            updates = self._pending_updates
+            complete = self._pending_complete
+            self._pending_updates = []
+            self._pending_complete = False
+        for events in updates:
+            self.sim_update.emit(events)
+        if complete:
+            self.simulation_complete.emit()

@@ -1,11 +1,13 @@
 import argparse
+import faulthandler
 import logging
 import ntpath
+import os
 import sys
 import tempfile
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, TextIO
 
 import yaml
 from PySide6 import QtWidgets
@@ -471,7 +473,38 @@ def _acquire_single_instance_lock() -> bool:
     return True
 
 
+#: Open for the life of the process: faulthandler writes to it from inside a crash.
+_fault_log: Optional[TextIO] = None
+
+#: Above this size the log starts over instead of appending.
+FAULT_LOG_MAX_BYTES = 1024 * 1024
+
+
+def enable_fault_log(path: Path = Path("logs/faulthandler.log")) -> None:
+    """Dump every thread's Python stack to the file on a native crash.
+
+    A crash inside a Qt or PySide DLL kills python.exe before any Python
+    handler runs, so retribution.log ends with no traceback.
+    """
+    global _fault_log
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        mode = "a"
+        if path.exists() and path.stat().st_size > FAULT_LOG_MAX_BYTES:
+            mode = "w"
+        _fault_log = path.open(mode, encoding="utf-8")
+        _fault_log.write(
+            f"--- DCS Retribution {VERSION} started "
+            f"{datetime.now().isoformat(timespec='seconds')} (pid {os.getpid()}) ---\n"
+        )
+        _fault_log.flush()
+        faulthandler.enable(file=_fault_log, all_threads=True)
+    except OSError:
+        logging.exception("Could not open %s; native crashes will not be logged", path)
+
+
 def main():
+    enable_fault_log()
     logging_config.init_logging(VERSION)
 
     if not _acquire_single_instance_lock():
