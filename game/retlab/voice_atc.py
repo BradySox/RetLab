@@ -74,16 +74,20 @@ def lead_callsign(flight: FlightData) -> str:
     return flight.callsign
 
 
+def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:
+    """``COMM2 Ch 2``: the preset a frequency sits on in this flight's jets, if any."""
+    channels = flight.channels_for(frequency)
+    if not channels:
+        return None
+    first = channels[0]
+    return flight.aircraft_type.channel_name(first.radio_id, first.channel)
+
+
 def _preset(flight: FlightData, frequency: RadioFrequency) -> str:
     """``124.300 (COMM2 Ch 2)``: a frequency and the preset it sits on, if any."""
     label = f"{frequency.mhz:.3f}"
-    channels = flight.channels_for(frequency)
-    if not channels:
-        return label
-    first = channels[0]
-    return (
-        f"{label} ({flight.aircraft_type.channel_name(first.radio_id, first.channel)})"
-    )
+    name = preset_name(flight, frequency)
+    return f"{label} ({name})" if name else label
 
 
 def atc_lines(flight: FlightData, atc_field: AtcField) -> str:
