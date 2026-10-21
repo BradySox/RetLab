@@ -360,6 +360,12 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "default_player_laser_code",
                     "switch_baro_fix",
                     "ai_radio_behavior",
+                ],
+            ),
+            (
+                # Every SkyEye voice bot in one place (user call, 2026-10-21).
+                "SkyEye voice bots",
+                [
                     "voice_awacs",
                     "voice_awacs_frequency",
                     "voice_awacs_callsign",
@@ -593,6 +599,8 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     "Cockpit & kneeboard": [
         "dtc_data_cartridges",  # §74
         "generate_sitrep_kneeboard",  # §29
+    ],
+    "SkyEye voice bots": [
         "voice_awacs",  # §116
         "package_controller",  # §117
         "vacuum_elint",  # §118
