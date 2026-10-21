@@ -13,6 +13,7 @@ docs/dev/retlab-features.md §117.
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
@@ -56,6 +57,13 @@ def role_for(flight_type: FlightType) -> str:
     if flight_type in ESCORT_TASKS:
         return "escort"
     return "strike"
+
+
+def lead_callsign(flight: FlightData) -> str:
+    """``"Viper 1"`` -> ``"Viper 1-1"``: the lead's seat, which a controller answers."""
+    if re.fullmatch(r"\D+ \d+", flight.callsign):
+        return f"{flight.callsign}-1"
+    return flight.callsign
 
 
 def spoken_callsign(callsign: str) -> str:
@@ -203,7 +211,9 @@ def populate_package_control_lua(
             role = role_for(flight.flight_type)
             record = flights_node.add_item()
             record.add_key_value("group", flight.group_name)
-            record.add_key_value("callsign", flight.callsign)
+            # A player says the seat ("Ford 5-1"), as SkyEye hears it ("ford 5 1").
+            callsign = lead_callsign(flight) if flight.client_units else flight.callsign
+            record.add_key_value("callsign", callsign)
             record.add_key_value("role", role)
             record.add_key_value("client", "true" if flight.client_units else "")
             push = clock.seconds(flight.push_time)

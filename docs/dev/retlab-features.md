@@ -11154,16 +11154,33 @@ point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces
 route with a landing at home. Parked AI is left alone (a pushed task would replace its
 takeoff).
 
-**Presets (2026-10-21).** STRIKE is set as each player package's own frequency, so it is the
-package preset and the kneeboard's FREQ line; nobody dials it by hand. With Voice AWACS on,
+**Presets (2026-10-21).** STRIKE is each player package's frequency for its players, so it is
+the package preset and the kneeboard's FREQ line ("FREQ: STRIKE COM1 Ch 3 - UHF 289.000");
+nobody dials it by hand. It is kept in the mission only (`MissionData.strike_packages`,
+`MissionData.package_frequency`), never written to the package, so the save never carries
+STRIKE as a package frequency. The AI flights in the package keep the package's own frequency,
+off STRIKE (user call, 2026-10-21). With Voice AWACS on,
 SkyEye's frequency and Vacuum's take the presets the silent blue AI AWACS had
 (`awacs_presets` in `game/radio/channels.py`); the AI AWACS stay on the kneeboard with no
 preset. On a two-radio jet the presets follow a squadron comm card: COMM1 the support nets
 (SkyEye, Vacuum, STRIKE, JTAC, tankers), COMM2 the flight on Ch 1 then each field's Ground
-and Tower when that radio can tune them (Voice ATC's pair is VHF AM, so an F-16's VHF COM2
-holds it).
+and Tower where COMM2 tunes UHF. An F-16's COM2 is VHF only, so its Ground and Tower go on
+COM1 after the support nets. The F-15E's radios were the wrong way round (ARC-210 on COMM1);
+its yaml now puts the ARC-164 support nets on COMM1 and the flight and ATC on the ARC-210.
+Only the flight's own side's JTACs and tankers are preset: a red KC-135 sat on a blue F-16's
+COM1 Ch 5 before. A frequency the radio cannot tune is never preset, on either radio or on a
+one-radio jet.
 A **Comm Card** kneeboard page after the comms page lists every preset on both radios by
-name (`kneeboard/commcard.py`).
+name (`kneeboard/commcard.py`). Its column heads use the airframe's own radio names (COM1,
+UHF, AUX) as the other pages do, and a name too long for its column is cut with "...".
+
+**Fixed 2026-10-21: the ABCCC had no packages.** The aircraft generator cleared its package
+table at the start of each side's pass, so red's pass wiped blue's: `player_packages()` was
+empty, the plugin got no controllers and no packages, and every Vacuum emitter had no STRIKE
+flag. Each pass now links the datalink for its own side's packages only and clears nothing.
+A player flight's callsign is now its lead's seat ("Ford 5-1"), and the plugin matches
+SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2") on Strict, as
+`voiceatc` does. Before, only the non-Strict fallback matched. Not flown (row B266).
 
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
@@ -11294,10 +11311,10 @@ to (divert added 2026-10-21, user call). AI-only
 fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
 Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step 3.
 
-- **Frequencies:** each field gets two new VHF AM channels (118-136 MHz), Ground and Tower,
-  reserved like STRIKE (`allocate_atc_frequencies`, `RadioRegistry.alloc_vhf`). VHF so a jet
-  whose second radio is VHF only, such as the F-16, can preset them (user call, 2026-10-21).
-  A field's pair is **pinned for the campaign** the first time a player flight uses it
+- **Frequencies:** each field gets two new UHF AM channels, Ground and Tower, reserved like
+  STRIKE (`allocate_atc_frequencies`). UHF, because the F-4E, the F-5E and a Tomcat pilot
+  without a RIO have no VHF radio (user call, 2026-10-21; VHF AM from #1340 until then). A
+  pair pinned while they were VHF is picked again on the next generate. A field's pair is **pinned for the campaign** the first time a player flight uses it
   (`Game.voice_atc_frequencies`, saved; user call, 2026-10-21), so pilots can learn it. Every
   pinned pair is reserved before anything else that turn, and a hand-set package or flight
   frequency that lands on one moves (`RadioRegistry.atc_pinned`), never the ATC pair. Old
@@ -11331,7 +11348,9 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
 
 The calls (lead calls for the flight going out; a player wingman may ask for their own landing).
 Taxi is the first call: there is no engine-start request, since SRS radios are dead until the
-jet is powered (user call, 2026-10-21).
+jet is powered (user call, 2026-10-21). A spoken start request gets "start at your discretion,
+call ready to taxi", and an "airborne" call "frequency change approved", from whichever
+position was called; both used to get "say again".
 
 | Position | Pilot | ATC | Readback items |
 |---|---|---|---|
@@ -11422,6 +11441,11 @@ Calls are spaced 8 s apart.
   target, worked out at generation. STRIKE exists only when an ABCCC flies.
 - **Silent** with no Vacuum airborne. It never jams, lases or designates.
 
+Fixed 2026-10-21: the plugin's LuaSocket path and JSON escapes had single backslashes, which
+Lua 5.1 reads as the bare character, so `require("socket")` looked in ".LuaSocket?.lua" and a
+label with a backslash or a control character broke the message. They are doubled, as in
+`voiceatc`. The STRIKE flags were empty until the §117 package fix the same day.
+
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
 and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
 SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
@@ -11456,6 +11480,14 @@ the way. With the setting on:
 - The SkyEye frequency (**SkyEye frequency**, default `251.0 AM`) is reserved before any
   flight is given a channel. The AWACS keeps its own channel, picked the normal way or set on
   the flight in the flight editor.
+- **Every voice bot's frequency is AI-free (2026-10-21).** Hand-set package and flight
+  frequencies on both sides are reserved first (`reserve_ato_frequencies`), then Ground and
+  Tower, STRIKE and Vacuum are picked clear of every frequency pydcs gives a new aircraft
+  group (124.0, 127.5, 251.0, 305.0 ...; `dcs_default_group_frequencies`). Those are held
+  only while the voice bots pick, so a carrier keeps its curated 305.0. After the air units
+  are built, any AI group on SkyEye's, STRIKE's, Vacuum's or a Ground or Tower frequency
+  moves to another (`_move_ai_off_voice_bots`), and a hand-set frequency on one moves in
+  `setup_radios`, never the bot's.
 - The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
   (default `Chainsaw`) first as "Chainsaw (SkyEye)", and each blue AWACS as "(silent)".
 - A blue AEW&C flight fragged that turn takes SkyEye's callsign for the turn (Chalice, Chainsaw
@@ -11480,4 +11512,5 @@ cartridges still preset the AWACS channel, not SkyEye's.
 
 - SkyEye's own config (`srs-frequencies`, `callsign`) must match the two settings; RetLab
   never writes it (Brady's call, 2026-10-20).
-- Player calls must start with the SkyEye callsign, then the player's own DCS name.
+- Player calls must start with the SkyEye callsign, then the player's seat ("Ford 2-1"). The
+  kneeboard tells players to start their DCS player name with it ("Ford 2-1 | Joe").
