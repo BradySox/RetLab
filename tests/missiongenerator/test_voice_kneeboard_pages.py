@@ -40,3 +40,35 @@ def test_atc_page_writes_for_one_field_and_for_two(tmp_path: Path) -> None:
         out = tmp_path / f"atc-{name}.png"
         AtcPage("Viper 1-1", "4101", kobuleti, arrival, False).write(out)
         assert out.stat().st_size > 0
+
+
+def test_atc_card_lists_home_arrival_and_divert_with_presets(tmp_path: Path) -> None:
+    home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
+    arrival = AtcField("Ramat David", "33", MHz(127), MHz(128))
+    divert = AtcField("Akrotiri", "28", MHz(129, 300), MHz(133, 700))
+    presets = {MHz(130, 600): "COMM2 Ch 2", MHz(125, 100): "COMM2 Ch 3"}
+    page = AtcPage(
+        "Ford 5-1",
+        "4101",
+        home,
+        arrival,
+        False,
+        divert=divert,
+        preset=presets.get,
+    )
+    assert [(role, f.name) for role, f in page._fields()] == [
+        ("home", "Hatzerim"),
+        ("arrival", "Ramat David"),
+        ("divert", "Akrotiri"),
+    ]
+    assert page._station("Ground", home.ground) == "  Ground: COMM2 Ch 2, 130.600 AM"
+    assert page._station("Ground", divert.ground) == "  Ground: 133.700 AM"
+    out = tmp_path / "atc-full.png"
+    page.write(out)
+    assert out.stat().st_size > 0
+
+
+def test_atc_card_lists_a_field_once() -> None:
+    home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
+    page = AtcPage("Ford 5-1", "4101", home, home, False, divert=home)
+    assert [role for role, _ in page._fields()] == ["home"]

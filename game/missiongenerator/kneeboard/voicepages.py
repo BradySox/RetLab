@@ -7,7 +7,7 @@ exact words to say, what the answers mean, and what to do when nobody answers.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 from game.radio.radios import RadioFrequency
 from game.retlab.voice_atc import AtcField
@@ -235,32 +235,44 @@ class AtcPage(KneeboardPage):
         departure: Optional[AtcField],
         arrival: Optional[AtcField],
         dark_kneeboard: bool,
+        divert: Optional[AtcField] = None,
+        preset: Optional[Callable[[RadioFrequency], Optional[str]]] = None,
     ) -> None:
         self.callsign = callsign
         self.squawk = squawk
         self.departure = departure
         self.arrival = arrival
+        self.divert = divert
+        #: The preset a frequency sits on in the flight's jets ("COMM2 Ch 2"), or None.
+        self.preset = preset or (lambda _: None)
         self.dark_kneeboard = dark_kneeboard
+
+    def _station(self, name: str, frequency: RadioFrequency) -> str:
+        """``Ground: COMM2 Ch 2, 130.600 AM``, or the frequency alone when it is not preset."""
+        channel = self.preset(frequency)
+        return f"  {name}: {channel + ', ' if channel else ''}{_freq(frequency)}"
+
+    def _fields(self) -> list[tuple[str, AtcField]]:
+        """Each field once: home, then a different arrival, then the divert."""
+        out: list[tuple[str, AtcField]] = []
+        for role, f in (
+            ("home", self.departure),
+            ("arrival", self.arrival),
+            ("divert", self.divert),
+        ):
+            if f is not None and all(f.name != seen.name for _, seen in out):
+                out.append((role, f))
+        return out
 
     def write(self, path: Path) -> None:
         w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         me = self.callsign
         out, home = self.departure, self.arrival or self.departure
         w.title("Talking to ATC")
-        fields = [f for f in (out, self.arrival) if f is not None]
-        if (
-            out is not None
-            and self.arrival is not None
-            and out.name == self.arrival.name
-        ):
-            fields = [out]
-        for f in fields:
-            w.text(
-                f"{f.name}: Ground {_freq(f.ground)}, Tower {_freq(f.tower)}, "
-                f"runway {f.runway}",
-                fill=w.col_nav,
-                wrap=True,
-            )
+        for role, f in self._fields():
+            w.text(f"{f.name} ({role}), runway {f.runway}", fill=w.col_nav)
+            w.text(self._station("Ground", f.ground), fill=w.col_nav)
+            w.text(self._station("Tower", f.tower), fill=w.col_nav)
         w.text(f"Your squawk: {self.squawk}", fill=w.col_nav)
         _lines(
             w,

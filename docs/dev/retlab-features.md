@@ -11293,7 +11293,9 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
   presets keeps them). The comms ladder lists "<field> GROUND" and "<field> TOWER" with
   their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
-  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The Mission Info
+  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The card lists
+  the home field, a different arrival and the divert, each Ground and Tower with its preset
+  channel ("Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset. The Mission Info
   airfield table and the departure page's ATC box show "GND ... / TWR ..." with their preset
   channels in place of the DCS tower (`atc_lines`, user call 2026-10-21), for the departure,
   arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
