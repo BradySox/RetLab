@@ -3,20 +3,23 @@
 --
 -- Reads dcsRetribution.vacuum (emitted only when a blue Vacuum flies): callsign, frequency,
 --   strike (when an ABCCC runs STRIKE), voice, linkHost, linkPort, rangeMeters, groups = {...},
---   emitters = { { label, units = {...}, strike, reach } },
+--   emitters = { { label, units = {...}, strike, reach, known } },
 --   flights = { { group, callsign, targetX, targetY } } (the player flights that may call it)
 --
 -- While a Vacuum is alive AND airborne, each red radar within range is called once each time it
--- comes on: "Vacuum, new emitter, SA-6, bullseye 090, 25." A radar must stay off a full minute
--- before it counts as a new on-cycle, so a site blinking under Skynet is one call. Every call goes
+-- comes on: "Vacuum, SA-6 awake, bullseye 304, 60, loose." A radar must stay off a full minute
+-- before it counts as a new on-cycle, so a site blinking under Skynet is one call. Vacuum remembers
+-- every radar it has located: off now, it is "asleep". Each fix is "loose" until Vacuum has heard
+-- the radar long enough, added up across blinks, to call it "tight" (within about 1 NM); a loose
+-- radar that goes tight while on is called once more. Every call goes
 -- on Vacuum's own frequency; it goes on STRIKE too only for a radar whose threat ring covers a
 -- player package's route or target. SkyEye speaks the calls and works out the magnetic bullseye
 -- from its own picture. Nothing is said with no Vacuum airborne. It never jams or lases.
 --
 -- Players call it through SkyEye ("Vacuum, Ford 9, say emitters"): check in, emitters, target
 -- status, mud <bearing>, say again. SkyEye sends each as an elintRequest and the answer is a say
--- line on the frequency the call came in on. It knows only radars radiating now. An older SkyEye
--- never sends a request, so these answers simply never happen.
+-- line on the frequency the call came in on. Answers name awake and asleep radars; mud names only
+-- awake ones. An older SkyEye never sends a request, so these answers simply never happen.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.vacuum) then
@@ -89,6 +92,91 @@ local function radiating(emitter, vacuum)
         end
     end
     return nil
+end
+
+---------------------------------------------------------------------------------------------------
+-- Fixes
+---------------------------------------------------------------------------------------------------
+
+-- A first fix is off by about 1 NM plus 1 NM per 10 NM from Vacuum, 15 at most, and closes to
+-- the radar's spot after 20 s heard in total up close, 90 s at 150 NM or more (Brady's call,
+-- 2026-10-22: Skynet keeps radars dark, so the listening adds up across blinks). The error is
+-- real and always the same way for a site, so repeat calls agree. Asleep, a fix stays put.
+local TIGHT_METERS = 1 * NM
+local KNOWN_LOOSE_METERS = 10 * NM
+
+local function firstFix(distance)
+    return math.min(NM + distance / 10, 15 * NM)
+end
+
+local function secondsToTight(distance)
+    return 20 + 70 * math.min(distance / (150 * NM), 1)
+end
+
+local function errorOf(e)
+    return (e.startError or 0) * (1 - (e.progress or 0))
+end
+
+local function fixWord(e)
+    return errorOf(e) <= TIGHT_METERS and "tight" or "loose"
+end
+
+-- The direction a site's fix is off, from its name: the same every call and every mission.
+local function errorAngle(e)
+    local sum = 0
+    for i = 1, #tostring(e.label) do
+        sum = sum + string.byte(e.label, i) * i
+    end
+    for _, name in ipairs(e.units or {}) do
+        for i = 1, #name do
+            sum = sum + string.byte(name, i) * i
+        end
+    end
+    return (sum % 360) * math.pi / 180
+end
+
+local function liveUnit(e)
+    for _, name in ipairs(e.units or {}) do
+        local u = Unit.getByName(name)
+        if u and u:isExist() and u:getLife() > 0 then
+            return u
+        end
+    end
+    return nil
+end
+
+local function locate(e, point)
+    e.fixed = true
+    e.point = { x = point.x, y = point.y, z = point.z }
+    e.angle = e.angle or errorAngle(e)
+end
+
+-- Sites blue already knows start asleep: a fixed SAM tight, the rest loose.
+for _, e in ipairs(allEmitters) do
+    local u = (e.known == "tight" or e.known == "loose") and liveUnit(e)
+    if u then
+        locate(e, u:getPoint())
+        e.startError = e.known == "tight" and 0 or KNOWN_LOOSE_METERS
+        e.progress = 0
+    end
+end
+
+-- Vacuum heard this radar for `seconds` from `vacuum`.
+local function hear(e, unit, vacuum, seconds)
+    local distance = distance2d(unit:getPoint(), vacuum:getPoint())
+    local first = firstFix(distance)
+    if not e.fixed or errorOf(e) > first then
+        e.startError = first
+        e.progress = 0
+    end
+    locate(e, unit:getPoint())
+    e.progress = math.min(1, (e.progress or 0) + seconds / secondsToTight(distance))
+end
+
+-- Where Vacuum puts the radar: its spot, off by the fix error.
+local function calledPoint(e)
+    local err = errorOf(e)
+    return { x = e.point.x + math.cos(e.angle) * err, y = e.point.y, z = e.point.z + math.sin(e.angle) * err }
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -325,40 +413,74 @@ local function withBullseye(parts, point)
     end
 end
 
--- Every radar radiating now within Vacuum's range, nearest a point first.
-local function radiatingNear(vacuum, point)
+-- Every radar Vacuum has located and that still stands, awake ones first, each nearest a point
+-- first. A radar on that has not been heard yet is located now.
+local function locatedNear(vacuum, point)
     local out = {}
     for _, e in ipairs(allEmitters) do
         local unit = radiating(e, vacuum)
-        if unit then
-            local p = unit:getPoint()
-            table.insert(out, { label = e.label, point = p, reach = tonumber(e.reach) or 0, distance = distance2d(p, point) })
+        if unit and not e.fixed then
+            hear(e, unit, vacuum, 0)
+        end
+        if e.fixed and liveUnit(e) then
+            local p = calledPoint(e)
+            table.insert(out, {
+                label = e.label,
+                point = p,
+                reach = tonumber(e.reach) or 0,
+                distance = distance2d(p, point),
+                awake = unit ~= nil,
+                fix = fixWord(e),
+            })
         end
     end
     table.sort(out, function(a, b)
+        if a.awake ~= b.awake then
+            return a.awake
+        end
         return a.distance < b.distance
     end)
     return out
 end
 
+local function awakeOnly(radars)
+    local out = {}
+    for _, r in ipairs(radars) do
+        if r.awake then
+            table.insert(out, r)
+        end
+    end
+    return out
+end
+
+local function statusPart(radar)
+    return radar.awake and " awake" or " asleep"
+end
+
+local function countWord(n)
+    return n == 0 and "none" or (NUMBER_WORDS[n] or tostring(n))
+end
+
 local function checkInReply(me, from, vacuum)
-    local radars = radiatingNear(vacuum, from)
+    local radars = locatedNear(vacuum, from)
     if #radars == 0 then
         return line({ me, ", blank." })
     end
-    local parts = {
-        me,
-        ", " .. (NUMBER_WORDS[#radars] or tostring(#radars)),
-        #radars == 1 and " emitter active, nearest " or " emitters active, nearest ",
-        labelPart(radars[1].label),
-    }
+    local awake = #awakeOnly(radars)
+    local parts = { me, ", " .. countWord(awake) .. " awake" }
+    if #radars > awake then
+        table.insert(parts, ", " .. countWord(#radars - awake) .. " asleep")
+    end
+    table.insert(parts, ", nearest ")
+    table.insert(parts, labelPart(radars[1].label))
+    table.insert(parts, statusPart(radars[1]))
     withBullseye(parts, radars[1].point)
-    table.insert(parts, ".")
+    table.insert(parts, ", " .. radars[1].fix .. ".")
     return line(parts)
 end
 
 local function emittersReply(me, from, vacuum)
-    local radars = radiatingNear(vacuum, from)
+    local radars = locatedNear(vacuum, from)
     if #radars == 0 then
         return line({ me, ", blank." })
     end
@@ -367,7 +489,9 @@ local function emittersReply(me, from, vacuum)
         local bearing, range = bearingRange(from, radars[i].point)
         table.insert(parts, i == 1 and ", " or "; ")
         table.insert(parts, labelPart(radars[i].label))
+        table.insert(parts, statusPart(radars[i]))
         table.insert(parts, { " " .. three(bearing) .. ", " .. range, " " .. spokenBearing(bearing) .. ", " .. range })
+        table.insert(parts, ", " .. radars[i].fix)
     end
     table.insert(parts, ".")
     return line(parts)
@@ -379,7 +503,7 @@ local function targetReply(me, flight, vacuum)
         return line({ me, ", no target for you." })
     end
     local near = {}
-    for _, r in ipairs(radiatingNear(vacuum, { x = tx, y = 0, z = ty })) do
+    for _, r in ipairs(locatedNear(vacuum, { x = tx, y = 0, z = ty })) do
         if r.distance <= math.max(r.reach, TARGET_AREA_METERS) then
             table.insert(near, r)
         end
@@ -391,8 +515,9 @@ local function targetReply(me, flight, vacuum)
     for i = 1, math.min(MAX_ANSWERED, #near) do
         table.insert(parts, i == 1 and ", " or "; ")
         table.insert(parts, labelPart(near[i].label))
-        table.insert(parts, " active")
+        table.insert(parts, statusPart(near[i]))
         withBullseye(parts, near[i].point)
+        table.insert(parts, ", " .. near[i].fix)
     end
     table.insert(parts, ".")
     return line(parts)
@@ -405,7 +530,8 @@ local function mudReply(me, from, vacuum, bearing)
     end
     local spoken = { three(wanted), spokenBearing(wanted) }
     local best, bestOff = nil, nil
-    for _, r in ipairs(radiatingNear(vacuum, from)) do
+    -- A spike on the RWR is a radar transmitting, so only awake ones.
+    for _, r in ipairs(awakeOnly(locatedNear(vacuum, from))) do
         local off = angleOff((bearingRange(from, r.point)), wanted)
         if off <= MUD_DEGREES and (bestOff == nil or off < bestOff) then
             best, bestOff = r, off
@@ -414,9 +540,9 @@ local function mudReply(me, from, vacuum, bearing)
     if not best then
         return line({ me, ", no emitter ", spoken, "." })
     end
-    local parts = { me, ", mud ", spoken, " is ", labelPart(best.label) }
+    local parts = { me, ", mud ", spoken, " is ", labelPart(best.label), " awake" }
     withBullseye(parts, best.point)
-    table.insert(parts, ".")
+    table.insert(parts, ", " .. best.fix .. ".")
     return line(parts)
 end
 
@@ -518,22 +644,38 @@ end
 local queue = {}
 local lastTune = nil
 
+for _, e in ipairs(emitters) do
+    e.callable = true
+end
+
+-- Fixes are kept: Vacuum remembers what it located even when it lands.
 local function reset()
-    for _, e in ipairs(emitters) do
+    for _, e in ipairs(allEmitters) do
         e.on = false
         e.offSince = nil
+        e.queued = false
     end
     queue = {}
 end
 
+local function enqueue(e)
+    if e.callable and not e.queued then
+        e.queued = true
+        table.insert(queue, e)
+    end
+end
+
 local function watch(vacuum, now)
-    for _, e in ipairs(emitters) do
+    for _, e in ipairs(allEmitters) do
         local unit = radiating(e, vacuum)
         if unit then
+            hear(e, unit, vacuum, POLL_SECONDS)
             e.offSince = nil
             if not e.on then
                 e.on = true
-                table.insert(queue, e)
+                enqueue(e)
+            elseif fixWord(e) == "tight" and not e.toldTight then
+                enqueue(e)
             end
         elseif e.on then
             e.offSince = e.offSince or now
@@ -548,13 +690,19 @@ end
 local function speakNext(vacuum)
     while #queue > 0 do
         local e = table.remove(queue, 1)
+        e.queued = false
         local unit = radiating(e, vacuum)
         if unit then
-            local lat, lon = coord.LOtoLL(unit:getPoint())
+            local fix = fixWord(e)
+            if fix == "tight" then
+                e.toldTight = true
+            end
+            local point = calledPoint(e)
+            local lat, lon = coord.LOtoLL(point)
             -- Kept for "say again": SkyEye words the call itself from the same position.
-            local call = { data.callsign or "Vacuum", ", new emitter, ", labelPart(e.label) }
-            withBullseye(call, unit:getPoint())
-            table.insert(call, ".")
+            local call = { data.callsign or "Vacuum", ", ", labelPart(e.label), " awake" }
+            withBullseye(call, point)
+            table.insert(call, ", " .. fix .. ".")
             for _, f in ipairs(frequencies(e)) do
                 lastOnFrequency[f] = line(call)
             end
@@ -564,6 +712,8 @@ local function speakNext(vacuum)
                 { "callsign", data.callsign or "Vacuum" },
                 { "voice", data.voice or "" },
                 { "label", e.label },
+                { "status", "awake" },
+                { "fix", fix },
                 { "lat", lat },
                 { "lon", lon },
             })

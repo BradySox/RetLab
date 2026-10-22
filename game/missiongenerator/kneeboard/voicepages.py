@@ -400,8 +400,10 @@ class VacuumPage(KneeboardPage):
             [
                 "Vacuum is a listening plane. It hears enemy radars switch on and "
                 "calls them. It never jams and never marks targets.",
-                'It calls each radar once as it comes on: "Vacuum, new emitter, '
-                'SA-6, bullseye 090/25" = an SA-6, 090 for 25 NM from bullseye.',
+                'It calls each radar as it comes on: "Vacuum, SA-6 awake, bullseye '
+                '304/60, tight" = an SA-6 on now, 304 for 60 NM from bullseye.',
+                "Awake: on now. Asleep: found, off now. Tight: within 1 NM. Loose: "
+                "up to 15 NM off.",
             ],
         )
         w.rule()
@@ -410,19 +412,19 @@ class VacuumPage(KneeboardPage):
             w,
             [
                 f'"Vacuum, {me}, checking in."',
-                f'  "{me}, Vacuum, three emitters active, nearest SA-6, '
-                'bullseye 090/25."',
-                f'"Vacuum, {me}, say emitters."   The 3 nearest radars on now, '
-                "bearing and NM FROM YOU:",
-                f'  "{me}, Vacuum, SA-6 270, 35; SA-11 245, 50."',
-                f'"Vacuum, {me}, request target status."   Radars on around '
+                f'  "{me}, Vacuum, two awake, one asleep, nearest SA-6 awake, '
+                'bullseye 090/25, tight."',
+                f'"Vacuum, {me}, say emitters."   3 nearest, awake first, FROM YOU:',
+                f'  "{me}, Vacuum, SA-6 awake 270, 35, tight; SA-11 asleep 245, '
+                '50, loose."',
+                f'"Vacuum, {me}, request target status."   Radars it knows around '
                 "your target:",
-                f'  "{me}, Vacuum, target area, SA-6 active, bullseye 095/22."',
-                f'"Vacuum, {me}, mud 270."   Your RWR has a spike at 270. Which '
-                "radar is it?",
-                f'  "{me}, Vacuum, mud 270 is SA-6, bullseye 090/25."',
+                f'  "{me}, Vacuum, target area, SA-6 awake, bullseye 095/22, loose."',
+                f'"Vacuum, {me}, mud 270."   Which awake radar is your RWR spike?',
+                f'  "{me}, Vacuum, mud 270 is SA-6 awake, bullseye 090/25, tight."',
                 f'"Vacuum, {me}, say again."   It repeats its last call to you.',
-                '"Blank": no radar on. "No emitter 270": nothing on that bearing.',
+                '"Blank": no radar found yet. "No emitter 270": nothing awake on '
+                "that bearing.",
             ],
         )
         w.rule()
@@ -438,7 +440,8 @@ class VacuumPage(KneeboardPage):
             w,
             [
                 "Before it is airborne, and after it lands or is shot down.",
-                "A radar that blinks is called once; again only after a full minute off.",
+                "A radar that blinks is called once; again after a full minute off, "
+                "or once more when its fix goes tight.",
                 *(
                     ["Casual radio discipline: it only calls radars near a package."]
                     if self.casual
@@ -449,7 +452,7 @@ class VacuumPage(KneeboardPage):
             ],
         )
         w.text(
-            "A SAM that keeps its radar off is invisible to Vacuum. "
+            "A SAM that never turns its radar on is invisible to Vacuum. "
             '"Blank" does not mean safe.',
             fill=w.col_caution,
             wrap=True,

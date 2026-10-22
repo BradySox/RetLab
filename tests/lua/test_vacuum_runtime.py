@@ -3,9 +3,11 @@
 The contract: while a Vacuum is alive and airborne, each red radar in range is called
 once each time it comes on, on Vacuum's own frequency, and on STRIKE too only when it
 covers a player package. A radar must stay off a minute to count as a new on-cycle.
-Nothing is said with no Vacuum airborne. A player's call that SkyEye passes on
-(check in, emitters, target status, mud, say again) is answered with a say line on
-the frequency it came in on. How SkyEye hears and says it is in-game only (B260).
+Nothing is said with no Vacuum airborne. Each radar Vacuum locates is remembered:
+awake while on, asleep while off; its fix is loose until heard long enough, added up
+across blinks, to be tight. A player's call that SkyEye passes on (check in, emitters,
+target status, mud, say again) is answered with a say line on the frequency it came
+in on. How SkyEye hears and says it is in-game only (B260).
 """
 
 from __future__ import annotations
@@ -41,8 +43,16 @@ end
 """
 
 
-def _emitter(label: str, unit: str, strike: bool = False) -> dict[str, Any]:
-    return {"label": label, "units": [unit], "strike": "true" if strike else ""}
+def _emitter(
+    label: str, unit: str, strike: bool = False, known: str = "tight"
+) -> dict[str, Any]:
+    # Known tight by default: the called spot is the radar's own, so positions are exact.
+    return {
+        "label": label,
+        "units": [unit],
+        "strike": "true" if strike else "",
+        "known": known,
+    }
 
 
 def _group(
@@ -346,28 +356,37 @@ EMITTERS = [
 ]
 
 
-def test_check_in_counts_the_radars_on_and_names_the_nearest() -> None:
+def test_check_in_counts_awake_and_asleep_and_names_the_nearest_awake() -> None:
     h = _commands(SITES, EMITTERS)
     [reply] = _ask(h, "checkin")
     assert reply["frequency"] == OWN
     assert reply["voice"] == "en_GB-alan-medium"
     assert reply["text"] == (
-        "Ford 9, Vacuum, two emitters active, nearest SA-11, bullseye 090/50."
+        "Ford 9, Vacuum, two awake, one asleep, nearest SA-11 awake, "
+        "bullseye 090/50, tight."
     )
     assert reply["speech"] == (
-        "Ford 9, Vacuum, two emitters active, nearest S-A-11, bullseye 0 9 0, 50."
+        "Ford 9, Vacuum, two awake, one asleep, nearest S-A-11 awake, "
+        "bullseye 0 9 0, 50, tight."
     )
 
 
-def test_emitters_are_bearing_and_range_from_the_caller_nearest_first() -> None:
+def test_emitters_are_bearing_and_range_from_the_caller_awake_first() -> None:
     h = _commands(SITES, EMITTERS)
     [reply] = _ask(h, "emitters")
-    assert reply["text"] == "Ford 9, Vacuum, SA-11 090, 30; SA-6 360, 50."
-    assert reply["speech"] == "Ford 9, Vacuum, S-A-11 0 9 0, 30; S-A-6 3 6 0, 50."
+    # The asleep Osa is nearest but comes after the awake radars.
+    assert reply["text"] == (
+        "Ford 9, Vacuum, SA-11 awake 090, 30, tight; SA-6 awake 360, 50, tight; "
+        "SA-8 asleep 270, 10, tight."
+    )
+    assert reply["speech"].startswith("Ford 9, Vacuum, S-A-11 awake 0 9 0, 30, tight; ")
 
 
-def test_no_radar_on_is_blank() -> None:
-    h = _commands([_site("Kub", 50 * NM, 0, radar=False)], EMITTERS[:1])
+def test_nothing_located_is_blank() -> None:
+    h = _commands(
+        [_site("Kub", 50 * NM, 0, radar=False)],
+        [_emitter("SA-6", "Kub #1", known="")],
+    )
     assert [r["text"] for r in _ask(h, "emitters")] == ["Ford 9, Vacuum, blank."]
     assert [r["text"] for r in _ask(h, "checkin")] == ["Ford 9, Vacuum, blank."]
 
@@ -377,9 +396,13 @@ def test_target_status_names_radars_on_around_the_package_target() -> None:
     # The target is 60 NM north: the Kub 10 NM from it is inside its 13 NM ring.
     [reply] = _ask(h, "target")
     assert reply["text"] == (
-        "Ford 9, Vacuum, target area, SA-6 active, bullseye 022/54."
+        "Ford 9, Vacuum, target area, SA-6 awake, bullseye 022/54, tight."
     )
     h.update_unit("Kub", {"radar": False})
+    assert [r["text"] for r in _ask(h, "target")] == [
+        "Ford 9, Vacuum, target area, SA-6 asleep, bullseye 022/54, tight."
+    ]
+    h.update_unit("Kub", {"life": 0})
     assert [r["text"] for r in _ask(h, "target")] == [
         "Ford 9, Vacuum, target area blank."
     ]
@@ -388,12 +411,12 @@ def test_target_status_names_radars_on_around_the_package_target() -> None:
 def test_mud_names_the_radar_on_that_bearing() -> None:
     h = _commands(SITES, EMITTERS)
     assert [r["text"] for r in _ask(h, "mud", bearing="080")] == [
-        "Ford 9, Vacuum, mud 080 is SA-11, bullseye 090/50."
+        "Ford 9, Vacuum, mud 080 is SA-11 awake, bullseye 090/50, tight."
     ]
     assert [r["speech"] for r in _ask(h, "mud", bearing="005")] == [
-        "Ford 9, Vacuum, mud 0 0 5 is S-A-6, bullseye 0 2 2, 54."
+        "Ford 9, Vacuum, mud 0 0 5 is S-A-6 awake, bullseye 0 2 2, 54, tight."
     ]
-    # The Osa is at 270 but dark; nothing else is within 15 degrees.
+    # The Osa is at 270 but asleep: an RWR spike is a radar on.
     assert [r["text"] for r in _ask(h, "mud", bearing="270")] == [
         "Ford 9, Vacuum, no emitter 270."
     ]
@@ -408,7 +431,8 @@ def test_say_again_repeats_the_last_reply_then_the_last_call() -> None:
     h2 = _commands(SITES, EMITTERS)
     h2.advance_to(40)
     said = [r["text"] for r in _ask(h2, "sayagain", callsign="ford 9 2")]
-    assert len(said) == 1 and ", new emitter, SA-" in said[0]
+    assert len(said) == 1 and said[0].startswith("Vacuum, SA-")
+    assert said[0].endswith(" awake, bullseye 090/50, tight.")
 
 
 def test_a_call_on_strike_is_answered_on_strike() -> None:
@@ -464,3 +488,85 @@ def test_a_late_activated_vacuum_is_silent_until_it_activates() -> None:
     h.update_unit("Vacuum", {"active": True})
     h.advance_to(360)
     assert len(_sent(h, "emitter")) == 1
+
+
+# --- Fixes: awake, asleep, tight and loose -----------------------------------------------
+
+
+def _off_nm(call: dict[str, Any], x: float, z: float = 0) -> float:
+    """How far a call puts the radar from its real spot, in NM (the stub's LOtoLL)."""
+    dx, dz = call["lat"] * 111000 - x, call["lon"] * 111000 - z
+    return float((dx * dx + dz * dz) ** 0.5 / NM)
+
+
+def test_a_first_fix_is_loose_and_off_then_called_again_once_tight() -> None:
+    h = _harness(
+        [_emitter("SA-6", "Kub #1", known="")],
+        [_group("Kub", RED, 50 * NM, radar=True)],
+    )
+    h.advance_to(15)
+    [first] = _sent(h, "emitter")
+    assert (first["status"], first["fix"]) == ("awake", "loose")
+    # 50 NM out the first fix is about 6 NM off, already closing.
+    assert 1 < _off_nm(first, 50 * NM) <= 6
+    h.advance_to(120)
+    calls = _sent(h, "emitter")
+    assert len(calls) == 2
+    assert (calls[1]["status"], calls[1]["fix"]) == ("awake", "tight")
+    assert _off_nm(calls[1], 50 * NM) <= 1
+    h.advance_to(600)
+    assert len(_sent(h, "emitter")) == 2
+    h.assert_no_lua_errors()
+
+
+def test_listening_adds_up_across_blinks() -> None:
+    # On for one poll in every three, never off a full minute: one on-cycle, and the
+    # blinks together make the fix tight.
+    h = _harness(
+        [_emitter("SA-6", "Kub #1", known="")],
+        [_group("Kub", RED, 50 * NM, radar=True)],
+    )
+    for start in range(0, 200, 30):
+        h.update_unit("Kub", {"radar": True})
+        h.advance_to(start + 12)
+        h.update_unit("Kub", {"radar": False})
+        h.advance_to(start + 30)
+    h.update_unit("Kub", {"radar": True})
+    h.advance_to(225)
+    assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight"]
+
+
+def test_a_far_radar_starts_at_most_15_nm_off() -> None:
+    h = _harness(
+        [_emitter("SA-10", "Kub #1", known="")],
+        [_group("Kub", RED, 200 * NM, radar=True)],
+    )
+    h.advance_to(15)
+    [first] = _sent(h, "emitter")
+    assert first["fix"] == "loose"
+    assert 10 < _off_nm(first, 200 * NM) <= 15
+
+
+def test_a_site_blue_knows_starts_asleep_and_loose() -> None:
+    sites = [_site("Kub", 50 * NM, 0, radar=False)]
+    h = _commands(sites, [_emitter("SA-6", "Kub #1", known="loose")])
+    [reply] = _ask(h, "checkin")
+    assert reply["text"].startswith(
+        "Ford 9, Vacuum, none awake, one asleep, nearest SA-6 asleep, bullseye "
+    )
+    assert reply["text"].endswith(", loose.")
+    assert _sent(h, "emitter") == []
+
+
+def test_fixes_are_kept_when_vacuum_lands() -> None:
+    h = _harness(
+        [_emitter("SA-6", "Kub #1", known="")],
+        [_group("Kub", RED, 50 * NM, radar=True)],
+    )
+    h.advance_to(120)
+    assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight"]
+    h.update_unit("Vacuum", {"airborne": False})
+    h.advance_to(200)
+    h.update_unit("Vacuum", {"airborne": True})
+    h.advance_to(240)
+    assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight", "tight"]

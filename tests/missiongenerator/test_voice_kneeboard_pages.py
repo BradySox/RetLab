@@ -105,6 +105,9 @@ def test_vacuum_card_teaches_the_five_calls_and_the_dark_sam(tmp_path: Path) -> 
         "early warning radar",
         "Casual radio discipline",
         "invisible to Vacuum",
+        '"Vacuum, SA-6 awake, bullseye 304/60, tight"',
+        "Asleep: found, off now.",
+        "SA-11 asleep 245, 50, loose",
     ):
         assert expected in text, expected
     assert "repeat" not in text.lower().replace("it repeats", "")

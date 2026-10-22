@@ -180,3 +180,20 @@ def test_mod_tags_and_site_suffixes_are_dropped() -> None:
         emitter_label(_unit("SAM Roland EWR", UnitClass.SEARCH_TRACK_RADAR)) == "Roland"
     )
     assert emitter_label(_unit("[CH] Buk M3 9A317M TELAR")) == "Buk M3 9A317M"
+
+
+class _Site:
+    def __init__(self, known: bool, fixed: bool) -> None:
+        self.known = known
+        self.is_fixed_sam_site = fixed
+
+    def known_for(self, viewer: object) -> bool:
+        return self.known
+
+
+def test_vacuum_starts_with_what_blue_knows() -> None:
+    from game.retlab.vacuum import known_fix
+
+    assert known_fix(_Site(known=True, fixed=True)) == "tight"  # type: ignore[arg-type]
+    assert known_fix(_Site(known=True, fixed=False)) == "loose"  # type: ignore[arg-type]
+    assert known_fix(_Site(known=False, fixed=False)) == ""  # type: ignore[arg-type]
