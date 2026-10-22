@@ -38,6 +38,8 @@ local TOWER_RANGE_NM = 15
 local TAXI_MPS = 3
 local KNOTS = 1.94384
 local CALM_KT = 3
+-- Strict asks for a readback that has not come in this long after the clearance.
+local READBACK_PROMPT_SECONDS = 20
 
 local S_EVENT_TAKEOFF = world.event.S_EVENT_TAKEOFF or 3
 local S_EVENT_LAND = world.event.S_EVENT_LAND or 4
@@ -446,7 +448,13 @@ end
 
 -- What a readback must hold: each item is a number (a runway, a squawk or a frequency).
 local function pend(flight, member, field, position, items)
-    flight.pending[member] = { field = field, position = position, items = items }
+    flight.pending[member] = {
+        field = field,
+        position = position,
+        items = items,
+        at = timer.getTime(),
+        state = flight.state,
+    }
 end
 
 local function heardNumber(numbers, wanted)
@@ -508,6 +516,7 @@ local function checkReadback(flight, member, request)
         table.insert(parts, part)
     end
     table.insert(parts, ".")
+    pending.at = timer.getTime()
     flight.pending[member] = pending
     say(pending.field, pending.position, flight, line(parts))
 end
@@ -778,9 +787,24 @@ local function speed(unit)
     return math.sqrt(v.x * v.x + v.z * v.z)
 end
 
+-- Strict: a clearance with no usable readback gets one "read back" prompt, while it is still the
+-- flight's current clearance. Otherwise an unheard readback is silence (user call, 2026-10-21).
+local function promptReadbacks(flight, now)
+    if not STRICT then
+        return
+    end
+    for member, pending in pairs(flight.pending) do
+        if not pending.prompted and pending.state == flight.state and now - pending.at >= READBACK_PROMPT_SECONDS then
+            pending.prompted = true
+            say(pending.field, pending.position, flight, line({ callsignPart(memberCallsign(flight, member)), ", read back." }))
+        end
+    end
+end
+
 -- A player rolling before a taxi clearance.
 local function watch(_, now)
     for _, flight in ipairs(flights) do
+        promptReadbacks(flight, now)
         local field = fieldsByName[flight.departure]
         for _, seat in ipairs(playerUnits(flight)) do
             local u = seat.unit

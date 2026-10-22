@@ -11223,6 +11223,27 @@ A player flight's callsign is now its lead's seat ("Ford 5-1"), and the plugin m
 SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2") on Strict, as
 `voiceatc` does. Before, only the non-Strict fallback matched. Not flown (row B266).
 
+**Phrasing (2026-10-21, user call after a flown review).** The spoken lines read the way a
+controller says them, and each `say` carries `text` and `speech` apart, as `voiceatc` sends
+them: "Ford package, Blackjack, push" (was "Package Ford, ..."), push time "1410" in text and
+"one four one zero" in speech, callsigns "Ford niner one", "Dodge 9 airborne" (was "up"), and
+a dead target named in the text only. The roll call names the package ("Ford package,
+Blackjack, check in. Push in three minutes"), or every package due that tick in one call
+("Ford and Colt packages"). After the roll call a "ready to push" from a flight that has not
+answered is its check-in, never an early push. SkyEye now passes a call to the controller it
+cannot read as kind `unknown`; the plugin answers "<callsign>, Blackjack, say again" in the
+controller's voice, by the flight it matched or the callsign heard, else "Station calling
+Blackjack, say again your callsign". SkyEye also reads a bare "ready", "with you", "on
+station" and "checked in" as a check-in (`BradySox/skyeye` PR #10). The record now lists
+every blue player flight (`players`: group, lead seat), and the plugin sends SkyEye a
+`pilots` list in its `packages` message: each seated player's DCS name and seat, plus the
+flight alone for its lead, so the AWACS finds "Ford 9-1" when the player is "Flash". Not
+flown (row B271).
+
+**Fixed 2026-10-21 (Test 63): an inactive late-activated flight read as airborne.** A
+late-activation unit not yet activated reads `isExist` and `inAir` true, so `airborneUnit`
+now also needs `isActive()`; a SEAD waiting for activation now holds the push.
+
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
 
@@ -11455,10 +11476,23 @@ flight.
 
 Built 2026-10-20. Not flown (row B261).
 
+**Phrasing (2026-10-21, user call).** With `BradySox/skyeye` PR #10 a readback parses with
+the callsign first or last, or after the station ("Tower, Ford 9, cleared for takeoff 28L" is
+a readback, not a new request), and a clearance word (runway, short, hold, taxi, squawk,
+cleared, tower, ground, takeoff, contact, wind, altimeter) is never a callsign. "Two ship"
+and distances ("30 miles") are not ship numbers. Outbound, departing, wheels up and switching
+are airborne; final and visual approach are inbound; comm check and how do you read are
+radio checks; repeat is say again; pan pan is an emergency. Under Strict a clearance whose
+readback never came gets one "Ford niner one, read back" 20 s later
+(`READBACK_PROMPT_SECONDS`), only while it is still the flight's current clearance; before,
+an unheard readback was silence. The card teaches the after-landing call as "Tower, <me>,
+clear of the runway", answered "Taxi to parking". Not flown (row B271).
+
 ### Files
 
 - `game/retlab/voice_atc.py`: frequencies, squawks, the plan, `dcsRetribution.voiceAtc`.
-- `resources/plugins/voiceatc/`: the state machine, the readback check, the F10 menu.
+- `resources/plugins/voiceatc/`: the state machine, the readback check, the read-back
+  prompt, the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
 - `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,
   `tests/missiongenerator/test_voice_kneeboard_pages.py`.

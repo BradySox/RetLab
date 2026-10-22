@@ -141,3 +141,13 @@ def test_a_player_flight_is_its_leads_seat_and_the_ai_its_flight() -> None:
     text = _serialized(data)
     assert 'callsign = "Ford 5-1"' in text
     assert 'callsign = "Uzi 8"' in text
+
+
+def test_every_blue_player_flight_is_listed_for_the_awacs() -> None:
+    data = _mission_data(controller=False)
+    data.flights[0].callsign = "Ford 9"
+    text = _serialized(data, voice_awacs=True)
+    assert "players" in text
+    assert 'group = "Colt"' in text
+    assert 'callsign = "Ford 9-1"' in text
+    assert 'group = "Weasel"' not in text
