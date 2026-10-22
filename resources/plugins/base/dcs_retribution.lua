@@ -179,6 +179,7 @@ function write_state()
         ["intercept_survivors"] = intercept_survivors or {},
         ["cruise_missiles_state"] = cruise_missiles_state or {},
         ["naval_magazines_state"] = naval_magazines_state or {},
+        ["vacuum_fixes"] = vacuum_fixes or {},
         ["ejection_events"] = ejection_events,
         ["crash_positions"] = crash_positions,
         ["csar_rescued"] = csar_rescued,

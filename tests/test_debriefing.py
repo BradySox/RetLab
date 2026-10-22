@@ -133,6 +133,23 @@ def test_state_data_accepts_empty_intercept_survivor_list() -> None:
     assert state.intercept_survivors == {}
 
 
+def test_state_data_reads_vacuum_fixes() -> None:
+    state = StateData.from_json(
+        {
+            "vacuum_fixes": [
+                {"unit": "Kub #1", "error": 812},
+                {"unit": "broken"},
+            ]
+        },
+        cast(Any, SimpleNamespace(flight=lambda _: None)),
+    )
+    assert state.vacuum_fixes == (("Kub #1", 812.0),)
+    empty = StateData.from_json(
+        {"vacuum_fixes": {}}, cast(Any, SimpleNamespace(flight=lambda _: None))
+    )
+    assert empty.vacuum_fixes == ()
+
+
 def test_lua_suppresses_player_despawn_loss_events() -> None:
     # A player leaving the seat (spectator / mission end) makes DCS fire a
     # crash/dead for the aircraft that must NOT count as a combat loss, while a

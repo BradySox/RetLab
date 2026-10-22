@@ -28,7 +28,8 @@ Everything below is on top of upstream; we still pull upstream fixes, so you los
 
 **Recon fog.** Enemy sites show as targets you can plan against, but their *composition and
 threat rings stay hidden* until you engage them — ordnance on the site, or any ground-attack
-sortie that reaches it. Engaging reveals the site completely and permanently, damage included;
+sortie that reaches it, or until a Vacuum (ELINT) flight hears its radar. Either reveals the
+site completely and permanently, damage included;
 there is no BDA lag and scouting reveals nothing. What recon is for is enemy **command posts**,
 which are hidden from the map outright: a surviving TARPS flight finds one within about 3 NM of
 its package target. The AI planner always uses ground truth, so auto-planning is unaffected —

@@ -447,6 +447,10 @@ report `KNOWN` for every viewer from turn one, map and §74 DTC rings alike. The
 computed, not stored, so it applies to existing saves too. A test checks every prefix
 matches a real pydcs id. Row B176.
 
+**Vacuum reveals (2026-10-22, Brady's call).** A red site whose radar a §118 Vacuum heard is
+`discovered_by_player` after the turn, contents and rings included, like an engaged site
+(`MissionResultsProcessor.reveal_vacuum_fixes`). The map marker was exact already. Row B273.
+
 The DM's call, verbatim: *"Hidden until scouted is wrong, it should be hidden until
 struck, then you should be omniscient like it was before we touched any fog of war
 setting."*
@@ -11597,6 +11601,14 @@ Answers name every located radar still standing, awake ones first; mud names awa
 
 Built 2026-10-20. Not flown (row B260). Commands not flown (row B269). Awake and asleep not
 flown (row B272).
+
+**Fixes carry over (2026-10-22, Brady's call).** The plugin writes `{unit, error}` for every
+radar it heard to the `vacuum_fixes` global; the base plugin puts it in `state.json`
+(`StateData.vacuum_fixes`). At debrief `reveal_vacuum_fixes` reveals each red site (§3) and keeps
+its best fix error on `TheaterGroundObject.vacuum_fix_m` (old saves: None). The next Vacuum
+starts that site asleep at that error (`known_fix` returns it, the emitter carries
+`knownError`): tight if it was within 1 NM. A message names the newly found sites. Not flown
+(row B273).
 
 ### Files
 

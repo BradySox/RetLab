@@ -570,3 +570,35 @@ def test_fixes_are_kept_when_vacuum_lands() -> None:
     h.update_unit("Vacuum", {"airborne": True})
     h.advance_to(240)
     assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight", "tight"]
+
+
+def test_every_radar_heard_is_written_for_the_debrief() -> None:
+    h = _harness(
+        [
+            _emitter("SA-6", "Kub #1", known=""),
+            _emitter("SA-8", "Osa #1", known="loose"),
+        ],
+        [
+            _group("Kub", RED, 50 * NM, radar=True),
+            _group("Osa", RED, 30 * NM),
+        ],
+    )
+    h.advance_to(15)
+    [first] = h.to_python(h.lua.globals().vacuum_fixes)
+    assert first["unit"] == "Kub #1" and first["error"] > NM
+    assert h.lua.globals().dirty_state is True
+    h.advance_to(120)
+    # Tight by now; the never-heard Osa is not written.
+    [fix] = h.to_python(h.lua.globals().vacuum_fixes)
+    assert fix["error"] <= NM
+
+
+def test_a_site_starts_from_the_fix_an_earlier_vacuum_left() -> None:
+    sites = [_site("Kub", 50 * NM, 0, radar=False)]
+    known = {**_emitter("SA-6", "Kub #1", known="loose"), "knownError": str(4 * NM)}
+    h = _commands(sites, [known])
+    [reply] = _ask(h, "emitters")
+    assert reply["text"].endswith(", loose.")
+    # 4 NM off the 50 NM-north site: the range from the caller reads 46 to 54.
+    rng = int(reply["text"].split(", ")[3])
+    assert 46 <= rng <= 54

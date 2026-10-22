@@ -96,6 +96,8 @@ class MissionResultsProcessor:
                 self.commit_ground_losses(debriefing, events)
             with logged_duration("reveal_scouted_command_posts"):
                 self.reveal_scouted_command_posts(debriefing, events)
+            with logged_duration("reveal_vacuum_fixes"):
+                self.reveal_vacuum_fixes(debriefing, events)
             with logged_duration("commit_damaged_runways"):
                 self.commit_damaged_runways(debriefing)
             # Score the front line before capturing bases: casualty_count
@@ -542,7 +544,8 @@ class MissionResultsProcessor:
         """Recon intel-fog: flip enemy sites to "known" once the player has engaged
         them this turn.
 
-        Engagement is the only key (DM call 2026-08-18): ordnance on the site, or
+        Engagement is the key (DM call 2026-08-18; §118 Vacuum adds a second, see
+        ``reveal_vacuum_fixes``): ordnance on the site, or
         an offensive sortie that reached it. Recon/TARPS overflight deliberately
         does NOT reveal -- "hidden until scouted" is the rule this replaced.
         Discovery is permanent and total; nothing lags behind it, so a revealed
@@ -558,6 +561,34 @@ class MissionResultsProcessor:
             if not tgo.discovered_by_player:
                 tgo.discovered_by_player = True
                 events.update_tgo(tgo)
+
+    def reveal_vacuum_fixes(
+        self, debriefing: Debriefing, events: GameUpdateEvents
+    ) -> None:
+        """§118: a red site whose radar Vacuum heard is known after the turn, like an
+        engaged one (Brady's call, 2026-10-22), and keeps its best fix for the next
+        Vacuum. The map marker was already exact; this reveals contents and rings.
+        """
+        found = []
+        for unit_name, error_m in debriefing.state_data.vacuum_fixes:
+            mapping = debriefing.unit_map.theater_units(unit_name)
+            if mapping is None:
+                continue
+            tgo = mapping.theater_unit.ground_object
+            if tgo.is_friendly(Player.BLUE):
+                continue
+            if tgo.vacuum_fix_m is None or error_m < tgo.vacuum_fix_m:
+                tgo.vacuum_fix_m = error_m
+            if not tgo.discovered_by_player:
+                tgo.discovered_by_player = True
+                found.append(tgo.name)
+            events.update_tgo(tgo)
+        if found:
+            self.game.message(
+                "ELINT: Vacuum located enemy radars",
+                f"Vacuum fixed {len(found)} site(s) by their radars: "
+                f"{', '.join(sorted(found))}. Marked as known on the map.",
+            )
 
     def reveal_scouted_command_posts(
         self, debriefing: Debriefing, events: GameUpdateEvents

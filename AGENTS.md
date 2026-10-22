@@ -173,8 +173,9 @@ viewer-aware except `standard_identity_for` (COIN's suspect-until-engaged symbol
 
 - **A site is revealed by engaging it** (ordnance on it, or any ground-attack sortie that
   reaches it) and is then known completely and permanently, damage included. Fixed SAM sites
-  (`is_fixed_sam_site`) are always known. A captured enemy commander reveals every command
-  post. Recon reveals only a hidden command post within 3 NM of its target.
+  (`is_fixed_sam_site`) are always known. A site whose radar a §118 Vacuum heard is known
+  after the turn. A captured enemy commander reveals every command post. Recon reveals only
+  a hidden command post within 3 NM of its target.
 - There is no BDA damage lag: `alive`/`is_dead`/`dead_units`/`max_threat_range` are plain
   truth. Do **not** reintroduce a viewer parameter on those, or the old `_for_player`/`_for`
   method twins.
@@ -263,7 +264,7 @@ linked design note.
 
 1. **QRA intercept reserve** — alert jets, player-manned cold alert, forward-defense border zones.
 2. **JAMMING flight type** — the C-130J as an EW + ISR platform (`c130j` plugin).
-3. **Recon intel fog** — a site is unknown until engaged, then known for good; recon finds command posts.
+3. **Recon intel fog** — a site is unknown until engaged or heard by Vacuum, then known for good; recon finds command posts.
 4. **UI transparency** — target intel panel, mission-impact debrief, package context bar.
 5. **Player target location precision** — `Approximate` mode offsets steerpoints.
 6. **Air-defense planning rework** — BARCAP waves; first wave, tankers and AWACS ASAP. Geometry is upstream's.

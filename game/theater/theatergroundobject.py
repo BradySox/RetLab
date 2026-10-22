@@ -182,6 +182,8 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         # omniscient (viewer=None) callers are handled by known_for(), so this flag
         # only matters for enemy sites from the player's perspective.
         self.discovered_by_player = False
+        #: §118: the best fix error (m) a Vacuum has had on this site, None if never heard.
+        self.vacuum_fix_m: Optional[float] = None
         # Optional map-symbol override: (SymbolSet, Entity). When set, the map icon
         # uses this instead of the class default. The COIN layer uses it so a spawned
         # insurgent cell / roadside IED / HVT leader — all mechanically vehicle groups
@@ -227,6 +229,8 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         state.setdefault("concealed_route", None)
         # Old saves predate the COIN transient-spawn marker — not a spawn.
         state.setdefault("coin_spawned", False)
+        # Old saves predate Vacuum fixes (§118) — never heard.
+        state.setdefault("vacuum_fix_m", None)
         # Decoy zones were removed 2026-08-18; shed the marker from older saves.
         state.pop("is_decoy", None)
         self.__dict__.update(state)
@@ -272,7 +276,7 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
         * A fixed SAM site (SA-2/3/5/10/20, S-400, Patriot, Hawk) is always
           known: it sits in a prepared position the enemy mapped before the war.
         * Otherwise the site shows as a marker and only its composition is
-          fogged, until it is engaged.
+          fogged, until it is engaged or a Vacuum hears its radar (§118).
         """
         if viewer_sees_truth(viewer, self):
             return Visibility.KNOWN
