@@ -36,7 +36,6 @@ from qt_ui import (
     uiconstants,
 )
 from qt_ui.screenfit import ScreenFitFilter
-from qt_ui.softwarerender import apply_software_rendering
 from qt_ui.theme import build_stylesheet
 from qt_ui.uiflags import UiFlags
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
@@ -87,8 +86,6 @@ def run_ui(game: Optional[Game], ui_flags: UiFlags) -> None:
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
 
-    # The map renders in software so its VRAM stays with DCS (features doc §8, B267).
-    apply_software_rendering(os.environ)
     app = QApplication(sys.argv)
 
     # Nothing else in the app is screen-aware: a dialog sizes to its content with

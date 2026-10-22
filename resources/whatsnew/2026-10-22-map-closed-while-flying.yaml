@@ -1,0 +1,10 @@
+date: 2026-10-22
+title: The map is fast again and steps aside while you fly
+change: >-
+  The campaign map draws on the video card again, so panning and zooming
+  are smooth. After Take off the map closes and a note takes its place,
+  leaving video memory to DCS and the voice bots. A fresh map comes back
+  when the mission window closes.
+watch: >-
+  During a mission, check Task Manager's dedicated GPU memory for
+  python.exe. If it still shows several GB, say so.
