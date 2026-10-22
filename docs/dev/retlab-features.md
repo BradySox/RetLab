@@ -11577,15 +11577,6 @@ Answers name every located radar still standing, awake ones first; mud names awa
 | "Vacuum, Ford 9, say emitters." | The 3 nearest located radars, awake first, magnetic bearing and NM from the caller: "SA-6 awake 270, 35, tight; SA-11 asleep 245, 50, loose." None: "blank." |
 | "Vacuum, Ford 9, request target status." | Located radars within their threat ring or 15 NM of the package target: "target area, SA-6 awake, bullseye 095/22, loose." None: "target area blank." |
 | "Vacuum, Ford 9, mud 270." | The awake radar nearest that bearing from the caller, within 15 degrees: "mud 270 is SA-6 awake, bullseye 090/25, tight." None: "no emitter 270." |
-and it answers on the frequency it was called on. The words are MUD, ACTIVE, BLANK and SAY
-AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
-
-| Call | Answer |
-|---|---|
-| "Vacuum, Ford 9, checking in." | "Ford 9, Vacuum, three emitters active, nearest SA-6, bullseye 090/25." Every radar on within its 250 NM; nearest to the caller. |
-| "Vacuum, Ford 9, say emitters." | The 3 nearest radars on, magnetic bearing and NM from the caller: "SA-6 270, 35; SA-11 245, 50." None: "blank." |
-| "Vacuum, Ford 9, request target status." | Radars on within their threat ring or 15 NM of the package target: "target area, SA-6 active, bullseye 095/22." None: "target area blank." |
-| "Vacuum, Ford 9, mud 270." | The radar on nearest that bearing from the caller, within 15 degrees: "mud 270 is SA-6, bullseye 090/25." None: "no emitter 270." |
 | "Vacuum, Ford 9, say again." | Its last answer to that seat, else its last call on that frequency. |
 
 - **SkyEye** (BradySox/skyeye#9) parses the calls apart from GCI and package calls, with
@@ -11606,7 +11597,6 @@ AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
 
 Built 2026-10-20. Not flown (row B260). Commands not flown (row B269). Awake and asleep not
 flown (row B272).
-Built 2026-10-20. Not flown (row B260). Commands not flown (row B269).
 
 ### Files
 
