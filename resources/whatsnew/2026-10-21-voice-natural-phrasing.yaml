@@ -1,0 +1,11 @@
+date: 2026-10-21
+title: Talk to the voice bots the way you would on the radio
+change: >-
+  Read back with your callsign first or last. "Two ship" and "30 miles" no
+  longer change your callsign. "With you", "on station" and "outbound"
+  work. Answer the ABCCC's roll call with just "ready". The ABCCC now says
+  "Ford package, Blackjack, push" and reads push times digit by digit.
+  Ground and Tower ask for a readback they did not hear. The AWACS finds
+  you by your flight callsign even when your DCS name is different.
+watch: >-
+  Needs the updated SkyEye.

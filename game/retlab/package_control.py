@@ -227,3 +227,12 @@ def populate_package_control_lua(
             if role == "strike":
                 targets.extend(n for n in _target_units(flight) if n not in targets)
         item.add_data_array("targetUnits", targets)
+
+    # Every blue player flight, so SkyEye's AWACS finds a player by the callsign they say
+    # when their DCS name is something else (flown 2026-10-21: "Flash" flew Ford 9-1).
+    players_node = node.add_item("players")
+    for flight in mission_data.flights:
+        if flight.client_units and flight.friendly.is_blue:
+            record = players_node.add_item()
+            record.add_key_value("group", flight.group_name)
+            record.add_key_value("callsign", lead_callsign(flight))

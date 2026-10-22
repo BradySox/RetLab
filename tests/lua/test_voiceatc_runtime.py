@@ -615,3 +615,34 @@ def test_a_three_digit_flight_number_is_its_own_flight() -> None:
     ]
     assert _said(h)[0]["speech"].startswith("Flight one two three one,")
     h.assert_no_lua_errors()
+
+
+def test_strict_asks_once_for_a_readback_that_never_came() -> None:
+    h = _harness()
+    _call(h, "taxi")
+    h.advance_to(15)
+    assert len(_texts(h)) == 1
+    h.advance_to(30)
+    assert _texts(h)[1:] == ["Viper 1-1, read back."]
+    assert _said(h)[1]["speech"] == "Viper one one, read back."
+    assert _said(h)[1]["frequency"] == GROUND
+    h.advance_to(80)
+    assert len(_texts(h)) == 2
+    h.assert_no_lua_errors()
+
+
+def test_a_heard_readback_needs_no_prompt() -> None:
+    h = _harness()
+    _call(h, "taxi")
+    _call(h, "readback", numbers="4101 25")
+    h.advance_to(60)
+    assert len(_texts(h)) == 1
+    h.assert_no_lua_errors()
+
+
+def test_relaxed_never_prompts_for_a_readback() -> None:
+    h = _harness("relaxed")
+    _call(h, "taxi")
+    h.advance_to(60)
+    assert len(_texts(h)) == 1
+    h.assert_no_lua_errors()
