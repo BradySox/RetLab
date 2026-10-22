@@ -450,3 +450,17 @@ def test_a_socket_without_receivefrom_is_harmless() -> None:
     h.load_plugin_script(PLUGIN)
     h.advance_to(120)
     h.assert_no_lua_errors()
+
+
+def test_a_late_activated_vacuum_is_silent_until_it_activates() -> None:
+    # Test 63: the air start existed and read inAir 7 minutes before activation.
+    h = _harness(
+        [_emitter("SA-6", "Kub #1")], [_group("Kub", RED, 50 * NM, radar=True)]
+    )
+    h.update_unit("Vacuum", {"active": False})
+    h.advance_to(300)
+    assert _sent(h, "emitter") == []
+    assert _sent(h, "tune") == []
+    h.update_unit("Vacuum", {"active": True})
+    h.advance_to(360)
+    assert len(_sent(h, "emitter")) == 1

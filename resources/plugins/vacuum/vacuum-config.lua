@@ -56,7 +56,11 @@ local function airborneVacuum()
         local g = Group.getByName(name)
         if g and g:isExist() then
             for _, u in ipairs(g:getUnits() or {}) do
-                if u and u:isExist() and u:getLife() > 0 and u:inAir() then
+                -- A late-activated air start exists and reads inAir before it activates (Test 63).
+                local ok, active = pcall(function()
+                    return u:isActive()
+                end)
+                if u and u:isExist() and ok and active and u:getLife() > 0 and u:inAir() then
                     return u
                 end
             end

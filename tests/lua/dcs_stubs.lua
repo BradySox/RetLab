@@ -217,6 +217,11 @@ function UnitFake:getRadar()
     return self.radar == true, nil
 end
 
+-- A late-activation unit exists and reads inAir before it is activated; spec active = false.
+function UnitFake:isActive()
+    return self.active ~= false
+end
+
 function UnitFake:inAir()
     return self.airborne == true
 end
@@ -421,6 +426,7 @@ function Harness.addGroup(spec)
             life = u.life,
             exists = u.exists,
             airborne = u.airborne,
+            active = u.active,
             radar = u.radar,
             attributes = u.attributes,
             velocity = u.velocity,

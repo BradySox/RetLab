@@ -149,3 +149,34 @@ def test_the_lua_names_each_player_flight_with_its_package_target() -> None:
     assert 'group = "Ford"' in text
     assert 'targetX = "1000.0"' in text and 'targetY = "2000.0"' in text
     assert 'group = "Dodge"' not in text
+
+
+def _radar(display_name: str, unit_class: UnitClass, range_nm: float) -> Any:
+    unit = _unit(display_name, unit_class)
+    unit.detection_range = lambda: SimpleNamespace(meters=range_nm * NM)
+    return unit
+
+
+def test_a_site_is_named_by_its_fire_control_radar() -> None:
+    from game.retlab.vacuum import site_radar
+
+    # Test 63: the P-19 out-ranges the Kub's own radar and called every Kub "SA-2".
+    kub = _radar('SAM SA-6 Kub "Straight Flush" STR', UnitClass.SEARCH_TRACK_RADAR, 38)
+    p19 = _radar('SAM P19 "Flat Face" SR (SA-2/3)', UnitClass.SEARCH_RADAR, 86)
+    assert emitter_label(site_radar([p19, kub])) == "SA-6"
+    snr = _radar('SAM SA-2 S-75 "Fan Song" TR', UnitClass.TRACK_RADAR, 54)
+    assert emitter_label(site_radar([p19, snr])) == "SA-2"
+    low_blow = _radar('SAM SA-3 S-125 "Low Blow" TR', UnitClass.TRACK_RADAR, 30)
+    assert emitter_label(site_radar([p19, low_blow])) == "SA-3"
+
+
+def test_a_shared_search_radar_alone_is_a_search_radar() -> None:
+    assert emitter_label(_unit('SAM P19 "Flat Face" SR (SA-2/3)')) == "search radar"
+
+
+def test_mod_tags_and_site_suffixes_are_dropped() -> None:
+    assert emitter_label(_unit("SAM Patriot ECS")) == "Patriot"
+    assert (
+        emitter_label(_unit("SAM Roland EWR", UnitClass.SEARCH_TRACK_RADAR)) == "Roland"
+    )
+    assert emitter_label(_unit("[CH] Buk M3 9A317M TELAR")) == "Buk M3 9A317M"

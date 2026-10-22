@@ -11501,6 +11501,12 @@ Lua 5.1 reads as the bare character, so `require("socket")` looked in ".LuaSocke
 label with a backslash or a control character broke the message. They are doubled, as in
 `voiceatc`. The STRIKE flags were empty until the §117 package fix the same day.
 
+Fixed 2026-10-21 (Test 63): a late-activated air-start Vacuum exists and reads `inAir` before
+it activates, so it called radars 7 minutes before it was in the sky; it now needs
+`isActive()` too. Every Kub site was called "SA-2": the label came from the longest-ranged
+radar, the site's P-19 "(SA-2/3)". A site is now named by its fire-control radar first
+(`site_radar`), and a shared "SA-2/3" search radar alone is "search radar".
+
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
 and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
 SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
