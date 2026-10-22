@@ -1,0 +1,12 @@
+date: 2026-10-21
+title: Talk to Vacuum
+change: >-
+  You can now call Vacuum on its frequency or on STRIKE. "Vacuum, Ford 9,
+  checking in" gets how many radars are on and the nearest. "Say emitters"
+  gives the three nearest by bearing and range from you. "Request target
+  status" names the radars on near your target. "Mud 270" names the radar
+  on that RWR bearing. "Say again" repeats its last call. SEAD, SEAD
+  Escort and DEAD flights get a Talking to Vacuum kneeboard card.
+watch: >-
+  Vacuum only hears radars that are on. A SAM that stays dark is invisible
+  to it, so "blank" does not mean safe. Needs the latest SkyEye.

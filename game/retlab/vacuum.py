@@ -4,7 +4,9 @@ A KC-135 (any era), or a C-130J-30 when none is free, holds the AWACS station on
 airborne the ``vacuum`` plugin calls each red ground radar once each time it comes on,
 on Vacuum's own frequency, and on STRIKE only when the radar covers a player package's
 route or target. SkyEye speaks the calls over its mission link and works out the
-bullseye itself. It never jams, lases or designates. docs/dev/retlab-features.md §118.
+bullseye itself. Players call it through SkyEye (check in, emitters, target status, mud,
+say again) and the plugin answers. It never jams, lases or designates.
+docs/dev/retlab-features.md §118.
 """
 
 from __future__ import annotations
@@ -21,6 +23,7 @@ from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
     SKYEYE_LINK_PORT,
     _country,
+    lead_callsign,
     player_packages,
 )
 from game.retlab.skyeye_voices import pick_another_voice
@@ -65,8 +68,33 @@ VACUUM_RANGE_NM = 250
 
 CALLSIGN = "Vacuum"
 
-_NATO = re.compile(r"\b((?:SA|HQ)-\d+[A-Z]?)\b")
-_SITE_SUFFIX = {"TR", "SR", "STR", "LN", "CP", "CWAR", "PCP", "RADAR", "EWR"}
+_NATO = re.compile(r"\b((?:SA|HQ)-\d+[A-Z]?)\b(/)?")
+_SITE_SUFFIX = {
+    "TR",
+    "SR",
+    "STR",
+    "LN",
+    "CP",
+    "CWAR",
+    "PCP",
+    "RADAR",
+    "EWR",
+    "TEL",
+    "TELAR",
+    "ECS",
+}
+
+#: Which radar names a site: its fire-control radar before a search radar, a search radar
+#: before an early-warning one. A P-19 "(SA-2/3)" out-ranges an SA-6 Kub's own radar, and
+#: picking by range alone called Kub sites "SA-2" (Test 63, 2026-10-21).
+_LABEL_RANK = {
+    UnitClass.TRACK_RADAR: 3,
+    UnitClass.SEARCH_TRACK_RADAR: 3,
+    UnitClass.TELAR: 3,
+    UnitClass.SEARCH_RADAR: 2,
+    UnitClass.SPECIALIZED_RADAR: 2,
+    UnitClass.EARLY_WARNING_RADAR: 1,
+}
 
 
 def plan_vacuum(coalition: Coalition) -> Optional[Flight]:
@@ -137,14 +165,26 @@ def emitter_label(unit: TheaterUnit) -> str:
     unit_type = unit.unit_type
     name = unit_type.display_name if unit_type is not None else unit.type.id
     if (nato := _NATO.search(name)) is not None:
-        return nato.group(1)
+        # "SA-2/3" is a search radar shared by several systems, not one SAM.
+        return "search radar" if nato.group(2) else nato.group(1)
     if unit_type is not None and unit_type.unit_class is UnitClass.EARLY_WARNING_RADAR:
         return "early warning radar"
-    name = re.sub(r'"[^"]*"|\([^)]*\)', "", name)
+    name = re.sub(r'"[^"]*"|\([^)]*\)|\[[^\]]*\]', "", name)
     words = [w for w in name.split() if w.upper() != "SAM"]
     while len(words) > 1 and words[-1].upper() in _SITE_SUFFIX:
         words.pop()
     return " ".join(words) or "radar"
+
+
+def site_radar(radars: list[TheaterUnit]) -> TheaterUnit:
+    """The radar that names a site: the fire-control one, the longest-ranged on a tie."""
+    return max(
+        radars,
+        key=lambda u: (
+            _LABEL_RANK.get(u.unit_type.unit_class, 0) if u.unit_type else 0,
+            u.detection_range().meters,
+        ),
+    )
 
 
 def _radar_units(group: TheaterGroup) -> list[TheaterUnit]:
@@ -225,6 +265,19 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
     node.add_key_value("rangeMeters", str(int(VACUUM_RANGE_NM * 1852)))
     node.add_data_array("groups", [f.group_name for f in flights])
 
+    # The player flights that may call Vacuum, with their package's target.
+    callers = node.add_item("flights")
+    for package_flights in player_packages(mission_data):
+        target = package_flights[0].package.target.position
+        for flight in package_flights:
+            if not flight.client_units:
+                continue
+            record = callers.add_item()
+            record.add_key_value("group", flight.group_name)
+            record.add_key_value("callsign", lead_callsign(flight))
+            record.add_key_value("targetX", str(target.x))
+            record.add_key_value("targetY", str(target.y))
+
     routes = player_routes(mission_data)
     emitters = node.add_item("emitters")
     for control_point in game.theater.controlpoints:
@@ -237,7 +290,7 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
                 radars = _radar_units(group)
                 if not radars:
                     continue
-                main = max(radars, key=lambda u: u.detection_range().meters)
+                main = site_radar(radars)
                 reach = group.max_threat_range().meters
                 item = emitters.add_item()
                 item.add_key_value("label", emitter_label(main))
@@ -245,3 +298,4 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
                 position = (group.position.x, group.position.y)
                 covers = reach > 0 and covers_route(position, reach, routes)
                 item.add_key_value("strike", "true" if covers else "")
+                item.add_key_value("reach", str(int(reach)))

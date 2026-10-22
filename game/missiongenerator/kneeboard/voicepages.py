@@ -1,4 +1,4 @@
-"""Cheat sheets for the voice controllers (§116, §117, §119): the ABCCC, SkyEye's AWACS and ATC.
+"""Cheat sheets for the voice controllers (§116-§119): the ABCCC, SkyEye's AWACS, Vacuum, ATC.
 
 Written for pilots new to talking to a bot on SRS: who is who, which frequency, the
 exact words to say, what the answers mean, and what to do when nobody answers.
@@ -9,6 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, Optional
 
+from game.ato.flighttype import FlightType
 from game.radio.radios import RadioFrequency
 from game.retlab.voice_atc import AtcField, station_name
 from ..kneeboard_page import KneeboardPage
@@ -340,5 +341,117 @@ class AtcPage(KneeboardPage):
                 '"Say again" and "radio check" work on both frequencies. No voice? '
                 "F10 menu > ATC makes the same calls.",
             ],
+        )
+        w.write(path)
+
+
+#: The player tasks that get the Vacuum card (user call, 2026-10-21).
+VACUUM_TASKS = frozenset({FlightType.SEAD, FlightType.SEAD_ESCORT, FlightType.DEAD})
+
+#: The radar names Vacuum says (``game.retlab.vacuum.emitter_label``), what each is and
+#: how far it reaches, roughly. A pilot's guide, not a threat table.
+VACUUM_RADARS = (
+    ("early warning radar", "search radar: sees you far out", "no missiles"),
+    ("SA-2, SA-3", "old SAM, fixed site", "about 25, 12 NM"),
+    ("SA-5", "very long-range SAM, fixed", "about 100 NM, high"),
+    ("SA-6", "mobile SAM", "about 13 NM"),
+    ("SA-8", "SAM on one truck", "about 6 NM, low"),
+    ("SA-10", "long-range SAM", "about 40 NM: the big one"),
+    ("SA-11", "mobile SAM", "about 19 NM"),
+    ("SA-15, SA-19", "short-range SAM", "about 6 NM, low"),
+    ("Hawk, Patriot", "western SAM, if red has one", "about 25, 40 NM"),
+)
+
+
+class VacuumPage(KneeboardPage):
+    """Talking to Vacuum (§118): for SEAD, SEAD Escort and DEAD players when one flies."""
+
+    def __init__(
+        self,
+        frequency: RadioFrequency,
+        strike: Optional[RadioFrequency],
+        callsign: str,
+        dark_kneeboard: bool,
+        fmt: Callable[[RadioFrequency], str] = _freq,
+        casual: bool = False,
+    ) -> None:
+        #: How a frequency prints: with its preset channel when the generator knows it.
+        self.fmt = fmt
+        self.frequency = frequency
+        self.strike = strike
+        self.callsign = callsign
+        self.dark_kneeboard = dark_kneeboard
+        self.casual = casual
+
+    def write(self, path: Path) -> None:
+        w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
+        me = self.callsign
+        w.title("Talking to Vacuum (ELINT)")
+        w.text(f"Vacuum: {self.fmt(self.frequency)}", fill=w.col_nav)
+        if self.strike is not None:
+            w.text(
+                f"Also on STRIKE {self.fmt(self.strike)} when a radar touches your "
+                "package's route or target.",
+                fill=w.col_nav,
+                wrap=True,
+            )
+        _lines(
+            w,
+            [
+                "Vacuum is a listening plane. It hears enemy radars switch on and "
+                "calls them. It never jams and never marks targets.",
+                'It calls each radar once as it comes on: "Vacuum, new emitter, '
+                'SA-6, bullseye 090/25" = an SA-6, 090 for 25 NM from bullseye.',
+            ],
+        )
+        w.rule()
+        w.heading("Calls (say its name, then yours)")
+        _lines(
+            w,
+            [
+                f'"Vacuum, {me}, checking in."',
+                f'  "{me}, Vacuum, three emitters active, nearest SA-6, '
+                'bullseye 090/25."',
+                f'"Vacuum, {me}, say emitters."   The 3 nearest radars on now, '
+                "bearing and NM FROM YOU:",
+                f'  "{me}, Vacuum, SA-6 270, 35; SA-11 245, 50."',
+                f'"Vacuum, {me}, request target status."   Radars on around '
+                "your target:",
+                f'  "{me}, Vacuum, target area, SA-6 active, bullseye 095/22."',
+                f'"Vacuum, {me}, mud 270."   Your RWR has a spike at 270. Which '
+                "radar is it?",
+                f'  "{me}, Vacuum, mud 270 is SA-6, bullseye 090/25."',
+                f'"Vacuum, {me}, say again."   It repeats its last call to you.',
+                '"Blank": no radar on. "No emitter 270": nothing on that bearing.',
+            ],
+        )
+        w.rule()
+        w.heading("Radar names it uses")
+        w.table(
+            [list(row) for row in VACUUM_RADARS],
+            headers=["It says", "What it is", "Reach"],
+            font=w.content_font,
+        )
+        w.rule()
+        w.heading("When it is silent")
+        _lines(
+            w,
+            [
+                "Before it is airborne, and after it lands or is shot down.",
+                "A radar that blinks is called once; again only after a full minute off.",
+                *(
+                    ["Casual radio discipline: it only calls radars near a package."]
+                    if self.casual
+                    else []
+                ),
+                'Nobody answers? Start with "Vacuum", check the frequency, say it '
+                'again slower. Ask the AWACS for "picture", not Vacuum.',
+            ],
+        )
+        w.text(
+            "A SAM that keeps its radar off is invisible to Vacuum. "
+            '"Blank" does not mean safe.',
+            fill=w.col_caution,
+            wrap=True,
         )
         w.write(path)

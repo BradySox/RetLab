@@ -587,6 +587,7 @@ class MissionGenerator:
                 gen.strike_packages = set(mission_data.strike_packages)
             if mission_data.vacuum_frequency is not None:
                 gen.add_comm(vacuum_comm_name(), mission_data.vacuum_frequency)
+                gen.vacuum = mission_data.vacuum_frequency
             for field_name, (ground, tower) in mission_data.atc_frequencies.items():
                 gen.add_comm(station_name(field_name, "ground"), ground)
                 gen.add_comm(station_name(field_name, "tower"), tower)

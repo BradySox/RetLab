@@ -12,6 +12,7 @@ from game.coordinates import (
     coordinate_format,
 )
 from game.dcs.aircrafttype import AircraftType
+from game.settings.enums import RadioDiscipline
 from game.settings.settings import TargetIntelPrecision
 from game.sitrep import Sitrep, sitrep_for_kneeboard
 from game.theater import TheaterGroundObject
@@ -39,7 +40,7 @@ from .support import (
     build_airfield_directory_rows,
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
-from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage
+from .voicepages import VACUUM_TASKS, AbcccPage, AtcPage, SkyEyeAwacsPage, VacuumPage
 from game.retlab.voice_atc import atc_lines, preset_name
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
@@ -373,6 +374,19 @@ class KneeboardGenerator(MissionInfoGenerator):
                     callsign,
                     self.dark_kneeboard,
                     fmt,
+                )
+            )
+
+        if self.vacuum is not None and flight.flight_type in VACUUM_TASKS:
+            pages.append(
+                VacuumPage(
+                    self.vacuum,
+                    self.abccc[1] if self.abccc else None,
+                    callsign,
+                    self.dark_kneeboard,
+                    fmt,
+                    casual=self.game.settings.radio_discipline
+                    is RadioDiscipline.CASUAL,
                 )
             )
 

@@ -3,7 +3,8 @@
 --
 -- Reads dcsRetribution.vacuum (emitted only when a blue Vacuum flies): callsign, frequency,
 --   strike (when an ABCCC runs STRIKE), voice, linkHost, linkPort, rangeMeters, groups = {...},
---   emitters = { { label, units = {...}, strike } }
+--   emitters = { { label, units = {...}, strike, reach } },
+--   flights = { { group, callsign, targetX, targetY } } (the player flights that may call it)
 --
 -- While a Vacuum is alive AND airborne, each red radar within range is called once each time it
 -- comes on: "Vacuum, new emitter, SA-6, bullseye 090, 25." A radar must stay off a full minute
@@ -11,6 +12,11 @@
 -- on Vacuum's own frequency; it goes on STRIKE too only for a radar whose threat ring covers a
 -- player package's route or target. SkyEye speaks the calls and works out the magnetic bullseye
 -- from its own picture. Nothing is said with no Vacuum airborne. It never jams or lases.
+--
+-- Players call it through SkyEye ("Vacuum, Ford 9, say emitters"): check in, emitters, target
+-- status, mud <bearing>, say again. SkyEye sends each as an elintRequest and the answer is a say
+-- line on the frequency the call came in on. It knows only radars radiating now. An older SkyEye
+-- never sends a request, so these answers simply never happen.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.vacuum) then
@@ -22,12 +28,22 @@ local POLL_SECONDS = 10
 local SEND_SECONDS = 8
 local TUNE_SECONDS = 60
 local OFF_RESET_SECONDS = 60
-local RANGE = tonumber(data.rangeMeters) or (250 * 1852)
-local emitters = data.emitters or {}
+local LINK_POLL_SECONDS = 1
+local TEXT_SECONDS = 15
+local NM = 1852
+local RANGE = tonumber(data.rangeMeters) or (250 * NM)
+-- A target-area radar: inside its own threat ring of the target, or this close to it.
+local TARGET_AREA_METERS = 15 * NM
+-- A mud bearing matches a radar this many degrees either side.
+local MUD_DEGREES = 15
+local MAX_ANSWERED = 3
+-- Answers use every radar; only the unprompted calls are thinned under Casual.
+local allEmitters = data.emitters or {}
+local emitters = allEmitters
 -- Casual radio discipline (§121): only the radars that threaten a player package.
 if dcsRetribution.radioDiscipline == "casual" then
     local threats = {}
-    for _, e in ipairs(emitters) do
+    for _, e in ipairs(allEmitters) do
         if e.strike == "true" then
             table.insert(threats, e)
         end
@@ -40,7 +56,11 @@ local function airborneVacuum()
         local g = Group.getByName(name)
         if g and g:isExist() then
             for _, u in ipairs(g:getUnits() or {}) do
-                if u and u:isExist() and u:getLife() > 0 and u:inAir() then
+                -- A late-activated air start exists and reads inAir before it activates (Test 63).
+                local ok, active = pcall(function()
+                    return u:isActive()
+                end)
+                if u and u:isExist() and ok and active and u:getLife() > 0 and u:inAir() then
                     return u
                 end
             end
@@ -142,6 +162,356 @@ local function frequencies(emitter)
 end
 
 ---------------------------------------------------------------------------------------------------
+-- Answers to players
+---------------------------------------------------------------------------------------------------
+
+local NUMBER_WORDS = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" }
+
+local function normalize(callsign)
+    return (tostring(callsign):lower():gsub("[^%w]", ""))
+end
+
+local callers = {}
+for _, f in ipairs(data.flights or {}) do
+    f.key = normalize(f.callsign)
+    -- "ford91" -> "ford9": the flight; "ford92" is its ship 2.
+    f.prefix = f.key:sub(1, -2)
+    table.insert(callers, f)
+end
+
+-- The flight and ship a heard callsign is, as voiceatc's findFlight reads it: the whole seat,
+-- then the flight alone ("ford 9" is Ford 9-1), then a ship ("ford 9 2").
+local function findCaller(callsign)
+    local key = normalize(callsign or "")
+    if key == "" then
+        return nil, nil
+    end
+    for _, f in ipairs(callers) do
+        if key == f.key then
+            return f, tonumber(key:sub(-1)) or 1
+        end
+    end
+    for _, f in ipairs(callers) do
+        if key == f.prefix then
+            return f, 1
+        end
+    end
+    local ship = tonumber(key:sub(-1))
+    for _, f in ipairs(callers) do
+        if ship and key:sub(1, -2) == f.prefix then
+            return f, ship
+        end
+    end
+    return nil, nil
+end
+
+-- The caller's jet: its own seat if alive, else any live jet of the flight.
+local function callerUnit(flight, ship)
+    local g = Group.getByName(flight.group)
+    if not (g and g:isExist()) then
+        return nil
+    end
+    local first = nil
+    for index, u in ipairs(g:getUnits() or {}) do
+        if u and u:isExist() and u:getLife() > 0 then
+            local ok, number = pcall(function()
+                return u:getNumber()
+            end)
+            if (ok and tonumber(number) or index) == ship then
+                return u
+            end
+            first = first or u
+        end
+    end
+    return first
+end
+
+-- "ford 9" -> Ford 9, "viper 1 1" -> Viper 1-1 (spoken "Viper 1 1"): the caller as heard.
+local function callerPart(heard)
+    local words, digits = {}, {}
+    for w in tostring(heard):gmatch("%S+") do
+        if w:match("^%d+$") then
+            table.insert(digits, w)
+        else
+            table.insert(words, w:sub(1, 1):upper() .. w:sub(2))
+        end
+    end
+    local name = table.concat(words, " ")
+    if #digits == 0 then
+        return { name, name }
+    end
+    return { name .. " " .. table.concat(digits, "-"), name .. " " .. table.concat(digits, " ") }
+end
+
+local function declination()
+    local ok, value = pcall(function()
+        return UTILS.GetMagneticDeclination()
+    end)
+    if ok and tonumber(value) then
+        return tonumber(value)
+    end
+    return tonumber(data.declination) or 0
+end
+
+-- Magnetic bearing (whole degrees, 1-360) and range in whole NM from one point to another.
+local function bearingRange(from, to)
+    local dx, dz = to.x - from.x, to.z - from.z
+    local bearing = math.floor((math.deg(math.atan2(dz, dx)) - declination()) % 360 + 0.5)
+    if bearing == 0 then
+        bearing = 360
+    end
+    return bearing, math.floor(math.sqrt(dx * dx + dz * dz) / NM + 0.5)
+end
+
+local function angleOff(a, b)
+    local d = math.abs(a - b) % 360
+    return d > 180 and 360 - d or d
+end
+
+local function three(n)
+    return string.format("%03d", n % 360 == 0 and 360 or n % 360)
+end
+
+-- Digit by digit, as SkyEye says a bearing: 270 -> "2 7 0".
+local function spokenBearing(n)
+    return (three(n):gsub("(%d)", "%1 "):gsub(" $", ""))
+end
+
+-- "SA-6" -> "S-A-6", which Piper reads letter by letter, as SkyEye's own calls do.
+local function spokenLabel(label)
+    return (tostring(label):gsub("(%u%u%u?)%-(%d+)", function(letters, number)
+        return letters:gsub("(%u)", "%1-") .. number
+    end))
+end
+
+-- A reply in two forms, as voiceatc builds them: each part is text, or { text, speech }.
+local function line(parts)
+    local text, speech = {}, {}
+    for _, part in ipairs(parts) do
+        if type(part) == "table" then
+            table.insert(text, part[1])
+            table.insert(speech, part[2])
+        else
+            table.insert(text, part)
+            table.insert(speech, part)
+        end
+    end
+    return { text = table.concat(text), speech = table.concat(speech) }
+end
+
+local function labelPart(label)
+    return { label, spokenLabel(label) }
+end
+
+local function bullseyePart(point)
+    local ok, bull = pcall(function()
+        return coalition.getMainRefPoint(coalition.side.BLUE)
+    end)
+    if not (ok and type(bull) == "table" and bull.x) then
+        return nil
+    end
+    local bearing, range = bearingRange(bull, point)
+    if range <= 5 then
+        return "at bullseye"
+    end
+    return { "bullseye " .. three(bearing) .. "/" .. range, "bullseye " .. spokenBearing(bearing) .. ", " .. range }
+end
+
+local function withBullseye(parts, point)
+    local bull = bullseyePart(point)
+    if bull then
+        table.insert(parts, ", ")
+        table.insert(parts, bull)
+    end
+end
+
+-- Every radar radiating now within Vacuum's range, nearest a point first.
+local function radiatingNear(vacuum, point)
+    local out = {}
+    for _, e in ipairs(allEmitters) do
+        local unit = radiating(e, vacuum)
+        if unit then
+            local p = unit:getPoint()
+            table.insert(out, { label = e.label, point = p, reach = tonumber(e.reach) or 0, distance = distance2d(p, point) })
+        end
+    end
+    table.sort(out, function(a, b)
+        return a.distance < b.distance
+    end)
+    return out
+end
+
+local function checkInReply(me, from, vacuum)
+    local radars = radiatingNear(vacuum, from)
+    if #radars == 0 then
+        return line({ me, ", blank." })
+    end
+    local parts = {
+        me,
+        ", " .. (NUMBER_WORDS[#radars] or tostring(#radars)),
+        #radars == 1 and " emitter active, nearest " or " emitters active, nearest ",
+        labelPart(radars[1].label),
+    }
+    withBullseye(parts, radars[1].point)
+    table.insert(parts, ".")
+    return line(parts)
+end
+
+local function emittersReply(me, from, vacuum)
+    local radars = radiatingNear(vacuum, from)
+    if #radars == 0 then
+        return line({ me, ", blank." })
+    end
+    local parts = { me }
+    for i = 1, math.min(MAX_ANSWERED, #radars) do
+        local bearing, range = bearingRange(from, radars[i].point)
+        table.insert(parts, i == 1 and ", " or "; ")
+        table.insert(parts, labelPart(radars[i].label))
+        table.insert(parts, { " " .. three(bearing) .. ", " .. range, " " .. spokenBearing(bearing) .. ", " .. range })
+    end
+    table.insert(parts, ".")
+    return line(parts)
+end
+
+local function targetReply(me, flight, vacuum)
+    local tx, ty = tonumber(flight.targetX), tonumber(flight.targetY)
+    if not (tx and ty) then
+        return line({ me, ", no target for you." })
+    end
+    local near = {}
+    for _, r in ipairs(radiatingNear(vacuum, { x = tx, y = 0, z = ty })) do
+        if r.distance <= math.max(r.reach, TARGET_AREA_METERS) then
+            table.insert(near, r)
+        end
+    end
+    if #near == 0 then
+        return line({ me, ", target area blank." })
+    end
+    local parts = { me, ", target area" }
+    for i = 1, math.min(MAX_ANSWERED, #near) do
+        table.insert(parts, i == 1 and ", " or "; ")
+        table.insert(parts, labelPart(near[i].label))
+        table.insert(parts, " active")
+        withBullseye(parts, near[i].point)
+    end
+    table.insert(parts, ".")
+    return line(parts)
+end
+
+local function mudReply(me, from, vacuum, bearing)
+    local wanted = tonumber(bearing)
+    if not wanted then
+        return line({ me, ", say mud bearing." })
+    end
+    local spoken = { three(wanted), spokenBearing(wanted) }
+    local best, bestOff = nil, nil
+    for _, r in ipairs(radiatingNear(vacuum, from)) do
+        local off = angleOff((bearingRange(from, r.point)), wanted)
+        if off <= MUD_DEGREES and (bestOff == nil or off < bestOff) then
+            best, bestOff = r, off
+        end
+    end
+    if not best then
+        return line({ me, ", no emitter ", spoken, "." })
+    end
+    local parts = { me, ", mud ", spoken, " is ", labelPart(best.label) }
+    withBullseye(parts, best.point)
+    table.insert(parts, ".")
+    return line(parts)
+end
+
+local lastReply = {} -- caller seat -> line
+local lastOnFrequency = {} -- frequency -> line
+
+-- Vacuum answers on STRIKE when called there, else on its own frequency.
+local function answerFrequency(heard)
+    if data.strike and data.strike ~= "" and heard == data.strike then
+        return heard
+    end
+    return data.frequency
+end
+
+local function sayLine(frequency, call, group)
+    lastOnFrequency[frequency] = call
+    local g = group and Group.getByName(group)
+    if g and g:isExist() then
+        trigger.action.outTextForGroup(g:getID(), call.text, TEXT_SECONDS)
+    end
+    send({
+        { "type", "say" },
+        { "frequency", frequency },
+        { "text", call.text },
+        { "speech", call.speech },
+        { "voice", data.voice or "" },
+    })
+end
+
+local function handleRequest(request, vacuum)
+    local frequency = answerFrequency(request.frequency)
+    local speaker = data.callsign or "Vacuum"
+    local flight, ship = findCaller(request.callsign)
+    if not flight then
+        return sayLine(frequency, line({ "Station calling ", speaker, ", say again your callsign." }))
+    end
+    local caller = callerPart(request.callsign)
+    local me = { caller[1] .. ", " .. speaker, caller[2] .. ", " .. speaker }
+    local seat = flight.key .. ship
+    if request.kind == "sayagain" then
+        local last = lastReply[seat] or lastOnFrequency[frequency]
+        return sayLine(frequency, last or line({ me, ", nothing to say again." }), flight.group)
+    end
+    local unit = callerUnit(flight, ship)
+    if not unit then
+        return
+    end
+    local from = unit:getPoint()
+    local call
+    if request.kind == "checkin" then
+        call = checkInReply(me, from, vacuum)
+    elseif request.kind == "emitters" then
+        call = emittersReply(me, from, vacuum)
+    elseif request.kind == "target" then
+        call = targetReply(me, flight, vacuum)
+    elseif request.kind == "mud" then
+        call = mudReply(me, from, vacuum, request.bearing)
+    else
+        call = line({ me, ", say again." })
+    end
+    lastReply[seat] = call
+    sayLine(frequency, call, flight.group)
+end
+
+-- Reads the flat string fields of a SkyEye request.
+local function jsonFields(text)
+    local out = {}
+    for key, value in tostring(text):gmatch('"([%w_]+)"%s*:%s*"([^"]*)"') do
+        out[key] = value
+    end
+    return out
+end
+
+local function pollLink(_, now)
+    if not (link and link.receivefrom) then
+        return nil
+    end
+    while true do
+        local datagram = link:receivefrom()
+        if not datagram then
+            break
+        end
+        local message = jsonFields(datagram)
+        local vacuum = airborneVacuum()
+        if message.type == "elintRequest" and vacuum then
+            local ok, err = pcall(handleRequest, message, vacuum)
+            if not ok then
+                env.warning("vacuum: request failed: " .. tostring(err))
+            end
+        end
+    end
+    return now + LINK_POLL_SECONDS
+end
+
+---------------------------------------------------------------------------------------------------
 -- The watch
 ---------------------------------------------------------------------------------------------------
 
@@ -181,6 +551,13 @@ local function speakNext(vacuum)
         local unit = radiating(e, vacuum)
         if unit then
             local lat, lon = coord.LOtoLL(unit:getPoint())
+            -- Kept for "say again": SkyEye words the call itself from the same position.
+            local call = { data.callsign or "Vacuum", ", new emitter, ", labelPart(e.label) }
+            withBullseye(call, unit:getPoint())
+            table.insert(call, ".")
+            for _, f in ipairs(frequencies(e)) do
+                lastOnFrequency[f] = line(call)
+            end
             send({
                 { "type", "emitter" },
                 { "frequencies", frequencies(e) },
@@ -203,7 +580,13 @@ local function tick(_, now)
         return now + POLL_SECONDS
     end
     if lastTune == nil or now - lastTune >= TUNE_SECONDS then
-        send({ { "type", "tune" }, { "frequencies", frequencies(nil) } })
+        -- callsign and frequency make SkyEye pass calls to Vacuum back here; an older one ignores them.
+        send({
+            { "type", "tune" },
+            { "frequencies", frequencies(nil) },
+            { "callsign", data.callsign or "Vacuum" },
+            { "frequency", data.frequency },
+        })
         lastTune = now
     end
     watch(vacuum, now)
@@ -220,3 +603,4 @@ end
 
 timer.scheduleFunction(tick, nil, timer.getTime() + POLL_SECONDS)
 timer.scheduleFunction(speaker, nil, timer.getTime() + POLL_SECONDS + 1)
+timer.scheduleFunction(pollLink, nil, timer.getTime() + LINK_POLL_SECONDS)

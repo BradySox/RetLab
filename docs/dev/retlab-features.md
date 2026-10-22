@@ -11536,27 +11536,66 @@ Lua 5.1 reads as the bare character, so `require("socket")` looked in ".LuaSocke
 label with a backslash or a control character broke the message. They are doubled, as in
 `voiceatc`. The STRIKE flags were empty until the §117 package fix the same day.
 
+Fixed 2026-10-21 (Test 63): a late-activated air-start Vacuum exists and reads `inAir` before
+it activates, so it called radars 7 minutes before it was in the sky; it now needs
+`isActive()` too. Every Kub site was called "SA-2": the label came from the longest-ranged
+radar, the site's P-19 "(SA-2/3)". A site is now named by its fire-control radar first
+(`site_radar`), and a shared "SA-2/3" search radar alone is "search radar".
+
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
 and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
 SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
 matches its AWACS calls. Vacuum speaks in a voice from its squadron country's accent that
-neither the AWACS nor the ABCCC uses (`pick_another_voice`). Calls are voice only; there is
-no text.
+neither the AWACS nor the ABCCC uses (`pick_another_voice`). Its unprompted calls are voice
+only.
 
-Built 2026-10-20. Not flown (row B260).
+**Commands (2026-10-21).** Players call Vacuum callsign first, on its frequency or on STRIKE,
+and it answers on the frequency it was called on. The words are MUD, ACTIVE, BLANK and SAY
+AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
+
+| Call | Answer |
+|---|---|
+| "Vacuum, Ford 9, checking in." | "Ford 9, Vacuum, three emitters active, nearest SA-6, bullseye 090/25." Every radar on within its 250 NM; nearest to the caller. |
+| "Vacuum, Ford 9, say emitters." | The 3 nearest radars on, magnetic bearing and NM from the caller: "SA-6 270, 35; SA-11 245, 50." None: "blank." |
+| "Vacuum, Ford 9, request target status." | Radars on within their threat ring or 15 NM of the package target: "target area, SA-6 active, bullseye 095/22." None: "target area blank." |
+| "Vacuum, Ford 9, mud 270." | The radar on nearest that bearing from the caller, within 15 degrees: "mud 270 is SA-6, bullseye 090/25." None: "no emitter 270." |
+| "Vacuum, Ford 9, say again." | Its last answer to that seat, else its last call on that frequency. |
+
+- **SkyEye** (BradySox/skyeye#9) parses the calls apart from GCI and package calls, with
+  lead-ins ("say", "request", "give me") and a repeated callsign. On Vacuum's own frequency
+  a call naming no one, or ANYFACE, is for Vacuum. Each goes to the plugin as an
+  `elintRequest` (kind, callsign, bearing, frequency); the plugin answers with a `say` line.
+- **The plugin** finds the caller among `vacuum.flights` (each player flight's lead seat and
+  its package target) as voiceatc's `findFlight` does, and measures from that seat's jet.
+  Magnetic bearings use MOOSE's `UTILS.GetMagneticDeclination`, else 0; the bullseye is
+  `coalition.getMainRefPoint`. Answers use every radar it tracks, under Casual too, and show
+  as text to the caller's group. No `world.searchObjects`: it reads only the tracked units.
+- The `tune` message now carries Vacuum's callsign and own frequency. An older SkyEye ignores
+  both and never sends a request, so nothing is answered and nothing breaks.
+- **Kneeboard:** "Talking to Vacuum" (`VacuumPage`, `voicepages.py`), after the AWACS card,
+  for SEAD, SEAD Escort and DEAD player flights when a Vacuum flies (`VACUUM_TASKS`). It
+  teaches the five calls in the natural form, the radar names, when Vacuum is silent, and
+  that a SAM keeping its radar off is invisible to it.
+
+Built 2026-10-20. Not flown (row B260). Commands not flown (row B269).
 
 ### Files
 
 - `game/retlab/vacuum.py`: the planner rule, the radar labels, `dcsRetribution.vacuum`.
-- `resources/plugins/vacuum/`: the watch and the SkyEye link.
+- `resources/plugins/vacuum/`: the watch, the answers and the SkyEye link.
+- `game/missiongenerator/kneeboard/voicepages.py`: `VacuumPage`.
 - `resources/units/aircraft/C-130J-30.yaml`, `KC-135.yaml`, `KC135MPRS.yaml`: `ELINT` task.
-- `tests/retlab/test_vacuum.py`, `tests/lua/test_vacuum_runtime.py`.
+- `tests/retlab/test_vacuum.py`, `tests/lua/test_vacuum_runtime.py`,
+  `tests/missiongenerator/test_voice_kneeboard_pages.py`.
 
 ### Constraints
 
 - The labels come from the unit's display name: a NATO `SA-n`/`HQ-n` code, else the system
   name. A radar with neither is called by its DCS name.
-- Needs the SkyEye copy with `tune` and `emitter` messages (`BradySox/skyeye`).
+- Needs the SkyEye copy with `tune` and `emitter` messages (`BradySox/skyeye`); the
+  commands need its `elintRequest` too.
+- Vacuum knows only radars radiating now. Never report a dark site: the card tells pilots a
+  dark SAM is invisible, and "blank" must stay "nothing on", not "safe".
 
 ## §116 — Voice AWACS on SRS
 

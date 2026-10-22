@@ -279,7 +279,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   your package on STRIKE through SkyEye: check-in, push, holds, aborts and egress.
   The AWACS joins STRIKE only for threats and your own calls. Off by default.
 - **Vacuum ELINT.** On SEAD-heavy turns a KC-135 (Vacuum; a C-130J-30 if none is free) orbits behind the
-  AWACS and calls each red radar by bullseye through SkyEye as it comes on. Off by default.
+  AWACS and calls each red radar by bullseye through SkyEye as it comes on. Players can call
+  it for the radars on near them, near their target, or on an RWR bearing. Off by default.
 - **Voice ATC.** Ground and Tower for player flights through SkyEye on UHF: taxi with a
   squawk, takeoff and landing, with readback checks and an F10 ATC menu. Off by default.
 - **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
