@@ -1,0 +1,11 @@
+date: 2026-10-21
+title: SAMs no radar can see over fight on their own
+change: >-
+  A SAM used to stay dark whenever an early-warning radar was in range on
+  paper, even with mountains in the way, so it never fired. Now a radar only
+  counts if it can see over the SAM. A SAM with no such radar turns its own
+  radar on and fights like a normal DCS SAM.
+watch: >-
+  A SAM far from any early-warning radar shows on your RWR from the start and
+  shoots when you are in range. SAMs with a radar close by still stay dark
+  until you are in range.

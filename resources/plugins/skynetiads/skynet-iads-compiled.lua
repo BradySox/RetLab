@@ -2736,13 +2736,42 @@ function SkynetIADS:buildRadarCoverageForAbstractRadarElement(abstractRadarEleme
 	end
 end
 
-function SkynetIADS:buildRadarAssociation(parent, child)
-	--chilren should only be SAM sites not EW radars
-	if ( getmetatable(child) == SkynetIADSSamSite ) then
-		parent:addChildRadar(child)
+-- RetLab: Skynet counts cover by range alone, so a Box Spring 82 NM away behind the Taurus held
+-- an SA-11 dark all mission (test 63). A ground radar covers a SAM only if it can see a jet
+-- 10,000 ft above it; an AWACS looks down and keeps range-only cover. retlab-skynet-return-notes.md.
+SkynetIADS.COVER_CHECK_HEIGHT_AGL_M = 3048
+SkynetIADS.COVER_CHECK_MAST_M = 10
+
+function SkynetIADS.canSeeAboveSite(parent, child)
+	if getmetatable(parent) == SkynetIADSAWACSRadar then
+		return true
 	end
-	--Only SAM Sites should have parent Radars, not EW Radars
-	if ( getmetatable(child) == SkynetIADSSamSite ) then
+	local parentRadars = parent:getRadars()
+	local childRadars = child:getRadars()
+	for i = 1, #parentRadars do
+		local parentRadar = parentRadars[i]
+		if parentRadar:isExist() then
+			local p = parentRadar:getDCSRepresentation():getPosition().p
+			local from = { x = p.x, y = p.y + SkynetIADS.COVER_CHECK_MAST_M, z = p.z }
+			for j = 1, #childRadars do
+				local childRadar = childRadars[j]
+				if childRadar:isExist() then
+					local c = childRadar:getDCSRepresentation():getPosition().p
+					local to = { x = c.x, y = land.getHeight({ x = c.x, y = c.z }) + SkynetIADS.COVER_CHECK_HEIGHT_AGL_M, z = c.z }
+					if land.isVisible(from, to) then
+						return true
+					end
+				end
+			end
+		end
+	end
+	return false
+end
+
+function SkynetIADS:buildRadarAssociation(parent, child)
+	--chilren should only be SAM sites not EW radars, and only SAM Sites should have parent Radars
+	if ( getmetatable(child) == SkynetIADSSamSite ) and SkynetIADS.canSeeAboveSite(parent, child) then
+		parent:addChildRadar(child)
 		child:addParentRadar(parent)
 	end
 end
