@@ -2325,19 +2325,16 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   in the app's own process (`QtWebEngineProcess.exe` held under 100 MB), so the map's
   textures count against `python.exe`. The first fix (#1354) hid the map while the mission
   window was open; measured mid-mission, `python.exe` still held 3,981 MB, so it was
-  removed. The map now renders without the GPU: `qt_ui/softwarerender.py`
-  `apply_software_rendering`, called in `run_ui` before the `QApplication` exists, appends
-  `--disable-gpu --disable-gpu-compositing` to `QTWEBENGINE_CHROMIUM_FLAGS` and sets
-  `QT_QUICK_BACKEND=software`.
-  - Both are needed. The Chromium flags put page rendering and Chromium's compositor in
-    software. `QWebEngineView` is drawn through Qt Quick inside the widget, and Qt Quick's
-    default RHI backend (Direct3D 11 on Windows) would still hold GPU textures for it; the
-    software scene graph draws it into a plain image. Both are documented in Qt WebEngine's
-    *Features* page, *Hardware acceleration*.
-  - A user's own flags are kept and ours appended; a user's own `QT_QUICK_BACKEND` wins.
-    No setting: the map has no GPU-only feature (Leaflet draws with SVG and DOM tiles).
-  - The saving is unverified until the row's check after a restart of the app.
-  Tests: `tests/qt_ui/test_software_render.py`.
+  removed. #1356 then rendered the map in software (`--disable-gpu`, `QT_QUICK_BACKEND=software`);
+  panning crawled (and its first session had a one-off native crash at New Game), so it was reverted 2026-10-22.
+  The map is on the GPU again, and `qt_ui/widgets/map/mappanel.py` `MapPanel` destroys the
+  `QLiberationMap` web view (and its page) for the life of the mission window, showing a
+  note, then builds a new one when the window closes (`map_released` in `QTopPanel.launch_mission`).
+  - Whether destroying the view frees the VRAM is unverified: Chromium's GPU thread stays up in
+    the process. Row B267 measures it; if `python.exe` still holds GBs, the next step is a
+    software-rendering setting (needs an app restart, as the flags are read once).
+  - The rebuilt map may open at the campaign's starting view rather than where it was left.
+  Tests: `tests/qt_ui/test_map_panel.py`.
 
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
