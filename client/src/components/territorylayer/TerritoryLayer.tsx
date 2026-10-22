@@ -2,7 +2,7 @@ import { selectSectors, selectTerritory } from "../../api/territorySlice";
 import { useAppSelector } from "../../app/hooks";
 import { mapColors } from "../../theme/mapColors";
 import "./TerritoryLayer.css";
-import { divIcon, LatLngBounds } from "leaflet";
+import { divIcon, LatLngBounds, Map as LeafletMap } from "leaflet";
 import { useState } from "react";
 import {
   LayerGroup,
@@ -52,19 +52,29 @@ export function TerritoryLayer() {
 // Sector names are unreadable below this zoom; a thousand of them is clutter.
 const SECTOR_LABEL_MIN_ZOOM = 9;
 
+type MapView = { zoom: number; bounds: LatLngBounds };
+
+// A map page loaded with the game already in place renders before the map has a
+// center, and Leaflet throws on getBounds until it does (the map came back blank).
+function currentView(map: LeafletMap): MapView | null {
+  try {
+    return { zoom: map.getZoom(), bounds: map.getBounds() };
+  } catch {
+    return null;
+  }
+}
+
 // §111: the named sectors, about 10 NM across. Edges always; names only when
 // zoomed in, and only those on screen.
 export function SectorsLayer() {
   const sectors = useAppSelector(selectSectors);
   const map = useMap();
-  const [view, setView] = useState<{ zoom: number; bounds: LatLngBounds }>(
-    () => ({ zoom: map.getZoom(), bounds: map.getBounds() })
-  );
+  const [view, setView] = useState<MapView | null>(() => currentView(map));
   useMapEvents({
-    moveend: () => setView({ zoom: map.getZoom(), bounds: map.getBounds() }),
+    moveend: () => setView(currentView(map)),
   });
   const labels =
-    view.zoom >= SECTOR_LABEL_MIN_ZOOM
+    view !== null && view.zoom >= SECTOR_LABEL_MIN_ZOOM
       ? sectors.sectors.filter((sector) => view.bounds.contains(sector.position))
       : [];
   return (
