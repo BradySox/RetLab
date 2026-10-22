@@ -10,7 +10,7 @@ from game.missiongenerator.kneeboard.voicepages import (
     SkyEyeAwacsPage,
 )
 from game.radio.radios import MHz
-from game.retlab.voice_atc import AtcField
+from game.retlab.voice_atc import AtcField, station_name
 
 
 def test_abccc_page_writes_with_the_mission_names(tmp_path: Path) -> None:
@@ -61,8 +61,13 @@ def test_atc_card_lists_home_arrival_and_divert_with_presets(tmp_path: Path) -> 
         ("arrival", "Ramat David"),
         ("divert", "Akrotiri"),
     ]
-    assert page._station("Ground", home.ground) == "  Ground: COMM2 Ch 2, 130.600 AM"
-    assert page._station("Ground", divert.ground) == "  Ground: 133.700 AM"
+    assert (
+        page._station("Hatzerim Ground", home.ground)
+        == "  Hatzerim Ground: COMM2 Ch 2, 130.600 AM"
+    )
+    assert page._station("Akrotiri Ground", divert.ground) == (
+        "  Akrotiri Ground: 133.700 AM"
+    )
     out = tmp_path / "atc-full.png"
     page.write(out)
     assert out.stat().st_size > 0
@@ -72,3 +77,9 @@ def test_atc_card_lists_a_field_once() -> None:
     home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
     page = AtcPage("Ford 5-1", "4101", home, home, False, divert=home)
     assert [role for role, _ in page._fields()] == ["home"]
+
+
+def test_the_comm_card_and_the_atc_card_name_a_station_alike() -> None:
+    # The comm ladder, the ATC card and the in-mission text all read "Tel Nof Ground".
+    assert station_name("Tel Nof", "ground") == "Tel Nof Ground"
+    assert station_name("Tel Nof", "tower") == "Tel Nof Tower"

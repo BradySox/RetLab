@@ -11363,11 +11363,13 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   without its permission to hold position (user call, 2026-10-20).
 - **Presets and kneeboard:** a player jet's inter-flight presets carry the field's Ground and
   Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
-  presets keeps them). The comms ladder lists "<field> GROUND" and "<field> TOWER" with
+  presets keeps them). The comms ladder lists "<field> Ground" and "<field> Tower" with
   their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
   (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The card lists
   the home field, a different arrival and the divert, each Ground and Tower with its preset
-  channel ("Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset. The Mission Info
+  channel ("Tel Nof Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset.
+  Both cards name a station as ATC's own text does (`station_name`; the comms ladder said
+  "Tel Nof GROUND" until 2026-10-21). The Mission Info
   airfield table and the departure page's ATC box show "GND ... / TWR ..." with their preset
   channels in place of the DCS tower (`atc_lines`, user call 2026-10-21), for the departure,
   arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
@@ -11402,6 +11404,15 @@ position was called; both used to get "say again".
 
 "Say again" repeats the last call; "radio check" answers 5 by 5. A call to the wrong position
 gets "contact Ground/Tower <freq>". An unknown callsign gets "say again your callsign".
+A whole callsign matches first, then a flight alone, then a ship, so a non-Western
+"flight 1 2 3" is Flight 123-1 and never ship 3 of Flight 12 (pkgcontrol reads them the same
+way). A ship number is the unit's seat in its group (`Unit.getNumber`), not its place among
+the live units: a lone player in slot 2 is ship 2.
+
+**Respawn.** A player born again in the same slot starts a new sortie: that seat's pending
+readback and landing clearance clear, and when no other player is in the flight its state
+goes back to parked with every scolding unspent (fixed 2026-10-21; a second sortie used to
+get no bust calls and start mid-sequence).
 
 **Radio discipline.** ATC reads the shared **Radio discipline** setting (§121, default
 Strict) as `dcsRetribution.radioDiscipline` and passes it to SkyEye in the `atc` message.
@@ -11426,7 +11437,10 @@ about 6 kt before a taxi clearance ("not cleared for taxi"), a takeoff without c
 landing without clearance.
 
 **F10 menu.** "ATC" per player group makes the same requests (user call, 2026-10-20). A menu
-readback is always complete. Without LuaSocket the menu is the only way in and the replies
+readback is always complete. A group menu cannot tell which ship pressed it, so the top items
+speak for the one player aboard, else the lead, and each wingman seat has a "Ship N" submenu
+with the same items (7 calls and 3 submenus fill F1-F10 on a 4-ship). Until 2026-10-21 every
+menu call was ship 1. Without LuaSocket the menu is the only way in and the replies
 are text only.
 
 **Voice.** SkyEye hears the calls and speaks the replies over the §117 mission link: an `atc`
