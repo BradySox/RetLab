@@ -247,7 +247,15 @@ local function announce(_, now)
         end
         table.insert(list, { { "name", f.name }, { "positions", positions } })
     end
-    send({ { "type", "atc" }, { "fields", list }, { "discipline", DISCIPLINE } })
+    -- SkyEye only puts these in its speech recognizer's prompt.
+    local callsigns, seen = {}, {}
+    for _, flight in ipairs(flights) do
+        if not seen[flight.key] then
+            seen[flight.key] = true
+            table.insert(callsigns, tostring(flight.callsign))
+        end
+    end
+    send({ { "type", "atc" }, { "fields", list }, { "discipline", DISCIPLINE }, { "callsigns", callsigns } })
     return now + ANNOUNCE_SECONDS
 end
 

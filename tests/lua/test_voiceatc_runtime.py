@@ -294,6 +294,14 @@ def test_the_discipline_goes_to_skyeye() -> None:
     h.assert_no_lua_errors()
 
 
+def test_skyeye_is_told_the_player_flight_callsigns() -> None:
+    h = _harness()
+    h.advance_to(2)
+    atc = [m for m in _sent(h) if m["type"] == "atc"][0]
+    assert atc["callsigns"] == ["Viper 1-1"]
+    h.assert_no_lua_errors()
+
+
 def test_a_call_to_the_wrong_position_is_sent_to_the_right_one() -> None:
     h = _harness()
     _call(h, "taxi", TOWER)

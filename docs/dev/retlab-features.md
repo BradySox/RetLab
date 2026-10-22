@@ -11430,7 +11430,8 @@ readback is always complete. Without LuaSocket the menu is the only way in and t
 are text only.
 
 **Voice.** SkyEye hears the calls and speaks the replies over the §117 mission link: an `atc`
-message lists each field's positions and frequencies; SkyEye parses every call heard on one
+message lists each field's positions and frequencies and the player flight callsigns
+(`callsigns`, which SkyEye puts in its speech recognizer's prompt); SkyEye parses every call heard on one
 as an ATC call and sends an `atcRequest` (kind, callsign, numbers heard, text); the plugin
 answers with `say` messages carrying separate `speech` ("squawk four one zero one") so Piper
 does not read numbers as amounts. Ground and Tower each get their own voice from the blue
