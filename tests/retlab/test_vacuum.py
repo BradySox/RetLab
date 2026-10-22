@@ -108,3 +108,44 @@ def test_one_vacuum_a_turn() -> None:
     ]
     assert has_vacuum(SimpleNamespace(packages=ato))  # type: ignore[arg-type]
     assert plan_vacuum(_coalition(ato)) is None
+
+
+def test_the_lua_names_each_player_flight_with_its_package_target() -> None:
+    from game.missiongenerator.luagenerator import LuaData
+    from game.radio.radios import MHz
+    from game.retlab.vacuum import populate_vacuum_lua
+
+    target = SimpleNamespace(position=SimpleNamespace(x=1000.0, y=2000.0))
+    package = SimpleNamespace(target=target)
+
+    def flight(group: str, task: FlightType, client: bool) -> Any:
+        return SimpleNamespace(
+            package=package,
+            group_name=group,
+            callsign=group + " 9",
+            flight_type=task,
+            client_units=[object()] if client else [],
+            friendly=Player.BLUE,
+            waypoints=[],
+            squadron=SimpleNamespace(country=SimpleNamespace(name="USA")),
+        )
+
+    vacuum = flight("Vacuum", FlightType.ELINT, False)
+    ford, ai = flight("Ford", FlightType.SEAD, True), flight(
+        "Dodge", FlightType.SEAD, False
+    )
+    mission_data = SimpleNamespace(
+        flights=[vacuum, ford, ai],
+        packages={1: [ford, ai]},
+        vacuum_frequency=MHz(262),
+        strike_frequency=None,
+        skyeye_voices=[],
+    )
+    game = SimpleNamespace(theater=SimpleNamespace(controlpoints=[]))
+    root = LuaData("dcsRetribution")
+    populate_vacuum_lua(root, game, mission_data)  # type: ignore[arg-type]
+    text = root.serialize()
+    assert 'callsign = "Ford 9-1"' in text
+    assert 'group = "Ford"' in text
+    assert 'targetX = "1000.0"' in text and 'targetY = "2000.0"' in text
+    assert 'group = "Dodge"' not in text

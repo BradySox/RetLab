@@ -3,13 +3,15 @@
 The contract: while a Vacuum is alive and airborne, each red radar in range is called
 once each time it comes on, on Vacuum's own frequency, and on STRIKE too only when it
 covers a player package. A radar must stay off a minute to count as a new on-cycle.
-Nothing is said with no Vacuum airborne. How SkyEye says it is in-game only (B260).
+Nothing is said with no Vacuum airborne. A player's call that SkyEye passes on
+(check in, emitters, target status, mud, say again) is answered with a say line on
+the frequency it came in on. How SkyEye hears and says it is in-game only (B260).
 """
 
 from __future__ import annotations
 
 import json
-from typing import Any
+from typing import Any, Optional
 
 from tests.lua.harness import DcsPluginHarness
 
@@ -19,6 +21,7 @@ NM = 1852
 
 FAKE_SOCKET = """
 SENT = {}
+INBOX = {}
 package.preload["socket"] = function()
     return {
         udp = function()
@@ -27,6 +30,9 @@ package.preload["socket"] = function()
                 setsockname = function() end,
                 sendto = function(self, msg, host, port)
                     table.insert(SENT, { msg = msg, host = host, port = port })
+                end,
+                receivefrom = function(self)
+                    return table.remove(INBOX, 1)
                 end,
             }
         end,
@@ -65,6 +71,8 @@ def _harness(
     red: list[dict[str, Any]],
     airborne: bool = True,
     strike: bool = True,
+    flights: Optional[list[dict[str, Any]]] = None,
+    blue: Optional[list[dict[str, Any]]] = None,
 ) -> DcsPluginHarness:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_SOCKET)
@@ -77,12 +85,13 @@ def _harness(
         "rangeMeters": str(250 * NM),
         "groups": ["Vacuum"],
         "emitters": emitters,
+        "flights": flights or [],
     }
     if strike:
         node["strike"] = "264.500AM"
     h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, "vacuum": node})
     h.add_group(_group("Vacuum", BLUE, 0, airborne=airborne))
-    for spec in red:
+    for spec in red + (blue or []):
         h.add_group(spec)
     h.load_plugin_script(PLUGIN)
     return h
@@ -106,7 +115,12 @@ def test_a_radar_coming_on_is_called_once_on_vacuums_frequency() -> None:
     h = _harness([_emitter("SA-6", "Kub #1")], [_group("Kub", RED, 50 * NM)])
     h.advance_to(30)
     assert _sent(h, "tune") == [
-        {"type": "tune", "frequencies": ["262.000AM", "264.500AM"]}
+        {
+            "type": "tune",
+            "frequencies": ["262.000AM", "264.500AM"],
+            "callsign": "Vacuum",
+            "frequency": "262.000AM",
+        }
     ]
     assert _sent(h, "emitter") == []
     h.update_unit("Kub", {"radar": True})
@@ -238,4 +252,201 @@ def test_a_label_with_a_backslash_or_control_character_is_valid_json() -> None:
     h = _harness([_emitter(label, "Kub #1")], [_group("Kub", RED, 50 * NM, radar=True)])
     h.advance_to(60)
     assert [c["label"] for c in _sent(h, "emitter")] == [label]
+    h.assert_no_lua_errors()
+
+
+# --- Answers to players -----------------------------------------------------------------
+
+OWN = "262.000AM"
+STRIKE = "264.500AM"
+FORD = {
+    "group": "Ford",
+    "callsign": "Ford 9-1",
+    "targetX": str(60 * NM),
+    "targetY": "0",
+}
+BULLSEYE = (
+    "coalition.getMainRefPoint = function(side) "
+    "return { x = 0, y = 0, z = -20 * 1852 } end"
+)
+
+
+def _ford(x: float = 0, z: float = 0) -> dict[str, Any]:
+    return {
+        "name": "Ford",
+        "id": 99,
+        "side": BLUE,
+        "category": 0,
+        "units": [
+            {
+                "name": "Ford #1",
+                "type": "F-16C_50",
+                "x": x,
+                "z": z,
+                "airborne": True,
+                "playerName": "Ford 9-1 | Joe",
+            }
+        ],
+    }
+
+
+def _site(name: str, x: float, z: float, radar: bool = True) -> dict[str, Any]:
+    spec = _group(name, RED, x, radar=radar)
+    spec["units"][0]["z"] = z
+    return spec
+
+
+def _commands(
+    sites: list[dict[str, Any]],
+    emitters: list[dict[str, Any]],
+    flights: Optional[list[dict[str, Any]]] = None,
+    airborne: bool = True,
+) -> DcsPluginHarness:
+    h = _harness(
+        emitters, sites, airborne=airborne, flights=flights or [FORD], blue=[_ford()]
+    )
+    h.lua.execute(BULLSEYE)
+    h.advance_to(5)
+    return h
+
+
+def _ask(
+    h: DcsPluginHarness,
+    kind: str,
+    callsign: str = "ford 9",
+    frequency: str = OWN,
+    bearing: str = "",
+) -> list[dict[str, Any]]:
+    before = len(_sent(h, "say"))
+    request = {
+        "type": "elintRequest",
+        "kind": kind,
+        "callsign": callsign,
+        "speaker": "vacuum",
+        "frequency": frequency,
+    }
+    if bearing:
+        request["bearing"] = bearing
+    h.lua.globals().INBOX[1] = json.dumps(request)
+    h.advance_to(h.lua.eval("timer.getTime()") + 2)
+    h.assert_no_lua_errors()
+    return _sent(h, "say")[before:]
+
+
+# A Kub due north 50 NM, a Buk due east 30 NM, both radiating, and a dark Osa.
+SITES = [
+    _site("Kub", 50 * NM, 0),
+    _site("Buk", 0, 30 * NM),
+    _site("Osa", 0, -10 * NM, radar=False),
+]
+EMITTERS = [
+    {**_emitter("SA-6", "Kub #1"), "reach": str(int(13 * NM))},
+    {**_emitter("SA-11", "Buk #1"), "reach": str(int(19 * NM))},
+    {**_emitter("SA-8", "Osa #1"), "reach": str(int(6 * NM))},
+]
+
+
+def test_check_in_counts_the_radars_on_and_names_the_nearest() -> None:
+    h = _commands(SITES, EMITTERS)
+    [reply] = _ask(h, "checkin")
+    assert reply["frequency"] == OWN
+    assert reply["voice"] == "en_GB-alan-medium"
+    assert reply["text"] == (
+        "Ford 9, Vacuum, two emitters active, nearest SA-11, bullseye 090/50."
+    )
+    assert reply["speech"] == (
+        "Ford 9, Vacuum, two emitters active, nearest S-A-11, bullseye 0 9 0, 50."
+    )
+
+
+def test_emitters_are_bearing_and_range_from_the_caller_nearest_first() -> None:
+    h = _commands(SITES, EMITTERS)
+    [reply] = _ask(h, "emitters")
+    assert reply["text"] == "Ford 9, Vacuum, SA-11 090, 30; SA-6 360, 50."
+    assert reply["speech"] == "Ford 9, Vacuum, S-A-11 0 9 0, 30; S-A-6 3 6 0, 50."
+
+
+def test_no_radar_on_is_blank() -> None:
+    h = _commands([_site("Kub", 50 * NM, 0, radar=False)], EMITTERS[:1])
+    assert [r["text"] for r in _ask(h, "emitters")] == ["Ford 9, Vacuum, blank."]
+    assert [r["text"] for r in _ask(h, "checkin")] == ["Ford 9, Vacuum, blank."]
+
+
+def test_target_status_names_radars_on_around_the_package_target() -> None:
+    h = _commands(SITES, EMITTERS)
+    # The target is 60 NM north: the Kub 10 NM from it is inside its 13 NM ring.
+    [reply] = _ask(h, "target")
+    assert reply["text"] == (
+        "Ford 9, Vacuum, target area, SA-6 active, bullseye 022/54."
+    )
+    h.update_unit("Kub", {"radar": False})
+    assert [r["text"] for r in _ask(h, "target")] == [
+        "Ford 9, Vacuum, target area blank."
+    ]
+
+
+def test_mud_names_the_radar_on_that_bearing() -> None:
+    h = _commands(SITES, EMITTERS)
+    assert [r["text"] for r in _ask(h, "mud", bearing="080")] == [
+        "Ford 9, Vacuum, mud 080 is SA-11, bullseye 090/50."
+    ]
+    assert [r["speech"] for r in _ask(h, "mud", bearing="005")] == [
+        "Ford 9, Vacuum, mud 0 0 5 is S-A-6, bullseye 0 2 2, 54."
+    ]
+    # The Osa is at 270 but dark; nothing else is within 15 degrees.
+    assert [r["text"] for r in _ask(h, "mud", bearing="270")] == [
+        "Ford 9, Vacuum, no emitter 270."
+    ]
+    assert [r["text"] for r in _ask(h, "mud")] == ["Ford 9, Vacuum, say mud bearing."]
+
+
+def test_say_again_repeats_the_last_reply_then_the_last_call() -> None:
+    h = _commands(SITES, EMITTERS)
+    first = _ask(h, "emitters")
+    assert [r["text"] for r in _ask(h, "sayagain")] == [first[0]["text"]]
+    # Another seat that has asked nothing hears the last unprompted call.
+    h2 = _commands(SITES, EMITTERS)
+    h2.advance_to(40)
+    said = [r["text"] for r in _ask(h2, "sayagain", callsign="ford 9 2")]
+    assert len(said) == 1 and ", new emitter, SA-" in said[0]
+
+
+def test_a_call_on_strike_is_answered_on_strike() -> None:
+    h = _commands(SITES, EMITTERS)
+    [reply] = _ask(h, "checkin", frequency=STRIKE)
+    assert reply["frequency"] == STRIKE
+
+
+def test_an_unknown_caller_is_asked_for_a_callsign() -> None:
+    h = _commands(SITES, EMITTERS)
+    assert [r["text"] for r in _ask(h, "emitters", callsign="dodge 3")] == [
+        "Station calling Vacuum, say again your callsign."
+    ]
+    assert [r["text"] for r in _ask(h, "unknown")] == ["Ford 9, Vacuum, say again."]
+
+
+def test_a_viper_seat_is_named_as_said() -> None:
+    h = _commands(SITES, EMITTERS, flights=[{**FORD, "callsign": "Viper 1-1"}])
+    [reply] = _ask(h, "emitters", callsign="viper 1 1")
+    assert reply["text"].startswith("Viper 1-1, Vacuum, ")
+    assert reply["speech"].startswith("Viper 1 1, Vacuum, ")
+
+
+def test_no_answer_with_no_vacuum_airborne() -> None:
+    h = _commands(SITES, EMITTERS, airborne=False)
+    assert _ask(h, "emitters") == []
+
+
+def test_a_socket_without_receivefrom_is_harmless() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_SOCKET.replace("receivefrom", "unused"))
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {
+            "plugins": {},
+            "vacuum": {"callsign": "Vacuum", "frequency": OWN, "groups": ["Vacuum"]},
+        }
+    )
+    h.add_group(_group("Vacuum", BLUE, 0, airborne=True))
+    h.load_plugin_script(PLUGIN)
+    h.advance_to(120)
     h.assert_no_lua_errors()

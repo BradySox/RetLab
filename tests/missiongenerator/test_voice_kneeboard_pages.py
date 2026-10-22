@@ -1,4 +1,4 @@
-"""The ABCCC, SkyEye AWACS and ATC kneeboard pages (§116, §117, §119) render."""
+"""The ABCCC, SkyEye AWACS, Vacuum and ATC kneeboard pages (§116-§119) render."""
 
 from __future__ import annotations
 
@@ -8,7 +8,10 @@ from game.missiongenerator.kneeboard.voicepages import (
     AbcccPage,
     AtcPage,
     SkyEyeAwacsPage,
+    VACUUM_TASKS,
+    VacuumPage,
 )
+from game.ato.flighttype import FlightType
 from game.radio.radios import MHz
 from game.retlab.voice_atc import AtcField, station_name
 
@@ -83,3 +86,36 @@ def test_the_comm_card_and_the_atc_card_name_a_station_alike() -> None:
     # The comm ladder, the ATC card and the in-mission text all read "Tel Nof Ground".
     assert station_name("Tel Nof", "ground") == "Tel Nof Ground"
     assert station_name("Tel Nof", "tower") == "Tel Nof Tower"
+
+
+def test_vacuum_card_teaches_the_five_calls_and_the_dark_sam(tmp_path: Path) -> None:
+    out = tmp_path / "vacuum.png"
+    VacuumPage(MHz(262), MHz(264, 500), "Ford 9-1", False, casual=True).write(out)
+    assert out.stat().st_size > 0
+    text = out.with_suffix(".txt").read_text("utf8")
+    for expected in (
+        "Vacuum: 262.000 AM",
+        "Also on STRIKE 264.500 AM",
+        '"Vacuum, Ford 9-1, checking in."',
+        '"Vacuum, Ford 9-1, say emitters."',
+        '"Vacuum, Ford 9-1, request target status."',
+        '"Vacuum, Ford 9-1, mud 270."',
+        '"Vacuum, Ford 9-1, say again."',
+        "SA-6",
+        "early warning radar",
+        "Casual radio discipline",
+        "invisible to Vacuum",
+    ):
+        assert expected in text, expected
+    assert "repeat" not in text.lower().replace("it repeats", "")
+
+
+def test_vacuum_card_without_strike_or_casual(tmp_path: Path) -> None:
+    out = tmp_path / "vacuum.png"
+    VacuumPage(MHz(262), None, "Ford 9-1", True).write(out)
+    text = out.with_suffix(".txt").read_text("utf8")
+    assert "STRIKE" not in text and "Casual" not in text
+
+
+def test_only_sead_escort_and_dead_get_the_vacuum_card() -> None:
+    assert VACUUM_TASKS == {FlightType.SEAD, FlightType.SEAD_ESCORT, FlightType.DEAD}
