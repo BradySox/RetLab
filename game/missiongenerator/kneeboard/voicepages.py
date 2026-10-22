@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from game.radio.radios import RadioFrequency
-from game.retlab.voice_atc import AtcField
+from game.retlab.voice_atc import AtcField, station_name
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
 
@@ -254,7 +254,7 @@ class AtcPage(KneeboardPage):
         self.dark_kneeboard = dark_kneeboard
 
     def _station(self, name: str, frequency: RadioFrequency) -> str:
-        """``Ground: COMM2 Ch 2, 130.600 AM``, or the frequency alone when it is not preset."""
+        """``Tel Nof Ground: COMM2 Ch 2, 130.600 AM``, or the frequency alone when not preset."""
         channel = self.preset(frequency)
         return f"  {name}: {channel + ', ' if channel else ''}{_freq(frequency)}"
 
@@ -277,8 +277,12 @@ class AtcPage(KneeboardPage):
         w.title("Talking to ATC")
         for role, f in self._fields():
             w.text(f"{f.name} ({role}), runway {f.runway}", fill=w.col_nav)
-            w.text(self._station("Ground", f.ground), fill=w.col_nav)
-            w.text(self._station("Tower", f.tower), fill=w.col_nav)
+            w.text(
+                self._station(station_name(f.name, "ground"), f.ground), fill=w.col_nav
+            )
+            w.text(
+                self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
+            )
         w.text(f"Your squawk: {self.squawk}", fill=w.col_nav)
         _lines(
             w,

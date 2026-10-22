@@ -35,7 +35,11 @@ from game.retlab.package_control import (
     strike_comm_name,
 )
 from game.retlab.vacuum import has_vacuum, vacuum_comm_name
-from game.retlab.voice_atc import allocate_atc_frequencies, voice_atc_plan
+from game.retlab.voice_atc import (
+    allocate_atc_frequencies,
+    station_name,
+    voice_atc_plan,
+)
 from game.retlab.voiceawacs import voice_awacs_for
 from game.theater import Airfield, NavalControlPoint
 from game.theater.bullseye import Bullseye
@@ -584,8 +588,8 @@ class MissionGenerator:
             if mission_data.vacuum_frequency is not None:
                 gen.add_comm(vacuum_comm_name(), mission_data.vacuum_frequency)
             for field_name, (ground, tower) in mission_data.atc_frequencies.items():
-                gen.add_comm(f"{field_name} GROUND", ground)
-                gen.add_comm(f"{field_name} TOWER", tower)
+                gen.add_comm(station_name(field_name, "ground"), ground)
+                gen.add_comm(station_name(field_name, "tower"), tower)
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 

@@ -528,3 +528,90 @@ def test_startup_and_airborne_get_a_short_answer_not_say_again() -> None:
         "Viper 1-1, frequency change approved.",
     ]
     h.assert_no_lua_errors()
+
+
+def test_a_respawn_in_the_same_slot_is_a_new_sortie() -> None:
+    h = _harness()
+    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+    h.advance_to(4)
+    _event(h, 3)
+    h.update_unit("Viper", {"airborne": False, "velocity": {"x": 0, "y": 0, "z": 0}})
+    _event(h, 4)
+    h.advance_to(6)
+    first = list(_texts(h))
+    assert first[0] == "Viper 1-1, not cleared for taxi."
+    _event(h, 15)
+    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+    h.advance_to(10)
+    assert _texts(h)[len(first) :] == ["Viper 1-1, not cleared for taxi."]
+    h.assert_no_lua_errors()
+
+
+def test_a_wingman_respawn_leaves_the_flight_sequence_alone() -> None:
+    h = _harness(ships=2)
+    _call(h, "taxi")
+    h.advance_to(2)
+    _event(h, 15, ship=2)
+    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+    h.advance_to(6)
+    assert "Viper 1-1, not cleared for taxi." not in _texts(h)
+    h.assert_no_lua_errors()
+
+
+def _menu_items(h: DcsPluginHarness, label: str) -> list[Any]:
+    menus = h.lua.globals().DcsHarness.records.menus
+    return [menus[i] for i in range(1, len(menus) + 1) if menus[i].path == label]
+
+
+def test_the_f10_menu_speaks_for_a_lone_wingman() -> None:
+    h = _harness(ships=2)
+    h.lua.execute("Group.getByName('Viper'):getUnit(1).playerName = nil")
+    item = _menu_items(h, "Ground: request taxi")[0]
+    item.fn(item.arg)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-2, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0."
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_ship_submenu_speaks_for_that_seat() -> None:
+    h = _harness(airborne=True, x=4 * NM, ships=2)
+    paths = [m["path"] for m in h.records("menus")]
+    assert "Ship 2" in paths and "Ship 3" not in paths
+    lead, ship2 = _menu_items(h, "Tower: 5 miles, full stop")
+    lead.fn(lead.arg)
+    ship2.fn(ship2.arg)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, runway 25, cleared to land.",
+        "Viper 1-2, runway 25, cleared to land.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_three_digit_flight_number_is_its_own_flight() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    h.lua.execute(FAKE_SOCKET)
+    config = _config()
+    lead = dict(config["voiceAtc"]["flights"][0])
+    config["voiceAtc"]["flights"] = [
+        dict(lead, group="Short", callsign="Flight 12-1"),
+        dict(lead, group="Long", callsign="Flight 123-1", squawk="4102"),
+    ]
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
+    h.load_plugin_script(PLUGIN)
+    _call(h, "radiocheck", callsign="flight 1 2 3")
+    _call(h, "radiocheck", callsign="flight 1 2 3 2")
+    _call(h, "radiocheck", callsign="flight 1 2 3 1")
+    _call(h, "radiocheck", callsign="flight 1 2 2")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Flight 123-1, Kobuleti Ground, read you 5 by 5.",
+        "Flight 123-2, Kobuleti Ground, read you 5 by 5.",
+        "Flight 123-1, Kobuleti Ground, read you 5 by 5.",
+        "Flight 12-2, Kobuleti Ground, read you 5 by 5.",
+    ]
+    assert _said(h)[0]["speech"].startswith("Flight one two three one,")
+    h.assert_no_lua_errors()

@@ -542,3 +542,15 @@ def test_a_seat_callsign_finds_its_flight_on_strict() -> None:
     _request(h, "pushtime", callsign="ford 6 1")
     h.advance_to(2)
     assert _texts(h) == []
+
+
+def test_a_three_digit_flight_number_finds_its_flight() -> None:
+    # Non-Western callsigns are "Flight 123-1"; "flight 1 2 3" is that flight's lead.
+    flight = _flight("Ford", client=True)
+    flight["callsign"] = "Flight 123-1"
+    for heard in ("flight 1 2 3 1", "flight 1 2 3", "flight 1 2 3 2"):
+        h = _harness([flight], [_group("Ford")])
+        _request(h, "pushtime", callsign=heard)
+        h.advance_to(2)
+        assert _texts(h) == ["Flight 123 1, Anvil, push time 14 10."], heard
+        h.assert_no_lua_errors()

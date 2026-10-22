@@ -277,6 +277,15 @@ local function liveUnits(groupName)
     return alive
 end
 
+-- The unit's seat in its group, which does not shift when another ship dies or, in
+-- multiplayer, when an empty client slot has no unit: live index 1 can be ship 2.
+local function shipNumber(u, index)
+    local ok, number = pcall(function()
+        return u:getNumber()
+    end)
+    return ok and tonumber(number) or index
+end
+
 local function playerUnits(flight)
     local out = {}
     for index, u in ipairs(liveUnits(flight.group)) do
@@ -284,7 +293,7 @@ local function playerUnits(flight)
             return u:getPlayerName()
         end)
         if ok and name and name ~= "" then
-            table.insert(out, { unit = u, member = index })
+            table.insert(out, { unit = u, member = shipNumber(u, index) })
         end
     end
     return out
@@ -292,16 +301,25 @@ end
 
 -- The flight and ship number a heard callsign is: "viper 1 1" is the lead, "viper 1 2" ship 2.
 -- The flight callsign alone, "viper 1", is the lead: the AWACS and ABCCC cards teach it.
+-- Whole callsigns, then a flight alone, then a ship: "flight 123" is Flight 123-1, never
+-- ship 3 of Flight 12, as pkgcontrol's findCaller reads them.
 local function findFlight(callsign)
     local key = normalize(callsign or "")
     if key == "" then
         return nil, nil
     end
     for _, flight in ipairs(flights) do
-        if key == flight.key or key == flight.prefix then
+        if key == flight.key then
             return flight, 1
         end
-        local member = tonumber(key:sub(-1))
+    end
+    for _, flight in ipairs(flights) do
+        if key == flight.prefix then
+            return flight, 1
+        end
+    end
+    local member = tonumber(key:sub(-1))
+    for _, flight in ipairs(flights) do
         if member and key:sub(1, -2) == flight.prefix then
             return flight, member
         end
@@ -320,7 +338,7 @@ local function memberOf(flight, unit)
     local name = unit:getName()
     for index, u in ipairs(liveUnits(flight.group)) do
         if u:getName() == name then
-            return index
+            return shipNumber(u, index)
         end
     end
     return 1
@@ -576,7 +594,12 @@ local function distanceNm(unit, field)
 end
 
 local function memberUnit(flight, member)
-    return liveUnits(flight.group)[member]
+    for index, u in ipairs(liveUnits(flight.group)) do
+        if shipNumber(u, index) == member then
+            return u
+        end
+    end
+    return nil
 end
 
 local function inbound(field, flight, member, detail, on)
@@ -688,7 +711,7 @@ local function guessFlight(field, callsign)
     if wanted ~= "" then
         for _, flight in ipairs(here) do
             local numbers = flight.key:gsub("%a", "")
-            if wanted == numbers then
+            if wanted == numbers or wanted == numbers:sub(1, -2) then
                 return flight, 1
             end
             if #wanted == #numbers and wanted:sub(1, -2) == numbers:sub(1, -2) then
@@ -780,9 +803,23 @@ end
 
 local menus = {}
 
+-- A group menu cannot tell who pressed it: the top items speak for the one player aboard,
+-- else the lead, and a "Ship N" submenu speaks for that seat.
+local function menuMember(flight, ship)
+    if ship then
+        return ship
+    end
+    local seats = playerUnits(flight)
+    if #seats == 1 then
+        return seats[1].member
+    end
+    return 1
+end
+
 -- Outbound calls go to the departure field, inbound calls to the arrival field.
 local function menuCall(arg)
     local flight, kind, detail = arg.flight, arg.kind, arg.detail
+    local member = menuMember(flight, arg.ship)
     local outbound = kind == "taxi" or kind == "ready"
     local field = fieldsByName[outbound and flight.departure or flight.arrival]
         or fieldsByName[flight.departure]
@@ -792,11 +829,11 @@ local function menuCall(arg)
     end
     if kind == "readback" then
         -- A readback by menu is complete: the strict check is for spoken readbacks.
-        flight.pending[1] = nil
+        flight.pending[member] = nil
         return
     end
     local position = kind == "taxi" and "ground" or "tower"
-    handleCall(field, position, flight, 1, kind, detail)
+    handleCall(field, position, flight, member, kind, detail)
 end
 
 local MENU = {
@@ -815,14 +852,47 @@ local function addMenu(flight)
         return
     end
     menus[g:getID()] = true
-    local root = missionCommands.addSubMenuForGroup(g:getID(), "ATC")
-    for _, item in ipairs(MENU) do
-        missionCommands.addCommandForGroup(g:getID(), item[1], root, menuCall, {
-            flight = flight,
-            kind = item[2],
-            detail = item[3],
-        })
+    local function addItems(parent, ship)
+        for _, item in ipairs(MENU) do
+            missionCommands.addCommandForGroup(g:getID(), item[1], parent, menuCall, {
+                flight = flight,
+                kind = item[2],
+                detail = item[3],
+                ship = ship,
+            })
+        end
     end
+    local root = missionCommands.addSubMenuForGroup(g:getID(), "ATC")
+    addItems(root, nil)
+    -- The slots, not the units: a client slot nobody has taken has no unit yet.
+    local ok, size = pcall(function()
+        return g:getInitialSize()
+    end)
+    size = ok and tonumber(size) or g:getSize()
+    -- 7 calls and 3 submenus fill F1-F10 for a 4-ship.
+    for ship = 2, math.min(size or 1, 4) do
+        addItems(missionCommands.addSubMenuForGroup(g:getID(), "Ship " .. ship, root), ship)
+    end
+end
+
+-- A respawn in the same slot is a new sortie: no clearance, no pending readback, no
+-- scolding spent. The flight's own state resets only when no other player is in it.
+local function newSortie(flight, unit)
+    local member = memberOf(flight, unit)
+    flight.pending[member] = nil
+    flight.landing[member] = nil
+    flight.scolded["land" .. member] = nil
+    local name = unit:getName()
+    for _, seat in ipairs(playerUnits(flight)) do
+        if seat.unit:getName() ~= name then
+            return
+        end
+    end
+    flight.state = "parked"
+    flight.pending = {}
+    flight.landing = {}
+    flight.scolded = {}
+    flight.lastCall = {}
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -908,6 +978,12 @@ function handler:onEvent(event)
         local flight = flightOfUnit(event.initiator)
         if flight then
             addMenu(flight)
+            local ok, player = pcall(function()
+                return event.initiator:getPlayerName()
+            end)
+            if ok and player and player ~= "" then
+                newSortie(flight, event.initiator)
+            end
         end
         return
     end

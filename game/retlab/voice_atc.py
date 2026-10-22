@@ -98,6 +98,11 @@ def frequency_text(frequency: RadioFrequency) -> str:
     return f"{frequency.mhz:.3f}{frequency.modulation.name}"
 
 
+def station_name(field_name: str, position: str) -> str:
+    """``Tel Nof Ground``: a field position as the comm card, the ATC card and ATC say it."""
+    return f"{field_name} {position.capitalize()}"
+
+
 def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:
     """``COMM2 Ch 2``: the preset a frequency sits on in this flight's jets, if any."""
     channels = flight.channels_for(frequency)
