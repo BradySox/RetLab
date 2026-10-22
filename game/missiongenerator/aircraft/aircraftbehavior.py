@@ -212,7 +212,9 @@ class AircraftBehavior:
         # DCS holds a lead slow and low until his flight is joined, 2-5 min for a
         # 4-ship (2026-10-17). A loose trail from takeoff counts as joined sooner;
         # the HOLD and JOIN points set the package formation after that.
-        if flight.is_helo or flight.count < 2:
+        # DCS never runs a human lead's later waypoint options, so a player
+        # flight's wingmen would keep this trail all mission (2026-10-21).
+        if flight.is_helo or flight.count < 2 or flight.client_count:
             return
         if not str(group.points[0].type).startswith("TakeOff"):
             return
