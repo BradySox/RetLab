@@ -20,6 +20,10 @@ up with a partial payload set instead of an error anyone would notice.
 This module installs a replacement that skips an unparseable file with a warning
 and keeps going, so one bad mod file costs that file's fits and nothing else.
 
+It also skips the user's ``MissionEditor/UnitPayloads`` folder, which pydcs
+searches ahead of the shipped payloads whether or not it is registered (features
+doc §73).
+
 ``patch_pydcs_payload_loader`` is idempotent and is called from
 ``persistency.setup`` (which every entry point -- the app, tools, and tests --
 goes through) as well as ``qt_ui.main``.
@@ -75,8 +79,11 @@ def patch_pydcs_payload_loader() -> None:
             return cls.payloads
         cls.payloads = {}
 
+        # pydcs yields the user's UnitPayloads even when it is not registered, ahead
+        # of the shipped fits, so a fit saved there replaced the preset (§73).
+        user_dir = PayloadDirectories.user()
         for payload_dir in PayloadDirectories.payload_dirs():
-            if not payload_dir.exists():
+            if payload_dir == user_dir or not payload_dir.exists():
                 continue
             for payload_path in payload_dir.glob("*.lua"):
                 lua_text: Optional[str] = None

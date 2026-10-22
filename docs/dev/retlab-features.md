@@ -7078,8 +7078,13 @@ buttons, `DcsPayload`, `QFlightPayloadTab.on_saved_payload`, and `tests/retlab/t
 fuel and properties defaults, and the files on disk: RetLab never deletes them, and the Mission
 Editor still reads them.
 
-**Constraint: RetLab does not register the user's `UnitPayloads` folder** (`qt_ui/main.py`
-sets only the fallback directory). Upstream registers it as preferred. Re-adding it brings back
+**Constraint: RetLab does not read the user's `UnitPayloads` folder.** `qt_ui/main.py` sets
+only the fallback directory, and upstream registers the folder as preferred. Not registering
+it was not enough: pydcs's `PayloadDirectories.payload_dirs` yields `user()` on its own, ahead
+of the fallback. So until 2026-10-21 a saved fit still shadowed the shipped preset by name (the
+DM's 2026-08-22 F-4E "Retribution DEAD" flew AGM-78B, a §71 mod store).
+`game/dcs/payloadpatch.py` now skips that folder in the loader. Covered by
+`tests/retlab/test_user_payload_folder_ignored.py`. Re-adding the folder brings back
 name-shadowing of every shipped preset; a planned flight would again take whatever the user
 once saved under that name.
 

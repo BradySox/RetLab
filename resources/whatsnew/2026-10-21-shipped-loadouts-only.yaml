@@ -1,0 +1,9 @@
+date: 2026-10-21
+title: Your saved loadouts no longer replace the presets
+change: >-
+  Loadouts you once saved in DCS's MissionEditor UnitPayloads folder no longer
+  replace RetLab's presets of the same name, so a flight no longer picks up old
+  or mod-only weapons from them. The Mission Editor still reads those files.
+watch: >-
+  A flight already planned keeps its loadout. Pick the preset again, or let the
+  next turn plan it.

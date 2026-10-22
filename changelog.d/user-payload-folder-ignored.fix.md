@@ -1,0 +1,1 @@
+* **[Loadouts]** A fit saved in your DCS `MissionEditor/UnitPayloads` folder no longer replaces a shipped preset of the same name. pydcs read that folder even after RetLab stopped registering it, so a saved F-4E "Retribution DEAD" put AGM-78B on planned flights.
