@@ -1961,7 +1961,8 @@ that code.
   to leave it; on 2026-10-17 the DM asked for an experiment.
   `AircraftBehavior.configure_takeoff_formation` gives every ground-start fixed-wing flight
   of two or more a loose trail at its takeoff point; HOLD and JOIN still set the package
-  formation. Unproven until flown (row B245). If it does nothing, remove it. Tests:
+  formation. A flight with a player seat gets no trail (2026-10-21): DCS never runs a human
+  lead's later waypoint options, so his wingmen kept the trail all mission. Unproven until flown (row B245). If it does nothing, remove it. Tests:
   `tests/missiongenerator/test_takeoff_formation.py`.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**

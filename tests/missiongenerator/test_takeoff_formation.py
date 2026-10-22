@@ -16,8 +16,8 @@ def _group(point_type: str) -> Any:
     return SimpleNamespace(points=[SimpleNamespace(type=point_type, tasks=[])])
 
 
-def _flight(count: int = 4, is_helo: bool = False) -> Any:
-    return SimpleNamespace(count=count, is_helo=is_helo)
+def _flight(count: int = 4, is_helo: bool = False, client_count: int = 0) -> Any:
+    return SimpleNamespace(count=count, is_helo=is_helo, client_count=client_count)
 
 
 def _formations(group: Any) -> list[dict[str, Any]]:
@@ -37,11 +37,12 @@ def test_ground_start_flight_gets_loose_trail() -> None:
         ]
 
 
-def test_air_start_single_ship_and_helo_are_left_alone() -> None:
+def test_air_start_single_ship_helo_and_player_flight_are_left_alone() -> None:
     cases = [
         (_flight(), _group("Turning Point")),
         (_flight(count=1), _group("TakeOffParkingHot")),
         (_flight(is_helo=True), _group("TakeOffParkingHot")),
+        (_flight(client_count=1), _group("TakeOffParkingHot")),
     ]
     for flight, group in cases:
         AircraftBehavior.configure_takeoff_formation(flight, group)
