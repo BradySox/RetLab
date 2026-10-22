@@ -258,3 +258,66 @@ def test_a_mobile_site_hiding_from_a_harm_can_still_drive() -> None:
     """)
     assert harness.lua.eval("aiAtMove") is True
     assert list(harness.lua.eval("log.emission").values()) == [False]
+
+
+# Test 63 (2026-10-21): a Box Spring 82 NM away, behind the Taurus, was the SA-11's only
+# cover. Skynet counted it by range alone, so the site waited dark all mission for a
+# track that radar never got.
+COVER = """
+lineOfSight = {}
+land.isVisible = function(from, to)
+    table.insert(lineOfSight, { from = from.y, to = to.y })
+    return not DcsHarness.losBlocked
+end
+
+local function radarAt(x, y, z)
+    local radar = {}
+    function radar:isExist() return true end
+    function radar:getDCSRepresentation()
+        return { getPosition = function() return { p = { x = x, y = y, z = z } } end }
+    end
+    return radar
+end
+
+function cover(parentClass)
+    local parent = setmetatable({}, parentClass)
+    parent.children = {}
+    function parent:getRadars() return { radarAt(0, 1157, 0) } end
+    function parent:addChildRadar(c) table.insert(self.children, c) end
+    local site = setmetatable({}, SkynetIADSSamSite)
+    site.parents = {}
+    function site:getRadars() return { radarAt(152000, 5, 0) } end
+    function site:addParentRadar(p) table.insert(self.parents, p) end
+    SkynetIADS.buildRadarAssociation(nil, parent, site)
+    return #parent.children + #site.parents
+end
+"""
+
+
+def _cover() -> DcsPluginHarness:
+    harness = _fixed()
+    harness.lua.execute(COVER)
+    return harness
+
+
+def test_a_ground_radar_that_sees_over_the_site_covers_it() -> None:
+    harness = _cover()
+    harness.lua.execute("DcsHarness.terrainHeight = 200")
+    assert harness.lua.eval("cover(SkynetIADSEWRadar)") == 2
+    sight = harness.lua.eval("lineOfSight[1]")
+    assert sight["from"] == 1167  # the radar plus its mast
+    assert sight["to"] == 3248  # 10,000 ft over the ground at the site
+
+
+def test_a_ground_radar_behind_terrain_leaves_the_site_to_fight_alone() -> None:
+    harness = _cover()
+    harness.lua.execute("DcsHarness.losBlocked = true")
+    assert harness.lua.eval("cover(SkynetIADSEWRadar)") == 0
+    assert harness.lua.eval("cover(SkynetIADSSamSite)") == 0
+
+
+def test_an_awacs_covers_by_range_alone() -> None:
+    harness = _cover()
+    harness.lua.execute("DcsHarness.losBlocked = true")
+    assert harness.lua.eval("cover(SkynetIADSAWACSRadar)") == 2
+    assert harness.lua.eval("#lineOfSight") == 0

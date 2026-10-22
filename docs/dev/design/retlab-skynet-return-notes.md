@@ -103,6 +103,24 @@ Not taken:
 - **Iron Dome and David's Sling** (`israel_2017`) have no Skynet profile in either build; the
   coverage test lists the ELM-2084 as a known gap.
 
+### Cover needs line of sight (2026-10-21, test 63)
+
+Skynet makes a SAM the child of any radar whose nominal range reaches it, ignoring terrain. A
+child SAM keeps its own radar off until a parent hands it a target. In test 63 the MUDSKIPPER
+SA-11 (Turkish south coast) had one parent: a Box Spring 82 NM away, north of the Taurus. The
+Box Spring's runtime range is about 108 NM (pydcs 300 km / 5^¼). It never tracked the package,
+so the SA-11 stayed dark with jets inside 16 NM at 10,000 to 23,000 ft for over a minute and
+never fired. Tests 59, 60 and 62 on the same build had normal SAM shots, so it is not a
+regression.
+
+Fix (Brady's call, line of sight over a distance cap): `buildRadarAssociation` links a ground
+parent (EWR, or a SAM acting as one) only if `land.isVisible` holds from the parent radar plus a
+10 m mast to a point 10,000 ft above the child's radar. Any parent radar to any child radar
+counts. An AWACS keeps range-only cover. A SAM left with no parent goes autonomous, which is
+plain DCS AI radiating from mission start (`AUTONOMOUS_STATE_DCS_AI`). In test 63's laydown that
+flips two red sites (MUDSKIPPER and the FAWN Rapier, both about 80 NM from a Box Spring); every
+other red SAM has a radar within 45 NM. Harness: `test_skynet_engine.py`. Row B270.
+
 ## 5. The config bridge — upstream's plus three additions
 
 Upstream's `skynetiads-config.lua` is kept whole. Three blocks are added, all harness-tested
