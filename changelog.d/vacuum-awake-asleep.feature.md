@@ -1,0 +1,1 @@
+* **[Mission Generation]** Vacuum calls each radar awake (on now) or asleep (found earlier, off now), with a tight fix (within about 1 NM) or a loose one (up to 15 NM off). The fix tightens the longer Vacuum hears the radar, added up across blinks.

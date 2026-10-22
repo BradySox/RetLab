@@ -1,0 +1,12 @@
+date: 2026-10-22
+title: Vacuum awake and asleep calls
+change: >-
+  Vacuum now remembers every radar it has found. "Vacuum, SA-6 awake,
+  bullseye 304/60, tight" means the SA-6 is on now and the spot is good to
+  about a mile. "Asleep" means it was found earlier and is off now.
+  "Loose" means the spot can be up to 15 miles off; it gets tighter the
+  longer Vacuum hears the radar, even when the radar only blinks. Fixed
+  SAM sites and sites you have hit start out asleep.
+watch: >-
+  A radar called loose is not where the bullseye says. Needs the latest
+  SkyEye.

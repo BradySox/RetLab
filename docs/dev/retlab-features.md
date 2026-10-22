@@ -11521,9 +11521,24 @@ and weapons-hold like the ABCCC (`configure_package_control`).
 
 While a Vacuum is **alive and airborne** the `vacuum` plugin watches every red ground radar
 within 250 NM of it (radar unit classes only; radar-laid guns are left out). A radar that
-comes on is called once: "Vacuum, new emitter, SA-6, bullseye 090, 25." It must stay off a
+comes on is called once: "Vacuum, SA-6 awake, bullseye 304, 60, loose." It must stay off a
 full minute before it counts as a new on-cycle, so a site Skynet blinks is one call.
 Calls are spaced 8 s apart.
+
+**Awake, asleep, tight, loose (2026-10-22, Brady's design).** Vacuum remembers every radar it
+has located for the whole mission, even after it lands. "Awake" is on now; "asleep" is
+located earlier and off now. Each fix has a real error, always off in the same direction for
+a site (a hash of its names), so repeat calls agree:
+
+- A first fix is off by 1 NM plus 1 NM per 10 NM from Vacuum, 15 NM at most.
+- It closes to the radar's spot after 20 s heard in total up close, 90 s at 150 NM or more.
+  Every 10 s poll a radar is on counts, across blinks: Skynet keeps radars dark most of the
+  time, so minutes of steady listening would never come.
+- Hearing it again from closer restarts a fix only when that is better. Asleep, a fix stays.
+- **Tight** is within 1 NM, **loose** anything wider. A loose radar that goes tight while on
+  is called once more, tight. Asleep radars are never called unprompted (Brady's pick).
+- Sites blue already knows (`known_fix`, fog intact) start asleep: a fixed SAM site tight,
+  any other known site loose at 10 NM. Unknown sites start unlocated.
 
 - **Own frequency:** every call, on a UHF channel allocated per mission and listed on the
   kneeboard comms as "VACUUM (ELINT)".
@@ -11543,22 +11558,25 @@ radar, the site's P-19 "(SA-2/3)". A site is now named by its fire-control radar
 (`site_radar`), and a shared "SA-2/3" search radar alone is "search radar".
 
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
-and one `emitter` message per call (label, lat/lon, frequencies) over the §117 mission link.
+and one `emitter` message per call (label, status, fix, lat/lon of the called spot,
+frequencies) over the §117 mission link. A SkyEye without `status` (before
+BradySox/skyeye#11) says the older "new emitter" call.
 SkyEye works out the bullseye from its own picture and magnetic variation, so the bearing
 matches its AWACS calls. Vacuum speaks in a voice from its squadron country's accent that
 neither the AWACS nor the ABCCC uses (`pick_another_voice`). Its unprompted calls are voice
 only.
 
 **Commands (2026-10-21).** Players call Vacuum callsign first, on its frequency or on STRIKE,
-and it answers on the frequency it was called on. The words are MUD, ACTIVE, BLANK and SAY
-AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
+and it answers on the frequency it was called on. The words are MUD, AWAKE, ASLEEP, TIGHT,
+LOOSE, BLANK and SAY AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
+Answers name every located radar still standing, awake ones first; mud names awake ones only.
 
 | Call | Answer |
 |---|---|
-| "Vacuum, Ford 9, checking in." | "Ford 9, Vacuum, three emitters active, nearest SA-6, bullseye 090/25." Every radar on within its 250 NM; nearest to the caller. |
-| "Vacuum, Ford 9, say emitters." | The 3 nearest radars on, magnetic bearing and NM from the caller: "SA-6 270, 35; SA-11 245, 50." None: "blank." |
-| "Vacuum, Ford 9, request target status." | Radars on within their threat ring or 15 NM of the package target: "target area, SA-6 active, bullseye 095/22." None: "target area blank." |
-| "Vacuum, Ford 9, mud 270." | The radar on nearest that bearing from the caller, within 15 degrees: "mud 270 is SA-6, bullseye 090/25." None: "no emitter 270." |
+| "Vacuum, Ford 9, checking in." | "Ford 9, Vacuum, two awake, one asleep, nearest SA-6 awake, bullseye 090/25, tight." The nearest awake radar, else the nearest asleep one. |
+| "Vacuum, Ford 9, say emitters." | The 3 nearest located radars, awake first, magnetic bearing and NM from the caller: "SA-6 awake 270, 35, tight; SA-11 asleep 245, 50, loose." None: "blank." |
+| "Vacuum, Ford 9, request target status." | Located radars within their threat ring or 15 NM of the package target: "target area, SA-6 awake, bullseye 095/22, loose." None: "target area blank." |
+| "Vacuum, Ford 9, mud 270." | The awake radar nearest that bearing from the caller, within 15 degrees: "mud 270 is SA-6 awake, bullseye 090/25, tight." None: "no emitter 270." |
 | "Vacuum, Ford 9, say again." | Its last answer to that seat, else its last call on that frequency. |
 
 - **SkyEye** (BradySox/skyeye#9) parses the calls apart from GCI and package calls, with
@@ -11577,7 +11595,8 @@ AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
   teaches the five calls in the natural form, the radar names, when Vacuum is silent, and
   that a SAM keeping its radar off is invisible to it.
 
-Built 2026-10-20. Not flown (row B260). Commands not flown (row B269).
+Built 2026-10-20. Not flown (row B260). Commands not flown (row B269). Awake and asleep not
+flown (row B272).
 
 ### Files
 

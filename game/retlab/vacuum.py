@@ -18,6 +18,8 @@ from typing import TYPE_CHECKING, Iterable, Optional
 from game.ato.flight import Flight
 from game.ato.flighttype import FlightType
 from game.data.units import UnitClass
+from game.theater.fogofwar import fog_intact
+from game.theater.player import Player
 from game.theater.theatergroundobject import NavalGroundObject
 from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
@@ -36,6 +38,7 @@ if TYPE_CHECKING:
     from game.missiongenerator.aircraft.flightdata import FlightData
     from game.missiongenerator.luagenerator import LuaData
     from game.missiongenerator.missiondata import MissionData
+    from game.theater.theatergroundobject import TheaterGroundObject
     from game.theater.theatergroup import TheaterGroup, TheaterUnit
 
 #: Turns with this many SEAD, SEAD Escort or DEAD flights get a Vacuum (user call,
@@ -176,6 +179,16 @@ def emitter_label(unit: TheaterUnit) -> str:
     return " ".join(words) or "radar"
 
 
+def known_fix(tgo: TheaterGroundObject) -> str:
+    """How well Vacuum knows a site before it hears it: a fixed SAM's spot is known before
+    the war ("tight"), a site blue has engaged roughly ("loose"), anything else not at all.
+    """
+    with fog_intact():
+        if not tgo.known_for(Player.BLUE):
+            return ""
+    return "tight" if tgo.is_fixed_sam_site else "loose"
+
+
 def site_radar(radars: list[TheaterUnit]) -> TheaterUnit:
     """The radar that names a site: the fire-control one, the longest-ranged on a tie."""
     return max(
@@ -286,6 +299,7 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
         for tgo in control_point.ground_objects:
             if isinstance(tgo, NavalGroundObject):
                 continue
+            known = known_fix(tgo)
             for group in tgo.groups:
                 radars = _radar_units(group)
                 if not radars:
@@ -299,3 +313,4 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
                 covers = reach > 0 and covers_route(position, reach, routes)
                 item.add_key_value("strike", "true" if covers else "")
                 item.add_key_value("reach", str(int(reach)))
+                item.add_key_value("known", known)
