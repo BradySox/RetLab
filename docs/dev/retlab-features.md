@@ -2314,25 +2314,25 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   a crash. PySide6 stays 6.8.3. Tests: `tests/qt_ui/test_main_thread_handoff.py`,
   `tests/qt_ui/test_fault_log.py`.
 
-- **The campaign map held 2.8 GB of video memory while DCS flew (2026-10-21; row B267).**
-  On a 16 GB card, the Retribution process (`python.exe`) held 2.8 GB of dedicated VRAM
-  next to DCS's 12 GB, and SkyEye's speech recognition ran short. QtWebEngine's GPU thread
-  runs in the app's own process, so the map's tiles count against `python.exe`. Take off now
-  hides the map behind a "map is paused" label (`MapPanel`, a `QStackedWidget` around
-  `QLiberationMap`, `qt_ui/widgets/map/mappanel.py`) for as long as the mission window is
-  open; `QTopPanel.launch_mission` wraps `exec_()` in `map_released`, so every way the window
-  closes (Accept results, Abort, the close button) shows the map again. A hidden view tells
-  Chromium the page is not visible, and Chromium frees its compositor tiles and decoded
-  images.
-  - Hidden, not discarded: `QWebEnginePage.LifecycleState.Discarded` reloads the page when set
-    back to Active, which loses the pan, zoom, open popups and the fog overview toggle. A
-    frozen page stops reading the event stream, and the socket's reconnect does not refetch
-    state, so a missed `new_turn` would leave the map a turn behind.
-  - The hidden page keeps running, so it takes the debrief's updates and comes back at the
-    same view.
-  - The saving is unmeasured until the row's Task Manager check. If it is small, discarding
-    with a client-side view restore is the next step.
-  Tests: `tests/qt_ui/test_map_panel.py`.
+- **The campaign map held ~4 GB of video memory while DCS flew (2026-10-21; row B267).**
+  On a 16 GB card, the Retribution process (`python.exe`) held 2.8 to 4 GB of dedicated
+  VRAM next to DCS, and SkyEye's speech recognition ran short. QtWebEngine's GPU thread runs
+  in the app's own process (`QtWebEngineProcess.exe` held under 100 MB), so the map's
+  textures count against `python.exe`. The first fix (#1354) hid the map while the mission
+  window was open; measured mid-mission, `python.exe` still held 3,981 MB, so it was
+  removed. The map now renders without the GPU: `qt_ui/softwarerender.py`
+  `apply_software_rendering`, called in `run_ui` before the `QApplication` exists, appends
+  `--disable-gpu --disable-gpu-compositing` to `QTWEBENGINE_CHROMIUM_FLAGS` and sets
+  `QT_QUICK_BACKEND=software`.
+  - Both are needed. The Chromium flags put page rendering and Chromium's compositor in
+    software. `QWebEngineView` is drawn through Qt Quick inside the widget, and Qt Quick's
+    default RHI backend (Direct3D 11 on Windows) would still hold GPU textures for it; the
+    software scene graph draws it into a plain image. Both are documented in Qt WebEngine's
+    *Features* page, *Hardware acceleration*.
+  - A user's own flags are kept and ours appended; a user's own `QT_QUICK_BACKEND` wins.
+    No setting: the map has no GPU-only feature (Leaflet draws with SVG and DOM tiles).
+  - The saving is unverified until the row's check after a restart of the app.
+  Tests: `tests/qt_ui/test_software_render.py`.
 
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
