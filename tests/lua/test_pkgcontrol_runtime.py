@@ -665,3 +665,22 @@ def test_skyeye_is_told_which_player_flies_which_seat() -> None:
         {"name": "Flash", "callsign": "Ford 9"},
     ]
     h.assert_no_lua_errors()
+
+
+def test_a_late_activated_flight_not_yet_active_is_not_airborne() -> None:
+    # Test 63: an inactive late-activation unit reads isExist and inAir true.
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Weasel", role="sead")],
+        [_group("Colt"), _group("Weasel")],
+    )
+    h.lua.execute(
+        "Group.getByName('Weasel'):getUnit(1).isActive = function() return false end"
+    )
+    h.advance_to(PUSH + 10)
+    assert _texts(h) == [
+        "Colt package, Anvil, hold, hold. SEAD not airborne. New push time 1413."
+    ]
+    h.lua.execute("Group.getByName('Weasel'):getUnit(1).isActive = nil")
+    h.advance_to(PUSH + 190)
+    assert _texts(h)[-1] == "Colt package, Anvil, push."
+    h.assert_no_lua_errors()

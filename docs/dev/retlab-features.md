@@ -11239,6 +11239,10 @@ every blue player flight (`players`: group, lead seat), and the plugin sends Sky
 flight alone for its lead, so the AWACS finds "Ford 9-1" when the player is "Flash". Not
 flown (row B271).
 
+**Fixed 2026-10-21 (Test 63): an inactive late-activated flight read as airborne.** A
+late-activation unit not yet activated reads `isExist` and `inAir` true, so `airborneUnit`
+now also needs `isActive()`; a SEAD waiting for activation now holds the push.
+
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
 

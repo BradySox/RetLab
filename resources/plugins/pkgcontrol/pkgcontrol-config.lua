@@ -59,9 +59,18 @@ local function liveUnits(groupName)
     return alive
 end
 
+-- A late-activated unit not yet activated reads isExist and inAir true (Test 63), so it must
+-- also be active.
+local function isActive(u)
+    local ok, active = pcall(function()
+        return u:isActive()
+    end)
+    return not ok or active ~= false
+end
+
 local function airborneUnit(groupName)
     for _, u in ipairs(liveUnits(groupName)) do
-        if u:inAir() then
+        if u:inAir() and isActive(u) then
             return u
         end
     end
