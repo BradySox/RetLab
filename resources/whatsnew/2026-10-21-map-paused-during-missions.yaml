@@ -1,0 +1,10 @@
+date: 2026-10-21
+title: The map steps aside while you fly
+change: >-
+  After Take off, the campaign map is hidden behind a "map is paused" note
+  until the mission window closes. Its video memory goes to DCS and the
+  voice bots. The map comes back where you left it, with the debrief
+  already on it.
+watch: >-
+  The map stays paused for as long as the mission window is open, even
+  after the mission ends, until you accept or abort.
