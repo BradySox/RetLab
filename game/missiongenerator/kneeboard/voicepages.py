@@ -122,7 +122,7 @@ class AbcccPage(KneeboardPage):
             w,
             [
                 "Key the radio on STRIKE. Say THEIR name, then YOUR name, then the call.",
-                f'"{c}, {me}, check in."',
+                f'"{c}, {me}, checking in."  (or "with you", "on station")',
                 f'"{c}, {me}, ready to push."',
                 f'"{c}, {me}, say push time."',
                 "No voice? F10 menu > Package control > Check in does the same.",
@@ -133,9 +133,9 @@ class AbcccPage(KneeboardPage):
         _lines(
             w,
             [
-                '"Radar contact ... angels 20, push time 14 32": go to your HOLD '
+                '"Radar contact ... angels 20, push time 1432": go to your HOLD '
                 "point at that altitude and wait.",
-                '"All players, check in" (3 min before push): answer with your '
+                '"... package, check in" (3 min before push): answer with your '
                 f'name and "ready", e.g. "{c}, {me}, ready".',
                 '"Push": leave the HOLD now for the target.',
                 '"Hold, hold ... new push time": stay at the HOLD; SEAD or escort '
@@ -190,8 +190,8 @@ class SkyEyeAwacsPage(KneeboardPage):
             [
                 f"{a} is a voice AWACS (SkyEye). It sees the air picture and answers "
                 "when you talk to it.",
-                f"Call yourself by your callsign and seat, {me}. Start your DCS "
-                f"player name with it ('{me} | Joe'): that is how it finds your jet.",
+                f"Call yourself by your callsign and seat, {me}: the mission tells "
+                f"{a} which jet that is.",
             ],
         )
         w.rule()
@@ -200,6 +200,7 @@ class SkyEyeAwacsPage(KneeboardPage):
             w,
             [
                 f'"{a}, {me}, radio check."   Can it hear you?',
+                f'"{a}, {me}, checking in."   (or "with you", "on station")',
                 f'"{a}, {me}, picture."   Where are the bandits?',
                 f'"{a}, {me}, bogey dope."   Nearest threat to you.',
                 f'"{a}, {me}, declare 090 20 15 thousand."   Is that contact '
@@ -289,8 +290,9 @@ class AtcPage(KneeboardPage):
             w,
             [
                 "Say the station, then YOUR name, then the request. Read back what "
-                "ATC gives you, then your name.",
-                '"Readback incomplete" means say the missing part again.',
+                "ATC gives you, then your name (your name first works too).",
+                '"Readback incomplete" means say the missing part again; "read '
+                'back" means ATC did not hear yours.',
                 "Use the runway ATC gives you: once AI traffic takes off, it is the "
                 "one they use, which can differ from the planned runway.",
             ],
@@ -309,6 +311,7 @@ class AtcPage(KneeboardPage):
                     f'"{o} Tower, {me}, holding short runway {out.runway}, ready."',
                     f'  ATC: "Runway {out.runway}, wind, altimeter, cleared for takeoff."',
                     f'  You: "Cleared for takeoff {out.runway}, {me}."',
+                    f'"{o} Tower, {me}, airborne."  (or "outbound")',
                 ],
             )
         if home is not None:
@@ -322,7 +325,8 @@ class AtcPage(KneeboardPage):
                     f'  ATC: "Runway {home.runway}, wind, cleared to land."  You: '
                     f'"Cleared to land {home.runway}, {me}."',
                     '  Runway busy: "Enter the pattern at 3,000."',
-                    '  After landing: "Clear the runway, taxi to parking."',
+                    f'After landing, you: "Tower, {me}, clear of the runway."  '
+                    'ATC: "Taxi to parking."',
                     f'Emergency: "Mayday, {me}, emergency fuel." Land on any runway.',
                 ],
             )

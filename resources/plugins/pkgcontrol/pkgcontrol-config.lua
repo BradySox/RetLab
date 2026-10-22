@@ -6,7 +6,8 @@
 --   controllerVoice, controllers = { { group, callsign } },
 --   packages = { { name, totAfter, targetName, targetX, targetY,
 --   targetUnits = {...}, flights = { { group, callsign, role = strike|sead|escort, client,
---   pushAfter, holdX, holdY, holdAngels, holdIndex, home } } } }
+--   pushAfter, holdX, holdY, holdAngels, holdIndex, home } } } },
+--   players = { { group, callsign } } (every blue player flight, for the AWACS to find by name)
 --
 -- While an ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
 -- check-in (F10 or spoken), ready to push, say push time, the push call, up to two 3-minute holds
@@ -58,9 +59,18 @@ local function liveUnits(groupName)
     return alive
 end
 
+-- A late-activated unit not yet activated reads isExist and inAir true (Test 63), so it must
+-- also be active.
+local function isActive(u)
+    local ok, active = pcall(function()
+        return u:isActive()
+    end)
+    return not ok or active ~= false
+end
+
 local function airborneUnit(groupName)
     for _, u in ipairs(liveUnits(groupName)) do
-        if u:inAir() then
+        if u:inAir() and isActive(u) then
             return u
         end
     end
@@ -81,13 +91,80 @@ local function normalize(callsign)
     return (tostring(callsign):lower():gsub("[^%w]", ""))
 end
 
-local function spokenCallsign(callsign)
-    return (tostring(callsign):gsub("%-", " "))
+local DIGIT_WORDS = {
+    ["0"] = "zero",
+    ["1"] = "one",
+    ["2"] = "two",
+    ["3"] = "three",
+    ["4"] = "four",
+    ["5"] = "five",
+    ["6"] = "six",
+    ["7"] = "seven",
+    ["8"] = "eight",
+    ["9"] = "niner",
+}
+
+-- "0510" -> "zero five one zero": Piper reads "05 10" as "oh five ten".
+local function spokenDigits(s)
+    local words = {}
+    for c in tostring(s):gmatch("%d") do
+        table.insert(words, DIGIT_WORDS[c])
+    end
+    return table.concat(words, " ")
 end
 
+-- "Ford 9-1" -> "Ford niner one", as voiceatc says it.
+local function spokenCallsign(callsign)
+    local name, digits = tostring(callsign):match("^(.-)%s*([%d%-%s]+)$")
+    if not name or name == "" then
+        return tostring(callsign)
+    end
+    return name .. " " .. spokenDigits(digits)
+end
+
+-- A line in two forms, as voiceatc sends them: the text shown, and the words SkyEye speaks. Each
+-- part is plain text, or { text, speech }.
+local function line(parts)
+    local text, speech = {}, {}
+    for _, part in ipairs(parts) do
+        if type(part) == "table" then
+            table.insert(text, part[1])
+            table.insert(speech, part[2])
+        else
+            table.insert(text, part)
+            table.insert(speech, part)
+        end
+    end
+    return { text = table.concat(text), speech = table.concat(speech) }
+end
+
+local function phrase(parts)
+    local l = line(parts)
+    return { l.text, l.speech }
+end
+
+local function callsignPart(callsign)
+    return { tostring(callsign), spokenCallsign(callsign) }
+end
+
+local function digitsPart(s)
+    return { tostring(s), spokenDigits(s) }
+end
+
+-- A push time: text "1410", speech "one four one zero".
 local function clock(missionSeconds)
     local t = math.floor(START_SECONDS + missionSeconds) % 86400
-    return string.format("%02d %02d", math.floor(t / 3600), math.floor(t / 60) % 60)
+    return digitsPart(string.format("%02d%02d", math.floor(t / 3600), math.floor(t / 60) % 60))
+end
+
+-- "Ford package", or "Ford and Colt packages" for a roll call to several.
+local function packagePart(list)
+    local names = {}
+    for _, pkg in ipairs(list) do
+        table.insert(names, pkg.name)
+    end
+    local label = table.concat(names, " and ") .. (#names > 1 and " packages" or " package")
+    return { label, label }
 end
 
 -- No strikeFreq: no ABCCC flies, and the link only tells SkyEye its AWACS name and voice.
@@ -173,6 +250,36 @@ local function send(fields)
     end
 end
 
+-- Each player in a blue player flight by the seat they fly, and the flight alone as its lead, so
+-- the AWACS finds "Ford 9-1" when the DCS name is "Flash" (flown 2026-10-21).
+local function pilots()
+    local out = {}
+    for _, p in ipairs(data.players or {}) do
+        local flightName = (tostring(p.callsign):gsub("%-%d$", ""))
+        local lead = nil
+        for index, u in ipairs(liveUnits(p.group)) do
+            local ok, name = pcall(function()
+                return u:getPlayerName()
+            end)
+            if ok and name and name ~= "" then
+                local okNumber, number = pcall(function()
+                    return u:getNumber()
+                end)
+                local ship = okNumber and tonumber(number) or index
+                local seat = (tostring(p.callsign):gsub("%d$", tostring(ship)))
+                table.insert(out, { { "name", name }, { "callsign", seat } })
+                if ship == 1 or not lead then
+                    lead = name
+                end
+            end
+        end
+        if lead and flightName ~= p.callsign then
+            table.insert(out, { { "name", lead }, { "callsign", flightName } })
+        end
+    end
+    return out
+end
+
 local function announcePackages()
     local controllers = {}
     for _, c in ipairs(data.controllers or {}) do
@@ -191,6 +298,7 @@ local function announcePackages()
         { "gciCallsign", data.awacsCallsign or "" },
         { "looseCalls", not STRICT },
         { "strikeThreatsOnly", CASUAL },
+        { "pilots", pilots() },
     })
 end
 
@@ -198,22 +306,36 @@ end
 -- Calls
 ---------------------------------------------------------------------------------------------------
 
-local function say(pkg, text)
+-- Speaks a call on STRIKE and texts it to the player flights of each package in the list.
+local function sayTo(list, call)
     local c = controller()
     if not c then
         return false
     end
-    local line = text:gsub("{controller}", c.callsign)
-    for _, f in ipairs(pkg.flights or {}) do
-        if f.client == "true" then
-            local g = Group.getByName(f.group)
-            if g and g:isExist() then
-                trigger.action.outTextForGroup(g:getID(), line, TEXT_SECONDS)
+    local text = (call.text:gsub("{controller}", c.callsign))
+    local speech = (call.speech:gsub("{controller}", c.callsign))
+    for _, pkg in ipairs(list) do
+        for _, f in ipairs(pkg.flights or {}) do
+            if f.client == "true" then
+                local g = Group.getByName(f.group)
+                if g and g:isExist() then
+                    trigger.action.outTextForGroup(g:getID(), text, TEXT_SECONDS)
+                end
             end
         end
     end
-    send({ { "type", "say" }, { "frequency", STRIKE }, { "text", line }, { "voice", data.controllerVoice or "" } })
+    send({
+        { "type", "say" },
+        { "frequency", STRIKE },
+        { "text", text },
+        { "speech", speech },
+        { "voice", data.controllerVoice or "" },
+    })
     return true
+end
+
+local function say(pkg, parts)
+    return sayTo(pkg and { pkg } or {}, line(parts))
 end
 
 local function flightsWithRole(pkg, role)
@@ -370,13 +492,13 @@ end
 local function abort(pkg, reason)
     pkg.state = "done"
     sendAIHome(pkg)
-    say(pkg, string.format("Package %s, {controller}, abort, abort, abort. %s. RTB.", pkg.name, reason))
+    say(pkg, { packagePart({ pkg }), ", {controller}, abort, abort, abort. ", reason, ". RTB." })
 end
 
 local function push(pkg)
     pkg.state = "pushed"
     pkg.pushedAt = timer.getTime()
-    say(pkg, string.format("Package %s, {controller}, push.", pkg.name))
+    say(pkg, { packagePart({ pkg }), ", {controller}, push." })
 end
 
 local function notReady(pkg)
@@ -445,11 +567,14 @@ local function silentPlayers(pkg, role)
 end
 
 local function callsigns(flights)
-    local names = {}
-    for _, f in ipairs(flights) do
-        table.insert(names, spokenCallsign(f.callsign))
+    local parts = {}
+    for i, f in ipairs(flights) do
+        if i > 1 then
+            table.insert(parts, " and ")
+        end
+        table.insert(parts, callsignPart(f.callsign))
     end
-    return table.concat(names, " and ")
+    return phrase(parts)
 end
 
 -- A striker other than the silent ones is set to go: a ready player or an airborne AI flight.
@@ -470,42 +595,57 @@ local function slip(pkg, reason)
     pkg.slips = pkg.slips + 1
     pkg.pushAt = pkg.pushAt + HOLD_SLIP_SECONDS
     holdAI(pkg)
-    return say(
-        pkg,
-        string.format(
-            "Package %s, {controller}, hold, hold. %s. New push time %s.",
-            pkg.name,
-            reason,
-            clock(pkg.pushAt)
-        )
-    )
+    return say(pkg, {
+        packagePart({ pkg }),
+        ", {controller}, hold, hold. ",
+        reason,
+        ". New push time ",
+        clock(pkg.pushAt),
+        ".",
+    })
 end
 
--- The roll call: players answer; AI flights are read out by what they are doing.
-local function rollCall(pkg)
-    pkg.rollCalled = true
-    say(pkg, string.format("All players, {controller}, check in. Push in %d minutes.", ROLL_CALL_LEAD_SECONDS / 60))
-    local up, down = {}, {}
-    for _, f in ipairs(pkg.flights or {}) do
-        if f.client ~= "true" and not lost(f) then
-            table.insert(airborne(f) and up or down, f)
-        end
+-- The roll call, one call for every package due this tick: players answer; AI flights are read
+-- out by what they are doing.
+local function rollCall(list)
+    for _, pkg in ipairs(list) do
+        pkg.rollCalled = true
     end
-    if #up + #down > 0 then
-        local parts = {}
-        if #up > 0 then
-            table.insert(parts, callsigns(up) .. " up")
+    local minutes = tostring(math.floor(ROLL_CALL_LEAD_SECONDS / 60))
+    sayTo(list, line({
+        packagePart(list),
+        ", {controller}, check in. Push in ",
+        { minutes, minutes == "3" and "three" or minutes },
+        " minutes.",
+    }))
+    for _, pkg in ipairs(list) do
+        local up, down = {}, {}
+        for _, f in ipairs(pkg.flights or {}) do
+            if f.client ~= "true" and not lost(f) then
+                table.insert(airborne(f) and up or down, f)
+            end
         end
-        if #down > 0 then
-            table.insert(parts, callsigns(down) .. " not airborne")
+        if #up + #down > 0 then
+            local parts = { packagePart({ pkg }), ", {controller}, " }
+            if #up > 0 then
+                table.insert(parts, callsigns(up))
+                table.insert(parts, " airborne")
+            end
+            if #down > 0 then
+                table.insert(parts, #up > 0 and ". " or "")
+                table.insert(parts, callsigns(down))
+                table.insert(parts, " not airborne")
+            end
+            table.insert(parts, ".")
+            say(pkg, parts)
         end
-        say(pkg, string.format("Package %s, {controller}, %s.", pkg.name, table.concat(parts, ". ")))
     end
 end
 
 local function decidePush(pkg)
     if targetDestroyed(pkg) then
-        return abort(pkg, "Target " .. tostring(pkg.targetName) .. " destroyed")
+        -- The text names the target; the voice does not read a Retribution object name.
+        return abort(pkg, { "Target " .. tostring(pkg.targetName) .. " destroyed", "Target destroyed" })
     end
     if seadLost(pkg) then
         return abort(pkg, "SEAD lost")
@@ -523,12 +663,14 @@ local function decidePush(pkg)
                 table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
             end
             if #silentSead > 0 then
-                table.insert(reasons, callsigns(silentSead) .. " not checked in")
+                table.insert(reasons, #missing > 0 and ". " or "")
+                table.insert(reasons, callsigns(silentSead))
+                table.insert(reasons, " not checked in")
             end
-            return slip(pkg, table.concat(reasons, ". "))
+            return slip(pkg, phrase(reasons))
         end
         if #silentSead > 0 then
-            return abort(pkg, callsigns(silentSead) .. " not checked in")
+            return abort(pkg, phrase({ callsigns(silentSead), " not checked in" }))
         end
         if not (#flightsWithRole(pkg, "sead") == 0 or anySeadAirborne(pkg)) then
             return abort(pkg, "No SEAD")
@@ -536,17 +678,17 @@ local function decidePush(pkg)
     end
     if #silentEscort > 0 and not pkg.escortHoldUsed then
         pkg.escortHoldUsed = true
-        return slip(pkg, callsigns(silentEscort) .. " not checked in")
+        return slip(pkg, phrase({ callsigns(silentEscort), " not checked in" }))
     end
     if #silentStrike > 0 and not anotherStrikerReady(pkg) then
         if not pkg.strikeHoldUsed then
             pkg.strikeHoldUsed = true
-            return slip(pkg, callsigns(silentStrike) .. " not checked in")
+            return slip(pkg, phrase({ callsigns(silentStrike), " not checked in" }))
         end
         return abort(pkg, "No strikers checked in")
     end
     if #silentStrike > 0 then
-        say(pkg, string.format("%s, {controller}, not checked in. Package pushing without you.", callsigns(silentStrike)))
+        say(pkg, { callsigns(silentStrike), ", {controller}, not checked in. Package pushing without you." })
     end
     return push(pkg)
 end
@@ -582,6 +724,7 @@ end
 
 local function tick(_, now)
     local onStation = controller() ~= nil
+    local dueRollCall = {}
     for _, pkg in ipairs(packages) do
         for _, f in ipairs(pkg.flights or {}) do
             lost(f)
@@ -595,45 +738,57 @@ local function tick(_, now)
             decidePush(pkg)
         elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled and not CASUAL
             and now >= pkg.pushAt - ROLL_CALL_LEAD_SECONDS then
-            rollCall(pkg)
+            table.insert(dueRollCall, pkg)
         elseif pkg.state == "pushed" then
             if strikersEgressed(pkg) then
                 pkg.state = "done"
                 if not CASUAL then
-                    say(pkg, string.format("Package %s, {controller}, all strikers egressed. RTB.", pkg.name))
+                    say(pkg, { packagePart({ pkg }), ", {controller}, all strikers egressed. RTB." })
                 end
             elseif now - pkg.pushedAt > EGRESS_GIVE_UP_SECONDS then
                 pkg.state = "done"
             end
         end
     end
+    if #dueRollCall > 0 then
+        rollCall(dueRollCall)
+    end
     return now + POLL_SECONDS
 end
 
 local function checkIn(arg)
     local pkg, flight = arg.pkg, arg.flight
-    local callsign = spokenCallsign(flight.callsign)
-    local text
+    local callsign = callsignPart(flight.callsign)
     if pkg.state == "waiting" and pkg.rollCalled then
         flight.ready = true
-        text = string.format("%s, {controller}, copy ready. Push time %s.", callsign, clock(pkg.pushAt))
+        say(pkg, { callsign, ", {controller}, copy ready. Push time ", clock(pkg.pushAt), "." })
     elseif pkg.state == "waiting" and pkg.pushAt then
-        local hold = flight.holdAngels and string.format(" Cleared direct hold, angels %s.", flight.holdAngels) or ""
-        text = string.format("%s, {controller}, radar contact.%s Push time %s.", callsign, hold, clock(pkg.pushAt))
+        local parts = { callsign, ", {controller}, radar contact." }
+        if flight.holdAngels then
+            table.insert(parts, " Cleared direct hold, angels ")
+            table.insert(parts, digitsPart(flight.holdAngels))
+            table.insert(parts, ".")
+        end
+        table.insert(parts, " Push time ")
+        table.insert(parts, clock(pkg.pushAt))
+        table.insert(parts, ".")
+        say(pkg, parts)
     elseif pkg.state == "pushed" then
-        text = string.format("%s, {controller}, radar contact. Package %s has pushed, continue.", callsign, pkg.name)
+        say(pkg, { callsign, ", {controller}, radar contact. ", packagePart({ pkg }), " has pushed, continue." })
     else
-        text = string.format("%s, {controller}, radar contact. Continue as fragged.", callsign)
+        say(pkg, { callsign, ", {controller}, radar contact. Continue as fragged." })
     end
-    say(pkg, text)
 end
 
 local function readyToPush(pkg, flight)
-    local callsign = spokenCallsign(flight.callsign)
+    local callsign = callsignPart(flight.callsign)
     if pkg.state ~= "waiting" then
-        return say(pkg, string.format("%s, {controller}, package %s has pushed.", callsign, pkg.name))
+        return say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), " has pushed." })
     end
-    flight.ready = pkg.rollCalled or flight.ready
+    if pkg.rollCalled and not flight.ready then
+        -- "Ready to push" in answer to the roll call is a check-in, never an early push.
+        return checkIn({ pkg = pkg, flight = flight })
+    end
     local reasons = {}
     local missing = notReady(pkg)
     if #missing > 0 then
@@ -646,29 +801,45 @@ local function readyToPush(pkg, flight)
         end
     end
     if #silent > 0 then
-        table.insert(reasons, callsigns(silent) .. " not checked in")
+        table.insert(reasons, #missing > 0 and ". " or "")
+        table.insert(reasons, callsigns(silent))
+        table.insert(reasons, " not checked in")
     end
     if #reasons == 0 then
         releaseAI(pkg)
         return push(pkg)
     end
-    say(
-        pkg,
-        string.format(
-            "%s, {controller}, negative, %s. Push time %s.",
-            callsign,
-            table.concat(reasons, ". "),
-            clock(pkg.pushAt or timer.getTime())
-        )
-    )
+    say(pkg, {
+        callsign,
+        ", {controller}, negative, ",
+        phrase(reasons),
+        ". Push time ",
+        clock(pkg.pushAt or timer.getTime()),
+        ".",
+    })
 end
 
 local function sayPushTime(pkg, flight)
-    local callsign = spokenCallsign(flight.callsign)
+    local callsign = callsignPart(flight.callsign)
     if pkg.state == "waiting" and pkg.pushAt then
-        return say(pkg, string.format("%s, {controller}, push time %s.", callsign, clock(pkg.pushAt)))
+        return say(pkg, { callsign, ", {controller}, push time ", clock(pkg.pushAt), "." })
     end
-    say(pkg, string.format("%s, {controller}, package %s has pushed.", callsign, pkg.name))
+    say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), " has pushed." })
+end
+
+-- A call SkyEye heard but could not read: the controller asks again in its own voice, by the
+-- callsign it heard (user call, 2026-10-21).
+local function sayAgain(pkg, flight, heard)
+    if flight then
+        return say(pkg, { callsignPart(flight.callsign), ", {controller}, say again." })
+    end
+    if heard and heard ~= "" then
+        local name = heard:gsub("(%a)(%a*)", function(first, rest)
+            return first:upper() .. rest
+        end)
+        return say(nil, { callsignPart(name), ", {controller}, say again." })
+    end
+    say(nil, { "Station calling {controller}, say again your callsign." })
 end
 
 local function callsignWord(callsign)
@@ -728,6 +899,9 @@ local function handleRequest(request)
         return
     end
     local pkg, flight = findCaller(request)
+    if request.kind == "unknown" then
+        return sayAgain(pkg, flight, request.callsign)
+    end
     if not pkg then
         return
     end

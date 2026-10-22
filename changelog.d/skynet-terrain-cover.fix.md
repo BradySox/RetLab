@@ -1,0 +1,1 @@
+* **[Plugins]** Skynet: an early-warning radar covers a SAM only if it can see over the SAM past the terrain. Before, a radar behind a mountain range kept a SAM dark all mission, waiting for a track the radar never got. A SAM no radar can see over now fights on its own radar.

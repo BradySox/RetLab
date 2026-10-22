@@ -1961,7 +1961,8 @@ that code.
   to leave it; on 2026-10-17 the DM asked for an experiment.
   `AircraftBehavior.configure_takeoff_formation` gives every ground-start fixed-wing flight
   of two or more a loose trail at its takeoff point; HOLD and JOIN still set the package
-  formation. Unproven until flown (row B245). If it does nothing, remove it. Tests:
+  formation. A flight with a player seat gets no trail (2026-10-21): DCS never runs a human
+  lead's later waypoint options, so his wingmen kept the trail all mission. Unproven until flown (row B245). If it does nothing, remove it. Tests:
   `tests/missiongenerator/test_takeoff_formation.py`.
 - **A hold was never told to release when the TOT was unreachable (2026-08-19).**
 - **Front-line groups were held in place and never fought (2026-08-19).**
@@ -2314,25 +2315,25 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   a crash. PySide6 stays 6.8.3. Tests: `tests/qt_ui/test_main_thread_handoff.py`,
   `tests/qt_ui/test_fault_log.py`.
 
-- **The campaign map held 2.8 GB of video memory while DCS flew (2026-10-21; row B267).**
-  On a 16 GB card, the Retribution process (`python.exe`) held 2.8 GB of dedicated VRAM
-  next to DCS's 12 GB, and SkyEye's speech recognition ran short. QtWebEngine's GPU thread
-  runs in the app's own process, so the map's tiles count against `python.exe`. Take off now
-  hides the map behind a "map is paused" label (`MapPanel`, a `QStackedWidget` around
-  `QLiberationMap`, `qt_ui/widgets/map/mappanel.py`) for as long as the mission window is
-  open; `QTopPanel.launch_mission` wraps `exec_()` in `map_released`, so every way the window
-  closes (Accept results, Abort, the close button) shows the map again. A hidden view tells
-  Chromium the page is not visible, and Chromium frees its compositor tiles and decoded
-  images.
-  - Hidden, not discarded: `QWebEnginePage.LifecycleState.Discarded` reloads the page when set
-    back to Active, which loses the pan, zoom, open popups and the fog overview toggle. A
-    frozen page stops reading the event stream, and the socket's reconnect does not refetch
-    state, so a missed `new_turn` would leave the map a turn behind.
-  - The hidden page keeps running, so it takes the debrief's updates and comes back at the
-    same view.
-  - The saving is unmeasured until the row's Task Manager check. If it is small, discarding
-    with a client-side view restore is the next step.
-  Tests: `tests/qt_ui/test_map_panel.py`.
+- **The campaign map held ~4 GB of video memory while DCS flew (2026-10-21; row B267).**
+  On a 16 GB card, the Retribution process (`python.exe`) held 2.8 to 4 GB of dedicated
+  VRAM next to DCS, and SkyEye's speech recognition ran short. QtWebEngine's GPU thread runs
+  in the app's own process (`QtWebEngineProcess.exe` held under 100 MB), so the map's
+  textures count against `python.exe`. The first fix (#1354) hid the map while the mission
+  window was open; measured mid-mission, `python.exe` still held 3,981 MB, so it was
+  removed. The map now renders without the GPU: `qt_ui/softwarerender.py`
+  `apply_software_rendering`, called in `run_ui` before the `QApplication` exists, appends
+  `--disable-gpu --disable-gpu-compositing` to `QTWEBENGINE_CHROMIUM_FLAGS` and sets
+  `QT_QUICK_BACKEND=software`.
+  - Both are needed. The Chromium flags put page rendering and Chromium's compositor in
+    software. `QWebEngineView` is drawn through Qt Quick inside the widget, and Qt Quick's
+    default RHI backend (Direct3D 11 on Windows) would still hold GPU textures for it; the
+    software scene graph draws it into a plain image. Both are documented in Qt WebEngine's
+    *Features* page, *Hardware acceleration*.
+  - A user's own flags are kept and ours appended; a user's own `QT_QUICK_BACKEND` wins.
+    No setting: the map has no GPU-only feature (Leaflet draws with SVG and DOM tiles).
+  - The saving is unverified until the row's check after a restart of the app.
+  Tests: `tests/qt_ui/test_software_render.py`.
 
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
@@ -11222,6 +11223,27 @@ A player flight's callsign is now its lead's seat ("Ford 5-1"), and the plugin m
 SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2") on Strict, as
 `voiceatc` does. Before, only the non-Strict fallback matched. Not flown (row B266).
 
+**Phrasing (2026-10-21, user call after a flown review).** The spoken lines read the way a
+controller says them, and each `say` carries `text` and `speech` apart, as `voiceatc` sends
+them: "Ford package, Blackjack, push" (was "Package Ford, ..."), push time "1410" in text and
+"one four one zero" in speech, callsigns "Ford niner one", "Dodge 9 airborne" (was "up"), and
+a dead target named in the text only. The roll call names the package ("Ford package,
+Blackjack, check in. Push in three minutes"), or every package due that tick in one call
+("Ford and Colt packages"). After the roll call a "ready to push" from a flight that has not
+answered is its check-in, never an early push. SkyEye now passes a call to the controller it
+cannot read as kind `unknown`; the plugin answers "<callsign>, Blackjack, say again" in the
+controller's voice, by the flight it matched or the callsign heard, else "Station calling
+Blackjack, say again your callsign". SkyEye also reads a bare "ready", "with you", "on
+station" and "checked in" as a check-in (`BradySox/skyeye` PR #10). The record now lists
+every blue player flight (`players`: group, lead seat), and the plugin sends SkyEye a
+`pilots` list in its `packages` message: each seated player's DCS name and seat, plus the
+flight alone for its lead, so the AWACS finds "Ford 9-1" when the player is "Flash". Not
+flown (row B271).
+
+**Fixed 2026-10-21 (Test 63): an inactive late-activated flight read as airborne.** A
+late-activation unit not yet activated reads `isExist` and `inAir` true, so `airborneUnit`
+now also needs `isActive()`; a SEAD waiting for activation now holds the push.
+
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).
 
@@ -11454,10 +11476,23 @@ flight.
 
 Built 2026-10-20. Not flown (row B261).
 
+**Phrasing (2026-10-21, user call).** With `BradySox/skyeye` PR #10 a readback parses with
+the callsign first or last, or after the station ("Tower, Ford 9, cleared for takeoff 28L" is
+a readback, not a new request), and a clearance word (runway, short, hold, taxi, squawk,
+cleared, tower, ground, takeoff, contact, wind, altimeter) is never a callsign. "Two ship"
+and distances ("30 miles") are not ship numbers. Outbound, departing, wheels up and switching
+are airborne; final and visual approach are inbound; comm check and how do you read are
+radio checks; repeat is say again; pan pan is an emergency. Under Strict a clearance whose
+readback never came gets one "Ford niner one, read back" 20 s later
+(`READBACK_PROMPT_SECONDS`), only while it is still the flight's current clearance; before,
+an unheard readback was silence. The card teaches the after-landing call as "Tower, <me>,
+clear of the runway", answered "Taxi to parking". Not flown (row B271).
+
 ### Files
 
 - `game/retlab/voice_atc.py`: frequencies, squawks, the plan, `dcsRetribution.voiceAtc`.
-- `resources/plugins/voiceatc/`: the state machine, the readback check, the F10 menu.
+- `resources/plugins/voiceatc/`: the state machine, the readback check, the read-back
+  prompt, the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
 - `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,
   `tests/missiongenerator/test_voice_kneeboard_pages.py`.

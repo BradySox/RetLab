@@ -29,7 +29,6 @@ from qt_ui.widgets.QConditionsWidget import QConditionsWidget
 from qt_ui.widgets.QFactionsInfos import QFactionsInfos
 from qt_ui.widgets.QIntelBox import QIntelBox
 from qt_ui.widgets.clientslots import MaxPlayerCount
-from qt_ui.widgets.map.mappanel import map_released
 from qt_ui.widgets.simspeedcontrols import SimSpeedControls
 from qt_ui.windows.AirWingDialog import AirWingDialog
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
@@ -424,9 +423,7 @@ class QTopPanel(QFrame):
             start_voice_bots(liberation_install.skyeye_dir())
 
         waiting = QWaitingForMissionResultWindow(self.game, self.sim_controller, self)
-        # The map's video memory goes to DCS until the window closes (row B267).
-        with map_released(getattr(self.window(), "map_panel", None)):
-            waiting.exec_()
+        waiting.exec_()
 
     def budget_update(self, game: Game):
         self.budgetBox.setGame(game)
