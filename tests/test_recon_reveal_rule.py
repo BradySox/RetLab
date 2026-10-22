@@ -8,6 +8,9 @@ Two rules, both set 2026-08-18, both pinned here:
 * **A revealed site is revealed in full.** No BDA confirmation step sits behind
   the reveal; the damage a strike did reads the moment it lands.
 
+* **Vacuum reveals (§118, 2026-10-22).** A site whose radar a Vacuum heard is known
+  after the turn, and keeps its best fix for the next Vacuum.
+
 Recon's one remaining job is the third block: finding enemy command posts, which are
 hidden from the map outright and so cannot be engaged in the first place.
 
@@ -284,3 +287,42 @@ def test_recon_does_not_touch_ordinary_hidden_sites() -> None:
     post = FakeCommandPost(category="aa")
     _recon_run(post)
     assert not post.discovered_by_player
+
+
+def _vacuum_debrief(fixes: list[tuple[str, float]], unit: FakeUnit) -> Debriefing:
+    debriefing = _debrief()
+    debriefing.state_data = cast(Any, SimpleNamespace(vacuum_fixes=tuple(fixes)))
+    mapping = TheaterUnitMapping(
+        theater_unit=cast(Any, unit), dcs_unit=cast(Any, MagicMock())
+    )
+    debriefing.unit_map = cast(
+        Any,
+        SimpleNamespace(
+            theater_units=lambda name: mapping if name == "Kub #1" else None
+        ),
+    )
+    return debriefing
+
+
+def test_a_site_vacuum_heard_is_revealed_with_its_fix() -> None:
+    tgo, unit = _enemy_sam()
+    messages: list[str] = []
+    processor = _processor_with_packages()
+    setattr(processor.game, "message", lambda title, text: messages.append(text))
+
+    debriefing = _vacuum_debrief([("Kub #1", 6000.0), ("Nobody", 100.0)], unit)
+    processor.reveal_vacuum_fixes(debriefing, GameUpdateEvents())
+
+    assert tgo.discovered_by_player
+    assert tgo.vacuum_fix_m == 6000.0
+    assert len(messages) == 1 and "Enemy SAM" in messages[0]
+
+    # A later, better fix replaces it; a worse one never does.
+    processor.reveal_vacuum_fixes(
+        _vacuum_debrief([("Kub #1", 800.0)], unit), GameUpdateEvents()
+    )
+    processor.reveal_vacuum_fixes(
+        _vacuum_debrief([("Kub #1", 9000.0)], unit), GameUpdateEvents()
+    )
+    assert tgo.vacuum_fix_m == 800.0
+    assert len(messages) == 1

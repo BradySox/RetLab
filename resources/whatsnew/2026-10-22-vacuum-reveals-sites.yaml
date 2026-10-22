@@ -1,0 +1,10 @@
+date: 2026-10-22
+title: Vacuum finds go on the map
+change: >-
+  When Vacuum hears an enemy radar, that site is fully known after the
+  turn: its units and threat ring show on the map, as if you had hit it.
+  The next Vacuum remembers it, so it can call it asleep right away, tight
+  if it got a good fix last time.
+watch: >-
+  A SAM that never turns its radar on is still only a marker until you
+  engage it.

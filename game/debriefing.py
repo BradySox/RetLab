@@ -184,6 +184,10 @@ class StateData:
     #: file from before the base plugin recorded it.
     kill_causes: tuple[KillCause, ...] = ()
 
+    #: ``(unit_name, error_m)`` per red radar Vacuum heard (§118), its fix error at
+    #: the last write. The debrief reveals each site. Empty with no Vacuum.
+    vacuum_fixes: tuple[tuple[str, float], ...] = ()
+
     @classmethod
     def from_json(cls, data: Dict[str, Any], unit_map: UnitMap) -> StateData:
         def clean_unit_list(unit_list: List[Any]) -> List[str]:
@@ -277,6 +281,14 @@ class StateData:
             except (KeyError, TypeError, ValueError):
                 logging.warning("Ignoring malformed crash position: %s", event)
 
+        vacuum_fixes: list[tuple[str, float]] = []
+        raw_fixes = data.get("vacuum_fixes")
+        for fix in raw_fixes if isinstance(raw_fixes, list) else []:
+            try:
+                vacuum_fixes.append((str(fix["unit"]), float(fix["error"])))
+            except (KeyError, TypeError, ValueError):
+                logging.warning("Ignoring malformed Vacuum fix: %s", fix)
+
         return cls(
             mission_ended=data.get("mission_ended", False),
             killed_aircraft=killed_aircraft,
@@ -291,6 +303,7 @@ class StateData:
             sortie_records=parse_sortie_records(data.get("sortie_records")),
             crash_positions=crash_positions,
             kill_causes=KillCause.parse(data.get("kill_causes")),
+            vacuum_fixes=tuple(vacuum_fixes),
         )
 
 

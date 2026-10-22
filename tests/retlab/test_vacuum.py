@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
-from typing import Any
+from typing import Any, Optional
 
 from game.ato.flighttype import FlightType
 from game.data.units import UnitClass
@@ -183,9 +183,10 @@ def test_mod_tags_and_site_suffixes_are_dropped() -> None:
 
 
 class _Site:
-    def __init__(self, known: bool, fixed: bool) -> None:
+    def __init__(self, known: bool, fixed: bool, fix_m: Optional[float] = None) -> None:
         self.known = known
         self.is_fixed_sam_site = fixed
+        self.vacuum_fix_m = fix_m
 
     def known_for(self, viewer: object) -> bool:
         return self.known
@@ -194,6 +195,18 @@ class _Site:
 def test_vacuum_starts_with_what_blue_knows() -> None:
     from game.retlab.vacuum import known_fix
 
-    assert known_fix(_Site(known=True, fixed=True)) == "tight"  # type: ignore[arg-type]
-    assert known_fix(_Site(known=True, fixed=False)) == "loose"  # type: ignore[arg-type]
-    assert known_fix(_Site(known=False, fixed=False)) == ""  # type: ignore[arg-type]
+    site = _Site(known=True, fixed=True, fix_m=9000)
+    assert known_fix(site) == ("tight", None)  # type: ignore[arg-type]
+    site = _Site(known=True, fixed=False)
+    assert known_fix(site) == ("loose", None)  # type: ignore[arg-type]
+    site = _Site(known=False, fixed=False, fix_m=500)
+    assert known_fix(site) == ("", None)  # type: ignore[arg-type]
+
+
+def test_an_earlier_vacuum_fix_carries_to_the_next_turn() -> None:
+    from game.retlab.vacuum import known_fix
+
+    site = _Site(known=True, fixed=False, fix_m=900)
+    assert known_fix(site) == ("tight", 900)  # type: ignore[arg-type]
+    site = _Site(known=True, fixed=False, fix_m=7000)
+    assert known_fix(site) == ("loose", 7000)  # type: ignore[arg-type]

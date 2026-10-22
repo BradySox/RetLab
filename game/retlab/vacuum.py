@@ -179,14 +179,24 @@ def emitter_label(unit: TheaterUnit) -> str:
     return " ".join(words) or "radar"
 
 
-def known_fix(tgo: TheaterGroundObject) -> str:
-    """How well Vacuum knows a site before it hears it: a fixed SAM's spot is known before
-    the war ("tight"), a site blue has engaged roughly ("loose"), anything else not at all.
+#: A fix this close is "tight" (the Lua plugin's TIGHT_METERS).
+TIGHT_FIX_M = 1852.0
+
+
+def known_fix(tgo: TheaterGroundObject) -> tuple[str, Optional[float]]:
+    """How well Vacuum knows a site before it hears it, and the fix error (m) an earlier
+    Vacuum left on it: a fixed SAM's spot is known before the war ("tight"), another known
+    site is "tight" or "loose" by its old fix, anything else not at all.
     """
     with fog_intact():
         if not tgo.known_for(Player.BLUE):
-            return ""
-    return "tight" if tgo.is_fixed_sam_site else "loose"
+            return "", None
+    if tgo.is_fixed_sam_site:
+        return "tight", None
+    error = tgo.vacuum_fix_m
+    if error is not None and error <= TIGHT_FIX_M:
+        return "tight", error
+    return "loose", error
 
 
 def site_radar(radars: list[TheaterUnit]) -> TheaterUnit:
@@ -299,7 +309,7 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
         for tgo in control_point.ground_objects:
             if isinstance(tgo, NavalGroundObject):
                 continue
-            known = known_fix(tgo)
+            known, known_error = known_fix(tgo)
             for group in tgo.groups:
                 radars = _radar_units(group)
                 if not radars:
@@ -314,3 +324,5 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
                 item.add_key_value("strike", "true" if covers else "")
                 item.add_key_value("reach", str(int(reach)))
                 item.add_key_value("known", known)
+                if known_error is not None:
+                    item.add_key_value("knownError", str(int(known_error)))

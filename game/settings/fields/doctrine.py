@@ -153,6 +153,7 @@ class DoctrineSettings:
             "plan against, but what is actually there — unit types, counts, and "
             "threat/detection rings — stays hidden until you engage the site: put "
             "ordnance on it, or send any ground-attack sortie that reaches it. "
+            "A site whose radar Vacuum (ELINT) heard is known after the turn. "
             "Recon overflight does not reveal. Fixed SAM sites (SA-2, SA-3, SA-5, SA-10/20, S-400, Patriot and Hawk) are always "
             "known. Once a site is engaged you see it "
             "in full and permanently, damage included — there is no separate BDA "

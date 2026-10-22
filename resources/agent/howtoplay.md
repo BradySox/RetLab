@@ -123,7 +123,8 @@ report is a good report.
   squadrons with no escort, so red flies few offensive packages. That posture is often
   deliberate (it is on Red Tide). Few red strikes is not a finding by itself.
 - Fixed SAM sites are always known to both sides. Mobile sites and other ground objects are
-  hidden from the **human** until engaged, but never from red's planner, and never from you.
+  hidden from the **human** until engaged or heard by a Vacuum (ELINT) flight, but never from
+  red's planner, and never from you.
 - Tankers, AWACS and the first CAP launch as soon as the mission starts, and a busy field
   queues its jets for the runway; the mission can start up to 30 minutes early for it.
 - Skynet keeps a networked SAM dark until a target is inside its kill zone. A site with no

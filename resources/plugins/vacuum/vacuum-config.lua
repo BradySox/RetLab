@@ -3,7 +3,7 @@
 --
 -- Reads dcsRetribution.vacuum (emitted only when a blue Vacuum flies): callsign, frequency,
 --   strike (when an ABCCC runs STRIKE), voice, linkHost, linkPort, rangeMeters, groups = {...},
---   emitters = { { label, units = {...}, strike, reach, known } },
+--   emitters = { { label, units = {...}, strike, reach, known, knownError } },
 --   flights = { { group, callsign, targetX, targetY } } (the player flights that may call it)
 --
 -- While a Vacuum is alive AND airborne, each red radar within range is called once each time it
@@ -11,7 +11,8 @@
 -- before it counts as a new on-cycle, so a site blinking under Skynet is one call. Vacuum remembers
 -- every radar it has located: off now, it is "asleep". Each fix is "loose" until Vacuum has heard
 -- the radar long enough, added up across blinks, to call it "tight" (within about 1 NM); a loose
--- radar that goes tight while on is called once more. Every call goes
+-- radar that goes tight while on is called once more. Every radar Vacuum hears is written to
+-- vacuum_fixes for the debrief, which reveals it on the map after the turn. Every call goes
 -- on Vacuum's own frequency; it goes on STRIKE too only for a radar whose threat ring covers a
 -- player package's route or target. SkyEye speaks the calls and works out the magnetic bullseye
 -- from its own picture. Nothing is said with no Vacuum airborne. It never jams or lases.
@@ -151,13 +152,32 @@ local function locate(e, point)
     e.angle = e.angle or errorAngle(e)
 end
 
--- Sites blue already knows start asleep: a fixed SAM tight, the rest loose.
+-- Sites blue already knows start asleep: a fixed SAM tight, the rest loose, each at the fix an
+-- earlier Vacuum left (knownError) when there is one.
 for _, e in ipairs(allEmitters) do
     local u = (e.known == "tight" or e.known == "loose") and liveUnit(e)
     if u then
         locate(e, u:getPoint())
-        e.startError = e.known == "tight" and 0 or KNOWN_LOOSE_METERS
+        local default = e.known == "tight" and 0 or KNOWN_LOOSE_METERS
+        e.startError = tonumber(e.knownError) or default
         e.progress = 0
+    end
+end
+
+-- Read by the base plugin's state writer: { unit, error } per radar heard this mission.
+vacuum_fixes = vacuum_fixes or {}
+
+local function record(e)
+    local err = math.floor(errorOf(e) + 0.5)
+    if not e.record then
+        e.record = { unit = (e.units or {})[1] or "", error = err }
+        table.insert(vacuum_fixes, e.record)
+        dirty_state = true
+    elseif math.floor(err / NM) < math.floor(e.record.error / NM) then
+        e.record.error = err
+        dirty_state = true
+    else
+        e.record.error = err
     end
 end
 
@@ -171,6 +191,7 @@ local function hear(e, unit, vacuum, seconds)
     end
     locate(e, unit:getPoint())
     e.progress = math.min(1, (e.progress or 0) + seconds / secondsToTight(distance))
+    record(e)
 end
 
 -- Where Vacuum puts the radar: its spot, off by the fix error.
