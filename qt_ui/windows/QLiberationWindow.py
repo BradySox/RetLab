@@ -40,7 +40,6 @@ from qt_ui.uncaughtexceptionhandler import UncaughtExceptionHandler
 from qt_ui.widgets.QTopPanel import QTopPanel
 from qt_ui.widgets.ato import QAirTaskingOrderPanel
 from qt_ui.widgets.map.QLiberationMap import QLiberationMap
-from qt_ui.widgets.map.mappanel import MapPanel
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 from qt_ui.windows.QDebriefingWindow import QDebriefingWindow
 from qt_ui.windows.basemenu.QBaseMenu2 import QBaseMenu2
@@ -107,7 +106,6 @@ class QLiberationWindow(QMainWindow):
         self.liberation_map = QLiberationMap(
             self.game_model, ui_flags.dev_ui_webserver, self
         )
-        self.map_panel = MapPanel(self.liberation_map)
 
         self.setGeometry(300, 100, 270, 100)
         self.updateWindowTitle()
@@ -147,7 +145,7 @@ class QLiberationWindow(QMainWindow):
         vbox = QSplitter(Qt.Orientation.Vertical)
         hbox.addWidget(self.ato_panel)
         hbox.addWidget(vbox)
-        vbox.addWidget(self.map_panel)
+        vbox.addWidget(self.liberation_map)
         vbox.addWidget(self.info_panel)
 
         # Will make the ATO sidebar as small as necessary to fit the content. In
