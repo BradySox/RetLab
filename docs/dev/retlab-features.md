@@ -2334,6 +2334,8 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
     the process. Row B267 measures it; if `python.exe` still holds GBs, the next step is a
     software-rendering setting (needs an app restart, as the flags are read once).
   - The rebuilt map may open at the campaign's starting view rather than where it was left.
+  - A map page that loads with the game already in place renders its layers before the map has a
+    center; any layer reading `getBounds` then must tolerate the throw (`SectorsLayer` blanked the page, 2026-10-22).
   Tests: `tests/qt_ui/test_map_panel.py`.
 
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)

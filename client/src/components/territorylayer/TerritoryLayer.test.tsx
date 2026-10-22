@@ -6,6 +6,7 @@ const mockPolygon = jest.fn();
 const mockPolyline = jest.fn();
 const mockMarker = jest.fn();
 let mockZoom = 8;
+let mockCentered = true;
 jest.mock("react-leaflet", () => ({
   LayerGroup: (props: PropsWithChildren<any>) => <>{props.children}</>,
   Pane: (props: PropsWithChildren<any>) => <>{props.children}</>,
@@ -23,7 +24,10 @@ jest.mock("react-leaflet", () => ({
   },
   useMap: () => ({
     getZoom: () => mockZoom,
-    getBounds: () => ({ contains: () => true }),
+    getBounds: () => {
+      if (!mockCentered) throw new Error("Set map center and zoom first.");
+      return { contains: () => true };
+    },
   }),
   useMapEvents: () => null,
 }));
@@ -42,6 +46,7 @@ const sectors = {
 
 describe("TerritoryLayer", () => {
   beforeEach(() => {
+    mockCentered = true;
     mockPolygon.mockClear();
     mockPolyline.mockClear();
     mockMarker.mockClear();
@@ -78,5 +83,17 @@ describe("TerritoryLayer", () => {
       },
     });
     expect(mockMarker).toHaveBeenCalledTimes(1);
+  });
+
+  it("draws before the map has a center", () => {
+    mockZoom = 10;
+    mockCentered = false;
+    renderWithProviders(<SectorsLayer />, {
+      preloadedState: {
+        territory: { territory: { blue: [], red: [] }, sectors: sectors },
+      },
+    });
+    expect(mockPolyline).toHaveBeenCalledTimes(1);
+    expect(mockMarker).not.toHaveBeenCalled();
   });
 });
