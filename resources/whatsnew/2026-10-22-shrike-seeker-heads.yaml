@@ -1,0 +1,9 @@
+date: 2026-10-22
+title: Shrikes tune to their target
+change: >-
+  A Shrike's seeker head now matches the SAM site the flight is fragged
+  against, for example Mk 49 for an SA-3 and Mk 25 for an SA-2. The
+  Weapon Settings window shows the head it will fly with. A site with no
+  match gets Mk 50, the broadest head. A head you set by hand stays.
+watch: >-
+  Picking Mk 22 by hand counts as automatic, because it is the default.

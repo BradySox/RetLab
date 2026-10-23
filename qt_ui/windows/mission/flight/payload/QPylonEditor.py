@@ -133,11 +133,21 @@ class QPylonEditor(QWidget):
         current_settings = self.flight_member.loadout.pylon_settings.get(
             self.pylon.number
         )
+        # Show what the mission will fly: the seeker head matched to the target.
+        targets: tuple[str, ...] = ()
+        if (
+            not self.flight_member.is_player
+            or self.game.settings.apply_target_overrides_to_loadouts
+        ):
+            targets = Loadout.target_unit_ids(self.flight.package.target)
+            current_settings = weapon.settings_for_target(current_settings, targets)
 
         dialog = QWeaponSettingsDialog(weapon, current_settings, self)
         if dialog.exec():
             # Save the settings
-            settings_dict = dialog.get_settings_dict()
+            settings_dict = weapon.strip_target_settings(
+                dialog.get_settings_dict(), targets
+            )
             self.flight_member.loadout.pylon_settings[self.pylon.number] = settings_dict
             logging.info(
                 f"Updated settings for pylon {self.pylon.number}: {settings_dict}"
