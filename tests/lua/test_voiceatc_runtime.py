@@ -2,7 +2,7 @@
 
 The contract: SkyEye passes each call heard on a field's Ground or Tower frequency;
 the plugin answers on that frequency in that position's voice, as text to the flight
-too. Engine start, taxi with the squawk, takeoff, landing; a strict readback missing
+too. Taxi, takeoff, landing (no squawk); a strict readback missing
 an item gets "readback incomplete"; a rule bust gets one scolding call. How SkyEye
 hears and says it is in-game only (B261).
 """
@@ -72,7 +72,6 @@ def _config() -> dict[str, Any]:
                 {
                     "group": "Viper",
                     "callsign": "Viper 1-1",
-                    "squawk": "4101",
                     "departure": "Kobuleti",
                     "arrival": "Kobuleti",
                 }
@@ -190,19 +189,19 @@ def test_skyeye_is_told_the_field_frequencies() -> None:
 def test_a_sortie_from_taxi_to_parking() -> None:
     h = _harness()
     _call(h, "taxi")
-    _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
+    _call(h, "readback", numbers="25", text="hold short 2 5 viper 1 1")
     _call(h, "ready", TOWER)
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
     ]
     said = _said(h)
     assert [m["frequency"] for m in said] == [GROUND, TOWER]
     assert [m["voice"] for m in said] == ["en_US-ryan-medium", "en_US-amy-medium"]
     assert said[0]["speech"] == (
-        "Viper one one, squawk four one zero one, taxi to runway two five, "
+        "Viper one one, taxi to runway two five, "
         "hold short, contact Tower two six two decimal zero."
     )
 
@@ -222,26 +221,39 @@ def test_a_sortie_from_taxi_to_parking() -> None:
 def test_a_strict_readback_missing_an_item_is_incomplete() -> None:
     h = _harness()
     _call(h, "taxi")
+    _call(h, "readback", text="viper 1 1")
     _call(h, "readback", numbers="25")
-    _call(h, "readback", numbers="4101 25")
     h.advance_to(2)
-    assert _texts(h)[1:] == ["Viper 1-1, readback incomplete, squawk 4101."]
+    assert _texts(h)[1:] == ["Viper 1-1, readback incomplete, hold short runway 25."]
     assert _said(h)[1]["speech"] == (
-        "Viper one one, readback incomplete, squawk four one zero one."
+        "Viper one one, readback incomplete, hold short runway two five."
     )
     h.assert_no_lua_errors()
+
+
+def test_no_squawk_is_given_or_needed_but_one_read_back_is_fine() -> None:
+    # User call, 2026-10-22: no squawk codes. A pilot who still says one is not corrected.
+    for discipline in ("strict", "relaxed"):
+        h = _harness(discipline=discipline)
+        _call(h, "taxi")
+        _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
+        h.advance_to(60)
+        assert len(_texts(h)) == 1
+        assert "squawk" not in _texts(h)[0].lower()
+        assert "squawk" not in _said(h)[0]["speech"].lower()
+        h.assert_no_lua_errors()
 
 
 def test_relaxed_lets_an_item_go_but_corrects_a_wrong_number() -> None:
     h = _harness(discipline="relaxed")
     _call(h, "taxi")
-    _call(h, "readback", numbers="25")
+    _call(h, "readback")
     _call(h, "taxi")
-    _call(h, "readback", numbers="4110 25")
+    _call(h, "readback", numbers="52")
     h.advance_to(2)
     assert _texts(h)[1:] == [
         _texts(h)[0],
-        "Viper 1-1, negative, squawk 4101.",
+        "Viper 1-1, negative, hold short runway 25.",
     ]
     h.assert_no_lua_errors()
 
@@ -271,7 +283,7 @@ def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
     h.advance_to(2)
     said = _said(h)
     assert [m["text"] for m in said] == [
-        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0."
+        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0."
     ]
     assert said[0]["frequency"] == TOWER
     h.assert_no_lua_errors()
@@ -375,8 +387,8 @@ def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
     _call(h, "radiocheck", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
-        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1-1, Kobuleti Tower, read you 5 by 5.",
     ]
     h.assert_no_lua_errors()
@@ -410,7 +422,7 @@ def test_the_f10_menu_makes_the_same_requests() -> None:
     _menu(h, "Tower: holding short, ready")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
     ]
     h.assert_no_lua_errors()
@@ -421,7 +433,7 @@ def test_without_luasocket_the_menu_answers_in_text() -> None:
     _menu(h, "Ground: request taxi")
     h.advance_to(10)
     assert [t["text"] for t in h.records("texts")] == [
-        "Kobuleti Ground: Viper 1-1, squawk 4101, taxi to runway 25, hold short, "
+        "Kobuleti Ground: Viper 1-1, taxi to runway 25, hold short, "
         "contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
@@ -570,7 +582,7 @@ def test_the_f10_menu_speaks_for_a_lone_wingman() -> None:
     item.fn(item.arg)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-2, squawk 4101, taxi to runway 25, hold short, contact Tower 262.0."
+        "Viper 1-2, taxi to runway 25, hold short, contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
 
@@ -598,7 +610,7 @@ def test_a_three_digit_flight_number_is_its_own_flight() -> None:
     lead = dict(config["voiceAtc"]["flights"][0])
     config["voiceAtc"]["flights"] = [
         dict(lead, group="Short", callsign="Flight 12-1"),
-        dict(lead, group="Long", callsign="Flight 123-1", squawk="4102"),
+        dict(lead, group="Long", callsign="Flight 123-1"),
     ]
     h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
     h.load_plugin_script(PLUGIN)
@@ -634,7 +646,7 @@ def test_strict_asks_once_for_a_readback_that_never_came() -> None:
 def test_a_heard_readback_needs_no_prompt() -> None:
     h = _harness()
     _call(h, "taxi")
-    _call(h, "readback", numbers="4101 25")
+    _call(h, "readback", numbers="25")
     h.advance_to(60)
     assert len(_texts(h)) == 1
     h.assert_no_lua_errors()

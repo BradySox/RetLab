@@ -6,10 +6,10 @@
 -- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
 --   fields = { { name, airbase, runway, runways ('10R,28L,...' in pairs), altimeter, ground,
 --     tower, groundVoice, towerVoice } },
---   flights = { { group, callsign, squawk, departure, arrival, divert } }
+--   flights = { { group, callsign, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
--- the field frequencies and this script decides every reply. Taxi with a squawk,
+-- the field frequencies and this script decides every reply. Taxi to the runway,
 -- takeoff with wind and altimeter, landing, clear of the runway. Under Strict radio discipline a
 -- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
 -- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same requests; without
@@ -446,7 +446,7 @@ local function withWind(parts, field)
     return parts
 end
 
--- What a readback must hold: each item is a number (a runway, a squawk or a frequency).
+-- What a readback must hold: each item is a number (a runway or a frequency).
 local function pend(flight, member, field, position, items)
     flight.pending[member] = {
         field = field,
@@ -468,7 +468,7 @@ local function heardNumber(numbers, wanted)
     return false
 end
 
--- A number in the readback that is none of the cleared items: "squawk 4110" for 4101.
+-- A number in the readback that is none of the cleared items: "hold short 52" for 25.
 local function wrongNumber(pending, numbers)
     for n in tostring(numbers):gmatch("%S+") do
         local known = false
@@ -541,13 +541,10 @@ local function taxi(field, flight, member, on)
     end
     local runway = field.runway
     pend(flight, member, field, on or "ground", {
-        { kind = "number", value = flight.squawk, say = phrase({ "squawk ", digits(flight.squawk) }) },
         { kind = "number", value = runway, say = phrase({ "hold short runway ", digits(runway) }) },
     })
     say(field, on or "ground", flight, line({
         callsignPart(memberCallsign(flight, member)),
-        ", squawk ",
-        digits(flight.squawk),
         ", taxi to runway ",
         digits(runway),
         ", hold short, contact Tower ",

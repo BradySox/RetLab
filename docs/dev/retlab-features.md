@@ -11389,7 +11389,7 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
 - **Presets and kneeboard:** a player jet's inter-flight presets carry the field's Ground and
   Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
   presets keeps them). The comms ladder lists "<field> Ground" and "<field> Tower" with
-  their channels, the Support page's FREQ / TOT line adds the squawk, and an ATC card
+  their channels, and an ATC card
   (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The card lists
   the home field, a different arrival and the divert, each Ground and Tower with its preset
   channel ("Tel Nof Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset.
@@ -11398,8 +11398,11 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   airfield table and the departure page's ATC box show "GND ... / TWR ..." with their preset
   channels in place of the DCS tower (`atc_lines`, user call 2026-10-21), for the departure,
   arrival and divert rows alike. The DCS tower shows only with Voice ATC off.
-- **Squawks:** a four-digit code per player flight, digits 0 to 7, never repeated in a mission
-  (4101, 4102 ... 4177, 4201 ...). Read back, nothing else checks it.
+- **No squawk codes** (user call, 2026-10-22). Ground gave each player flight a code
+  (4101, 4102 ...) until then, on its taxi clearance, the ATC card and the Support page's
+  FREQ / TOT line; the readback had to carry it. The mission sets no jet IFF code, so nothing
+  else used it. A pilot who still reads one back is not corrected (the number is ignored
+  when the runway is there).
 - **Runway:** the one the briefing picks (`RunwayData.runway_name`) until the first AI
   airplane takes off within 5 NM of the field; its heading then sets the runway end ATC
   gives (the briefed strip's other end first, so 28L becomes 10R). DCS's AI does not always
@@ -11421,7 +11424,7 @@ position was called; both used to get "say again".
 
 | Position | Pilot | ATC | Readback items |
 |---|---|---|---|
-| Ground | request taxi | squawk 4101, taxi to runway 25, hold short, contact Tower 262.0 | squawk, runway |
+| Ground | request taxi | taxi to runway 25, hold short, contact Tower 262.0 | runway |
 | Tower | holding short runway 25, ready | runway 25, wind, altimeter, cleared for takeoff | runway |
 | Tower | 5 miles, full stop / request the overhead | runway 25, wind, cleared to land (busy: enter the pattern at 3,000) | runway |
 | Tower | (lands) | clear the runway, taxi to parking | none |
@@ -11446,8 +11449,8 @@ migrates to Relaxed).
 
 | | Strict | Relaxed | Casual |
 |---|---|---|---|
-| Readback missing an item | "readback incomplete, squawk 4101" | fine | fine |
-| Readback with a wrong number | "readback incomplete, ..." | "negative, squawk 4101" | fine |
+| Readback missing an item | "readback incomplete, hold short runway 25" | fine | fine |
+| Readback with a wrong number | "readback incomplete, ..." | "negative, hold short runway 25" | fine |
 | Rule busts | one scolding call each | none | none |
 | Call to the wrong position | "contact Ground/Tower <freq>" | the same | answered where called |
 | Unprompted "clear the runway" | yes | yes | no: ATC speaks only when called |
@@ -11472,7 +11475,7 @@ are text only.
 message lists each field's positions and frequencies and the player flight callsigns
 (`callsigns`, which SkyEye puts in its speech recognizer's prompt); SkyEye parses every call heard on one
 as an ATC call and sends an `atcRequest` (kind, callsign, numbers heard, text); the plugin
-answers with `say` messages carrying separate `speech` ("squawk four one zero one") so Piper
+answers with `say` messages carrying separate `speech` ("runway two five") so Piper
 does not read numbers as amounts. Ground and Tower each get their own voice from the blue
 faction's accent, never one the AWACS, ABCCC or Vacuum uses. Every reply is also text to the
 flight.
@@ -11493,7 +11496,7 @@ clear of the runway", answered "Taxi to parking". Not flown (row B271).
 
 ### Files
 
-- `game/retlab/voice_atc.py`: frequencies, squawks, the plan, `dcsRetribution.voiceAtc`.
+- `game/retlab/voice_atc.py`: frequencies, the plan, `dcsRetribution.voiceAtc`.
 - `resources/plugins/voiceatc/`: the state machine, the readback check, the read-back
   prompt, the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.

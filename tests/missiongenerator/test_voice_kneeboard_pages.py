@@ -41,7 +41,7 @@ def test_atc_page_writes_for_one_field_and_for_two(tmp_path: Path) -> None:
     batumi = AtcField("Batumi", "13", MHz(266), MHz(268))
     for name, arrival in (("same", kobuleti), ("other", batumi), ("none", None)):
         out = tmp_path / f"atc-{name}.png"
-        AtcPage("Viper 1-1", "4101", kobuleti, arrival, False).write(out)
+        AtcPage("Viper 1-1", kobuleti, arrival, False).write(out)
         assert out.stat().st_size > 0
 
 
@@ -52,7 +52,6 @@ def test_atc_card_lists_home_arrival_and_divert_with_presets(tmp_path: Path) -> 
     presets = {MHz(130, 600): "COMM2 Ch 2", MHz(125, 100): "COMM2 Ch 3"}
     page = AtcPage(
         "Ford 5-1",
-        "4101",
         home,
         arrival,
         False,
@@ -78,7 +77,7 @@ def test_atc_card_lists_home_arrival_and_divert_with_presets(tmp_path: Path) -> 
 
 def test_atc_card_lists_a_field_once() -> None:
     home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
-    page = AtcPage("Ford 5-1", "4101", home, home, False, divert=home)
+    page = AtcPage("Ford 5-1", home, home, False, divert=home)
     assert [role for role, _ in page._fields()] == ["home"]
 
 

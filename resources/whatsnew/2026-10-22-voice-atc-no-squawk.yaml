@@ -1,0 +1,9 @@
+date: 2026-10-22
+title: No squawk codes on ATC
+change: >-
+  Ground no longer gives you a squawk code. "Request taxi" gets "taxi to
+  runway 25, hold short, contact Tower", and you read back only "hold
+  short 25" and your callsign. The ATC card and the Support page no
+  longer list a squawk.
+watch: >-
+  Your jet's own IFF settings are unchanged. Needs the latest SkyEye.

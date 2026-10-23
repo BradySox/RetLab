@@ -234,12 +234,11 @@ class SkyEyeAwacsPage(KneeboardPage):
 
 
 class AtcPage(KneeboardPage):
-    """Voice ATC (§119): the field frequencies, the squawk and the calls in order."""
+    """Voice ATC (§119): the field frequencies and the calls in order."""
 
     def __init__(
         self,
         callsign: str,
-        squawk: str,
         departure: Optional[AtcField],
         arrival: Optional[AtcField],
         dark_kneeboard: bool,
@@ -247,7 +246,6 @@ class AtcPage(KneeboardPage):
         preset: Optional[Callable[[RadioFrequency], Optional[str]]] = None,
     ) -> None:
         self.callsign = callsign
-        self.squawk = squawk
         self.departure = departure
         self.arrival = arrival
         self.divert = divert
@@ -285,7 +283,6 @@ class AtcPage(KneeboardPage):
             w.text(
                 self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
             )
-        w.text(f"Your squawk: {self.squawk}", fill=w.col_nav)
         _lines(
             w,
             [
@@ -305,9 +302,9 @@ class AtcPage(KneeboardPage):
                 w,
                 [
                     f'"{o} Ground, {me}, request taxi."',
-                    f'  ATC: "Squawk {self.squawk}, taxi to runway {out.runway}, hold '
-                    f'short, contact Tower {_spoken_freq(out.tower)}."',
-                    f'  You: "Squawk {self.squawk}, hold short {out.runway}, {me}."',
+                    f'  ATC: "Taxi to runway {out.runway}, hold short, contact Tower '
+                    f'{_spoken_freq(out.tower)}."',
+                    f'  You: "Hold short {out.runway}, {me}."',
                     f'"{o} Tower, {me}, holding short runway {out.runway}, ready."',
                     f'  ATC: "Runway {out.runway}, wind, altimeter, cleared for takeoff."',
                     f'  You: "Cleared for takeoff {out.runway}, {me}."',

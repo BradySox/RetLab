@@ -323,7 +323,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 airfield_rows=airfield_rows,
                 zulu_tz=zulu_tz,
                 voice_awacs=self.voice_awacs,
-                squawk=atc.squawk if atc else None,
                 strike=(
                     self.abccc[1]
                     if self.abccc is not None
@@ -394,7 +393,6 @@ class KneeboardGenerator(MissionInfoGenerator):
             pages.append(
                 AtcPage(
                     atc.callsign,
-                    atc.squawk,
                     self.voice_atc.fields.get(atc.departure or ""),
                     self.voice_atc.fields.get(atc.arrival or ""),
                     self.dark_kneeboard,

@@ -284,8 +284,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   "loose" up to 15 miles off. A site whose radar it hears is fully known on the map after
   the turn. Players can call it for the radars near them, near their target, or on an RWR
   bearing. Off by default.
-- **Voice ATC.** Ground and Tower for player flights through SkyEye on UHF: taxi with a
-  squawk, takeoff and landing, with readback checks and an F10 ATC menu. Off by default.
+- **Voice ATC.** Ground and Tower for player flights through SkyEye on UHF: taxi,
+  takeoff and landing, with readback checks and an F10 ATC menu. Off by default.
 - **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
   client, connected to your own server. SkyEye closes after the mission. Off by default.
 

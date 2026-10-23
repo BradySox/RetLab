@@ -109,12 +109,9 @@ class SupportPage(KneeboardPage):
         airfield_rows: Optional[List[List[str]]] = None,
         zulu_tz: Optional[datetime.tzinfo] = None,
         voice_awacs: Optional[VoiceAwacsInfo] = None,
-        squawk: Optional[str] = None,
         strike: Optional[RadioFrequency] = None,
     ) -> None:
         self.flight = flight
-        #: The flight's Voice ATC squawk (§119), on the FREQ / TOT line.
-        self.squawk = squawk
         #: STRIKE, when the ABCCC runs this package on it (§117): the FREQ line.
         self.strike = strike
         self.package_flights = package_flights
@@ -182,8 +179,6 @@ class SupportPage(KneeboardPage):
             freq = self.format_frequency(package.frequency)
         freq = freq.replace("\n", " - ")
         tot = self._format_time(package.time_over_target)
-        if self.squawk:
-            tot = f"{tot}    SQUAWK: {self.squawk}"
         one_line = f"  FREQ: {freq}    TOT: {tot}"
         content_px = writer.image_size[0] - 2 * writer.page_margin
         if writer.table_font.getlength(one_line) <= content_px:

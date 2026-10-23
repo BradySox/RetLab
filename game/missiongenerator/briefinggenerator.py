@@ -84,7 +84,7 @@ class MissionInfoGenerator:
         self.strike_packages: set[int] = set()
         #: Vacuum's own frequency, when one flies (§118).
         self.vacuum: Optional[RadioFrequency] = None
-        #: Voice ATC's fields and squawks, when the setting is on (§119).
+        #: Voice ATC's fields and flights, when the setting is on (§119).
         self.voice_atc: Optional[VoiceAtcPlan] = None
         self.comms: List[CommInfo] = []
         self.flights: List[FlightData] = []
