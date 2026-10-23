@@ -2149,6 +2149,22 @@ that code.
 - **Switching the flight member on the payload tab wiped that member's pylon settings
   (2026-10-17).** `QPylonEditor.set_from` now sets the store with the combo's signals
   blocked, so showing a member's loadout no longer counts as a store change.
+- **The Shrike seeker head was matched to the target only with the date rule on, and
+  wiped the rest of the pylon's settings (2026-10-22).** Upstream #632 ran the weapon
+  `target_overrides` inside `degrade_for_date`, so with `restrict_weapons_by_date` off
+  (the default) no head was ever matched. When it ran, it replaced the whole table,
+  losing a hand-set head, Attack Profile and WP Marker. `Weapon.settings_for_target` now
+  fills a setting only while it is at its default and writes the full table (DCS reads
+  an absent key as not fitted); `setup_payload` applies it after the date rule, for AI
+  always and for players under `apply_target_overrides_to_loadouts`. The payload
+  editor's Weapon Settings window shows the matched head, and saving it unchanged
+  stores the default, so it keeps following the target (`strip_target_settings`).
+  Known edge: picking the default head (Mk 22) by hand counts as automatic.
+  Table changes: Fan Song gets Mk 25 (DCS's Fan Song head, was the broad Mk 50), Fire
+  Can joins Mk 23, and a target no rule names gets Mk 50 (`target_overrides_fallback`,
+  was Mk 22). The AGM-78A and AGM-78B lost their tables: each has one head in DCS, and
+  the 78A's rules set head ids it does not have. Tests:
+  `tests/test_weapon_target_settings.py`.
 
 ### Ground movement
 
@@ -6868,8 +6884,8 @@ mod resolve exactly as before.
 **Era + economy come free.** The AGM-78A/B were already first-class weapons-DB citizens
 (`resources/weapons/standoff/AGM-78{A,B}.yaml` from the upstream #663/#733 support: dated
 at the 1968/1969 service entries, Shrike fallback, the mod's LAU-77 clsids listed, and
-full per-target **seeker-band `target_overrides`** — the Standard fits get their RF
-seekers tuned to the target automatically), the fork already dates the DCS AGM-88C at
+per-target seeker-band `target_overrides`, removed 2026-10-22 because each Standard has
+one head in DCS; see §8 *Loadouts and module data*), the fork already dates the DCS AGM-88C at
 the family's 1984 IOC with an AGM-45 fallback (`AGM-88C.yaml`), and §54 munitions
 scarcity already tracks Standards, Shrikes, AND HARMs under the `arm` family. So a
 July-1988 game with `restrict_weapons_by_date` on (the Red Tide setup this exists to be
@@ -11183,10 +11199,11 @@ kneeboard comms as "STRIKE (Anvil)":
 - **Push:** at the package push time (the earliest strike flight's HOLD departure).
 - **Roll call:** 3 minutes before the push, "All players, <ABCCC>, check in". Seated player
   flights answer (voice or F10) and get "copy ready"; AI flights are read out as up or not
-  airborne. A player still silent at the push, by role (user call, 2026-10-20): SEAD holds
-  like a SEAD on the ground (two holds, then abort), an escort gets one hold, a striker is
-  left behind if another striker is set (else one hold, then abort). Empty slots are not
-  waited for.
+  airborne in the same transmission (2026-10-22: sent as a second call right behind the roll
+  call, the read-out was transmitted and never heard). A player still silent at the push, by
+  role (user call, 2026-10-20): SEAD holds like a SEAD on the ground (two holds, then abort),
+  an escort gets one hold, a striker is left behind if another striker is set (else one hold,
+  then abort). Empty slots are not waited for.
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
   After that the package pushes if a SEAD is airborne (or it has none), else aborts.
 - **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
@@ -11396,6 +11413,7 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). Below the
   frequencies it lists the calls going out and coming home, each with ATC's answer and the
   readback (calls only, user call 2026-10-22). The card lists
+  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The card lists
   the home field, a different arrival and the divert, each Ground and Tower with its preset
   channel ("Tel Nof Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset.
   Both cards name a station as ATC's own text does (`station_name`; the comms ladder said

@@ -606,18 +606,19 @@ local function slip(pkg, reason)
 end
 
 -- The roll call, one call for every package due this tick: players answer; AI flights are read
--- out by what they are doing.
+-- out by what they are doing, in the same transmission: sent as a second call right behind the
+-- first, the read-out went unheard (flown 2026-10-22).
 local function rollCall(list)
     for _, pkg in ipairs(list) do
         pkg.rollCalled = true
     end
     local minutes = tostring(math.floor(ROLL_CALL_LEAD_SECONDS / 60))
-    sayTo(list, line({
+    local parts = {
         packagePart(list),
         ", {controller}, check in. Push in ",
         { minutes, minutes == "3" and "three" or minutes },
         " minutes.",
-    }))
+    }
     for _, pkg in ipairs(list) do
         local up, down = {}, {}
         for _, f in ipairs(pkg.flights or {}) do
@@ -625,21 +626,18 @@ local function rollCall(list)
                 table.insert(airborne(f) and up or down, f)
             end
         end
-        if #up + #down > 0 then
-            local parts = { packagePart({ pkg }), ", {controller}, " }
-            if #up > 0 then
-                table.insert(parts, callsigns(up))
-                table.insert(parts, " airborne")
-            end
-            if #down > 0 then
-                table.insert(parts, #up > 0 and ". " or "")
-                table.insert(parts, callsigns(down))
-                table.insert(parts, " not airborne")
-            end
-            table.insert(parts, ".")
-            say(pkg, parts)
+        if #up > 0 then
+            table.insert(parts, " ")
+            table.insert(parts, callsigns(up))
+            table.insert(parts, " airborne.")
+        end
+        if #down > 0 then
+            table.insert(parts, " ")
+            table.insert(parts, callsigns(down))
+            table.insert(parts, " not airborne.")
         end
     end
+    sayTo(list, line(parts))
 end
 
 local function decidePush(pkg)
