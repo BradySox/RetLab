@@ -1,4 +1,4 @@
-"""The voice cards teach the calls SkyEye now understands, natural form first (2026-10-21)."""
+"""The voice cards list the calls SkyEye recognizes, each with its answer, and nothing else (2026-10-22)."""
 
 from __future__ import annotations
 
@@ -30,25 +30,47 @@ def _card_lines(page: Any, tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> s
     return "\n".join(seen)
 
 
-def test_abccc_card_teaches_check_in_aliases_and_the_roll_call(
+def _calls(text: str) -> list[str]:
+    """The pilot's calls: every line that opens with a quote."""
+    return [line for line in text.splitlines() if line.startswith('"')]
+
+
+def _answers(text: str) -> list[str]:
+    return [line for line in text.splitlines() if line.startswith("  ")]
+
+
+def test_abccc_card_is_calls_and_answers(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    page = AbcccPage("Blackjack", MHz(264, 500), "Image", "Ford 9-1", False)
+    page = AbcccPage("Blackjack", MHz(264, 500), "Ford 9-1", False)
     text = _card_lines(page, tmp_path, monkeypatch)
-    assert '"Blackjack, Ford 9-1, checking in."  (or "with you", "on station")' in text
-    assert '"... package, check in"' in text
-    assert '"Blackjack, Ford 9-1, ready"' in text
-    assert "push time 1432" in text
-    assert "All players" not in text
+    assert _calls(text) == [
+        '"Blackjack, Ford 9-1, checking in."',
+        '"Blackjack, Ford 9-1, ready."',
+        '"Blackjack, Ford 9-1, ready to push."',
+        '"Blackjack, Ford 9-1, say push time."',
+    ]
+    assert len(_answers(text)) == len(_calls(text))
+    assert "Push time 1432" in text
+    assert "command post" not in text and "Tip" not in text
 
 
-def test_awacs_card_no_longer_asks_for_the_callsign_as_player_name(
+def test_awacs_card_is_calls_and_answers(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     page = SkyEyeAwacsPage("Image", MHz(251), None, "Ford 9-1", False)
     text = _card_lines(page, tmp_path, monkeypatch)
-    assert "player name" not in text
-    assert '"Image, Ford 9-1, checking in."' in text
+    calls = _calls(text)
+    assert calls[:3] == [
+        '"Image, Ford 9-1, radio check."',
+        '"Image, Ford 9-1, picture."',
+        '"Image, Ford 9-1, bogey dope."',
+    ]
+    assert 5 <= len(calls) <= 8
+    assert len(_answers(text)) == len(calls)
+    # SkyEye answers an AWACS check-in by asking which check was meant.
+    assert "checking in" not in text
+    assert "Nobody answers" not in text and "player name" not in text
 
 
 def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
@@ -58,12 +80,9 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     page = AtcPage("Ford 9-1", home, home, False)
     text = _card_lines(page, tmp_path, monkeypatch)
     assert (
-        'After landing, you: "Tower, Ford 9-1, clear of the runway."  '
-        'ATC: "Taxi to parking."'
+        '"Hatzerim Tower, Ford 9-1, clear of the runway."\n  ATC: "Taxi to parking."'
     ) in text
-    assert '"Clear the runway, taxi to parking."' not in text
-    assert '"Hatzerim Tower, Ford 9-1, airborne."  (or "outbound")' in text
-    assert "your name first works too" in text
+    assert '"Hatzerim Tower, Ford 9-1, airborne."' in text
     # No squawk codes (user call, 2026-10-22): Ground clears taxi, the readback is the runway.
     assert (
         '  ATC: "Taxi to runway 28L, hold short, contact Tower '
@@ -71,3 +90,8 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     ) in text
     assert '  You: "Hold short 28L, Ford 9-1."' in text
     assert "squawk" not in text.lower()
+    # Calls only: no explanations of readbacks, discipline or the F10 menu.
+    for gone in ("Readback incomplete", "F10", "Nothing stops you", "(or "):
+        assert gone not in text, gone
+    for call in _calls(text):
+        assert "Ford 9-1" in call, call
