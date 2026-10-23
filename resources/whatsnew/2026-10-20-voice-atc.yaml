@@ -3,9 +3,9 @@ title: Talk to Ground and Tower
 change: >-
   Turn on Voice ATC (SkyEye) in Settings > RetLab Features. Every field
   your flight uses gets its own Ground and Tower frequencies. Ask Ground
-  for taxi, read back your squawk and runway, and ask
+  for taxi, read back your runway, and ask
   Tower for takeoff and landing. The ATC card on your kneeboard lists the
-  frequencies, your squawk and the calls. F10 > ATC makes the same calls.
+  frequencies and the calls. F10 > ATC makes the same calls.
   Needs SkyEye running with its mission link.
 watch: >-
   Taxiing or taking off without clearance gets a radio call, nothing more.

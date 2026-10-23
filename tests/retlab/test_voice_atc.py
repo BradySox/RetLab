@@ -1,8 +1,7 @@
-"""Voice ATC (§119): squawk codes, the lead callsign and which flights and fields get ATC."""
+"""Voice ATC (§119): the lead callsign and which flights and fields get ATC."""
 
 from __future__ import annotations
 
-from itertools import islice
 from types import SimpleNamespace
 from typing import Any
 
@@ -11,18 +10,8 @@ from game.radio.radios import MHz
 from game.retlab.voice_atc import (
     frequency_text,
     lead_callsign,
-    squawk_codes,
     voice_atc_plan,
 )
-
-
-def test_squawk_codes_use_only_digits_0_to_7_and_never_repeat() -> None:
-    codes = list(squawk_codes())
-    assert codes[:3] == ["4101", "4102", "4103"]
-    assert "4110" in codes and "4200" not in codes
-    assert all(set(c) <= set("01234567") and len(c) == 4 for c in codes)
-    assert len(set(codes)) == len(codes)
-    assert not {"7500", "7600", "7700"} & set(codes)
 
 
 def test_the_lead_answers_to_ship_one() -> None:
@@ -78,15 +67,15 @@ def test_only_blue_player_flights_at_atc_fields_get_atc() -> None:
     ]
     plan = voice_atc_plan(_game(), data)
     assert plan is not None
-    assert [(f.group, f.callsign, f.squawk) for f in plan.flights] == [
-        ("Viper", "Viper 1-1", "4101"),
-        ("Uzi", "Uzi 1-1", "4102"),
+    assert [(f.group, f.callsign) for f in plan.flights] == [
+        ("Viper", "Viper 1-1"),
+        ("Uzi", "Uzi 1-1"),
     ]
     field = plan.fields["Kobuleti"]
     assert (field.runway, field.ground, field.tower) == ("25", MHz(260), MHz(264))
     voices = {field.ground_voice, field.tower_voice}
     assert len(voices) == 2 and not voices & set(data.skyeye_voices)
-    # Built once: the kneeboard sees the same squawks as the mission.
+    # Built once: the kneeboard sees the same flights as the mission.
     assert voice_atc_plan(_game(), data) is plan
 
 
@@ -124,10 +113,6 @@ def test_nothing_with_the_setting_off() -> None:
     data.atc_frequencies = {"Kobuleti": (MHz(260), MHz(264))}
     data.flights = [_flight("Viper", True)]
     assert voice_atc_plan(_game(on=False), data) is None
-
-
-def test_codes_run_past_the_first_block() -> None:
-    assert list(islice(squawk_codes(), 62, 64)) == ["4177", "4201"]
 
 
 def _preset_flight(departure: str, arrival: str) -> Any:

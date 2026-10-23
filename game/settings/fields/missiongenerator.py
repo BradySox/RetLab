@@ -490,10 +490,10 @@ class MissionGeneratorSettings:
         default=False,
         detail=(
             "Ground and Tower for player flights at every airfield a player flight "
-            "takes off from or lands at: taxi with a squawk code, "
+            "takes off from or lands at: taxi to the runway, "
             "takeoff with the wind and altimeter, and landing. Each field gets its "
             "own Ground and Tower frequencies, apart from DCS's tower frequency. The "
-            "kneeboard lists both and your squawk. Busting a rule gets a radio call "
+            "kneeboard lists both. Busting a rule gets a radio call "
             "and nothing more. AI flights keep DCS's own ATC. SkyEye, running with "
             "its mission link, hears the calls and speaks the replies."
         ),

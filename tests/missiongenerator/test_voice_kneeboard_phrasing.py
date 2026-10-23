@@ -55,7 +55,7 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
-    page = AtcPage("Ford 9-1", "4101", home, home, False)
+    page = AtcPage("Ford 9-1", home, home, False)
     text = _card_lines(page, tmp_path, monkeypatch)
     assert (
         'After landing, you: "Tower, Ford 9-1, clear of the runway."  '
@@ -64,3 +64,10 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     assert '"Clear the runway, taxi to parking."' not in text
     assert '"Hatzerim Tower, Ford 9-1, airborne."  (or "outbound")' in text
     assert "your name first works too" in text
+    # No squawk codes (user call, 2026-10-22): Ground clears taxi, the readback is the runway.
+    assert (
+        '  ATC: "Taxi to runway 28L, hold short, contact Tower '
+        f'{voicepages._spoken_freq(home.tower)}."'
+    ) in text
+    assert '  You: "Hold short 28L, Ford 9-1."' in text
+    assert "squawk" not in text.lower()

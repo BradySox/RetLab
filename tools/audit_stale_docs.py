@@ -523,6 +523,12 @@ REMOVED: tuple[Removed, ...] = (
         r"Phone link|[Pp]hone map|\bntfy\b|[Tt]urn ping",
         allow=("removed", "Removed", "no longer", "historical"),
     ),
+    Removed(
+        # S119. Not a bare "squawk": a SAR or emergency page may tell a pilot to squawk 7700.
+        "Voice ATC's squawk codes (S119)",
+        "2026-10-22",
+        r"taxi with a\s+squawk|your\s+squawk|squawk codes?,? readback|SQUAWK:",
+    ),
 )
 
 

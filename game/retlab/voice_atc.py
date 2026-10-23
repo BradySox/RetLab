@@ -2,8 +2,8 @@
 
 Every airfield a player flight takes off from or lands at gets new Ground and Tower
 frequencies, never the field's DCS tower frequency: DCS's own ATC on it keeps telling a
-player who taxis without its permission to hold position (user call, 2026-10-20). Each
-player flight gets a squawk code.
+player who taxis without its permission to hold position (user call, 2026-10-20). No
+squawk codes: ATC never gives or checks one (user call, 2026-10-22).
 The ``voiceatc`` plugin decides every reply in the mission; SkyEye hears the calls and
 speaks the replies over its mission link. AI-only fields keep DCS's own ATC.
 docs/dev/retlab-features.md §119.
@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Iterator, Optional
+from typing import TYPE_CHECKING, Optional
 
 from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
@@ -85,14 +85,6 @@ def is_uhf(frequency: RadioFrequency) -> bool:
     return frequency.band == "UHF"
 
 
-def squawk_codes() -> Iterator[str]:
-    """Four-digit transponder codes, digits 0 to 7 only: 4101, 4102 ... 4177, 4201 ..."""
-    for n in range(0o4101, 0o7400):
-        code = f"{n:o}"
-        if not code.endswith("00"):
-            yield code
-
-
 def frequency_text(frequency: RadioFrequency) -> str:
     """``262.000AM``: the string SkyEye prints a frequency as."""
     return f"{frequency.mhz:.3f}{frequency.modulation.name}"
@@ -154,7 +146,6 @@ class AtcField:
 class AtcFlight:
     group: str
     callsign: str
-    squawk: str
     departure: Optional[str]
     arrival: Optional[str]
     divert: Optional[str] = None
@@ -176,7 +167,6 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
     if mission_data.voice_atc is not None:
         return mission_data.voice_atc
     plan = VoiceAtcPlan()
-    codes = squawk_codes()
     for flight in mission_data.flights:
         if not (flight.client_units and flight.friendly.is_blue):
             continue
@@ -207,7 +197,6 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
             AtcFlight(
                 flight.group_name,
                 lead_callsign(flight),
-                next(codes),
                 names[0],
                 names[1],
                 names[2],
@@ -252,7 +241,6 @@ def populate_voice_atc_lua(
         item = flights_node.add_item()
         item.add_key_value("group", flight.group)
         item.add_key_value("callsign", flight.callsign)
-        item.add_key_value("squawk", flight.squawk)
         item.add_key_value("departure", flight.departure or "")
         item.add_key_value("arrival", flight.arrival or "")
         item.add_key_value("divert", flight.divert or "")

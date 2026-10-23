@@ -1,7 +1,7 @@
 {
     "skipUI": true,
     "nameInUI": "Voice ATC",
-    "descriptionInUI": "Ground and Tower for player flights through SkyEye on UHF: taxi with a squawk, takeoff and landing. Settings > RetLab Features holds the switch.",
+    "descriptionInUI": "Ground and Tower for player flights through SkyEye on UHF: taxi, takeoff and landing. Settings > RetLab Features holds the switch.",
     "defaultValue": true,
     "specificOptions": [],
     "scriptsWorkOrders": [],
