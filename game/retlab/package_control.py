@@ -3,8 +3,8 @@
 An ABCCC flight (an EC-130 ABCCC role) orbits behind the front. While it is
 alive and airborne the ``pkgcontrol`` plugin runs every blue package with a player
 seat on STRIKE (common), one frequency set as each such package's own (so it is the
-package preset): the check-in reply, the push call, a hold or abort before the push,
-and the egress call. The AWACS joins STRIKE as the second voice for the picture and
+package preset): the check-in reply, the push to join, a hold or abort before the push,
+the execute call once the package is at the join point, and the egress call. The AWACS joins STRIKE as the second voice for the picture and
 intercepts. SkyEye speaks for both over a local UDP link, in opposite voices; every
 call is also text. With no controller airborne there is no package control, and the
 AWACS never stands in. This module builds ``dcsRetribution.packageControl``.
@@ -96,6 +96,15 @@ def _hold(flight: FlightData) -> Optional[tuple[float, float, int, int]]:
         if waypoint.waypoint_type is FlightWaypointType.LOITER:
             angels = int(round(waypoint.alt.feet / 1000))
             return waypoint.x, waypoint.y, angels, index + 1
+    return None
+
+
+def _join(flight: FlightData) -> Optional[tuple[float, float, int, Optional[datetime]]]:
+    """The JOIN point, its angels, and the time the flight is due there."""
+    for waypoint in flight.waypoints:
+        if waypoint.waypoint_type is FlightWaypointType.JOIN:
+            angels = int(round(waypoint.alt.feet / 1000))
+            return waypoint.x, waypoint.y, angels, waypoint.tot
     return None
 
 
@@ -223,6 +232,14 @@ def populate_package_control_lua(
                 record.add_key_value("holdY", str(hold[1]))
                 record.add_key_value("holdAngels", str(hold[2]))
                 record.add_key_value("holdIndex", str(hold[3]))
+            if (join := _join(flight)) is not None:
+                join_after = clock.seconds(join[3])
+                record.add_key_value(
+                    "joinAfter", str(join_after if join_after is not None else "")
+                )
+                record.add_key_value("joinX", str(join[0]))
+                record.add_key_value("joinY", str(join[1]))
+                record.add_key_value("joinAngels", str(join[2]))
             record.add_key_value("home", flight.arrival.airfield_name)
             if role == "strike":
                 targets.extend(n for n in _target_units(flight) if n not in targets)

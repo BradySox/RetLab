@@ -1,0 +1,11 @@
+date: 2026-10-23
+title: ABCCC calls execute at the join point
+change: >-
+  The ABCCC now says "push to join" when your package leaves its hold, and
+  "execute" once the strikers and escorts are within 5 NM of the join point.
+  SEAD runs ahead and is not waited for. AI flights that get to the join
+  first orbit there until execute.
+watch: >-
+  A flight more than 3 minutes late to the join is left behind ("not at join,
+  package executing without you"). With no striker at the join the package
+  aborts. Any wait at the join pushes the time on target back by that much.

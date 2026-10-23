@@ -64,9 +64,10 @@ class AbcccPage(KneeboardPage):
                 f'"{c}, {me}, ready."',
                 f'  {c}: "Copy ready. Push time 1432."',
                 f'"{c}, {me}, ready to push."',
-                f'  {c}: "Push."  (or "Negative ... Push time 1432.")',
+                f'  {c}: "Push to join."  (or "Negative ... Push time 1432.")',
                 f'"{c}, {me}, say push time."',
                 f'  {c}: "Push time 1432."',
+                f'At the join point, {c}: "Execute."',
             ],
         )
         w.write(path)

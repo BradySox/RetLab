@@ -49,6 +49,7 @@ local Harness = {
         coalitionSwaps = {}, -- { group, countryId, coalitionId, t } from GROUP:Respawn
         mapTexts = {}, -- { id, x, z, color, fill, fontSize, text } from textToAll
         zoneFills = {}, -- { name, points, coalition, color, alpha } from ZONE_POLYGON:ReFill
+        userFlags = {}, -- { flag, value, t } from trigger.action.setUserFlag
 
         infos = {},
         warnings = {},
@@ -788,6 +789,13 @@ trigger = {
                 text = tostring(text),
                 duration = duration,
                 clearview = clearview,
+                t = Harness.now,
+            })
+        end,
+        setUserFlag = function(flag, value)
+            table.insert(Harness.records.userFlags, {
+                flag = tostring(flag),
+                value = value,
                 t = Harness.now,
             })
         end,

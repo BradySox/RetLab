@@ -29,6 +29,14 @@ def _waypoint(kind: FlightWaypointType, alt_ft: int = 0) -> FlightWaypoint:
     return FlightWaypoint("HOLD", kind, Point(1000, 2000, Caucasus()), alt=feet(alt_ft))
 
 
+def _join(minutes: int) -> FlightWaypoint:
+    join = FlightWaypoint(
+        "JOIN", FlightWaypointType.JOIN, Point(3000, 4000, Caucasus()), alt=feet(22000)
+    )
+    join.tot = START + timedelta(minutes=minutes)
+    return join
+
+
 def _flight(
     package: Any, group: str, task: FlightType, client: bool, push_minutes: int
 ) -> Any:
@@ -41,7 +49,10 @@ def _flight(
         friendly=Player.BLUE,
         mission_start=START,
         push_time=START + timedelta(minutes=push_minutes),
-        waypoints=[_waypoint(FlightWaypointType.LOITER, 20000)],
+        waypoints=[
+            _waypoint(FlightWaypointType.LOITER, 20000),
+            _join(push_minutes + 5),
+        ],
         arrival=SimpleNamespace(airfield_name="Incirlik"),
         squadron=SimpleNamespace(country=SimpleNamespace(name="USA")),
     )
@@ -119,6 +130,10 @@ def test_a_player_package_runs_on_strike_with_opposite_voices() -> None:
         'pushAfter = "480"',
         'holdAngels = "20"',
         'holdIndex = "1"',
+        'joinAfter = "900"',
+        'joinX = "3000"',
+        'joinY = "4000"',
+        'joinAngels = "22"',
         'home = "Incirlik"',
         'client = "true"',
     ):
