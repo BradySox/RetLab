@@ -42,8 +42,8 @@ if TYPE_CHECKING:
     from game.theater.theatergroup import TheaterGroup, TheaterUnit
 
 #: Turns with this many SEAD, SEAD Escort or DEAD flights get a Vacuum (user call,
-#: 2026-10-20).
-SEAD_FLIGHTS_FOR_VACUUM = 2
+#: 2026-10-20; lowered from 2, 2026-10-22).
+SEAD_FLIGHTS_FOR_VACUUM = 1
 SEAD_TYPES = frozenset(
     {
         FlightType.SEAD,
@@ -101,7 +101,7 @@ _LABEL_RANK = {
 
 
 def plan_vacuum(coalition: Coalition) -> Optional[Flight]:
-    """Add a Vacuum to the AWACS package on a SEAD-heavy turn, when the setting is on."""
+    """Add a Vacuum to the AWACS package on a turn with SEAD or DEAD, when the setting is on."""
     game = coalition.game
     if not coalition.player.is_blue or not game.settings.vacuum_elint:
         return None
