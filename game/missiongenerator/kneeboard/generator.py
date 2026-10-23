@@ -12,7 +12,6 @@ from game.coordinates import (
     coordinate_format,
 )
 from game.dcs.aircrafttype import AircraftType
-from game.settings.enums import RadioDiscipline
 from game.settings.settings import TargetIntelPrecision
 from game.sitrep import Sitrep, sitrep_for_kneeboard
 from game.theater import TheaterGroundObject
@@ -339,7 +338,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                 self.dark_kneeboard,
             )
         )
-        # The voice controller cheat sheets sit right after the comms (§116, §117).
+        # The voice controller cards sit right after the comms (§116-§119).
         # The lead's own seat on every card (user call, 2026-10-21: "Ford 5-1").
         callsign = str(flight.callsign)
         if "-" not in callsign:
@@ -358,7 +357,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 AbcccPage(
                     self.abccc[0],
                     self.abccc[1],
-                    self.voice_awacs.callsign if self.voice_awacs else None,
                     callsign,
                     self.dark_kneeboard,
                     fmt,
@@ -384,8 +382,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                     callsign,
                     self.dark_kneeboard,
                     fmt,
-                    casual=self.game.settings.radio_discipline
-                    is RadioDiscipline.CASUAL,
                 )
             )
 

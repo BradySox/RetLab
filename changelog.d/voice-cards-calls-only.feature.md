@@ -1,0 +1,1 @@
+* **[Kneeboard]** The ABCCC, AWACS, ATC and Vacuum cards list only the common calls each bot recognizes, each with its answer on one line. The explanations, the ABCCC flow chart and the Vacuum radar table are gone; the Vacuum card keeps one line that a SAM with its radar off is invisible to it.

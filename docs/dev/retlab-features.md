@@ -11296,8 +11296,11 @@ when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, Ret
 - `game/missiongenerator/aircraft/aircraftbehavior.py` (`configure_package_control`).
 - `resources/plugins/pkgcontrol/`: the calls, the F10 menu, the SkyEye link.
 - `game/retlab/skyeye_voices.py`: the voices by squadron country (below).
-- `game/missiongenerator/kneeboard/voicepages.py`: the two cheat-sheet pages after the comms
-  page, "Talking to <ABCCC>" and "Talking to <AWACS>", for pilots new to voice bots.
+- `game/missiongenerator/kneeboard/voicepages.py`: the two cards after the comms page,
+  "Talking to <ABCCC>" and "Talking to <AWACS>". Each card is the frequency and the common
+  calls the bot recognizes, each with its answer on one line; no prose on what a call does
+  (user call, 2026-10-22). The AWACS card has no check-in: SkyEye answers one by asking
+  whether a radio check or an alpha check was meant.
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
 
 ### Constraints
@@ -11407,6 +11410,9 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   Tower in place of its DCS tower (`CommonRadioChannelAllocator`; a squadron with its own
   presets keeps them). The comms ladder lists "<field> Ground" and "<field> Tower" with
   their channels, and an ATC card
+  (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). Below the
+  frequencies it lists the calls going out and coming home, each with ATC's answer and the
+  readback (calls only, user call 2026-10-22). The card lists
   (`AtcPage`) follows the voice controller cards (user call, 2026-10-20). The card lists
   the home field, a different arrival and the divert, each Ground and Tower with its preset
   channel ("Tel Nof Ground: COMM2 Ch 2, 130.600 AM"), or the frequency alone when not preset.
@@ -11615,8 +11621,9 @@ Answers name every located radar still standing, awake ones first; mud names awa
   both and never sends a request, so nothing is answered and nothing breaks.
 - **Kneeboard:** "Talking to Vacuum" (`VacuumPage`, `voicepages.py`), after the AWACS card,
   for SEAD, SEAD Escort and DEAD player flights when a Vacuum flies (`VACUUM_TASKS`). It
-  teaches the five calls in the natural form, the radar names, when Vacuum is silent, and
-  that a SAM keeping its radar off is invisible to it.
+  lists the five calls, each with its answer, and one line: a SAM keeping its radar off is
+  invisible to Vacuum, and "blank" does not mean safe (user call, 2026-10-22: no radar
+  table, no explanations).
 
 Built 2026-10-20. Not flown (row B260). Commands not flown (row B269). Awake and asleep not
 flown (row B272).

@@ -1,0 +1,10 @@
+date: 2026-10-22
+title: Voice cards list just the calls
+change: >-
+  The "Talking to" cards for the ABCCC, the AWACS, ATC and Vacuum now show
+  the frequency and the common calls each bot understands, with your
+  callsign filled in and the answer you will hear under each one. The
+  explanations, the ABCCC flow chart and the Vacuum radar table are gone.
+watch: >-
+  The AWACS card no longer lists "checking in": SkyEye answers it by asking
+  which check you meant. Use "radio check".
