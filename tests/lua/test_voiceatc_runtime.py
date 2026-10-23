@@ -200,6 +200,7 @@ def test_a_sortie_from_taxi_to_parking() -> None:
     said = _said(h)
     assert [m["frequency"] for m in said] == [GROUND, TOWER]
     assert [m["voice"] for m in said] == ["en_US-ryan-medium", "en_US-amy-medium"]
+    assert [m["speaker"] for m in said] == ["Kobuleti Ground", "Kobuleti Tower"]
     assert said[0]["speech"] == (
         "Viper one one, taxi to runway two five, "
         "hold short, contact Tower two six two decimal zero."

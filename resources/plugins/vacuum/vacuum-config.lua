@@ -590,6 +590,7 @@ local function sayLine(frequency, call, group)
         { "text", call.text },
         { "speech", call.speech },
         { "voice", data.voice or "" },
+        { "speaker", data.callsign or "Vacuum" },
     })
 end
 

@@ -11679,6 +11679,11 @@ the way. With the setting on:
 - A blue AEW&C flight fragged that turn takes SkyEye's callsign for the turn (Chalice, Chainsaw
   or Image), so the F10 map, the kneeboard and the voice use one name (2026-10-21).
   A flight fragged before the setting was turned on keeps its callsign.
+- **Each voice bot has its own SRS name (2026-10-22).** Every `say` from `voiceatc`,
+  `pkgcontrol` and `vacuum` carries `speaker`: the station label ("Hatzerim Ground"), the
+  ABCCC callsign, Vacuum's callsign. A SkyEye with BradySox/skyeye#14 opens one transmit-only
+  SRS client per speaker ("Hatzerim Ground [BOT]") and renames its own to "<callsign> [BOT]";
+  an older SkyEye ignores the field. Row B275.
 
 Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
 player named themselves in the call. Not flown with the setting on (row B257). The DTC

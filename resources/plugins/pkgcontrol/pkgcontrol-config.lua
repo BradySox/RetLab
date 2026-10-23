@@ -330,6 +330,7 @@ local function sayTo(list, call)
         { "text", text },
         { "speech", speech },
         { "voice", data.controllerVoice or "" },
+        { "speaker", c.callsign },
     })
     return true
 end
