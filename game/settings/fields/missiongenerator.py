@@ -476,7 +476,7 @@ class MissionGeneratorSettings:
         default=False,
         detail=(
             "Adds a Vacuum ELINT flight, a KC-135 or, with none free, a C-130J-30, to the AWACS "
-            "package on turns with two or more SEAD, SEAD Escort or DEAD flights. "
+            "package on turns with a SEAD, SEAD Escort or DEAD flight. "
             "It can also be fragged by hand. While it is airborne it calls each red "
             "ground radar by bullseye once each time the radar comes on, on its own "
             "frequency, and on STRIKE only when the radar covers a player package's "

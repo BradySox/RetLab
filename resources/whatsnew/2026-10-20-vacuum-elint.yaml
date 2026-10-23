@@ -2,7 +2,7 @@ date: 2026-10-20
 title: Vacuum calls out red radars
 change: >-
   Turn on Vacuum ELINT (SkyEye) in Settings > RetLab Features. On turns
-  with two or more SEAD or DEAD flights, the planner adds Vacuum, a
+  with a SEAD or DEAD flight, the planner adds Vacuum, a
   KC-135 (or a C-130J-30 when none is free), to the AWACS package. While it is airborne it calls
   each red radar by bullseye when the radar comes on, on its own frequency
   on your kneeboard. Radars that cover your package's route are called on

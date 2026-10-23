@@ -11535,7 +11535,7 @@ clear of the runway", answered "Taxi to parking". Not flown (row B271).
 An **ELINT** flight type, callsign **Vacuum**, for the C-130J-30 and the KC-135 (and
 KC-135 MPRS) in any era, standing in for an RC-135. With **Vacuum ELINT (SkyEye)** on
 (RetLab Features page, off by default) the planner adds one to the land AWACS package on a
-turn with two or more SEAD, SEAD Escort or DEAD flights (`plan_vacuum`, run after the
+turn with at least one SEAD, SEAD Escort or DEAD flight (`plan_vacuum`, run after the
 theater commander). A KC-135 is picked first and a C-130J-30 only when no KC-135 is
 free (user call, 2026-10-20: the KC-135 is Vacuum, the C-130 the ABCCC). It can also be
 fragged by hand.

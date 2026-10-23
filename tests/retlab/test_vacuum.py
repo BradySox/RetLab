@@ -74,8 +74,8 @@ def _coalition(packages: list[Any], on: bool = True, squadron: Any = None) -> An
     )
 
 
-def test_no_vacuum_without_two_sead_flights() -> None:
-    ato = [_package(FlightType.AEWC), _package(FlightType.SEAD)]
+def test_no_vacuum_without_a_sead_flight() -> None:
+    ato = [_package(FlightType.AEWC), _package(FlightType.BAI)]
     calls: list[Any] = []
     coalition = _coalition(ato)
     coalition.air_wing.best_squadron_for = lambda *a, **k: calls.append(a)
@@ -88,9 +88,9 @@ def test_no_vacuum_with_the_setting_off() -> None:
     assert plan_vacuum(_coalition(ato, on=False)) is None
 
 
-def test_two_sead_flights_ask_the_wing_for_a_vacuum() -> None:
+def test_one_dead_flight_asks_the_wing_for_a_vacuum() -> None:
     asked: list[Any] = []
-    ato = [_package(FlightType.AEWC), _package(FlightType.SEAD, FlightType.DEAD)]
+    ato = [_package(FlightType.AEWC), _package(FlightType.DEAD)]
     coalition = _coalition(ato)
 
     def best(*args: Any, **kwargs: Any) -> None:
