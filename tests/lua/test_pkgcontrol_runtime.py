@@ -387,9 +387,31 @@ def test_the_roll_call_goes_out_three_minutes_before_the_push() -> None:
     assert _all_texts(h) == []
     h.advance_to(PUSH - 170)
     assert _all_texts(h) == [
-        "Colt package, Anvil, check in. Push in 3 minutes.",
-        "Colt package, Anvil, Hawg1-1 airborne. Weasel1-1 not airborne.",
+        "Colt package, Anvil, check in. Push in 3 minutes."
+        " Hawg1-1 airborne. Weasel1-1 not airborne."
     ]
+    h.assert_no_lua_errors()
+
+
+def test_the_roll_call_and_its_ai_read_out_are_one_transmission() -> None:
+    # Flown 2026-10-22: the read-out sent as a second say right behind the roll call
+    # was transmitted and never heard.
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Hawg"), _flight("Weasel", role="sead")],
+        [
+            _group("Colt", player="Flash"),
+            _group("Hawg"),
+            _group("Weasel", airborne=False),
+        ],
+    )
+    h.advance_to(PUSH - 170)
+    said = _said(h)
+    assert len(said) == 1
+    assert said[0]["speech"] == (
+        "Colt package, Anvil, check in. Push in three minutes."
+        " Hawg one one airborne. Weasel one one not airborne."
+    )
+    assert said[0]["frequency"] == "264.500AM"
     h.assert_no_lua_errors()
 
 
