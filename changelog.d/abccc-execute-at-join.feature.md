@@ -1,0 +1,1 @@
+* **[Mission Generation]** The ABCCC calls "push to join" when the package leaves its hold, then "execute" once the strikers and escorts are at the join point. A late flight gets 3 minutes, then the package executes without it. AI flights that reach the join early orbit there until execute.

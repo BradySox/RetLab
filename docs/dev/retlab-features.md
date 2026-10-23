@@ -11196,7 +11196,13 @@ kneeboard comms as "STRIKE (Anvil)":
   in"). The reply gives radar contact, the hold angels and the push time.
 - **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
   are airborne, else says what is missing.
-- **Push:** at the package push time (the earliest strike flight's HOLD departure).
+- **Push to join:** at the package push time (the earliest strike flight's HOLD departure),
+  "Ford package, Blackjack, push to join."
+- **Execute:** "Ford package, Blackjack, execute" once every airborne striker and escort
+  (AI, or a seated player) is within 5 NM of its JOIN point. SEAD is planned ahead of the
+  strikers and is not waited for. A late flight gets 3 minutes past the join time (moved by
+  any hold), then "<flight>, Blackjack, not at join. Package executing without you"; with no
+  striker at the join the package aborts. A package with no JOIN point executes at the push.
 - **Roll call:** 3 minutes before the push, "All players, <ABCCC>, check in". Seated player
   flights answer (voice or F10) and get "copy ready"; AI flights are read out as up or not
   airborne in the same transmission (2026-10-22: sent as a second call right behind the roll
@@ -11211,7 +11217,9 @@ kneeboard comms as "STRIKE (Anvil)":
   past 10 NM.
 
 Airborne AI flights in the package obey: a hold pushes a 3-minute orbit at their HOLD
-point, an early push sends `SwitchWaypoint` past the HOLD, and an abort replaces their
+point, an early push sends `SwitchWaypoint` past the HOLD, an AI striker or escort at the
+JOIN before execute orbits it until execute sets the package's user flag
+(`pkgcontrol_execute_<n>`, the orbit's stop condition), and an abort replaces their
 route with a landing at home. Parked AI is left alone (a pushed task would replace its
 takeoff).
 
@@ -11263,6 +11271,13 @@ flown (row B271).
 **Fixed 2026-10-21 (Test 63): an inactive late-activated flight read as airborne.** A
 late-activation unit not yet activated reads `isExist` and `inAir` true, so `airborneUnit`
 now also needs `isActive()`; a SEAD waiting for activation now holds the push.
+
+**Execute at the join (2026-10-23, user call).** The single "push" from the HOLD became two
+calls: "push to join" leaving the HOLD and "execute" with the package assembled at the JOIN
+(above). Before, nothing checked that the package came together. The record carries each
+flight's JOIN point, angels and due time (`joinX`, `joinY`, `joinAngels`, `joinAfter`).
+Players keep saying "ready to push" and "say push time", so SkyEye's parser is unchanged.
+A wait at the JOIN slips the time on target by that wait. Not flown (row B276).
 
 With no ABCCC C-130 airborne there is no package control: nothing is said and
 the push waits for one. The AWACS never stands in (user call, 2026-10-20).

@@ -6,14 +6,17 @@
 --   controllerVoice, controllers = { { group, callsign } },
 --   packages = { { name, totAfter, targetName, targetX, targetY,
 --   targetUnits = {...}, flights = { { group, callsign, role = strike|sead|escort, client,
---   pushAfter, holdX, holdY, holdAngels, holdIndex, home } } } },
+--   pushAfter, holdX, holdY, holdAngels, holdIndex, joinAfter, joinX, joinY, joinAngels,
+--   home } } } },
 --   players = { { group, callsign } } (every blue player flight, for the AWACS to find by name)
 --
 -- While an ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
--- check-in (F10 or spoken), ready to push, say push time, the push call, up to two 3-minute holds
--- while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD, and
--- the egress call. AI flights in the package obey: a hold adds a 3-minute orbit at their HOLD
--- point, an early push releases them from it, an abort sends them home. With no controller
+-- check-in (F10 or spoken), ready to push, say push time, the push to join, up to two 3-minute
+-- holds while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD,
+-- the execute call once the strikers and escorts are at the join point (SEAD runs ahead and is
+-- not waited for; a late flight gets 3 minutes), and the egress call. AI flights in the package
+-- obey: a hold adds a 3-minute orbit at their HOLD point, an early push releases them from it,
+-- an AI flight early at the join orbits there until execute, an abort sends them home. With no controller
 -- airborne nothing is said and the push waits: the AWACS never stands in (user call,
 -- 2026-10-20). SkyEye speaks the calls over local UDP (its mission-link-address) in the opposite
 -- voice to the AWACS, which works STRIKE trimmed. Every call is also text.
@@ -36,6 +39,11 @@ local EGRESS_NM = 10
 -- A striker must have come this close to the target before it can egress.
 local REACHED_NM = 30
 local EGRESS_GIVE_UP_SECONDS = 3600
+-- Execute waits for strikers and escorts this close to the join point, at most this long past
+-- the join time (user call, 2026-10-23); with no join time the wait runs from the push.
+local JOIN_NM = 5
+local JOIN_WAIT_SECONDS = 180
+local JOIN_FALLBACK_SECONDS = 600
 local TEXT_SECONDS = 15
 
 local START_SECONDS = tonumber(data.startSeconds) or 0
@@ -379,23 +387,28 @@ local function targetDestroyed(pkg)
     return true
 end
 
-local function pushTime(pkg)
+-- The earliest striker's time in a field (pushAfter, joinAfter), else the earliest flight's.
+local function earliestTime(pkg, key)
     local earliest = nil
     for _, f in ipairs(pkg.flights or {}) do
-        local t = tonumber(f.pushAfter)
+        local t = tonumber(f[key])
         if t and f.role == "strike" and (earliest == nil or t < earliest) then
             earliest = t
         end
     end
     if earliest == nil then
         for _, f in ipairs(pkg.flights or {}) do
-            local t = tonumber(f.pushAfter)
+            local t = tonumber(f[key])
             if t and (earliest == nil or t < earliest) then
                 earliest = t
             end
         end
     end
     return earliest
+end
+
+local function pushTime(pkg)
+    return earliestTime(pkg, "pushAfter")
 end
 
 local FEET = 0.3048
@@ -495,10 +508,44 @@ local function abort(pkg, reason)
     say(pkg, { packagePart({ pkg }), ", {controller}, abort, abort, abort. ", reason, ". RTB." })
 end
 
+-- The flights the execute waits for: strikers and escorts with a join point.
+local function joinsAtJoin(f)
+    return (f.role == "strike" or f.role == "escort") and f.joinX ~= nil and f.joinY ~= nil
+end
+
+local function hasJoin(pkg)
+    for _, f in ipairs(pkg.flights or {}) do
+        if joinsAtJoin(f) then
+            return true
+        end
+    end
+    return false
+end
+
+local function execute(pkg)
+    pkg.state = "executed"
+    pkg.executedAt = timer.getTime()
+    -- Ends every join orbit (orbitAtJoin); each AI flight resumes its route to ingress.
+    trigger.action.setUserFlag(pkg.joinFlag, true)
+    say(pkg, { packagePart({ pkg }), ", {controller}, execute." })
+end
+
 local function push(pkg)
-    pkg.state = "pushed"
     pkg.pushedAt = timer.getTime()
-    say(pkg, { packagePart({ pkg }), ", {controller}, push." })
+    if not hasJoin(pkg) then
+        return execute(pkg)
+    end
+    pkg.state = "joining"
+    -- A push that slipped on a hold moves the join time with it.
+    local planned = tonumber(pkg.joinAt) or (pkg.pushedAt + JOIN_FALLBACK_SECONDS)
+    local late = math.max(0, pkg.pushedAt - (pkg.plannedPushAt or pkg.pushedAt))
+    pkg.joinBy = planned + late + JOIN_WAIT_SECONDS
+    say(pkg, { packagePart({ pkg }), ", {controller}, push to join." })
+end
+
+-- "has pushed" on the way to the join, "has executed" after.
+local function progressPart(pkg)
+    return pkg.state == "joining" and " has pushed" or " has executed"
 end
 
 local function notReady(pkg)
@@ -720,6 +767,78 @@ local function strikersEgressed(pkg)
     return anyAlive
 end
 
+local function atJoin(f)
+    local lead = airborneUnit(f.group)
+    return lead ~= nil and distanceNm(lead, tonumber(f.joinX), tonumber(f.joinY)) <= JOIN_NM
+end
+
+-- An AI flight early at the join orbits it until execute sets the package's flag.
+local function orbitAtJoin(pkg, f)
+    if f.client == "true" or f.joinOrbit then
+        return
+    end
+    local g = Group.getByName(f.group)
+    if not (g and g:isExist()) then
+        return
+    end
+    f.joinOrbit = true
+    g:getController():pushTask({
+        id = "ControlledTask",
+        params = {
+            task = {
+                id = "Orbit",
+                params = {
+                    pattern = "Circle",
+                    point = { x = tonumber(f.joinX), y = tonumber(f.joinY) },
+                    altitude = (tonumber(f.joinAngels) or 20) * 1000 * FEET,
+                    speed = AI_SPEED_MPS,
+                },
+            },
+            stopCondition = {
+                userFlag = pkg.joinFlag,
+                userFlagValue = true,
+                duration = JOIN_WAIT_SECONDS + JOIN_FALLBACK_SECONDS,
+            },
+        },
+    })
+end
+
+-- Execute once every airborne striker and escort is at the join; after the wait, execute with
+-- the ones there, or abort with no striker there.
+local function checkJoin(pkg, now)
+    if targetDestroyed(pkg) then
+        return abort(pkg, { "Target " .. tostring(pkg.targetName) .. " destroyed", "Target destroyed" })
+    end
+    if seadLost(pkg) then
+        return abort(pkg, "SEAD lost")
+    end
+    local here, late, strikerHere = {}, {}, false
+    for _, f in ipairs(pkg.flights or {}) do
+        if joinsAtJoin(f) and not lost(f) and airborne(f) and (f.client ~= "true" or seated(f)) then
+            if atJoin(f) then
+                table.insert(here, f)
+                strikerHere = strikerHere or f.role == "strike"
+            else
+                table.insert(late, f)
+            end
+        end
+    end
+    if #late == 0 and strikerHere then
+        return execute(pkg)
+    end
+    if now < pkg.joinBy then
+        for _, f in ipairs(here) do
+            orbitAtJoin(pkg, f)
+        end
+        return
+    end
+    if not strikerHere then
+        return abort(pkg, "No strikers at join")
+    end
+    say(pkg, { callsigns(late), ", {controller}, not at join. Package executing without you." })
+    return execute(pkg)
+end
+
 local function tick(_, now)
     local onStation = controller() ~= nil
     local dueRollCall = {}
@@ -737,13 +856,15 @@ local function tick(_, now)
         elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled and not CASUAL
             and now >= pkg.pushAt - ROLL_CALL_LEAD_SECONDS then
             table.insert(dueRollCall, pkg)
-        elseif pkg.state == "pushed" then
+        elseif pkg.state == "joining" then
+            checkJoin(pkg, now)
+        elseif pkg.state == "executed" then
             if strikersEgressed(pkg) then
                 pkg.state = "done"
                 if not CASUAL then
                     say(pkg, { packagePart({ pkg }), ", {controller}, all strikers egressed. RTB." })
                 end
-            elseif now - pkg.pushedAt > EGRESS_GIVE_UP_SECONDS then
+            elseif now - pkg.executedAt > EGRESS_GIVE_UP_SECONDS then
                 pkg.state = "done"
             end
         end
@@ -771,8 +892,10 @@ local function checkIn(arg)
         table.insert(parts, clock(pkg.pushAt))
         table.insert(parts, ".")
         say(pkg, parts)
-    elseif pkg.state == "pushed" then
-        say(pkg, { callsign, ", {controller}, radar contact. ", packagePart({ pkg }), " has pushed, continue." })
+    elseif pkg.state == "joining" then
+        say(pkg, { callsign, ", {controller}, radar contact. ", packagePart({ pkg }), " has pushed, proceed to join." })
+    elseif pkg.state == "executed" then
+        say(pkg, { callsign, ", {controller}, radar contact. ", packagePart({ pkg }), " has executed, continue." })
     else
         say(pkg, { callsign, ", {controller}, radar contact. Continue as fragged." })
     end
@@ -781,7 +904,7 @@ end
 local function readyToPush(pkg, flight)
     local callsign = callsignPart(flight.callsign)
     if pkg.state ~= "waiting" then
-        return say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), " has pushed." })
+        return say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), progressPart(pkg), "." })
     end
     if pkg.rollCalled and not flight.ready then
         -- "Ready to push" in answer to the roll call is a check-in, never an early push.
@@ -822,7 +945,7 @@ local function sayPushTime(pkg, flight)
     if pkg.state == "waiting" and pkg.pushAt then
         return say(pkg, { callsign, ", {controller}, push time ", clock(pkg.pushAt), "." })
     end
-    say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), " has pushed." })
+    say(pkg, { callsign, ", {controller}, ", packagePart({ pkg }), progressPart(pkg), "." })
 end
 
 -- A call SkyEye heard but could not read: the controller asks again in its own voice, by the
@@ -959,10 +1082,13 @@ local function addMenu(groupName)
     end
 end
 
-for _, pkg in ipairs(packages) do
+for index, pkg in ipairs(packages) do
     pkg.state = "waiting"
     pkg.slips = 0
     pkg.pushAt = pushTime(pkg)
+    pkg.plannedPushAt = pkg.pushAt
+    pkg.joinAt = earliestTime(pkg, "joinAfter")
+    pkg.joinFlag = "pkgcontrol_execute_" .. index
     pkg.name = pkg.name or "package"
 end
 
