@@ -29,7 +29,7 @@ from dcs.ships import (
     Forrestal,
     LHA_Tarawa,
 )
-from dcs.statics import Fortification
+from dcs.statics import Fortification, fortification_map
 from dcs.task import (
     ActivateBeaconCommand,
     ActivateICLSCommand,
@@ -86,6 +86,7 @@ from game.theater import (
     TheaterUnit,
     NavalControlPoint,
     Airfield,
+    Fob,
 )
 from game.theater.theatergroundobject import (
     CarrierGroundObject,
@@ -114,6 +115,21 @@ AA_CP_MIN_DISTANCE = 40000
 
 # Offset (meters) from airport position to place the portable TACAN beacon
 _PORTABLE_TACAN_OFFSET_M = 50
+
+# Props around a FOB's helipads for factions that use the HESCO-walled modern FOB:
+# (static, distance m, bearing off the pad heading, heading off the pad heading).
+# They sit on the side the quad FARP's extra pads never use.
+_MODERN_FARP_LAYOUT = "modern_fob"
+_MODERN_FARP_PROPS: list[tuple[str, int, int, int]] = [
+    ("Tent04", 45, -90, 0),
+    ("HESCO_generator", 45, -60, 0),
+    ("container_20ft", 55, -120, 90),
+    ("Camouflage03", 62, -90, 0),
+    ("Sandbag_17", 35, -135, 45),
+    ("HESCO_post_1", 35, -40, 45),
+]
+# A prop closer than this to any pad or ground spawn is left out.
+_FARP_PROP_CLEARANCE_M = 30
 
 
 # Vehicle pools for FARP / airfield ground-support equipment, grouped by
@@ -1337,6 +1353,7 @@ class HelipadGenerator:
         self.radio_registry = radio_registry
         self.tacan_registry = tacan_registry
         self.helipads: list[StaticGroup] = []
+        self._dressed = False
 
     def create_helipad(
         self, i: int, helipad: PointWithHeading, helipad_type: str
@@ -1450,6 +1467,50 @@ class HelipadGenerator:
                 _type=Fortification.Windsock,
                 position=helipad.point_from_heading(helipad.heading.degrees + 45, 35),
                 heading=pad.heading,
+            )
+            if not self._dressed:
+                self._dressed = True
+                self._dress_modern_farp(country, helipad)
+
+    def _parking_points(self) -> list[Point]:
+        points: list[Point] = [
+            *self.cp.helipads,
+            *self.cp.helipads_invisible,
+            *(spawn for spawn, _ in self.cp.ground_spawns),
+            *(spawn for spawn, _ in self.cp.ground_spawns_roadbase),
+            *(spawn for spawn, _ in self.cp.ground_spawns_large),
+        ]
+        for quad in self.cp.helipads_quad:
+            h = quad.heading.degrees
+            points += [
+                quad,
+                quad.point_from_heading(h, 60),
+                quad.point_from_heading(h + 180, 20),
+                quad.point_from_heading(h + 90, 60).point_from_heading(h, 20),
+                quad.point_from_heading(h + 90, 60).point_from_heading(h + 180, 60),
+            ]
+        return points
+
+    def _dress_modern_farp(self, country: Country, anchor: PointWithHeading) -> None:
+        if not isinstance(self.cp, Fob) or self.cp.captured is Player.NEUTRAL:
+            return
+        faction = self.game.coalition_for(self.cp.captured).faction
+        if _MODERN_FARP_LAYOUT not in faction.extra_layouts:
+            return
+        parking = self._parking_points()
+        h = anchor.heading.degrees
+        for i, (static_id, distance, bearing, facing) in enumerate(_MODERN_FARP_PROPS):
+            position = anchor.point_from_heading(h + bearing, distance)
+            if any(
+                position.distance_to_point(p) < _FARP_PROP_CLEARANCE_M for p in parking
+            ):
+                continue
+            self.m.static_group(
+                country=country,
+                name=f"{self.cp.name} FARP prop {i}",
+                _type=fortification_map[static_id],
+                position=position,
+                heading=(h + facing) % 360,
             )
 
     def append_helipad(

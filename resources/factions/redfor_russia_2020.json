@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Combined Joint Task Forces Red",
   "name": "Redfor (Russia) 2020",
   "authors": "Starfire",
@@ -47,6 +49,8 @@
     "IL-78M"
   ],
   "frontline_units": [
+    "MRAP ZA-SpN Titan [CH]",
+    "IFV BMP-3 ERA [CH]",
     "BMP-1",
     "BMP-2",
     "BMP-3",

@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "China",
   "name": "China/Argentina Falklands Occupation Force",
   "authors": "Khopa",

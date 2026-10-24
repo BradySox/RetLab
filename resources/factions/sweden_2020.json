@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Sweden",
   "name": "Sweden 2020 Swedish Military Assets",
   "authors": "Khopa, bgreman & Ghosti",

@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Combined Joint Task Forces Red",
   "name": "Syria 2011",
   "authors": "Khopa",

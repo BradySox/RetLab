@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Iran",
   "name": "[CH] Iran 2020",
   "authors": "Codex",

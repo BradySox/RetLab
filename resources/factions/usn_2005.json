@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "USA",
   "name": "US Navy 2005",
   "authors": "Fuzzle",

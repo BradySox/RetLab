@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Combined Joint Task Forces Blue",
   "name": "NATO OIF",
   "authors": "Fuzzle",

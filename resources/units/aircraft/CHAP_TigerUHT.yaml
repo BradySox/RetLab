@@ -1,0 +1,22 @@
+class: Helicopter
+cabin_size: 0
+can_carry_crates: false
+description:
+  The Eurocopter Tiger UHT is the German Army's variant of the Tiger attack
+  helicopter. It has no gun; it carries HOT 3 anti-tank missiles, 70 mm rocket
+  pods, 12.7 mm gun pods and Stinger air-to-air missiles on four pylons.
+introduced: 2005
+manufacturer: Eurocopter
+origin: Germany
+price: 16
+role: Attack
+variants:
+  Tiger UHT: {}
+tasks:
+  BAI: 420
+  CAS: 420
+  Escort: 100
+  OCA/Aircraft: 420
+
+# No air-to-air refueling in DCS.
+air_refuel_type: none

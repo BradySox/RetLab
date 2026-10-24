@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "China",
   "name": "China 2027",
   "authors": "Eclipse (China 2020); RetLab (2027 IADS)",

@@ -1,9 +1,12 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Combined Joint Task Forces Blue",
   "name": "Blufor Current",
   "authors": "Starfire",
   "description": "<p>Combined Blufor in the 2020s intended for use with Currenthill's USA, Sweden, and UK asset packs.</p>",
   "aircrafts": [
+    "Tiger UHT",
     "A-10C Thunderbolt II (Suite 7)",
     "A-10C Thunderbolt II (Suite 3)",
     "AH-64D Apache Longbow",
@@ -54,6 +57,7 @@
     "A-6E Tanker"
   ],
   "frontline_units": [
+    "IFV M1296 Dragoon [CH]",
     "[CH] Oshkosh L-ATV (M2)",
     "[CH] Oshkosh L-ATV (Mk19)",
     "[CH] Oshkosh M-ATV MRAP (Mk19)",
@@ -118,6 +122,9 @@
     "[CH] AS-90 SPG"
   ],
   "logistics_units": [
+    "Tractor SLT-50 [CH]",
+    "Tractor HX81 [CH]",
+    "Truck HX77 [CH]",
     "Truck M818 6x6",
     "Truck M1083 A1P2 MTV [CH]",
     "[CH] Oshkosh HEMTT M977",

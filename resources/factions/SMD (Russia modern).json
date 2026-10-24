@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Russia",
   "name": "Southern Military District (modern Russia)",
   "description": "<p>Russian Federation military on Caucasus, following 2nd decade modernization programs, for the purpose of Abchazian Blitz campaign. Hi digit SAMs mod is required for up to date SAMs, while Codename Flanker Su-30SM and/or Su-35S mod, or Szcz Mig-31BM, will level playing field over skies. Currenthill Russia is optional, adding few more vehicles, and infantry.</p>",
@@ -43,6 +45,8 @@
     "IL-78M"
   ],
   "frontline_units": [
+    "MRAP ZA-SpN Titan [CH]",
+    "IFV BMP-3 ERA [CH]",
     "BTR-80",    
     "SA-19 Grison (2K22 Tunguska)",
     "BMP-2",

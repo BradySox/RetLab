@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "North Korea",
   "name": "North Korea 2000",
   "authors": "Khopa",
