@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import pickle
+from datetime import date
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING, Any
 
@@ -620,6 +621,15 @@ def user_custom_weapon_injections_dir() -> Path:
 
 def save_dir() -> Path:
     return _create_dir_if_needed(base_path() / "Retribution" / "Saves")
+
+
+def suggested_save_path(game: Game, today: date) -> Path:
+    """The first save's prefilled file: campaign name and today's date, so two
+    playthroughs of one campaign get different files."""
+    name = game.campaign_name or game.theater.terrain.name
+    # Characters Windows refuses in a file name.
+    name = "".join("_" if c in '<>:"/\\|?*' else c for c in name).strip(" .")
+    return save_dir() / f"{name or 'Campaign'} {today.isoformat()}.retribution"
 
 
 def server_port() -> int:
