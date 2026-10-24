@@ -43,7 +43,7 @@ settings:
   max_mission_range_planes: 250
   plugins:
     skynetiads: true
-# The border armies field mobile SA-6s. The fixed Hawk, SA-2, SA-3, SA-5 and S-60
+# The border armies field mobile SA-6s. The fixed Hawk, SA-2, SA-3 and S-60
 # sites are FIXED groups copied unit by unit from Carsten's Cold War Germany
 # Framework; the DM placed Kaltennordheim's launchers himself.
 ground_forces:
