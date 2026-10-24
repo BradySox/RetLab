@@ -33,7 +33,7 @@ for a Retribution campaign with the most historical accuracy we can get.
 - **Real SAM sites.** The DM supplied Carsten's Cold War Germany Framework (a
   free Mission Editor template by Carsten, 2025, shared for mission makers to
   build on). Its Hawk, CRC, SA-2, SA-3, SA-5 and S-60 sites inside the sector
-  replace the generated rings. Since §122 (#1378) 26 of them are `FIXED` groups,
+  replace the generated rings. Since §122 (#1378) 27 of them are `FIXED` groups,
   every radar, launcher and truck in his revetments.
 
 ## The DM's laydown (2026-10-24)
@@ -85,9 +85,9 @@ Erndtebruck; plus an EWR on the Wasserkuppe, Patriot at Ramstein, and Roland, Ra
 Vulcan at the bases. Red, at Carsten's sites: SA-2s at Gotha, Allstedt, Quedlinburg, Merseburg,
 Bad Durrenberg, Leipzig, Kothen, Dessau and Mahlwinkel; SA-3s at Meiningen and Sperenberg; SA-5s
 at Kaltennordheim, Eckolstadt and Magdeburg; S-60 batteries at Leipzig, Burg and Potsdam. Each
-is a `FIXED` group copied unit by unit from his mission (2026-10-24), except
-Kaltennordheim: his group there is three radars with no launchers, so it stays a
-marker pinned to a stock SA-5. The Hawks sit in the blue country block, red's in the
+is a `FIXED` group copied unit by unit from his mission (2026-10-24). His
+Kaltennordheim group is three radars with no launchers; the DM placed its 18 launchers,
+two trucks and an SA-9 himself in the Mission Editor the same day. The Hawks sit in the blue country block, red's in the
 red. The red faction carries the S-60 and the KS-19/SON-9 preset so it can field the
 S-60 sites' Fire Can. The CRC at Erndtebruck is still a marker. Added: mobile SA-6s at Haina, Obermehler and Erfurt
 (standing in for the SA-4 brigades), SHORAD at the fields and five roadside towns.

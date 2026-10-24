@@ -267,15 +267,14 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert statics.count(".Command Center") == 3
     assert statics.count("Comms tower M") == 15
     assert statics.count("GeneratorF") == 6
-    # Kaltennordheim's SA-5 is the one long-range marker left on red's side;
-    # NATO's is Ramstein's Patriot. The other two SA-5s are FIXED sites.
+    # NATO's Patriot is the one long-range marker; red's three SA-5s are FIXED sites.
     longs = sorted(
         group.name
         for country in mission.coalition["red"].countries.values()
         for group in country.vehicle_group
         if group.units[0].type == "S-300PS 5P85C ln"
     )
-    assert longs == ["CF85-Ramstein-Patriot", "CF85-SA5-Kaltennordheim"]
+    assert longs == ["CF85-Ramstein-Patriot"]
     for country in mission.coalition["blue"].countries.values():
         assert not any(g.name.startswith("CF85-IADS-") for g in country.static_group)
 
@@ -308,14 +307,16 @@ def test_every_road_leaves_its_bases_off_road() -> None:
 def test_carstens_sites_are_drawn_unit_by_unit(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
-    """His 26 sites are FIXED groups: Hawks for NATO, SA-2/3/5 and S-60 for red."""
+    """27 FIXED sites: Hawks for NATO, SA-2/3/5 and S-60 for red."""
     _, theater = loaded
     sites = {
         site.original_name: cp
         for cp in theater.controlpoints
         for site in cp.preset_locations.exact_air_defenses
     }
-    assert len(sites) == 26
+    assert len(sites) == 27
+    # The DM placed Kaltennordheim's 18 launchers himself (2026-10-24).
+    assert "FIXED SA-5 Kaltennordheim" in sites
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
     assert len(hawks) == 10
     for name, cp in sites.items():

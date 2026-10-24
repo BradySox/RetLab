@@ -45,12 +45,11 @@ settings:
     skynetiads: true
 # The border armies field mobile SA-6s. The fixed Hawk, SA-2, SA-3, SA-5 and S-60
 # sites are FIXED groups copied unit by unit from Carsten's Cold War Germany
-# Framework. Kaltennordheim stays a marker: his site there has no launchers.
+# Framework; the DM placed Kaltennordheim's launchers himself.
 ground_forces:
   CF85-Haina-SA6: SA-6
   CF85-Obermehler-SA6: SA-6
   CF85-Erfurt-SA6: SA-6
-  CF85-SA5-Kaltennordheim: SA-5/S-200
 victory:
   description: "Take Erfurt and Merseburg. Hold Frankfurt."
   win_when:
