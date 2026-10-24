@@ -38,50 +38,26 @@ NATO = "NATO Central Front 1985"
 PACT = "Warsaw Pact Central Front 1985"
 OBERMEHLER = "Obermehler Schlotheim"
 MEININGEN = "Meiningen"
+#: Cut from 26 to 13 by the DM, 2026-10-24: front and key fields only.
 BLUE = {
     "Spangdahlem",
     "Bitburg",
-    "Hahn",
     "Ramstein",
-    "Sembach",
-    "Pferdsfeld",
     "Frankfurt",
-    "Norvenich",
-    "Gutersloh",
     "Fulda",
     "Fritzlar",
-    "Giebelstadt",
     "Schweinfurt",
 }
-RED = {
-    "Haina",
-    OBERMEHLER,
-    MEININGEN,
-    "Bindersleben",
-    "Allstedt",
-    "Merseburg",
-    "Kothen",
-    "Zerbst",
-    "Brandis",
-    "Altes Lager",
-    "Holzdorf",
-    "Mahlwinkel",
-    "Sperenberg",
-}
+RED = {"Haina", OBERMEHLER, MEININGEN, "Bindersleben", "Allstedt", "Merseburg"}
 ROADS = {
     frozenset(pair)
     for pair in (
         ("Bitburg", "Spangdahlem"),
-        ("Norvenich", "Bitburg"),
-        ("Spangdahlem", "Hahn"),
-        ("Pferdsfeld", "Hahn"),
-        ("Hahn", "Frankfurt"),
-        ("Ramstein", "Sembach"),
-        ("Sembach", "Frankfurt"),
+        ("Spangdahlem", "Frankfurt"),
+        ("Ramstein", "Frankfurt"),
         ("Frankfurt", "Fulda"),
         ("Frankfurt", "Fritzlar"),
-        ("Frankfurt", "Giebelstadt"),
-        ("Giebelstadt", "Schweinfurt"),
+        ("Frankfurt", "Schweinfurt"),
         ("Fulda", "Fritzlar"),
         ("Fulda", "Haina"),
         ("Fritzlar", OBERMEHLER),
@@ -91,13 +67,6 @@ ROADS = {
         ("Haina", "Bindersleben"),
         ("Bindersleben", "Allstedt"),
         ("Allstedt", "Merseburg"),
-        ("Merseburg", "Brandis"),
-        ("Merseburg", "Kothen"),
-        ("Kothen", "Zerbst"),
-        ("Zerbst", "Altes Lager"),
-        ("Altes Lager", "Sperenberg"),
-        ("Brandis", "Holzdorf"),
-        ("Mahlwinkel", "Kothen"),
     )
 }
 
@@ -154,8 +123,6 @@ def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert all(
         isinstance(cp, Airfield) for cp in theater.controlpoints if cp.name != MEININGEN
     )
-    # The RAF Tornados' field is a rear base with no road to the war.
-    assert not theater.control_point_named("Gutersloh").connected_points
 
 
 def test_every_red_point_inverts_and_no_blue_one_does(
@@ -249,12 +216,11 @@ def test_the_23rd_flies_from_spangdahlem(
     assert names == {
         "23rd Tactical Fighter Squadron",
         "480th Tactical Fighter Squadron",
-        "81st Tactical Fighter Squadron (1985)",
     }
 
 
 def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
-    """Skynet in range mode: three HQs, comms towers and power on real places."""
+    """Skynet in range mode: the 8th Guards Army HQ, comms and power on real places."""
     campaign, _ = loaded
     assert campaign.advanced_iads
     mission = _miz()
@@ -264,9 +230,9 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
         for group in country.static_group
         if group.name.startswith("CF85-IADS-")
     ]
-    assert statics.count(".Command Center") == 3
-    assert statics.count("Comms tower M") == 15
-    assert statics.count("GeneratorF") == 6
+    assert statics.count(".Command Center") == 1
+    assert statics.count("Comms tower M") == 12
+    assert statics.count("GeneratorF") == 4
     # NATO's Patriot is the one long-range marker; red's three SA-5s are FIXED sites.
     longs = sorted(
         group.name
@@ -284,7 +250,7 @@ def test_red_tides_scenery_targets_come_with_it(
 ) -> None:
     _, theater = loaded
     groups = [g for cp in theater.controlpoints for g in cp.preset_locations.scenery]
-    assert len(groups) == 37
+    assert len(groups) == 26
     zones = {zone.name for group in groups for zone in group.zones}
     assert {"Haina IADS CmdCenter Bldg", "Staudinger Power Station"} <= zones
 
@@ -307,14 +273,14 @@ def test_every_road_leaves_its_bases_off_road() -> None:
 def test_carstens_sites_are_drawn_unit_by_unit(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
-    """27 FIXED sites: Hawks for NATO, SA-2/3/5 and S-60 for red."""
+    """22 FIXED sites: Hawks for NATO, SA-2/3/5 and S-60 for red."""
     _, theater = loaded
     sites = {
         site.original_name: cp
         for cp in theater.controlpoints
         for site in cp.preset_locations.exact_air_defenses
     }
-    assert len(sites) == 27
+    assert len(sites) == 22
     # The DM placed Kaltennordheim's 18 launchers himself (2026-10-24).
     assert "FIXED SA-5 Kaltennordheim" in sites
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
