@@ -16,6 +16,9 @@ same lint + test once, through `build.yml`, which triggers on `pull_request` onl
 2. **`test.yml`** — pytest over `tests` **plus the three out-of-tree test dirs under
    `game/`** (`game/missiongenerator/tests`, `game/missiongenerator/kneeboard_recon/tests`,
    `game/plugins/tests`) — added 2026-07-10; before that those ~245 tests never ran in CI.
+   Runs on every runner core with `pytest-xdist` (`-n auto`, 2026-10-24): single-core it
+   took 16–26 min a PR. A test that only fails under `-n` shares state with another
+   (a fixed path, a module-level cache); fix the sharing, never drop `-n`.
    Both test jobs upload coverage to **Codecov**
    (https://app.codecov.io/gh/BradySox/RetLab) via `codecov/codecov-action@v5` with
    **OIDC** (`use_oidc` — no `CODECOV_TOKEN` secret; requires the Codecov GitHub App
@@ -48,7 +51,7 @@ time (not in the repo).
 ```powershell
 .venv\Scripts\python.exe -m black --check .      # 0 files to reformat
 .venv\Scripts\python.exe -m mypy game tests       # 0 new errors
-.venv\Scripts\python.exe -m pytest tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/tests game/plugins/tests -q  # all green
+.venv\Scripts\python.exe -m pytest tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/tests game/plugins/tests -q -n 8  # all green; -n uses 8 cores
 ```
 
 Notes learned the hard way:

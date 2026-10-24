@@ -20,7 +20,7 @@ jobs:
       - name: run tests
         run: |
           ./venv/scripts/activate
-          pytest --cov --cov-report=xml tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/tests game/plugins/tests
+          pytest -n auto --cov --cov-report=xml tests game/missiongenerator/tests game/missiongenerator/kneeboard_recon/tests game/plugins/tests
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
