@@ -25,6 +25,7 @@
     "Su-24MR",
     "Su-25 Frogfoot",
     "Su-25T Frogfoot",
+    "Su-25TM Frogfoot",
     "Su-27 Flanker-B",
     "Su-30 Flanker-C",
     "Su-33 Flanker-D",
@@ -32,7 +33,8 @@
     "Tu-142 Bear-F",
     "Tu-160 Blackjack",
     "Tu-22M3 Backfire-C",
-    "Tu-95MS Bear-H"
+    "Tu-95MS Bear-H",
+    "Yak-40"
   ],
   "awacs": [
     "A-50"

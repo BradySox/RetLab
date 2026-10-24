@@ -242,6 +242,9 @@ def load_aircraft_icons():
     AIRCRAFT_ICONS["F-14A-135-GR-Early"] = AIRCRAFT_ICONS["F-14A-135-GR"]
     AIRCRAFT_ICONS["F-14A-95-GR"] = AIRCRAFT_ICONS["F-14A-135-GR"]
     AIRCRAFT_ICONS["F-14BU"] = AIRCRAFT_ICONS["F-14A-135-GR"]
+    AIRCRAFT_ICONS["F/A-18A"] = AIRCRAFT_ICONS["FA-18C"]
+    for f1 in ("Mirage-F1AZ", "Mirage-F1CR", "Mirage-F1JA"):
+        AIRCRAFT_ICONS[f1] = AIRCRAFT_ICONS["Mirage-F1C-200"]
 
 
 def load_vehicle_icons():

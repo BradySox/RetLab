@@ -1,0 +1,25 @@
+description:
+  The Mirage F1JA is the Mirage F1 version built for Ecuador, delivered from 1978 and
+  retired in 2011. Ecuadorian F1JAs shot down Peruvian Su-22s in the 1995 Cenepa War.
+  In DCS it is an AI-only aircraft.
+introduced: 1978
+manufacturer: Dassault
+origin: France
+price: 13
+role: Multirole Fighter
+max_range: 200
+variants:
+  Mirage-F1JA: {}
+tasks:
+  BAI: 300
+  BARCAP: 300
+  CAS: 300
+  Escort: 300
+  Fighter sweep: 300
+  OCA/Aircraft: 300
+  OCA/Runway: 280
+  Strike: 280
+  TARCAP: 300
+
+# No air-to-air refueling.
+air_refuel_type: none
