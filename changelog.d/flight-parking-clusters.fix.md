@@ -1,0 +1,1 @@
+* **[Mission Generation]** A flight's jets park on neighbouring stands, the lead on the stand nearest the departure runway end. Before, a flight took the next free stands by name wherever they sat, and a split four-ship could meet nose to nose on the taxiway and freeze.

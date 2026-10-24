@@ -2134,6 +2134,30 @@ that code.
 - **The Turkish stand survey (test 63, 2026-10-19).** One AI jet on each of the 496 fighter
   stands at the nine Turkish fields: Diyarbakir 79, 116 and 117 ejected 17-19 m into their
   taxi, every other stand launched. Stand 79 joins the blocked list.
+- **Flight parking clusters: a four-ship froze nose to nose on the Spangdahlem ramp (test 64,
+  2026-10-24).** pydcs gave AI flight Dodge 8 the next four free stands by name, 48-51: the
+  lead south of the main junction, the wingmen 200-270 m north-east of it. On activation the
+  wingmen drove the wrong way down the taxiway to fall in behind the lead, met it nose to nose,
+  and all four sat there for the mission, trapping Ford 6 and a BARCAP pair behind them.
+  `game/missiongenerator/aircraft/parkingcluster.py` now picks a ground-start fixed-wing
+  flight's stands in `FlightGroupSpawner._generate_at_airfield` (AI, players and QRA
+  templates alike):
+  - Candidates are pydcs's own `free_parking_slots` list, so the fit filter, stands already
+    taken and the blocked stands above all still apply.
+  - Each candidate anchors a cluster of itself and its nearest free neighbours; the tightest
+    cluster wins, ties to pydcs's order. Stands are tried tier by tier in pydcs's
+    (helicopter, width) order, so a fighter takes a transport stand only when no smaller
+    stand cluster fits.
+  - The lead gets the stand nearest the threshold of the runway the flight briefs
+    (`active_runway`, wind-chosen); wingmen follow by distance. pydcs has no threshold
+    positions, so the threshold is 1,600 m from the field's reference point along the
+    takeoff heading, as in `airfieldclearance.py`.
+  - A single ship, a runway start, a helicopter, or no cluster within 150 m keeps pydcs's
+    own pick. Carriers, FARPs, FOB ground spawns and helipads are untouched.
+  - Fulda Gap turn 5, headless: Spangdahlem pairs went from 85-268 m apart to 43-73 m; the
+    one four-ship in the plan (Allstedt MiG-27K DEAD) from 165 m to 117 m. A synthetic eight
+    four-ships at Spangdahlem: 153-350 m before, 62-118 m after.
+  - Unflown (row B288). Tests: `tests/missiongenerator/test_parking_cluster.py`.
 
 ### Helicopters
 
