@@ -1,0 +1,13 @@
+---
+name: 85th Guards Fighter Aviation Regiment (MiG-23)
+nickname: 85 GvIAP
+country: Russia
+role: Fighter
+aircraft: MiG-23MLD Flogger-K
+livery: "af standard"
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep

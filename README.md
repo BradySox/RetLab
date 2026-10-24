@@ -441,6 +441,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Operation Corporate 1982 | Falklands | The Falklands War from the San Carlos landing, either side |
 | Mount Pleasant 2032 | Falklands | Hold the islands against a rearmed Argentina, either side |
 | Red Bear 1985 | Afghanistan | USAF F-4Es against the Soviet 40th Army across the top of the map, in winter |
+| Fulda Gap 1985 | Germany | The 52nd TFW's Phantoms at Spangdahlem against the 8th Guards Army and the 16th Air Army |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -501,6 +502,14 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   and Bamyan. Take Bagram and Kabul to win, lose Herat and you lose. A networked Soviet IADS runs
   from the 40th Army HQ in Kabul: bomb its comms towers, power plants and HQs to blind it. The
   B-52s, tankers and E-3A fly from Camp Bastion, behind the fighting. Stock DCS units only.
+- **Fulda Gap 1985** — fictional: the 8th Guards Army crosses the inner German border in
+  September 1985. Thirteen NATO fields from Norvenich to Schweinfurt face twelve Soviet and
+  East German fields from Haina to Sperenberg and the Meiningen garrison, across three crossings: the Fulda Gap, the Werra
+  valley and the Meiningen road. Built for the 23rd TFS's F-4Es at Spangdahlem, flying with the
+  480th and 81st TFS; F-15Cs at Bitburg, Luftwaffe and RAF Germany Tornados and F-4Fs, A-10s at
+  Sembach. The SAM sites stand where Carsten's Cold War Germany Framework puts the real
+  ones, and a networked Soviet IADS answers to Wunsdorf. Take Erfurt and Merseburg to win, lose
+  Frankfurt and you lose. Stock DCS units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly

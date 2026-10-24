@@ -1,0 +1,1 @@
+* **[Campaigns]** New Germany campaign, Fulda Gap 1985: the Central Front in September 1985, built for the 23rd TFS's F-4Es at Spangdahlem, against the Group of Soviet Forces in Germany and the East German air force. Ships two stock factions, NATO Central Front 1985 and Warsaw Pact Central Front 1985.

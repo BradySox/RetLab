@@ -20,6 +20,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
 | Falklands — Operation Corporate 1982 | `retlab-corporate-1982-campaign-notes.md` — built by `tools/build_corporate_1982_miz.py`; plays both ways with Invert Sides |
 | Iraq — Desert Aladeen: The H-3 Front | `retlab-desert-aladeen-h3-campaign-notes.md` — built by `tools/build_desert_aladeen_h3_miz.py`; Starfire's original stays untouched |
 | Iraq — Operation Inherent Resolve | `retlab-inherent-resolve-campaign-notes.md` |
+| Germany — Fulda Gap 1985 | `retlab-fulda-gap-1985-campaign-notes.md` — built by `tools/build_fulda_gap_1985_miz.py` from Red Tide's map and scenery; Gutersloh is a rear base with no road |
 | Afghanistan — Red Bear 1985 | `retlab-red-bear-1985-campaign-notes.md` — the `.miz` is the DM's hand laydown, no build tool; Camp Bastion is a rear base with no road |
 | Afghanistan — Enduring Resolve (COIN) | `retlab-coin-HANDOFF.md` — **start here for COIN** |
 | Caucasus — Iron Gate | `retlab-iron-gate-campaign-notes.md` |
