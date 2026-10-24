@@ -25,5 +25,9 @@ tasks:
 # type reaches well past that, so 600 keeps deep targets plannable.
 max_range: 600
 
+# DCS gives the Tornado its own laser designator (laserEquipment in the unit data),
+# so its laser bombs stay on a fit with no targeting pod.
+has_built_in_target_pod: true
+
 # Air-to-air refueling method (receiver).
 air_refuel_type: probe

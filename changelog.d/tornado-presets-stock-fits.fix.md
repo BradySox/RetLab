@@ -1,0 +1,2 @@
+* **[Loadouts]** Tornado GR4 Strike, CAS, BAI, OCA and DEAD fits keep their bombs before 1999. They relied on the Litening pod, dated 1999, and lost their laser bombs with it, so 1985 and 1991 campaigns flew GR4s with only two Sidewinders. The Tornado now uses its own laser designator, as DCS models it.
+* **[Loadouts]** Tornado GR4 and IDS presets are the stock DCS fits: 2 GBU-16 for Strike and DEAD, 4 BL755 (GR4) or 4 Mk-82 (IDS) for CAS, BAI and OCA/Aircraft, 4 ALARM (GR4) or 4 HARM (IDS) for SEAD. The IDS Strike fit no longer puts Mk-82s on stations DCS does not allow.
