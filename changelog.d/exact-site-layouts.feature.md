@@ -1,0 +1,1 @@
+* **[Campaign Design]** A campaign `.miz` group named with the prefix `FIXED` generates as drawn: every unit of the air-defense site keeps its position and heading instead of a stock layout around one marker.

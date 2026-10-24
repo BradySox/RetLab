@@ -351,6 +351,7 @@ linked design note.
 119. **Voice ATC** — Ground and Tower for player flights through SkyEye: taxi, takeoff, landing, readbacks. Off by default.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
 121. **Radio discipline** — Strict, Relaxed or Casual: how by the book the SkyEye controllers expect players to be. Strict by default.
+122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 
 ### Retired, removed or shelved — do not restore
 

@@ -70,6 +70,20 @@ owner comes from proximity to the nearest control point, not from the block.
 > campaign portable to upstream, and it keeps "did I mean to place this?" an explicit
 > choice rather than an accident.
 
+### Drawing a whole air-defense site
+
+To keep a site exactly as you placed it, draw every unit (radars, launchers, trucks, guns)
+in one vehicle group and start the group's name with **FIXED**, for example
+`FIXED SA-6 Bad Hersfeld`. New Game then keeps each unit's position and heading.
+
+- The site's type (long, medium or short range, AAA, early warning) comes from its units.
+- Guns in a long or medium range site become the site's point defense.
+- The site still gets the faction's usual extra trucks and point defense, placed around the
+  group's first unit.
+- If the owning faction cannot field one of the drawn units (trucks aside), a stock site
+  of the same type is built at the first unit instead.
+- A group without the prefix is a marker as in the table above.
+
 ### Key YAML fields
 
 ```yaml

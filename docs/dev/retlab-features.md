@@ -11333,6 +11333,27 @@ when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, Ret
   on its deny-list (`_ew_excluded_c130j_groups`).
 - The link needs DCS's mission scripting sandbox opened (`require`, LuaSocket),
   Retribution's own install step. Without it the calls are text only.
+## §122 — Exact site layouts
+
+A campaign `.miz` vehicle group named with the prefix **FIXED** is an air-defense site drawn
+unit by unit, and New Game keeps it as drawn: each unit's type, position and heading.
+Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; design note
+`docs/dev/design/retlab-exact-site-layouts-notes.md`).
+
+- The task comes from the preset group the drawn units match best (trucks left out).
+- If the owner's faction cannot field a drawn unit other than a truck, a stock site of that
+  task generates at the group's first unit instead.
+- Guns in a long or medium range site are its `(PD)` group (Skynet point defense).
+- The owner's closest ForceGroup adds its layout's optional trucks and point defense.
+- Repair keeps the spots; a site bought new in the base menu is a stock layout.
+- Not flown (row B279).
+
+### Files
+
+- `game/theater/exactsite.py`, `game/theater/presetlocation.py` (`ExactSitePreset`),
+  `game/campaignloader/mizcampaignloader.py` (`is_exact_site`).
+- `tests/theater/test_exact_site_layouts.py`.
+
 ## §121 — Radio discipline
 
 One campaign setting, **Radio discipline** (Mission Generator page, Cockpit & nav aids),

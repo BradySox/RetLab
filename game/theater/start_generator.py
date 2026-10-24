@@ -17,6 +17,7 @@ from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
 from game.naming import namegen
 from game.scenery_group import SceneryGroup
 from game.theater.airfieldclearance import log_airfield_clearance_conflicts
+from game.theater.exactsite import generate_exact_site
 from game.theater import (
     PointWithHeading,
     PresetLocation,
@@ -583,6 +584,8 @@ class AirbaseGroundObjectGenerator(ControlPointGroundObjectGenerator):
         aa_tasking.insert(0, GroupTask.LORAD)
         for position in presets.long_range_sams:
             self.generate_aa_at(position, aa_tasking)
+        for exact_site in presets.exact_air_defenses:
+            generate_exact_site(self, exact_site)
 
     def generate_ewrs(self) -> None:
         # EWR markers honour a campaign's `ground_forces` override like every other
