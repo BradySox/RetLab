@@ -11232,6 +11232,12 @@ kneeboard comms as "STRIKE (Anvil)":
   then abort). Empty slots are not waited for.
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
   After that the package pushes if a SEAD is airborne (or it has none), else aborts.
+- **No striker up (Test 64, 2026-10-24):** with no strike flight airborne the push holds the
+  same way, naming the flights ("Hold, hold. Ford6-1 not airborne"), and after the second
+  hold the package aborts "No strikers airborne" instead of pushing. Ready to push gets a
+  negative naming them. On the way to the join the package aborts as soon as no striker is
+  airborne. Before, it pushed with the only striker on the ramp and aborted at the join 8
+  minutes later.
 - **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
 - **Egress:** once every live striker has been within 30 NM of the target and is opening
   past 10 NM.

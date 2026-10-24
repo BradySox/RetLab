@@ -497,6 +497,70 @@ def test_an_empty_player_slot_is_not_waited_for() -> None:
     h.assert_no_lua_errors()
 
 
+def _strike_on_the_ramp() -> DcsPluginHarness:
+    # Test 64: the only striker, an AI flight, never got airborne.
+    return _harness(
+        [_flight("Colt", role="escort", client=True), _flight("Ford")],
+        [_group("Colt"), _group("Ford", airborne=False)],
+    )
+
+
+def test_a_strike_never_airborne_holds_twice_then_aborts() -> None:
+    h = _strike_on_the_ramp()
+    h.advance_to(PUSH + 370)
+    assert _texts(h) == [
+        "Colt package, Anvil, hold, hold. Ford1-1 not airborne. New push time 1413.",
+        "Colt package, Anvil, hold, hold. Ford1-1 not airborne. New push time 1416.",
+        "Colt package, Anvil, abort, abort, abort. No strikers airborne. RTB.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_striker_up_after_one_hold_still_pushes() -> None:
+    h = _strike_on_the_ramp()
+    h.advance_to(PUSH + 10)
+    h.update_unit("Ford", {"airborne": True})
+    h.advance_to(PUSH + 190)
+    assert _texts(h) == [
+        "Colt package, Anvil, hold, hold. Ford1-1 not airborne. New push time 1413.",
+        "Colt package, Anvil, execute.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_the_hold_names_the_striker_on_the_ground_in_words() -> None:
+    h = _strike_on_the_ramp()
+    h.advance_to(PUSH + 10)
+    holds = [t for t in _speech(h) if "hold, hold" in t]
+    assert holds == [
+        "Colt package, Anvil, hold, hold. Ford one one not airborne. "
+        "New push time one four one three."
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_ready_to_push_with_no_striker_up_is_a_negative() -> None:
+    h = _strike_on_the_ramp()
+    _request(h, "ready")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Colt1-1, Anvil, negative, Ford1-1 not airborne. Push time 1410."
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_the_hold_reason_starts_a_sentence() -> None:
+    h = _harness(
+        [_flight("Colt", client=True), _flight("Uzi", role="escort")],
+        [_group("Colt"), _group("Uzi", airborne=False)],
+    )
+    h.advance_to(PUSH + 10)
+    assert _texts(h) == [
+        "Colt package, Anvil, hold, hold. Escort not airborne. New push time 1413."
+    ]
+    h.assert_no_lua_errors()
+
+
 def _holds(h: DcsPluginHarness) -> list[str]:
     return [t for t in _texts(h) if "hold, hold" in t or "abort" in t]
 
@@ -825,6 +889,21 @@ def test_no_striker_at_the_join_aborts_after_the_wait() -> None:
     h.advance_to(JOIN + 190)
     assert _texts(h)[-1] == (
         "Colt package, Anvil, abort, abort, abort. No strikers at join. RTB."
+    )
+    h.assert_no_lua_errors()
+
+
+def test_no_striker_up_on_the_way_to_the_join_aborts_at_once() -> None:
+    h = _harness(
+        [_joining("Colt", role="escort", client=True), _joining("Hawg")],
+        [_group("Colt"), _group("Hawg")],
+    )
+    h.advance_to(PUSH + 10)
+    assert _texts(h) == ["Colt package, Anvil, push to join."]
+    h.update_unit("Hawg", {"airborne": False})
+    h.advance_to(PUSH + 20)
+    assert _texts(h)[-1] == (
+        "Colt package, Anvil, abort, abort, abort. No strikers airborne. RTB."
     )
     h.assert_no_lua_errors()
 
