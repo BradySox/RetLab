@@ -5,7 +5,8 @@ player package on STRIKE (common): an F10 Check in menu and spoken check-in, rea
 to push and push time requests from SkyEye, the push to join, up to two holds for a
 SEAD or escort on the ground, aborts for a dead target or a lost SEAD, the execute
 call once the strikers and escorts are at the join point, and the egress call. With no controller airborne nothing is said and the push waits. The
-calls go to SkyEye over the UDP link in the controller's voice and are text too.
+calls go to SkyEye over the UDP link in the controller's voice, with no on-screen
+text; without LuaSocket they are text only.
 How SkyEye says them is in-game only (checklist B258).
 """
 
@@ -153,7 +154,11 @@ def _harness(
 
 
 def _all_texts(h: DcsPluginHarness) -> list[str]:
-    # Each call is texted to every player group in the package; keep one copy.
+    # Spoken calls when the link is up (they are never on-screen text then); else the
+    # text fallback, texted to every player group in the package, one copy kept.
+    if h.lua.globals().SENT is not None:
+        assert h.records("texts") == []
+        return [m["text"] for m in _said(h)]
     out: list[str] = []
     for t in h.records("texts"):
         if not out or out[-1] != t["text"]:

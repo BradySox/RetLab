@@ -340,6 +340,7 @@ def _ask(
     h.lua.globals().INBOX[1] = json.dumps(request)
     h.advance_to(h.lua.eval("timer.getTime()") + 2)
     h.assert_no_lua_errors()
+    assert h.records("texts") == []
     return _sent(h, "say")[before:]
 
 

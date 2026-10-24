@@ -1,0 +1,8 @@
+date: 2026-10-24
+title: Voice calls are voice only
+change: >-
+  Ground, Tower, the ABCCC and Vacuum no longer put their spoken calls
+  on screen as text. You hear them on the radio and nothing else.
+watch: >-
+  If DCS cannot load LuaSocket, ATC and the ABCCC still answer in
+  on-screen text, as before.

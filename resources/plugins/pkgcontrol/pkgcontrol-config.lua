@@ -19,7 +19,7 @@
 -- an AI flight early at the join orbits there until execute, an abort sends them home. With no controller
 -- airborne nothing is said and the push waits: the AWACS never stands in (user call,
 -- 2026-10-20). SkyEye speaks the calls over local UDP (its mission-link-address) in the opposite
--- voice to the AWACS, which works STRIKE trimmed. Every call is also text.
+-- voice to the AWACS, which works STRIKE trimmed. Calls are on-screen text only without LuaSocket.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.packageControl) then
@@ -314,7 +314,8 @@ end
 -- Calls
 ---------------------------------------------------------------------------------------------------
 
--- Speaks a call on STRIKE and texts it to the player flights of each package in the list.
+-- Speaks a call on STRIKE to each package in the list; texts it to their player flights only
+-- without LuaSocket.
 local function sayTo(list, call)
     local c = controller()
     if not c then
@@ -326,7 +327,7 @@ local function sayTo(list, call)
         for _, f in ipairs(pkg.flights or {}) do
             if f.client == "true" then
                 local g = Group.getByName(f.group)
-                if g and g:isExist() then
+                if not link and g and g:isExist() then
                     trigger.action.outTextForGroup(g:getID(), text, TEXT_SECONDS)
                 end
             end

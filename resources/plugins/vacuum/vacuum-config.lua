@@ -33,7 +33,6 @@ local SEND_SECONDS = 8
 local TUNE_SECONDS = 60
 local OFF_RESET_SECONDS = 60
 local LINK_POLL_SECONDS = 1
-local TEXT_SECONDS = 15
 local NM = 1852
 local RANGE = tonumber(data.rangeMeters) or (250 * NM)
 -- A target-area radar: inside its own threat ring of the target, or this close to it.
@@ -578,12 +577,9 @@ local function answerFrequency(heard)
     return data.frequency
 end
 
-local function sayLine(frequency, call, group)
+-- No on-screen text: a request only arrives over the LuaSocket link, so every answer is spoken.
+local function sayLine(frequency, call)
     lastOnFrequency[frequency] = call
-    local g = group and Group.getByName(group)
-    if g and g:isExist() then
-        trigger.action.outTextForGroup(g:getID(), call.text, TEXT_SECONDS)
-    end
     send({
         { "type", "say" },
         { "frequency", frequency },
@@ -606,7 +602,7 @@ local function handleRequest(request, vacuum)
     local seat = flight.key .. ship
     if request.kind == "sayagain" then
         local last = lastReply[seat] or lastOnFrequency[frequency]
-        return sayLine(frequency, last or line({ me, ", nothing to say again." }), flight.group)
+        return sayLine(frequency, last or line({ me, ", nothing to say again." }))
     end
     local unit = callerUnit(flight, ship)
     if not unit then
@@ -626,7 +622,7 @@ local function handleRequest(request, vacuum)
         call = line({ me, ", say again." })
     end
     lastReply[seat] = call
-    sayLine(frequency, call, flight.group)
+    sayLine(frequency, call)
 end
 
 -- Reads the flat string fields of a SkyEye request.

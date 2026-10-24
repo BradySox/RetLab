@@ -5,8 +5,8 @@ alive and airborne the ``pkgcontrol`` plugin runs every blue package with a play
 seat on STRIKE (common), one frequency set as each such package's own (so it is the
 package preset): the check-in reply, the push to join, a hold or abort before the push,
 the execute call once the package is at the join point, and the egress call. The AWACS joins STRIKE as the second voice for the picture and
-intercepts. SkyEye speaks for both over a local UDP link, in opposite voices; every
-call is also text. With no controller airborne there is no package control, and the
+intercepts. SkyEye speaks for both over a local UDP link, in opposite voices; the
+calls are on-screen text only without LuaSocket. With no controller airborne there is no package control, and the
 AWACS never stands in. This module builds ``dcsRetribution.packageControl``.
 docs/dev/retlab-features.md §117.
 """

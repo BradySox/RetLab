@@ -12,8 +12,9 @@
 -- the field frequencies and this script decides every reply. Taxi to the runway,
 -- takeoff with wind and altimeter, landing, clear of the runway. Under Strict radio discipline a
 -- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
--- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same requests; without
--- LuaSocket it is the only way in and replies are text. AI traffic is left to DCS's own ATC.
+-- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same
+-- requests. Replies are voice only; without LuaSocket the menu is the only way in and replies are
+-- on-screen text. AI traffic is left to DCS's own ATC.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.voiceAtc) then
@@ -370,7 +371,7 @@ local function stationLabel(field, position)
     return field.name .. " " .. (position == "ground" and "Ground" or "Tower")
 end
 
--- Speaks a call on a field position, shows it to the flight, and keeps it for "say again".
+-- Speaks a call on a field position and keeps it for "say again". Text only without LuaSocket.
 local function say(field, position, flight, call)
     local frequency = field[position]
     if not frequency or frequency == "" then
@@ -379,7 +380,7 @@ local function say(field, position, flight, call)
     if flight then
         flight.lastCall[field.name .. position] = call
         local g = Group.getByName(flight.group)
-        if g and g:isExist() then
+        if not link and g and g:isExist() then
             trigger.action.outTextForGroup(g:getID(), stationLabel(field, position) .. ": " .. call.text, TEXT_SECONDS)
         end
     end
