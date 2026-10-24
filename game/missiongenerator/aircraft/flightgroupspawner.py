@@ -36,6 +36,7 @@ from game.ato.flightstate import InFlight
 from game.ato.starttype import StartType
 from game.ato.traveltime import GroundSpeed
 from game.data.weapons import Pylon
+from game.missiongenerator.aircraft.parkingcluster import cluster_parking_slots
 from game.missiongenerator.missiondata import MissionData
 from game.naming import namegen
 from game.theater import Airfield, ControlPoint, Fob, NavalControlPoint, OffMapSpawn
@@ -488,18 +489,42 @@ class FlightGroupSpawner:
         # player is generating the mission for multiplayer (which would need a new
         # option).
         self.flight.unit_type.dcs_unit_type.load_payloads()
+        start_type = self._start_type_at_airfield(airfield)
+        if (
+            parking_slots is None
+            and start_type is not DcsStartType.Runway
+            and not self.flight.unit_type.dcs_unit_type.helicopter
+        ):
+            parking_slots = cluster_parking_slots(
+                airfield.airport,
+                self.flight.unit_type.dcs_unit_type,
+                self.flight.count,
+                self._departure_heading(airfield),
+            )
         return self.mission.flight_group_from_airport(
             country=self.country,
             name=name,
             aircraft_type=self.flight.unit_type.dcs_unit_type,
             airport=airfield.airport,
             maintask=None,
-            start_type=self._start_type_at_airfield(airfield),
+            start_type=start_type,
             group_size=self.flight.count,
             parking_slots=parking_slots,
             callsign_name=self.flight.callsign.name if self.flight.callsign else None,
             callsign_nr=self.flight.callsign.nr if self.flight.callsign else None,
         )
+
+    def _departure_heading(self, airfield: Airfield) -> Optional[float]:
+        """The takeoff heading of the runway the flight briefs, if it can be read."""
+        game = self.flight.coalition.game
+        try:
+            runway = airfield.active_runway(game.theater, game.conditions, {})
+        except Exception:
+            logging.exception("No active runway for parking at %s", airfield.name)
+            return None
+        if not runway.runway_name:
+            return None
+        return float(runway.runway_heading.degrees)
 
     def _generate_over_departure(
         self, name: str, origin: ControlPoint
