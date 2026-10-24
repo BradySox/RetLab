@@ -2346,9 +2346,10 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   The map is on the GPU again, and `qt_ui/widgets/map/mappanel.py` `MapPanel` destroys the
   `QLiberationMap` web view (and its page) for the life of the mission window, showing a
   note, then builds a new one when the window closes (`map_released` in `QTopPanel.launch_mission`).
-  - Whether destroying the view frees the VRAM is unverified: Chromium's GPU thread stays up in
-    the process. Row B267 measures it; if `python.exe` still holds GBs, the next step is a
-    software-rendering setting (needs an app restart, as the flags are read once).
+  - The per-process "Dedicated GPU memory" figure for `python.exe` is not the app's share of the
+    card: it climbed to 20 GB (above the 16 GB card) while the whole card read ~5 GB, and closing
+    the app freed 0.6 GB (2026-10-24). The 4 GB and 13 GB readings above were this counter.
+    Measure the card total (`GPU Adapter Memory`) before and after closing the app; row B267.
   - The rebuilt map may open at the campaign's starting view rather than where it was left.
   - A map page that loads with the game already in place renders its layers before the map has a
     center; any layer reading `getBounds` then must tolerate the throw (`SectorsLayer` blanked the page, 2026-10-22).
