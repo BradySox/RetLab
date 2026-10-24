@@ -11,8 +11,9 @@
 --   players = { { group, callsign } } (every blue player flight, for the AWACS to find by name)
 --
 -- While an ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
--- check-in (F10 or spoken), ready to push, say push time, the push to join, up to two 3-minute
--- holds while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD,
+-- check-in (F10 or spoken), an airborne report, ready to push, say push time, the push to join,
+-- up to two 3-minute holds while a SEAD or escort flight, or every striker, is not airborne, an
+-- abort for a dead target, a lost SEAD or no striker up,
 -- the execute call once the strikers and escorts are at the join point (SEAD runs ahead and is
 -- not waited for; a late flight gets 3 minutes), and the egress call. AI flights in the package
 -- obey: a hold adds a 3-minute orbit at their HOLD point, an early push releases them from it,
@@ -640,6 +641,42 @@ local function anotherStrikerReady(pkg)
     return false
 end
 
+-- A striker is up: a strike flight airborne. A player slot has no unit until someone sits in it.
+-- Test 64 pushed with the only striker on the ramp and aborted at the join.
+local function strikerUp(pkg)
+    for _, f in ipairs(flightsWithRole(pkg, "strike")) do
+        if not lost(f) and airborne(f) then
+            return true
+        end
+    end
+    return false
+end
+
+local function noStrikerUp(pkg)
+    return #flightsWithRole(pkg, "strike") > 0 and not strikerUp(pkg)
+end
+
+-- The strike flights still on the ground, named in a hold: "Ford6-1 not airborne".
+local function strikersDown(pkg)
+    local out = {}
+    for _, f in ipairs(flightsWithRole(pkg, "strike")) do
+        if not lost(f) and not airborne(f) then
+            table.insert(out, f)
+        end
+    end
+    return out
+end
+
+local function capitalized(reason)
+    local function up(s)
+        return (tostring(s):gsub("^%l", string.upper))
+    end
+    if type(reason) == "table" then
+        return { up(reason[1]), up(reason[2]) }
+    end
+    return up(reason)
+end
+
 local function slip(pkg, reason)
     pkg.slips = pkg.slips + 1
     pkg.pushAt = pkg.pushAt + HOLD_SLIP_SECONDS
@@ -647,7 +684,7 @@ local function slip(pkg, reason)
     return say(pkg, {
         packagePart({ pkg }),
         ", {controller}, hold, hold. ",
-        reason,
+        capitalized(reason),
         ". New push time ",
         clock(pkg.pushAt),
         ".",
@@ -703,18 +740,31 @@ local function decidePush(pkg)
     local silentEscort = pkg.rollCalled and silentPlayers(pkg, "escort") or {}
     local silentStrike = pkg.rollCalled and silentPlayers(pkg, "strike") or {}
     local missing = notReady(pkg)
-    if #missing > 0 or #silentSead > 0 then
+    local noStriker = noStrikerUp(pkg)
+    local down = noStriker and strikersDown(pkg) or {}
+    if noStriker and #down == 0 then
+        return abort(pkg, "No strikers airborne")
+    end
+    if #missing > 0 or #silentSead > 0 or noStriker then
         if pkg.slips < MAX_SLIPS then
             local reasons = {}
             if #missing > 0 then
                 table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
             end
             if #silentSead > 0 then
-                table.insert(reasons, #missing > 0 and ". " or "")
+                table.insert(reasons, #reasons > 0 and ". " or "")
                 table.insert(reasons, callsigns(silentSead))
                 table.insert(reasons, " not checked in")
             end
+            if noStriker then
+                table.insert(reasons, #reasons > 0 and ". " or "")
+                table.insert(reasons, callsigns(down))
+                table.insert(reasons, " not airborne")
+            end
             return slip(pkg, phrase(reasons))
+        end
+        if noStriker then
+            return abort(pkg, "No strikers airborne")
         end
         if #silentSead > 0 then
             return abort(pkg, phrase({ callsigns(silentSead), " not checked in" }))
@@ -814,6 +864,9 @@ local function checkJoin(pkg, now)
     if seadLost(pkg) then
         return abort(pkg, "SEAD lost")
     end
+    if noStrikerUp(pkg) then
+        return abort(pkg, "No strikers airborne")
+    end
     local here, late, strikerHere = {}, {}, false
     for _, f in ipairs(pkg.flights or {}) do
         if joinsAtJoin(f) and not lost(f) and airborne(f) and (f.client ~= "true" or seated(f)) then
@@ -880,6 +933,7 @@ end
 local function checkIn(arg)
     local pkg, flight = arg.pkg, arg.flight
     local callsign = callsignPart(flight.callsign)
+    flight.checkedIn = true
     if pkg.state == "waiting" and pkg.rollCalled then
         flight.ready = true
         say(pkg, { callsign, ", {controller}, copy ready. Push time ", clock(pkg.pushAt), "." })
@@ -917,6 +971,12 @@ local function readyToPush(pkg, flight)
     if #missing > 0 then
         table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
     end
+    if noStrikerUp(pkg) then
+        local down = strikersDown(pkg)
+        table.insert(reasons, #reasons > 0 and ". " or "")
+        table.insert(reasons, #down > 0 and callsigns(down) or "no strikers")
+        table.insert(reasons, " not airborne")
+    end
     local silent = {}
     for _, role in ipairs({ "sead", "escort", "strike" }) do
         for _, f in ipairs(silentPlayers(pkg, role)) do
@@ -924,7 +984,7 @@ local function readyToPush(pkg, flight)
         end
     end
     if #silent > 0 then
-        table.insert(reasons, #missing > 0 and ". " or "")
+        table.insert(reasons, #reasons > 0 and ". " or "")
         table.insert(reasons, callsigns(silent))
         table.insert(reasons, " not checked in")
     end
@@ -940,6 +1000,14 @@ local function readyToPush(pkg, flight)
         clock(pkg.pushAt or timer.getTime()),
         ".",
     })
+end
+
+-- "Flight is airborne" checks in a flight that has not; once checked in it is only copied.
+local function reportAirborne(pkg, flight)
+    if not flight.checkedIn then
+        return checkIn({ pkg = pkg, flight = flight })
+    end
+    say(pkg, { callsignPart(flight.callsign), ", {controller}, copy airborne." })
 end
 
 local function sayPushTime(pkg, flight)
@@ -1034,6 +1102,8 @@ local function handleRequest(request)
         readyToPush(pkg, flight)
     elseif request.kind == "pushtime" then
         sayPushTime(pkg, flight)
+    elseif request.kind == "airborne" then
+        reportAirborne(pkg, flight)
     end
 end
 

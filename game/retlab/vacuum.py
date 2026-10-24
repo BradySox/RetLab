@@ -85,7 +85,14 @@ _SITE_SUFFIX = {
     "TEL",
     "TELAR",
     "ECS",
+    "CR",
 }
+
+#: Words DCS puts in front of a system's name: "SAM Hawk", "AShM Silkworm".
+_TYPE_PREFIX = {"SAM", "ASHM"}
+
+#: Search radars that serve no one SAM: the Dog Ear is a SHORAD battery's command-post radar.
+_SHARED_SEARCH_RADAR = re.compile(r"Sborka|Dog Ear", re.IGNORECASE)
 
 #: Which radar names a site: its fire-control radar before a search radar, a search radar
 #: before an early-warning one. A P-19 "(SA-2/3)" out-ranges an SA-6 Kub's own radar, and
@@ -172,10 +179,15 @@ def emitter_label(unit: TheaterUnit) -> str:
         return "search radar" if nato.group(2) else nato.group(1)
     if unit_type is not None and unit_type.unit_class is UnitClass.EARLY_WARNING_RADAR:
         return "early warning radar"
+    if _SHARED_SEARCH_RADAR.search(name):
+        return "search radar"
     name = re.sub(r'"[^"]*"|\([^)]*\)|\[[^\]]*\]', "", name)
-    words = [w for w in name.split() if w.upper() != "SAM"]
-    while len(words) > 1 and words[-1].upper() in _SITE_SUFFIX:
-        words.pop()
+    words = [w for w in name.split() if w.upper() not in _TYPE_PREFIX]
+    # The system's name ends at the first component word: "NASAMS SR MPQ64F1" is NASAMS.
+    for i, word in enumerate(words[1:], start=1):
+        if word.upper() in _SITE_SUFFIX:
+            words = words[:i]
+            break
     return " ".join(words) or "radar"
 
 

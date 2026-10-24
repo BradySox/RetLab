@@ -174,6 +174,18 @@ def test_a_shared_search_radar_alone_is_a_search_radar() -> None:
     assert emitter_label(_unit('SAM P19 "Flat Face" SR (SA-2/3)')) == "search radar"
 
 
+def test_no_vanilla_radar_is_called_by_its_raw_dcs_name() -> None:
+    # Test 64: Vacuum called the Dog Ear "MCC-SR Sborka".
+    assert (
+        emitter_label(_unit('MCC-SR Sborka "Dog Ear" SR', UnitClass.SEARCH_RADAR))
+        == "search radar"
+    )
+    assert emitter_label(_unit("SAM NASAMS SR MPQ64F1")) == "NASAMS"
+    assert emitter_label(_unit("SAM Hawk CWAR AN/MPQ-55")) == "Hawk"
+    assert emitter_label(_unit("SAM Patriot CR (AMG AN/MRC-137)")) == "Patriot"
+    assert emitter_label(_unit("AShM Silkworm SR")) == "Silkworm"
+
+
 def test_mod_tags_and_site_suffixes_are_dropped() -> None:
     assert emitter_label(_unit("SAM Patriot ECS")) == "Patriot"
     assert (
