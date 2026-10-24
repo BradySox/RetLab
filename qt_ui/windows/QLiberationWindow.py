@@ -1,6 +1,7 @@
 import logging
 import traceback
 import webbrowser
+from datetime import date
 from pathlib import Path
 from typing import Optional
 
@@ -429,6 +430,8 @@ class QLiberationWindow(QMainWindow):
     def saveGameAs(self):
         if self.game is not None and self.game.savepath:
             save_dir = self.game.savepath
+        elif self.game is not None:
+            save_dir = str(persistency.suggested_save_path(self.game, date.today()))
         else:
             save_dir = str(persistency.save_dir())
         file = QFileDialog.getSaveFileName(
