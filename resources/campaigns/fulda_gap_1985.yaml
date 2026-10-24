@@ -23,7 +23,7 @@ description:
   Thuringia.</p>
   <p>The 16th Air Army is the strongest air force the Soviet Union keeps abroad, and
   the East German air force flies beside it. Every SAM site between Meiningen and
-  Berlin reports to the Soviet headquarters at Wunsdorf. Break the 8th Guards Army,
+  Leipzig reports to the 8th Guards Army's headquarters at Weimar. Break the 8th Guards Army,
   take Erfurt and Merseburg, and the offensive is over. Lose Frankfurt, and the
   Central Front collapses.</p>
 miz: fulda_gap_1985.miz
@@ -38,8 +38,8 @@ settings:
   # 1985: AIM-9L, AIM-7F, AGM-45 and AGM-78 yes; AMRAAM, HARM and AIM-9M no.
   restrict_weapons_by_date: true
   restrict_props_by_date: true
-  # Spangdahlem is 151 NM from Haina, past the 150 NM default. 250 opens the
-  # border fields and the Leipzig belt and keeps Berlin's fields out of reach.
+  # Spangdahlem is 151 NM from Haina, past the 150 NM default. 250 reaches
+  # Merseburg, the deepest Pact field.
   max_mission_range_planes: 250
   plugins:
     skynetiads: true
@@ -71,47 +71,42 @@ squadrons:
       secondary: any
       aircraft:
         - 480th Tactical Fighter Squadron
-      size: 12
-    - primary: Strike
-      secondary: any
-      aircraft:
-        - 81st Tactical Fighter Squadron (1985)
-      size: 12
-  # Bitburg: the 36th TFW's Eagles.
+      size: 8
+  # Bitburg: the 36th TFW's Eagles, and Luftwaffe Tornados.
   Bitburg:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - 22nd Tactical Fighter Squadron
-      size: 12
-    - primary: TARCAP
-      secondary: air-to-air
-      aircraft:
-        - 53rd Tactical Fighter Squadron
-      size: 12
-    - primary: Escort
-      secondary: air-to-air
-      aircraft:
-        - 525th Tactical Fighter Squadron
-      size: 12
-  # Ramstein: the 86th TFW's Phantoms and the NATO AWACS.
-  Ramstein:
-    - primary: BAI
+      size: 8
+    - primary: Strike
       secondary: any
       aircraft:
-        - USAF 512th TFS
-      size: 12
+        - Jagdbombergeschwader 31 Boelcke
+      size: 8
+  # Ramstein: the 86th TFW's Phantoms, RAF Germany Tornados and the NATO AWACS.
+  Ramstein:
     - primary: CAS
       secondary: any
       aircraft:
         - USAF 526th TFS
-      size: 12
+      size: 8
+    - primary: OCA/Runway
+      secondary: any
+      aircraft:
+        - No. 31 Squadron
+      size: 8
     - primary: AEW&C
       aircraft:
         - NATO E-3A Component
-      size: 2
-  # Rhein-Main: the tankers and the airlift.
+      size: 1
+  # Rhein-Main: the A-10s, the tanker and the airlift.
   Frankfurt:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 510th Tactical Fighter Squadron
+      size: 8
     - primary: Refueling
       aircraft:
         - KC-135 Stratotanker
@@ -120,41 +115,13 @@ squadrons:
       aircraft:
         - C-130J-30
       size: 2
-  # Sembach: the A-10 forward operating location.
-  Sembach:
-    - primary: CAS
-      secondary: any
-      aircraft:
-        - 510th Tactical Fighter Squadron
-      size: 12
-  # Pferdsfeld: Luftwaffe Phantoms.
-  Pferdsfeld:
-    - primary: BAI
-      secondary: any
-      aircraft:
-        - Jagdbombergeschwader 35
-      size: 12
-  # Norvenich: Luftwaffe Tornados.
-  Norvenich:
-    - primary: Strike
-      secondary: any
-      aircraft:
-        - Jagdbombergeschwader 31 Boelcke
-      size: 12
-  # Gutersloh: RAF Germany Tornados.
-  Gutersloh:
-    - primary: OCA/Runway
-      secondary: any
-      aircraft:
-        - No. 31 Squadron
-      size: 12
   # Fulda: the 11th Armored Cavalry's helicopters.
   Fulda:
     - primary: Air Assault
       secondary: any
       aircraft:
         - 11th Armored Cavalry Regiment
-      size: 8
+      size: 4
   # ========================== Warsaw Pact ==========================
   # Haina: Hinds behind the 8th Guards Army.
   Haina:
@@ -162,64 +129,39 @@ squadrons:
       secondary: any
       aircraft:
         - 336th Independent Combat Helicopter Regiment
-      size: 12
+      size: 8
   Obermehler Schlotheim:
     - primary: Air Assault
       secondary: any
       aircraft:
         - Mi-8MTV2 Hip
       size: 6
+  # Erfurt: the East German air force.
+  Bindersleben:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - Jagdfliegergeschwader 1
+      size: 8
   Allstedt:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - 73rd Guards Fighter Aviation Regiment
+      size: 8
     - primary: BAI
       secondary: any
       aircraft:
         - MiG-27K Flogger-J2
-      size: 12
+      size: 8
   Merseburg:
     - primary: BARCAP
       secondary: any
       aircraft:
         - 85th Guards Fighter Aviation Regiment (MiG-23)
-      size: 12
-  Kothen:
-    - primary: BARCAP
-      secondary: any
-      aircraft:
-        - 73rd Guards Fighter Aviation Regiment
-      size: 12
-  Zerbst:
-    - primary: TARCAP
-      secondary: any
-      aircraft:
-        - 35th Fighter Aviation Regiment
-      size: 12
-  Brandis:
+      size: 8
     - primary: CAS
       secondary: any
       aircraft:
         - 357th Assault Aviation Regiment
-      size: 12
-  Altes Lager:
-    - primary: BARCAP
-      secondary: any
-      aircraft:
-        - 833rd Fighter Aviation Regiment
-      size: 12
-  # Holzdorf: the East German air force.
-  Holzdorf:
-    - primary: BARCAP
-      secondary: any
-      aircraft:
-        - Jagdfliegergeschwader 1
-      size: 12
-  Mahlwinkel:
-    - primary: BAI
-      secondary: any
-      aircraft:
-        - Su-17M4 Fitter-K
-      size: 12
-  Sperenberg:
-    - primary: Transport
-      aircraft:
-        - An-26B
-      size: 2
+      size: 8
