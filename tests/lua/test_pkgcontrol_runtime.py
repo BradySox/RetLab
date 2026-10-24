@@ -674,6 +674,31 @@ def test_an_unreadable_call_gets_a_say_again_in_the_controller_voice() -> None:
     h.assert_no_lua_errors()
 
 
+def test_an_airborne_report_checks_in_once_then_is_copied() -> None:
+    # Test 64: "Ramrod, Chevy 2, flight is airborne" got a say again.
+    h = _harness([_flight("Colt", client=True)], [_group("Colt")])
+    _request(h, "airborne")
+    h.advance_to(2)
+    _request(h, "airborne")
+    h.advance_to(3)
+    assert _all_texts(h)[-2:] == [
+        "Colt1-1, Anvil, radar contact. Cleared direct hold, angels 20. "
+        "Push time 1410.",
+        "Colt1-1, Anvil, copy airborne.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_an_airborne_report_after_a_check_in_is_only_copied() -> None:
+    h = _harness([_flight("Colt", client=True)], [_group("Colt")])
+    _request(h, "checkin")
+    _request(h, "airborne")
+    h.advance_to(2)
+    assert _all_texts(h)[-1] == "Colt1-1, Anvil, copy airborne."
+    assert len([t for t in _all_texts(h) if "radar contact" in t]) == 1
+    h.assert_no_lua_errors()
+
+
 def test_skyeye_is_told_which_player_flies_which_seat() -> None:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_AIRBASE)

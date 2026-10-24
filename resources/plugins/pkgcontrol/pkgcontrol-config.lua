@@ -11,8 +11,9 @@
 --   players = { { group, callsign } } (every blue player flight, for the AWACS to find by name)
 --
 -- While an ABCCC C-130 is alive AND airborne it runs every package on STRIKE (common):
--- check-in (F10 or spoken), ready to push, say push time, the push to join, up to two 3-minute
--- holds while a SEAD or escort flight is not airborne, an abort for a dead target or a lost SEAD,
+-- check-in (F10 or spoken), an airborne report, ready to push, say push time, the push to join,
+-- up to two 3-minute holds while a SEAD or escort flight is not airborne, an abort for a dead
+-- target or a lost SEAD,
 -- the execute call once the strikers and escorts are at the join point (SEAD runs ahead and is
 -- not waited for; a late flight gets 3 minutes), and the egress call. AI flights in the package
 -- obey: a hold adds a 3-minute orbit at their HOLD point, an early push releases them from it,
@@ -880,6 +881,7 @@ end
 local function checkIn(arg)
     local pkg, flight = arg.pkg, arg.flight
     local callsign = callsignPart(flight.callsign)
+    flight.checkedIn = true
     if pkg.state == "waiting" and pkg.rollCalled then
         flight.ready = true
         say(pkg, { callsign, ", {controller}, copy ready. Push time ", clock(pkg.pushAt), "." })
@@ -940,6 +942,14 @@ local function readyToPush(pkg, flight)
         clock(pkg.pushAt or timer.getTime()),
         ".",
     })
+end
+
+-- "Flight is airborne" checks in a flight that has not; once checked in it is only copied.
+local function reportAirborne(pkg, flight)
+    if not flight.checkedIn then
+        return checkIn({ pkg = pkg, flight = flight })
+    end
+    say(pkg, { callsignPart(flight.callsign), ", {controller}, copy airborne." })
 end
 
 local function sayPushTime(pkg, flight)
@@ -1034,6 +1044,8 @@ local function handleRequest(request)
         readyToPush(pkg, flight)
     elseif request.kind == "pushtime" then
         sayPushTime(pkg, flight)
+    elseif request.kind == "airborne" then
+        reportAirborne(pkg, flight)
     end
 end
 

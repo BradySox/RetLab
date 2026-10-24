@@ -11212,6 +11212,10 @@ kneeboard comms as "STRIKE (Anvil)":
   in"). The reply gives radar contact, the hold angels and the push time.
 - **Ready to push / say push time:** spoken. Ready pushes early when the SEAD and escort
   are airborne, else says what is missing.
+- **Airborne:** spoken ("Anvil, Colt 1-1, flight is airborne", "wheels up", "off the
+  ground", "departing"). From a flight that has not checked in it is a check-in; after a
+  check-in the reply is "copy airborne" (Test 64, 2026-10-24). Needs BradySox/skyeye#15;
+  an older SkyEye sends it as an unreadable call and the ABCCC says "say again".
 - **Push to join:** at the package push time (the earliest strike flight's HOLD departure),
   "Ford package, Blackjack, push to join."
 - **Execute:** "Ford package, Blackjack, execute" once every airborne striker and escort
@@ -11708,7 +11712,10 @@ starts that site asleep at that error (`known_fix` returns it, the emitter carri
 ### Constraints
 
 - The labels come from the unit's display name: a NATO `SA-n`/`HQ-n` code, else the system
-  name. A radar with neither is called by its DCS name.
+  name, cut at its first component word ("NASAMS SR MPQ64F1" is "NASAMS") with the `SAM`
+  and `AShM` prefixes dropped. An early-warning radar is "early warning radar"; the P-19 and
+  the Dog Ear (`MCC-SR Sborka`, a SHORAD command-post radar) are "search radar" (Test 64,
+  2026-10-24). No vanilla radar is called by its DCS name; a mod radar with neither may be.
 - Needs the SkyEye copy with `tune` and `emitter` messages (`BradySox/skyeye`); the
   commands need its `elintRequest` too.
 - Vacuum knows only radars radiating now. Never report a dark site: the card tells pilots a
