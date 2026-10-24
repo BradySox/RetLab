@@ -3,7 +3,7 @@
   "name": "Warsaw Pact Central Front 1985",
   "cargo_ship": "Bulker Yakushev",
   "authors": "RetLab",
-  "description": "<p>The Group of Soviet Forces in Germany, its 16th Air Army and the East German army and air force in 1985: MiG-21s and MiG-23s, MiG-27, Su-17 and Su-25 strike jets, Hind gunships, T-64 and T-80 tank armies, and SA-2, SA-3 and SA-5 sites from the border to Berlin. No tankers or AWACS.</p>",
+  "description": "<p>The Group of Soviet Forces in Germany, its 16th Air Army and the East German army and air force in 1985: MiG-21s and MiG-23s, MiG-27, Su-17 and Su-25 strike jets, Hind gunships, T-64 and T-80 tank armies, and SA-2 and SA-3 sites from the border to Leipzig. No tankers or AWACS.</p>",
   "locales": [
     "ru_RU"
   ],
@@ -53,7 +53,6 @@
     "SA-2/S-75",
     "SA-2/SA-3 Mixed Site",
     "SA-3/S-125",
-    "SA-5/S-200",
     "SA-6",
     "KS-19/SON-9"
   ],

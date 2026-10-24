@@ -83,10 +83,13 @@ Spangdahlem (through the Hunsruck and Mainz), Ramstein (Kaiserslautern, Alzey) a
 Fulda, Rockenhausen, Baumholder, Schmallenberg, Steinheim and Bad Driburg, and the CRC at
 Erndtebruck; plus an EWR on the Wasserkuppe, Patriot at Ramstein, and Roland, Rapier, Gepard and
 Vulcan at the bases. Red, at Carsten's sites: SA-2s at Gotha, Allstedt, Quedlinburg, Merseburg,
-Bad Durrenberg, Leipzig, Kothen and Dessau; an SA-3 at Meiningen; SA-5s at Kaltennordheim and
-Eckolstadt; an S-60 battery at Leipzig. Each is a `FIXED` group copied unit by unit from his
-mission. His Kaltennordheim group is three radars with no launchers; the DM placed its 18
-launchers, two trucks and an SA-9 himself in the Mission Editor. The Hawks sit in the blue
+Bad Durrenberg, Leipzig, Kothen and Dessau; an SA-3 at Meiningen; an S-60 battery at Leipzig.
+Each is a `FIXED` group copied unit by unit from his mission. **No SA-5s (DM call, same
+day):** at about 140 NM their rings covered all of West Germany. Kaltennordheim and
+Eckolstadt keep their revetments as SA-2 sites: each S-200 launcher became an SA-2
+launcher, the 5N62 tracking radar a Fan Song, the command post was dropped. His
+Kaltennordheim group was three radars with no launchers; the DM placed its launchers in
+the Mission Editor. The faction has no SA-5 preset, so none can be bought. The Hawks sit in the blue
 country block, red's in the red. The red faction carries the S-60 and the KS-19/SON-9 preset so
 it can field the S-60 site's Fire Can. The CRC at Erndtebruck is still a marker. Added: mobile
 SA-6s at Haina, Obermehler and Erfurt (standing in for the SA-4 brigades), SHORAD at the fields
