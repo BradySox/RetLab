@@ -43,26 +43,14 @@ settings:
   max_mission_range_planes: 250
   plugins:
     skynetiads: true
-# The border armies field mobile SA-6s. The fixed SA-2, SA-3 and SA-5 sites are
-# where Carsten's Cold War Germany Framework puts them, and fill as those types.
+# The border armies field mobile SA-6s. The fixed Hawk, SA-2, SA-3, SA-5 and S-60
+# sites are FIXED groups copied unit by unit from Carsten's Cold War Germany
+# Framework. Kaltennordheim stays a marker: his site there has no launchers.
 ground_forces:
   CF85-Haina-SA6: SA-6
   CF85-Obermehler-SA6: SA-6
   CF85-Erfurt-SA6: SA-6
-  CF85-SA3-Meiningen: SA-3/S-125
-  CF85-SA2-Gotha: SA-2/S-75
-  CF85-SA2-Allstedt: SA-2/S-75
-  CF85-SA2-Quedlinburg: SA-2/S-75
-  CF85-SA2-Merseburg: SA-2/S-75
-  CF85-SA2-Bad-Durrenberg: SA-2/S-75
-  CF85-SA2-Leipzig: SA-2/S-75
-  CF85-SA2-Kothen: SA-2/S-75
-  CF85-SA2-Dessau: SA-2/S-75
-  CF85-SA2-Mahlwinkel: SA-2/S-75
-  CF85-SA3-Sperenberg: SA-3/S-125
   CF85-SA5-Kaltennordheim: SA-5/S-200
-  CF85-SA5-Eckolstadt: SA-5/S-200
-  CF85-SA5-Magdeburg: SA-5/S-200
 victory:
   description: "Take Erfurt and Merseburg. Hold Frankfurt."
   win_when:
