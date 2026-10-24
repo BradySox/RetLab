@@ -2,6 +2,7 @@
 
 import math
 from pathlib import Path
+from datetime import date
 from typing import Any, List, Optional, TYPE_CHECKING, Tuple
 
 from PIL import ImageFont
@@ -57,11 +58,13 @@ class PackagesMapPage(KneeboardPage):
         control_points: List[Tuple[float, float, str, str, str]],
         terrain: "Terrain",
         dark_kneeboard: bool,
+        border_date: Optional[date] = None,
     ) -> None:
         self.targets = targets
         self.control_points = control_points
         self.terrain = terrain
         self.dark_kneeboard = dark_kneeboard
+        self.border_date = border_date
 
     def write(self, path: Path) -> None:
         from dcs.mapping import Point as DcsPoint
@@ -125,7 +128,9 @@ class PackagesMapPage(KneeboardPage):
             aspect_correct(extent, map_w, map_h), keep_visible=ao_extent
         )
         writer.image.paste(
-            render_theater_basemap(extent, map_w, map_h, dark=self.dark_kneeboard),
+            render_theater_basemap(
+                extent, map_w, map_h, dark=self.dark_kneeboard, on=self.border_date
+            ),
             (off_x, off_y),
         )
 

@@ -10017,13 +10017,23 @@ of the other side.
   shipped zone fills >= 98 %, pinned against a port of MOOSE's triangulation.
 - **A campaign needs to author nothing.** Borders ship per terrain in
   `resources/borders/<terrain>.yaml` (Afghanistan, Syria, Caucasus, Iraq, Kola,
-  Persian Gulf, Sinai, Falklands — Nevada and the Marianas are all-US and
-  correctly have none; GermanyCW is blocked on pre-1991 geometry), built by
+  Persian Gulf, Sinai, Falklands, Germany — Nevada and the Marianas are all-US and
+  correctly have none), built by
   `tools/build_terrain_borders.py`; only the airframe
   resolves from `national_postures.yaml` against the campaign's date. A campaign
   that declares its own `neutral_border_defense:` block overrides the terrain
   file **completely** — never merged. Saves already in progress pick the borders
   up on load, so no re-roll is needed.
+- **A country that ceased to exist is dated (2026-10-24).** The Germany file draws the
+  GDR as its own zone with `until: "1990-10"` and `successor: Germany`
+  (`--ceased GDR:Germany:1990-10`). `terrainborders.borders_on` is the one place that
+  resolves it: `Game.on_load` re-reads the theater's terrain zones at the campaign's
+  start date (`ConflictTheater.date_borders`), and the kneeboard's frontier lines take
+  the same date. Fulda Gap 1985 sees the inner German border; Baltic Fury (2027) sees
+  one Germany. The geometry is Natural Earth 10m admin-1: the GDR is the five eastern
+  states plus Berlin, so West Berlin is drawn as GDR. Amager (Kastrup) is joined to
+  Zealand and the floor is 300 km² so Usedom (Peenemunde) survives. Recipe:
+  `retlab-national-postures-notes.md`, *Pre-1991 geometry*.
 - **The file is keyed off the pydcs terrain name, aliased.** Sinai is `SinaiMap` in
   pydcs, so until 2026-10-13 `sinaimap.yaml` was looked up and every Sinai campaign had
   no borders, no neutral defense and a §111 fill clipped to the base box.

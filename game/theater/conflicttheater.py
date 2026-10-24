@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import math
-from datetime import timezone
+from datetime import date, timezone
 from pathlib import Path
 from typing import Iterator, List, Optional, TYPE_CHECKING, Tuple, Any
 from uuid import UUID
@@ -78,15 +78,26 @@ class ConflictTheater:
         self.__dict__ = state
         self.landmap = load_landmap(self.landmap_path)
 
+    def date_borders(self, on: date) -> None:
+        """Re-read the terrain's zones as they stood on ``on`` (the GDR is
+        Germany's after Oct 1990). A campaign's own borders are left alone."""
+        existing = getattr(self, "neutral_border_zones", None) or []
+        if all(getattr(zone, "from_terrain", False) for zone in existing):
+            self.neutral_border_zones = self._terrain_border_zones(
+                self.terrain.name, on
+            )
+
     @staticmethod
-    def _terrain_border_zones(terrain_name: str) -> list[NeutralBorderZone]:
+    def _terrain_border_zones(
+        terrain_name: str, on: Optional[date] = None
+    ) -> list[NeutralBorderZone]:
         """Shipped border zones for a terrain. Never raises: a bad file costs
         the borders, never the save."""
         from game.theater.terrainborders import load_terrain_borders
 
         zones = []
         try:
-            for entry in load_terrain_borders(terrain_name):
+            for entry in load_terrain_borders(terrain_name, on=on):
                 zone = NeutralBorderZone.from_yaml(entry, from_terrain=True)
                 if zone is not None:
                     zones.append(zone)

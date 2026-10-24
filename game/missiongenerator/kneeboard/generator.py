@@ -717,5 +717,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 control_points,
                 self.game.theater.terrain,
                 self.dark_kneeboard,
+                border_date=self.game.date,
             )
         ]

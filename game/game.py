@@ -424,6 +424,8 @@ class Game:
         # We need to persist this state so that names generated after game load don't
         # conflict with those generated before exit.
         naming.namegen = self.name_generator
+        # Shipped borders as they stood at the campaign's start (the GDR).
+        self.theater.date_borders(self.date)
         LuaPluginManager.load_settings(self.settings)
         ObjectiveDistanceCache.set_theater(self.theater)
         self._rebuild_downed_pilot_index()
