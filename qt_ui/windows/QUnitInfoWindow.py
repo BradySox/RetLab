@@ -28,6 +28,9 @@ def aircraft_banner_for(unit_type: AircraftType) -> Path:
         "Mirage-F1EE",
         "Mirage-F1M-EE",
         "Mirage-F1EQ",
+        "Mirage-F1AZ",
+        "Mirage-F1CR",
+        "Mirage-F1JA",
     }:
         name = "Mirage-F1C-200"
     elif unit_type.dcs_id in {"Mirage-F1CE", "Mirage-F1M-CE"}:
@@ -42,6 +45,10 @@ def aircraft_banner_for(unit_type: AircraftType) -> Path:
         "Su-30SM-AG",
     }:
         name = "Su-30SM"
+    elif unit_type.dcs_id == "F/A-18A":
+        name = "FA-18C_hornet"
+    elif unit_type.dcs_id == "Su-25TM":
+        name = "Su-25T"
     elif unit_type.dcs_id == "Su-35S-AG":
         name = "Su-35S"
     elif unit_type.dcs_id == "F-15ESE":

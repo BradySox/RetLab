@@ -1,0 +1,23 @@
+description:
+  The Mirage F1AZ is the radarless ground-attack Mirage F1 built for South Africa,
+  in service from 1975 to 1997 and flown in the Border War over Angola. In DCS it is
+  an AI-only aircraft.
+introduced: 1975
+manufacturer: Dassault
+origin: France
+price: 12
+role: Ground Attack
+max_range: 200
+variants:
+  Mirage-F1AZ: {}
+tasks:
+  BAI: 300
+  BARCAP: 200
+  CAS: 300
+  OCA/Aircraft: 300
+  OCA/Runway: 280
+  Strike: 280
+  TARCAP: 200
+
+# Air-to-air refueling method (receiver).
+air_refuel_type: probe

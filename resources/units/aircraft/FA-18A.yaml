@@ -1,0 +1,31 @@
+carrier_capable: true
+description:
+  The F/A-18A is the first production single-seat Hornet, flown by the US Navy and
+  Marine Corps from 1983 and exported to Canada (CF-188), Australia and Spain (EF-18A).
+  It lacks the later F/A-18C's AIM-120 and night-attack upgrades. In DCS it is an
+  AI-only aircraft.
+introduced: 1983
+manufacturer: McDonnell Douglas
+origin: USA
+price: 20
+role: Carrier-based Multirole Fighter
+max_range: 350
+variants:
+  F/A-18A Hornet: {}
+tasks:
+  Anti-ship: 140
+  BAI: 720
+  BARCAP: 430
+  CAS: 720
+  DEAD: 430
+  Escort: 400
+  Fighter sweep: 430
+  OCA/Aircraft: 720
+  OCA/Runway: 580
+  SEAD: 430
+  SEAD Escort: 430
+  Strike: 580
+  TARCAP: 430
+
+# Air-to-air refueling method (receiver).
+air_refuel_type: probe

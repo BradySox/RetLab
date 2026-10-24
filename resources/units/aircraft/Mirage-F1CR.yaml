@@ -1,0 +1,22 @@
+description:
+  The Mirage F1CR is the French Air Force's reconnaissance version of the Mirage F1,
+  in service from 1983 to 2014, carrying cameras and sensors internally and a strike
+  load on its pylons. Retribution has no recon task for it, so it flies attack sorties.
+  In DCS it is an AI-only aircraft.
+introduced: 1983
+manufacturer: Dassault
+origin: France
+price: 14
+role: Reconnaissance/Attack
+max_range: 200
+variants:
+  Mirage-F1CR: {}
+tasks:
+  BAI: 300
+  CAS: 300
+  OCA/Aircraft: 300
+  OCA/Runway: 280
+  Strike: 280
+
+# Air-to-air refueling method (receiver).
+air_refuel_type: probe

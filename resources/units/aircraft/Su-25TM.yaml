@@ -1,0 +1,28 @@
+always_keeps_gun: true
+description:
+  The Su-25TM (also offered for export as the Su-39) is a further development of the
+  Su-25T anti-tank aircraft, adding the Kopyo radar pod for anti-ship and air-to-air
+  missiles. Only a handful were built and flown by the Russian Air Force for trials;
+  it never entered squadron service. In DCS it is an AI-only aircraft.
+introduced: 1995
+manufacturer: Sukhoi
+origin: USSR/Russia
+price: 20
+role: Close Air Support/Attack
+max_range: 200
+variants:
+  Su-25TM Frogfoot: {}
+kneeboard_units: "metric"
+tasks:
+  Anti-ship: 100
+  BAI: 760
+  CAS: 760
+  DEAD: 410
+  OCA/Aircraft: 760
+  OCA/Runway: 480
+  SEAD: 130
+  SEAD Escort: 130
+  Strike: 480
+
+# No air-to-air refueling in DCS.
+air_refuel_type: none
