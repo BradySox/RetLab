@@ -42,6 +42,7 @@ class Frontier:
 
 class TransitConnection(Enum):
     Road = auto()
+    Rail = auto()
     Shipping = auto()
     Airlift = auto()
 
@@ -70,6 +71,9 @@ class TransitNetwork:
     def link_road(self, a: ControlPoint, b: ControlPoint) -> None:
         self.link_with(a, b, TransitConnection.Road)
 
+    def link_rail(self, a: ControlPoint, b: ControlPoint) -> None:
+        self.link_with(a, b, TransitConnection.Rail)
+
     def link_shipping(self, a: ControlPoint, b: ControlPoint) -> None:
         self.link_with(a, b, TransitConnection.Shipping)
 
@@ -83,6 +87,7 @@ class TransitNetwork:
         distance = a.position.distance_to_point(b.position)
         return {
             TransitConnection.Road: distance,  # convoy drives distance once
+            TransitConnection.Rail: distance,
             TransitConnection.Shipping: 2 * distance,  # ship goes back & forth
             TransitConnection.Airlift: 3 * distance,  # to pickup + back & forth
         }[self.link_type(a, b)]
@@ -172,11 +177,22 @@ class TransitNetworkBuilder:
         return self.network
 
     def add_transit_links(self, control_point: ControlPoint) -> None:
-        from .sectorwar import road_is_cut
+        from .sectorwar import rail_is_cut, road_is_cut
+
+        # A drawn rail line wins over the road between the same bases, so the
+        # campaign's trains run (features doc §123).
+        for rail_connection in control_point.rail_lines:
+            if not rail_connection.is_friendly_to(control_point):
+                continue
+            if rail_is_cut(self.theater, control_point, rail_connection):
+                continue
+            self.network.link_rail(control_point, rail_connection)
 
         # Prefer road connections.
         for road_connection in control_point.connected_points:
             if not road_connection.is_friendly_to(control_point):
+                continue
+            if self.network.has_link(control_point, road_connection):
                 continue
             # §111 step 2: no convoy drives through the enemy's sectors.
             if road_is_cut(self.theater, control_point, road_connection):

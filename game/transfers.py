@@ -588,6 +588,30 @@ class Convoy(MultiGroupTransport):
         return None
 
 
+class Train(Convoy):
+    """A convoy that runs a drawn rail line. DCS sees the whole train as one unit."""
+
+    def __init__(self, origin: ControlPoint, destination: ControlPoint) -> None:
+        MultiGroupTransport.__init__(
+            self, namegen.next_train_name(), origin, destination
+        )
+
+    @property
+    def route(self) -> Sequence[Point]:
+        return self.origin.rail_lines[self.destination]
+
+    @property
+    def route_start(self) -> Point:
+        return self.route[0]
+
+    @property
+    def route_end(self) -> Point:
+        return self.route[-1]
+
+    def description(self) -> str:
+        return f"On a train from {self.origin} to {self.destination}"
+
+
 class CargoShip(MultiGroupTransport):
     def __init__(self, origin: ControlPoint, destination: ControlPoint) -> None:
         super().__init__(namegen.next_cargo_ship_name(), origin, destination)
@@ -677,6 +701,17 @@ class ConvoyMap(TransportMap[Convoy]):
     ) -> Convoy:
         return Convoy(origin, destination)
 
+    def add_train(self, transfer: TransferOrder, next_stop: ControlPoint) -> None:
+        # Trains share the convoy map, so every convoy consumer (BAI targeting, the
+        # debrief, the map) handles them. A pair has one link type, so a train and a
+        # road convoy never compete for one key.
+        origin = transfer.position
+        transport = self.find_transport(origin, next_stop)
+        if transport is None:
+            transport = Train(origin, next_stop)
+            self.transports[origin][next_stop] = transport
+        transport.add_units(transfer)
+
 
 class CargoShipMap(TransportMap[CargoShip]):
     def create_transport(
@@ -733,6 +768,11 @@ class PendingTransfers:
                 == TransitConnection.Road
             ):
                 return self.convoys.add(transfer, next_stop)
+            elif (
+                network.link_type(transfer.position, next_stop)
+                == TransitConnection.Rail
+            ):
+                return self.convoys.add_train(transfer, next_stop)
             elif (
                 network.link_type(transfer.position, next_stop)
                 == TransitConnection.Shipping

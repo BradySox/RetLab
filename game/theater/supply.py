@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class SupplyStatus(Enum):
     """How well a control point is connected to a rear area."""
 
-    #: Reachable from a rear area over roads or shipping.
+    #: Reachable from a rear area over roads, rail or shipping.
     SUPPLIED = auto()
     #: Reachable from a rear area, but only by air.
     AIRLIFTED = auto()
@@ -46,7 +46,9 @@ RECOVERY_MULTIPLIER: dict[SupplyStatus, float] = {
     SupplyStatus.ISOLATED: 0.0,
 }
 
-_GROUND_LINKS = frozenset({TransitConnection.Road, TransitConnection.Shipping})
+_GROUND_LINKS = frozenset(
+    {TransitConnection.Road, TransitConnection.Rail, TransitConnection.Shipping}
+)
 _ALL_LINKS = frozenset(TransitConnection)
 
 

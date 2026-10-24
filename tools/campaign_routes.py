@@ -40,6 +40,8 @@ from dcs.vehicles import Armor  # noqa: E402
 CAMPAIGNS = REPO / "resources" / "campaigns"
 ROUTE_TYPE = Armor.M_113.id
 LANE_TYPE = HandyWind.id
+#: A rail line is a train drawn on the track (features doc §123).
+RAIL_TYPE = "Train"
 
 Waypoints = list[tuple[float, float]]
 
@@ -53,10 +55,10 @@ def route_groups(mission: dcs.Mission) -> list[tuple[str, str, Waypoints]]:
     for side in ("blue", "red"):
         for country in mission.coalition[side].countries.values():
             for group in country.vehicle_group:
-                if group.units[0].type == ROUTE_TYPE:
+                if group.units[0].type in (ROUTE_TYPE, RAIL_TYPE):
                     found.append(
                         (
-                            "route",
+                            "route" if group.units[0].type == ROUTE_TYPE else "rail",
                             group.name,
                             [(p.position.x, p.position.y) for p in group.points],
                         )
@@ -84,6 +86,10 @@ def draw(
             group.add_waypoint(
                 dcs.mapping.Point(x, y, mission.terrain), PointAction.OnRoad
             )
+    elif kind == "rail":
+        from game.missiongenerator.traingenerator import draw_rail_line
+
+        draw_rail_line(mission, country, name, points)
     else:
         ship = mission.ship_group(country, name, HandyWind, first)
         for x, y in points[1:]:
@@ -184,12 +190,17 @@ def _without_paths(table: dict[Any, Any]) -> dict[Any, Any]:
     out = copy.deepcopy(table)
     for side in ("blue", "red"):
         for country in out["coalition"][side].get("country", {}).values():
-            for category, unit_type in (("vehicle", ROUTE_TYPE), ("ship", LANE_TYPE)):
+            for category, unit_types in (
+                ("vehicle", (ROUTE_TYPE, RAIL_TYPE)),
+                ("ship", (LANE_TYPE,)),
+            ):
                 if category not in country:
                     continue
                 groups = country[category].get("group") or {}
                 kept = [
-                    g for g in groups.values() if g["units"][1]["type"] != unit_type
+                    g
+                    for g in groups.values()
+                    if g["units"][1]["type"] not in unit_types
                 ]
                 if kept:
                     country[category]["group"] = {i + 1: g for i, g in enumerate(kept)}
@@ -274,7 +285,7 @@ def _insert(
 def draw_into_miz(
     miz_path: Path, terrain: Any, wanted: list[tuple[str, str, Waypoints]]
 ) -> None:
-    """Add route ("route") and lane ("lane") groups to a campaign .miz in place.
+    """Add route ("route"), rail ("rail") and lane ("lane") groups to a campaign .miz.
 
     Only the mission table changes, and only by the added groups.
     """

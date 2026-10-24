@@ -208,7 +208,9 @@ def _same_side_corridors(
     for cp in game.theater.controlpoints:
         if cp.captured != coalition.player:
             continue
-        for other in cp.convoy_routes.keys():
+        # A drawn rail line is a corridor too; the transit network sends its column
+        # by train (features doc §123).
+        for other in [*cp.convoy_routes, *getattr(cp, "rail_lines", {})]:
             # A route whose two ends bind ONE control point is not a corridor -- it
             # paths to an empty route and kills the turn pass. The loader now rejects
             # one, but an older save keeps its pickled graph (features doc §50).

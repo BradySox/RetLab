@@ -13,7 +13,7 @@ from dcs.unitgroup import VehicleGroup
 
 from game.dcs.groundunittype import GroundUnitType
 from game.missiongenerator.groundforcepainter import GroundForcePainter
-from game.transfers import Convoy
+from game.transfers import Convoy, Train
 from game.unitmap import UnitMap
 from game.utils import kph
 
@@ -69,6 +69,10 @@ class ConvoyGenerator:
             used: set[str] = set()
             for coalition in self.game.coalitions:
                 for convoy in coalition.transfers.convoys:
+                    # TrainGenerator spawns trains whatever this setting says: one
+                    # train is one unit, not a column to path.
+                    if isinstance(convoy, Train):
+                        continue
                     self.generate_convoy(convoy, used)
 
     def spawn_position(self, convoy: Convoy) -> Point:

@@ -1,0 +1,1 @@
+* **[Campaign]** Trains: a Train group drawn in a campaign .miz is a rail line between the two bases at its ends. Supply between them goes by train, which can be hit with BAI and Armed Recon. Fulda Gap 1985 has four rail lines.

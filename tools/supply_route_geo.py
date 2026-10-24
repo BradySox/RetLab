@@ -29,6 +29,7 @@ record now, so only draw a route that is not there yet.
 
     python tools/supply_route_geo.py [coin|red_flag_81_2|<batch-1 campaign stem>]
     python tools/supply_route_geo.py <name> --draw <campaign>.miz
+    python tools/supply_route_geo.py fulda_gap_1985 --rail --draw fulda_gap_1985.miz
     # default: coin. The §50 batch-1 blue rear corridors (BATCH1_BLUE_REAR) are all
     # addressable by campaign stem with spaces as underscores, e.g. task_force_thunder.
 """
@@ -43,6 +44,7 @@ from dcs.mapping import LatLng, Point
 from dcs.terrain.afghanistan import Afghanistan
 from dcs.terrain.caucasus import Caucasus
 from dcs.terrain.falklands import Falklands
+from dcs.terrain.germanycoldwar import GermanyColdWar
 from dcs.terrain.iraq import Iraq
 from dcs.terrain.kola import Kola
 from dcs.terrain.marianaislands import MarianaIslands
@@ -1355,6 +1357,79 @@ MOUNT_PLEASANT_2032_ROUTES = [
     ),
 ] + [route for route in CORPORATE_1982_ROUTES if "Ruta 3" in route.comment]
 
+
+# --- §123 rail lines: Fulda Gap 1985. Every point is a real station; DCS paths the
+# --- track between them. Draw with --rail (Train groups, not M-113s).
+def _station_line(
+    comment: str, stations: list[tuple[float, float]], terrain: object
+) -> Route:
+    start, end = stations[0], stations[-1]
+    return Route(
+        comment,
+        latlon_to_xy(terrain, *start),
+        stations[1:-1],
+        latlon_to_xy(terrain, *end),
+    )
+
+
+FRANKFURT_HBF = (50.1069, 8.6625)
+ERFURT_HBF = (50.9730, 11.0380)
+NEUDIETENDORF = (50.9100, 10.9150)
+
+# Probe 2 (2026-10-24) ran each line 10 minutes. Wurzburg-Schweinfurt and
+# Merseburg-Leipzig ran away from their next station, so neither is drawn.
+FULDA_GAP_RAIL_STATIONS = [
+    (
+        "Frankfurt -> Fulda  (the Kinzig valley line)",
+        [
+            FRANKFURT_HBF,
+            (50.1210, 8.9290),  # Hanau
+            (50.2010, 9.1880),  # Gelnhausen
+            (50.3480, 9.5250),  # Schluchtern
+            (50.5545, 9.6840),  # Fulda
+        ],
+    ),
+    (
+        "Frankfurt -> Fritzlar  (the Main-Weser line to Wabern)",
+        [
+            FRANKFURT_HBF,
+            (50.3330, 8.7600),  # Friedberg
+            (50.5790, 8.6630),  # Giessen
+            (50.8190, 8.7740),  # Marburg
+            (50.9110, 9.1880),  # Treysa
+            (51.1020, 9.3530),  # Wabern
+        ],
+    ),
+    (
+        "Haina -> Bindersleben  (the Thuringian line through Gotha to Erfurt)",
+        [(50.9280, 10.5780), (50.9390, 10.7130), NEUDIETENDORF, ERFURT_HBF],
+    ),
+    (
+        "Meiningen -> Bindersleben  (through Suhl, Oberhof and Arnstadt to Erfurt)",
+        [
+            (50.5650, 10.4180),  # Meiningen
+            (50.6080, 10.6970),  # Suhl
+            (50.7130, 10.7270),  # Oberhof
+            (50.8380, 10.9520),  # Arnstadt
+            NEUDIETENDORF,
+            ERFURT_HBF,
+        ],
+    ),
+]
+
+
+def fulda_gap_rail() -> list[Route]:
+    terrain = GermanyColdWar()
+    return [
+        _station_line(comment, stations, terrain)
+        for comment, stations in FULDA_GAP_RAIL_STATIONS
+    ]
+
+
+#: Campaign -> (terrain, rail lines), drawn as Train groups with --rail.
+RAIL_LINES = {"fulda_gap_1985": (GermanyColdWar, fulda_gap_rail)}
+
+
 CAMPAIGNS = {
     "coin": (Afghanistan, COIN_ROUTES),
     "red_flag_81_2": (Nevada, RED_FLAG_ROUTES),
@@ -1385,24 +1460,37 @@ CAMPAIGNS.update(
 )
 
 
-def draw(miz_name: str, terrain: object, routes: list[Route]) -> None:
-    """Add ``routes`` to ``resources/campaigns/<miz_name>`` as M-113 route groups."""
+def draw(
+    miz_name: str, terrain: object, routes: list[Route], kind: str = "route"
+) -> None:
+    """Add ``routes`` to ``resources/campaigns/<miz_name>`` as M-113 route groups,
+    or as Train rail-line groups with ``kind="rail"``."""
     from campaign_routes import CAMPAIGNS as CAMPAIGN_DIR, draw_into_miz
 
     wanted = []
     for number, route in enumerate(routes, start=1):
         ends = re.match(r"\s*(.+?)\s*->\s*(.+?)\s{2}", route.comment + "  ")
-        name = f"{ends[1]}-{ends[2]} Route" if ends else f"Route {number}"
+        suffix = "Rail" if kind == "rail" else "Route"
+        name = f"{ends[1]}-{ends[2]} {suffix}" if ends else f"{suffix} {number}"
         points: list[tuple[float, float]] = [route.start]
         points += [latlon_to_xy(terrain, lat, lon) for lat, lon in route.corridor]
         points.append(route.end)
-        wanted.append(("route", name, points))
+        wanted.append((kind, name, points))
     draw_into_miz(CAMPAIGN_DIR / miz_name, terrain, wanted)
-    print(f"drew {len(wanted)} routes into {miz_name}")
+    print(f"drew {len(wanted)} {kind} groups into {miz_name}")
 
 
 if __name__ == "__main__":
     name = sys.argv[1] if len(sys.argv) > 1 else "coin"
+    if "--rail" in sys.argv:
+        rail_terrain, rail_routes = RAIL_LINES[name]
+        draw(
+            sys.argv[sys.argv.index("--draw") + 1],
+            rail_terrain(),
+            rail_routes(),
+            "rail",
+        )
+        sys.exit(0)
     terrain_cls, routes = CAMPAIGNS[name]
     if "--draw" in sys.argv:
         draw(sys.argv[sys.argv.index("--draw") + 1], terrain_cls(), routes)

@@ -136,6 +136,7 @@ class Migrator:
                 ):
                     cp.link4 = None
             try_set_attr(cp, "convoy_spawns", {})
+            try_set_attr(cp, "rail_lines", {})
             try_set_attr(cp, "ground_spawns", [])
             try_set_attr(cp, "ground_spawns_roadbase", [])
             try_set_attr(cp, "helipads_quad", [])

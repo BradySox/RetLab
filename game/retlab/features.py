@@ -988,6 +988,7 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("radio_discipline",),
     ),
     Feature("exact_site_layouts", "Exact site layouts", 122),
+    Feature("trains", "Trains on drawn rail lines", 123),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

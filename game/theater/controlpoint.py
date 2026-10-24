@@ -541,6 +541,7 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
         self.convoy_routes: Dict[ControlPoint, Tuple[Point, ...]] = {}
         self.convoy_spawns: Dict[ControlPoint, Tuple[Point, ...]] = {}
         self.shipping_lanes: Dict[ControlPoint, Tuple[Point, ...]] = {}
+        self.rail_lines: Dict[ControlPoint, Tuple[Point, ...]] = {}
         self.base: Base = Base()
         self.cptype = cptype
         # TODO: Should be Airbase specific.
@@ -898,6 +899,9 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
         """
         if for_player.is_blue and not game.settings.automate_front_line_stance:
             self.seed_front_line_stances(game.settings.default_front_line_stance)
+
+    def create_rail_line(self, to: ControlPoint, waypoints: Iterable[Point]) -> None:
+        self.rail_lines[to] = tuple(waypoints)
 
     def create_shipping_lane(
         self, to: ControlPoint, waypoints: Iterable[Point]

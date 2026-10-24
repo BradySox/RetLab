@@ -51,6 +51,7 @@ from .atisgenerator import AtisGenerator
 from .briefinggenerator import BriefingGenerator, MissionInfoGenerator
 from .cargoshipgenerator import CargoShipGenerator
 from .convoygenerator import ConvoyGenerator
+from .traingenerator import TrainGenerator
 from .csargenerator import CsarGenerator
 from .drawingsgenerator import DrawingsGenerator
 from game.weather.atmosxliveweather import LiveWeather, apply_weather
@@ -211,6 +212,7 @@ class MissionGenerator:
 
         logging.info("MIZ generation: convoys and cargo ships")
         ConvoyGenerator(self.mission, self.game, self.unit_map).generate()
+        TrainGenerator(self.mission, self.game, self.unit_map).generate()
         CargoShipGenerator(self.mission, self.game, self.unit_map).generate()
 
         logging.info("MIZ generation: destroyed units")

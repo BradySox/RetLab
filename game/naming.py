@@ -452,6 +452,7 @@ class NameGenerator:
     aircraft_number = 0
     convoy_number = 0
     cargo_ship_number = 0
+    train_number = 0
     jtac_number = 0
 
     animals: list[str] = list(ANIMALS)
@@ -463,6 +464,7 @@ class NameGenerator:
         cls.infantry_number = 0
         cls.convoy_number = 0
         cls.cargo_ship_number = 0
+        cls.train_number = 0
         cls.jtac_number = 0
         cls.animals = list(ANIMALS)
         cls.existing_alphas = []
@@ -531,6 +533,11 @@ class NameGenerator:
     def next_convoy_name(cls) -> str:
         cls.convoy_number += 1
         return f"Convoy {cls.convoy_number:03}"
+
+    @classmethod
+    def next_train_name(cls) -> str:
+        cls.train_number += 1
+        return f"Train {cls.train_number:03}"
 
     @classmethod
     def next_cargo_ship_name(cls) -> str:
