@@ -50,9 +50,14 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     }
 
     def start(
-        exe: Path, args: list[str], minimized: bool = False, log: Any = None
+        exe: Path,
+        args: list[str],
+        minimized: bool = False,
+        hidden: bool = False,
+        log: Any = None,
     ) -> _FakeProcess:
-        state["started"].append((exe.name, minimized))
+        window = "hidden" if hidden else "minimized" if minimized else "shown"
+        state["started"].append((exe.name, window))
         if log is not None:
             state["log"] = log
         state["running"].add(exe.name)
@@ -96,14 +101,14 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     return state
 
 
-def test_everything_missing_is_started_and_skyeye_minimized(
+def test_everything_missing_is_started_and_skyeye_hidden(
     world: dict[str, Any],
 ) -> None:
     launcher._start_voice_bots(world["skyeye"])
     assert world["started"] == [
-        (launcher.SRS_SERVER_EXE, False),
-        (launcher.SKYEYE_EXE, True),
-        (launcher.SRS_CLIENT_EXE, False),
+        (launcher.SRS_SERVER_EXE, "minimized"),
+        (launcher.SKYEYE_EXE, "hidden"),
+        (launcher.SRS_CLIENT_EXE, "shown"),
     ]
     assert world["connects"] == [True]
 
@@ -122,7 +127,7 @@ def test_what_is_running_is_left_alone(world: dict[str, Any]) -> None:
 def test_no_config_starts_no_skyeye(world: dict[str, Any]) -> None:
     (world["skyeye"] / launcher.SKYEYE_CONFIG).unlink()
     launcher._start_voice_bots(world["skyeye"])
-    assert (launcher.SKYEYE_EXE, True) not in world["started"]
+    assert (launcher.SKYEYE_EXE, "hidden") not in world["started"]
 
 
 def test_only_the_skyeye_retlab_started_is_stopped(world: dict[str, Any]) -> None:
@@ -141,7 +146,7 @@ def test_a_restart_does_not_orphan_retlabs_skyeye(world: dict[str, Any]) -> None
     assert launcher.record_path().exists()
     launcher._start_voice_bots(world["skyeye"])
     assert [s for s in world["started"] if s[0] == launcher.SKYEYE_EXE] == [
-        (launcher.SKYEYE_EXE, True)
+        (launcher.SKYEYE_EXE, "hidden")
     ]
     launcher.stop_skyeye()
     assert world["taskkills"] == [(pid, False)]
@@ -206,7 +211,7 @@ def test_skyeye_started_while_waiting_for_srs_is_not_doubled(
 
     monkeypatch.setattr(launcher, "_wait", wait)
     launcher._start_voice_bots(world["skyeye"])
-    assert (launcher.SKYEYE_EXE, True) not in world["started"]
+    assert (launcher.SKYEYE_EXE, "hidden") not in world["started"]
 
 
 def test_the_early_exit_warning_gives_the_real_time_and_skips_a_stop(
@@ -259,15 +264,15 @@ def test_a_stopped_srs_server_is_restarted(world: dict[str, Any]) -> None:
     world["stopped"] = True
     launcher._start_voice_bots(world["skyeye"])
     assert world["killed"] == launcher.SRS_SERVER_EXE
-    assert world["started"][0] == (launcher.SRS_SERVER_EXE, False)
-    assert (launcher.SKYEYE_EXE, True) in world["started"]
+    assert world["started"][0] == (launcher.SRS_SERVER_EXE, "minimized")
+    assert (launcher.SKYEYE_EXE, "hidden") in world["started"]
 
 
 def test_a_listening_srs_server_is_left_alone(world: dict[str, Any]) -> None:
     world["running"].add(launcher.SRS_SERVER_EXE)
     launcher._start_voice_bots(world["skyeye"])
     assert "killed" not in world
-    assert (launcher.SRS_SERVER_EXE, False) not in world["started"]
+    assert (launcher.SRS_SERVER_EXE, "minimized") not in world["started"]
 
 
 def test_skyeye_output_goes_to_its_take_off_log(world: dict[str, Any]) -> None:

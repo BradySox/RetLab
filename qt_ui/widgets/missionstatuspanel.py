@@ -6,10 +6,9 @@ from typing import Optional
 
 from PySide6 import QtCore
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtGui import QIcon, QMovie, QPixmap
+from PySide6.QtGui import QMovie, QPixmap
 from PySide6.QtWidgets import (
     QApplication,
-    QDialog,
     QFileDialog,
     QGridLayout,
     QGroupBox,
@@ -31,6 +30,7 @@ from game.profiling import logged_duration
 from game.retlab.skyeye_launcher import stop_skyeye
 from game.server import EventStream
 from game.sim import GameUpdateEvents
+from qt_ui import liberation_install
 from qt_ui.simcontroller import SimController
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 
@@ -54,24 +54,21 @@ class DebriefingFileWrittenSignal(QObject):
 DebriefingFileWrittenSignal()
 
 
-class QWaitingForMissionResultWindow(QDialog):
+class MissionStatusPanel(QWidget):
+    """The mission's losses and Accept/Abort, shown in the map's place while it runs."""
+
+    #: The mission was accepted or aborted; the main window brings the map back.
+    finished = Signal()
+
     def __init__(
         self,
         game: Game,
         sim_controller: SimController,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super(QWaitingForMissionResultWindow, self).__init__(parent=parent)
-        self.setWindowModality(QtCore.Qt.WindowModality.WindowModal)
+        super().__init__(parent=parent)
         self.game = game
         self.sim_controller = sim_controller
-        self.setWindowTitle("Waiting for mission completion.")
-        self.setWindowIcon(QIcon("./resources/icon.png"))
-        self.setMinimumHeight(570)
-        # Nothing reads the dialog after exec_(). Kept alive, every old dialog
-        # stayed connected to the shared signal and rebuilt its hidden layout
-        # on each later mission's updates.
-        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_DeleteOnClose)
 
         self.initUi()
         DebriefingFileWrittenSignal.get_instance().debriefingReceived.connect(
@@ -89,7 +86,7 @@ class QWaitingForMissionResultWindow(QDialog):
         header.setGeometry(0, 0, 655, 106)
         pixmap = QPixmap("./resources/ui/conflict.png")
         header.setPixmap(pixmap)
-        self.layout.addWidget(header, 0, 0)
+        self.layout.addWidget(header, 0, 1)
 
         self.gridLayout = QGridLayout()
 
@@ -125,6 +122,7 @@ class QWaitingForMissionResultWindow(QDialog):
         self.cancel = QPushButton("Abort mission")
         self.cancel.clicked.connect(self.reset_game_state)
         self.actions_layout.addWidget(self.cancel)
+        self._add_skyeye_log_button(self.actions_layout)
         self.gridLayout.addWidget(self.actions, 2, 0)
 
         self.actions2 = QGroupBox("Actions :")
@@ -136,14 +134,32 @@ class QWaitingForMissionResultWindow(QDialog):
         self.cancel2 = QPushButton("Abort mission")
         self.cancel2.clicked.connect(self.reset_game_state)
         self.actions2_layout.addWidget(self.cancel2)
+        self._add_skyeye_log_button(self.actions2_layout)
         self.proceed = QPushButton("Accept results")
         self.proceed.setProperty("style", "btn-success")
         self.proceed.clicked.connect(self.process_debriefing)
         self.actions2_layout.addWidget(self.proceed)
 
         progress_bar.start()
-        self.layout.addLayout(self.gridLayout, 1, 0)
+        self.layout.addLayout(self.gridLayout, 1, 1)
+        # A centered column the old window's width, the rest of the map area empty.
+        self.layout.setColumnStretch(0, 1)
+        self.layout.setColumnStretch(2, 1)
+        self.layout.setColumnMinimumWidth(1, 655)
+        self.layout.setRowStretch(2, 1)
         self.setLayout(self.layout)
+
+    def _add_skyeye_log_button(self, layout: QHBoxLayout) -> None:
+        if not liberation_install.skyeye_autostart():
+            return
+        button = QPushButton("SkyEye log")
+        button.clicked.connect(self.show_skyeye_log)
+        layout.addWidget(button)
+
+    def show_skyeye_log(self) -> None:
+        from qt_ui.windows.SkyEyeLogDialog import SkyEyeLogDialog
+
+        SkyEyeLogDialog(self).show()
 
     @staticmethod
     def add_update_row(
@@ -214,7 +230,7 @@ class QWaitingForMissionResultWindow(QDialog):
     def process_debriefing(self):
         if self._process_turn():
             stop_skyeye()
-            self.close()
+            self._finish()
 
     def _process_turn(self) -> bool:
         # Turn processing blocks the UI for a while; without feedback the user
@@ -275,13 +291,11 @@ class QWaitingForMissionResultWindow(QDialog):
                 self.updateLayout
             )
 
-    def closeEvent(self, evt):
-        super(QWaitingForMissionResultWindow, self).closeEvent(evt)
+    def _finish(self) -> None:
+        # Disconnected here: a panel left listening rebuilt its layout on every
+        # later mission's updates.
         self._stop_listening()
-
-    def done(self, result: int) -> None:
-        self._stop_listening()
-        super().done(result)
+        self.finished.emit()
 
     def submit_manually(self):
         file = QFileDialog.getOpenFileName(
@@ -298,13 +312,9 @@ class QWaitingForMissionResultWindow(QDialog):
                 self.sim_controller.debrief_current_state(Path(file[0]), force_end=True)
             )
 
-    def reject(self):
-        # Not stop_skyeye(): closing this window to replan and Take off again kept
-        # killing a SkyEye the player was mid-flight with (2026-10-20).
-        self.reset_game_state()
-        super().reject()
-
     def reset_game_state(self):
+        # Not stop_skyeye(): aborting to replan and Take off again kept killing a
+        # SkyEye the player was mid-flight with (2026-10-20).
         self.sim_controller.set_game(self.game)
         events = GameUpdateEvents()
         for _, f in self.game.db.flights.objects.items():
@@ -314,4 +324,4 @@ class QWaitingForMissionResultWindow(QDialog):
             cp.release_parking_slots()
         GameUpdateSignal.get_instance().updateGame(self.game)
         EventStream().put_nowait(events)
-        self.close()
+        self._finish()

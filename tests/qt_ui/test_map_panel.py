@@ -1,4 +1,4 @@
-"""The map is closed while the mission window is open and always rebuilt (row B267)."""
+"""The map is closed while a mission runs, its status shown instead (row B267)."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ from typing import Iterator
 import pytest
 from PySide6.QtWidgets import QApplication, QWidget
 
-from qt_ui.widgets.map.mappanel import MapPanel, map_released
+from qt_ui.widgets.map.mappanel import MapPanel
 
 
 class CountingFactory:
@@ -47,27 +47,26 @@ def test_the_map_is_built_and_shown_at_start(
     assert panel.currentWidget() is factory.built[0]
 
 
-def test_the_map_is_closed_inside_the_block_and_rebuilt_after(
+def test_the_status_replaces_the_map_and_the_map_is_rebuilt_after(
     panel: MapPanel, factory: CountingFactory
 ) -> None:
     first = factory.built[0]
-    with map_released(panel):
-        during = (panel.released, panel.currentWidget() is panel.placeholder)
-        assert panel.indexOf(first) == -1
+    status = QWidget()
+    panel.release(status)
+    during = (panel.released, panel.currentWidget() is status)
+    gone = panel.indexOf(first) == -1
+    panel.restore()
     assert during == (True, True)
+    assert gone
+    assert panel.indexOf(status) == -1
     assert len(factory.built) == 2
     assert panel.currentWidget() is factory.built[1]
     assert panel.count() == 2
 
 
-def test_the_map_comes_back_when_the_block_raises(
-    panel: MapPanel, factory: CountingFactory
-) -> None:
-    with pytest.raises(RuntimeError):
-        with map_released(panel):
-            raise RuntimeError("debrief failed")
-    assert not panel.released
-    assert panel.currentWidget() is factory.built[-1]
+def test_release_without_status_shows_the_note(panel: MapPanel) -> None:
+    panel.release()
+    assert panel.currentWidget() is panel.placeholder
 
 
 def test_release_and_restore_are_idempotent(
@@ -81,10 +80,3 @@ def test_release_and_restore_are_idempotent(
     assert released
     assert len(factory.built) == 2
     assert panel.count() == 2
-
-
-def test_no_panel_is_a_no_op() -> None:
-    ran = False
-    with map_released(None):
-        ran = True
-    assert ran
