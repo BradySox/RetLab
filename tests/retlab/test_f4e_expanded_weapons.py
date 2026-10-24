@@ -95,7 +95,13 @@ def _editor_loadout(name: str) -> Loadout:
     return by_name[name]
 
 
-@pytest.mark.parametrize("task,expected_stations", SEAD_TASKS, ids=lambda p: str(p))
+# Sorted: a set's str() order can differ between pytest-xdist workers, which then
+# refuse to run because they collected different test ids.
+@pytest.mark.parametrize(
+    "task,expected_stations",
+    SEAD_TASKS,
+    ids=lambda p: str(sorted(p)) if isinstance(p, set) else str(p),
+)
 def test_injected_pack_prefers_the_standard_arm_fit(
     task: FlightType, expected_stations: set[int]
 ) -> None:
