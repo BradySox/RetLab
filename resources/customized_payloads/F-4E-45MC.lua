@@ -98,30 +98,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
@@ -266,34 +262,30 @@ local unitPayloads = {
 					["num"] = 9,
 				},
 				[5] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[6] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 6,
 				},
-				[7] = {
+				[6] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[8] = {
+				[7] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[9] = {
+				[8] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{F4_SARGENT_TANK_370_GAL_R}",
 					["num"] = 13,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{HB_ALE_40_30_60}",
 					["num"] = 14,
 				},
@@ -334,30 +326,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
@@ -754,30 +742,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{HB_F4E_AGM-65D_LAU117_SWA}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
@@ -818,30 +802,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{LAU_77_AGM_78B}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{LAU_77_AGM_78B}",
 					["num"] = 1,
 				},
@@ -942,30 +922,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{LAU_77_AGM_78B}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{LAU_77_AGM_78B}",
 					["num"] = 1,
 				},
@@ -1006,30 +982,26 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[8] = {
-					["CLSID"] = "{F4_SARGENT_TANK_600_GAL}",
-					["num"] = 7,
-				},
-				[9] = {
 					["CLSID"] = "{HB_ALQ-131_ON_ADAPTER_IN_AERO7}",
 					["num"] = 6,
 				},
-				[10] = {
+				[9] = {
 					["CLSID"] = "{HB_F4E_AIM-7M}",
 					["num"] = 5,
 				},
-				[11] = {
+				[10] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
-				[12] = {
+				[11] = {
 					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
 					["num"] = 3,
 				},
-				[13] = {
+				[12] = {
 					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
-				[14] = {
+				[13] = {
 					["CLSID"] = "{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}",
 					["num"] = 1,
 				},

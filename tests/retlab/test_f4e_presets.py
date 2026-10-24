@@ -24,6 +24,26 @@ def _fits() -> dict[str, dict[int, str]]:
     }
 
 
+@pytest.mark.parametrize(
+    "name",
+    [
+        "Retribution BARCAP",
+        "Retribution TARCAP",
+        "Retribution Escort",
+        "Retribution SEAD",
+        "Retribution SEAD Escort",
+        "Retribution SEAD Sweep",
+        "Retribution DEAD",
+        "Retribution SEAD (XW)",
+        "Retribution SEAD Sweep (XW)",
+    ],
+)
+def test_air_to_air_and_sead_fits_leave_the_centerline_empty(name: str) -> None:
+    # A centerline tank or rack blocks both forward AIM-7s (Heatblur manual, CL TK
+    # light); flown 2026-10-24 on Fulda BARCAP.
+    assert 7 not in _fits()[name]
+
+
 def test_no_fit_carries_the_aim_9p() -> None:
     assert [name for name, fit in _fits().items() if AIM_9P in fit.values()] == []
 
