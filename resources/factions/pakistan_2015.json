@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Pakistan",
   "name": "Pakistan 2015",
   "authors": "Khopa",

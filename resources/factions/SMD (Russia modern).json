@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Russia",
   "name": "Southern Military District (modern Russia)",
   "cargo_ship": "Bulker Yakushev",
@@ -44,6 +46,8 @@
     "IL-78M"
   ],
   "frontline_units": [
+    "MRAP ZA-SpN Titan [CH]",
+    "IFV BMP-3 ERA [CH]",
     "BTR-80",    
     "SA-19 Grison (2K22 Tunguska)",
     "BMP-2",

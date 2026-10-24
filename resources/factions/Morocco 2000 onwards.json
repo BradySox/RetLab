@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Morocco",
   "name": "Morocco 2000 onwards",
   "authors": "NoGoodNews",

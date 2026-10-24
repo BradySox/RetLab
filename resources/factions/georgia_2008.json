@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Georgia",
   "name": "Georgia 2008",
   "authors": "HerrTom",

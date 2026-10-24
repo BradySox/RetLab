@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Greece",
   "name": "Greece 2005",
   "authors": "Malakhit",

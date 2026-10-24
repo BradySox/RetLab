@@ -1,9 +1,12 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Combined Joint Task Forces Blue",
   "name": "Bluefor Modern",
   "authors": "Khopa",
   "description": "<p>A generic bluefor modern faction. This also includes many redfor units and is meant to be a faction that has access to most modern flyable modules.</p>",
   "aircrafts": [
+    "Tiger UHT",
     "A-10A Thunderbolt II",
     "A-10C Thunderbolt II (Suite 3)",
     "A-10C Thunderbolt II (Suite 7)",
@@ -105,6 +108,9 @@
     "M270 Multiple Launch Rocket System"
   ],
   "logistics_units": [
+    "Tractor SLT-50 [CH]",
+    "Tractor HX81 [CH]",
+    "Truck HX77 [CH]",
     "Truck M818 6x6"
   ],
   "infantry_units": [

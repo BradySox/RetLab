@@ -1,0 +1,11 @@
+date: 2026-10-24
+title: Walled FOBs and more stock units
+change: >-
+  Factions from 2000 on build FOBs inside a HESCO wall with four
+  watchtowers, tents and a gated entrance, with a few props beside the
+  helipads. The modern factions also get the base game's CurrentHill
+  units: the Tiger UHT attack helicopter, BMP-3 ERA, Titan, Dragoon and
+  the HX77, HX81 and SLT-50 trucks.
+watch: >-
+  The wall and props are static objects, so they cost frames only when
+  you are close enough to see them.

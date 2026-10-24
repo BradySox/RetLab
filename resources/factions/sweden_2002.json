@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Sweden",
   "name": "Sweden 2002",
   "authors": "Khopa (updated with Gripen by bgreman)",

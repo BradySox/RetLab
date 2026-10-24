@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "USA",
   "name": "USA 2020",
   "authors": "Starfire",
@@ -56,6 +58,7 @@
     "A-6E Tanker"
   ],
   "frontline_units": [
+    "IFV M1296 Dragoon [CH]",
     "[CH] Oshkosh L-ATV (M2)",
     "[CH] Oshkosh L-ATV (Mk19)",
     "[CH] Oshkosh M-ATV MRAP (Mk19)",

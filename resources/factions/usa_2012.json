@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "USA",
   "name": "USA 2012",
   "authors": "RetLab",
@@ -39,6 +41,7 @@
     "KC-135 Stratotanker MPRS"
   ],
   "frontline_units": [
+    "IFV M1296 Dragoon [CH]",
     "APC MRAP MaxxPro",
     "LAV-25",
     "M1043 HMMWV (M2 HMG)",

@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "China",
   "name": "China 2020",
   "cargo_ship": "Cargo Ivanov",

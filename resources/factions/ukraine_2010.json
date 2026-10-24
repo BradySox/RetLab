@@ -1,4 +1,6 @@
 {
+  "excluded_generic_layouts": ["fob1"],
+  "extra_layouts": ["modern_fob"],
   "country": "Ukraine",
   "name": "Ukraine 2010",
   "authors": "Khopa",

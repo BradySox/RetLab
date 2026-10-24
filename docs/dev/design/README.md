@@ -47,6 +47,7 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Naval** — `retlab-cruise-missile-raids-notes.md`, `retlab-naval-magazines-notes.md`,
   `retlab-carrier-deck-decor-notes.md`, `retlab-antiship-deal-notes.md` (which ship each
   anti-ship flight attacks; row B219)
+- **Factions / layouts** — `retlab-modern-fob-notes.md` (HESCO FOB, FARP props, stock CurrentHill units)
 - **Ground / frontline** — `retlab-pr823-frontline-merge-notes.md` (read before adopting upstream #823),
   `retlab-airlift-capacity-notes.md` (built 2026-08-26; **`cabin_size` is CTLD seats, not
   airlift**), `retlab-het-convoy-notes.md` (scoping only),
