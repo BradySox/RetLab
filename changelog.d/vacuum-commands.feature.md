@@ -1,1 +1,1 @@
-* **[Mission Generation]** Players can call Vacuum through SkyEye: check in, emitters, target status, mud and say again. SEAD, SEAD Escort and DEAD players get a Talking to Vacuum kneeboard card.
+* **[Mission Generation]** Players can call Vacuum through SkyEye: check in, emitters, target status, mud and say again. Every player flight gets a Talking to Vacuum kneeboard card when a Vacuum flies.

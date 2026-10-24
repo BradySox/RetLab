@@ -2351,9 +2351,10 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
     `QLiberationWindow.begin_mission` on `QTopPanel.mission_launched`. Its `finished` signal
     (Accept results or Abort) rebuilds the map. The menu, toolbar, ATO, info and top panels
     are disabled meanwhile, as the modal dialog blocked them. The debrief stays a window.
-  - Whether destroying the view frees the VRAM is unverified: Chromium's GPU thread stays up in
-    the process. Row B267 measures it; if `python.exe` still holds GBs, the next step is a
-    software-rendering setting (needs an app restart, as the flags are read once).
+  - The per-process "Dedicated GPU memory" figure for `python.exe` is not the app's share of the
+    card: it climbed to 20 GB (above the 16 GB card) while the whole card read ~5 GB, and closing
+    the app freed 0.6 GB (2026-10-24). The 4 GB and 13 GB readings above were this counter.
+    Measure the card total (`GPU Adapter Memory`) before and after closing the app; row B267.
   - The rebuilt map may open at the campaign's starting view rather than where it was left.
   - A map page that loads with the game already in place renders its layers before the map has a
     center; any layer reading `getBounds` then must tolerate the throw (`SectorsLayer` blanked the page, 2026-10-22).
@@ -11645,7 +11646,8 @@ Answers name every located radar still standing, awake ones first; mud names awa
 - The `tune` message now carries Vacuum's callsign and own frequency. An older SkyEye ignores
   both and never sends a request, so nothing is answered and nothing breaks.
 - **Kneeboard:** "Talking to Vacuum" (`VacuumPage`, `voicepages.py`), after the AWACS card,
-  for SEAD, SEAD Escort and DEAD player flights when a Vacuum flies (`VACUUM_TASKS`). It
+  for every player flight when a Vacuum flies (user call, 2026-10-24; SEAD, SEAD Escort and
+  DEAD only until then). It
   lists the five calls, each with its answer, and one line: a SAM keeping its radar off is
   invisible to Vacuum, and "blank" does not mean safe (user call, 2026-10-22: no radar
   table, no explanations).
@@ -11704,6 +11706,11 @@ the way. With the setting on:
 - A blue AEW&C flight fragged that turn takes SkyEye's callsign for the turn (Chalice, Chainsaw
   or Image), so the F10 map, the kneeboard and the voice use one name (2026-10-21).
   A flight fragged before the setting was turned on keeps its callsign.
+- **Each voice bot has its own SRS name (2026-10-22).** Every `say` from `voiceatc`,
+  `pkgcontrol` and `vacuum` carries `speaker`: the station label ("Hatzerim Ground"), the
+  ABCCC callsign, Vacuum's callsign. A SkyEye with BradySox/skyeye#14 opens one transmit-only
+  SRS client per speaker ("Hatzerim Ground [BOT]") and renames its own to "<callsign> [BOT]";
+  an older SkyEye ignores the field. Row B275.
 
 Built 2026-10-20 after a flown SkyEye test (Afghanistan, F-4E): the bot answered once the
 player named themselves in the call. Not flown with the setting on (row B257). The DTC

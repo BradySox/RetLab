@@ -8,10 +8,8 @@ from game.missiongenerator.kneeboard.voicepages import (
     AbcccPage,
     AtcPage,
     SkyEyeAwacsPage,
-    VACUUM_TASKS,
     VacuumPage,
 )
-from game.ato.flighttype import FlightType
 from game.radio.radios import MHz
 from game.retlab.voice_atc import AtcField, station_name
 
@@ -115,7 +113,3 @@ def test_vacuum_card_without_strike(tmp_path: Path) -> None:
     VacuumPage(MHz(262), None, "Ford 9-1", True).write(out)
     text = out.with_suffix(".txt").read_text("utf8")
     assert "STRIKE" not in text
-
-
-def test_only_sead_escort_and_dead_get_the_vacuum_card() -> None:
-    assert VACUUM_TASKS == {FlightType.SEAD, FlightType.SEAD_ESCORT, FlightType.DEAD}

@@ -389,6 +389,7 @@ local function say(field, position, flight, call)
         { "text", call.text },
         { "speech", call.speech },
         { "voice", field[position .. "Voice"] or "" },
+        { "speaker", stationLabel(field, position) },
     })
 end
 

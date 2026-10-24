@@ -9,7 +9,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Callable, Optional
 
-from game.ato.flighttype import FlightType
 from game.radio.radios import RadioFrequency
 from game.retlab.voice_atc import AtcField, station_name
 from ..kneeboard_page import KneeboardPage
@@ -216,11 +215,8 @@ class AtcPage(KneeboardPage):
 
 
 #: The player tasks that get the Vacuum card (user call, 2026-10-21).
-VACUUM_TASKS = frozenset({FlightType.SEAD, FlightType.SEAD_ESCORT, FlightType.DEAD})
-
-
 class VacuumPage(KneeboardPage):
-    """Vacuum's calls (§118): for SEAD, SEAD Escort and DEAD players when one flies."""
+    """Vacuum's calls (§118): for every player flight when one flies."""
 
     def __init__(
         self,

@@ -224,6 +224,7 @@ def test_the_f10_check_in_answers_on_strike_in_the_controller_voice() -> None:
             "speech": "Colt one one, Anvil, radar contact. Cleared direct hold, "
             "angels two zero. Push time one four one zero.",
             "voice": "masculine",
+            "speaker": "Anvil",
         }
     ]
     h.assert_no_lua_errors()
