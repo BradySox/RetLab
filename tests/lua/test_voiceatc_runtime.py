@@ -1,8 +1,8 @@
 """Headless runtime checks for the voiceatc plugin (voiceatc-config.lua, §119).
 
 The contract: SkyEye passes each call heard on a field's Ground or Tower frequency;
-the plugin answers on that frequency in that position's voice, as text to the flight
-too. Taxi, takeoff, landing (no squawk); a strict readback missing
+the plugin answers on that frequency in that position's voice, with no on-screen
+text (text only without LuaSocket). Taxi, takeoff, landing (no squawk); a strict readback missing
 an item gets "readback incomplete"; a rule bust gets one scolding call. How SkyEye
 hears and says it is in-game only (B261).
 """
@@ -129,6 +129,8 @@ def _said(h: DcsPluginHarness) -> list[dict[str, Any]]:
 
 
 def _texts(h: DcsPluginHarness) -> list[str]:
+    # A spoken call is never on-screen text too.
+    assert h.records("texts") == []
     return [m["text"] for m in _said(h)]
 
 

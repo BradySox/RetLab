@@ -11261,7 +11261,8 @@ SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2") on S
 controller says them, and each `say` carries `text` and `speech` apart, as `voiceatc` sends
 them: "Ford package, Blackjack, push" (was "Package Ford, ..."), push time "1410" in text and
 "one four one zero" in speech, callsigns "Ford niner one", "Dodge 9 airborne" (was "up"), and
-a dead target named in the text only. The roll call names the package ("Ford package,
+a dead target named in the text only (the say message's `text`; on screen only without
+LuaSocket). The roll call names the package ("Ford package,
 Blackjack, check in. Push in three minutes"), or every package due that tick in one call
 ("Ford and Colt packages"). After the roll call a "ready to push" from a flight that has not
 answered is its check-in, never an early push. SkyEye now passes a call to the controller it
@@ -11294,7 +11295,8 @@ mission link). The plugin talks to SkyEye over local UDP (127.0.0.1:42690, SkyEy
 answers to the controller callsign, passes the package calls to the mission and speaks the
 mission's lines. The AWACS (SkyEye's own GCI) works STRIKE trimmed: it answers calls heard
 there and repeats threat and merge calls, nothing else. The AWACS takes a random voice each
-mission and the controller the other. Every call is also text to the package's players.
+mission and the controller the other. A spoken call is never on-screen text too (2026-10-24,
+user call); only without LuaSocket are the calls text to the package's players.
 
 Built 2026-10-20 from a survey of how hand-built campaigns run packages from an AWACS
 (recorded clips on scripted triggers, F10 check-in, a push-time hack). Not flown (row B258).
@@ -11526,8 +11528,8 @@ message lists each field's positions and frequencies and the player flight calls
 as an ATC call and sends an `atcRequest` (kind, callsign, numbers heard, text); the plugin
 answers with `say` messages carrying separate `speech` ("runway two five") so Piper
 does not read numbers as amounts. Ground and Tower each get their own voice from the blue
-faction's accent, never one the AWACS, ABCCC or Vacuum uses. Every reply is also text to the
-flight.
+faction's accent, never one the AWACS, ABCCC or Vacuum uses. A spoken reply is never on-screen
+text too (2026-10-24, user call); only without LuaSocket is a reply text to the flight.
 
 Built 2026-10-20. Not flown (row B261).
 
@@ -11641,8 +11643,8 @@ Answers name every located radar still standing, awake ones first; mud names awa
 - **The plugin** finds the caller among `vacuum.flights` (each player flight's lead seat and
   its package target) as voiceatc's `findFlight` does, and measures from that seat's jet.
   Magnetic bearings use MOOSE's `UTILS.GetMagneticDeclination`, else 0; the bullseye is
-  `coalition.getMainRefPoint`. Answers use every radar it tracks, under Casual too, and show
-  as text to the caller's group. No `world.searchObjects`: it reads only the tracked units.
+  `coalition.getMainRefPoint`. Answers use every radar it tracks, under Casual too, and are
+  voice only: no on-screen text (2026-10-24, user call); a request only arrives over the link. No `world.searchObjects`: it reads only the tracked units.
 - The `tune` message now carries Vacuum's callsign and own frequency. An older SkyEye ignores
   both and never sends a request, so nothing is answered and nothing breaks.
 - **Kneeboard:** "Talking to Vacuum" (`VacuumPage`, `voicepages.py`), after the AWACS card,
