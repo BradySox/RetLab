@@ -284,8 +284,12 @@ def test_a_real_start_writes_the_log(tmp_path: Path) -> None:
     import sys
 
     log = tmp_path / "out.log"
+    # Hidden: a shown console titled SkyEye popped up on the PC at every test run.
     process = launcher._start(
-        Path(sys.executable), ["-c", "print('hello from skyeye')"], log=log
+        Path(sys.executable),
+        ["-c", "print('hello from skyeye')"],
+        hidden=True,
+        log=log,
     )
     process.wait(timeout=30)
     text = log.read_text()
