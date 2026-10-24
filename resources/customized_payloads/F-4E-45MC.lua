@@ -250,11 +250,11 @@ local unitPayloads = {
 			["name"] = "Retribution BARCAP",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[2] = {
-					["CLSID"] = "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[3] = {
@@ -278,11 +278,11 @@ local unitPayloads = {
 					["num"] = 5,
 				},
 				[8] = {
-					["CLSID"] = "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[9] = {
-					["CLSID"] = "{9BFD8C90-F7AE-4e90-833B-BFD0CED0E536}",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 				[10] = {
@@ -494,7 +494,7 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_CBU-87_MER_4x}",
+					["CLSID"] = "{HB_F4E_ROCKEYE_6x}",
 					["num"] = 7,
 				},
 				[5] = {
@@ -510,11 +510,11 @@ local unitPayloads = {
 					["num"] = 1,
 				},
 				[8] = {
-					["CLSID"] = "{HB_F4E_CBU-87_2x_SWA}",
+					["CLSID"] = "{HB_F4E_ROCKEYE_2x_SWA}",
 					["num"] = 11,
 				},
 				[9] = {
-					["CLSID"] = "{HB_F4E_CBU-87_2x_SWA}",
+					["CLSID"] = "{HB_F4E_ROCKEYE_2x_SWA}",
 					["num"] = 3,
 				},
 				[10] = {
@@ -582,19 +582,19 @@ local unitPayloads = {
 					["num"] = 1,
 				},
 				[10] = {
-					["CLSID"] = "<CLEAN>",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 12,
 				},
 				[11] = {
-					["CLSID"] = "<CLEAN>",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 10,
 				},
 				[12] = {
-					["CLSID"] = "<CLEAN>",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 4,
 				},
 				[13] = {
-					["CLSID"] = "<CLEAN>",
+					["CLSID"] = "{AIM-9M}",
 					["num"] = 2,
 				},
 			},
@@ -606,7 +606,7 @@ local unitPayloads = {
 			["name"] = "Retribution OCA/Aircraft",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{HB_F4E_CBU-87_MER_3x_Right}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL_R}",
 					["num"] = 13,
 				},
 				[2] = {
@@ -618,7 +618,7 @@ local unitPayloads = {
 					["num"] = 8,
 				},
 				[4] = {
-					["CLSID"] = "{HB_F4E_CBU-87_MER_4x}",
+					["CLSID"] = "{HB_F4E_ROCKEYE_6x}",
 					["num"] = 7,
 				},
 				[5] = {
@@ -630,26 +630,34 @@ local unitPayloads = {
 					["num"] = 5,
 				},
 				[7] = {
-					["CLSID"] = "{HB_F4E_CBU-87_MER_3x_Left}",
+					["CLSID"] = "{F4_SARGENT_TANK_370_GAL}",
 					["num"] = 1,
 				},
 				[8] = {
-					["CLSID"] = "{AIM-9M}",
-					["num"] = 12,
+					["CLSID"] = "{HB_F4E_ROCKEYE_2x_SWA}",
+					["num"] = 11,
 				},
 				[9] = {
-					["CLSID"] = "{AIM-9M}",
-					["num"] = 10,
+					["CLSID"] = "{HB_F4E_ROCKEYE_2x_SWA}",
+					["num"] = 3,
 				},
 				[10] = {
 					["CLSID"] = "{AIM-9M}",
-					["num"] = 4,
+					["num"] = 12,
 				},
 				[11] = {
 					["CLSID"] = "{AIM-9M}",
-					["num"] = 2,
+					["num"] = 10,
 				},
 				[12] = {
+					["CLSID"] = "{AIM-9M}",
+					["num"] = 4,
+				},
+				[13] = {
+					["CLSID"] = "{AIM-9M}",
+					["num"] = 2,
+				},
+				[14] = {
 					["CLSID"] = "{HB_ALE_40_30_60}",
 					["num"] = 14,
 				},
