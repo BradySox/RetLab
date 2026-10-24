@@ -1,6 +1,7 @@
 {
   "country": "Combined Joint Task Forces Blue",
   "name": "UK Falklands Task Force 1982",
+  "cargo_ship": "SS Atlantic Conveyor",
   "authors": "RetLab",
   "description": "<p>Operation Corporate, May 1982: the carrier group, 3 Commando Brigade and the RAF's long-range support. Stock DCS units. The AV-8B stands in for the Sea Harrier FRS.1 and Harrier GR.3, the UH-1H for the Sea King and Wessex, the KC-135 MPRS for the Victor, the M113 for the Scorpion and Scimitar, and the LHA-1 for HMS Hermes. The squadrons fly under the UK flag; the faction uses the joint task force country so the LHA-1 can sail as HMS Hermes.</p>",
   "locales": [

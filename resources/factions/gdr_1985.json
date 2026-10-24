@@ -1,6 +1,7 @@
 {
   "country": "GDR",
   "name": "German Democratic Republic 1985",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Colonel Panic",
   "description": "<p>The German Democratic Republic in 1985.</p>",
   "locales": [

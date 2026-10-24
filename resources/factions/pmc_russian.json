@@ -1,6 +1,7 @@
 {
   "country": "Russia",
   "name": "Private Military Company - Russian",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Khopa",
   "description": "<p>A private military company using Russian units.</p>",
   "locales": [

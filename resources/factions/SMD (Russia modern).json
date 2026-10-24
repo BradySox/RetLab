@@ -1,6 +1,7 @@
 {
   "country": "Russia",
   "name": "Southern Military District (modern Russia)",
+  "cargo_ship": "Bulker Yakushev",
   "description": "<p>Russian Federation military on Caucasus, following 2nd decade modernization programs, for the purpose of Abchazian Blitz campaign. Hi digit SAMs mod is required for up to date SAMs, while Codename Flanker Su-30SM and/or Su-35S mod, or Szcz Mig-31BM, will level playing field over skies. Currenthill Russia is optional, adding few more vehicles, and infantry.</p>",
   "locales": [
     "ru_RU"

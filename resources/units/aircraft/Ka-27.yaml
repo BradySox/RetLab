@@ -1,0 +1,23 @@
+class: Helicopter
+cabin_size: 6
+can_carry_crates: true
+carrier_capable: true
+description:
+  The Kamov Ka-27 Helix is a coaxial-rotor naval helicopter. It is the Soviet and
+  Russian Navy's shipborne anti-submarine and search-and-rescue helicopter, and
+  flies from the Admiral Kuznetsov and from cruisers and destroyers.
+introduced: 1982
+lha_capable: true
+manufacturer: Kamov
+origin: USSR/Russia
+price: 5
+role: Transport
+kneeboard_units: "metric"
+variants:
+  Ka-27 Helix: {}
+tasks:
+  Air Assault: 50
+  Transport: 40
+
+# No air-to-air refueling in DCS.
+air_refuel_type: none

@@ -1,10 +1,12 @@
 {
     "country": "Russia",
     "name": "[CH] Russia 2020",
+    "cargo_ship": "Bulker Yakushev",
     "authors": "Eclipse",
     "description": "<p>Russia in 2020, using the CurrentHill Russian Assets Pack.</p>",
     "locales": ["ru_RU"],
     "aircrafts": [
+        "Ka-27 Helix",
         "IL-76MD",
         "Ka-50 Hokum III",
         "[CH] Ka-52",

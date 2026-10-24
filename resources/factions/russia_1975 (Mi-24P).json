@@ -1,6 +1,7 @@
 {
   "country": "Russia",
   "name": "Russia 1975 (Mi-24P)",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Khopa",
   "description": "<p>Soviet army in the late 70s, using their prototype Mig-29A and Mi-24P.</p>",
   "locales": [
