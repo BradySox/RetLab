@@ -361,6 +361,7 @@ def test_check_in_counts_awake_and_asleep_and_names_the_nearest_awake() -> None:
     [reply] = _ask(h, "checkin")
     assert reply["frequency"] == OWN
     assert reply["voice"] == "en_GB-alan-medium"
+    assert reply["speaker"] == "Vacuum"
     assert reply["text"] == (
         "Ford 9, Vacuum, two awake, one asleep, nearest SA-11 awake, "
         "bullseye 090/50, tight."
