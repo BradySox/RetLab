@@ -153,8 +153,13 @@ class TgoLayoutUnitGroup:
     # YAML only has to say anything when it wants to opt a single slot out.
     mix_unit_types: Optional[bool] = None
 
+    # Filled with the faction's `cargo_ship`, which no faction unit list carries.
+    faction_supply_ship: bool = False
+
     def possible_types_for_faction(self, faction: Faction) -> list[Type[DcsUnitType]]:
         """Determine the possible dcs unit types for the TgoLayoutGroup and the given faction"""
+        if self.faction_supply_ship:
+            return [faction.cargo_ship.dcs_unit_type]
         unit_types = [t for t in self.unit_types if faction.has_access_to_dcs_type(t)]
 
         alternative_types = []

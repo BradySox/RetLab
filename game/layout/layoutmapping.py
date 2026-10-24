@@ -48,6 +48,9 @@ class GroupLayoutMapping:
     # a group uniform).
     mix_unit_types: Optional[bool] = None
 
+    # Filled with the faction's own `cargo_ship` instead of a unit it lists.
+    faction_supply_ship: bool = False
+
     @staticmethod
     def from_dict(d: dict[str, Any]) -> GroupLayoutMapping:
         optional = d["optional"] if "optional" in d else False
@@ -70,6 +73,7 @@ class GroupLayoutMapping:
             else []
         )
         mix_unit_types = d["mix_unit_types"] if "mix_unit_types" in d else None
+        faction_supply_ship = d.get("faction_supply_ship", False)
         return GroupLayoutMapping(
             d["name"],
             optional,
@@ -81,6 +85,7 @@ class GroupLayoutMapping:
             unit_classes,
             fallback_classes,
             mix_unit_types,
+            faction_supply_ship,
         )
 
 
