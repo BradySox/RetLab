@@ -66,12 +66,12 @@ squadrons:
       secondary: any
       aircraft:
         - 23rd Tactical Fighter Squadron
-      size: 12
+      size: 24
     - primary: SEAD
       secondary: any
       aircraft:
         - 480th Tactical Fighter Squadron
-      size: 8
+      size: 16
   # Bitburg: the 36th TFW's Eagles, and Luftwaffe Tornados.
   Bitburg:
     - primary: BARCAP

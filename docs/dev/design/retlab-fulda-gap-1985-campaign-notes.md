@@ -11,7 +11,7 @@ Owner: this note. CI lock: `tests/retlab/test_fulda_gap_1985.py`.
 | `.miz` | **Hand-edited by the DM in the Mission Editor.** First built from `red_tide.miz` by `tools/build_fulda_gap_1985_miz.py`, deleted; it is in the first commit of PR #1377 on GitHub |
 | Routes | M-113 groups traced from real town lat/lon; first and last waypoints Off Road, the rest On Road |
 | Factions | `NATO Central Front 1985`, `Warsaw Pact Central Front 1985` (both new, stock DCS) |
-| Squadrons | 18 squadrons, 69 blue and 54 red aircraft; presets new and existing (480th TFS, 526th TFS, JBG 31, RAF 31 Sqn, NATO E-3A, 336 OBVP, 357 ShAP) |
+| Squadrons | 18 squadrons, 89 blue and 54 red aircraft; presets new and existing (480th TFS, 526th TFS, JBG 31, RAF 31 Sqn, NATO E-3A, 336 OBVP, 357 ShAP) |
 | Checklist row | B278 |
 
 ## Why it exists
@@ -56,7 +56,7 @@ and 512th TFS, JaBoG 35, the 35th and 833rd IAP, the Su-17s and the An-26s.
 
 | Side | Base | Squadrons |
 |---|---|---|
-| USAF | **Spangdahlem** | 23rd TFS F-4E 12 (DEAD), 480th TFS F-4E 8 (SEAD) |
+| USAF | **Spangdahlem** | 23rd TFS F-4E 24 (DEAD), 480th TFS F-4E 16 (SEAD) — doubled on the DM's call, 2026-10-24 |
 | USAF + Luftwaffe | **Bitburg** | 22nd TFS F-15C 8, JBG 31 Tornado IDS 8 |
 | USAF + RAF | **Ramstein** | 526th TFS F-4E 8, No. 31 Squadron Tornado GR4 8 (standing in for the GR1), NATO E-3A 1 |
 | USAF | **Frankfurt** (Rhein-Main) | 510th TFS A-10A 8, KC-135 2, C-130J 2 |
