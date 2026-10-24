@@ -1,0 +1,21 @@
+---
+name: 81st Tactical Fighter Squadron (1985)
+nickname: Panthers
+country: USA
+role: Fighter Bomber
+aircraft: F-4E-45MC Phantom II
+female_pilot_percentage: 0
+mission_types:
+  - Anti-ship
+  - BAI
+  - BARCAP
+  - CAS
+  - DEAD
+  - Escort
+  - OCA/Aircraft
+  - OCA/Runway
+  - SEAD
+  - SEAD Escort
+  - Strike
+  - Fighter sweep
+  - TARCAP

@@ -1,0 +1,11 @@
+---
+name: 11th Armored Cavalry Regiment
+nickname: Blackhorse
+country: USA
+role: Utility Helicopter
+aircraft: UH-1H Iroquois
+livery: "US ARMY 1972"
+female_pilot_percentage: 0
+mission_types:
+  - Air Assault
+  - Transport

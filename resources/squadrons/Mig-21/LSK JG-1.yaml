@@ -1,0 +1,15 @@
+---
+name: Jagdfliegergeschwader 1
+nickname: JG-1
+country: GDR
+role: Air Superiority Fighter
+aircraft: MiG-21bis Fishbed-N
+livery: "Germany East - Bare Metal"
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - TARCAP
+  - CAS
+  - Strike
+  - Escort
+  - Fighter sweep

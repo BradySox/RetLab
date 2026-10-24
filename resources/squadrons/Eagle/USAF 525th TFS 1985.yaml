@@ -1,0 +1,12 @@
+---
+name: 525th Tactical Fighter Squadron
+nickname: Bulldogs
+country: USA
+role: Air Superiority Fighter
+aircraft: F-15C Eagle
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - Escort
+  - Fighter sweep
+  - TARCAP

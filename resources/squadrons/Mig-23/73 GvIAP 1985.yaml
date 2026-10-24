@@ -1,0 +1,13 @@
+---
+name: 73rd Guards Fighter Aviation Regiment
+nickname: 73 GvIAP
+country: Russia
+role: Fighter
+aircraft: MiG-23MLD Flogger-K
+livery: "af standard-1"
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep

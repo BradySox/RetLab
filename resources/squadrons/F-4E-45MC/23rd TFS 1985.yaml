@@ -1,0 +1,22 @@
+---
+name: 23rd Tactical Fighter Squadron
+nickname: Fighting Hawks
+country: USA
+role: Fighter Bomber
+aircraft: F-4E-45MC Phantom II
+livery: "F-4E - USAF - SP74-639 - Euro One - 23rd TFS Fighting Hawks"
+female_pilot_percentage: 0
+mission_types:
+  - Anti-ship
+  - BAI
+  - BARCAP
+  - CAS
+  - DEAD
+  - Escort
+  - OCA/Aircraft
+  - OCA/Runway
+  - SEAD
+  - SEAD Escort
+  - Strike
+  - Fighter sweep
+  - TARCAP

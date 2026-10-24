@@ -1,0 +1,13 @@
+---
+name: 833rd Fighter Aviation Regiment
+nickname: 833 IAP
+country: Russia
+role: Fighter
+aircraft: MiG-23MLD Flogger-K
+livery: "af standard"
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
