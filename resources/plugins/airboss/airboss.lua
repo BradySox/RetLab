@@ -67,7 +67,10 @@ AirbossShutdownSeenUnit   = AirbossShutdownSeenUnit   or {} -- unitName -> true
 function AddRescueHelo(nameOfCarrier)
     env.info("AIRBOSS: Loading Rescue Helo")
 
-    local rescueHeloType = airboss_options.useUH60mod and "UH-60L" or "SH-60B"
+    -- Retribution picks the era's helo: the SH-3W Sea King before 1992, else the SH-60B.
+    local carrierData = airboss_carrier_data[nameOfCarrier]
+    local eraHeloType = (carrierData and carrierData.rescueHeloType) or "SH-60B"
+    local rescueHeloType = airboss_options.useUH60mod and "UH-60L" or eraHeloType
     env.info("AIRBOSS: RescueHelo Type = " .. tostring(rescueHeloType))
 
     -- Ensure BlueNavalUnitSet is initialized

@@ -1,12 +1,14 @@
 {
   "country": "Combined Joint Task Forces Red",
   "name": "Redfor (Russia) 2010",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Robert Peary",
   "description": "<p>Combined Redfor under Russia's leadership in the late 2000s, early 2010s.</p>",
   "locales": [
     "ru_RU"
   ],
   "aircrafts": [
+    "Ka-27 Helix",
     "IL-76MD",
     "J-11A Flanker-L",
     "JF-17 Thunder",

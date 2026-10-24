@@ -1,12 +1,14 @@
 {
   "country": "Russia",
   "name": "Russia 2020",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Khopa",
   "description": "<p>Russia in 2020. Vanilla DCS only, no mods required.</p>",
   "locales": [
     "ru_RU"
   ],
   "aircrafts": [
+    "Ka-27 Helix",
     "An-26B",
     "An-30M",
     "IL-76MD",

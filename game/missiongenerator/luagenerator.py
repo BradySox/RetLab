@@ -64,6 +64,15 @@ def lotatc_exports(ground_object: TheaterGroundObject, blue_owned: bool) -> bool
     return blue_owned or ground_object.known_for(Player.BLUE)
 
 
+#: The SH-60F took carrier plane guard over from the SH-3H around 1989-91.
+SEA_KING_RESCUE_BEFORE_YEAR = 1992
+
+
+def carrier_rescue_helo_type(year: int) -> str:
+    """The Airboss rescue helo for a campaign that starts in `year`."""
+    return "SH-3W" if year < SEA_KING_RESCUE_BEFORE_YEAR else "SH-60B"
+
+
 class LuaGenerator:
     def __init__(
         self,
@@ -157,6 +166,9 @@ class LuaGenerator:
             )
             carrier_item.add_key_value("tacan_channel", str(carrier.tacan.number))
             carrier_item.add_key_value("tacan_band", carrier.tacan.band.name)
+            carrier_item.add_key_value(
+                "rescueHeloType", carrier_rescue_helo_type(self.game.date.year)
+            )
             if carrier.icls_channel:
                 carrier_item.add_key_value("icls", str(carrier.icls_channel))
 

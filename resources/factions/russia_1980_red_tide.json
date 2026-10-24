@@ -1,6 +1,7 @@
 {
     "country": "Russia",
     "name": "Russia 1980 (Red Tide)",
+    "cargo_ship": "Bulker Yakushev",
     "authors": "Starfire",
     "description": "<p>Soviet military in the 1980s.</p>",
     "locales": [

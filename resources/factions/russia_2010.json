@@ -1,12 +1,14 @@
 {
   "country": "Russia",
   "name": "Russia 2010",
+  "cargo_ship": "Bulker Yakushev",
   "authors": "Khopa",
   "description": "<p>Russian army in the early 2010s.</p>",
   "locales": [
     "ru_RU"
   ],
   "aircrafts": [
+    "Ka-27 Helix",
     "IL-76MD",
     "Ka-50 Hokum",
     "Ka-50 Hokum III",

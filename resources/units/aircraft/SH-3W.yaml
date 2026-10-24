@@ -1,0 +1,22 @@
+class: Helicopter
+cabin_size: 12
+can_carry_crates: true
+carrier_capable: true
+description:
+  The Sikorsky SH-3 Sea King is a twin-engine anti-submarine and utility helicopter.
+  It flew from US Navy carriers from 1961, as the carrier's plane-guard and rescue
+  helicopter, until the SH-60F replaced it around 1991.
+introduced: 1961
+lha_capable: true
+manufacturer: Sikorsky
+origin: USA
+price: 5
+role: Transport
+variants:
+  SH-3W Sea King: {}
+tasks:
+  Air Assault: 60
+  Transport: 40
+
+# No air-to-air refueling in DCS.
+air_refuel_type: none

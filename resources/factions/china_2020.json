@@ -1,6 +1,7 @@
 {
   "country": "China",
   "name": "China 2020",
+  "cargo_ship": "Cargo Ivanov",
   "authors": "Eclipse",
   "description": "<p>China in the late 2010s, early 2020s.</p>",
   "locales": [
