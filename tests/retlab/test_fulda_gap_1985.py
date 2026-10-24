@@ -267,19 +267,14 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert statics.count(".Command Center") == 3
     assert statics.count("Comms tower M") == 15
     assert statics.count("GeneratorF") == 6
-    # Three SA-5s at Carsten's sites; NATO's one long-range marker is Ramstein's.
+    # NATO's Patriot is the one long-range marker; red's three SA-5s are FIXED sites.
     longs = sorted(
         group.name
         for country in mission.coalition["red"].countries.values()
         for group in country.vehicle_group
         if group.units[0].type == "S-300PS 5P85C ln"
     )
-    assert longs == [
-        "CF85-Ramstein-Patriot",
-        "CF85-SA5-Eckolstadt",
-        "CF85-SA5-Kaltennordheim",
-        "CF85-SA5-Magdeburg",
-    ]
+    assert longs == ["CF85-Ramstein-Patriot"]
     for country in mission.coalition["blue"].countries.values():
         assert not any(g.name.startswith("CF85-IADS-") for g in country.static_group)
 
@@ -309,16 +304,25 @@ def test_every_road_leaves_its_bases_off_road() -> None:
         assert all(p.action.value == "On Road" for p in group.points[1:-1]), group.name
 
 
-def test_the_fixed_sams_fill_as_their_real_types(
+def test_carstens_sites_are_drawn_unit_by_unit(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
-    """Carsten's sites: each binds a red point and fills as the site's own type."""
-    campaign, theater = loaded
-    pinned = campaign.data["ground_forces"]
-    sites = [n for n in pinned if n.startswith(("CF85-SA2-", "CF85-SA3-", "CF85-SA5-"))]
-    assert len(sites) == 14
-    for name in sites:
-        kind = name.split("-")[1]
-        assert pinned[name].startswith(f"SA-{kind[2]}/"), name
+    """27 FIXED sites: Hawks for NATO, SA-2/3/5 and S-60 for red."""
+    _, theater = loaded
+    sites = {
+        site.original_name: cp
+        for cp in theater.controlpoints
+        for site in cp.preset_locations.exact_air_defenses
+    }
+    assert len(sites) == 27
+    # The DM placed Kaltennordheim's 18 launchers himself (2026-10-24).
+    assert "FIXED SA-5 Kaltennordheim" in sites
+    hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
+    assert len(hawks) == 10
+    for name, cp in sites.items():
+        assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
+    # Every non-truck unit is one the owner can field, or a stock site replaces it.
+    for kind in ("S-60 57mm", "AAA Fire Can SON-9"):
+        assert kind in {u.display_name for u in FACTIONS[PACT].accessible_units}, kind
     # No MiG-29s: the DM's call, 2026-10-24.
     assert not any("MiG-29" in a.display_name for a in FACTIONS[PACT].all_aircrafts)
