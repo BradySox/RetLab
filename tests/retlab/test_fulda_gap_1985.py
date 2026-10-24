@@ -233,7 +233,8 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert statics.count(".Command Center") == 1
     assert statics.count("Comms tower M") == 12
     assert statics.count("GeneratorF") == 4
-    # NATO's Patriot is the one long-range marker; red's three SA-5s are FIXED sites.
+    # NATO's Patriot is the one long-range marker. Red has no SA-5: its rings
+    # covered all of West Germany (the DM's call, 2026-10-24).
     longs = sorted(
         group.name
         for country in mission.coalition["red"].countries.values()
@@ -281,8 +282,11 @@ def test_carstens_sites_are_drawn_unit_by_unit(
         for site in cp.preset_locations.exact_air_defenses
     }
     assert len(sites) == 22
-    # The DM placed Kaltennordheim's 18 launchers himself (2026-10-24).
-    assert "FIXED SA-5 Kaltennordheim" in sites
+    # The DM placed Kaltennordheim's launchers himself; it and Eckolstadt were
+    # SA-5s and are SA-2s in the same revetments.
+    assert {"FIXED SA-2 Kaltennordheim", "FIXED SA-2 Eckolstadt"} <= set(sites)
+    assert not any("SA-5" in name for name in sites)
+    assert "SA-5/S-200" not in {pg.name for pg in FACTIONS[PACT].preset_groups}
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
     assert len(hawks) == 10
     for name, cp in sites.items():
