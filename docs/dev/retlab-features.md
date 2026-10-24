@@ -6875,16 +6875,16 @@ un-mountable stores at spawn and the flight would fly a naked Weasel (the failur
 gate exists to prevent; `Pylon.equip` logs but does not refuse).
 
 **The fits.** `resources/customized_payloads/F-4E-45MC.lua` adds "Retribution SEAD (XW)"
-/ "SEAD Escort (XW)" / "SEAD Sweep (XW)" — the existing Shrike fits' exact skeletons
-(AIM-7F wells, AIM-9L rails, 600-gal or 370-gal tanks, ALQ-131, ALE-40) with the ARM
+/ "SEAD Escort (XW)" / "SEAD Sweep (XW)" — the SEAD fits' skeletons (AIM-7M wells,
+AIM-9M rails, 370-gal wing tanks, nothing on the centerline, ALQ-131, ALE-40) with the ARM
 stations swapped to the pack's **AGM-78B Standard ARM** (`{LAU_77_AGM_78B}`, the
 preferred ARM) on the injected stations: 4 Standards on 1/3/11/13 for SEAD/Sweep, 2 on
 3/11 for the tanked Escort fit. The **4× AGM-88C load stays supported** as the
 editor-only **"Retribution SEAD HARM (XW)"** fit (stock clsid
 `{B06DD79A-F21E-4EB9-BD9D-AB3844618C93}` — the `...C93` entry, not the Hornet-rack
 `...C9C` sibling): same mod gate, one click in the payload editor, but absent from every
-task's name chain so it is never auto-picked. The stock Shrike fits are untouched and
-remain the automatic fallback, so Tanker War and any other Phantom campaign without the
+task's name chain so it is never auto-picked. The Maverick SEAD fits (#1320) remain the
+automatic fallback, so Tanker War and any other Phantom campaign without the
 mod resolve exactly as before.
 
 **Era + economy come free.** The AGM-78A/B were already first-class weapons-DB citizens
