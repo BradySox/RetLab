@@ -18,3 +18,14 @@ groups:
       unit_classes:
         - Frigate
         - Destroyer
+  # The faction's supply ship, in a DCS group of its own: at about 14 kt it
+  # falls behind, and inside the escorts' group it would drag the screen away.
+  - Supply:
+    - name: Carrier Group 2
+      optional: true
+      faction_supply_ship: true
+      unit_count:
+        - 1
+      unit_classes:
+        - Boat
+        - LandingShip
