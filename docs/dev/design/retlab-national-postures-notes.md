@@ -322,8 +322,24 @@ Two caveats for whoever builds it:
 - **North and South Vietnam do not matter here.** The fork's Vietnam campaigns are
   fictional-overlay on Caucasus, which the §98 DM call put out of scope.
 
-Until that lands, **every pre-1991 era is undrawable** and the Germany Cold War map cannot carry
-§98 zones at all. The postures data is still worth having: every other campaign is post-1991.
+**Built 2026-10-24 for the Germany map without WDB-II (DM call).** The inner German border
+follows today's state lines, which match it except for small post-1990 transfers (Amt
+Neuhaus). Recipe, all Natural Earth 10m (public domain), downloaded and discarded:
+
+- **GDR** = union of the admin-1 states Mecklenburg-Vorpommern, Brandenburg, Berlin,
+  Sachsen, Sachsen-Anhalt, Thüringen. West Berlin is drawn as GDR. **Germany** = the
+  other eleven states. Every other country is its admin-0 outline.
+- **Denmark** closed with `buffer(0.02).buffer(-0.02)` so Amager, Kastrup's island,
+  joins Zealand; alone it is 90 km² and falls under the area floor.
+- `python tools/build_terrain_borders.py germany --geojson-dir <dir> --countries Germany GDR
+  Poland "Czech Republic" Slovakia France Austria "The Netherlands" Denmark Sweden Belgium
+  Switzerland Luxembourg Hungary --clip 46.5 57.2 1.4 17.8 --min-area-km2 300
+  --ceased GDR:Germany:1990-10`. The 300 km² floor keeps the German half of Usedom
+  (Peenemunde, 372 km²).
+- Czechoslovakia stays two zones, `Czech Republic` and `Slovakia`: the posture table
+  carries both with the same Warsaw Pact ranges.
+
+WDB-II remains the route to the real line, West Berlin included.
 
 ## Measured on a map but not drawn there
 

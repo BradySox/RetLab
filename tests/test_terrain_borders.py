@@ -23,6 +23,7 @@ SHIPPED = [
     "PersianGulf",
     "Sinai",
     "Falklands",
+    "GermanyColdWar",
 ]
 
 
@@ -81,6 +82,7 @@ def test_the_map_draws_its_own_nation() -> None:
         "Kola": "Russia",
         "PersianGulf": "Iran",
         "Caucasus": "Georgia",
+        "GermanyColdWar": "Germany",
     }
     for terrain, host in hosts.items():
         names = {e["country"] for e in load_terrain_borders(terrain)}
@@ -341,6 +343,7 @@ _TERRAIN_CLASSES = {
     "Afghanistan": "afghanistan.Afghanistan",
     "Falklands": "falklands.Falklands",
     "Iraq": "iraq.Iraq",
+    "GermanyColdWar": "germanycoldwar.GermanyColdWar",
 }
 
 
@@ -399,7 +402,11 @@ def test_an_air_spawn_station_sits_on_ground_the_map_models(terrain: str) -> Non
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        landmap = load_landmap(ConflictTheater.landmap_path_for_terrain_name(terrain))
+        landmap = load_landmap(
+            ConflictTheater.landmap_path_for_terrain_name(
+                {"GermanyColdWar": "GermanyCW"}.get(terrain, terrain)
+            )
+        )
     if landmap is None:
         pytest.skip(f"{terrain} ships no landmap")
 
@@ -414,3 +421,48 @@ def test_an_air_spawn_station_sits_on_ground_the_map_models(terrain: str) -> Non
             f"{terrain}/{entry['country']} stations its alert flight at "
             f"{spawn}, which is not on ground this map models"
         )
+
+
+def test_the_gdr_is_germanys_after_reunification() -> None:
+    """One file serves Fulda Gap 1985 and the 2027 Germany campaigns alike."""
+    from datetime import date
+
+    def countries(on: date) -> set[str]:
+        return {z["country"] for z in load_terrain_borders("GermanyCW", on=on)}
+
+    assert {"Germany", "GDR"} <= countries(date(1985, 9, 10))
+    assert "GDR" not in countries(date(2027, 7, 17))
+    # The month it ended is already Germany's.
+    assert "GDR" in countries(date(1990, 9, 30))
+    assert "GDR" not in countries(date(1990, 10, 3))
+    # The 1985 frontier runs between the Fulda Gap's two sides.
+    from dcs.terrain import GermanyColdWar
+    from shapely.geometry import Point, Polygon
+
+    terrain = GermanyColdWar()
+    owner = {}
+    for zone in load_terrain_borders("GermanyCW", on=date(1985, 9, 10)):
+        for name in ("Fulda", "Haina", "Peenemunde", "Kastrup"):
+            position = terrain.airports[name].position
+            if Polygon(zone["border"]).contains(Point(position.x, position.y)):
+                owner[name] = zone["country"]
+    assert owner == {
+        "Fulda": "Germany",
+        "Haina": "GDR",
+        "Peenemunde": "GDR",
+        "Kastrup": "Denmark",
+    }
+
+
+def test_a_campaign_dates_its_borders_on_load() -> None:
+    from datetime import date
+    from types import SimpleNamespace
+
+    from game.theater.conflicttheater import ConflictTheater
+
+    theater = SimpleNamespace(terrain=SimpleNamespace(name="GermanyCW"))
+    theater.neutral_border_zones = []
+    theater._terrain_border_zones = ConflictTheater._terrain_border_zones
+    ConflictTheater.date_borders(theater, date(2027, 7, 17))  # type: ignore[arg-type]
+    names = {zone.country for zone in theater.neutral_border_zones}
+    assert "Germany" in names and "GDR" not in names

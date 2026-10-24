@@ -6,7 +6,9 @@ reach the 52 real-world-map campaigns that author no borders at all.
 
 The file carries **geometry and an origin, nothing else**. Posture and airframe
 come from the dated table at mission-generation time, so one border file is
-correct in 1975 and in 2025.
+correct in 1975 and in 2025. The one exception is a country that ceased to
+exist: ``--ceased GDR:Germany:1990-10`` marks the GDR's zones with their end
+and successor, and ``game.theater.terrainborders.borders_on`` reads them.
 
 Per country the tool: clips the real boundary to the map, drops sliver pieces,
 simplifies to a vertex budget, converts to terrain XY, and picks an origin --
@@ -59,7 +61,11 @@ from shapely.geometry import Point as ShapelyPoint, Polygon, box  # noqa: E402
 #: matches directory names by substring and "persiangulf" is not one, so every
 #: station on that map fell back to the polygon's own middle and the
 #: no-modelled-land filter below could not run (found 2026-09-10).
-LANDMAP_NAMES = {"persiangulf": "PersianGulf", "thechannel": "TheChannel"}
+LANDMAP_NAMES = {
+    "germany": "GermanyCW",
+    "persiangulf": "PersianGulf",
+    "thechannel": "TheChannel",
+}
 
 
 def modelled_land(terrain_name: str) -> Any:
@@ -226,8 +232,20 @@ def main() -> None:
         "Falklands map otherwise gives Chile five, one of them the 1,439 km² "
         "Cape Horn group. Real territory, but not airspace anyone contests.",
     )
+    parser.add_argument(
+        "--ceased",
+        nargs="*",
+        default=[],
+        metavar="COUNTRY:SUCCESSOR:YYYY-MM",
+        help="A country that ceased to exist, its successor and the month it "
+        "ended, e.g. GDR:Germany:1990-10.",
+    )
     parser.add_argument("--out", type=Path, default=Path("resources/borders"))
     args = parser.parse_args()
+    ceased: dict[str, tuple[str, str]] = {}
+    for token in args.ceased:
+        country, successor, until = token.split(":")
+        ceased[country] = (successor, until)
 
     terrain = TERRAINS[args.terrain]()
     lat_min, lat_max, lon_min, lon_max = args.clip
@@ -309,6 +327,10 @@ def main() -> None:
         label = name if totals[name] == 1 else f"{name} (part {seen[name]})"
         lines.append(f"  # {label} — {len(ring_xy)} vertices")
         lines.append(f"  - country: {name}")
+        if name in ceased:
+            successor, until = ceased[name]
+            lines.append(f'    until: "{until}"')
+            lines.append(f"    successor: {successor}")
         field = airfield_in(terrain, piece)
         if field:
             lines.append(f"    airfield: {field}")

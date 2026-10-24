@@ -1,0 +1,1 @@
+* **[Mission Generation]** The Germany Cold War map has country borders. East Germany is drawn as its own country until October 1990 and as part of Germany after it, so kneeboard maps, data cards and neutral border defense match the campaign's year.

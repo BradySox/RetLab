@@ -17,6 +17,7 @@ import pickle
 import threading
 from collections import OrderedDict
 from pathlib import Path
+from datetime import date
 from typing import Any, Iterable, Optional, TypeVar
 
 _VT = TypeVar("_VT")
@@ -246,6 +247,7 @@ def render_theater_basemap(
     page_height: int,
     *,
     dark: bool = False,
+    on: Optional[date] = None,
 ) -> Image.Image:
     """Terrain imagery for a wide orientation map, else filled coastlines.
 
@@ -263,11 +265,13 @@ def render_theater_basemap(
         img = crop
         if dark:
             img = ImageEnhance.Brightness(img).enhance(_DARK_RASTER_DIM)
-    _draw_land_borders(img, extent, dark=dark)
+    _draw_land_borders(img, extent, dark=dark, on=on)
     return img
 
 
-def _draw_land_borders(img: Image.Image, extent: MapExtent, *, dark: bool) -> None:
+def _draw_land_borders(
+    img: Image.Image, extent: MapExtent, *, dark: bool, on: Optional[date] = None
+) -> None:
     """Thin lines along the national frontiers of the §98 terrain border file.
 
     Only edges two countries share are drawn; an edge one country has alone is
@@ -276,7 +280,7 @@ def _draw_land_borders(img: Image.Image, extent: MapExtent, *, dark: bool) -> No
     from dcs.mapping import Point as DcsPoint
     from .projection import Projector
 
-    segments = _land_border_segments(extent.terrain.name)
+    segments = _land_border_segments(extent.terrain.name, on)
     if not segments:
         return
     projector = Projector(extent=extent, pixel_width=img.width, pixel_height=img.height)
@@ -308,6 +312,7 @@ _border_cache_lock = threading.Lock()
 
 def _land_border_segments(
     terrain_name: str,
+    on: Optional[date] = None,
 ) -> tuple[tuple[tuple[float, float], tuple[float, float]], ...]:
     """Every edge two countries share in the terrain's border file, cached.
 
@@ -317,11 +322,12 @@ def _land_border_segments(
     from game.theater.terrainborders import load_terrain_borders
 
     with _border_cache_lock:
-        cached = _border_cache.get(terrain_name)
+        key = f"{terrain_name}@{on:%Y-%m}" if on is not None else terrain_name
+        cached = _border_cache.get(key)
         if cached is not None:
             return cached
         owners: dict[frozenset[tuple[float, float]], set[str]] = {}
-        for zone in load_terrain_borders(terrain_name):
+        for zone in load_terrain_borders(terrain_name, on=on):
             ring = [(float(x), float(y)) for x, y in zone.get("border") or []]
             if len(ring) < 3:
                 continue
@@ -334,7 +340,7 @@ def _land_border_segments(
             for edge, countries in owners.items()
             if len(edge) == 2 and len(countries) >= 2
         )
-        _border_cache[terrain_name] = segments
+        _border_cache[key] = segments
         return segments
 
 
