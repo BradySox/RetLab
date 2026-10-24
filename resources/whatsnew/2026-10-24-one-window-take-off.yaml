@@ -1,0 +1,10 @@
+date: 2026-10-24
+title: Take off stays in one window
+change: >-
+  The mission's status, Accept results and Abort now fill the map area
+  instead of opening their own window. With Voice bots on, SkyEye runs
+  with no window of its own; the SkyEye log button shows what it says.
+  The SRS server starts minimized.
+watch: >-
+  After Take off, check the taskbar for a SkyEye window and whether the
+  SRS server jumped in front. Say if either happens.

@@ -55,6 +55,9 @@ class VoiceBotsDialog(QDialog):
         layout.addWidget(self.status)
 
         buttons = QHBoxLayout()
+        log = QPushButton("SkyEye log")
+        log.clicked.connect(self._show_log)
+        buttons.addWidget(log)
         buttons.addStretch()
         save = QPushButton("Save")
         save.setDefault(True)
@@ -65,6 +68,11 @@ class VoiceBotsDialog(QDialog):
         buttons.addWidget(cancel)
         layout.addLayout(buttons)
         self._refresh()
+
+    def _show_log(self) -> None:
+        from qt_ui.windows.SkyEyeLogDialog import SkyEyeLogDialog
+
+        SkyEyeLogDialog(self).show()
 
     def _browse(self) -> None:
         folder = QFileDialog.getExistingDirectory(

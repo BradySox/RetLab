@@ -2344,15 +2344,20 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
   removed. #1356 then rendered the map in software (`--disable-gpu`, `QT_QUICK_BACKEND=software`);
   panning crawled (and its first session had a one-off native crash at New Game), so it was reverted 2026-10-22.
   The map is on the GPU again, and `qt_ui/widgets/map/mappanel.py` `MapPanel` destroys the
-  `QLiberationMap` web view (and its page) for the life of the mission window, showing a
-  note, then builds a new one when the window closes (`map_released` in `QTopPanel.launch_mission`).
+  `QLiberationMap` web view (and its page) while the mission runs, then builds a new one.
+  - **The mission status is in the main window (2026-10-24, user call; row B277).** Upstream's
+    "Waiting for mission completion" dialog is `qt_ui/widgets/missionstatuspanel.py`
+    `MissionStatusPanel`, shown in the map's slot (`MapPanel.release(status)`) by
+    `QLiberationWindow.begin_mission` on `QTopPanel.mission_launched`. Its `finished` signal
+    (Accept results or Abort) rebuilds the map. The menu, toolbar, ATO, info and top panels
+    are disabled meanwhile, as the modal dialog blocked them. The debrief stays a window.
   - Whether destroying the view frees the VRAM is unverified: Chromium's GPU thread stays up in
     the process. Row B267 measures it; if `python.exe` still holds GBs, the next step is a
     software-rendering setting (needs an app restart, as the flags are read once).
   - The rebuilt map may open at the campaign's starting view rather than where it was left.
   - A map page that loads with the game already in place renders its layers before the map has a
     center; any layer reading `getBounds` then must tolerate the throw (`SectorsLayer` blanked the page, 2026-10-22).
-  Tests: `tests/qt_ui/test_map_panel.py`.
+  Tests: `tests/qt_ui/test_map_panel.py`, `tests/qt_ui/test_mission_status_panel.py`.
 
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
@@ -11359,11 +11364,14 @@ A machine preference, not a campaign setting: **File > Voice bots**, off by defa
 it on, Take off (`QTopPanel.launch_mission`) calls `start_voice_bots` on a background
 thread (`game/retlab/skyeye_launcher.py`):
 
-1. The SRS server starts if it is not running (`SRS-Server.exe` under the installer's
+1. The SRS server starts minimized if it is not running (`SRS-Server.exe` under the installer's
    `HKCU\Software\DCS-SR-Standalone\SRPathStandalone`), and RetLab waits up to 60 s
    for port 5002.
-2. SkyEye starts in a minimized console from its folder with `--config-file config.yaml`.
-   No `skyeye.exe` or no `config.yaml` means no SkyEye.
+2. SkyEye starts from its folder with `--config-file config.yaml`, in a hidden console
+   (2026-10-24, user call, row B277; it was minimized). Its output goes to
+   `skyeye-takeoff.log`, which the **SkyEye log** button shows
+   (`qt_ui/windows/SkyEyeLogDialog.py`, on the mission status panel and in File > Voice
+   bots). No `skyeye.exe` or no `config.yaml` means no SkyEye.
 3. The SRS client starts if it is not running and is sent `127.0.0.1:5002` on UDP 5069,
    the message SRS's own DCS hook sends. The hook sends it only to a server's guests,
    never to the host, so a single-player host was never auto-connected. The client
@@ -11403,6 +11411,8 @@ Row B264.
 - At most two connect messages: each can make a connected client reconnect.
 - Never stop a `skyeye.exe` by name: only the recorded PID with its creation time is
   RetLab's.
+- SkyEye's console is hidden (`SW_HIDE`), never absent (`CREATE_NO_WINDOW`): a taskkill
+  without `/F` closes it through its window, which is what lets SkyEye sign off SRS.
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground

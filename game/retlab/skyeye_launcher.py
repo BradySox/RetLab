@@ -1,11 +1,11 @@
 """Voice bots on Take Off (§120): start SRS and SkyEye, connect the player's SRS client.
 
 On Take Off, with the preference on: the SRS server starts if it is not running and
-RetLab waits for its port; SkyEye starts minimized from its folder; the SRS client
-starts if it is not running and is told to connect to 127.0.0.1:5002. Anything already
-running is left alone. On debrief only the SkyEye that RetLab started is stopped (user
-call, 2026-10-20), found by a record file so a Retribution restart in between does not
-orphan it. docs/dev/retlab-features.md §120.
+RetLab waits for its port, minimized; SkyEye starts from its folder with no window, its
+log shown by RetLab's SkyEye log button; the SRS client starts if it is not running and
+is told to connect to 127.0.0.1:5002. Anything already running is left alone. On
+debrief only the SkyEye that RetLab started is stopped (user call, 2026-10-20), found by
+a record file so a Retribution restart in between does not orphan it. docs/dev/retlab-features.md §120.
 """
 
 from __future__ import annotations
@@ -44,6 +44,7 @@ SRS_SERVER_EXE = "SRS-Server.exe"
 SRS_CLIENT_EXE = "SR-ClientRadio.exe"
 DEFAULT_SRS_DIR = Path(r"C:\ProgramData\DCS-SimpleRadio-Standalone")
 
+_SW_HIDE = 0
 _SW_SHOWMINNOACTIVE = 7
 
 #: Held while a Take off decides whether to start SkyEye, and while debrief stops it.
@@ -192,15 +193,19 @@ def _wait(condition: Callable[[], bool], seconds: float, step: float = 1.0) -> b
 
 
 def _start(
-    exe: Path, args: list[str], minimized: bool = False, log: Optional[Path] = None
+    exe: Path,
+    args: list[str],
+    minimized: bool = False,
+    hidden: bool = False,
+    log: Optional[Path] = None,
 ) -> subprocess.Popen[bytes]:
     kwargs: dict[str, object] = {"cwd": str(exe.parent)}
     if sys.platform == "win32":
         kwargs["creationflags"] = subprocess.CREATE_NEW_CONSOLE
-        if minimized:
+        if minimized or hidden:
             info = subprocess.STARTUPINFO()
             info.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            info.wShowWindow = _SW_SHOWMINNOACTIVE
+            info.wShowWindow = _SW_HIDE if hidden else _SW_SHOWMINNOACTIVE
             kwargs["startupinfo"] = info
     if log is None:
         return subprocess.Popen([str(exe), *args], **kwargs)  # type: ignore[call-overload]
@@ -212,8 +217,8 @@ def _start(
             return subprocess.Popen(  # type: ignore[call-overload]
                 [str(exe), *args], stdout=out, stderr=subprocess.STDOUT, **kwargs
             )
-    # A blank window got closed as broken (2026-10-20), so the window shows the
-    # text and the log keeps a copy. PowerShell is the tee every Windows PC has.
+    # The log is RetLab's SkyEye log button. The console is hidden, not absent, so
+    # stop_skyeye's taskkill without /F can still close it. PowerShell is the tee.
     return subprocess.Popen(  # type: ignore[call-overload]
         [
             "powershell.exe",
@@ -289,7 +294,7 @@ def _start_skyeye(skyeye_dir: Path) -> None:
         elif skyeye.exists() and (skyeye_dir / SKYEYE_CONFIG).exists():
             log = skyeye_dir / SKYEYE_LOG
             process = _start(
-                skyeye, ["--config-file", SKYEYE_CONFIG], minimized=True, log=log
+                skyeye, ["--config-file", SKYEYE_CONFIG], hidden=True, log=log
             )
             created = process_started(process.pid)
             if created is not None:
@@ -320,7 +325,7 @@ def _start_voice_bots(skyeye_dir: Path) -> None:
             if not server.exists():
                 logging.warning("Voice bots: no SRS server at %s", server)
                 return
-            _start(server, [])
+            _start(server, [], minimized=True)
         if not _wait(lambda: port_open(SRS_PORT), SERVER_WAIT_SECONDS):
             logging.warning("Voice bots: SRS server never opened port %d", SRS_PORT)
             return
