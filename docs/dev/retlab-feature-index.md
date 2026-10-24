@@ -134,5 +134,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §120 | Voice bots on Take Off | — | — |
 | §121 | Radio discipline | — | `radio_discipline` |
 | §122 | Exact site layouts | — | — |
+| §123 | Trains on drawn rail lines | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

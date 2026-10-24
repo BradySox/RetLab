@@ -21,6 +21,10 @@
             "mnemonic": "retribution"
         },
         {
+            "file": "train_losses.lua",
+            "mnemonic": "train_losses"
+        },
+        {
             "file": "moose.lua",
             "mnemonic": "moose"
         },

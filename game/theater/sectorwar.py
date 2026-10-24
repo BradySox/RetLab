@@ -31,6 +31,8 @@ from game.theater.sectors import (
 
 if TYPE_CHECKING:
     from game import Game
+    from dcs.mapping import Point
+
     from game.theater import ConflictTheater, ControlPoint, FrontLine
 
 #: A won battle reaches at least this far from the front for sectors to take.
@@ -183,12 +185,26 @@ def road_is_cut(theater: ConflictTheater, a: ControlPoint, b: ControlPoint) -> b
 
     A cut road carries no convoys, so its bases lose supply over it (§90 rung A).
     """
-    war = war_for(theater)
-    if war is None or a.captured.is_neutral:
-        return False
     try:
         route = list(a.convoy_route_to(b))
     except KeyError:
+        return False
+    return _route_is_cut(theater, a, route)
+
+
+def rail_is_cut(theater: ConflictTheater, a: ControlPoint, b: ControlPoint) -> bool:
+    """True when the rail line between two friendly bases runs through enemy sectors."""
+    route = a.rail_lines.get(b)
+    if route is None:
+        return False
+    return _route_is_cut(theater, a, list(route))
+
+
+def _route_is_cut(
+    theater: ConflictTheater, a: ControlPoint, route: list[Point]
+) -> bool:
+    war = war_for(theater)
+    if war is None or a.captured.is_neutral:
         return False
     enemy = RED if a.captured.is_blue else BLUE
     sector_map = sector_map_for(theater)

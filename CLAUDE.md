@@ -150,7 +150,7 @@ hard-constraints list or a surviving note. The deleted debt register is at
 | Campaign engine | Python 3.11 (`game/`). Library catalog, reference only: https://github.com/vinta/awesome-python |
 | UI | PyQt (`qt_ui/`) + React/Leaflet client (`client/`) — client NOT type-checked in CI |
 | Mission scripting | **Lua 5.1** sandbox plugins (`resources/plugins/`) — no `os`/`io`, no `goto`, definition order matters |
-| In-mission framework | **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim) is the standard. **MIST is upstream's `mist_4_5_126.lua`** again since 2026-09-12, and `base/plugin.json` is upstream's work-order list plus the fork's `sortie_recorder.lua`; a merged upstream Lua file that calls `mist.*` needs no shim work. MOOSE API docs: https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html |
+| In-mission framework | **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim) is the standard. **MIST is upstream's `mist_4_5_126.lua`** again since 2026-09-12, and `base/plugin.json` is upstream's work-order list plus the fork's `sortie_recorder.lua` and `train_losses.lua`; a merged upstream Lua file that calls `mist.*` needs no shim work. MOOSE API docs: https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html |
 | Units / mission format | pydcs; CurrentHill mod packs in `pydcs_extensions/` |
 | CI gates | Black + mypy + pytest + the published-docs audit + the Lua 5.1 syntax gate (all blocking), plus advisory luacheck and dead-code report — see `docs/dev/CLAUDE-ci.md` |
 | Release | PyInstaller → rolling `latest` pre-release on GitHub |
@@ -352,6 +352,7 @@ linked design note.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
 121. **Radio discipline** — Strict, Relaxed or Casual: how by the book the SkyEye controllers expect players to be. Strict by default.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
+123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
 
 ### Retired, removed or shelved — do not restore
 

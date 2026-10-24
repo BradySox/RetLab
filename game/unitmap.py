@@ -18,7 +18,7 @@ from game.theater import Airfield, ControlPoint, TheaterUnit
 from game.theater.theatergroup import SceneryUnit
 
 if TYPE_CHECKING:
-    from game.transfers import CargoShip, Convoy, TransferOrder
+    from game.transfers import CargoShip, Convoy, Train, TransferOrder
 
 
 @dataclass(frozen=True)
@@ -77,6 +77,8 @@ class UnitMap:
         self.scenery_objects: Dict[str, SceneryObjectMapping] = {}
         self.convoys: Dict[str, ConvoyUnit] = {}
         self.cargo_ships: Dict[str, CargoShipUnit] = {}
+        #: Train unit name -> the cargo names train_losses.lua reports when it dies.
+        self.trains: Dict[str, list[str]] = {}
         self.airlifts: Dict[str, AirliftUnits] = {}
 
     def add_aircraft(self, group: FlyingGroup[Any], flight: Flight) -> None:
@@ -148,6 +150,19 @@ class UnitMap:
             if name in self.convoys:
                 raise RuntimeError(f"Duplicate convoy unit: {name}")
             self.convoys[name] = ConvoyUnit(unit_type, convoy)
+
+    def add_train(self, group: VehicleGroup, train: Train) -> None:
+        # DCS sees the train as one unit, so each cargo unit gets a name of its own
+        # for the Lua to report; a dead train then reads as a convoy that lost them all.
+        train_name = str(group.units[0].name)
+        cargo_names = []
+        for index, unit_type in enumerate(train.iter_units(), start=1):
+            name = f"{train_name} cargo #{index}"
+            if name in self.convoys:
+                raise RuntimeError(f"Duplicate convoy unit: {name}")
+            self.convoys[name] = ConvoyUnit(unit_type, train)
+            cargo_names.append(name)
+        self.trains[train_name] = cargo_names
 
     def convoy_unit(self, name: str) -> Optional[ConvoyUnit]:
         return self.convoys.get(name, None)

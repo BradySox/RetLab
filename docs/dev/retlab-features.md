@@ -11765,3 +11765,41 @@ cartridges still preset the AWACS channel, not SkyEye's.
   never writes it (Brady's call, 2026-10-20).
 - Player calls must start with the SkyEye callsign, then the player's seat ("Ford 2-1"). The
   kneeboard tells players to start their DCS player name with it ("Ford 2-1 | Joe").
+
+## §123 — Trains on drawn rail lines
+
+A **Train** group drawn in a campaign `.miz` (Combined Joint Task Forces Blue, waypoints
+"On Railroads") is a rail line between the two control points nearest its first and last
+waypoints. Supply between those bases goes by train. Design and probe findings:
+[retlab-trains-notes.md](design/retlab-trains-notes.md).
+
+- **Rail wins over road.** `TransitNetworkBuilder` links a rail pair before roads, so the
+  road between the same bases carries no convoy. A rail line through enemy sectors is cut
+  like a road (`rail_is_cut`, §111). Rail counts as ground supply (§90 rung A).
+- **A train is a convoy.** `Train` subclasses `Convoy` and lives in the convoy map
+  (`ConvoyMap.add_train`), so BAI and Armed Recon targeting, the debrief, the base menu and
+  the map treat it as one. The planner targets trains even with **Disable land convoys**
+  ticked, and `TrainGenerator` spawns them whatever that setting says.
+- **A dead train loses everything.** DCS sees the whole train as one unit and fires no dead
+  event when it dies. `resources/plugins/base/train_losses.lua` polls each train's health
+  and, at zero, reports one `<train> cargo #N` name per unit carried; `UnitMap.add_train`
+  maps those names to the cargo, so the ordinary convoy-loss path kills it all.
+- **Consist:** WWII dates get the DRG Class 86 and German wagons, Nevada the ES44AH,
+  everything else the CHME3T. One wagon per unit carried, 4 to 20.
+- **Authoring:** `python tools/supply_route_geo.py <campaign> --rail --draw <campaign>.miz`
+  draws the campaign's `RAIL_LINES` entry, one real station per waypoint. DCS paths the
+  track between them and snaps a waypoint within a few hundred feet onto the rails.
+  Fulda Gap 1985 has four: Frankfurt-Fulda, Frankfurt-Fritzlar, Haina-Erfurt and
+  Meiningen-Erfurt (Erfurt is Bindersleben). Wurzburg-Schweinfurt and Merseburg-Leipzig
+  ran away from their stations in the probe and are not drawn.
+- **Ambient supply (§50)** counts rail lines as corridors.
+
+| Area | Path |
+|---|---|
+| Loader | `game/campaignloader/mizcampaignloader.py` (`rail_line_groups`, `add_rail_lines`) |
+| Network | `game/theater/transitnetwork.py` (`TransitConnection.Rail`), `game/theater/sectorwar.py` (`rail_is_cut`) |
+| Transport | `game/transfers.py` (`Train`, `ConvoyMap.add_train`) |
+| Generator | `game/missiongenerator/traingenerator.py` |
+| Lua | `resources/plugins/base/train_losses.lua` |
+| Tests | `tests/retlab/test_trains.py`, `tests/lua/test_train_losses_runtime.py` |
+| In-game pass | B285 |

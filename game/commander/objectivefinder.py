@@ -290,8 +290,11 @@ class ObjectiveFinder:
         return self._targets_by_range(airfields, weighted=True)
 
     def convoys(self) -> Iterator[Convoy]:
-        if self.game.settings.perf_disable_convoys:
-            return
+        from game.transfers import Train
+
+        # Disable land convoys keeps road columns out of the mission, but trains
+        # still spawn (features doc §123), so they stay targets.
+        trains_only = self.game.settings.perf_disable_convoys
         # The enemy's convoys, heading for its own front-line bases.
         enemy = self.game.coalition_for(self.is_player.opponent).transfers
         yield from _each_once(
@@ -300,6 +303,7 @@ class ObjectiveFinder:
             for convoy in enemy.convoys.travelling_to(
                 front_line.control_point_hostile_to(self.is_player)
             )
+            if not trains_only or isinstance(convoy, Train)
         )
 
     def cargo_ships(self) -> Iterator[CargoShip]:

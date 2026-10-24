@@ -58,6 +58,8 @@ class MizCampaignLoader:
     LHA_UNIT_TYPE = LHA_Tarawa.id
     FRONT_LINE_UNIT_TYPE = Armor.M_113.id
     SHIPPING_LANE_UNIT_TYPE = HandyWind.id
+    #: A train drawn in the ME on the track; pydcs reads it as a vehicle of this type.
+    RAIL_LINE_UNIT_TYPE = "Train"
     CP_CONVOY_SPAWN_TYPE = Armor.M1043_HMMWV_Armament.id
 
     #: How close a convoy spawn marker must be to a supply route's endpoint before
@@ -476,6 +478,12 @@ class MizCampaignLoader:
                 yield group
 
     @property
+    def rail_line_groups(self) -> Iterator[VehicleGroup]:
+        for group in itertools.chain(self.blue.vehicle_group, self.red.vehicle_group):
+            if group.units[0].type == self.RAIL_LINE_UNIT_TYPE:
+                yield group
+
+    @property
     def shipping_lane_groups(self) -> Iterator[ShipGroup]:
         for group in itertools.chain(self.blue.ship_group, self.red.ship_group):
             if group.units[0].type == self.SHIPPING_LANE_UNIT_TYPE:
@@ -636,6 +644,25 @@ class MizCampaignLoader:
             )
             self.control_points[destination.id].create_convoy_route(
                 origin, list(reversed(waypoints)), d_spawns
+            )
+
+    def add_rail_lines(self) -> None:
+        for group in self.rail_line_groups:
+            waypoints = [p.position for p in group.points]
+            if len(waypoints) < 2:
+                logging.warning("rail line '%s' has one waypoint - skipped", group.name)
+                continue
+            origin = self.theater.closest_control_point(waypoints[0])
+            destination = self.theater.closest_control_point(waypoints[-1])
+            if origin is None or destination is None:
+                raise RuntimeError(f"No control point near the ends of {group.name}")
+            if self._binds_one_control_point(
+                "rail line", group.name, origin, destination
+            ):
+                continue
+            self.control_points[origin.id].create_rail_line(destination, waypoints)
+            self.control_points[destination.id].create_rail_line(
+                origin, list(reversed(waypoints))
             )
 
     def add_shipping_lanes(self) -> None:
@@ -1051,6 +1078,7 @@ class MizCampaignLoader:
         self.add_preset_locations()
         self.add_supply_routes()
         self.add_shipping_lanes()
+        self.add_rail_lines()
         self.add_yaml_supply_routes()
         self.add_yaml_shipping_lanes()
         self.apply_control_point_strengths()

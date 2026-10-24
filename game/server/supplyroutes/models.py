@@ -110,6 +110,16 @@ class SupplyRouteJs(BaseModel):
                         game, control_point, destination, list(route), sea=False
                     )
                 )
+            for destination, route in control_point.rail_lines.items():
+                if destination in seen:
+                    continue
+                rail = SupplyRouteJs.for_link(
+                    game, control_point, destination, list(route), sea=False
+                )
+                # The reversed pair keeps the list key apart from a road between the
+                # same bases; the interdiction lookup reads either order.
+                rail.id = f"{destination.id}:{control_point.id}"
+                routes.append(rail)
             for destination, route in control_point.shipping_lanes.items():
                 if destination in seen:
                     continue
