@@ -36,7 +36,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   engine again since 2026-09-12; MANTIS and the MIST shim are gone),
   `retlab-sam-site-realism-notes.md`, `retlab-air-defense-planning-notes.md`,
   `retlab-qra-player-manning-notes.md`, `retlab-sam-magazines-notes.md` (scoping only),
-  `retlab-iran-iads-deployment-notes.md` (research: where Iran's SAMs sit, map by map)
+  `retlab-iran-iads-deployment-notes.md` (research: where Iran's SAMs sit, map by map),
+  `retlab-exact-site-layouts-notes.md` (§122: FIXED groups generate as drawn)
 - **EW / ISR / comms** — `retlab-c130-ew-isr-notes.md`, `retlab-gps-jamming-notes.md`,
   `retlab-iads-c2-consequences-notes.md`
 - **Recon** — `retlab-recon-role-scoping-notes.md` (candidate A built 2026-08-18; B and C scoping)

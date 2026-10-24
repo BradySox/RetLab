@@ -63,7 +63,7 @@ from game.sidc import (
     Status,
     SymbolSet,
 )
-from game.theater.presetlocation import PresetLocation
+from game.theater.presetlocation import ExactSitePreset, PresetLocation
 from game.utils import Distance, Heading, meters
 from pydcs_extensions import (
     L02,
@@ -280,6 +280,9 @@ class PresetLocations:
 
     #: Locations of EWRs.
     ewrs: List[PresetLocation] = field(default_factory=list)
+
+    #: Air-defense sites drawn unit by unit (the FIXED name prefix), kept as drawn.
+    exact_air_defenses: List[ExactSitePreset] = field(default_factory=list)
 
     #: Locations of map scenery to create zones for.
     scenery: List[SceneryGroup] = field(default_factory=list)
