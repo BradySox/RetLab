@@ -8,7 +8,7 @@ Owner: this note. CI lock: `tests/retlab/test_fulda_gap_1985.py`.
 | | |
 |---|---|
 | Files | `resources/campaigns/fulda_gap_1985.yaml` + `.miz` |
-| `.miz` | Built by `tools/build_fulda_gap_1985_miz.py` from `red_tide.miz` (map, settings, scenery targets) |
+| `.miz` | **Hand-edited by the DM in the Mission Editor.** First built from `red_tide.miz` by `tools/build_fulda_gap_1985_miz.py`, deleted; it is in the first commit of PR #1377 on GitHub |
 | Routes | M-113 groups traced from real town lat/lon; first and last waypoints Off Road, the rest On Road |
 | Factions | `NATO Central Front 1985`, `Warsaw Pact Central Front 1985` (both new, stock DCS) |
 | Squadrons | 13 new presets plus existing 480th TFS, 512th and 526th TFS, JBG 31, RAF 31 Sqn, NATO E-3A, 336 OBVP, 357 ShAP |
@@ -34,6 +34,13 @@ for a Retribution campaign with the most historical accuracy we can get.
   free Mission Editor template by Carsten, 2025, shared for mission makers to
   build on). Its Hawk, CRC, SA-2, SA-3, SA-5 and S-60 sites inside the sector
   replace the generated rings, each within about a mile of the original spot.
+
+## The DM's laydown (2026-10-24)
+
+The DM checked the built laydown in the Mission Editor for overlaps and saved his own
+version; that save is the `.miz` and the build tool is deleted. His first pass moved eight
+EWRs, the Altes Lager guns and SHORAD, and the Juterbog comms tower off the spots the
+tool picked. Edit the `.miz` in the Mission Editor from now on.
 
 ## The laydown
 
@@ -100,7 +107,7 @@ and Leuna chemical works.
   Meiningen SA-3 binds to Fulda, its nearest control point, and blue cannot field it.
 - **Every red point carries the invert flag**; blue's do not. A test checks both.
 - **Neutral fields have dynamic spawn off**, or they read as red control points.
-- **Red Tide stays untouched.** The tool reads it; it never writes it.
+- **Red Tide stays untouched.** The laydown started from a copy of its map.
 
 ## Stand-ins and fudges
 
