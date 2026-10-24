@@ -41,6 +41,7 @@ from qt_ui.widgets.QTopPanel import QTopPanel
 from qt_ui.widgets.ato import QAirTaskingOrderPanel
 from qt_ui.widgets.map.QLiberationMap import QLiberationMap
 from qt_ui.widgets.map.mappanel import MapPanel
+from qt_ui.widgets.missionstatuspanel import MissionStatusPanel
 from qt_ui.windows.GameUpdateSignal import GameUpdateSignal
 from qt_ui.windows.QDebriefingWindow import QDebriefingWindow
 from qt_ui.windows.basemenu.QBaseMenu2 import QBaseMenu2
@@ -155,6 +156,7 @@ class QLiberationWindow(QMainWindow):
         vbox.setSizes([600, 100])
 
         self.top_panel = QTopPanel(self.game_model, self.sim_controller, ui_flags)
+        self.top_panel.mission_launched.connect(self.begin_mission)
         vbox = QVBoxLayout()
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.addWidget(self.top_panel)
@@ -726,6 +728,35 @@ class QLiberationWindow(QMainWindow):
     def showLogsDialog(self):
         self.logs_dialog = QLogsWindow(self)
         self.logs_dialog.show()
+
+    def begin_mission(self) -> None:
+        """Shows the mission's status where the map was, until it is accepted or aborted.
+
+        The rest of the window is locked meanwhile, as the old modal window locked it.
+        The map's video memory goes to DCS until then (row B267).
+        """
+        if self.game is None:
+            return
+        status = MissionStatusPanel(self.game, self.sim_controller)
+        status.finished.connect(lambda: self._end_mission(status))
+        self._set_planning_enabled(False)
+        self.map_panel.release(status)
+
+    def _end_mission(self, status: MissionStatusPanel) -> None:
+        logging.info("Map rebuilt after the mission")
+        self.map_panel.restore()
+        status.deleteLater()
+        self._set_planning_enabled(True)
+
+    def _set_planning_enabled(self, enabled: bool) -> None:
+        for widget in (
+            self.menuBar(),
+            self.tool_bar,
+            self.ato_panel,
+            self.info_panel,
+            self.top_panel,
+        ):
+            widget.setEnabled(enabled)
 
     def onDebriefing(self, debrief: Debriefing):
         logging.info("On Debriefing")

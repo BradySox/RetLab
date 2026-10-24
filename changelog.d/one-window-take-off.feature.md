@@ -1,0 +1,1 @@
+* **[UI]** Take off no longer opens a "Waiting for mission completion" window: the mission's status and buttons fill the map area until you accept or abort. With Voice bots on, SkyEye runs with no window (a SkyEye log button shows its output) and the SRS server starts minimized.
