@@ -11635,7 +11635,8 @@ Answers name every located radar still standing, awake ones first; mud names awa
 - The `tune` message now carries Vacuum's callsign and own frequency. An older SkyEye ignores
   both and never sends a request, so nothing is answered and nothing breaks.
 - **Kneeboard:** "Talking to Vacuum" (`VacuumPage`, `voicepages.py`), after the AWACS card,
-  for SEAD, SEAD Escort and DEAD player flights when a Vacuum flies (`VACUUM_TASKS`). It
+  for every player flight when a Vacuum flies (user call, 2026-10-24; SEAD, SEAD Escort and
+  DEAD only until then). It
   lists the five calls, each with its answer, and one line: a SAM keeping its radar off is
   invisible to Vacuum, and "blank" does not mean safe (user call, 2026-10-22: no radar
   table, no explanations).
