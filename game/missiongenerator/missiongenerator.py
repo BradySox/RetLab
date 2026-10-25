@@ -322,7 +322,7 @@ class MissionGenerator:
             self.mission_data.strike_frequency = self.radio_registry.alloc_uhf()
             # STRIKE is each player package's own frequency, so it is the package
             # preset and the kneeboard's FREQ line (user call, 2026-10-21). The AI
-            # in it keep the package's own frequency, off STRIKE (user call).
+            # in it fly on STRIKE too (user call, 2026-10-24).
             for package in self.game.blue.ato.packages:
                 flights = package.flights
                 if any(f.client_count for f in flights) and not any(
@@ -399,10 +399,12 @@ class MissionGenerator:
     def _move_ai_off_voice_bots(self) -> None:
         """AI groups never given a radio sit on DCS's default 251.000, which is also
         SkyEye's default; their chatter filled its channel (2026-10-20). Move every AI
-        group off each voice bot's frequency: SkyEye, STRIKE, Vacuum, Ground, Tower."""
+        group off each voice bot's frequency: SkyEye, STRIKE, Vacuum, Ground, Tower.
+        The AI in a player package the ABCCC runs stay on STRIKE."""
         voice = self.mission_data.voice_bot_frequencies()
         if not voice:
             return
+        strike = self.mission_data.strike_frequency
         moved = 0
         elsewhere: Optional[RadioFrequency] = None
         for coalition in self.mission.coalition.values():
@@ -413,6 +415,10 @@ class MissionGenerator:
                     ):
                         continue
                     if any(u.is_human() for u in group.units):
+                        continue
+                    if str(group.name) in self.mission_data.strike_groups and (
+                        strike is not None and abs(group.frequency - strike.mhz) < 1e-3
+                    ):
                         continue
                     if elsewhere is None:
                         elsewhere = self.radio_registry.alloc_uhf()

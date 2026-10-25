@@ -290,6 +290,7 @@ class FlightGroupConfigurator:
             freq = self.radio_registry.alloc_uhf()
         if freq not in self.radio_registry.allocated_channels:
             self.radio_registry.reserve(freq)
+        strike = self.mission_data.strike_frequency
 
         if self.flight.flight_type in {
             FlightType.AEWC,
@@ -298,6 +299,16 @@ class FlightGroupConfigurator:
         }:
             freq = self.dedicated_support_frequency(freq)
             self.register_air_support(freq)
+        elif (
+            strike is not None
+            and self.flight.frequency is None
+            and not self.flight.client_count
+            and id(self.flight.package) in self.mission_data.strike_packages
+        ):
+            # AI in a player package the ABCCC runs talk on STRIKE with its players
+            # (user call, 2026-10-24); the voice-bot sweep leaves the group there.
+            freq = strike
+            self.mission_data.strike_groups.add(str(self.group.name))
         elif self.flight.client_count and self.flight.squadron.radio_presets:
             freq = self.flight.squadron.radio_presets["intra_flight"][0]
         elif self.flight.frequency is None and self.flight.client_count:
