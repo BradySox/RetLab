@@ -103,3 +103,10 @@ def test_a_fit_with_no_arm_by_design_is_left_alone(
         classmethod(lambda cls, task, dcs_type, target=None: Loadout.empty_loadout()),
     )
     assert _assigns(_squadron("JF-17 Thunder", 1990), FlightType.SEAD)
+
+
+@pytest.mark.parametrize("task", SEAD_TASKS, ids=lambda t: t.value)
+def test_a_tornado_gr4_flies_sead_only_once_alarm_exists(task: FlightType) -> None:
+    # ALARM is dated 1990 and the GR4 carries no other ARM in DCS (Fulda Gap 1985).
+    assert not _assigns(_squadron("Tornado GR4", 1985), task)
+    assert _assigns(_squadron("Tornado GR4", 1991), task)

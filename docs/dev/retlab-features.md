@@ -2384,6 +2384,19 @@ the loaded-strike figure too. (`game/dcs/aircrafttype.py`,
     center; any layer reading `getBounds` then must tolerate the throw (`SectorsLayer` blanked the page, 2026-10-22).
   Tests: `tests/qt_ui/test_map_panel.py`, `tests/qt_ui/test_mission_status_panel.py`.
 
+- **Tornado bomb fits flew with only Sidewinders before 1999 (2026-10-24, user call).** The
+  GR4's Strike, CAS, BAI, OCA and DEAD fits carried GBU-12 or GBU-16 with a Litening pod,
+  dated 1999. With weapon dates restricted the pod dropped, `replace_lgbs_if_no_tgp` then
+  removed the laser bombs, and the GR4 cannot hang the Mk-82 fallback, so Fulda Gap 1985 and
+  Desert Storm flew GR4s with tanks, pods and two AIM-9s. Both Tornado yamls now set
+  `has_built_in_target_pod` (DCS unit data: `laserEquipment.laserDesignator`), and the GR4 and
+  IDS presets are the stock DCS fits per task: 2 GBU-16 for Strike and DEAD, 4 BL755 (GR4) or
+  4 Mk-82 (IDS) for CAS, BAI and OCA/Aircraft, 4 ALARM (GR4) or 4 HARM (IDS) for SEAD, Sea
+  Eagle or Kormoran for anti-ship. The old IDS Strike hung Mk-82s on stations 4 and 9, which
+  DCS does not allow. Before 1990 the GR4 has no ARM; the SEAD skip above already keeps it off
+  auto-planned SEAD, so a hand-fragged GR4 SEAD flight before 1990 still flies unarmed. The
+  Tornado ADV (a mod) is untouched. Tests: `tests/retlab/test_tornado_presets.py`.
+
 ## 9. TIC — Troops In Contact frontline battle sim — REMOVED (2026-10-15)
 
 **Removed 2026-10-15 (DM call).** The `tic` plugin (default on) ran Grendel's TIC v1.1 (MIT,
