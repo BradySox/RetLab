@@ -11277,8 +11277,11 @@ takeoff).
 the package preset and the kneeboard's FREQ line ("FREQ: STRIKE COM1 Ch 3 - UHF 289.000");
 nobody dials it by hand. It is kept in the mission only (`MissionData.strike_packages`,
 `MissionData.package_frequency`), never written to the package, so the save never carries
-STRIKE as a package frequency. The AI flights in the package keep the package's own frequency,
-off STRIKE (user call, 2026-10-21). With Voice AWACS on,
+STRIKE as a package frequency. The AI flights in the package fly on STRIKE with its players
+(user call, 2026-10-24; #1352 had moved them off it): `setup_radios` gives a non-player flight
+with no frequency of its own STRIKE and records its group in `MissionData.strike_groups`, and
+the voice-bot sweep (`_move_ai_off_voice_bots`) leaves those groups on STRIKE. Every other AI
+group still moves off STRIKE, Vacuum, SkyEye, Ground and Tower. With Voice AWACS on,
 SkyEye's frequency and Vacuum's take the presets the silent blue AI AWACS had
 (`awacs_presets` in `game/radio/channels.py`); the AI AWACS stay on the kneeboard with no
 preset. On a two-radio jet the presets follow a squadron comm card: COMM1 the support nets

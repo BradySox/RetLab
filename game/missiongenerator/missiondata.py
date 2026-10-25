@@ -170,6 +170,8 @@ class MissionData:
     #: The player packages STRIKE is the package frequency of (``id(package)``). Kept
     #: here, not on the package, so STRIKE is never saved as a package's frequency.
     strike_packages: set[int] = field(default_factory=set)
+    #: The AI groups in those packages, on STRIKE with their players (DCS names).
+    strike_groups: set[str] = field(default_factory=set)
     #: The SkyEye voices the AWACS and ABCCC speak with this mission (§117).
     skyeye_voices: list[str] = field(default_factory=list)
     #: Voice ATC (§119): each player airfield's Ground and Tower frequencies, by DCS

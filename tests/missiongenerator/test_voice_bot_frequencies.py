@@ -5,7 +5,11 @@ from __future__ import annotations
 from types import SimpleNamespace
 from typing import Any
 
+from game.ato.flighttype import FlightType
 from game.missiongenerator.aircraft.aircraftgenerator import AircraftGenerator
+from game.missiongenerator.aircraft.flightgroupconfigurator import (
+    FlightGroupConfigurator,
+)
 from game.missiongenerator.missiondata import MissionData
 from game.missiongenerator.missiongenerator import (
     MissionGenerator,
@@ -69,9 +73,9 @@ def test_hand_set_ato_frequencies_are_reserved_first_on_both_sides() -> None:
     assert {MHz(260), MHz(261), MHz(262)} <= registry.allocated_channels
 
 
-def _group(mhz: float, human: bool = False) -> Any:
+def _group(mhz: float, human: bool = False, name: str = "group") -> Any:
     unit = SimpleNamespace(is_human=lambda: human)
-    return SimpleNamespace(frequency=mhz, units=[unit])
+    return SimpleNamespace(name=name, frequency=mhz, units=[unit])
 
 
 def test_ai_groups_move_off_every_voice_bot_frequency() -> None:
@@ -106,3 +110,68 @@ def test_strike_is_a_package_frequency_only_in_the_mission() -> None:
     data.strike_packages.add(id(package))
     assert data.package_frequency(package) == MHz(264)
     assert package.frequency == MHz(262)
+
+
+def _setup_radios(data: MissionData, package: Any, client_count: int) -> Any:
+    group = SimpleNamespace(name="Hornet 1", frequency=None)
+    group.set_frequency = lambda mhz: setattr(group, "frequency", mhz)
+    configurator: Any = object.__new__(FlightGroupConfigurator)
+    configurator.flight = SimpleNamespace(
+        frequency=None,
+        package=package,
+        flight_type=FlightType.STRIKE,
+        client_count=client_count,
+        squadron=SimpleNamespace(radio_presets={"intra_flight": [MHz(301)]}),
+    )
+    configurator.group = group
+    configurator.mission_data = data
+    configurator.radio_registry = RadioRegistry()
+    configurator.setup_radios()
+    return group
+
+
+def test_ai_in_a_player_package_fly_on_strike() -> None:
+    data = MissionData()
+    data.strike_frequency = MHz(264)
+    package: Any = SimpleNamespace(frequency=MHz(262))
+    data.strike_packages.add(id(package))
+    assert _setup_radios(data, package, client_count=0).frequency == 264.0
+    assert data.strike_groups == {"Hornet 1"}
+    # The package keeps its own frequency in the save.
+    assert package.frequency == MHz(262)
+
+
+def test_players_and_other_packages_keep_their_frequencies() -> None:
+    data = MissionData()
+    data.strike_frequency = MHz(264)
+    package: Any = SimpleNamespace(frequency=MHz(262))
+    other: Any = SimpleNamespace(frequency=MHz(263))
+    data.strike_packages.add(id(package))
+    assert _setup_radios(data, package, client_count=1).frequency == 301.0
+    assert _setup_radios(data, other, client_count=0).frequency == 263.0
+    assert not data.strike_groups
+
+
+def test_the_sweep_leaves_package_ai_on_strike() -> None:
+    data = MissionData()
+    data.strike_frequency = MHz(264)
+    data.vacuum_frequency = MHz(270)
+    data.strike_groups = {"Hornet 1"}
+    package_ai = _group(264.0, name="Hornet 1")
+    stray = _group(264.0, name="Tanker 1")
+    on_vacuum = _group(270.0, name="Hornet 1")
+    country = SimpleNamespace(
+        plane_group=[package_ai, stray, on_vacuum], helicopter_group=[]
+    )
+    generator: Any = MissionGenerator.__new__(MissionGenerator)
+    generator.mission_data = data
+    generator.radio_registry = RadioRegistry()
+    for f in data.voice_bot_frequencies():
+        generator.radio_registry.reserve(f)
+    generator.mission = SimpleNamespace(
+        coalition={"blue": SimpleNamespace(countries={"USA": country})}
+    )
+    generator._move_ai_off_voice_bots()
+    assert package_ai.frequency == 264.0
+    assert stray.frequency not in (264.0, 270.0)
+    assert on_vacuum.frequency not in (264.0, 270.0)
