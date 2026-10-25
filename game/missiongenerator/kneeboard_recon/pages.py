@@ -114,13 +114,14 @@ class _Palette:
     destroyed: tuple[int, int, int]
 
 
+# Near-white paper glared in the cockpit; toned down 2026-10-25.
 _LIGHT_PALETTE = _Palette(
-    page_bg=(250, 248, 244),
+    page_bg=(205, 203, 200),
     fg=(15, 15, 15),
     muted=(60, 60, 60),
     title_bg=(15, 15, 15),
-    title_fg=(250, 248, 244),
-    panel_bg=(255, 255, 255),
+    title_fg=(205, 203, 200),
+    panel_bg=(212, 212, 212),
     panel_outline=(0, 0, 0),
     destroyed=(130, 60, 60),
 )

@@ -30,16 +30,14 @@ class KneeboardPageWriter:
             self.col_emphasis = (240, 232, 232)  # header lines
         else:
             self.foreground_fill = (15, 15, 15)
-            # Light grey rather than near-white: avoids glare under HDR / Auto-HDR
-            # while staying perfectly readable in daylight.
-            self.background_fill = (210, 210, 210)
-            # Darker variants of the same four hues so they stay legible on the
-            # daytime light-grey background (the night shades would wash out).
-            self.col_nav = (24, 86, 140)
-            self.col_caution = (130, 84, 12)
-            self.col_success = (28, 104, 40)
-            self.col_danger = (158, 36, 36)
-            self.col_muted = (96, 88, 88)
+            # Mid grey: 210 still glared in the cockpit (2026-10-25). The inks are
+            # darkened with it so each keeps its contrast (4.5:1 or better).
+            self.background_fill = (185, 185, 185)
+            self.col_nav = (19, 68, 112)
+            self.col_caution = (98, 62, 8)
+            self.col_success = (22, 83, 32)
+            self.col_danger = (126, 28, 28)
+            self.col_muted = (76, 70, 70)
             self.col_emphasis = (0, 0, 0)
         self.image_size = (960, 1080)
         self.image = Image.new("RGB", self.image_size, self.background_fill)

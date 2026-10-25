@@ -1,0 +1,2 @@
+* **[Kneeboard]** Mission Info always shows QNH (with the departure field's QFE) and the surface wind, also when the Departure page carries the full weather. The flight plan has the Brg (true course) column again, at 15 pt so ten columns fit.
+* **[Kneeboard]** Daytime kneeboard pages are less bright: text pages are mid grey instead of light grey, map pages light grey instead of near white. Colored text is darker to keep its contrast. The dark kneeboard is unchanged.

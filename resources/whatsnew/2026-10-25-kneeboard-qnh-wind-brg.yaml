@@ -1,0 +1,10 @@
+date: 2026-10-25
+title: QNH back on Mission Info, dimmer kneeboards
+change: >-
+  Mission Info always shows QNH, the departure field's QFE and the surface
+  wind, even when the Departure page carries the full weather. The flight
+  plan has the Brg column again: the true course of each leg. Daytime
+  kneeboard pages are less bright, and colored text is darker to match.
+watch: >-
+  A flight plan row that wraps, a QNH that differs from the field's ATIS, or
+  colored text that is hard to read on the darker paper.

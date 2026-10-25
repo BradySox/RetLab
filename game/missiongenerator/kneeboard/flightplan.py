@@ -88,6 +88,7 @@ class FlightPlanBuilder:
             "Target points",
             "0",
             self._waypoint_distance(self.target_points[0].waypoint),
+            self._waypoint_bearing(self.target_points[0].waypoint),
             self._ground_speed(self.target_points[0].waypoint),
             self._mach(self.target_points[0].waypoint, meters(0)),
             self._format_time(self.target_points[0].waypoint.tot),
@@ -127,6 +128,7 @@ class FlightPlanBuilder:
             ),
             self._format_alt(alt),
             self._waypoint_distance(waypoint.waypoint),
+            self._waypoint_bearing(waypoint.waypoint),
             "" if is_reference else self._ground_speed(waypoint.waypoint),
             "" if is_reference else self._mach(waypoint.waypoint, alt),
             "" if is_reference else self._format_time(waypoint.waypoint.tot),
@@ -169,6 +171,13 @@ class FlightPlanBuilder:
         )
 
         return f"{self.units.distance_long(distance):.1f}"
+
+    def _waypoint_bearing(self, waypoint: FlightWaypoint) -> str:
+        """True course of the leg into this waypoint, as upstream prints it."""
+        if self.last_waypoint is None:
+            return "-"
+        bearing = self.last_waypoint.position.heading_between_point(waypoint.position)
+        return f"{bearing % 360:03.0f}"
 
     def _ground_speed(self, waypoint: FlightWaypoint) -> str:
         speed = self._leg_speed(waypoint)
