@@ -19,5 +19,9 @@ tasks:
   SEAD Escort: 210
   Strike: 430
 
+# DCS gives the Tornado its own laser designator (laserEquipment in the unit data),
+# so its laser bombs stay on a fit with no targeting pod.
+has_built_in_target_pod: true
+
 # Air-to-air refueling method (receiver).
 air_refuel_type: probe
