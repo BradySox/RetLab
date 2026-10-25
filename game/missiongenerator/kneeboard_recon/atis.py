@@ -38,7 +38,7 @@ THUNDERSTORM_PRESSURE_DROP_INHG = 0.09
 
 _FG = (15, 15, 15)
 _FG_MUTED = (60, 60, 60)
-_PANEL_BG = (238, 238, 232)
+_PANEL_BG = (200, 200, 195)
 
 
 @dataclass(frozen=True)

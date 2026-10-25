@@ -22,7 +22,7 @@ from ._fonts import load_font
 _BLUE = (30, 70, 170)
 _GREEN = (20, 140, 50)
 _FG = (15, 15, 15)
-_BADGE_BG = (245, 245, 240)
+_BADGE_BG = (208, 208, 204)
 
 
 SPAWN_LABEL_COLOR = _BLUE

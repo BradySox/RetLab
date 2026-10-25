@@ -35,6 +35,20 @@ if TYPE_CHECKING:
 from .flightplan import FlightPlanBuilder
 from .writer import KneeboardPageWriter, LOCAL_CELL_TOKEN
 
+FLIGHT_PLAN_HEADERS = [
+    "#",
+    "Action",
+    "Alt",
+    "Dist",
+    "Brg",
+    "GS",
+    "M",
+    "Time",
+    "Dep",
+    "Fuel",
+]
+FLIGHT_PLAN_FONT_SIZE = 15
+
 
 def _airfield_elevation_m(
     theater: Optional["ConflictTheater"], airfield_name: str
@@ -105,7 +119,7 @@ class BriefingPage(KneeboardPage):
         self.omit_weather = omit_weather
         self.flight_plan_font = ImageFont.truetype(
             "courbd.ttf",
-            16,
+            FLIGHT_PLAN_FONT_SIZE,
             layout_engine=ImageFont.Layout.BASIC,
         )
 
@@ -177,16 +191,16 @@ class BriefingPage(KneeboardPage):
         # The fuel ladder rides in the flight plan: a Fuel column (planned remaining
         # at each RTB steerpoint) + a one-line RTB margin call-out, instead of a
         # separate near-empty Fuel Ladder page.
-        # Nine columns sit 12 px inside the page at the worst case (a "10-13"
-        # target block, a 25-char action, a supersonic leg, a Zulu+local time);
-        # tabulate pads every header by two, so the short GS / M / Dep headers are
-        # what pays for the Mach column. Pinned by test_flightplan_table_width.
-        headers = ["#", "Action", "Alt", "Dist", "GS", "M", "Time", "Dep", "Fuel"]
+        # Ten columns fit the page at the worst case (a "10-13" target block, a
+        # 25-char action, a supersonic leg, a Zulu+local time) only at 15 pt; the
+        # Brg column came back at that cost. Pinned by test_flightplan_table_width.
+        headers = FLIGHT_PLAN_HEADERS
         uom_row = [
             "",
             "",
             units.distance_short_uom,
             units.distance_long_uom,
+            "T",
             units.speed_uom,
             "Mach",
             "",
@@ -238,19 +252,18 @@ class BriefingPage(KneeboardPage):
 
         # Weather block. Dropped (design §4) when the recon Departure page already
         # carries the field weather + winds + sunrise/sunset, so it isn't printed twice.
-        if not self.omit_weather:
-            # QNH = the temperature-corrected altimeter setting at the departure field
-            # (what ATIS broadcasts), via game.utils for canonical unit conversions.
-            qnh = inches_hg(self._effective_qnh_inhg())
-            qnh_in_hg = f"{qnh.inches_hg:.2f}"
-            qnh_hpa = f"{qnh.hecto_pascals:.0f}"
+        # QNH and the surface wind stay even then: the altimeter is set and the
+        # takeoff wind read off this page, not the airfield picture.
+        if self.omit_weather:
+            for line in self._altimeter_lines():
+                writer.text(line)
+            writer.text(self._surface_wind_line())
+        else:
             temp_c = round(self.weather.atmospheric.temperature_celsius)
             temp_f = round(self.weather.atmospheric.temperature_celsius * 9 / 5 + 32)
             writer.text(f"Temperature: {temp_f} °F ({temp_c} °C) at sea level")
-            writer.text(f"QNH: {qnh_in_hg} inHg ({qnh_hpa} hPa)")
-            qfe_line = self._format_departure_qfe()
-            if qfe_line is not None:
-                writer.text(qfe_line)
+            for line in self._altimeter_lines():
+                writer.text(line)
             writer.text(
                 f"Turbulence: {round(self.weather.atmospheric.turbulence_per_10cm)} per 10cm at ground level."
             )
@@ -307,6 +320,24 @@ class BriefingPage(KneeboardPage):
             for idx, code in enumerate(self.flight.laser_codes, start=1):
                 codes.append([str(idx), "" if code is None else str(code)])
             writer.table(codes, ["#", "Laser Code"])
+
+    def _altimeter_lines(self) -> List[str]:
+        """The QNH line, then the departure QFE line when the field elevation is known."""
+        # QNH = the temperature-corrected altimeter setting at the departure field
+        # (what ATIS broadcasts), via game.utils for canonical unit conversions.
+        qnh = inches_hg(self._effective_qnh_inhg())
+        lines = [f"QNH: {qnh.inches_hg:.2f} inHg ({qnh.hecto_pascals:.0f} hPa)"]
+        qfe_line = self._format_departure_qfe()
+        if qfe_line is not None:
+            lines.append(qfe_line)
+        return lines
+
+    def _surface_wind_line(self) -> str:
+        wind = self.weather.wind.at_0m
+        return (
+            f"Surface wind: {wind_from_deg(wind.direction)}°"
+            f" / {round(mps(wind.speed).knots)}kts"
+        )
 
     def _departure_elevation_m(self) -> Optional[float]:
         """DCS-mesh field elevation (m) of the departure field, or None."""

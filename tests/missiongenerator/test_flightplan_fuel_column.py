@@ -43,7 +43,10 @@ def _wp(
     return SimpleNamespace(
         display_name=name,
         alt=feet(20000),
-        position=SimpleNamespace(distance_to_point=lambda other: 1000.0),
+        position=SimpleNamespace(
+            distance_to_point=lambda other: 1000.0,
+            heading_between_point=lambda other: 90.0,
+        ),
         tot=None,
         departure_time=None,
         fuel_planned=plan,
@@ -75,8 +78,8 @@ _LADDER = [
 
 def test_flight_plan_has_a_fuel_column() -> None:
     builder = _build(_LADDER)
-    # 9 columns: #, Action, Alt, Dist, GS, M, Time, Dep, Fuel.
-    assert all(len(row) == 9 for row in builder.rows)
+    # 10 columns: #, Action, Alt, Dist, Brg, GS, M, Time, Dep, Fuel.
+    assert all(len(row) == 10 for row in builder.rows)
     assert builder.rows[0][-1] == "10633"
     assert builder.rows[2][-1] == "7026"
 
@@ -161,10 +164,10 @@ def test_post_landing_reference_rows_carry_no_time_or_speed() -> None:
     builder = _build([land, divert, bullseye])
 
     # The landing row keeps its planned recovery time.
-    assert builder.rows[0][6] == "00:55:24"
+    assert builder.rows[0][7] == "00:55:24"
     # GS / Mach / Time / Departure blank on the reference rows.
-    assert builder.rows[1][4:8] == ["", "", "", ""]
-    assert builder.rows[2][4:8] == ["", "", "", ""]
+    assert builder.rows[1][5:9] == ["", "", "", ""]
+    assert builder.rows[2][5:9] == ["", "", "", ""]
 
 
 def _racetrack(dwell_min: int, burn: float, push_margin: float) -> tuple[Any, Any]:
@@ -190,9 +193,9 @@ def test_racetrack_end_gspd_is_the_patrol_speed_not_track_over_dwell() -> None:
     # over 45 minutes = 19 kt). The cell shows the planned patrol speed instead.
     start, end = _racetrack(dwell_min=45, burn=4500.0, push_margin=500.0)
     builder = _build([start, end], patrol_speed=knots(482))
-    assert builder.rows[1][4] == "482"
+    assert builder.rows[1][5] == "482"
     # And the same speed as a Mach number at the row's 20,000 ft.
-    assert builder.rows[1][5] == "0.79"
+    assert builder.rows[1][6] == "0.79"
 
 
 def test_racetrack_end_gspd_dashes_without_a_patrol_speed() -> None:
@@ -200,8 +203,8 @@ def test_racetrack_end_gspd_dashes_without_a_patrol_speed() -> None:
     # to the meaningless distance-over-dwell figure.
     start, end = _racetrack(dwell_min=45, burn=4500.0, push_margin=500.0)
     builder = _build([start, end])
-    assert builder.rows[1][4] == "-"
     assert builder.rows[1][5] == "-"
+    assert builder.rows[1][6] == "-"
 
 
 def test_mach_cell_is_the_leg_ground_speed_at_the_row_altitude() -> None:
@@ -211,14 +214,14 @@ def test_mach_cell_is_the_leg_ground_speed_at_the_row_altitude() -> None:
     second = _wp("Ingress", 9969, 8462)
     second.tot = first.tot + datetime.timedelta(seconds=4)
     builder = _build([first, second])
-    assert builder.rows[1][4] == "486"
-    assert builder.rows[1][5] == "0.79"
+    assert builder.rows[1][5] == "486"
+    assert builder.rows[1][6] == "0.79"
     # A ground-marked row prints the deck, not the planner's track altitude, so
     # its Mach cell reads at sea level: the same 250 m/s is Mach 0.74 there.
     cas = _wp("CAS", 3507, 2000, FlightWaypointType.CAS)
     cas.tot = second.tot + datetime.timedelta(seconds=4)
     builder = _build([first, second, cas])
-    assert builder.rows[2][5] == "0.74"
+    assert builder.rows[2][6] == "0.74"
 
 
 def test_patrol_endurance_line_reports_station_time_the_fuel_supports() -> None:

@@ -1142,6 +1142,9 @@ data several times; a single-home-per-datum pass fixes it, each change condition
 - **Weather** (temp / QNH / QFE / winds / clouds / sunrise-sunset) is dropped from the always-on
   **Mission Info** (`BriefingPage`, `omit_weather`) when the recon **Departure** page is generated
   for the flight (`_should_emit_departure`), which already carries the field-weather grid.
+  **QNH (with the departure QFE) and the surface wind stay on Mission Info either way
+  (2026-10-25)**: the altimeter is set and the takeoff wind read off that page
+  (`_altimeter_lines`, `_surface_wind_line`; `test_kneeboard_qnh_wind.py`).
 - The flight-plan fuel column: originally a Min-fuel column that was dropped when the Fuel Ladder
   page was enabled; since 2026-07-05 the ladder is **folded into the flight plan** (see the fuel
   ladder block below), so there is one home by construction — a `Fuel` column + a one-line RTB
@@ -1155,6 +1158,15 @@ data several times; a single-home-per-datum pass fixes it, each change condition
   page (`tests/missiongenerator/test_flightplan_table_width.py` pins that; a wrap here would
   double every long steerpoint name). `FlightPlanBuilder._leg_speed` is the one derivation
   both cells read.
+- **The `Brg` column is back (2026-10-25).** Dropped 2026-06-27 (#244) as clutter, restored on
+  request: the true course of the leg into each row, three digits, upstream's
+  `heading_between_point`, the coalesced target-points row included. Ten columns fit the worst
+  case only at 15 pt, so `FLIGHT_PLAN_FONT_SIZE` went 16 → 15 rather than cutting the 25-char
+  action names; `FLIGHT_PLAN_HEADERS` and the width test share the constants.
+- **Daytime paper tone (2026-10-25).** The light text pages went 210 → 185 grey and the recon
+  light palette from near white (250) to 205, with the ATIS panel and diagram badges matched; the
+  inks were darkened with the paper so each stays at 4.5:1 or better
+  (`test_kneeboard_paper_tone.py`). The dark kneeboard is unchanged.
 - The **Friendly Packages** list moved out of the bottom of Mission Info to its own
   `FriendlyPackagesPage` (still two-column + paginating), so the list isn't split across Mission
   Info and a near-empty spill page; the package targets **map** stays as the spatial complement.
