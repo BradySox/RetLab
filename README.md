@@ -505,8 +505,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   B-52s, tankers and E-3A fly from Camp Bastion, behind the fighting. Stock DCS units only.
 - **Fulda Gap 1985** — fictional: the 8th Guards Army crosses the inner German border in
   September 1985. Seven NATO fields from Spangdahlem to Schweinfurt face five Soviet and
-  East German fields from Haina to Merseburg and the Meiningen garrison, across three
-  crossings: the Fulda Gap, the Werra valley and the Meiningen road. Built for the 23rd TFS's
+  East German fields from Haina to Merseburg and the Meiningen garrison, across two
+  crossings: the Fulda Gap and the Meiningen road. Built for the 23rd TFS's
   F-4Es at Spangdahlem, flying with the 480th TFS; F-15Cs at Bitburg, Luftwaffe and RAF
   Germany Tornados, A-10s at Frankfurt. The SAM sites stand where Carsten's Cold War Germany
   Framework puts the real ones, and a networked Soviet IADS answers to Weimar. Take Erfurt and Merseburg to win, lose

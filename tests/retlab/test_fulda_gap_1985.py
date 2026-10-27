@@ -60,7 +60,6 @@ ROADS = {
         ("Frankfurt", "Schweinfurt"),
         ("Fulda", "Fritzlar"),
         ("Fulda", "Haina"),
-        ("Fritzlar", OBERMEHLER),
         ("Schweinfurt", MEININGEN),
         (MEININGEN, "Bindersleben"),
         (OBERMEHLER, "Haina"),
@@ -147,10 +146,9 @@ def test_the_three_crossings(loaded: tuple[Campaign, ConflictTheater]) -> None:
         )
         == 2
     }
-    # The Fulda Gap, the Werra valley and the Meiningen road.
+    # The Fulda Gap and the Meiningen road: a two-front war (the DM's call).
     assert opposed == {
         frozenset(("Fulda", "Haina")),
-        frozenset(("Fritzlar", OBERMEHLER)),
         frozenset(("Schweinfurt", MEININGEN)),
     }
 

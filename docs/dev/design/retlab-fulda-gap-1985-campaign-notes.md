@@ -73,8 +73,10 @@ Regiment numbers are from memory and not checked against a source. Where unsure 
 MiG-27s, Obermehler) the squadron is named by its aircraft type. JG-1 was at Holzdorf and the
 Tornados at Norvenich and Bruggen: they moved with the cut.
 
-**Fronts.** Fulda – Haina (Hunfeld, Geisa, Bad Salzungen, Eisenach), Fritzlar – Obermehler
-(Melsungen, Eschwege, Muhlhausen), Schweinfurt – Meiningen (Bad Neustadt, Mellrichstadt).
+**Fronts.** Two (DM call, 2026-10-26: "a two front war"): Fulda – Haina (Hunfeld, Geisa,
+Bad Salzungen, Eisenach) and Schweinfurt – Meiningen (Bad Neustadt, Mellrichstadt). The
+Fritzlar – Obermehler road up the Werra was removed; both fields stay, Fritzlar behind
+Fulda and Obermehler behind Haina.
 Meiningen joins Erfurt through Suhl and Arnstadt. NATO's roads run to Frankfurt from
 Spangdahlem (through the Hunsruck and Mainz), Ramstein (Kaiserslautern, Alzey) and Schweinfurt
 (Wurzburg); the Pact's run from Gotha and Erfurt to Allstedt and Merseburg.
