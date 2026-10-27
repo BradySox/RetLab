@@ -11714,6 +11714,16 @@ it activates, so it called radars 7 minutes before it was in the sky; it now nee
 radar, the site's P-19 "(SA-2/3)". A site is now named by its fire-control radar first
 (`site_radar`), and a shared "SA-2/3" search radar alone is "search radar".
 
+Fixed 2026-10-26 (Test 65): answer bearings read about 9 degrees high on GermanyCW. They took
+`atan2` on the map grid, which is not aligned to true north (about 9 degrees of grid
+convergence at 9E), less only the magnetic declination. `bearingRange` now takes the true
+bearing by great circle from `coord.LOtoLL` of both points, then the declination; mud matches
+on it too. A radar that went tight on a poll and off before the next send was dropped from the
+queue and never got its tight call; `speakNext` now calls a queued radar while it is in its
+on-cycle, keeps one dark longer queued, and drops only a dead one. SkyEye (BradySox/skyeye#16)
+finds a mud bearing next to a radar name ("mud SA-6 185") and takes a bare bearing from the
+same caller within 30 s of "say mud bearing" as that mud call.
+
 **Voice.** SkyEye speaks the calls. The plugin sends a `tune` message (Vacuum's frequency)
 and one `emitter` message per call (label, status, fix, lat/lon of the called spot,
 frequencies) over the §117 mission link. A SkyEye without `status` (before

@@ -671,3 +671,56 @@ def test_only_an_early_warning_radar_is_blank() -> None:
     assert [r["text"] for r in _ask(h, "mud", bearing="360")] == [
         "Ford 9, Vacuum, no emitter 360."
     ]
+
+
+def test_a_radar_off_before_its_tight_call_still_gets_it() -> None:
+    # Test 65: an SA-6 went tight on a poll and off before the next send; the tight call
+    # was dropped and never made.
+    h = _harness(
+        [_emitter("SA-6", "Kub #1", known="")],
+        [_group("Kub", RED, 50 * NM, radar=True)],
+    )
+    t = 0
+    while True:
+        t += 10
+        h.advance_to(t)
+        fixes = h.to_python(h.lua.globals().vacuum_fixes)
+        if fixes and fixes[0]["error"] <= NM:
+            break
+        assert t < 200
+    h.update_unit("Kub", {"radar": False})
+    h.advance_to(600)
+    assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight"]
+
+
+def test_a_queued_call_is_made_while_its_radar_is_in_its_on_cycle() -> None:
+    # Three on at once, calls 8 s apart: the third is still queued when all go dark.
+    red = [_group(f"Site{i}", RED, (40 + i) * NM, radar=True) for i in range(3)]
+    h = _harness([_emitter(f"SA-{i}", f"Site{i} #1") for i in range(3)], red)
+    h.advance_to(20)
+    assert len(_sent(h, "emitter")) == 2
+    for i in range(3):
+        h.update_unit(f"Site{i}", {"radar": False})
+    h.advance_to(200)
+    assert len(_sent(h, "emitter")) == 3
+    h.assert_no_lua_errors()
+
+
+def test_bearings_are_true_by_lat_lon_not_by_the_map_grid() -> None:
+    # Test 65: on GermanyCW the grid is about 9 degrees off true north, and answers
+    # read 9 high. Here grid north is true 351.
+    h = _commands(SITES, EMITTERS)
+    h.lua.execute(
+        "local c = math.rad(9) "
+        "coord.LOtoLL = function(p) "
+        "local north = p.x * math.cos(c) + p.z * math.sin(c) "
+        "local east = -p.x * math.sin(c) + p.z * math.cos(c) "
+        "return north / 111000, east / 111000, 0 end"
+    )
+    [reply] = _ask(h, "emitters")
+    assert reply["text"].startswith(
+        "Ford 9, Vacuum, SA-11 awake 081, 30, tight; SA-6 awake 351, 50, tight"
+    )
+    # Mud matches on the true bearing too: grid 360 is true 351.
+    [mud] = _ask(h, "mud", bearing="351")
+    assert mud["text"].startswith("Ford 9, Vacuum, mud 351 is SA-6 awake")

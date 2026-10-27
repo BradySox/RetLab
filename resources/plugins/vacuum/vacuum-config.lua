@@ -364,10 +364,28 @@ local function declination()
     return tonumber(data.declination) or 0
 end
 
+-- True bearing by great circle from lat/lon. The map grid is not aligned to true north: on
+-- GermanyCW at 9E it is about 9 degrees off, and grid bearings read 9 high (Test 65).
+local function trueBearing(from, to)
+    local ok, lat1, lon1, lat2, lon2 = pcall(function()
+        local a1, o1 = coord.LOtoLL(from)
+        local a2, o2 = coord.LOtoLL(to)
+        return a1, o1, a2, o2
+    end)
+    if not (ok and tonumber(lat1) and tonumber(lat2)) then
+        return math.deg(math.atan2(to.z - from.z, to.x - from.x))
+    end
+    local p1, p2 = math.rad(lat1), math.rad(lat2)
+    local dl = math.rad(lon2 - lon1)
+    local y = math.sin(dl) * math.cos(p2)
+    local x = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return math.deg(math.atan2(y, x))
+end
+
 -- Magnetic bearing (whole degrees, 1-360) and range in whole NM from one point to another.
 local function bearingRange(from, to)
     local dx, dz = to.x - from.x, to.z - from.z
-    local bearing = math.floor((math.deg(math.atan2(dz, dx)) - declination()) % 360 + 0.5)
+    local bearing = math.floor((trueBearing(from, to) - declination()) % 360 + 0.5)
     if bearing == 0 then
         bearing = 360
     end
@@ -708,12 +726,20 @@ local function watch(vacuum, now)
     end
 end
 
+-- A queued radar is called while it is on or still in its on-cycle; one off longer stays queued
+-- until it comes on again. Dropping it lost its tight call for good (Test 65, an SA-6).
 local function speakNext(vacuum)
-    while #queue > 0 do
-        local e = table.remove(queue, 1)
-        e.queued = false
-        local unit = radiating(e, vacuum)
-        if unit then
+    local i = 1
+    while i <= #queue do
+        local e = queue[i]
+        if not liveUnit(e) then
+            table.remove(queue, i)
+            e.queued = false
+        elseif not (e.on or radiating(e, vacuum)) then
+            i = i + 1
+        else
+            table.remove(queue, i)
+            e.queued = false
             local fix = fixWord(e)
             if fix == "tight" then
                 e.toldTight = true
