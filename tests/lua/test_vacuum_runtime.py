@@ -44,12 +44,17 @@ end
 
 
 def _emitter(
-    label: str, unit: str, strike: bool = False, known: str = "tight"
+    label: str,
+    unit: str,
+    strike: bool = False,
+    known: str = "tight",
+    sam: bool = True,
 ) -> dict[str, Any]:
     # Known tight by default: the called spot is the radar's own, so positions are exact.
     return {
         "label": label,
         "units": [unit],
+        "sam": "true" if sam else "",
         "strike": "true" if strike else "",
         "known": known,
     }
@@ -604,3 +609,65 @@ def test_a_site_starts_from_the_fix_an_earlier_vacuum_left() -> None:
     # 4 NM off the 50 NM-north site: the range from the caller reads 46 to 54.
     rng = int(reply["text"].split(", ")[3])
     assert 46 <= rng <= 54
+
+
+# --- SAMs only ---------------------------------------------------------------------------
+
+
+def _with_ewr(known: str = "tight") -> DcsPluginHarness:
+    # An early warning radar 5 NM north of the caller, nearer than every SAM, and radiating.
+    return _commands(
+        SITES + [_site("Ewr", 5 * NM, 0)],
+        EMITTERS
+        + [
+            {
+                **_emitter("early warning radar", "Ewr #1", known=known, sam=False),
+                "reach": "0",
+            }
+        ],
+    )
+
+
+def test_an_early_warning_radar_is_never_called() -> None:
+    h = _harness(
+        [_emitter("early warning radar", "Ewr #1", known="", sam=False)],
+        [_group("Ewr", RED, 30 * NM, radar=True)],
+    )
+    h.advance_to(300)
+    assert _sent(h, "emitter") == []
+    h.assert_no_lua_errors()
+
+
+def test_an_early_warning_radar_heard_is_still_written_for_the_debrief() -> None:
+    h = _harness(
+        [_emitter("search radar", "Ewr #1", known="", sam=False)],
+        [_group("Ewr", RED, 30 * NM, radar=True)],
+    )
+    h.advance_to(30)
+    [fix] = h.to_python(h.lua.globals().vacuum_fixes)
+    assert fix["unit"] == "Ewr #1"
+
+
+def test_answers_leave_out_early_warning_radars() -> None:
+    h = _with_ewr()
+    [check_in] = _ask(h, "checkin")
+    assert check_in["text"].startswith(
+        "Ford 9, Vacuum, two awake, one asleep, nearest SA-11 awake"
+    )
+    for kind in ("emitters", "target"):
+        [reply] = _ask(h, kind)
+        assert "radar" not in reply["text"]
+    # Due north, the EWR at 5 NM is skipped for the SA-6 behind it.
+    [mud] = _ask(h, "mud", bearing="360")
+    assert mud["text"].startswith("Ford 9, Vacuum, mud 360 is SA-6 awake")
+
+
+def test_only_an_early_warning_radar_is_blank() -> None:
+    h = _commands(
+        [_site("Ewr", 5 * NM, 0)],
+        [_emitter("early warning radar", "Ewr #1", known="", sam=False)],
+    )
+    assert [r["text"] for r in _ask(h, "checkin")] == ["Ford 9, Vacuum, blank."]
+    assert [r["text"] for r in _ask(h, "mud", bearing="360")] == [
+        "Ford 9, Vacuum, no emitter 360."
+    ]

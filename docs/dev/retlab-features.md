@@ -11675,6 +11675,13 @@ comes on is called once: "Vacuum, SA-6 awake, bullseye 304, 60, loose." It must 
 full minute before it counts as a new on-cycle, so a site Skynet blinks is one call.
 Calls are spaced 8 s apart.
 
+**SAMs only (2026-10-26, Brady's call).** Vacuum never speaks of an early warning or search
+radar: not in its own calls, nor in check in, emitters, target status or mud. Each emitter
+carries `sam` (`speaks_of`): false for the "early warning radar" and "search radar" labels,
+true for a fire-control radar (track, search-track or TELAR) or any radar of a SAM site. A
+coastal battery's search radar is no SAM. The plugin still hears and fixes every radar, so
+`vacuum_fixes` and the §3 reveal after the turn cover EWRs as before.
+
 **Awake, asleep, tight, loose (2026-10-22, Brady's design).** Vacuum remembers every radar it
 has located for the whole mission, even after it lands. "Awake" is on now; "asleep" is
 located earlier and off now. Each fix has a real error, always off in the same direction for
@@ -11719,7 +11726,7 @@ only.
 **Commands (2026-10-21).** Players call Vacuum callsign first, on its frequency or on STRIKE,
 and it answers on the frequency it was called on. The words are MUD, AWAKE, ASLEEP, TIGHT,
 LOOSE, BLANK and SAY AGAIN; "picture" stays the AWACS's, and "repeat" is never used.
-Answers name every located radar still standing, awake ones first; mud names awake ones only.
+Answers name every located SAM radar still standing, awake ones first; mud names awake ones only.
 
 | Call | Answer |
 |---|---|
@@ -11776,6 +11783,8 @@ starts that site asleep at that error (`known_fix` returns it, the emitter carri
   2026-10-24). No vanilla radar is called by its DCS name; a mod radar with neither may be.
 - Needs the SkyEye copy with `tune` and `emitter` messages (`BradySox/skyeye`); the
   commands need its `elintRequest` too.
+- Speech is SAMs only, listening is every radar: never drop a non-SAM from `emitters`, or the
+  reveal after the turn loses the EWRs it heard.
 - Vacuum knows only radars radiating now. Never report a dark site: the card tells pilots a
   dark SAM is invisible, and "blank" must stay "nothing on", not "safe".
 

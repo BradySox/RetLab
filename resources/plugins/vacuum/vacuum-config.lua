@@ -3,7 +3,7 @@
 --
 -- Reads dcsRetribution.vacuum (emitted only when a blue Vacuum flies): callsign, frequency,
 --   strike (when an ABCCC runs STRIKE), voice, linkHost, linkPort, rangeMeters, groups = {...},
---   emitters = { { label, units = {...}, strike, reach, known, knownError } },
+--   emitters = { { label, units = {...}, sam, strike, reach, known, knownError } },
 --   flights = { { group, callsign, targetX, targetY } } (the player flights that may call it)
 --
 -- While a Vacuum is alive AND airborne, each red radar within range is called once each time it
@@ -21,6 +21,9 @@
 -- status, mud <bearing>, say again. SkyEye sends each as an elintRequest and the answer is a say
 -- line on the frequency the call came in on. Answers name awake and asleep radars; mud names only
 -- awake ones. An older SkyEye never sends a request, so these answers simply never happen.
+--
+-- Vacuum speaks of SAMs only (sam = "true"): an early warning or search radar is heard and its fix
+-- written to vacuum_fixes, so the site is still revealed, but no call or answer ever names it.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.vacuum) then
@@ -433,7 +436,7 @@ local function withBullseye(parts, point)
     end
 end
 
--- Every radar Vacuum has located and that still stands, awake ones first, each nearest a point
+-- Every SAM radar Vacuum has located and that still stands, awake ones first, each nearest a point
 -- first. A radar on that has not been heard yet is located now.
 local function locatedNear(vacuum, point)
     local out = {}
@@ -442,7 +445,7 @@ local function locatedNear(vacuum, point)
         if unit and not e.fixed then
             hear(e, unit, vacuum, 0)
         end
-        if e.fixed and liveUnit(e) then
+        if e.sam == "true" and e.fixed and liveUnit(e) then
             local p = calledPoint(e)
             table.insert(out, {
                 label = e.label,
@@ -663,7 +666,7 @@ local queue = {}
 local lastTune = nil
 
 for _, e in ipairs(emitters) do
-    e.callable = true
+    e.callable = e.sam == "true"
 end
 
 -- Fixes are kept: Vacuum remembers what it located even when it lands.
