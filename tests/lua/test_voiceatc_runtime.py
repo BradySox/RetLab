@@ -403,8 +403,8 @@ def test_a_formation_is_cleared_to_land_as_a_flight() -> None:
         h, "inbound", TOWER, detail="geardown", text="viper 1 1 flight base gear down"
     )
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1 flight, runway 25, cleared to land."]
-    assert _said(h)[0]["speech"].startswith("Viper one one flight, runway two five")
+    assert _texts(h) == ["Viper 1 flight, runway 25, cleared to land."]
+    assert _said(h)[0]["speech"].startswith("Viper one flight, runway two five")
     h.update_unit("Viper", {"airborne": False, "x": 0})
     _event(h, 4, ship=2)
     h.advance_to(4)
@@ -759,8 +759,8 @@ def test_formation_taxi_and_takeoff_with_the_numbers() -> None:
     _call(h, "ready", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
-        "Viper 1-1 flight, runway 25, cleared for takeoff, frequency change approved.",
+        "Viper 1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1 flight, runway 25, cleared for takeoff, frequency change approved.",
     ]
     h.assert_no_lua_errors()
 
@@ -886,3 +886,22 @@ def test_an_ai_takeoff_heading_is_true_by_lat_lon() -> None:
         "Viper 1-1, runway 07, cleared for takeoff, frequency change approved."
     ]
     h.assert_no_lua_errors()
+
+
+def test_a_formation_call_is_heard_in_any_callsign_form() -> None:
+    # The reply is always "Viper 1 flight"; the pilot may say the flight or the seat.
+    for heard in (
+        "viper 1 flight",
+        "viper 1 1 flight",
+        "viper 1-1 flight",
+        "viper 1 flight of 2",
+    ):
+        h = _harness(ships=2)
+        _call(h, "taxi", text=heard + " ready to taxi")
+        h.advance_to(2)
+        texts = _texts(h)
+        assert texts and texts[0].startswith("Viper 1 flight, runway 25"), (
+            heard,
+            texts,
+        )
+        h.assert_no_lua_errors()
