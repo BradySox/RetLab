@@ -296,3 +296,18 @@ def test_carstens_sites_are_drawn_unit_by_unit(
         assert kind in {u.display_name for u in FACTIONS[PACT].accessible_units}, kind
     # No MiG-29s: the DM's call, 2026-10-24.
     assert not any("MiG-29" in a.display_name for a in FACTIONS[PACT].all_aircrafts)
+
+
+def test_the_1985_neighbours_take_sides(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    # Test 65: with no field on the map, NATO's neighbours read neutral and
+    # stood up SA-2s against blue.
+    _, theater = loaded
+    pinned = {z.country: z.posture_override for z in theater.neutral_border_zones}
+    for country in ("Belgium", "The Netherlands", "Denmark", "France", "Luxembourg"):
+        assert pinned[country] == "blue", country
+    for country in ("Czech Republic", "Slovakia", "Poland", "Hungary"):
+        assert pinned[country] == "red", country
+    for country in ("Austria", "Switzerland", "Sweden", "GDR", "Germany"):
+        assert pinned[country] is None, country

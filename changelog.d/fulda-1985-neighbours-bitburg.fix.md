@@ -1,0 +1,2 @@
+* **[Campaign]** Fulda Gap 1985: Belgium, the Netherlands, Denmark, France and Luxembourg are friendly to NATO, and Czechoslovakia, Poland and Hungary to the Pact. Before, every neighbour with no airfield on the map was a hostile neutral with SA-2s. Austria, Switzerland and Sweden stay neutral.
+* **[Parking]** Bitburg stand 142 is never assigned. An AI F-15C pilot ejected on it as the jet began to taxi.
