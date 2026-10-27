@@ -44,12 +44,17 @@ end
 
 
 def _emitter(
-    label: str, unit: str, strike: bool = False, known: str = "tight"
+    label: str,
+    unit: str,
+    strike: bool = False,
+    known: str = "tight",
+    sam: bool = True,
 ) -> dict[str, Any]:
     # Known tight by default: the called spot is the radar's own, so positions are exact.
     return {
         "label": label,
         "units": [unit],
+        "sam": "true" if sam else "",
         "strike": "true" if strike else "",
         "known": known,
     }
@@ -604,3 +609,118 @@ def test_a_site_starts_from_the_fix_an_earlier_vacuum_left() -> None:
     # 4 NM off the 50 NM-north site: the range from the caller reads 46 to 54.
     rng = int(reply["text"].split(", ")[3])
     assert 46 <= rng <= 54
+
+
+# --- SAMs only ---------------------------------------------------------------------------
+
+
+def _with_ewr(known: str = "tight") -> DcsPluginHarness:
+    # An early warning radar 5 NM north of the caller, nearer than every SAM, and radiating.
+    return _commands(
+        SITES + [_site("Ewr", 5 * NM, 0)],
+        EMITTERS
+        + [
+            {
+                **_emitter("early warning radar", "Ewr #1", known=known, sam=False),
+                "reach": "0",
+            }
+        ],
+    )
+
+
+def test_an_early_warning_radar_is_never_called() -> None:
+    h = _harness(
+        [_emitter("early warning radar", "Ewr #1", known="", sam=False)],
+        [_group("Ewr", RED, 30 * NM, radar=True)],
+    )
+    h.advance_to(300)
+    assert _sent(h, "emitter") == []
+    h.assert_no_lua_errors()
+
+
+def test_an_early_warning_radar_heard_is_still_written_for_the_debrief() -> None:
+    h = _harness(
+        [_emitter("search radar", "Ewr #1", known="", sam=False)],
+        [_group("Ewr", RED, 30 * NM, radar=True)],
+    )
+    h.advance_to(30)
+    [fix] = h.to_python(h.lua.globals().vacuum_fixes)
+    assert fix["unit"] == "Ewr #1"
+
+
+def test_answers_leave_out_early_warning_radars() -> None:
+    h = _with_ewr()
+    [check_in] = _ask(h, "checkin")
+    assert check_in["text"].startswith(
+        "Ford 9, Vacuum, two awake, one asleep, nearest SA-11 awake"
+    )
+    for kind in ("emitters", "target"):
+        [reply] = _ask(h, kind)
+        assert "radar" not in reply["text"]
+    # Due north, the EWR at 5 NM is skipped for the SA-6 behind it.
+    [mud] = _ask(h, "mud", bearing="360")
+    assert mud["text"].startswith("Ford 9, Vacuum, mud 360 is SA-6 awake")
+
+
+def test_only_an_early_warning_radar_is_blank() -> None:
+    h = _commands(
+        [_site("Ewr", 5 * NM, 0)],
+        [_emitter("early warning radar", "Ewr #1", known="", sam=False)],
+    )
+    assert [r["text"] for r in _ask(h, "checkin")] == ["Ford 9, Vacuum, blank."]
+    assert [r["text"] for r in _ask(h, "mud", bearing="360")] == [
+        "Ford 9, Vacuum, no emitter 360."
+    ]
+
+
+def test_a_radar_off_before_its_tight_call_still_gets_it() -> None:
+    # Test 65: an SA-6 went tight on a poll and off before the next send; the tight call
+    # was dropped and never made.
+    h = _harness(
+        [_emitter("SA-6", "Kub #1", known="")],
+        [_group("Kub", RED, 50 * NM, radar=True)],
+    )
+    t = 0
+    while True:
+        t += 10
+        h.advance_to(t)
+        fixes = h.to_python(h.lua.globals().vacuum_fixes)
+        if fixes and fixes[0]["error"] <= NM:
+            break
+        assert t < 200
+    h.update_unit("Kub", {"radar": False})
+    h.advance_to(600)
+    assert [c["fix"] for c in _sent(h, "emitter")] == ["loose", "tight"]
+
+
+def test_a_queued_call_is_made_while_its_radar_is_in_its_on_cycle() -> None:
+    # Three on at once, calls 8 s apart: the third is still queued when all go dark.
+    red = [_group(f"Site{i}", RED, (40 + i) * NM, radar=True) for i in range(3)]
+    h = _harness([_emitter(f"SA-{i}", f"Site{i} #1") for i in range(3)], red)
+    h.advance_to(20)
+    assert len(_sent(h, "emitter")) == 2
+    for i in range(3):
+        h.update_unit(f"Site{i}", {"radar": False})
+    h.advance_to(200)
+    assert len(_sent(h, "emitter")) == 3
+    h.assert_no_lua_errors()
+
+
+def test_bearings_are_true_by_lat_lon_not_by_the_map_grid() -> None:
+    # Test 65: on GermanyCW the grid is about 9 degrees off true north, and answers
+    # read 9 high. Here grid north is true 351.
+    h = _commands(SITES, EMITTERS)
+    h.lua.execute(
+        "local c = math.rad(9) "
+        "coord.LOtoLL = function(p) "
+        "local north = p.x * math.cos(c) + p.z * math.sin(c) "
+        "local east = -p.x * math.sin(c) + p.z * math.cos(c) "
+        "return north / 111000, east / 111000, 0 end"
+    )
+    [reply] = _ask(h, "emitters")
+    assert reply["text"].startswith(
+        "Ford 9, Vacuum, SA-11 awake 081, 30, tight; SA-6 awake 351, 50, tight"
+    )
+    # Mud matches on the true bearing too: grid 360 is true 351.
+    [mud] = _ask(h, "mud", bearing="351")
+    assert mud["text"].startswith("Ford 9, Vacuum, mud 351 is SA-6 awake")

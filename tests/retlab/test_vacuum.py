@@ -222,3 +222,31 @@ def test_an_earlier_vacuum_fix_carries_to_the_next_turn() -> None:
     assert known_fix(site) == ("tight", 900)  # type: ignore[arg-type]
     site = _Site(known=True, fixed=False, fix_m=7000)
     assert known_fix(site) == ("loose", 7000)  # type: ignore[arg-type]
+
+
+def test_vacuum_speaks_of_sams_only() -> None:
+    from game.retlab.vacuum import speaks_of
+    from game.theater.theatergroundobject import SamGroundObject
+
+    sam_site = object.__new__(SamGroundObject)
+    other = SimpleNamespace()
+
+    def spoken(tgo: Any, name: str, unit_class: UnitClass) -> bool:
+        unit = _unit(name, unit_class)
+        return speaks_of(tgo, unit, emitter_label(unit))
+
+    ewr = ("EWR 1L13", UnitClass.EARLY_WARNING_RADAR)
+    p19 = ('SAM P19 "Flat Face" SR (SA-2/3)', UnitClass.SEARCH_RADAR)
+    dog_ear = ('MCC-SR Sborka "Dog Ear" SR', UnitClass.SEARCH_RADAR)
+    for tgo in (sam_site, other):
+        assert not spoken(tgo, *ewr)
+        assert not spoken(tgo, *p19)
+        assert not spoken(tgo, *dog_ear)
+    # A fire-control radar anywhere, or a SAM site down to its search radar, is a SAM.
+    assert spoken(
+        other, 'SAM SA-6 Kub "Straight Flush" STR', UnitClass.SEARCH_TRACK_RADAR
+    )
+    assert spoken(other, "SAM SA-8 Osa 9A33", UnitClass.TELAR)
+    assert spoken(sam_site, "SAM Hawk SR (AN/MPQ-50)", UnitClass.SEARCH_RADAR)
+    # A coastal battery's search radar is no SAM.
+    assert not spoken(other, "AShM Silkworm SR", UnitClass.SEARCH_RADAR)

@@ -1,0 +1,8 @@
+date: 2026-10-26
+title: Vacuum calls SAMs only
+change: >-
+  Vacuum no longer calls early warning or search radars, and leaves them
+  out of check in, emitters, target status and mud. It still listens to
+  them: a site whose radar it hears is still on the map after the turn.
+watch: >-
+  An early warning radar on your RWR gets "no emitter" from mud.

@@ -3,7 +3,7 @@
 --
 -- Reads dcsRetribution.vacuum (emitted only when a blue Vacuum flies): callsign, frequency,
 --   strike (when an ABCCC runs STRIKE), voice, linkHost, linkPort, rangeMeters, groups = {...},
---   emitters = { { label, units = {...}, strike, reach, known, knownError } },
+--   emitters = { { label, units = {...}, sam, strike, reach, known, knownError } },
 --   flights = { { group, callsign, targetX, targetY } } (the player flights that may call it)
 --
 -- While a Vacuum is alive AND airborne, each red radar within range is called once each time it
@@ -21,6 +21,9 @@
 -- status, mud <bearing>, say again. SkyEye sends each as an elintRequest and the answer is a say
 -- line on the frequency the call came in on. Answers name awake and asleep radars; mud names only
 -- awake ones. An older SkyEye never sends a request, so these answers simply never happen.
+--
+-- Vacuum speaks of SAMs only (sam = "true"): an early warning or search radar is heard and its fix
+-- written to vacuum_fixes, so the site is still revealed, but no call or answer ever names it.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.vacuum) then
@@ -361,10 +364,28 @@ local function declination()
     return tonumber(data.declination) or 0
 end
 
+-- True bearing by great circle from lat/lon. The map grid is not aligned to true north: on
+-- GermanyCW at 9E it is about 9 degrees off, and grid bearings read 9 high (Test 65).
+local function trueBearing(from, to)
+    local ok, lat1, lon1, lat2, lon2 = pcall(function()
+        local a1, o1 = coord.LOtoLL(from)
+        local a2, o2 = coord.LOtoLL(to)
+        return a1, o1, a2, o2
+    end)
+    if not (ok and tonumber(lat1) and tonumber(lat2)) then
+        return math.deg(math.atan2(to.z - from.z, to.x - from.x))
+    end
+    local p1, p2 = math.rad(lat1), math.rad(lat2)
+    local dl = math.rad(lon2 - lon1)
+    local y = math.sin(dl) * math.cos(p2)
+    local x = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return math.deg(math.atan2(y, x))
+end
+
 -- Magnetic bearing (whole degrees, 1-360) and range in whole NM from one point to another.
 local function bearingRange(from, to)
     local dx, dz = to.x - from.x, to.z - from.z
-    local bearing = math.floor((math.deg(math.atan2(dz, dx)) - declination()) % 360 + 0.5)
+    local bearing = math.floor((trueBearing(from, to) - declination()) % 360 + 0.5)
     if bearing == 0 then
         bearing = 360
     end
@@ -433,7 +454,7 @@ local function withBullseye(parts, point)
     end
 end
 
--- Every radar Vacuum has located and that still stands, awake ones first, each nearest a point
+-- Every SAM radar Vacuum has located and that still stands, awake ones first, each nearest a point
 -- first. A radar on that has not been heard yet is located now.
 local function locatedNear(vacuum, point)
     local out = {}
@@ -442,7 +463,7 @@ local function locatedNear(vacuum, point)
         if unit and not e.fixed then
             hear(e, unit, vacuum, 0)
         end
-        if e.fixed and liveUnit(e) then
+        if e.sam == "true" and e.fixed and liveUnit(e) then
             local p = calledPoint(e)
             table.insert(out, {
                 label = e.label,
@@ -663,7 +684,7 @@ local queue = {}
 local lastTune = nil
 
 for _, e in ipairs(emitters) do
-    e.callable = true
+    e.callable = e.sam == "true"
 end
 
 -- Fixes are kept: Vacuum remembers what it located even when it lands.
@@ -705,12 +726,20 @@ local function watch(vacuum, now)
     end
 end
 
+-- A queued radar is called while it is on or still in its on-cycle; one off longer stays queued
+-- until it comes on again. Dropping it lost its tight call for good (Test 65, an SA-6).
 local function speakNext(vacuum)
-    while #queue > 0 do
-        local e = table.remove(queue, 1)
-        e.queued = false
-        local unit = radiating(e, vacuum)
-        if unit then
+    local i = 1
+    while i <= #queue do
+        local e = queue[i]
+        if not liveUnit(e) then
+            table.remove(queue, i)
+            e.queued = false
+        elseif not (e.on or radiating(e, vacuum)) then
+            i = i + 1
+        else
+            table.remove(queue, i)
+            e.queued = false
             local fix = fixWord(e)
             if fix == "tight" then
                 e.toldTight = true

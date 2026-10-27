@@ -4,7 +4,8 @@ A KC-135 (any era), or a C-130J-30 when none is free, holds the AWACS station on
 airborne the ``vacuum`` plugin calls each red ground radar once each time it comes on,
 on Vacuum's own frequency, and on STRIKE only when the radar covers a player package's
 route or target. SkyEye speaks the calls over its mission link and works out the
-bullseye itself. Players call it through SkyEye (check in, emitters, target status, mud,
+bullseye itself. It speaks of SAMs only: an early warning or search radar is heard
+and fixed, never called. Players call it through SkyEye (check in, emitters, target status, mud,
 say again) and the plugin answers. It never jams, lases or designates.
 docs/dev/retlab-features.md §118.
 """
@@ -20,7 +21,7 @@ from game.ato.flighttype import FlightType
 from game.data.units import UnitClass
 from game.theater.fogofwar import fog_intact
 from game.theater.player import Player
-from game.theater.theatergroundobject import NavalGroundObject
+from game.theater.theatergroundobject import NavalGroundObject, SamGroundObject
 from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
     SKYEYE_LINK_PORT,
@@ -211,6 +212,20 @@ def known_fix(tgo: TheaterGroundObject) -> tuple[str, Optional[float]]:
     return "loose", error
 
 
+#: Labels that name no SAM: Vacuum hears these radars but never speaks of them.
+NON_SAM_LABELS = frozenset({"early warning radar", "search radar", "radar"})
+
+
+def speaks_of(tgo: TheaterGroundObject, main: TheaterUnit, label: str) -> bool:
+    """Whether Vacuum speaks of a site: a SAM only, never an early warning or search radar
+    (Brady's call, 2026-10-26). A SAM site whose tracker is dead still counts by its name.
+    """
+    if label in NON_SAM_LABELS:
+        return False
+    rank = _LABEL_RANK.get(main.unit_type.unit_class, 0) if main.unit_type else 0
+    return rank >= 3 or isinstance(tgo, SamGroundObject)
+
+
 def site_radar(radars: list[TheaterUnit]) -> TheaterUnit:
     """The radar that names a site: the fire-control one, the longest-ranged on a tie."""
     return max(
@@ -328,8 +343,11 @@ def populate_vacuum_lua(root: LuaData, game: Game, mission_data: MissionData) ->
                     continue
                 main = site_radar(radars)
                 reach = group.max_threat_range().meters
+                label = emitter_label(main)
                 item = emitters.add_item()
-                item.add_key_value("label", emitter_label(main))
+                item.add_key_value("label", label)
+                # Every radar is listened to (its fix reveals the site), only SAMs spoken of.
+                item.add_key_value("sam", "true" if speaks_of(tgo, main, label) else "")
                 item.add_data_array("units", [u.unit_name for u in radars])
                 position = (group.position.x, group.position.y)
                 covers = reach > 0 and covers_route(position, reach, routes)
