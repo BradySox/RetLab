@@ -69,6 +69,7 @@ class SupplyRouteJs(BaseModel):
     is_sea: bool
     blue: bool
     active_transports: list[str]
+    is_rail: bool = False
 
     class Config:
         title = "SupplyRoute"
@@ -119,6 +120,9 @@ class SupplyRouteJs(BaseModel):
                 # The reversed pair keeps the list key apart from a road between the
                 # same bases; the interdiction lookup reads either order.
                 rail.id = f"{destination.id}:{control_point.id}"
+                # Drawn dashed: a rail line beside a road between the same bases
+                # was hidden under it.
+                rail.is_rail = True
                 routes.append(rail)
             for destination, route in control_point.shipping_lanes.items():
                 if destination in seen:

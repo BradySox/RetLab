@@ -203,3 +203,35 @@ def test_a_train_drawn_back_onto_its_base_is_skipped() -> None:
     a, b = _LoaderCp("A", 0.0), _LoaderCp("B", 50000.0)
     _RailLoader([a, b], [100.0, 900.0]).add_rail_lines()
     assert a.rail_lines == {}
+
+
+def test_the_map_marks_a_rail_line_as_rail(monkeypatch: Any) -> None:
+    """A rail line beside a road between the same bases was drawn identically and
+    hidden under it; the map draws a route flagged ``is_rail`` dashed."""
+    from game.server.supplyroutes.models import SupplyRouteJs
+
+    def link(game: Any, a: Any, b: Any, points: Any, sea: bool) -> SupplyRouteJs:
+        return SupplyRouteJs(
+            id=f"{a.id}:{b.id}",
+            points=[],
+            front_active=False,
+            is_sea=sea,
+            blue=True,
+            active_transports=[],
+        )
+
+    monkeypatch.setattr(SupplyRouteJs, "for_link", staticmethod(link))
+
+    class Base(SimpleNamespace):
+        __hash__ = object.__hash__  # type: ignore[assignment]
+
+    frankfurt = Base(id="frankfurt", convoy_routes={}, rail_lines={}, shipping_lanes={})
+    fulda = Base(id="fulda", convoy_routes={}, rail_lines={}, shipping_lanes={})
+    frankfurt.convoy_routes[fulda] = ()
+    frankfurt.rail_lines[fulda] = ()
+    game = SimpleNamespace(theater=SimpleNamespace(controlpoints=[frankfurt, fulda]))
+    routes = SupplyRouteJs.all_in_game(cast(Any, game))
+    assert sorted((r.id, r.is_rail) for r in routes) == [
+        ("frankfurt:fulda", False),
+        ("fulda:frankfurt", True),
+    ]
