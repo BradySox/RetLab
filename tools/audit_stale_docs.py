@@ -529,6 +529,14 @@ REMOVED: tuple[Removed, ...] = (
         "2026-10-22",
         r"taxi with a\s+squawk|your\s+squawk|squawk codes?,? readback|SQUAWK:",
     ),
+    Removed(
+        # S121. Not a bare "Strict" or "Casual": the difficulty presets use Casual.
+        "the Radio discipline setting (S121)",
+        "2026-10-26",
+        r"[Rr]adio discipline|radio_discipline|radioDiscipline|readback checks"
+        r"|readback incomplete|[Ss]trict readbacks",
+        allow=("removed", "Removed", "no longer", "historical"),
+    ),
 )
 
 

@@ -1,0 +1,11 @@
+date: 2026-10-26
+title: Every voice bot accepts every call
+change: >-
+  The Radio discipline setting is gone. ATC never checks or asks for a
+  readback and never calls you out for taxiing or taking off without a
+  clearance. A call without the station or the bot's name is answered on
+  that frequency, and on STRIKE it goes to the ABCCC. The ABCCC never holds
+  or aborts for a player who stays quiet, and still calls the roll call,
+  off target and egress. Vacuum calls every SAM radar it hears.
+watch: >-
+  Needs the latest SkyEye for calls without the station or the callsign.

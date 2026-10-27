@@ -52,10 +52,6 @@ local JOIN_FALLBACK_SECONDS = 600
 local TEXT_SECONDS = 15
 
 local START_SECONDS = tonumber(data.startSeconds) or 0
--- Radio discipline (§121): strict (by the book), relaxed or casual (user call, 2026-10-20).
-local DISCIPLINE = (dcsRetribution.radioDiscipline or "strict")
-local STRICT = DISCIPLINE == "strict"
-local CASUAL = DISCIPLINE == "casual"
 local packages = data.packages or {}
 
 local function liveUnits(groupName)
@@ -310,8 +306,6 @@ local function announcePackages()
         { "strike", STRIKE },
         { "gciVoice", data.awacsVoice or "" },
         { "gciCallsign", data.awacsCallsign or "" },
-        { "looseCalls", not STRICT },
-        { "strikeThreatsOnly", CASUAL },
         { "pilots", pilots() },
     })
 end
@@ -558,7 +552,7 @@ end
 
 local function notReady(pkg)
     local missing = {}
-    for _, role in ipairs(CASUAL and { "sead" } or { "sead", "escort" }) do
+    for _, role in ipairs({ "sead", "escort" }) do
         for _, f in ipairs(flightsWithRole(pkg, role)) do
             if not lost(f) and not airborne(f) then
                 table.insert(missing, role == "sead" and "SEAD" or "escort")
@@ -607,20 +601,6 @@ local function seated(flight)
     return false
 end
 
-local function silentPlayers(pkg, role)
-    local out = {}
-    if not STRICT then
-        -- Relaxed and casual never wait on a player who stays quiet.
-        return out
-    end
-    for _, f in ipairs(flightsWithRole(pkg, role)) do
-        if seated(f) and not f.ready then
-            table.insert(out, f)
-        end
-    end
-    return out
-end
-
 local function callsigns(flights)
     local parts = {}
     for i, f in ipairs(flights) do
@@ -630,20 +610,6 @@ local function callsigns(flights)
         table.insert(parts, callsignPart(f.callsign))
     end
     return phrase(parts)
-end
-
--- A striker other than the silent ones is set to go: a ready player or an airborne AI flight.
-local function anotherStrikerReady(pkg)
-    for _, f in ipairs(flightsWithRole(pkg, "strike")) do
-        if f.client == "true" then
-            if f.ready and seated(f) then
-                return true
-            end
-        elseif airborne(f) then
-            return true
-        end
-    end
-    return false
 end
 
 -- A striker is up: a strike flight airborne. A player slot has no unit until someone sits in it.
@@ -739,27 +705,18 @@ local function decidePush(pkg)
     if seadLost(pkg) then
         return abort(pkg, "SEAD lost")
     end
-    -- Silent players, by role (user call, 2026-10-20): SEAD holds like a SEAD on the
-    -- ground, an escort gets one hold, a striker is left behind unless they are the strike.
-    local silentSead = pkg.rollCalled and silentPlayers(pkg, "sead") or {}
-    local silentEscort = pkg.rollCalled and silentPlayers(pkg, "escort") or {}
-    local silentStrike = pkg.rollCalled and silentPlayers(pkg, "strike") or {}
+    -- A player who stays quiet is never waited on (user call, 2026-10-26).
     local missing = notReady(pkg)
     local noStriker = noStrikerUp(pkg)
     local down = noStriker and strikersDown(pkg) or {}
     if noStriker and #down == 0 then
         return abort(pkg, "No strikers airborne")
     end
-    if #missing > 0 or #silentSead > 0 or noStriker then
+    if #missing > 0 or noStriker then
         if pkg.slips < MAX_SLIPS then
             local reasons = {}
             if #missing > 0 then
                 table.insert(reasons, table.concat(missing, " and ") .. " not airborne")
-            end
-            if #silentSead > 0 then
-                table.insert(reasons, #reasons > 0 and ". " or "")
-                table.insert(reasons, callsigns(silentSead))
-                table.insert(reasons, " not checked in")
             end
             if noStriker then
                 table.insert(reasons, #reasons > 0 and ". " or "")
@@ -771,29 +728,9 @@ local function decidePush(pkg)
         if noStriker then
             return abort(pkg, "No strikers airborne")
         end
-        if #silentSead > 0 then
-            return abort(pkg, phrase({ callsigns(silentSead), " not checked in" }))
-        end
         if not (#flightsWithRole(pkg, "sead") == 0 or anySeadAirborne(pkg)) then
             return abort(pkg, "No SEAD")
         end
-    end
-    if #silentEscort > 0 and not pkg.escortHoldUsed then
-        pkg.escortHoldUsed = true
-        return slip(pkg, phrase({ callsigns(silentEscort), " not checked in" }))
-    end
-    if #silentStrike > 0 and not anotherStrikerReady(pkg) then
-        if not pkg.strikeHoldUsed then
-            pkg.strikeHoldUsed = true
-            return slip(pkg, phrase({ callsigns(silentStrike), " not checked in" }))
-        end
-        return abort(pkg, "No strikers checked in")
-    end
-    if #silentStrike > 0 then
-        for _, f in ipairs(silentStrike) do
-            f.leftBehind = true
-        end
-        say(pkg, { callsigns(silentStrike), ", {controller}, not checked in. Package pushing without you." })
     end
     return push(pkg)
 end
@@ -961,9 +898,7 @@ end
 
 local function finishEgress(pkg, parts)
     pkg.state = "done"
-    if not CASUAL then
-        say(pkg, parts)
-    end
+    say(pkg, parts)
 end
 
 -- Every flight is updated each tick before the package decides (one early return skipped the
@@ -981,7 +916,7 @@ local function checkEgress(pkg, now)
             local out, open = sampleFlight(f, tx, ty)
             if f.role == "strike" and not f.off and open and (f.closest <= REACHED_NM or f.fired) then
                 f.off = true
-                if f.client ~= "true" and not CASUAL then
+                if f.client ~= "true" then
                     say(pkg, { packagePart({ pkg }), ", {controller}, ", flightPart(f), " off target." })
                 end
             end
@@ -1022,7 +957,7 @@ local function tick(_, now)
             end
         elseif pkg.state == "waiting" and pkg.pushAt and now >= pkg.pushAt then
             decidePush(pkg)
-        elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled and not CASUAL
+        elseif pkg.state == "waiting" and pkg.pushAt and not pkg.rollCalled
             and now >= pkg.pushAt - ROLL_CALL_LEAD_SECONDS then
             table.insert(dueRollCall, pkg)
         elseif pkg.state == "joining" then
@@ -1083,17 +1018,6 @@ local function readyToPush(pkg, flight)
         table.insert(reasons, #reasons > 0 and ". " or "")
         table.insert(reasons, #down > 0 and callsigns(down) or "no strikers")
         table.insert(reasons, " not airborne")
-    end
-    local silent = {}
-    for _, role in ipairs({ "sead", "escort", "strike" }) do
-        for _, f in ipairs(silentPlayers(pkg, role)) do
-            table.insert(silent, f)
-        end
-    end
-    if #silent > 0 then
-        table.insert(reasons, #reasons > 0 and ". " or "")
-        table.insert(reasons, callsigns(silent))
-        table.insert(reasons, " not checked in")
     end
     if #reasons == 0 then
         releaseAI(pkg)
@@ -1180,9 +1104,6 @@ local function findCaller(request)
                 end
             end
         end
-    end
-    if STRICT then
-        return nil, nil
     end
     local word, foundPkg, found = callsignWord(request.callsign), nil, nil
     for _, pkg in ipairs(packages) do

@@ -13,7 +13,6 @@ from .enums import (
     CombatResolutionMethod,
     DatalinkPolicy,
     FastForwardStopCondition,
-    RadioDiscipline,
 )
 
 
@@ -80,18 +79,17 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
     ):
         migrated["min_plane_altitude_offset"] = -migrated["max_plane_altitude_offset"]
 
-    # Voice ATC's own "Strict readbacks" (one day on main) became the shared
-    # Radio discipline (§121). A save that had it unticked keeps lenient readbacks.
-    if "radio_discipline" not in migrated and migrated.get("voice_atc_strict") is False:
-        migrated["radio_discipline"] = RadioDiscipline.RELAXED
-
     # Voice AWACS first shipped with one callsign, Sentinel, now an ABCCC name;
     # a save still holding it gets the per-turn rotation (2026-10-21).
     if str(migrated.get("voice_awacs_callsign", "")).strip() == "Sentinel":
         migrated["voice_awacs_callsign"] = "Chalice, Chainsaw, Image"
 
     for obsolete_key in (
+        # Voice ATC's "Strict readbacks", then the shared Radio discipline (§121),
+        # REMOVED 2026-10-26: every SkyEye voice bot accepts every call (the
+        # RadioDiscipline stub only exists so the old enum still unpickles).
         "voice_atc_strict",
+        "radio_discipline",
         "limit_ai_radios",
         "silence_ai_radios",
         "prefer_squadrons_with_matching_primary_task",

@@ -222,7 +222,7 @@ def test_calls_are_spaced_out() -> None:
     h.assert_no_lua_errors()
 
 
-def test_casual_calls_only_radars_over_a_player_package() -> None:
+def test_every_sam_radar_is_called_not_only_those_over_a_package() -> None:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_SOCKET)
     node = {
@@ -235,18 +235,16 @@ def test_casual_calls_only_radars_over_a_player_package() -> None:
         "groups": ["Vacuum"],
         "emitters": [
             _emitter("SA-6", "Kub #1", strike=True),
-            _emitter("EWR", "Ewr #1"),
+            _emitter("SA-11", "Buk #1"),
         ],
     }
-    h.lua.globals().dcsRetribution = h.to_lua(
-        {"plugins": {}, "radioDiscipline": "casual", "vacuum": node}
-    )
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, "vacuum": node})
     h.add_group(_group("Vacuum", BLUE, 0, airborne=True))
     h.add_group(_group("Kub", RED, 50 * NM, radar=True))
-    h.add_group(_group("Ewr", RED, 60 * NM, radar=True))
+    h.add_group(_group("Buk", RED, 60 * NM, radar=True))
     h.load_plugin_script(PLUGIN)
     h.advance_to(60)
-    assert [c["label"] for c in _sent(h, "emitter")] == ["SA-6"]
+    assert sorted(c["label"] for c in _sent(h, "emitter")) == ["SA-11", "SA-6"]
     h.assert_no_lua_errors()
 
 

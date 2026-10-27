@@ -372,7 +372,6 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "package_controller",
                     "vacuum_elint",
                     "voice_atc",
-                    "radio_discipline",
                 ],
             ),
             (
