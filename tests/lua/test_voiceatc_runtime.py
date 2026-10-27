@@ -376,7 +376,7 @@ def test_inbound_is_never_a_landing_clearance() -> None:
 
 def test_a_straight_in_reports_3_mile_final() -> None:
     h = _harness(airborne=True, x=10 * NM)
-    _call(h, "inbound", TOWER, detail="straightin")
+    _call(h, "inbound", TOWER, detail="straight-in")
     h.advance_to(2)
     assert _texts(h) == ["Viper 1-1, runway 25, make straight-in, report 3-mile final."]
     assert _said(h)[0]["speech"] == (

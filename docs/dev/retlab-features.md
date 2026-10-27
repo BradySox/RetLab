@@ -11663,7 +11663,7 @@ an unheard readback was silence. The card teaches the after-landing call as "Tow
 clear of the runway", answered "Taxi to parking". Not flown (row B271).
 
 **Military calls (2026-10-26, user call).** `BradySox/skyeye` PR (branch
-`retlab/military-atc`) sends an inbound call's `detail`: `overhead`, `straightin`,
+`retlab/military-atc`) sends an inbound call's `detail`: `overhead`, `straight-in`,
 `initial`, `break` ("brake" without "hot"), `geardown` (base, final, "gear's down"), and
 `numbers` on a taxi or ready call that says "have the numbers". A pattern report parses
 with no station. Two parser bugs went with it: "airborne, switching departure" was a takeoff

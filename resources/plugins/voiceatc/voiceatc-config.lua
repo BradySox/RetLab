@@ -700,7 +700,7 @@ local function inbound(field, flight, member, detail, on, text)
     end
     local parts = { callsignPart(callsign, formation), ", runway ", digits(field.runway), ", " }
     withWind(parts, field)
-    if detail == "straightin" then
+    if detail == "straight-in" then
         table.insert(parts, "make straight-in, report ")
         table.insert(parts, { "3", "three" })
         table.insert(parts, "-mile final.")
