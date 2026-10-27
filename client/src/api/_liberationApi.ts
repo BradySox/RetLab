@@ -621,6 +621,7 @@ export type SupplyRoute = {
   is_sea: boolean;
   blue: boolean;
   active_transports: string[];
+  is_rail?: boolean;
 };
 export type IadsConnection = {
   id: string;

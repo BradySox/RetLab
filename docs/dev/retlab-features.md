@@ -11932,6 +11932,9 @@ waypoints. Supply between those bases goes by train. Design and probe findings:
   maps those names to the cargo, so the ordinary convoy-loss path kills it all.
 - **Consist:** WWII dates get the DRG Class 86 and German wagons, Nevada the ES44AH,
   everything else the CHME3T. One wagon per unit carried, 4 to 20.
+- **On the map a rail line is dashed** (`SupplyRouteJs.is_rail`, `SupplyRoute.tsx`) and kept
+  in front: drawn like a road it hid under the road beside it between the same bases (DM
+  report, 2026-10-27).
 - **Authoring:** `python tools/supply_route_geo.py <campaign> --rail --draw <campaign>.miz`
   draws the campaign's `RAIL_LINES` entry, one real station per waypoint. DCS paths the
   track between them and snaps a waypoint within a few hundred feet onto the rails.

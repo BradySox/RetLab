@@ -27,10 +27,11 @@ function InterdictionHint(props: SupplyRouteProps) {
 }
 
 function SupplyRouteTooltip(props: SupplyRouteProps) {
+  const kind = props.route.is_rail ? "rail line" : "supply route";
   if (!props.route.active_transports.length) {
     return (
       <Tooltip>
-        This supply route is inactive.
+        This {kind} is inactive.
         <InterdictionHint {...props} />
       </Tooltip>
     );
@@ -38,6 +39,12 @@ function SupplyRouteTooltip(props: SupplyRouteProps) {
 
   return (
     <Tooltip>
+      {props.route.is_rail ? (
+        <>
+          Rail line
+          <br />
+        </>
+      ) : null}
       <SplitLines items={props.route.active_transports} />
       <InterdictionHint {...props} />
     </Tooltip>
@@ -70,7 +77,10 @@ function colorFor(route: SupplyRouteModel) {
 
 export default function SupplyRoute(props: SupplyRouteProps) {
   const color = colorFor(props.route);
-  const weight = props.route.is_sea ? 4 : 6;
+  // A rail line usually runs beside a road between the same bases; dashed and
+  // thinner, it stays visible instead of hiding under the road.
+  const weight = props.route.is_rail ? 3 : props.route.is_sea ? 4 : 6;
+  const dashArray = props.route.is_rail ? "10 8" : undefined;
   const [openInterdictionPackage] = useOpenNewSupplyRoutePackageDialogMutation();
 
   const path = useRef<LPolyline | null>();
@@ -78,15 +88,18 @@ export default function SupplyRoute(props: SupplyRouteProps) {
   useEffect(() => {
     // Ensure that the highlight line draws on top of this. We have to bring
     // this to the back rather than bringing the highlight to the front because
-    // the highlight won't necessarily be drawn yet.
-    path.current?.bringToBack();
+    // the highlight won't necessarily be drawn yet. A rail line stays in front, or
+    // the road beside it covers it.
+    if (!props.route.is_rail) {
+      path.current?.bringToBack();
+    }
   });
 
   return (
     <>
       <Polyline
         positions={props.route.points}
-        pathOptions={{ color: color, weight: weight }}
+        pathOptions={{ color: color, weight: weight, dashArray: dashArray }}
         ref={(ref) => (path.current = ref)}
       >
         <ActiveSupplyRouteHighlight {...props} />
