@@ -851,3 +851,38 @@ def test_runway_in_use_gives_the_runway_and_wind() -> None:
     assert _texts(h) == ["Viper 1-1, runway 25, wind 360 at 5."] * 2
     assert [m["frequency"] for m in _said(h)] == [TOWER, GROUND]
     h.assert_no_lua_errors()
+
+
+# Grid north is true 351: the grid sits 9 degrees off true north, as on GermanyCW (Test 65).
+GRID_CONVERGENCE = (
+    "local c = math.rad(9) "
+    "coord.LOtoLL = function(p) "
+    "local north = p.x * math.cos(c) + p.z * math.sin(c) "
+    "local east = -p.x * math.sin(c) + p.z * math.cos(c) "
+    "return north / 111000, east / 111000, 0 end"
+)
+
+
+def test_the_wind_is_true_by_lat_lon_not_by_the_map_grid() -> None:
+    h = _harness()
+    h.lua.execute(FAKE_WIND)
+    h.lua.execute(GRID_CONVERGENCE)
+    _call(h, "runway", TOWER)
+    h.advance_to(2)
+    # From grid 360 is from true 351, spoken to 10 degrees: 350.
+    assert _texts(h) == ["Viper 1-1, runway 25, wind 350 at 5."]
+    h.assert_no_lua_errors()
+
+
+def test_an_ai_takeoff_heading_is_true_by_lat_lon() -> None:
+    h = _harness()
+    h.lua.execute(GRID_CONVERGENCE)
+    # Grid 113 is true 104: 43 degrees off 07 by the grid (no match, runway 25 kept),
+    # 34 by true (07).
+    _ai_takeoff(h, "Eagle", 1000, 113)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, runway 07, cleared for takeoff, frequency change approved."
+    ]
+    h.assert_no_lua_errors()

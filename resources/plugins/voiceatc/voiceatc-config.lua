@@ -424,6 +424,29 @@ local function declination()
     return tonumber(data.declination) or 0
 end
 
+-- The true direction of a map vector (dx, dz) at p, by lat/lon: the map grid is not true north
+-- (about 9 degrees off on GermanyCW, Test 65). Grid direction without coord.
+local function trueDirection(p, dx, dz)
+    local length = math.sqrt(dx * dx + dz * dz)
+    if length == 0 then
+        return 0
+    end
+    local step = 1000 / length
+    local ok, lat1, lon1, lat2, lon2 = pcall(function()
+        local a1, o1 = coord.LOtoLL(p)
+        local a2, o2 = coord.LOtoLL({ x = p.x + dx * step, y = p.y, z = p.z + dz * step })
+        return a1, o1, a2, o2
+    end)
+    if not (ok and tonumber(lat1) and tonumber(lat2)) then
+        return math.deg(math.atan2(dz, dx))
+    end
+    local p1, p2 = math.rad(lat1), math.rad(lat2)
+    local dl = math.rad(lon2 - lon1)
+    local y = math.sin(dl) * math.cos(p2)
+    local x = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return math.deg(math.atan2(y, x))
+end
+
 -- The surface wind as a tower gives it: magnetic direction it blows from, to 10 degrees, in knots.
 local function windParts(field)
     local p = airbasePoint(field)
@@ -440,7 +463,7 @@ local function windParts(field)
     if knots < CALM_KT then
         return { "wind calm" }, {}
     end
-    local towards = math.deg(math.atan2(wind.z, wind.x))
+    local towards = trueDirection(p, wind.x, wind.z)
     local from = (towards + 180 - declination()) % 360
     local tens = math.floor(from / 10 + 0.5) * 10
     if tens == 0 then
@@ -1064,7 +1087,7 @@ local function learnRunway(unit)
     if not (ok and pos and pos.x) then
         return
     end
-    local heading = (math.deg(math.atan2(pos.x.z, pos.x.x)) - declination()) % 360
+    local heading = (trueDirection(unit:getPoint(), pos.x.x, pos.x.z) - declination()) % 360
     local ends, pairOf = {}, {}
     for name in tostring(field.runways or ""):gmatch("[^,]+") do
         table.insert(ends, name)

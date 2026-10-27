@@ -11555,7 +11555,10 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   first-listed runway end (Hatzerim 10, Bassel Al-Assad 17, Incirlik 05, Konya 01) whatever
   the wind, but Tel Nof broke the pattern, so the rule is not settled and the planner is
   unchanged. In 7.7 m/s (Afghanistan) the AI went into the wind. Wind is read live at the
-  field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH.
+  field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH. The
+  wind direction and the AI takeoff heading are true bearings from lat/lon
+  (`trueDirection`), then magnetic; until 2026-10-26 they were map-grid angles, up to about
+  9 degrees off at fields far from the map's central meridian (GermanyCW, Test 65).
 - **No taxiway names.** DCS gives scripts none; the terrain's `AirfieldsTaxiways` files are an
   unlabeled road graph. Every field says "taxi, hold short runway 25" (user call,
   2026-10-20).
