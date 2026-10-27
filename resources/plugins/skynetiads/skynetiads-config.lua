@@ -39,6 +39,10 @@ if dcsRetribution and SkynetIADS then
     local adjustGoLiveRange_SA17 = 100
     local adjustGoLiveRange_SA20 = 100
     local adjustGoLiveRange_SA23 = 100
+    -- Test 65: an SA-2 spent its missiles on flights at its edge before the
+    -- strike arrived. Applied whether or not the long-range box is ticked.
+    local goLiveRange_SA2 = 70
+    local goLiveRange_SA3 = 70
 
     -- The scoot distances are authored in feet; Skynet takes meters.
     local function feetToMeters(ft, fallback)
@@ -73,6 +77,8 @@ if dcsRetribution and SkynetIADS then
             adjustGoLiveRange_SA17 = dcsRetribution.plugins.skynetiads.adjustGoLiveRange_SA17
             adjustGoLiveRange_SA20 = dcsRetribution.plugins.skynetiads.adjustGoLiveRange_SA20
             adjustGoLiveRange_SA23 = dcsRetribution.plugins.skynetiads.adjustGoLiveRange_SA23
+            goLiveRange_SA2 = tonumber(dcsRetribution.plugins.skynetiads.goLiveRange_SA2) or goLiveRange_SA2
+            goLiveRange_SA3 = tonumber(dcsRetribution.plugins.skynetiads.goLiveRange_SA3) or goLiveRange_SA3
         end
     end
 
@@ -317,6 +323,11 @@ if dcsRetribution and SkynetIADS then
         end
     end
 
+    local function setShortRangeGoLiveRange(iads)
+        iads:getSAMSitesByNatoName('SA-2'):setGoLiveRangeInPercent(goLiveRange_SA2)
+        iads:getSAMSitesByNatoName('SA-3'):setGoLiveRangeInPercent(goLiveRange_SA3)
+    end
+
     local function setGoLiveRange(iads)
         iads:getSAMSitesByNatoName('SA-5'):setGoLiveRangeInPercent(adjustGoLiveRange_SA5)
         iads:getSAMSitesByNatoName('SA-10'):setGoLiveRangeInPercent(adjustGoLiveRange_SA10)
@@ -339,6 +350,7 @@ if dcsRetribution and SkynetIADS then
         if actMobile_merad then
             initializeMobileSams_merad(redIADS)
         end
+        setShortRangeGoLiveRange(redIADS)
         if adjustGoLiveRange then
             setGoLiveRange(redIADS)
         end
@@ -354,6 +366,7 @@ if dcsRetribution and SkynetIADS then
         if actMobile_merad then
             initializeMobileSams_merad(blueIADS)
         end
+        setShortRangeGoLiveRange(blueIADS)
         if adjustGoLiveRange then
             setGoLiveRange(blueIADS)
         end
