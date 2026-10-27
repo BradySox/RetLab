@@ -7,7 +7,7 @@ from typing import List, Optional
 
 from game.ato.flightwaypoint import FlightWaypoint
 from game.ato.flightwaypointtype import FlightWaypointType
-from game.utils import Distance, Speed, UnitSystem, meters, mps, pounds
+from game.utils import Distance, Speed, UnitSystem, meters, mps, pounds, true_bearing
 
 from .writer import KneeboardPageWriter, _format_clock, format_kneeboard_time_compact
 
@@ -176,7 +176,7 @@ class FlightPlanBuilder:
         """True course of the leg into this waypoint, as upstream prints it."""
         if self.last_waypoint is None:
             return "-"
-        bearing = self.last_waypoint.position.heading_between_point(waypoint.position)
+        bearing = true_bearing(self.last_waypoint.position, waypoint.position)
         return f"{bearing % 360:03.0f}"
 
     def _ground_speed(self, waypoint: FlightWaypoint) -> str:

@@ -12,7 +12,7 @@ from game.data.units import UnitClass
 from game.theater import TheaterGroundObject, TheaterUnit
 from game.theater.bullseye import Bullseye
 from game.theater.theatergroundobject import EwrGroundObject, SamGroundObject
-from game.utils import meters
+from game.utils import meters, true_bearing
 from ..aircraft.flightdata import FlightData
 from ..kneeboard_page import KneeboardPage
 
@@ -103,7 +103,7 @@ def _system_identity(
 
 def _bullseye_brg_range(bullseye: Bullseye, position: Point) -> str:
     """Bullseye bearing/range cue ("045/30") to a position, ~1° / 1nm accuracy."""
-    bearing = bullseye.position.heading_between_point(position)
+    bearing = true_bearing(bullseye.position, position)
     distance = meters(bullseye.position.distance_to_point(position))
     return f"{bearing:03.0f}/{distance.nautical_miles:.0f}"
 

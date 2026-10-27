@@ -62,6 +62,7 @@ from game.data.radar_db import (
 )
 from game.ato.starttype import StartType
 from game.data.units import UnitClass
+from game.utils import true_bearing
 from game.theater.controlpoint import ControlPoint
 from game.theater.frontline import FrontLine
 from game.weather.daylight import sun_times
@@ -1281,7 +1282,7 @@ class DetailReconPage(_RecordingPage):
         # Compass heading must come from world coordinates: pixel-space atan2 is
         # rotated 90° (pixel +x = east, pixel -y = north) so deriving it from
         # `ang` mislabels every axis (e.g. due-north target → 270° instead of 0°).
-        hdg_deg = int(round(ip_pos.heading_between_point(target_pos))) % 360
+        hdg_deg = int(round(true_bearing(ip_pos, target_pos))) % 360
         text = f"Attack Axis {hdg_deg:03d}°"
         self._record(text)
         # Label midpoint computed from IP CLAMPED to the visible map bounds,
