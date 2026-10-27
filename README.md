@@ -286,7 +286,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   bearing. Off by default.
 - **Voice ATC.** Ground and Tower for player flights through SkyEye on UHF, in military
   calls: taxi, takeoff, the overhead or a straight-in, and landing at base with the gear down,
-  with readback checks and an F10 ATC menu. Off by default.
+  with an F10 ATC menu. Every call is accepted: no readback is checked. Off by default.
 - **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
   client, connected to your own server. SkyEye closes after the mission. Off by default.
 

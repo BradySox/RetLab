@@ -193,7 +193,7 @@ class AtcPage(KneeboardPage):
             w.text(
                 self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
             )
-        # The "You:" lines are the readbacks Strict radio discipline asks for.
+        # The "You:" lines are the readbacks; any readback, or none, is accepted.
         if out is not None:
             o, r = out.name, out.runway
             t = _spoken_freq(out.tower)

@@ -3,7 +3,6 @@
 --
 -- Reads dcsRetribution.voiceAtc (emitted only with the Voice ATC setting on and a player flight
 -- at an airfield): linkHost, linkPort, declination,
--- and dcsRetribution.radioDiscipline (strict|relaxed|casual, §121),
 --   fields = { { name, airbase, runway, runways ('10R,28L,...' in pairs), altimeter, ground,
 --     tower, groundVoice, towerVoice } },
 --   flights = { { group, callsign, departure, arrival, divert } }
@@ -11,10 +10,10 @@
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
 -- the field frequencies and this script decides every reply, in military calls: the altimeter
 -- with taxi, wind and a frequency change with takeoff, report initial (or a straight-in) when
--- inbound, cleared to land at base or final with the gear down. Under Strict radio discipline a
--- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
--- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same
--- requests. Replies are voice only; without LuaSocket the menu is the only way in and replies are
+-- inbound, cleared to land at base or final with the gear down. Every call is accepted (user
+-- call, 2026-10-26): a readback is never checked, a rule bust is never called, a call without
+-- the station or the callsign is answered by whoever was called, and ATC never blocks a player.
+-- "Say again" is only for a call nobody can place. An F10 ATC menu makes the same requests. Replies are voice only; without LuaSocket the menu is the only way in and replies are
 -- on-screen text. AI traffic is left to DCS's own ATC.
 ---------------------------------------------------------------------------------------------------
 
@@ -23,13 +22,6 @@ if not (dcsRetribution and dcsRetribution.voiceAtc) then
 end
 
 local data = dcsRetribution.voiceAtc
--- Radio discipline (§116-§119, user call 2026-10-20). Strict: readbacks checked, busts scolded.
--- Relaxed: any acknowledgement counts, only a wrong number is corrected, no scolding, a
--- misheard callsign is matched. Casual: answer only when called, never expect a call, accept
--- a loose call.
-local DISCIPLINE = dcsRetribution.radioDiscipline or "strict"
-local STRICT = DISCIPLINE == "strict"
-local CASUAL = DISCIPLINE == "casual"
 local LINK_POLL_SECONDS = 1
 local ANNOUNCE_SECONDS = 30
 local WATCH_SECONDS = 2
@@ -37,12 +29,8 @@ local TEXT_SECONDS = 15
 local NM = 1852
 -- A "gear down" call farther out than this is misheard: Tower answers it as an inbound call.
 local LANDING_RANGE_NM = 10
--- Faster than this on the ground is taxiing, about 6 kt.
-local TAXI_MPS = 3
 local KNOTS = 1.94384
 local CALM_KT = 3
--- Strict asks for a readback that has not come in this long after the clearance.
-local READBACK_PROMPT_SECONDS = 20
 
 local S_EVENT_TAKEOFF = world.event.S_EVENT_TAKEOFF or 3
 local S_EVENT_LAND = world.event.S_EVENT_LAND or 4
@@ -71,9 +59,7 @@ for _, flight in ipairs(data.flights or {}) do
     -- "viper11" -> "viper1": a wingman is the same name and flight number, another ship.
     flight.prefix = flight.key:sub(1, -2)
     flight.state = "parked"
-    flight.pending = {}
     flight.lastCall = {}
-    flight.scolded = {}
     flight.landing = {}
     -- Ship -> field it is inbound to or in the pattern at, until it lands.
     flight.pattern = {}
@@ -152,12 +138,6 @@ local function line(parts)
         end
     end
     return { text = table.concat(text), speech = table.concat(speech) }
-end
-
--- A line as one { text, speech } part, to put inside another line.
-local function phrase(parts)
-    local l = line(parts)
-    return { l.text, l.speech }
 end
 
 local function digits(s)
@@ -272,7 +252,7 @@ local function announce(_, now)
             table.insert(callsigns, tostring(flight.callsign))
         end
     end
-    send({ { "type", "atc" }, { "fields", list }, { "discipline", DISCIPLINE }, { "callsigns", callsigns } })
+    send({ { "type", "atc" }, { "fields", list }, { "callsigns", callsigns } })
     return now + ANNOUNCE_SECONDS
 end
 
@@ -474,109 +454,14 @@ local function windParts(field)
     return { "wind ", digits(string.format("%03d", tens)), " at ", { tostring(knots), tostring(knots) } }, { tens, knots }
 end
 
--- Adds the wind to a call and returns its numbers, which a readback may say.
 local function withWind(parts, field)
-    local wind, values = windParts(field)
+    local wind = windParts(field)
     if wind then
         for _, part in ipairs(wind) do
             table.insert(parts, part)
         end
         table.insert(parts, ", ")
     end
-    return values or {}
-end
-
--- What a readback must hold: each item is a number (the runway). The optional numbers (wind,
--- altimeter, frequency) were in the call too, so reading one back is never a wrong number.
-local function pend(flight, member, field, position, items, optional)
-    flight.pending[member] = {
-        field = field,
-        position = position,
-        items = items,
-        optional = optional or {},
-        at = timer.getTime(),
-        state = flight.state,
-    }
-end
-
-local function heardNumber(numbers, wanted)
-    local w = tonumber((tostring(wanted):gsub("[^%d%.]", "")))
-    for n in tostring(numbers):gmatch("%S+") do
-        local v = tonumber(n)
-        if v and w and math.abs(v - w) < 0.005 then
-            return true
-        end
-    end
-    return false
-end
-
--- A number in the readback that is none of the cleared items: "hold short 52" for 25.
-local function wrongNumber(pending, numbers)
-    for n in tostring(numbers):gmatch("%S+") do
-        local known = false
-        for _, item in ipairs(pending.items) do
-            if heardNumber(n, item.value) then
-                known = true
-            end
-        end
-        for _, value in ipairs(pending.optional or {}) do
-            if heardNumber(n, value) then
-                known = true
-            end
-        end
-        if not known then
-            return true
-        end
-    end
-    return false
-end
-
-local function checkReadback(flight, member, request)
-    local pending = flight.pending[member]
-    if not pending then
-        return
-    end
-    flight.pending[member] = nil
-    if CASUAL then
-        return
-    end
-    local missing = {}
-    for _, item in ipairs(pending.items) do
-        if not heardNumber(request.numbers, item.value) then
-            table.insert(missing, item.say)
-        end
-    end
-    if #missing == 0 then
-        return
-    end
-    local opening = ", readback incomplete"
-    if not STRICT then
-        -- Relaxed: a readback that leaves an item out is fine; one with a wrong number is not.
-        if not wrongNumber(pending, request.numbers) then
-            return
-        end
-        opening = ", negative"
-    end
-    local parts = { callsignPart(memberCallsign(flight, member)), opening }
-    for _, part in ipairs(missing) do
-        table.insert(parts, ", ")
-        table.insert(parts, part)
-    end
-    table.insert(parts, ".")
-    pending.at = timer.getTime()
-    flight.pending[member] = pending
-    say(pending.field, pending.position, flight, line(parts))
-end
-
-local function contact(field, position, flight, member, other)
-    local label = frequencyLabel(field[other])
-    say(field, position, flight, line({
-        callsignPart(memberCallsign(flight, member)),
-        ", contact ",
-        other == "ground" and "Ground " or "Tower ",
-        digits(label),
-        ".",
-    }))
 end
 
 -- No taxiway names: DCS gives scripts none, so every field taxis "to runway 25" (user call,
@@ -614,22 +499,15 @@ local function taxi(field, flight, member, on, detail, text)
     local tower = frequencyLabel(field.tower)
     local formation = isFormation(flight, member, text, true)
     local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(runway), ", " }
-    local optional = { tower }
     local altimeter = altimeterPart(field)
     if altimeter and not flight.numbers then
         table.insert(parts, "altimeter ")
         table.insert(parts, altimeter)
         table.insert(parts, ", ")
-        -- "Two niner niner two" is heard as 2992.
-        table.insert(optional, field.altimeter)
-        table.insert(optional, (field.altimeter:gsub("%.", "")))
     end
     for _, part in ipairs({ "taxi, hold short runway ", digits(runway), ", contact Tower ", digits(tower), "." }) do
         table.insert(parts, part)
     end
-    pend(flight, member, field, on or "ground", {
-        { kind = "number", value = runway, say = phrase({ "hold short runway ", digits(runway) }) },
-    }, optional)
     say(field, on or "ground", flight, line(parts))
 end
 
@@ -637,15 +515,11 @@ end
 local function takeoff(field, flight, member, on, detail, text)
     local formation = isFormation(flight, member, text, true)
     local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(field.runway), ", " }
-    local optional = {}
     if not (flight.numbers or hasNumbers(detail, text)) then
-        optional = withWind(parts, field)
+        withWind(parts, field)
     end
     table.insert(parts, "cleared for takeoff, frequency change approved.")
     flight.state = "cleared"
-    pend(flight, member, field, on or "tower", {
-        { kind = "number", value = field.runway, say = phrase({ "cleared for takeoff runway ", digits(field.runway) }) },
-    }, optional)
     say(field, on or "tower", flight, line(parts))
 end
 
@@ -690,7 +564,7 @@ end
 local function landing(field, flight, member, on, text)
     local formation = isFormation(flight, member, text, false)
     local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(field.runway), ", " }
-    local optional = withWind(parts, field)
+    withWind(parts, field)
     table.insert(parts, "cleared to land.")
     flight.landing[member] = field.name
     if formation then
@@ -698,9 +572,6 @@ local function landing(field, flight, member, on, text)
             flight.landing[seat.member] = field.name
         end
     end
-    pend(flight, member, field, on, {
-        { kind = "number", value = field.runway, say = phrase({ "cleared to land runway ", digits(field.runway) }) },
-    }, optional)
     say(field, on, flight, line(parts))
 end
 
@@ -792,17 +663,8 @@ local function handleCall(field, position, flight, member, kind, detail, text)
         local reply = kind == "startup" and ", start at your discretion. Call ready to taxi." or ", frequency change approved."
         return say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), reply }))
     end
-    local ground = kind == "taxi"
-    local tower = kind == "ready" or kind == "inbound" or kind == "clear"
-    -- Casual answers whoever was called; the others send the pilot to the right position.
-    local on = nil
-    if CASUAL then
-        on = position
-    elseif position == "ground" and tower then
-        return contact(field, position, flight, member, "tower")
-    elseif position == "tower" and ground then
-        return contact(field, position, flight, member, "ground")
-    end
+    -- Whoever was called answers: a taxi call on Tower is answered on Tower.
+    local on = position
     if kind == "taxi" then
         taxi(field, flight, member, on, detail, text)
     elseif kind == "ready" then
@@ -817,7 +679,7 @@ local function handleCall(field, position, flight, member, kind, detail, text)
     end
 end
 
--- Relaxed and Casual: a misheard or missing callsign is the flight with the same numbers at
+-- A misheard or missing callsign is the flight with the same numbers at
 -- this field, the only one there with the heard flight name ("Enfield 2" for Enfield 4-1,
 -- Test 65), or the only player flight using it.
 local function guessFlight(field, callsign)
@@ -865,14 +727,15 @@ local function handleRequest(request)
     end
     local field, position = station.field, station.position
     local flight, member = findFlight(request.callsign)
-    if not flight and not STRICT then
+    if not flight then
         flight, member = guessFlight(field, request.callsign)
     end
     if not flight then
         return say(field, position, nil, line({ "Station calling ", stationLabel(field, position), ", say again your callsign." }))
     end
     if request.kind == "readback" then
-        return checkReadback(flight, member, request)
+        -- Every readback is accepted silently, whatever it holds (user call, 2026-10-26).
+        return
     end
     handleCall(field, position, flight, member, request.kind, request.detail, request.text)
 end
@@ -895,50 +758,15 @@ local function pollLink(_, now)
 end
 
 ---------------------------------------------------------------------------------------------------
--- Rule busts
+-- Flight state
 ---------------------------------------------------------------------------------------------------
 
-local function scold(flight, key, field, position, member, text)
-    if not STRICT or flight.scolded[key] then
-        return
-    end
-    flight.scolded[key] = true
-    say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), text }))
-end
-
-local function speed(unit)
-    local v = unit:getVelocity() or { x = 0, y = 0, z = 0 }
-    return math.sqrt(v.x * v.x + v.z * v.z)
-end
-
--- Strict: a clearance with no usable readback gets one "read back" prompt, while it is still the
--- flight's current clearance. Otherwise an unheard readback is silence (user call, 2026-10-21).
-local function promptReadbacks(flight, now)
-    if not STRICT then
-        return
-    end
-    for member, pending in pairs(flight.pending) do
-        if not pending.prompted and pending.state == flight.state and now - pending.at >= READBACK_PROMPT_SECONDS then
-            pending.prompted = true
-            say(pending.field, pending.position, flight, line({ callsignPart(memberCallsign(flight, member)), ", read back." }))
-        end
-    end
-end
-
--- A player rolling before a taxi clearance.
 local function watch(_, now)
     for _, flight in ipairs(flights) do
-        promptReadbacks(flight, now)
-        local field = fieldsByName[flight.departure]
         for _, seat in ipairs(playerUnits(flight)) do
-            local u = seat.unit
-            if u:inAir() then
-                if flight.state == "parked" or flight.state == "taxi" then
-                    -- An air start, or a takeoff the event missed.
-                    flight.state = "airborne"
-                end
-            elseif field and flight.state == "parked" and speed(u) > TAXI_MPS then
-                scold(flight, "taxi", field, "ground", seat.member, ", not cleared for taxi.")
+            if seat.unit:inAir() and (flight.state == "parked" or flight.state == "taxi") then
+                -- An air start, or a takeoff the event missed.
+                flight.state = "airborne"
             end
         end
     end
@@ -975,11 +803,6 @@ local function menuCall(arg)
     if not field then
         return
     end
-    if kind == "readback" then
-        -- A readback by menu is complete: the strict check is for spoken readbacks.
-        flight.pending[member] = nil
-        return
-    end
     local position = kind == "taxi" and "ground" or "tower"
     handleCall(field, position, flight, member, kind, detail)
 end
@@ -990,7 +813,6 @@ local MENU = {
     { "Tower: 10 miles, full stop", "inbound" },
     { "Tower: base, gear down", "inbound", "geardown" },
     { "Tower: clear of the runway", "clear" },
-    { "Read back", "readback" },
     { "Mayday", "emergency" },
 }
 
@@ -1017,20 +839,18 @@ local function addMenu(flight)
         return g:getInitialSize()
     end)
     size = ok and tonumber(size) or g:getSize()
-    -- 7 calls and 3 submenus fill F1-F10 for a 4-ship.
+    -- 6 calls and 3 submenus fit F1-F9 for a 4-ship.
     for ship = 2, math.min(size or 1, 4) do
         addItems(missionCommands.addSubMenuForGroup(g:getID(), "Ship " .. ship, root), ship)
     end
 end
 
--- A respawn in the same slot is a new sortie: no clearance, no pending readback, no
--- scolding spent. The flight's own state resets only when no other player is in it.
+-- A respawn in the same slot is a new sortie: no clearance. The flight's own state resets only
+-- when no other player is in it.
 local function newSortie(flight, unit)
     local member = memberOf(flight, unit)
-    flight.pending[member] = nil
     flight.landing[member] = nil
     flight.pattern[member] = nil
-    flight.scolded["land" .. member] = nil
     local name = unit:getName()
     for _, seat in ipairs(playerUnits(flight)) do
         if seat.unit:getName() ~= name then
@@ -1038,10 +858,8 @@ local function newSortie(flight, unit)
         end
     end
     flight.state = "parked"
-    flight.pending = {}
     flight.landing = {}
     flight.pattern = {}
-    flight.scolded = {}
     flight.lastCall = {}
     flight.numbers = nil
 end
@@ -1161,10 +979,6 @@ function handler:onEvent(event)
     end
     local member = memberOf(flight, event.initiator)
     if event.id == S_EVENT_TAKEOFF then
-        local field = fieldsByName[flight.departure]
-        if field and flight.state ~= "cleared" then
-            scold(flight, "takeoff", field, "tower", member, ", you were not cleared for takeoff.")
-        end
         flight.state = "airborne"
         return
     end
@@ -1182,16 +996,10 @@ function handler:onEvent(event)
     if not field then
         return
     end
-    local cleared = flight.landing[member] or flight.landing[1]
-    if not cleared then
-        scold(flight, "land" .. member, field, "tower", member, ", you landed without clearance.")
-    end
     flight.landing[member] = nil
     flight.pattern[member] = nil
     flight.state = "landed"
-    if not CASUAL then
-        say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
-    end
+    say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
 end
 
 ---------------------------------------------------------------------------------------------------

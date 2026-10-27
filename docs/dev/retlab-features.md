@@ -11278,10 +11278,9 @@ kneeboard comms as "STRIKE (Anvil)":
 - **Roll call:** 3 minutes before the push, "All players, <ABCCC>, check in". Seated player
   flights answer (voice or F10) and get "copy ready"; AI flights are read out as up or not
   airborne in the same transmission (2026-10-22: sent as a second call right behind the roll
-  call, the read-out was transmitted and never heard). A player still silent at the push, by
-  role (user call, 2026-10-20): SEAD holds like a SEAD on the ground (two holds, then abort),
-  an escort gets one hold, a striker is left behind if another striker is set (else one hold,
-  then abort). Empty slots are not waited for.
+  call, the read-out was transmitted and never heard). A player still silent at the push is
+  never waited on (user call, 2026-10-26; until then Strict held, aborted or left them
+  behind by role). Empty slots are not waited for.
 - **Hold:** a SEAD or escort flight not airborne slips the push 3 minutes, at most twice.
   After that the package pushes if a SEAD is airborne (or it has none), else aborts.
 - **No striker up (Test 64, 2026-10-24):** with no strike flight airborne the push holds the
@@ -11302,7 +11301,7 @@ kneeboard comms as "STRIKE (Anvil)":
   (`S_EVENT_SHOT`, tracked until `isExist()` is false) is still in the air. Lost flights,
   flights back on the ground, empty player slots and flights left at the push or the join drop
   out of the count. With every striker gone and none off: "Ford package, Blackjack, package
-  complete"; the same an hour after execute. Not said under Casual. Before (Test 65,
+  complete"; the same an hour after execute. Before (Test 65,
   2026-10-26): only each strike lead was sampled, one early return skipped the later flights,
   SEAD, escort and weapons were not waited for, and "all strikers egressed. RTB." came while
   AI wingmen were still dropping Mk-83s and JSOWs were in the air. Not flown (row B291).
@@ -11342,8 +11341,9 @@ table at the start of each side's pass, so red's pass wiped blue's: `player_pack
 empty, the plugin got no controllers and no packages, and every Vacuum emitter had no STRIKE
 flag. Each pass now links the datalink for its own side's packages only and clears nothing.
 A player flight's callsign is now its lead's seat ("Ford 5-1"), and the plugin matches
-SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2") on Strict, as
-`voiceatc` does. Before, only the non-Strict fallback matched. Not flown (row B266).
+SkyEye's "ford 5 1", the flight alone ("ford 5") and a wingman ("ford 5 2"), as
+`voiceatc` does; a close-enough name then finds the only player flight with it. Not flown
+(row B266).
 
 **Phrasing (2026-10-21, user call after a flown review).** The spoken lines read the way a
 controller says them, and each `say` carries `text` and `speech` apart, as `voiceatc` sends
@@ -11448,34 +11448,42 @@ Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; desi
   `game/campaignloader/mizcampaignloader.py` (`is_exact_site`).
 - `tests/theater/test_exact_site_layouts.py`.
 
-## §121 — Radio discipline
+## §121 — Radio discipline — REMOVED (2026-10-26)
 
-One campaign setting, **Radio discipline** (Mission Generator page, Cockpit & nav aids),
-read by every SkyEye voice plugin as `dcsRetribution.radioDiscipline`. Default **Strict**;
-a squadron that does not fly by the book picks Relaxed or Casual (user call, 2026-10-20).
-Voice ATC (#1328) reads the same setting.
+**Removed 2026-10-26 (DM call), six days after it was built and before it was flown.** A
+campaign setting, Strict (default), Relaxed or Casual, set how by the book the SkyEye voice
+bots expected players to be. Strict ran a roll call and held or aborted for a silent player,
+needed the controller's name on STRIKE, checked ATC readbacks, prompted "read back" and
+scolded rule busts. Relaxed kept the roll call and holds for flights on the ground but never
+waited on a quiet player. Casual dropped the roll call, the egress lines, the hold for an
+escort on the ground, Vacuum's calls for radars off a player package and the AWACS's merges
+on STRIKE. Built 2026-10-20.
 
-| | Strict | Relaxed | Casual |
-|---|---|---|---|
-| Roll call 3 min before the push | yes | yes | none |
-| Silent player | held or aborted by role (§117) | counts as ready | counts as ready |
-| Hold for a flight on the ground | SEAD or escort | SEAD or escort | SEAD only |
-| Egress call | yes | yes | none |
-| Call that names only the pilot on STRIKE | ignored | reaches the ABCCC | reaches the ABCCC |
-| Close-enough callsign ("Colt" for Colt 1-1) | no | yes | yes |
-| Vacuum | every radar | every radar | only radars over a player package |
-| AWACS on STRIKE | threats, merges, answers | threats, merges, answers | threat calls only |
+**Why it went:** a strict mode only got in the way of the squadron. Every bot now accepts
+every call.
 
-The ABCCC tells SkyEye `looseCalls` (off Strict) and `strikeThreatsOnly` (Casual) in its
-packages message. SkyEye parses a pilot-only call heard on STRIKE for the first package
-controller; with threats only it drops merges on STRIKE and answers calls heard there on
-its own frequency. Built 2026-10-20. Not flown (row B263).
+**What every bot does now:**
+- **Hearing is Casual's everywhere.** A call without the bot's name is taken on the bot's
+  own frequency; on STRIKE it goes to the ABCCC. A close-enough or misheard callsign finds
+  the only matching player flight. SkyEye parses every ATC call loosely, with or without
+  the station or the callsign. "Say again" is only for a call nobody can place.
+- **Readbacks are accepted silently**, whatever is read back, or none. Nothing is prompted
+  and no rule bust is called.
+- **Unprompted calls are Relaxed's, in full.** The ABCCC's roll call, holds for a SEAD or
+  escort on the ground, off-target and egress lines; Vacuum's awake and asleep calls for
+  every SAM radar; ATC's "clear the runway, taxi to parking"; the AWACS's merges on STRIKE.
+- **A silent player is never waited on.** Strict's holds and aborts for a player who never
+  checks in, including the silent SEAD abort, are gone.
 
-### Files
+**What went:** `radio_discipline` in `fields/missiongenerator.py` and its place in the
+SkyEye voice bots section; `dcsRetribution.radioDiscipline`; every discipline branch in
+`voiceatc`, `pkgcontrol` and `vacuum`; the ATC readback check, read-back prompt, rule-bust
+calls and the F10 "Read back" item; the `atc` message's `discipline` and the packages
+message's `looseCalls` and `strikeThreatsOnly`. `RadioDiscipline` stays in
+`game/settings/enums.py` only so old saves unpickle; `migrate_legacy_settings` drops the
+value. `BradySox/skyeye` branch `retlab/always-loose` parses loosely for every mission and
+ignores those fields from an older mission. Row B263 is retired.
 
-- `game/settings/enums.py` (`RadioDiscipline`), `fields/missiongenerator.py`.
-- `resources/plugins/pkgcontrol/pkgcontrol-config.lua`, `resources/plugins/vacuum/vacuum-config.lua`.
-- `tests/lua/test_pkgcontrol_runtime.py`, `tests/lua/test_vacuum_runtime.py`.
 ## §120 — Voice bots on Take Off
 
 A machine preference, not a campaign setting: **File > Voice bots**, off by default. With
@@ -11625,48 +11633,35 @@ approved".
 - **A "gear down" call farther than 10 NM** (`LANDING_RANGE_NM`) is misheard and answered as
   an inbound call. The old 15 NM "report 5 miles" gate and the busy-runway "enter the pattern
   at 3,000, report downwind" are gone: inbound is no longer a clearance.
-- **Readback numbers.** The wind, the altimeter (29.92 or 2992) and the Tower frequency are
-  optional numbers: reading one back is never a wrong number under Relaxed. Before
-  2026-10-26 a Relaxed readback that included one got "negative".
+- **Readbacks are never checked** (2026-10-26, §121 removed): any readback, or none, is
+  accepted silently. The card still teaches the readback items in the table.
 
-"Say again" repeats the last call; "radio check" answers 5 by 5. A call to the wrong position
-gets "contact Ground/Tower <freq>". An unknown callsign gets "say again your callsign".
+"Say again" repeats the last call; "radio check" answers 5 by 5. A call is answered by
+whichever position was called. A misheard or missing callsign is the flight with the same
+numbers at the field, the only one there with the heard flight name ("Enfield 2" for Enfield
+4-1, Test 65), or the only player flight using it; a call that matches none of those gets
+"say again your callsign".
 A whole callsign matches first, then a flight alone, then a ship, so a non-Western
 "flight 1 2 3" is Flight 123-1 and never ship 3 of Flight 12 (pkgcontrol reads them the same
 way). A ship number is the unit's seat in its group (`Unit.getNumber`), not its place among
 the live units: a lone player in slot 2 is ship 2.
 
-**Respawn.** A player born again in the same slot starts a new sortie: that seat's pending
-readback and landing clearance clear, and when no other player is in the flight its state
-goes back to parked with every scolding unspent (fixed 2026-10-21; a second sortie used to
-get no bust calls and start mid-sequence).
+**Respawn.** A player born again in the same slot starts a new sortie: that seat's landing
+clearance clears, and when no other player is in the flight its state goes back to parked
+(fixed 2026-10-21; a second sortie used to start mid-sequence).
 
-**Radio discipline.** ATC reads the shared **Radio discipline** setting (§121, default
-Strict) as `dcsRetribution.radioDiscipline` and passes it to SkyEye in the `atc` message.
-It replaced Voice ATC's own "Strict readbacks" (2026-10-21; a save with that unticked
-migrates to Relaxed).
-
-| | Strict | Relaxed | Casual |
-|---|---|---|---|
-| Readback missing an item | "readback incomplete, hold short runway 25" | fine | fine |
-| Readback with a wrong number | "readback incomplete, ..." | "negative, hold short runway 25" | fine |
-| Rule busts | one scolding call each | none | none |
-| Call to the wrong position | "contact Ground/Tower <freq>" | the same | answered where called |
-| Unprompted "clear the runway" | yes | yes | no: ATC speaks only when called |
-| Callsign | must match | a misheard one is matched: the right numbers, the only flight there with that name, or the only player flight using the field (since 2026-10-26, Test 65) | the same, or none |
-| SkyEye parsing | station, callsign, request | the same | the station or callsign may be left out |
-
-ATC stays silent on a good readback, as real controllers do. Under Casual you may taxi and
-take off unannounced; Departure (step 2) will still pick you up.
-
-**Rule busts** (Strict only) get one scolding call each and never block: rolling faster than
-about 6 kt before a taxi clearance ("not cleared for taxi"), a takeoff without clearance, a
-landing without clearance.
+**Every call is accepted (2026-10-26, user call).** The Radio discipline setting (§121) is
+removed and ATC takes calls the way Casual did, but keeps the unprompted "clear the runway,
+taxi to parking". ATC stays silent on any readback, as real controllers do on a good one.
+No rule bust is called and ATC never blocks a player: you may taxi and take off
+unannounced, and Departure (step 2) will still pick you up. Until then Strict checked
+readbacks and called each bust once ("not cleared for taxi", a takeoff or landing without
+clearance), and Strict and Relaxed sent a call to the wrong position to the right one.
 
 **F10 menu.** "ATC" per player group makes the same requests (user call, 2026-10-20). A menu
-readback is always complete. A group menu cannot tell which ship pressed it, so the top items
-speak for the one player aboard, else the lead, and each wingman seat has a "Ship N" submenu
-with the same items (7 calls and 3 submenus fill F1-F10 on a 4-ship). Since 2026-10-26 the
+has no Read back item since 2026-10-26: nothing checks one. A group menu cannot tell which ship
+pressed it, so the top items speak for the one player aboard, else the lead, and each wingman
+seat has a "Ship N" submenu with the same items (6 calls and 3 submenus fit F1-F9 on a 4-ship). Since 2026-10-26 the
 inbound items are "Tower: 10 miles, full stop" and "Tower: base, gear down"; the overhead
 request item went, since overhead is the default. Until 2026-10-21 every
 menu call was ship 1. Without LuaSocket the menu is the only way in and the replies
@@ -11689,10 +11684,9 @@ a readback, not a new request), and a clearance word (runway, short, hold, taxi,
 cleared, tower, ground, takeoff, contact, wind, altimeter) is never a callsign. "Two ship"
 and distances ("30 miles") are not ship numbers. Outbound, departing, wheels up and switching
 are airborne; final and visual approach are inbound; comm check and how do you read are
-radio checks; repeat is say again; pan pan is an emergency. Under Strict a clearance whose
-readback never came gets one "Ford niner one, read back" 20 s later
-(`READBACK_PROMPT_SECONDS`), only while it is still the flight's current clearance; before,
-an unheard readback was silence. The card teaches the after-landing call as "Tower, <me>,
+radio checks; repeat is say again; pan pan is an emergency. From 2026-10-21 to 2026-10-26
+Strict asked once, 20 s later, for a readback that never came; an unheard readback is
+silence again. The card teaches the after-landing call as "Tower, <me>,
 clear of the runway", answered "Taxi to parking". Not flown (row B271).
 
 **Military calls (2026-10-26, user call).** `BradySox/skyeye` PR (branch
@@ -11707,8 +11701,7 @@ a readback, and "request runway in use" is the new `runway` kind. The ATC card s
 ### Files
 
 - `game/retlab/voice_atc.py`: frequencies, the plan, `dcsRetribution.voiceAtc`.
-- `resources/plugins/voiceatc/`: the state machine, the readback check, the read-back
-  prompt, the F10 menu.
+- `resources/plugins/voiceatc/`: the state machine and the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
 - `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,
   `tests/missiongenerator/test_voice_kneeboard_pages.py`.
@@ -11819,7 +11812,7 @@ Answers name every located SAM radar still standing, awake ones first; mud names
 - **The plugin** finds the caller among `vacuum.flights` (each player flight's lead seat and
   its package target) as voiceatc's `findFlight` does, and measures from that seat's jet.
   Magnetic bearings use MOOSE's `UTILS.GetMagneticDeclination`, else 0; the bullseye is
-  `coalition.getMainRefPoint`. Answers use every radar it tracks, under Casual too, and are
+  `coalition.getMainRefPoint`. Answers use every radar it tracks and are
   voice only: no on-screen text (2026-10-24, user call); a request only arrives over the link. No `world.searchObjects`: it reads only the tracked units.
 - The `tune` message now carries Vacuum's callsign and own frequency. An older SkyEye ignores
   both and never sends a request, so nothing is answered and nothing breaks.

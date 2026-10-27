@@ -1,0 +1,1 @@
+* **[Mission Generation]** The Radio discipline setting is removed. Every SkyEye voice bot accepts every call: ATC checks no readback and calls no rule bust, a call without the station or the controller's name is answered, and the ABCCC never waits on a player who stays quiet.

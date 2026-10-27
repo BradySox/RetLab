@@ -103,7 +103,6 @@ def _viper(airborne: bool = False, x: float = 0, ships: int = 1) -> dict[str, An
 
 
 def _harness(
-    discipline: str = "strict",
     airborne: bool = False,
     x: float = 0,
     ships: int = 1,
@@ -113,9 +112,7 @@ def _harness(
     h.lua.execute(FAKE_AIRBASE)
     if link:
         h.lua.execute(FAKE_SOCKET)
-    h.lua.globals().dcsRetribution = h.to_lua(
-        {"plugins": {}, "radioDiscipline": discipline, **_config()}
-    )
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **_config()})
     h.add_group(_viper(airborne, x, ships))
     h.load_plugin_script(PLUGIN)
     return h
@@ -230,66 +227,45 @@ def test_a_sortie_from_taxi_to_parking() -> None:
     h.assert_no_lua_errors()
 
 
-def test_a_strict_readback_missing_an_item_is_incomplete() -> None:
+def test_every_readback_is_accepted_silently() -> None:
+    # User call, 2026-10-26: no readback is checked, and none is asked for.
     h = _harness()
     _call(h, "taxi")
     _call(h, "readback", text="viper 1 1")
-    _call(h, "readback", numbers="25")
-    h.advance_to(2)
-    assert _texts(h)[1:] == ["Viper 1-1, readback incomplete, hold short runway 25."]
-    assert _said(h)[1]["speech"] == (
-        "Viper one one, readback incomplete, hold short runway two five."
-    )
+    _call(h, "readback", numbers="52")
+    _call(h, "ready", TOWER)
+    h.advance_to(80)
+    assert len(_texts(h)) == 2
     h.assert_no_lua_errors()
 
 
 def test_no_squawk_is_given_or_needed_but_one_read_back_is_fine() -> None:
     # User call, 2026-10-22: no squawk codes. A pilot who still says one is not corrected.
-    for discipline in ("strict", "relaxed"):
-        h = _harness(discipline=discipline)
-        _call(h, "taxi")
-        _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
-        h.advance_to(60)
-        assert len(_texts(h)) == 1
-        assert "squawk" not in _texts(h)[0].lower()
-        assert "squawk" not in _said(h)[0]["speech"].lower()
-        h.assert_no_lua_errors()
-
-
-def test_relaxed_lets_an_item_go_but_corrects_a_wrong_number() -> None:
-    h = _harness(discipline="relaxed")
+    h = _harness()
     _call(h, "taxi")
-    _call(h, "readback")
-    _call(h, "taxi")
-    _call(h, "readback", numbers="52")
-    h.advance_to(2)
-    assert _texts(h)[1:] == [
-        _texts(h)[0],
-        "Viper 1-1, negative, hold short runway 25.",
-    ]
+    _call(h, "readback", numbers="4101 25", text="squawk 4 1 0 1 hold short 2 5")
+    h.advance_to(60)
+    assert len(_texts(h)) == 1
+    assert "squawk" not in _texts(h)[0].lower()
+    assert "squawk" not in _said(h)[0]["speech"].lower()
     h.assert_no_lua_errors()
 
 
-def test_relaxed_and_casual_never_scold() -> None:
-    for discipline in ("relaxed", "casual"):
-        h = _harness(discipline=discipline)
-        h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
-        h.advance_to(10)
-        _event(h, 3)
-        h.update_unit("Viper", {"velocity": {"x": 0, "y": 0, "z": 0}})
-        _event(h, 4)
-        h.advance_to(12)
-        expected = (
-            []
-            if discipline == "casual"
-            else ["Viper 1-1, clear the runway, taxi to parking."]
-        )
-        assert _texts(h) == expected, discipline
-        h.assert_no_lua_errors()
+def test_rule_busts_are_never_called() -> None:
+    # Taxiing, taking off and landing without a clearance: only the landing roll-out call.
+    h = _harness()
+    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
+    h.advance_to(10)
+    _event(h, 3)
+    h.update_unit("Viper", {"velocity": {"x": 0, "y": 0, "z": 0}})
+    _event(h, 4)
+    h.advance_to(12)
+    assert _texts(h) == ["Viper 1-1, clear the runway, taxi to parking."]
+    h.assert_no_lua_errors()
 
 
-def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
-    h = _harness(discipline="casual")
+def test_any_readback_is_taken_and_whoever_was_called_answers() -> None:
+    h = _harness()
     _call(h, "taxi", TOWER)
     _call(h, "readback", TOWER, numbers="9999")
     h.advance_to(2)
@@ -301,8 +277,8 @@ def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
     h.assert_no_lua_errors()
 
 
-def test_casual_matches_a_misheard_or_missing_callsign() -> None:
-    h = _harness(discipline="casual")
+def test_a_misheard_or_missing_callsign_is_the_only_flight_there() -> None:
+    h = _harness()
     _call(h, "radiocheck", callsign="cobra 1 1")
     _call(h, "radiocheck", callsign="")
     h.advance_to(2)
@@ -310,11 +286,11 @@ def test_casual_matches_a_misheard_or_missing_callsign() -> None:
     h.assert_no_lua_errors()
 
 
-def test_the_discipline_goes_to_skyeye() -> None:
-    h = _harness(discipline="casual")
+def test_skyeye_is_sent_no_discipline() -> None:
+    h = _harness()
     h.advance_to(2)
     atc = [m for m in _sent(h) if m["type"] == "atc"][0]
-    assert atc["discipline"] == "casual"
+    assert "discipline" not in atc
     h.assert_no_lua_errors()
 
 
@@ -326,33 +302,15 @@ def test_skyeye_is_told_the_player_flight_callsigns() -> None:
     h.assert_no_lua_errors()
 
 
-def test_a_call_to_the_wrong_position_is_sent_to_the_right_one() -> None:
+def test_a_call_to_the_other_position_is_answered_there() -> None:
     h = _harness()
-    _call(h, "taxi", TOWER)
     _call(h, "ready", GROUND)
     h.advance_to(2)
-    assert _texts(h) == [
-        "Viper 1-1, contact Ground 260.0.",
-        "Viper 1-1, contact Tower 262.0.",
+    said = _said(h)
+    assert [m["text"] for m in said] == [
+        "Viper 1-1, runway 25, cleared for takeoff, frequency change approved."
     ]
-    h.assert_no_lua_errors()
-
-
-def test_rule_busts_get_one_scolding_call_each() -> None:
-    h = _harness()
-    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
-    h.advance_to(10)
-    _event(h, 3)
-    _event(h, 3)
-    h.update_unit("Viper", {"airborne": False, "velocity": {"x": 0, "y": 0, "z": 0}})
-    _event(h, 4)
-    h.advance_to(12)
-    assert _texts(h) == [
-        "Viper 1-1, not cleared for taxi.",
-        "Viper 1-1, you were not cleared for takeoff.",
-        "Viper 1-1, you landed without clearance.",
-        "Viper 1-1, clear the runway, taxi to parking.",
-    ]
+    assert said[0]["frequency"] == GROUND
     h.assert_no_lua_errors()
 
 
@@ -450,14 +408,6 @@ def test_the_flight_callsign_alone_is_the_lead() -> None:
     h.assert_no_lua_errors()
 
 
-def test_an_unknown_callsign_is_asked_again() -> None:
-    h = _harness()
-    _call(h, "taxi", callsign="cobra 2 1")
-    h.advance_to(2)
-    assert _texts(h) == ["Station calling Kobuleti Ground, say again your callsign."]
-    h.assert_no_lua_errors()
-
-
 def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
     h = _harness()
     _call(h, "taxi")
@@ -495,8 +445,8 @@ def test_the_f10_menu_makes_the_same_requests() -> None:
     assert not any("engine start" in p for p in paths)
     assert paths[0] == "ATC"
     assert "Ground: request taxi" in paths and "Mayday" in paths
+    assert not any(p.endswith("Read back") for p in paths)
     _menu(h, "Ground: request taxi")
-    _menu(h, "Read back")
     _menu(h, "Tower: holding short, ready")
     h.advance_to(2)
     assert _texts(h) == [
@@ -627,19 +577,14 @@ def test_startup_and_airborne_get_a_short_answer_not_say_again() -> None:
 
 
 def test_a_respawn_in_the_same_slot_is_a_new_sortie() -> None:
+    # The new sortie has had no call yet, so "say again" has nothing to repeat.
     h = _harness()
-    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
-    h.advance_to(4)
-    _event(h, 3)
-    h.update_unit("Viper", {"airborne": False, "velocity": {"x": 0, "y": 0, "z": 0}})
-    _event(h, 4)
-    h.advance_to(6)
-    first = list(_texts(h))
-    assert first[0] == "Viper 1-1, not cleared for taxi."
+    _call(h, "taxi")
+    h.advance_to(2)
     _event(h, 15)
-    h.update_unit("Viper", {"velocity": {"x": 5, "y": 0, "z": 0}})
-    h.advance_to(10)
-    assert _texts(h)[len(first) :] == ["Viper 1-1, not cleared for taxi."]
+    _call(h, "sayagain")
+    h.advance_to(4)
+    assert _texts(h)[1:] == ["Viper 1-1, say again."]
     h.assert_no_lua_errors()
 
 
@@ -714,32 +659,10 @@ def test_a_three_digit_flight_number_is_its_own_flight() -> None:
     h.assert_no_lua_errors()
 
 
-def test_strict_asks_once_for_a_readback_that_never_came() -> None:
-    h = _harness()
-    _call(h, "taxi")
-    h.advance_to(15)
-    assert len(_texts(h)) == 1
-    h.advance_to(30)
-    assert _texts(h)[1:] == ["Viper 1-1, read back."]
-    assert _said(h)[1]["speech"] == "Viper one one, read back."
-    assert _said(h)[1]["frequency"] == GROUND
-    h.advance_to(80)
-    assert len(_texts(h)) == 2
-    h.assert_no_lua_errors()
-
-
 def test_a_heard_readback_needs_no_prompt() -> None:
     h = _harness()
     _call(h, "taxi")
     _call(h, "readback", numbers="25")
-    h.advance_to(60)
-    assert len(_texts(h)) == 1
-    h.assert_no_lua_errors()
-
-
-def test_relaxed_never_prompts_for_a_readback() -> None:
-    h = _harness("relaxed")
-    _call(h, "taxi")
     h.advance_to(60)
     assert len(_texts(h)) == 1
     h.assert_no_lua_errors()
@@ -782,7 +705,7 @@ def test_takeoff_gives_the_wind_and_landing_too() -> None:
 
 
 def test_reading_back_the_wind_altimeter_or_frequency_is_never_wrong() -> None:
-    h = _harness(discipline="relaxed")
+    h = _harness()
     h.lua.execute(FAKE_WIND)
     _call(h, "taxi")
     _call(h, "readback", numbers="25 2992 25 262.0")
@@ -793,19 +716,8 @@ def test_reading_back_the_wind_altimeter_or_frequency_is_never_wrong() -> None:
     h.assert_no_lua_errors()
 
 
-def test_strict_still_needs_the_runway_in_the_takeoff_readback() -> None:
-    h = _harness()
-    _call(h, "ready", TOWER)
-    _call(h, "readback", TOWER, text="cleared for takeoff viper 1 1")
-    h.advance_to(2)
-    assert _texts(h)[1:] == [
-        "Viper 1-1, readback incomplete, cleared for takeoff runway 25."
-    ]
-    h.assert_no_lua_errors()
-
-
-def test_relaxed_matches_a_misheard_callsign_by_flight_name() -> None:
-    # Test 65: Whisper heard "Enfield 4" as "Enfield 2" and Relaxed asked again each time.
+def test_a_misheard_callsign_matches_by_flight_name() -> None:
+    # Test 65: Whisper heard "Enfield 4" as "Enfield 2" and ATC asked again each time.
     h = DcsPluginHarness()
     h.lua.execute(FAKE_AIRBASE)
     h.lua.execute(FAKE_SOCKET)
@@ -815,9 +727,7 @@ def test_relaxed_matches_a_misheard_callsign_by_flight_name() -> None:
         dict(lead, group="Viper", callsign="Enfield 4-1"),
         dict(lead, group="Cobra", callsign="Colt 1-1"),
     ]
-    h.lua.globals().dcsRetribution = h.to_lua(
-        {"plugins": {}, "radioDiscipline": "relaxed", **config}
-    )
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
     h.add_group(_viper())
     h.load_plugin_script(PLUGIN)
     _call(h, "radiocheck", callsign="enfield 2")
@@ -830,16 +740,12 @@ def test_relaxed_matches_a_misheard_callsign_by_flight_name() -> None:
     h.assert_no_lua_errors()
 
 
-def test_relaxed_matches_the_only_flight_at_the_field_and_strict_does_not() -> None:
-    for discipline, expected in (
-        ("relaxed", "Viper 1-1, Kobuleti Ground, read you 5 by 5."),
-        ("strict", "Station calling Kobuleti Ground, say again your callsign."),
-    ):
-        h = _harness(discipline=discipline)
-        _call(h, "radiocheck", callsign="enfield 2")
-        h.advance_to(2)
-        assert _texts(h) == [expected], discipline
-        h.assert_no_lua_errors()
+def test_a_misheard_callsign_matches_the_only_flight_at_the_field() -> None:
+    h = _harness()
+    _call(h, "radiocheck", callsign="enfield 2")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, Kobuleti Ground, read you 5 by 5."]
+    h.assert_no_lua_errors()
 
 
 def test_runway_in_use_gives_the_runway_and_wind() -> None:

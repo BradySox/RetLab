@@ -20,7 +20,6 @@ from ..enums import (
     DatalinkPolicy,
     DefaultPlayerLaserCode,
     FastForwardStopCondition,
-    RadioDiscipline,
     TargetIntelPrecision,
 )
 from ..layout import GAMEPLAY_SECTION, KNEEBOARD_SECTION, MISSION_GENERATOR_PAGE
@@ -493,30 +492,9 @@ class MissionGeneratorSettings:
             "takes off from or lands at: taxi to the runway, "
             "takeoff with the wind and altimeter, and landing. Each field gets its "
             "own Ground and Tower frequencies, apart from DCS's tower frequency. The "
-            "kneeboard lists both. Busting a rule gets a radio call "
-            "and nothing more. AI flights keep DCS's own ATC. SkyEye, running with "
+            "kneeboard lists both. Every call is accepted: readbacks are never "
+            "checked and ATC never blocks a player. AI flights keep DCS's own ATC. SkyEye, running with "
             "its mission link, hears the calls and speaks the replies."
-        ),
-    )
-    radio_discipline: RadioDiscipline = choices_option(
-        "Radio discipline",
-        page=MISSION_GENERATOR_PAGE,
-        section=GAMEPLAY_SECTION,
-        choices={level.value: level for level in RadioDiscipline},
-        default=RadioDiscipline.STRICT,
-        detail=(
-            "How by the book the SkyEye controllers expect you to be. Strict: the "
-            "ABCCC calls a roll call before the push and holds or aborts for players "
-            "who stay silent, and every call names the controller first. Relaxed: "
-            "the roll call is still asked, but an airborne player counts as ready, "
-            "and a call with only your own callsign reaches the ABCCC. Casual: no "
-            "roll call; the ABCCC speaks only when called, at the push, or to hold "
-            "for SEAD that is not airborne; Vacuum calls only radars that threaten "
-            "your package; and the AWACS gives only threat calls on STRIKE. Voice "
-            "ATC: Strict checks readbacks and calls out taxiing or taking off "
-            "without clearance; Relaxed takes any acknowledgement, corrects only "
-            "a wrong number and matches a misheard callsign; Casual also answers "
-            "only when called and accepts a loose call."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(

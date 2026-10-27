@@ -43,19 +43,7 @@ local TARGET_AREA_METERS = 15 * NM
 -- A mud bearing matches a radar this many degrees either side.
 local MUD_DEGREES = 15
 local MAX_ANSWERED = 3
--- Answers use every radar; only the unprompted calls are thinned under Casual.
-local allEmitters = data.emitters or {}
-local emitters = allEmitters
--- Casual radio discipline (§121): only the radars that threaten a player package.
-if dcsRetribution.radioDiscipline == "casual" then
-    local threats = {}
-    for _, e in ipairs(allEmitters) do
-        if e.strike == "true" then
-            table.insert(threats, e)
-        end
-    end
-    emitters = threats
-end
+local emitters = data.emitters or {}
 
 local function airborneVacuum()
     for _, name in ipairs(data.groups or {}) do
@@ -156,7 +144,7 @@ end
 
 -- Sites blue already knows start asleep: a fixed SAM tight, the rest loose, each at the fix an
 -- earlier Vacuum left (knownError) when there is one.
-for _, e in ipairs(allEmitters) do
+for _, e in ipairs(emitters) do
     local u = (e.known == "tight" or e.known == "loose") and liveUnit(e)
     if u then
         locate(e, u:getPoint())
@@ -458,7 +446,7 @@ end
 -- first. A radar on that has not been heard yet is located now.
 local function locatedNear(vacuum, point)
     local out = {}
-    for _, e in ipairs(allEmitters) do
+    for _, e in ipairs(emitters) do
         local unit = radiating(e, vacuum)
         if unit and not e.fixed then
             hear(e, unit, vacuum, 0)
@@ -689,7 +677,7 @@ end
 
 -- Fixes are kept: Vacuum remembers what it located even when it lands.
 local function reset()
-    for _, e in ipairs(allEmitters) do
+    for _, e in ipairs(emitters) do
         e.on = false
         e.offSince = nil
         e.queued = false
@@ -705,7 +693,7 @@ local function enqueue(e)
 end
 
 local function watch(vacuum, now)
-    for _, e in ipairs(allEmitters) do
+    for _, e in ipairs(emitters) do
         local unit = radiating(e, vacuum)
         if unit then
             hear(e, unit, vacuum, POLL_SECONDS)

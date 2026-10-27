@@ -350,7 +350,6 @@ linked design note.
 118. **Vacuum ELINT** — a KC-135 (C-130J-30 backup) calls red SAM radars by bullseye through SkyEye as they come on and answers player calls; turns with SEAD or DEAD. Off by default.
 119. **Voice ATC** — Ground and Tower for player flights through SkyEye: taxi, takeoff, landing, readbacks. Off by default.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
-121. **Radio discipline** — Strict, Relaxed or Casual: how by the book the SkyEye controllers expect players to be. Strict by default.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
 
@@ -392,6 +391,7 @@ Kept numbered so old notes and saves stay readable. Details and rationale in the
 | 9 | TIC — Troops In Contact (the `tic` plugin and the late-init pass) | Removed 2026-10-15 — the front fights with DCS's own ground AI |
 | 73 | Per-airframe default loadout for a task (and the user `UnitPayloads` folder) | Removed 2026-10-17 — saved fits replaced shipped presets by name in every campaign and pinned old weapons; RetLab reads only the shipped payloads |
 | 115 | Phone map (File > Phone link) and the ntfy turn ping | Removed 2026-10-21 — never flown; the map on a phone over home Wi-Fi was not wanted |
+| 121 | Radio discipline (Strict/Relaxed/Casual) | Removed 2026-10-26 — every voice bot accepts every call |
 
 Also removed: the blank-start campaign maker (2026-08-02), the SOF capture economy (2026-07-01),
 the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's convoy ambush

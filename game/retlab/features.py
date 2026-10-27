@@ -982,10 +982,11 @@ FEATURES: tuple[Feature, ...] = (
         120,
     ),
     Feature(
+        # REMOVED 2026-10-26 on the DM's call: every voice bot accepts every call.
         "radio_discipline",
         "Radio discipline",
         121,
-        settings_fields=("radio_discipline",),
+        retired=True,
     ),
     Feature("exact_site_layouts", "Exact site layouts", 122),
     Feature("trains", "Trains on drawn rail lines", 123),

@@ -94,7 +94,9 @@ class AiRadioBehavior(Enum):
 
 @unique
 class RadioDiscipline(Enum):
-    """How by-the-book the voice controllers expect the players to be."""
+    """Save-compat stub. The Radio discipline setting (§121) persisted this enum
+    in saves; it is kept only so they unpickle, and the migration drops the
+    value. Removed 2026-10-26: every SkyEye voice bot accepts every call."""
 
     STRICT = "Strict"
     RELAXED = "Relaxed"
