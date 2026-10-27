@@ -11485,8 +11485,14 @@ restart; a reused PID has another creation time. Any other `skyeye.exe` is the p
 Before this the record was in memory only, and Retribution restarted five times on
 2026-10-20, each leaving a SkyEye that debrief no longer stopped.
 
-- **Stop:** `taskkill /T` without `/F` asks the console to close, so SkyEye gets a close
-  event and can sign off SRS. After 5 s it is forced with `/F`. The record is cleared.
+- **Stop:** RetLab posts `WM_CLOSE` to the console window of the recorded PowerShell's
+  process tree (`EnumWindows`, class `ConsoleWindowClass`, hidden included). The console
+  host answers with a close event, Go turns it into SIGTERM, and SkyEye signs off SRS.
+  After 5 s the tree is forced with `taskkill /T /F`. The record is cleared.
+- Fixed 2026-10-26 (Test 65): from #1375 the stop was `taskkill /T` without `/F`, which
+  never closes a hidden console, so every debrief forced SkyEye after 5 s and it never
+  signed off SRS. A local probe reproduced both: taskkill left the hidden console up;
+  `WM_CLOSE` delivered `CTRL_CLOSE_EVENT` to the child.
 - **One start at a time:** a Take off while a start is still waiting for SRS (up to 75 s)
   starts nothing; the start under way covers it. SkyEye is checked for again, under a
   lock, right before it is started.
@@ -11507,8 +11513,9 @@ Row B264.
 - At most two connect messages: each can make a connected client reconnect.
 - Never stop a `skyeye.exe` by name: only the recorded PID with its creation time is
   RetLab's.
-- SkyEye's console is hidden (`SW_HIDE`), never absent (`CREATE_NO_WINDOW`): a taskkill
-  without `/F` closes it through its window, which is what lets SkyEye sign off SRS.
+- SkyEye's console is hidden (`SW_HIDE`), never absent (`CREATE_NO_WINDOW`): the stop
+  closes it through its window, which is what lets SkyEye sign off SRS. taskkill without
+  `/F` does not reach a hidden window; never go back to it.
 ## §119 — Voice ATC
 
 **Voice ATC (SkyEye)** (RetLab Features page, off by default) gives player flights a Ground
@@ -11797,8 +11804,11 @@ the way. With the setting on:
   group (124.0, 127.5, 251.0, 305.0 ...; `dcs_default_group_frequencies`). Those are held
   only while the voice bots pick, so a carrier keeps its curated 305.0. After the air units
   are built, any AI group on SkyEye's, STRIKE's, Vacuum's or a Ground or Tower frequency
-  moves to another (`_move_ai_off_voice_bots`), and a hand-set frequency on one moves in
-  `setup_radios`, never the bot's.
+  moves to its side's escape frequency (`_move_ai_off_voice_bots`), and a hand-set
+  frequency on one moves in `setup_radios`, never the bot's. Blue, red and neutrals each
+  get their own escape frequency, also picked clear of the DCS defaults and logged
+  ("moved N blue AI groups ... to"). Before 2026-10-26 one was shared by all three and
+  could land on a default: Test 65 put 21 groups on 305.0.
 - The kneeboard support page's AEW&C table and the briefing list **SkyEye callsign**
   (default `Chainsaw`) first as "Chainsaw (SkyEye)", and each blue AWACS as "(silent)".
 - A blue AEW&C flight fragged that turn takes SkyEye's callsign for the turn (Chalice, Chainsaw
