@@ -15,7 +15,7 @@ from game.coordinates import (
 from game.data.weapons import Weapon, WeaponType
 from game.radio.radios import RadioFrequency
 from game.retlab.voice_atc import AtcField, atc_lines
-from game.runways import RunwayData
+from game.runways import RunwayData, runway_label
 from game.theater.bullseye import Bullseye
 from game.utils import inches_hg, meters, mps, pounds
 from game.weather.weather import Weather
@@ -429,7 +429,7 @@ class BriefingPage(KneeboardPage):
             atc,
             tacan,
             ils,
-            runway.runway_name,
+            runway_label(runway.runway_name, self.weather.wind.at_0m.speed),
         ]
 
     def _bullseye_line(self) -> str:

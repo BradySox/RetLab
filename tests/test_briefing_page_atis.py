@@ -12,6 +12,8 @@ def _page(atis_by_name: dict[str, RadioFrequency]) -> BriefingPage:
     page.flight.channel_for.return_value = None  # bare freq, no preset
     page.atis_by_name = atis_by_name
     page.atc_fields = {}
+    page.weather = MagicMock()
+    page.weather.wind.at_0m.speed = 8.0
     return page
 
 
@@ -40,6 +42,16 @@ def test_none_runway_row_has_empty_atis_cell() -> None:
     row = _page({})._row_with_atis("Divert", None)
     assert len(row) == 7
     assert row[-1] == ""
+
+
+def test_light_wind_runway_cell_shows_both_ends() -> None:
+    page = _page({})
+    page.weather.wind.at_0m.speed = 3.0
+    runway = MagicMock()
+    runway.airfield_name = "Hatzerim"
+    runway.atc = runway.atc_vhf = runway.tacan = runway.ils = runway.icls = None
+    runway.runway_name = "28L"
+    assert page.airfield_info_row("Departure", runway)[5] == "28L / 10R"
 
 
 def test_voice_atc_ground_and_tower_replace_the_dcs_tower() -> None:

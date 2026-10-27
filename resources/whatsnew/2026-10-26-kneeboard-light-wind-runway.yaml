@@ -1,0 +1,10 @@
+date: 2026-10-26
+title: Both runway ends in light wind
+change: >-
+  When the surface wind is under 12 kt, the kneeboard's RWY column lists
+  both ends of the runway, the into-wind end first ("28L / 10R"). In light
+  wind DCS's AI often keeps one fixed end at a field, even with a
+  tailwind, so either can be in use.
+watch: >-
+  Take the runway Tower gives. From 12 kt up the AI always goes into the
+  wind and the kneeboard shows one end.
