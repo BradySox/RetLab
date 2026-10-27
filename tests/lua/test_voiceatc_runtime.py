@@ -886,3 +886,22 @@ def test_an_ai_takeoff_heading_is_true_by_lat_lon() -> None:
         "Viper 1-1, runway 07, cleared for takeoff, frequency change approved."
     ]
     h.assert_no_lua_errors()
+
+
+def test_a_formation_call_is_heard_in_any_callsign_form() -> None:
+    # The reply is always "Viper 1 flight"; the pilot may say the flight or the seat.
+    for heard in (
+        "viper 1 flight",
+        "viper 1 1 flight",
+        "viper 1-1 flight",
+        "viper 1 flight of 2",
+    ):
+        h = _harness(ships=2)
+        _call(h, "taxi", text=heard + " ready to taxi")
+        h.advance_to(2)
+        texts = _texts(h)
+        assert texts and texts[0].startswith("Viper 1 flight, runway 25"), (
+            heard,
+            texts,
+        )
+        h.assert_no_lua_errors()
