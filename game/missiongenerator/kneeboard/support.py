@@ -9,6 +9,7 @@ from PIL import ImageFont
 from game.dcs.aircrafttype import AirRefuelType
 from game.radio.radios import RadioFrequency
 from game.retlab.voiceawacs import VoiceAwacsInfo
+from game.runways import runway_label
 from game.theater.controlpoint import Airfield
 from ..aircraft.flightdata import FlightData
 from ..briefinggenerator import CommInfo, JtacInfo
@@ -388,6 +389,7 @@ def build_airfield_directory_rows(
         for cp in game.theater.controlpoints
         if isinstance(cp, Airfield) and cp.is_friendly(flight.friendly)
     ]
+    surface_wind_mps = game.conditions.weather.wind.at_0m.speed
     for cp in sorted(airfields, key=lambda c: c.full_name):
         rw = cp.active_runway(game.theater, game.conditions, {})
         if rw.ils is not None:
@@ -403,7 +405,7 @@ def build_airfield_directory_rows(
                 fmt(atis_by_name.get(cp.full_name)),
                 str(rw.tacan) if rw.tacan is not None else "",
                 ils,
-                rw.runway_name,
+                runway_label(rw.runway_name, surface_wind_mps),
             ]
         )
     return rows

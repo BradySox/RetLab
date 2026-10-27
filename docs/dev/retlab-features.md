@@ -11573,10 +11573,11 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   airplane takes off within 5 NM of the field; its heading then sets the runway end ATC
   gives (the briefed strip's other end first, so 28L becomes 10R). DCS's AI does not always
   take the into-wind runway: on 2026-10-21 Tower cleared 28L and the AI used 10 at Hatzerim.
-  Tacview of five Syria flights with light wind (2-4 m/s) showed the AI on each field's
-  first-listed runway end (Hatzerim 10, Bassel Al-Assad 17, Incirlik 05, Konya 01) whatever
-  the wind, but Tel Nof broke the pattern, so the rule is not settled and the planner is
-  unchanged. In 7.7 m/s (Afghanistan) the AI went into the wind. Wind is read live at the
+  Probe flights on 2026-10-26 (one AI jet at each of 13 Syria fields, 11 winds) settled it:
+  from 6 m/s (12 kt) up every AI takeoff went into the wind; at 2-4 m/s Adana, Aleppo,
+  Bassel Al-Assad, Beirut, Incirlik and Konya kept one fixed end even with a tailwind while
+  Hatzerim and Gaziantep turned into it; calm picked other ends again. Each field repeated
+  exactly. Below 6 m/s the kneeboard RWY column shows both ends (`runway_label`). Wind is read live at the
   field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH. The
   wind direction and the AI takeoff heading are true bearings from lat/lon
   (`trueDirection`), then magnetic; until 2026-10-26 they were map-grid angles, up to about

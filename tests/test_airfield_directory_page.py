@@ -30,6 +30,7 @@ def _airfield(name: str, friendly: bool) -> MagicMock:
 def _game(*cps: MagicMock) -> MagicMock:
     game = MagicMock()
     game.theater.controlpoints = list(cps)
+    game.conditions.weather.wind.at_0m.speed = 8.0
     return game
 
 
@@ -43,6 +44,16 @@ def test_rows_only_blue_airfields_with_atis() -> None:
     field, atc, atis, *_ = rows[0]
     assert field == "Batumi"
     assert "131" in atis
+    assert rows[0][-1] == "13"
+
+
+def test_light_wind_directory_shows_both_runway_ends() -> None:
+    game = _game(_airfield("Batumi", friendly=True))
+    game.conditions.weather.wind.at_0m.speed = 3.0
+    flight = MagicMock()
+    flight.channel_for.return_value = None
+    rows = build_airfield_directory_rows(game, flight, {})
+    assert rows[0][-1] == "13 / 31"
 
 
 def _support_flight() -> MagicMock:

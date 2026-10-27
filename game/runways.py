@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
 from typing import Iterator, Optional, TYPE_CHECKING
 
@@ -109,6 +110,34 @@ class RunwayData:
                 airport,
                 runway.opposite,
             )
+
+
+#: Probe flights (2026-10-26, 13 Syria fields): from 6 m/s (12 kt) up every AI
+#: jet took off into the wind; below it many fields kept one fixed end even with
+#: a tailwind. See docs/dev/retlab-features.md §119.
+LIGHT_WIND_MPS = 6.0
+
+_RUNWAY_END_RE = re.compile(r"^(0[1-9]|[12][0-9]|3[0-6])([LRC]?)$")
+
+
+def opposite_runway_name(name: str) -> Optional[str]:
+    """ "10R" for "28L"; None for a name that is not a runway end ("045" BRC)."""
+    match = _RUNWAY_END_RE.match(name)
+    if match is None:
+        return None
+    number = (int(match.group(1)) + 18 - 1) % 36 + 1
+    side = {"L": "R", "R": "L"}.get(match.group(2), match.group(2))
+    return f"{number:02}{side}"
+
+
+def runway_label(runway_name: str, surface_wind_mps: float) -> str:
+    """The kneeboard RWY cell: both ends in light wind, where AI may use either."""
+    if surface_wind_mps >= LIGHT_WIND_MPS:
+        return runway_name
+    opposite = opposite_runway_name(runway_name)
+    if opposite is None:
+        return runway_name
+    return f"{runway_name} / {opposite}"
 
 
 class RunwayAssigner:
