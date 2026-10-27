@@ -5,7 +5,7 @@ from collections import defaultdict
 from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import dcs.lua
 from dcs import Mission, Point
@@ -404,10 +404,16 @@ class MissionGenerator:
         voice = self.mission_data.voice_bot_frequencies()
         if not voice:
             return
+        # One escape frequency per side, held off the DCS defaults like the bots'
+        # own: a shared one put blue, red and neutrals on F-4E's default 305.0.
+        with self.radio_registry.holding(dcs_default_group_frequencies()):
+            self._move_ai_groups_off(voice)
+
+    def _move_ai_groups_off(self, voice: set[RadioFrequency]) -> None:
         strike = self.mission_data.strike_frequency
-        moved = 0
-        elsewhere: Optional[RadioFrequency] = None
-        for coalition in self.mission.coalition.values():
+        moved: dict[str, int] = {}
+        elsewhere: dict[str, RadioFrequency] = {}
+        for side, coalition in self.mission.coalition.items():
             for country in coalition.countries.values():
                 for group in [*country.plane_group, *country.helicopter_group]:
                     if group.frequency is None or not any(
@@ -420,15 +426,16 @@ class MissionGenerator:
                         strike is not None and abs(group.frequency - strike.mhz) < 1e-3
                     ):
                         continue
-                    if elsewhere is None:
-                        elsewhere = self.radio_registry.alloc_uhf()
-                    group.frequency = elsewhere.mhz  # type: ignore[assignment]
-                    moved += 1
-        if moved:
+                    if side not in elsewhere:
+                        elsewhere[side] = self.radio_registry.alloc_uhf()
+                    group.frequency = elsewhere[side].mhz  # type: ignore[assignment]
+                    moved[side] = moved.get(side, 0) + 1
+        for side, count in moved.items():
             logging.info(
-                "Voice bots: moved %d AI groups off their frequencies to %s",
-                moved,
-                elsewhere,
+                "Voice bots: moved %d %s AI groups off their frequencies to %s",
+                count,
+                side,
+                elsewhere[side],
             )
 
     def generate_air_units(self, tgo_generator: TgoGenerator) -> None:

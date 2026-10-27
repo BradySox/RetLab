@@ -19,7 +19,7 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Iterable, Optional
 
 SRS_PORT = 5002
 #: The SRS client's auto-connect port (global.cfg DCSAutoConnectUDP). SRS's own hook
@@ -45,6 +45,9 @@ SRS_CLIENT_EXE = "SR-ClientRadio.exe"
 DEFAULT_SRS_DIR = Path(r"C:\ProgramData\DCS-SimpleRadio-Standalone")
 
 _SW_HIDE = 0
+WM_CLOSE = 0x0010
+#: conhost's window class. A hidden one still answers WM_CLOSE with a close event.
+CONSOLE_CLASS = "ConsoleWindowClass"
 _SW_SHOWMINNOACTIVE = 7
 
 #: Held while a Take off decides whether to start SkyEye, and while debrief stops it.
@@ -217,8 +220,8 @@ def _start(
             return subprocess.Popen(  # type: ignore[call-overload]
                 [str(exe), *args], stdout=out, stderr=subprocess.STDOUT, **kwargs
             )
-    # The log is RetLab's SkyEye log button. The console is hidden, not absent, so
-    # stop_skyeye's taskkill without /F can still close it. PowerShell is the tee.
+    # The log is RetLab's SkyEye log button. PowerShell is the tee. taskkill without /F
+    # skips the hidden console, so stop_skyeye posts its WM_CLOSE itself.
     return subprocess.Popen(  # type: ignore[call-overload]
         [
             "powershell.exe",
@@ -370,13 +373,135 @@ def _watch_early_exit(process: subprocess.Popen[bytes], log: Path) -> None:
     threading.Thread(target=watch, daemon=True, name="skyeye-watch").start()
 
 
-def _taskkill(pid: int, force: bool) -> None:
+def process_tree(pid: int, parents: Iterable[tuple[int, int]]) -> set[int]:
+    """pid and every process under it, from (pid, parent pid) pairs."""
+    children: dict[int, list[int]] = {}
+    for child, parent in parents:
+        if child != parent:
+            children.setdefault(parent, []).append(child)
+    tree = {pid}
+    todo = [pid]
+    while todo:
+        for child in children.get(todo.pop(), []):
+            if child not in tree:
+                tree.add(child)
+                todo.append(child)
+    return tree
+
+
+def console_windows(
+    tree: set[int], windows: Iterable[tuple[int, int, str]]
+) -> list[int]:
+    """The console windows, hidden ones too, of (hwnd, pid, class) owned in tree."""
+    return [hwnd for hwnd, pid, cls in windows if pid in tree and cls == CONSOLE_CLASS]
+
+
+def _process_parents() -> list[tuple[int, int]]:
+    """Every running process as (pid, parent pid), from a toolhelp snapshot."""
+    if sys.platform != "win32":
+        return []
+    import ctypes
+    from ctypes import wintypes
+
+    class Entry(ctypes.Structure):
+        _fields_ = [
+            ("dwSize", wintypes.DWORD),
+            ("cntUsage", wintypes.DWORD),
+            ("th32ProcessID", wintypes.DWORD),
+            ("th32DefaultHeapID", ctypes.c_size_t),
+            ("th32ModuleID", wintypes.DWORD),
+            ("cntThreads", wintypes.DWORD),
+            ("th32ParentProcessID", wintypes.DWORD),
+            ("pcPriClassBase", wintypes.LONG),
+            ("dwFlags", wintypes.DWORD),
+            ("szExeFile", wintypes.WCHAR * 260),
+        ]
+
+    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+    kernel32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+    kernel32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.c_void_p]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    snapshot = kernel32.CreateToolhelp32Snapshot(0x2, 0)  # TH32CS_SNAPPROCESS
+    if not snapshot or snapshot == wintypes.HANDLE(-1).value:
+        return []
+    pairs: list[tuple[int, int]] = []
+    try:
+        entry = Entry()
+        entry.dwSize = ctypes.sizeof(Entry)
+        more = kernel32.Process32FirstW(snapshot, ctypes.byref(entry))
+        while more:
+            pairs.append((entry.th32ProcessID, entry.th32ParentProcessID))
+            more = kernel32.Process32NextW(snapshot, ctypes.byref(entry))
+    finally:
+        kernel32.CloseHandle(snapshot)
+    return pairs
+
+
+def _top_level_windows() -> list[tuple[int, int, str]]:
+    """Every top-level window, visible or not, as (hwnd, owning pid, class name)."""
+    if sys.platform != "win32":
+        return []
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    proc = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+    user32.EnumWindows.argtypes = [proc, wintypes.LPARAM]
+    user32.GetWindowThreadProcessId.argtypes = [wintypes.HWND, ctypes.c_void_p]
+    user32.GetClassNameW.argtypes = [wintypes.HWND, wintypes.LPWSTR, ctypes.c_int]
+    found: list[tuple[int, int, str]] = []
+
+    def visit(hwnd: int, _: int) -> bool:
+        pid = wintypes.DWORD()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        name = ctypes.create_unicode_buffer(256)
+        user32.GetClassNameW(hwnd, name, 256)
+        found.append((hwnd, pid.value, name.value))
+        return True
+
+    user32.EnumWindows(proc(visit), 0)
+    return found
+
+
+def _post_close(hwnd: int) -> None:
     if sys.platform != "win32":
         return
-    # The process is PowerShell; /T takes SkyEye under it too. Without /F its console
-    # is asked to close, so SkyEye gets a close event and can sign off SRS.
+    import ctypes
+    from ctypes import wintypes
+
+    user32 = ctypes.WinDLL("user32", use_last_error=True)
+    user32.PostMessageW.argtypes = [
+        wintypes.HWND,
+        wintypes.UINT,
+        wintypes.WPARAM,
+        wintypes.LPARAM,
+    ]
+    user32.PostMessageW(hwnd, WM_CLOSE, 0, 0)
+
+
+def _ask_to_close(pid: int) -> int:
+    """Post WM_CLOSE to the console of pid's tree; returns how many windows got it.
+
+    The console host answers WM_CLOSE with a close event to every process on the
+    console, shown or hidden, so SkyEye gets its SIGTERM and signs off SRS.
+    taskkill without /F never reached the hidden one (Test 65), so it is not used.
+    """
+    windows = console_windows(
+        process_tree(pid, _process_parents()), _top_level_windows()
+    )
+    for hwnd in windows:
+        _post_close(hwnd)
+    return len(windows)
+
+
+def _force_kill(pid: int) -> None:
+    if sys.platform != "win32":
+        return
+    # The process is PowerShell; /T takes SkyEye under it too.
     subprocess.run(
-        ["taskkill", "/T", *(["/F"] if force else []), "/PID", str(pid)],
+        ["taskkill", "/T", "/F", "/PID", str(pid)],
         capture_output=True,
         creationflags=subprocess.CREATE_NO_WINDOW,
         check=False,
@@ -393,12 +518,13 @@ def stop_skyeye() -> None:
         _stopped.add(pid)
         logging.info("Voice bots: stopping the SkyEye Take off started")
         try:
-            _taskkill(pid, force=False)
+            if not _ask_to_close(pid):
+                logging.info("Voice bots: found no SkyEye console window to close")
             if not _wait(
                 lambda: process_started(pid) != created, GRACEFUL_STOP_SECONDS, 0.25
             ):
                 logging.info("Voice bots: SkyEye did not close; closing it by force")
-                _taskkill(pid, force=True)
+                _force_kill(pid)
         except OSError:
             logging.exception("Voice bots: could not stop SkyEye")
         _clear_record()

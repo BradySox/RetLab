@@ -44,8 +44,8 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
         "skyeye": skyeye,
         # Live processes by PID, with their creation time.
         "alive": {},
-        "taskkills": [],
-        # Whether a taskkill without /F closes SkyEye.
+        "stops": [],
+        # Whether the console's WM_CLOSE closes SkyEye.
         "graceful_works": True,
     }
 
@@ -90,13 +90,18 @@ def world(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> dict[str, Any]:
     monkeypatch.setattr(launcher, "record_path", lambda: tmp_path / "record.json")
     monkeypatch.setattr(launcher, "process_started", state["alive"].get)
 
-    def taskkill(pid: int, force: bool) -> None:
-        state["taskkills"].append((pid, force))
+    def stop(pid: int, force: bool) -> None:
+        state["stops"].append((pid, force))
         if force or state["graceful_works"]:
             state["alive"].pop(pid, None)
             state["running"].discard(launcher.SKYEYE_EXE)
 
-    monkeypatch.setattr(launcher, "_taskkill", taskkill)
+    def ask_to_close(pid: int) -> int:
+        stop(pid, False)
+        return 1
+
+    monkeypatch.setattr(launcher, "_ask_to_close", ask_to_close)
+    monkeypatch.setattr(launcher, "_force_kill", lambda pid: stop(pid, True))
     monkeypatch.setattr(launcher, "_starting", False)
     return state
 
@@ -134,7 +139,7 @@ def test_only_the_skyeye_retlab_started_is_stopped(world: dict[str, Any]) -> Non
     launcher._start_voice_bots(world["skyeye"])
     (pid,) = world["alive"]
     launcher.stop_skyeye()
-    assert world["taskkills"] == [(pid, False)]
+    assert world["stops"] == [(pid, False)]
     assert pid not in world["alive"]
     assert not launcher.record_path().exists()
 
@@ -149,7 +154,7 @@ def test_a_restart_does_not_orphan_retlabs_skyeye(world: dict[str, Any]) -> None
         (launcher.SKYEYE_EXE, "hidden")
     ]
     launcher.stop_skyeye()
-    assert world["taskkills"] == [(pid, False)]
+    assert world["stops"] == [(pid, False)]
 
 
 def test_a_reused_pid_is_not_retlabs(world: dict[str, Any]) -> None:
@@ -157,7 +162,7 @@ def test_a_reused_pid_is_not_retlabs(world: dict[str, Any]) -> None:
     (pid,) = world["alive"]
     world["alive"][pid] = 1  # the same PID, a different process
     launcher.stop_skyeye()
-    assert world["taskkills"] == []
+    assert world["stops"] == []
     assert not launcher.record_path().exists()
 
 
@@ -165,7 +170,7 @@ def test_the_players_skyeye_is_left_on_debrief(world: dict[str, Any]) -> None:
     world["running"].add(launcher.SKYEYE_EXE)
     launcher._start_voice_bots(world["skyeye"])
     launcher.stop_skyeye()
-    assert world["taskkills"] == []
+    assert world["stops"] == []
 
 
 def test_skyeye_is_forced_only_when_it_will_not_close(
@@ -175,7 +180,7 @@ def test_skyeye_is_forced_only_when_it_will_not_close(
     launcher._start_voice_bots(world["skyeye"])
     (pid,) = world["alive"]
     launcher.stop_skyeye()
-    assert world["taskkills"] == [(pid, False), (pid, True)]
+    assert world["stops"] == [(pid, False), (pid, True)]
 
 
 def test_a_second_take_off_during_a_start_starts_nothing(
@@ -294,3 +299,50 @@ def test_a_real_start_writes_the_log(tmp_path: Path) -> None:
     process.wait(timeout=30)
     text = log.read_text()
     assert "Take off" in text and "hello from skyeye" in text
+
+
+def test_the_process_tree_takes_every_descendant_and_nothing_else() -> None:
+    # powershell 10 -> conhost 11, skyeye 12 -> 13; 20 is someone else's.
+    parents = [(10, 1), (11, 10), (12, 10), (13, 12), (20, 1), (0, 0)]
+    assert launcher.process_tree(10, parents) == {10, 11, 12, 13}
+    assert launcher.process_tree(99, parents) == {99}
+
+
+def test_only_console_windows_in_the_tree_are_closed() -> None:
+    windows = [
+        (1, 10, launcher.CONSOLE_CLASS),  # the hidden SkyEye console
+        (2, 10, "IME"),
+        (3, 20, launcher.CONSOLE_CLASS),  # the player's own console
+    ]
+    assert launcher.console_windows({10, 11}, windows) == [1]
+
+
+def test_the_polite_stop_posts_wm_close_to_the_hidden_console(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    posted: list[int] = []
+    monkeypatch.setattr(launcher, "_process_parents", lambda: [(11, 10), (20, 1)])
+    monkeypatch.setattr(
+        launcher,
+        "_top_level_windows",
+        lambda: [
+            (5, 11, launcher.CONSOLE_CLASS),
+            (6, 20, launcher.CONSOLE_CLASS),
+            (7, 10, "IME"),
+        ],
+    )
+    monkeypatch.setattr(launcher, "_post_close", posted.append)
+    assert launcher._ask_to_close(10) == 1
+    assert posted == [5]
+
+
+def test_a_stop_with_no_console_found_still_forces(
+    world: dict[str, Any], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    launcher._start_voice_bots(world["skyeye"])
+    (pid,) = world["alive"]
+    forced: list[int] = []
+    monkeypatch.setattr(launcher, "_ask_to_close", lambda pid: 0)
+    monkeypatch.setattr(launcher, "_force_kill", forced.append)
+    launcher.stop_skyeye()
+    assert forced == [pid]

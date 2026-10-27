@@ -175,3 +175,36 @@ def test_the_sweep_leaves_package_ai_on_strike() -> None:
     assert package_ai.frequency == 264.0
     assert stray.frequency not in (264.0, 270.0)
     assert on_vacuum.frequency not in (264.0, 270.0)
+
+
+def test_each_side_escapes_to_its_own_frequency_off_the_dcs_defaults() -> None:
+    data = MissionData()
+    data.skyeye_frequency = MHz(251)
+    sides = {
+        side: [_group(251.0, name=f"{side} {n}") for n in range(2)]
+        for side in ("blue", "red", "neutrals")
+    }
+    generator: Any = MissionGenerator.__new__(MissionGenerator)
+    generator.mission_data = data
+    generator.radio_registry = RadioRegistry()
+    generator.radio_registry.reserve(MHz(251))
+    generator.mission = SimpleNamespace(
+        coalition={
+            side: SimpleNamespace(
+                countries={
+                    side: SimpleNamespace(plane_group=groups, helicopter_group=[])
+                }
+            )
+            for side, groups in sides.items()
+        }
+    )
+    generator._move_ai_off_voice_bots()
+    escapes = {side: {g.frequency for g in groups} for side, groups in sides.items()}
+    assert all(len(e) == 1 for e in escapes.values())
+    picked = {e.pop() for e in escapes.values()}
+    assert len(picked) == 3
+    defaults = {f.mhz for f in dcs_default_group_frequencies()}
+    assert not picked & defaults
+    # The defaults are only held for the sweep; a later allocation may use them.
+    held = set(dcs_default_group_frequencies()) - {MHz(251)}
+    assert not generator.radio_registry.allocated_channels & held
