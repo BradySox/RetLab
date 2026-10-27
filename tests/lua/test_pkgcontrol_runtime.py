@@ -4,7 +4,9 @@ The contract: while a ABCCC C-130 is alive and airborne it runs each
 player package on STRIKE (common): an F10 Check in menu and spoken check-in, ready
 to push and push time requests from SkyEye, the push to join, up to two holds for a
 SEAD or escort on the ground, aborts for a dead target or a lost SEAD, the execute
-call once the strikers and escorts are at the join point, and the egress call. With no controller airborne nothing is said and the push waits. The
+call once the strikers and escorts are at the join point, an off-target line for each AI
+strike flight, a player's "off target", and the egress call once every flight is off and
+no package weapon is in the air. With no controller airborne nothing is said and the push waits. The
 calls go to SkyEye over the UDP link in the controller's voice, with no on-screen
 text; without LuaSocket they are text only.
 How SkyEye says them is in-game only (checklist B258).
@@ -72,10 +74,12 @@ def _flight(
     }
 
 
-def _config(flights: list[dict[str, Any]], targets: list[str]) -> dict[str, Any]:
+def _config(
+    flights: list[dict[str, Any]], targets: list[str], start: int = 14 * 3600
+) -> dict[str, Any]:
     return {
         "packageControl": {
-            "startSeconds": str(14 * 3600),
+            "startSeconds": str(start),
             "linkHost": "127.0.0.1",
             "linkPort": "42690",
             "strikeFreq": "264.500",
@@ -133,6 +137,7 @@ def _harness(
     link: bool = True,
     controller_airborne: bool = True,
     discipline: str = "strict",
+    start: int = 14 * 3600,
 ) -> DcsPluginHarness:
     h = DcsPluginHarness()
     h.lua.execute(FAKE_AIRBASE)
@@ -142,7 +147,7 @@ def _harness(
         {
             "plugins": {},
             "radioDiscipline": discipline,
-            **_config(flights, list(targets)),
+            **_config(flights, list(targets), start),
         }
     )
     h.add_group(_group("Anvil", x=100 * NM, airborne=controller_airborne))
@@ -288,6 +293,19 @@ def test_a_sead_on_the_ground_holds_twice_then_aborts() -> None:
     h.assert_no_lua_errors()
 
 
+def test_the_push_time_is_rounded_to_the_nearest_minute() -> None:
+    # Test 65: a push at 09:31:57 was spoken "zero niner three one".
+    start = 9 * 3600 + 21 * 60 + 57
+    h = _harness([_flight("Colt", client=True)], [_group("Colt")], start=start)
+    _request(h, "pushtime")
+    h.advance_to(2)
+    assert _said(h)[-1]["text"] == "Colt1-1, Anvil, push time 0932."
+    assert (
+        _said(h)[-1]["speech"] == "Colt one one, Anvil, push time zero niner three two."
+    )
+    h.assert_no_lua_errors()
+
+
 def test_a_dead_target_aborts() -> None:
     h = _harness([_flight("Colt", client=True)], [_group("Colt")], targets=("Gone #1",))
     h.advance_to(PUSH + 10)
@@ -309,19 +327,161 @@ def test_a_lost_sead_aborts() -> None:
     h.assert_no_lua_errors()
 
 
-def test_egress_is_called_when_the_strikers_open_from_the_target() -> None:
-    h = _harness([_flight("Colt", client=True)], [_group("Colt", x=50 * NM)])
+def _pair(name: str, x: float = 50 * NM) -> dict[str, Any]:
+    group = _group(name, x=x)
+    group["units"].append({**group["units"][0], "name": name + " #2"})
+    return group
+
+
+def _fly(
+    h: DcsPluginHarness, group: str, xs: list[float], t: int, unit: int = 1
+) -> int:
+    # One sample a poll: the unit at each range in turn.
+    for x in xs:
+        h.update_unit(group, {"x": x * NM}, unit_index=unit)
+        t += 10
+        h.advance_to(t)
+    return t
+
+
+def test_egress_waits_for_every_unit_of_an_ai_strike_flight() -> None:
+    h = _harness([_flight("Hawg")], [_pair("Hawg")])
     h.advance_to(PUSH + 10)
-    h.update_unit("Colt", {"x": 8 * NM})
+    assert _texts(h) == ["Colt package, Anvil, execute."]
+    t = PUSH + 10
+    for lead, wing in [(5, 3), (12, 2), (14, 3), (16, 2), (18, 3), (20, 8), (22, 11)]:
+        h.update_unit("Hawg", {"x": lead * NM})
+        h.update_unit("Hawg", {"x": wing * NM}, unit_index=2)
+        t += 10
+        h.advance_to(t)
+        if wing < 10:
+            # The wingman is still on the target (Test 65: Mk-83s still falling).
+            assert _texts(h) == ["Colt package, Anvil, execute."]
+    assert _texts(h)[1:] == [
+        "Colt package, Anvil, Hawg1 off target.",
+        "Colt package, Anvil, all flights off target, egress.",
+    ]
+    assert _said(h)[-2]["speech"] == "Colt package, Anvil, Hawg one off target."
+    h.assert_no_lua_errors()
+
+
+def test_egress_waits_for_a_weapon_still_in_the_air() -> None:
+    # A JSOW released 40 NM out: the shot counts as reaching the target.
+    h = _harness([_flight("Hawg")], [_group("Hawg", x=45 * NM)])
+    h.advance_to(PUSH + 10)
+    h.update_unit("Hawg", {"x": 40 * NM})
+    h.fire_shot({"initiator": "Hawg", "weapon": {"vanishAt": PUSH + 200}})
+    _fly(h, "Hawg", [41, 42, 43], PUSH + 10)
+    assert _texts(h)[-1] == "Colt package, Anvil, Hawg1 off target."
+    h.advance_to(PUSH + 190)
+    assert _texts(h)[-1] == "Colt package, Anvil, Hawg1 off target."
+    h.advance_to(PUSH + 210)
+    assert _texts(h)[-1] == "Colt package, Anvil, all flights off target, egress."
+    h.assert_no_lua_errors()
+
+
+def test_a_striker_that_never_reached_or_fired_is_not_off() -> None:
+    h = _harness([_flight("Hawg")], [_group("Hawg", x=45 * NM)])
+    h.advance_to(PUSH + 10)
+    _fly(h, "Hawg", [46, 47, 48, 49], PUSH + 10)
+    assert _texts(h) == ["Colt package, Anvil, execute."]
+    h.assert_no_lua_errors()
+
+
+def test_the_package_call_waits_for_sead_and_escort() -> None:
+    h = _harness(
+        [_flight("Hawg"), _flight("Weasel", role="sead"), _flight("Eagle", "escort")],
+        [_group("Hawg"), _group("Weasel", x=5 * NM), _group("Eagle", x=20 * NM)],
+    )
+    h.advance_to(PUSH + 10)
+    t = _fly(h, "Hawg", [5, 11, 12, 13], PUSH + 10)
+    assert _texts(h)[-1] == "Colt package, Anvil, Hawg1 off target."
+    h.update_unit("Weasel", {"x": 15 * NM})
+    h.advance_to(t + 10)
+    assert _texts(h)[-1] == "Colt package, Anvil, all flights off target, egress."
+    h.assert_no_lua_errors()
+
+
+def test_a_player_off_target_call_is_answered_and_counts() -> None:
+    h = _harness(
+        [_flight("Colt", client=True)],
+        [_group("Colt", x=50 * NM, player="Brady")],
+        discipline="relaxed",
+    )
+    h.advance_to(PUSH + 10)
+    h.update_unit("Colt", {"x": 4 * NM})
     h.advance_to(PUSH + 20)
-    h.update_unit("Colt", {"x": 5 * NM})
+    _request(h, "offtarget")
+    h.advance_to(PUSH + 21)
+    assert _said(h)[-1]["text"] == "Colt1-1, Anvil, copy off, cleared egress."
+    assert _said(h)[-1]["speech"] == "Colt one one, Anvil, copy off, cleared egress."
     h.advance_to(PUSH + 30)
-    h.update_unit("Colt", {"x": 9 * NM})
-    h.advance_to(PUSH + 40)
-    assert _texts(h)[-1] == "Colt package, Anvil, execute."
-    h.update_unit("Colt", {"x": 12 * NM})
-    h.advance_to(PUSH + 50)
-    assert _texts(h)[-1] == "Colt package, Anvil, all strikers egressed. RTB."
+    # No off-target line of the package's for a player: they called it.
+    assert _texts(h)[1:] == [
+        "Colt1-1, Anvil, copy off, cleared egress.",
+        "Colt package, Anvil, all flights off target, egress.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_player_flight_off_by_its_track_gets_no_line_of_its_own() -> None:
+    h = _harness(
+        [_flight("Colt", client=True)],
+        [_group("Colt", x=50 * NM, player="Brady")],
+        discipline="relaxed",
+    )
+    h.advance_to(PUSH + 10)
+    _fly(h, "Colt", [5, 11, 12, 13], PUSH + 10)
+    assert _texts(h) == [
+        "Colt package, Anvil, execute.",
+        "Colt package, Anvil, all flights off target, egress.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_lost_striker_drops_out_of_the_egress() -> None:
+    h = _harness([_flight("Hawg"), _flight("Boar")], [_group("Hawg"), _group("Boar")])
+    h.advance_to(PUSH + 10)
+    h.update_unit("Boar", {"exists": False})
+    _fly(h, "Hawg", [5, 11, 12, 13], PUSH + 10)
+    assert _texts(h)[-1] == "Colt package, Anvil, all flights off target, egress."
+    h.assert_no_lua_errors()
+
+
+def test_a_striker_that_lands_drops_out_of_the_egress() -> None:
+    h = _harness([_flight("Hawg"), _flight("Boar")], [_group("Hawg"), _group("Boar")])
+    h.advance_to(PUSH + 10)
+    h.update_unit("Boar", {"airborne": False})
+    _fly(h, "Hawg", [5, 11, 12, 13], PUSH + 10)
+    assert _texts(h)[-1] == "Colt package, Anvil, all flights off target, egress."
+    h.assert_no_lua_errors()
+
+
+def test_every_striker_lost_is_package_complete() -> None:
+    h = _harness([_flight("Hawg")], [_group("Hawg")])
+    h.advance_to(PUSH + 20)
+    h.update_unit("Hawg", {"exists": False})
+    h.advance_to(PUSH + 30)
+    assert _texts(h)[-1] == "Colt package, Anvil, package complete."
+    h.assert_no_lua_errors()
+
+
+def test_the_give_up_says_package_complete() -> None:
+    h = _harness([_flight("Hawg")], [_group("Hawg")])
+    h.advance_to(PUSH + 3590)
+    assert _texts(h) == ["Colt package, Anvil, execute."]
+    h.advance_to(PUSH + 3630)
+    assert _texts(h)[-1] == "Colt package, Anvil, package complete."
+    h.advance_to(PUSH + 3700)
+    assert len(_texts(h)) == 2
+    h.assert_no_lua_errors()
+
+
+def test_casual_has_no_egress_lines() -> None:
+    h = _harness([_flight("Hawg")], [_group("Hawg")], discipline="casual")
+    h.advance_to(PUSH + 10)
+    _fly(h, "Hawg", [5, 11, 12, 13], PUSH + 10)
+    assert _texts(h) == ["Colt package, Anvil, execute."]
     h.assert_no_lua_errors()
 
 
@@ -947,4 +1107,17 @@ def test_a_check_in_on_the_way_to_the_join_is_told_to_proceed() -> None:
         "Colt1-1, Anvil, radar contact. Colt package has pushed, proceed to join.",
         "Colt1-1, Anvil, Colt package has pushed.",
     ]
+    h.assert_no_lua_errors()
+
+
+def test_a_striker_left_at_the_join_drops_out_of_the_egress() -> None:
+    h = _harness(
+        [_joining("Hawg"), _joining("Boar")],
+        [_group("Hawg", x=JOIN_X), _group("Boar")],
+    )
+    h.advance_to(JOIN + 190)
+    assert _texts(h)[-1] == "Colt package, Anvil, execute."
+    t = _fly(h, "Hawg", [5, 11, 12, 13], JOIN + 190)
+    assert _texts(h)[-1] == "Colt package, Anvil, all flights off target, egress."
+    assert t > JOIN
     h.assert_no_lua_errors()

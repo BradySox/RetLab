@@ -42,17 +42,37 @@ def _answers(text: str) -> list[str]:
 def test_abccc_card_is_calls_and_answers(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    page = AbcccPage("Blackjack", MHz(264, 500), "Ford 9-1", False)
+    page = AbcccPage(
+        "Blackjack",
+        MHz(264, 500),
+        "Ford 9-1",
+        False,
+        push_time="1432",
+        hold_angels=20,
+    )
     text = _card_lines(page, tmp_path, monkeypatch)
     assert _calls(text) == [
         '"Blackjack, Ford 9-1, checking in."',
         '"Blackjack, Ford 9-1, ready."',
         '"Blackjack, Ford 9-1, ready to push."',
         '"Blackjack, Ford 9-1, say push time."',
+        '"Blackjack, Ford 9-1, off target."',
     ]
     assert len(_answers(text)) == len(_calls(text))
     assert "Push time 1432" in text
     assert "command post" not in text and "Tip" not in text
+    assert '"Radar contact. Cleared direct hold, angels 20. Push time 1432."' in text
+
+
+def test_abccc_card_leaves_out_numbers_it_does_not_have(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    page = AbcccPage("Blackjack", MHz(264, 500), "Ford 9-1", False)
+    text = _card_lines(page, tmp_path, monkeypatch)
+    assert '  Blackjack: "Radar contact."' in text
+    assert '  Blackjack: "Copy ready."' in text
+    assert '  Blackjack: "Push time <time>."' in text
+    assert "1432" not in text and "angels" not in text
 
 
 def test_awacs_card_is_calls_and_answers(
@@ -71,6 +91,19 @@ def test_awacs_card_is_calls_and_answers(
     # SkyEye answers an AWACS check-in by asking which check was meant.
     assert "checking in" not in text
     assert "Nobody answers" not in text and "player name" not in text
+    # Live numbers are placeholders, never figures that read as mission data.
+    assert '  Image: "Group BRAA <brg>/<rng>, <alt> thousand, hot, hostile."' in text
+    assert '  Image: "Nearest tanker, BRA <brg>/<rng>."' in text
+    for figure in ("090/40", "270/25", "180/40", "Texaco"):
+        assert figure not in text, figure
+
+
+def test_awacs_card_names_the_tanker_that_can_refuel_the_jet(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    page = SkyEyeAwacsPage("Image", MHz(251), None, "Ford 9-1", False, tanker="Arco 2")
+    text = _card_lines(page, tmp_path, monkeypatch)
+    assert '  Image: "Nearest tanker, Arco 2, BRA <brg>/<rng>."' in text
 
 
 def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(

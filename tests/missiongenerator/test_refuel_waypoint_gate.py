@@ -22,6 +22,7 @@ from dcs.terrain.caucasus import Caucasus
 from game.missiongenerator.refuelrendezvous import (
     nearest_point_on_leg,
     refuel_rendezvous,
+    serving_tanker,
 )
 from game.theater.player import Player
 
@@ -159,3 +160,25 @@ def test_nearest_point_is_clamped_to_the_orbit_leg() -> None:
 def test_a_degenerate_orbit_resolves_to_its_point() -> None:
     spot = at(7, 9)
     assert nearest_point_on_leg(at(1000, 1000), spot, spot) is spot
+
+
+# ------------------------------------------------- the AWACS card's tanker
+
+
+def test_the_awacs_card_tanker_is_the_nearest_one_that_can_refuel_the_jet() -> None:
+    boom = object()
+    near_boom = tanker(start=at(0, 0), aircraft_type=boom)
+    enemy = tanker(blue=False, start=at(0, 0))
+    far = tanker(start=at(90_000, 0))
+    near = tanker(start=at(20_000, 0))
+    receiver = FakeType(refuses=boom)
+    pick = serving_tanker(
+        receiver, True, at(0, 0), [near_boom, enemy, far, near]  # type: ignore[arg-type]
+    )
+    assert pick is near
+    # No REFUEL waypoint: the first that serves.
+    first = serving_tanker(
+        receiver, True, None, [near_boom, far, near]  # type: ignore[arg-type]
+    )
+    assert first is far
+    assert serving_tanker(receiver, True, None, [near_boom]) is None  # type: ignore[arg-type]

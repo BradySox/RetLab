@@ -40,6 +40,8 @@ class AbcccPage(KneeboardPage):
         callsign: str,
         dark_kneeboard: bool,
         fmt: Callable[[RadioFrequency], str] = _freq,
+        push_time: Optional[str] = None,
+        hold_angels: Optional[int] = None,
     ) -> None:
         #: How a frequency prints: with its preset channel when the generator knows it.
         self.fmt = fmt
@@ -47,10 +49,20 @@ class AbcccPage(KneeboardPage):
         self.strike = strike
         self.callsign = callsign
         self.dark_kneeboard = dark_kneeboard
+        #: The package's planned push ("1432") and this flight's hold angels, when known.
+        self.push_time = push_time
+        self.hold_angels = hold_angels
 
     def write(self, path: Path) -> None:
         w = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         c, me = self.controller, self.callsign
+        # The mission's own numbers; one not known is left out, never made up.
+        push = f" Push time {self.push_time}." if self.push_time else ""
+        hold = (
+            f" Cleared direct hold, angels {self.hold_angels}."
+            if self.hold_angels is not None
+            else ""
+        )
         w.title(f"Talking to {c} (ABCCC)")
         w.text(f"STRIKE: {self.fmt(self.strike)}", fill=w.col_nav)
         w.rule()
@@ -59,14 +71,16 @@ class AbcccPage(KneeboardPage):
             w,
             [
                 f'"{c}, {me}, checking in."',
-                f'  {c}: "Radar contact. Cleared direct hold, angels 20. Push time 1432."',
+                f'  {c}: "Radar contact.{hold}{push}"',
                 f'"{c}, {me}, ready."',
-                f'  {c}: "Copy ready. Push time 1432."',
+                f'  {c}: "Copy ready.{push}"',
                 f'"{c}, {me}, ready to push."',
-                f'  {c}: "Push to join."  (or "Negative ... Push time 1432.")',
+                f'  {c}: "Push to join."  (or "Negative ...{push}")',
                 f'"{c}, {me}, say push time."',
-                f'  {c}: "Push time 1432."',
+                f'  {c}: "Push time {self.push_time or "<time>"}."',
                 f'At the join point, {c}: "Execute."',
+                f'"{c}, {me}, off target."',
+                f'  {c}: "Copy off, cleared egress."',
             ],
         )
         w.write(path)
@@ -83,9 +97,12 @@ class SkyEyeAwacsPage(KneeboardPage):
         callsign: str,
         dark_kneeboard: bool,
         fmt: Callable[[RadioFrequency], str] = _freq,
+        tanker: Optional[str] = None,
     ) -> None:
         #: How a frequency prints: with its preset channel when the generator knows it.
         self.fmt = fmt
+        #: The callsign of the tanker that can refuel this jet, when one flies.
+        self.tanker = tanker
         self.awacs = awacs
         self.frequency = frequency
         self.strike = strike
@@ -102,23 +119,25 @@ class SkyEyeAwacsPage(KneeboardPage):
         w.rule()
         w.heading("Calls")
         # No "checking in": SkyEye answers it by asking radio check or alpha check.
+        # Live numbers are placeholders: fixed figures read as mission data.
+        tanker = f" {self.tanker}," if self.tanker else ""
         _lines(
             w,
             [
                 f'"{a}, {me}, radio check."',
                 f'  {a}: "5 by 5."',
                 f'"{a}, {me}, picture."',
-                f'  {a}: "2 groups. Group bullseye 090/40, 20 thousand, hostile ..."',
+                f'  {a}: "<n> groups. Group bullseye <brg>/<rng>, <alt> thousand, hostile ..."',
                 f'"{a}, {me}, bogey dope."',
-                f'  {a}: "Group BRAA 270/25, 20 thousand, hot, hostile."  (or "Clean")',
-                f'"{a}, {me}, declare 090 20 15 thousand."',
+                f'  {a}: "Group BRAA <brg>/<rng>, <alt> thousand, hot, hostile."  (or "Clean")',
+                f'"{a}, {me}, declare <brg> <rng> <alt> thousand."',
                 f'  {a}: "Hostile."  (or "Friendly", "Bogey", "Clean")',
-                f'"{a}, {me}, spiked 270."',
-                f'  {a}: "Spike range 25, 20 thousand, hot, hostile."  (or "Clean 270")',
+                f'"{a}, {me}, spiked <brg>."',
+                f'  {a}: "Spike range <rng>, <alt> thousand, hot, hostile."  (or "Clean <brg>")',
                 f'"{a}, {me}, alpha check."',
-                f'  {a}: "Contact, alpha check bullseye 090/40."',
+                f'  {a}: "Contact, alpha check bullseye <brg>/<rng>."',
                 f'"{a}, {me}, vector to tanker."',
-                f'  {a}: "Nearest tanker, Texaco 1, BRA 180/40."',
+                f'  {a}: "Nearest tanker,{tanker} BRA <brg>/<rng>."',
             ],
         )
         w.write(path)

@@ -15,8 +15,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from datetime import datetime, timedelta
+from typing import TYPE_CHECKING, Iterable, Optional
 
 from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
@@ -106,6 +106,31 @@ def _join(flight: FlightData) -> Optional[tuple[float, float, int, Optional[date
             angels = int(round(waypoint.alt.feet / 1000))
             return waypoint.x, waypoint.y, angels, waypoint.tot
     return None
+
+
+def hold_angels(flight: FlightData) -> Optional[int]:
+    """The angels the ABCCC clears the flight to at its HOLD point."""
+    hold = _hold(flight)
+    return hold[2] if hold is not None else None
+
+
+def package_push_time(flights: Iterable[FlightData]) -> Optional[datetime]:
+    """The package push: the earliest strike flight's push time, else any flight's.
+
+    The same rule as pkgcontrol's ``pushTime``.
+    """
+    pool = list(flights)
+    strikers = [f for f in pool if role_for(f.flight_type) == "strike"]
+    for candidates in (strikers, pool):
+        times = [f.push_time for f in candidates if f.push_time is not None]
+        if times:
+            return min(times)
+    return None
+
+
+def push_clock(when: datetime) -> str:
+    """``09:31:57`` -> ``"0932"``: to the nearest minute, as pkgcontrol's ``clock`` says it."""
+    return (when + timedelta(seconds=30)).strftime("%H%M")
 
 
 def player_packages(mission_data: MissionData) -> list[list[FlightData]]:

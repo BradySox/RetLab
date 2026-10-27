@@ -8,6 +8,7 @@ from typing import Dict, List, Optional, TYPE_CHECKING, Tuple
 from dcs.mission import Mission
 
 from game.ato.flighttype import FlightType
+from game.ato.flightwaypointtype import FlightWaypointType
 from game.coordinates import (
     coordinate_format,
 )
@@ -41,6 +42,8 @@ from .support import (
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
 from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage, VacuumPage
 from game.retlab.voice_atc import atc_lines, preset_name
+from game.retlab.package_control import hold_angels, package_push_time, push_clock
+from ..refuelrendezvous import serving_tanker
 from .packagesmap import PackagesMapPage, _abbreviated_target_name
 from .taskpages import SeadTaskPage, StrikeTaskPage
 from .threatintel import (
@@ -353,6 +356,7 @@ class KneeboardGenerator(MissionInfoGenerator):
             return f"{name}, {text}"
 
         if self.abccc is not None:
+            push = package_push_time([flight, *package_flights])
             pages.append(
                 AbcccPage(
                     self.abccc[0],
@@ -360,9 +364,22 @@ class KneeboardGenerator(MissionInfoGenerator):
                     callsign,
                     self.dark_kneeboard,
                     fmt,
+                    push_time=push_clock(push) if push is not None else None,
+                    hold_angels=hold_angels(flight),
                 )
             )
         if self.voice_awacs is not None:
+            refuel = next(
+                (
+                    w.position
+                    for w in flight.waypoints
+                    if w.waypoint_type is FlightWaypointType.REFUEL
+                ),
+                None,
+            )
+            tanker = serving_tanker(
+                flight.aircraft_type, flight.friendly.is_blue, refuel, self.tankers
+            )
             pages.append(
                 SkyEyeAwacsPage(
                     self.voice_awacs.callsign,
@@ -371,6 +388,7 @@ class KneeboardGenerator(MissionInfoGenerator):
                     callsign,
                     self.dark_kneeboard,
                     fmt,
+                    tanker=str(tanker.callsign) if tanker is not None else None,
                 )
             )
 

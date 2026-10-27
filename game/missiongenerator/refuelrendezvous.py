@@ -17,7 +17,7 @@ Rationale and the flown evidence live in
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Optional, TYPE_CHECKING, Union
+from typing import Iterable, Optional, TYPE_CHECKING, TypeVar, Union
 
 if TYPE_CHECKING:
     from dcs import Point
@@ -137,6 +137,30 @@ def refuel_rendezvous(
             best = candidate
             best_distance = distance
     return best
+
+
+_Tanker = TypeVar("_Tanker", bound=TankerLike)
+
+
+def serving_tanker(
+    receiver: "AircraftType",
+    receiver_is_blue: bool,
+    near: Optional["Point"],
+    tankers: Iterable[_Tanker],
+) -> Optional[_Tanker]:
+    """The tanker that can refuel ``receiver``: nearest ``near``, else the first."""
+    serving = [t for t in tankers if _serves(t, receiver, receiver_is_blue)]
+    if not serving or near is None:
+        return serving[0] if serving else None
+
+    def distance(tanker: _Tanker) -> float:
+        start = getattr(tanker, "orbit_start", None)
+        if start is None:
+            return float("inf")
+        end = getattr(tanker, "orbit_end", None) or start
+        return near.distance_to_point(nearest_point_on_leg(near, start, end))
+
+    return min(serving, key=distance)
 
 
 def _serves(

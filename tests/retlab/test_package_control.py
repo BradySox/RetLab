@@ -15,7 +15,10 @@ from game.ato.flightwaypointtype import FlightWaypointType
 from game.missiongenerator.luagenerator import LuaData
 from game.radio.radios import MHz
 from game.retlab.package_control import (
+    hold_angels,
+    package_push_time,
     populate_package_control_lua,
+    push_clock,
     role_for,
     spoken_callsign,
 )
@@ -166,3 +169,23 @@ def test_every_blue_player_flight_is_listed_for_the_awacs() -> None:
     assert 'group = "Colt"' in text
     assert 'callsign = "Ford 9-1"' in text
     assert 'group = "Weasel"' not in text
+
+
+def test_the_package_push_is_the_earliest_strikers_and_the_hold_angels() -> None:
+    package = object()
+    flights = [
+        _flight(package, "Eagle", FlightType.ESCORT, False, 5),
+        _flight(package, "Colt", FlightType.STRIKE, True, 12),
+        _flight(package, "Hawg", FlightType.STRIKE, False, 10),
+    ]
+    assert package_push_time(flights) == START + timedelta(minutes=10)
+    assert package_push_time(flights[:1]) == START + timedelta(minutes=5)
+    assert package_push_time([]) is None
+    assert hold_angels(flights[0]) == 20
+
+
+def test_the_push_clock_rounds_to_the_nearest_minute_as_the_abccc_says_it() -> None:
+    # Test 65: 09:31:57 was spoken "zero niner three one".
+    assert push_clock(datetime(2026, 10, 26, 9, 31, 57)) == "0932"
+    assert push_clock(datetime(2026, 10, 26, 9, 31, 29)) == "0931"
+    assert push_clock(datetime(2026, 10, 26, 23, 59, 45)) == "0000"

@@ -11288,8 +11288,21 @@ kneeboard comms as "STRIKE (Anvil)":
   airborne. Before, it pushed with the only striker on the ramp and aborted at the join 8
   minutes later.
 - **Abort:** at the push, when every target unit is dead or every SEAD flight was lost.
-- **Egress:** once every live striker has been within 30 NM of the target and is opening
-  past 10 NM.
+- **Off target:** each AI strike flight is called off as it goes, "Ford package, Blackjack,
+  Dodge 8 off target" (spoken "Dodge eight"). A strike flight is off once it has come within
+  30 NM of the target, or fired, and every live jet in it is past 10 NM and opening on two
+  samples in a row. A player says "Blackjack, Ford 9-1, off target" ("off", "egressing", "off
+  and egressing"; needs BradySox/skyeye `retlab/off-target`) and gets "Ford 9-1, Blackjack,
+  copy off, cleared egress"; their flight is off at once and gets no line from the ABCCC.
+- **Egress:** "Ford package, Blackjack, all flights off target, egress" once every strike
+  flight is off, every SEAD and escort jet is past 10 NM, and no weapon a package group fired
+  (`S_EVENT_SHOT`, tracked until `isExist()` is false) is still in the air. Lost flights,
+  flights back on the ground, empty player slots and flights left at the push or the join drop
+  out of the count. With every striker gone and none off: "Ford package, Blackjack, package
+  complete"; the same an hour after execute. Not said under Casual. Before (Test 65,
+  2026-10-26): only each strike lead was sampled, one early return skipped the later flights,
+  SEAD, escort and weapons were not waited for, and "all strikers egressed. RTB." came while
+  AI wingmen were still dropping Mk-83s and JSOWs were in the air. Not flown (row B291).
 
 Airborne AI flights in the package obey: a hold pushes a 3-minute orbit at their HOLD
 point, an early push sends `SwitchWaypoint` past the HOLD, an AI striker or escort at the
@@ -11395,7 +11408,13 @@ when one is missing. L2-ARCTIC and VCTK are CC BY-NC: players download them, Ret
   "Talking to <ABCCC>" and "Talking to <AWACS>". Each card is the frequency and the common
   calls the bot recognizes, each with its answer on one line; no prose on what a call does
   (user call, 2026-10-22). The AWACS card has no check-in: SkyEye answers one by asking
-  whether a radio check or an alpha check was meant.
+  whether a radio check or an alpha check was meant. The answers carry the mission's own
+  numbers or none (2026-10-26): the ABCCC card's push time is the package push
+  (`package_push_time`, the same rule as the plugin's `pushTime`) and its hold angels the
+  flight's HOLD; the AWACS card names the tanker that can refuel the jet (`serving_tanker`,
+  nearest its REFUEL point, else the first), and bearings, ranges and altitudes are
+  `<brg>/<rng>`, `<alt>`. Push times are rounded to the nearest minute in speech and on the
+  card (`push_clock`): Test 65 heard 09:31:57 as "zero niner three one".
 - `tests/retlab/test_package_control.py`, `tests/lua/test_pkgcontrol_runtime.py`.
 
 ### Constraints
