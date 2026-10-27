@@ -11607,7 +11607,7 @@ approved".
 | either | request runway in use (active runway, say active) | runway 25, wind 270 at 5 | none |
 
 - **Formation.** A lead with live wingmen, or a lead who says "flight" ("Viper 1-1 flight",
-  "flight of two"), is answered "Viper 1-1 flight" on taxi and takeoff. On landing only a
+  "flight of two"), is answered "Viper 1 flight" (the flight, never a seat) on taxi and takeoff. On landing only a
   lead who says "flight" is; that clears every player ship in the group. "Flight of two" is a
   count, never a ship number.
 - **Have the numbers.** A taxi call that says it leaves the altimeter out, and the takeoff

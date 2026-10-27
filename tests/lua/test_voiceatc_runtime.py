@@ -403,8 +403,8 @@ def test_a_formation_is_cleared_to_land_as_a_flight() -> None:
         h, "inbound", TOWER, detail="geardown", text="viper 1 1 flight base gear down"
     )
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1 flight, runway 25, cleared to land."]
-    assert _said(h)[0]["speech"].startswith("Viper one one flight, runway two five")
+    assert _texts(h) == ["Viper 1 flight, runway 25, cleared to land."]
+    assert _said(h)[0]["speech"].startswith("Viper one flight, runway two five")
     h.update_unit("Viper", {"airborne": False, "x": 0})
     _event(h, 4, ship=2)
     h.advance_to(4)
@@ -759,8 +759,8 @@ def test_formation_taxi_and_takeoff_with_the_numbers() -> None:
     _call(h, "ready", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
-        "Viper 1-1 flight, runway 25, cleared for takeoff, frequency change approved.",
+        "Viper 1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1 flight, runway 25, cleared for takeoff, frequency change approved.",
     ]
     h.assert_no_lua_errors()
 

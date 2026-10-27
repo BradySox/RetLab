@@ -166,7 +166,9 @@ end
 
 local function callsignPart(callsign, formation)
     if formation then
-        return { callsign .. " flight", spokenCallsign(callsign) .. " flight" }
+        -- A formation is called by its flight, "Viper 1 flight", never a seat (user call, 2026-10-26).
+        local flightName = tostring(callsign):gsub("%-%d+$", "")
+        return { flightName .. " flight", spokenCallsign(flightName) .. " flight" }
     end
     return { callsign, spokenCallsign(callsign) }
 end
