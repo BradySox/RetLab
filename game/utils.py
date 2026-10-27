@@ -497,6 +497,27 @@ def dcs_to_shapely_point(point: Point) -> ShapelyPoint:
     return ShapelyPoint(point.x, point.y)
 
 
+def true_bearing(origin: Point, target: Point) -> float:
+    """Initial great-circle course from origin to target, in degrees true.
+
+    Map x/y are a transverse Mercator grid, so heading_between_point is a grid
+    course: about 10 degrees off true on the Germany map (test 65). A position
+    with no terrain to project through gets the grid course.
+    """
+    if not (hasattr(origin, "latlng") and hasattr(target, "latlng")):
+        return origin.heading_between_point(target)
+    start = origin.latlng()
+    end = target.latlng()
+    lat1 = math.radians(start.lat)
+    lat2 = math.radians(end.lat)
+    dlon = math.radians(end.lng - start.lng)
+    y = math.sin(dlon) * math.cos(lat2)
+    x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(
+        dlon
+    )
+    return math.degrees(math.atan2(y, x)) % 360
+
+
 def escape_string_for_lua(value: str) -> str:
     """Escapes special characters from a string.
     This prevents scripting errors in lua scripts"""

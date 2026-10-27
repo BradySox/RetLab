@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from dcs.terrain.caucasus.caucasus import Caucasus
+from dcs.terrain.germanycoldwar import GermanyColdWar
 from dcs.terrain.nevada import Nevada
 from dcs.mapping import LatLng, Point
 
@@ -13,7 +14,7 @@ from game.missiongenerator.kneeboard_recon.coords import (
     point_to_dms,
     point_to_mgrs,
 )
-from game.utils import Heading, nautical_miles
+from game.utils import Heading
 
 
 @pytest.fixture(scope="module")
@@ -62,16 +63,27 @@ def test_point_to_dms_west_of_greenwich() -> None:
 
 
 def test_bullseye_bearing_range_nm_due_east(caucasus: Caucasus) -> None:
-    bullseye = Point(0.0, 0.0, caucasus)
-    target = Point(0.0, 1852.0, caucasus)
+    bullseye = Point.from_latlng(LatLng(43.0, 41.0), caucasus)
+    target = Point.from_latlng(LatLng(43.0, 41.0228), caucasus)
     bearing, range_nm = bullseye_bearing_range_nm(bullseye, target)
     assert bearing == Heading.from_degrees(90)
-    assert range_nm == pytest.approx(1.0, abs=0.001)
+    assert range_nm == pytest.approx(1.0, abs=0.01)
 
 
 def test_bullseye_bearing_range_nm_due_south(caucasus: Caucasus) -> None:
-    bullseye = Point(0.0, 0.0, caucasus)
-    target = Point(-nautical_miles(5).meters, 0.0, caucasus)
+    bullseye = Point.from_latlng(LatLng(43.0, 41.0), caucasus)
+    target = Point.from_latlng(LatLng(43.0 - 5 / 60, 41.0), caucasus)
     bearing, range_nm = bullseye_bearing_range_nm(bullseye, target)
     assert bearing == Heading.from_degrees(180)
-    assert range_nm == pytest.approx(5.0, abs=0.001)
+    assert range_nm == pytest.approx(5.0, abs=0.05)
+
+
+def test_bullseye_bearing_is_true_not_grid() -> None:
+    # Test 65: on the Germany map the grid runs about 10 degrees off true.
+    germany = GermanyColdWar()
+    bullseye = Point.from_latlng(LatLng(50.5, 10.0), germany)
+    target = Point.from_latlng(LatLng(51.0, 10.0), germany)
+    grid = bullseye.heading_between_point(target)
+    assert min(grid % 360, 360 - grid % 360) > 5
+    bearing, _ = bullseye_bearing_range_nm(bullseye, target)
+    assert bearing == Heading.from_degrees(0)

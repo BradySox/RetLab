@@ -18,7 +18,7 @@ from game.settings.settings import TargetIntelPrecision
 from game.theater import TheaterGroundObject, TheaterUnit
 from game.theater.bullseye import Bullseye
 from game.theater.theatergroup import SceneryUnit
-from game.utils import meters
+from game.utils import meters, true_bearing
 from ..aircraft.flightdata import FlightData
 from ..kneeboard_page import KneeboardPage
 
@@ -92,7 +92,7 @@ class SeadTaskPage(KneeboardPage):
         Bearing is rounded to the nearest degree and range to the nearest
         nautical mile, giving the player a search anchor without exact coords.
         """
-        bearing = self.bullseye.position.heading_between_point(position)
+        bearing = true_bearing(self.bullseye.position, position)
         distance = meters(self.bullseye.position.distance_to_point(position))
         return f"Bullseye {bearing:03.0f} for {distance.nautical_miles:.0f}"
 

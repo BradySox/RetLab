@@ -27,7 +27,7 @@ class _DummyPosition:
         self.y = 0.0
 
     def latlng(self) -> SimpleNamespace:
-        return SimpleNamespace(location=self.location)
+        return SimpleNamespace(location=self.location, lat=0.0, lng=0.0)
 
     def heading_between_point(self, other: Any) -> float:
         return 0.0

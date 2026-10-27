@@ -21,6 +21,7 @@ from game.ato.flighttype import FlightType
 from game.ato.flightwaypointtype import FlightWaypointType
 from game.ato.starttype import StartType
 from game.missiongenerator.kneeboard_recon import generate_recon_pages
+from game.utils import true_bearing
 from game.missiongenerator.kneeboard_recon.pages import (
     AirbaseReconPage,
     AirfieldDeparturePage,
@@ -305,8 +306,9 @@ def test_detail_page_atk_axis_uses_compass_heading(
     assert atk_lines, "expected an Attack Axis line in the page log"
     # Attack Axis label format: "Attack Axis 270°".
     reported = int(atk_lines[-1].split()[2].rstrip("°"))
-    # Allow ±1° tolerance for great-circle bearing rounding at non-equatorial
-    # latitudes (pydcs `heading_between_point` projects through lat/lng).
+    # The offsets are map-grid directions; the label is true course, which on
+    # Caucasus sits about 3° off grid.
+    expected_hdg = round(true_bearing(ip.position, tgo.position)) % 360
     diff = min((reported - expected_hdg) % 360, (expected_hdg - reported) % 360)
     assert diff <= 1, (
         f"Attack Axis reported {reported}°, expected ~{expected_hdg}° "

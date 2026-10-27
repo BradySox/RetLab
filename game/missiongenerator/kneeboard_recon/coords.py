@@ -13,7 +13,7 @@ import mgrs as mgrs_lib
 from dcs.mapping import Point
 
 from game.coordinates import format_dms_suffix
-from game.utils import Heading, meters
+from game.utils import Heading, meters, true_bearing
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def bullseye_bearing_range_nm(bullseye: Point, target: Point) -> tuple[Heading, 
     DCS world axes: x is north, y is east. Bearing is reported as a true
     heading (0-360 deg, 0 = north, 90 = east).
     """
-    heading_deg = bullseye.heading_between_point(target)
+    heading_deg = true_bearing(bullseye, target)
     distance_m = bullseye.distance_to_point(target)
     return (
         Heading.from_degrees(int(round(heading_deg)) % 360),
