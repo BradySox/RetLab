@@ -30,7 +30,7 @@ PLUGIN = "resources/plugins/skynetiads/skynetiads-config.lua"
 FAKE_SKYNET = """
 SkynetIADS = {}
 SkynetIADS.__index = SkynetIADS
-SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {}, pds = {}, actMobile = {} }
+SkynetRecords = { sams = {}, ewrs = {}, commandCenters = {}, nodes = {}, power = {}, pds = {}, actMobile = {}, goLive = {} }
 -- Group name -> true where Skynet's type database rates the site HARM-capable (Tor, Patriot...).
 SkynetHarmCapable = {}
 
@@ -41,7 +41,9 @@ local function element(iads, name)
     function e:getCanEngageHARM() return SkynetHarmCapable[name] == true end
     function e:setHARMDetectionChance() end
     function e:setCanEngageAirWeapons() end
-    function e:setGoLiveRangeInPercent() end
+    function e:setGoLiveRangeInPercent(pct)
+        table.insert(SkynetRecords.goLive, { nato = name, pct = pct })
+    end
     function e:setAutonomousBehaviour() end
     function e:setActAsEW() end
     function e:setActMobile(enable, emission, minScoot, maxScoot)
@@ -297,3 +299,35 @@ def test_exclude_sa15_leaves_the_tor_static() -> None:
     # Upstream declares the shorter list with an inner `local`, which shadows the
     # one the loop reads, so the option never excluded anything.
     assert _mobile_shorad(exclude_sa15=True) == ["SA-8", "SA-9", "SA-13", "SA-19"]
+
+
+def _go_live(options: dict[str, Any]) -> dict[str, Any]:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_SKYNET)
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {
+            "plugins": {"skynetiads": {"createRedIADS": True, **options}},
+            "IADS": {"BLUE": {}, "RED": {}},
+        }
+    )
+    h.load_plugin_script(PLUGIN)
+    h.assert_no_lua_errors()
+    return {
+        r["nato"]: r.get("pct") for r in _list(h, h.lua.globals().SkynetRecords.goLive)
+    }
+
+
+def test_sa2_and_sa3_go_live_at_70_without_the_long_range_box() -> None:
+    # Test 65: an SA-2 emptied itself on flights at its edge. A save from before
+    # the sliders has no value and gets the default.
+    assert _go_live({"adjustGoLiveRange": False}) == {"SA-2": 70, "SA-3": 70}
+
+
+def test_sa2_and_sa3_sliders_are_read() -> None:
+    got = _go_live({"goLiveRange_SA2": 55, "goLiveRange_SA3": 100})
+    assert got == {"SA-2": 55, "SA-3": 100}
+
+
+def test_the_long_range_box_still_gates_only_its_own_sams() -> None:
+    got = _go_live({"adjustGoLiveRange": True, "adjustGoLiveRange_SA10": 80})
+    assert got["SA-2"] == 70 and got["SA-10"] == 80

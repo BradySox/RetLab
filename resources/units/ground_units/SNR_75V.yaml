@@ -2,7 +2,3 @@ class: TrackRadar
 price: 12
 variants:
   SAM SA-2 S-75 "Fan Song" TR: null
-skynet_properties:
-  # Test 65: an SA-2 spent all 18 missiles on flights at its edge before the
-  # DEAD package arrived. Wait until a target is well inside the envelope.
-  go_live_range_in_percent: 70

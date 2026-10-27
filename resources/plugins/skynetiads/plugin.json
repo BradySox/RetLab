@@ -102,6 +102,22 @@
             "maximumValue": 30000
         },
         {
+            "nameInUI": "SA-2 go-live range (% of missile range)",
+            "mnemonic": "goLiveRange_SA2",
+            "defaultValue": 70,
+            "minimumValue": 10,
+            "maximumValue": 100,
+            "descriptionInUI": "The share of the SA-2's missile range at which its radar comes on and it fires. Lower keeps missiles for targets well inside the ring; 100 = full missile range."
+        },
+        {
+            "nameInUI": "SA-3 go-live range (% of missile range)",
+            "mnemonic": "goLiveRange_SA3",
+            "defaultValue": 70,
+            "minimumValue": 10,
+            "maximumValue": 100,
+            "descriptionInUI": "The share of the SA-3's missile range at which its radar comes on and it fires. Lower keeps missiles for targets well inside the ring; 100 = full missile range."
+        },
+        {
             "nameInUI": "Change when long-range SAMs go live",
             "mnemonic": "adjustGoLiveRange",
             "defaultValue": false,
