@@ -43,6 +43,20 @@ settings:
   max_mission_range_planes: 250
   plugins:
     skynetiads: true
+# Who the map's neighbours sided with in September 1985. Without this, every
+# country with no field on the map reads neutral, and NATO's own Belgium and
+# the Netherlands fired SA-2s at blue (test 65). Czechoslovakia is drawn as
+# its two later halves. Austria and Switzerland stay neutral.
+neutral_border_postures:
+  Belgium: blue
+  The Netherlands: blue
+  Denmark: blue
+  France: blue
+  Luxembourg: blue
+  Czech Republic: red
+  Slovakia: red
+  Poland: red
+  Hungary: red
 # The border armies field mobile SA-6s. The fixed Hawk, SA-2, SA-3 and S-60
 # sites are FIXED groups copied unit by unit from Carsten's Cold War Germany
 # Framework; the DM placed Kaltennordheim's launchers himself.

@@ -98,6 +98,12 @@ and five roadside towns. Skynet's advanced mode, wired by range from statics nam
 the Brocken; 4 power plants (Lippendorf, Vockerode, Zschornewitz, Erfurt). A Scud battery near
 Weimar.
 
+**Neighbours (test 65, 2026-10-26).** The yaml's `neutral_border_postures:` pins Belgium,
+the Netherlands, Denmark, France and Luxembourg blue, and the Czech Republic, Slovakia (drawn
+for Czechoslovakia), Poland and Hungary red. Austria, Switzerland and Sweden stay neutral. Without
+it every field-less neighbour read neutral and the NATO ones stood up SA-2s against blue.
+Kaltennordheim keeps its 18 launchers (DM call, same night), though it shot down five blue jets.
+
 **Flavor.** 26 of the scenery target sets Red Tide authored come with the map: the
 Staudinger power station, the Frankenbach fuel terminal, the Giessen and Mendig rail yards and
 the Haina IADS buildings. Red Tide's influence zones, markers and groups are dropped. Strike

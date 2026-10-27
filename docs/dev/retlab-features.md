@@ -9945,7 +9945,10 @@ claimed by neither side's QRA), and one hosting neither is the neutral. Counted 
 every zone of the same country, not per polygon: Russia is two zones on Kola, and
 per-piece counting drew Karelia — the largest zone on the map — as an uninvolved
 neutral that intercepts you, in a campaign where Russia is the enemy. `posture:`
-overrides. **Overflight is derived from the same airbases** (DM call, 2026-08-26) — a
+overrides. A campaign on terrain borders pins postures with a
+`neutral_border_postures:` map (country to `blue`/`red`/`neutral`/`contested`) and
+keeps the shipped geometry: Fulda Gap 1985 uses it for NATO's and the Pact's
+field-less neighbours, which read neutral and stood up SA-2s against blue in test 65. **Overflight is derived from the same airbases** (DM call, 2026-08-26) — a
 country you fly from has let you in, one both sides use has let both in, and one
 with no coalition base inside it has invited nobody and defends. `overflight:`
 overrides. The dated posture table used to answer this and was dropped as the
