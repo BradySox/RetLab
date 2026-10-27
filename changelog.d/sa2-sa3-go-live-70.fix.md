@@ -1,0 +1,1 @@
+* **[Air defense]** SA-2 and SA-3 sites hold fire until a target is within 70% of their missile range. One SA-2 spent all its missiles on flights at the edge of its ring before the strike it was meant to stop arrived.
