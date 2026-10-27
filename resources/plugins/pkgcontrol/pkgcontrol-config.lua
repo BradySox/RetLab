@@ -15,8 +15,10 @@
 -- up to two 3-minute holds while a SEAD or escort flight, or every striker, is not airborne, an
 -- abort for a dead target, a lost SEAD or no striker up,
 -- the execute call once the strikers and escorts are at the join point (SEAD runs ahead and is
--- not waited for; a late flight gets 3 minutes), and the egress call. AI flights in the package
--- obey: a hold adds a 3-minute orbit at their HOLD point, an early push releases them from it,
+-- not waited for; a late flight gets 3 minutes), an off-target line for each AI strike flight, a
+-- player's spoken "off target", and the egress call once every flight is off and no package
+-- weapon is still in the air (Test 65: RTB came with Mk-83s and JSOWs falling). AI flights in
+-- the package obey: a hold adds a 3-minute orbit at their HOLD point, an early push releases them from it,
 -- an AI flight early at the join orbits there until execute, an abort sends them home. With no controller
 -- airborne nothing is said and the push waits: the AWACS never stands in (user call,
 -- 2026-10-20). SkyEye speaks the calls over local UDP (its mission-link-address) in the opposite
@@ -37,8 +39,10 @@ local ROLL_CALL_LEAD_SECONDS = 180
 local MAX_SLIPS = 2
 local NM = 1852
 local EGRESS_NM = 10
--- A striker must have come this close to the target before it can egress.
+-- A striker must have come this close to the target, or fired, before it can egress.
 local REACHED_NM = 30
+-- Each live unit opening from the target on this many samples in a row.
+local OPENING_SAMPLES = 2
 local EGRESS_GIVE_UP_SECONDS = 3600
 -- Execute waits for strikers and escorts this close to the join point, at most this long past
 -- the join time (user call, 2026-10-23); with no join time the wait runs from the push.
@@ -160,9 +164,10 @@ local function digitsPart(s)
     return { tostring(s), spokenDigits(s) }
 end
 
--- A push time: text "1410", speech "one four one zero".
+-- A push time: text "1410", speech "one four one zero", to the nearest minute: 09:31:57 was
+-- spoken "zero niner three one" (Test 65). The kneeboard rounds the same way.
 local function clock(missionSeconds)
-    local t = math.floor(START_SECONDS + missionSeconds) % 86400
+    local t = math.floor((START_SECONDS + missionSeconds + 30) / 60) * 60 % 86400
     return digitsPart(string.format("%02d%02d", math.floor(t / 3600), math.floor(t / 60) % 60))
 end
 
@@ -785,6 +790,9 @@ local function decidePush(pkg)
         return abort(pkg, "No strikers checked in")
     end
     if #silentStrike > 0 then
+        for _, f in ipairs(silentStrike) do
+            f.leftBehind = true
+        end
         say(pkg, { callsigns(silentStrike), ", {controller}, not checked in. Package pushing without you." })
     end
     return push(pkg)
@@ -794,29 +802,6 @@ local function distanceNm(unit, x, y)
     local p = unit:getPoint()
     local dx, dz = p.x - x, p.z - y
     return math.sqrt(dx * dx + dz * dz) / NM
-end
-
--- Every striker still alive has come within REACHED_NM and is now EGRESS_NM out, opening.
-local function strikersEgressed(pkg)
-    local tx, ty = tonumber(pkg.targetX), tonumber(pkg.targetY)
-    if not (tx and ty) then
-        return false
-    end
-    local anyAlive = false
-    for _, f in ipairs(flightsWithRole(pkg, "strike")) do
-        local lead = liveUnits(f.group)[1]
-        if lead then
-            anyAlive = true
-            local d = distanceNm(lead, tx, ty)
-            f.closest = math.min(f.closest or math.huge, d)
-            local opening = f.lastDistance ~= nil and d > f.lastDistance
-            f.lastDistance = d
-            if f.closest > REACHED_NM or d < EGRESS_NM or not opening then
-                return false
-            end
-        end
-    end
-    return anyAlive
 end
 
 local function atJoin(f)
@@ -890,8 +875,137 @@ local function checkJoin(pkg, now)
     if not strikerHere then
         return abort(pkg, "No strikers at join")
     end
+    for _, f in ipairs(late) do
+        f.leftBehind = true
+    end
     say(pkg, { callsigns(late), ", {controller}, not at join. Package executing without you." })
     return execute(pkg)
+end
+
+---------------------------------------------------------------------------------------------------
+-- Egress
+---------------------------------------------------------------------------------------------------
+
+-- Each package flight by its DCS group, for the shot handler.
+local flightsByGroup = {}
+
+-- A weapon fired by any package group, tracked until it no longer exists.
+local function trackShot(event)
+    local ok, groupName = pcall(function()
+        return event.initiator:getGroup():getName()
+    end)
+    local entry = ok and flightsByGroup[groupName]
+    if not (entry and event.weapon) then
+        return
+    end
+    entry.flight.fired = true
+    table.insert(entry.pkg.weapons, event.weapon)
+end
+
+local function weaponsInFlight(pkg)
+    local live = {}
+    for _, w in ipairs(pkg.weapons) do
+        local ok, exists = pcall(function()
+            return w:isExist()
+        end)
+        if ok and exists then
+            table.insert(live, w)
+        end
+    end
+    pkg.weapons = live
+    return #live > 0
+end
+
+-- Out of the egress count: lost, left behind, an empty player slot, or on the ground (never up,
+-- or landed after an abort).
+local function inEgressCount(f)
+    if lost(f) or f.leftBehind then
+        return false
+    end
+    if f.client == "true" and not seated(f) then
+        return false
+    end
+    return airborne(f)
+end
+
+-- Samples every live unit of a flight: out when each is EGRESS_NM from the target, open when
+-- each is also opening on OPENING_SAMPLES samples in a row.
+local function sampleFlight(f, tx, ty)
+    f.track = f.track or {}
+    local out, open = true, true
+    for index, u in ipairs(liveUnits(f.group)) do
+        local d = distanceNm(u, tx, ty)
+        f.closest = math.min(f.closest or math.huge, d)
+        local okName, name = pcall(function()
+            return u:getName()
+        end)
+        local key = okName and name or index
+        local t = f.track[key] or {}
+        t.opening = (t.last ~= nil and d > t.last) and (t.opening or 0) + 1 or 0
+        t.last = d
+        f.track[key] = t
+        if d < EGRESS_NM then
+            out = false
+        end
+        if t.opening < OPENING_SAMPLES then
+            open = false
+        end
+    end
+    return out, out and open
+end
+
+-- "Dodge 8-1" -> "Dodge 8", spoken "Dodge eight".
+local function flightPart(f)
+    return callsignPart((tostring(f.callsign):gsub("%-%d$", "")))
+end
+
+local function finishEgress(pkg, parts)
+    pkg.state = "done"
+    if not CASUAL then
+        say(pkg, parts)
+    end
+end
+
+-- Every flight is updated each tick before the package decides (one early return skipped the
+-- rest). A strike flight is off once it has reached the target (or fired) and every live unit is
+-- out and opening, or its player called off target; an AI one is called off as it goes. SEAD and
+-- escort count off while every live unit is out. The package egresses when every flight still in
+-- the count is off and no weapon it fired is still in the air.
+local function checkEgress(pkg, now)
+    local tx, ty = tonumber(pkg.targetX), tonumber(pkg.targetY)
+    local waiting, anyOff, strikerCounted = false, false, false
+    for _, f in ipairs(pkg.flights or {}) do
+        local counted = (f.role == "strike" or f.role == "sead" or f.role == "escort") and inEgressCount(f)
+        strikerCounted = strikerCounted or (counted and f.role == "strike")
+        if counted and tx and ty then
+            local out, open = sampleFlight(f, tx, ty)
+            if f.role == "strike" and not f.off and open and (f.closest <= REACHED_NM or f.fired) then
+                f.off = true
+                if f.client ~= "true" and not CASUAL then
+                    say(pkg, { packagePart({ pkg }), ", {controller}, ", flightPart(f), " off target." })
+                end
+            end
+            if not (f.off or (f.role ~= "strike" and out)) then
+                waiting = true
+            end
+        elseif counted then
+            waiting = true
+        end
+        anyOff = anyOff or (f.role == "strike" and f.off == true)
+    end
+    pkg.strikerCounted = pkg.strikerCounted or strikerCounted
+    if not waiting and not weaponsInFlight(pkg) then
+        if anyOff then
+            return finishEgress(pkg, { packagePart({ pkg }), ", {controller}, all flights off target, egress." })
+        end
+        if pkg.strikerCounted and not strikerCounted then
+            -- Every strike flight dropped out (lost or landed) with none off target.
+            return finishEgress(pkg, { packagePart({ pkg }), ", {controller}, package complete." })
+        end
+    end
+    if now - pkg.executedAt > EGRESS_GIVE_UP_SECONDS then
+        finishEgress(pkg, { packagePart({ pkg }), ", {controller}, package complete." })
+    end
 end
 
 local function tick(_, now)
@@ -914,14 +1028,7 @@ local function tick(_, now)
         elseif pkg.state == "joining" then
             checkJoin(pkg, now)
         elseif pkg.state == "executed" then
-            if strikersEgressed(pkg) then
-                pkg.state = "done"
-                if not CASUAL then
-                    say(pkg, { packagePart({ pkg }), ", {controller}, all strikers egressed. RTB." })
-                end
-            elseif now - pkg.executedAt > EGRESS_GIVE_UP_SECONDS then
-                pkg.state = "done"
-            end
+            checkEgress(pkg, now)
         end
     end
     if #dueRollCall > 0 then
@@ -1008,6 +1115,12 @@ local function reportAirborne(pkg, flight)
         return checkIn({ pkg = pkg, flight = flight })
     end
     say(pkg, { callsignPart(flight.callsign), ", {controller}, copy airborne." })
+end
+
+-- A player's "off target": that flight is off at once.
+local function offTarget(pkg, flight)
+    flight.off = true
+    say(pkg, { callsignPart(flight.callsign), ", {controller}, copy off, cleared egress." })
 end
 
 local function sayPushTime(pkg, flight)
@@ -1104,6 +1217,8 @@ local function handleRequest(request)
         sayPushTime(pkg, flight)
     elseif request.kind == "airborne" then
         reportAirborne(pkg, flight)
+    elseif request.kind == "offtarget" then
+        offTarget(pkg, flight)
     end
 end
 
@@ -1162,11 +1277,21 @@ for index, pkg in ipairs(packages) do
     pkg.joinAt = earliestTime(pkg, "joinAfter")
     pkg.joinFlag = "pkgcontrol_execute_" .. index
     pkg.name = pkg.name or "package"
+    pkg.weapons = {}
+    for _, flight in ipairs(pkg.flights or {}) do
+        flightsByGroup[flight.group] = { pkg = pkg, flight = flight }
+    end
 end
 
 local handler = {}
 function handler:onEvent(event)
-    if event.id ~= world.event.S_EVENT_BIRTH or not event.initiator then
+    if not event.initiator then
+        return
+    end
+    if event.id == world.event.S_EVENT_SHOT then
+        return trackShot(event)
+    end
+    if event.id ~= world.event.S_EVENT_BIRTH then
         return
     end
     local ok, group = pcall(function()
