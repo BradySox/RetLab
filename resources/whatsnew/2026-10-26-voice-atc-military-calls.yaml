@@ -1,0 +1,13 @@
+date: 2026-10-26
+title: Military ATC calls
+change: >-
+  Ground gives you the altimeter with taxi ("runway 25, altimeter 29.92,
+  taxi, hold short runway 25"). Tower gives the wind with takeoff and says
+  "frequency change approved", so you no longer call airborne. Coming home,
+  "10 miles, full stop" gets "report initial", and you are cleared to land
+  when you call "base, gear down". Ask for a straight-in and Tower has you
+  report a 3-mile final.
+watch: >-
+  Say "flight of two" or "Viper 1-1 flight" to be answered as a formation,
+  and "have the numbers" to skip the altimeter and wind. Needs the latest
+  SkyEye.

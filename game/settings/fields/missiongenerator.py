@@ -514,9 +514,9 @@ class MissionGeneratorSettings:
             "for SEAD that is not airborne; Vacuum calls only radars that threaten "
             "your package; and the AWACS gives only threat calls on STRIKE. Voice "
             "ATC: Strict checks readbacks and calls out taxiing or taking off "
-            "without clearance; Relaxed takes any acknowledgement and corrects only "
-            "a wrong number; Casual answers only when called and accepts a loose "
-            "call or a misheard callsign."
+            "without clearance; Relaxed takes any acknowledgement, corrects only "
+            "a wrong number and matches a misheard callsign; Casual also answers "
+            "only when called and accepts a loose call."
         ),
     )
     use_ai_combat_landing: bool = boolean_option(
