@@ -196,6 +196,7 @@ class AtcPage(KneeboardPage):
         # The "You:" lines are the readbacks Strict radio discipline asks for.
         if out is not None:
             o, r = out.name, out.runway
+            t = _spoken_freq(out.tower)
             w.rule()
             w.heading("Going out")
             _lines(
@@ -204,14 +205,16 @@ class AtcPage(KneeboardPage):
                     f'"{o} Ground, {me}, radio check."',
                     f'  ATC: "{o} Ground, read you 5 by 5."',
                     f'"{o} Ground, {me}, request taxi."',
-                    f'  ATC: "Taxi to runway {r}, hold short, contact Tower '
-                    f'{_spoken_freq(out.tower)}."',
+                    f'  ATC: "Runway {r}, altimeter, taxi, hold short runway {r}, '
+                    f'contact Tower {t}."',
                     f'  You: "Hold short {r}, {me}."',
+                    f'"{o} Ground, {me}, flight of two, have the numbers, request taxi."',
+                    f'  ATC: "{me} flight, runway {r}, taxi, hold short runway {r}, '
+                    f'contact Tower {t}."',
                     f'"{o} Tower, {me}, holding short runway {r}, ready."',
-                    f'  ATC: "Runway {r}, wind, altimeter, cleared for takeoff."',
+                    f'  ATC: "Runway {r}, wind, cleared for takeoff, '
+                    'frequency change approved."',
                     f'  You: "Cleared for takeoff {r}, {me}."',
-                    f'"{o} Tower, {me}, airborne."',
-                    '  ATC: "Frequency change approved."',
                 ],
             )
         if home is not None:
@@ -221,7 +224,13 @@ class AtcPage(KneeboardPage):
             _lines(
                 w,
                 [
-                    f'"{h} Tower, {me}, 5 miles, full stop."',
+                    f'"{h} Tower, {me}, 10 miles, full stop."',
+                    f'  ATC: "Runway {r}, wind, report initial."',
+                    f'"{h} Tower, {me}, 10 miles, request straight-in."',
+                    f'  ATC: "Runway {r}, wind, make straight-in, report 3-mile final."',
+                    f'"{me}, initial."',
+                    '  ATC: "Roger."',
+                    f'"{me}, base, gear down, full stop."',
                     f'  ATC: "Runway {r}, wind, cleared to land."',
                     f'  You: "Cleared to land {r}, {me}."',
                     f'"{h} Tower, {me}, clear of the runway."',

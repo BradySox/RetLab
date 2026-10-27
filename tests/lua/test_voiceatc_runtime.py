@@ -2,7 +2,9 @@
 
 The contract: SkyEye passes each call heard on a field's Ground or Tower frequency;
 the plugin answers on that frequency in that position's voice, with no on-screen
-text (text only without LuaSocket). Taxi, takeoff, landing (no squawk); a strict readback missing
+text (text only without LuaSocket). Military calls (no squawk): altimeter with taxi, wind and
+the frequency change with takeoff, report initial inbound, cleared to land at base with the gear
+down; a strict readback missing
 an item gets "readback incomplete"; a rule bust gets one scolding call. How SkyEye
 hears and says it is in-game only (B261).
 """
@@ -196,28 +198,35 @@ def test_a_sortie_from_taxi_to_parking() -> None:
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
-        "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
+        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, runway 25, cleared for takeoff, frequency change approved.",
     ]
     said = _said(h)
     assert [m["frequency"] for m in said] == [GROUND, TOWER]
     assert [m["voice"] for m in said] == ["en_US-ryan-medium", "en_US-amy-medium"]
     assert [m["speaker"] for m in said] == ["Kobuleti Ground", "Kobuleti Tower"]
     assert said[0]["speech"] == (
-        "Viper one one, taxi to runway two five, "
-        "hold short, contact Tower two six two decimal zero."
+        "Viper one one, runway two five, altimeter two niner niner two, taxi, "
+        "hold short runway two five, contact Tower two six two decimal zero."
     )
 
     _event(h, 3)
-    h.update_unit("Viper", {"airborne": True, "x": 4 * NM})
-    _call(h, "inbound", TOWER, numbers="5")
+    h.update_unit("Viper", {"airborne": True, "x": 10 * NM})
+    _call(h, "inbound", TOWER, numbers="10", text="viper 1 1 10 miles full stop")
+    _call(h, "inbound", TOWER, detail="initial")
+    h.update_unit("Viper", {"x": 2 * NM})
+    _call(h, "inbound", TOWER, detail="geardown")
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(4)
-    assert _texts(h)[2:] == ["Viper 1-1, runway 25, cleared to land."]
+    assert _texts(h)[2:] == [
+        "Viper 1-1, runway 25, report initial.",
+        "Viper 1-1, roger.",
+        "Viper 1-1, runway 25, cleared to land.",
+    ]
     h.update_unit("Viper", {"airborne": False, "x": 0})
     _event(h, 4)
     h.advance_to(6)
-    assert _texts(h)[3:] == ["Viper 1-1, clear the runway, taxi to parking."]
+    assert _texts(h)[5:] == ["Viper 1-1, clear the runway, taxi to parking."]
     h.assert_no_lua_errors()
 
 
@@ -286,7 +295,7 @@ def test_casual_takes_any_readback_and_answers_whoever_was_called() -> None:
     h.advance_to(2)
     said = _said(h)
     assert [m["text"] for m in said] == [
-        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0."
+        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0."
     ]
     assert said[0]["frequency"] == TOWER
     h.assert_no_lua_errors()
@@ -347,22 +356,88 @@ def test_rule_busts_get_one_scolding_call_each() -> None:
     h.assert_no_lua_errors()
 
 
-def test_tower_asks_for_a_call_at_5_miles_when_far_out() -> None:
+def test_a_gear_down_call_far_out_is_answered_as_inbound() -> None:
     h = _harness(airborne=True, x=40 * NM)
-    _call(h, "inbound", TOWER)
+    _call(h, "inbound", TOWER, detail="geardown")
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, report 5 miles."]
+    assert _texts(h) == ["Viper 1-1, runway 25, report initial."]
+    h.assert_no_lua_errors()
+
+
+def test_inbound_is_never_a_landing_clearance() -> None:
+    for detail in ("", "overhead"):
+        h = _harness(airborne=True, x=4 * NM)
+        _call(h, "inbound", TOWER, numbers="5", detail=detail)
+        h.advance_to(30)
+        # Not a clearance: no readback is asked for.
+        assert _texts(h) == ["Viper 1-1, runway 25, report initial."], detail
+        h.assert_no_lua_errors()
+
+
+def test_a_straight_in_reports_3_mile_final() -> None:
+    h = _harness(airborne=True, x=10 * NM)
+    _call(h, "inbound", TOWER, detail="straight-in")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, runway 25, make straight-in, report 3-mile final."]
+    assert _said(h)[0]["speech"] == (
+        "Viper one one, runway two five, make straight-in, report three-mile final."
+    )
     h.assert_no_lua_errors()
 
 
 def test_a_wingman_gets_their_own_landing_clearance() -> None:
-    h = _harness(airborne=True, x=4 * NM, ships=2)
-    _call(h, "inbound", TOWER, detail="overhead")
-    _call(h, "inbound", TOWER, callsign="viper 1 2")
+    h = _harness(airborne=True, x=2 * NM, ships=2)
+    _call(h, "inbound", TOWER, detail="geardown")
+    _call(h, "inbound", TOWER, callsign="viper 1 2", detail="geardown")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, overhead approved, runway 25, cleared to land.",
+        "Viper 1-1, runway 25, cleared to land.",
         "Viper 1-2, runway 25, cleared to land.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_a_formation_is_cleared_to_land_as_a_flight() -> None:
+    h = _harness(airborne=True, x=2 * NM, ships=2)
+    _call(
+        h, "inbound", TOWER, detail="geardown", text="viper 1 1 flight base gear down"
+    )
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1 flight, runway 25, cleared to land."]
+    assert _said(h)[0]["speech"].startswith("Viper one one flight, runway two five")
+    h.update_unit("Viper", {"airborne": False, "x": 0})
+    _event(h, 4, ship=2)
+    h.advance_to(4)
+    assert "landed without clearance" not in " ".join(_texts(h))
+    h.assert_no_lua_errors()
+
+
+def test_initial_is_rogered_or_asked_for_the_break_with_traffic() -> None:
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    h.lua.execute(FAKE_SOCKET)
+    config = _config()
+    lead = dict(config["voiceAtc"]["flights"][0])
+    config["voiceAtc"]["flights"].append(
+        dict(lead, group="Cobra", callsign="Cobra 2-1")
+    )
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
+    h.add_group(_viper(airborne=True, x=5 * NM))
+    cobra = _viper(airborne=True, x=8 * NM)
+    cobra.update(name="Cobra", id=78)
+    cobra["units"][0]["name"] = "Cobra #1"
+    h.add_group(cobra)
+    h.load_plugin_script(PLUGIN)
+    _call(h, "inbound", TOWER, detail="initial")
+    _call(h, "inbound", TOWER, callsign="cobra 2 1")
+    _call(h, "inbound", TOWER, detail="initial")
+    _call(h, "inbound", TOWER, detail="break")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, roger.",
+        "Cobra 2-1, runway 25, report initial.",
+        "Viper 1-1, report break.",
+        "Viper 1-1, roger.",
     ]
     h.assert_no_lua_errors()
 
@@ -390,8 +465,8 @@ def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
     _call(h, "radiocheck", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
-        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
+        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
         "Viper 1-1, Kobuleti Tower, read you 5 by 5.",
     ]
     h.assert_no_lua_errors()
@@ -425,8 +500,8 @@ def test_the_f10_menu_makes_the_same_requests() -> None:
     _menu(h, "Tower: holding short, ready")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, taxi to runway 25, hold short, contact Tower 262.0.",
-        "Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff.",
+        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, runway 25, cleared for takeoff, frequency change approved.",
     ]
     h.assert_no_lua_errors()
 
@@ -436,8 +511,8 @@ def test_without_luasocket_the_menu_answers_in_text() -> None:
     _menu(h, "Ground: request taxi")
     h.advance_to(10)
     assert [t["text"] for t in h.records("texts")] == [
-        "Kobuleti Ground: Viper 1-1, taxi to runway 25, hold short, "
-        "contact Tower 262.0."
+        "Kobuleti Ground: Viper 1-1, runway 25, altimeter 29.92, taxi, "
+        "hold short runway 25, contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
 
@@ -504,7 +579,9 @@ def test_the_first_ai_takeoff_sets_the_runway_in_use() -> None:
     _ai_takeoff(h, "Hawk", 1000, 252)
     _call(h, "ready", TOWER)
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, runway 07, altimeter 29.92, cleared for takeoff."]
+    assert _texts(h) == [
+        "Viper 1-1, runway 07, cleared for takeoff, frequency change approved."
+    ]
     h.assert_no_lua_errors()
 
 
@@ -513,7 +590,9 @@ def test_an_ai_takeoff_elsewhere_changes_nothing() -> None:
     _ai_takeoff(h, "Eagle", 40 * NM, 72)
     _call(h, "ready", TOWER)
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, runway 25, altimeter 29.92, cleared for takeoff."]
+    assert _texts(h) == [
+        "Viper 1-1, runway 25, cleared for takeoff, frequency change approved."
+    ]
     h.assert_no_lua_errors()
 
 
@@ -529,7 +608,9 @@ def test_the_briefed_strip_wins_between_parallels() -> None:
     _ai_takeoff(h, "Eagle", 1000, 100)
     _call(h, "ready", TOWER)
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, runway 10R, altimeter 29.92, cleared for takeoff."]
+    assert _texts(h) == [
+        "Viper 1-1, runway 10R, cleared for takeoff, frequency change approved."
+    ]
     h.assert_no_lua_errors()
 
 
@@ -585,16 +666,17 @@ def test_the_f10_menu_speaks_for_a_lone_wingman() -> None:
     item.fn(item.arg)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-2, taxi to runway 25, hold short, contact Tower 262.0."
+        "Viper 1-2, runway 25, altimeter 29.92, taxi, hold short runway 25, "
+        "contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
 
 
 def test_a_ship_submenu_speaks_for_that_seat() -> None:
-    h = _harness(airborne=True, x=4 * NM, ships=2)
+    h = _harness(airborne=True, x=2 * NM, ships=2)
     paths = [m["path"] for m in h.records("menus")]
     assert "Ship 2" in paths and "Ship 3" not in paths
-    lead, ship2 = _menu_items(h, "Tower: 5 miles, full stop")
+    lead, ship2 = _menu_items(h, "Tower: base, gear down")
     lead.fn(lead.arg)
     ship2.fn(ship2.arg)
     h.advance_to(2)
@@ -660,4 +742,147 @@ def test_relaxed_never_prompts_for_a_readback() -> None:
     _call(h, "taxi")
     h.advance_to(60)
     assert len(_texts(h)) == 1
+    h.assert_no_lua_errors()
+
+
+FAKE_WIND = """
+atmosphere = { getWind = function(p) return { x = -2.6, y = 0, z = 0 } end }
+"""
+
+
+def test_formation_taxi_and_takeoff_with_the_numbers() -> None:
+    h = _harness(ships=2)
+    h.lua.execute(FAKE_WIND)
+    _call(
+        h, "taxi", detail="numbers", text="viper 1 1 flight of 2 have the numbers taxi"
+    )
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1 flight, runway 25, cleared for takeoff, frequency change approved.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_takeoff_gives_the_wind_and_landing_too() -> None:
+    h = _harness()
+    h.lua.execute(FAKE_WIND)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    # 5 kt from 360 true; the harness has no declination.
+    assert _texts(h) == [
+        "Viper 1-1, runway 25, wind 360 at 5, cleared for takeoff, frequency change approved."
+    ]
+    assert _said(h)[0]["speech"] == (
+        "Viper one one, runway two five, wind three six zero at 5, "
+        "cleared for takeoff, frequency change approved."
+    )
+    h.assert_no_lua_errors()
+
+
+def test_reading_back_the_wind_altimeter_or_frequency_is_never_wrong() -> None:
+    h = _harness(discipline="relaxed")
+    h.lua.execute(FAKE_WIND)
+    _call(h, "taxi")
+    _call(h, "readback", numbers="25 2992 25 262.0")
+    _call(h, "ready", TOWER)
+    _call(h, "readback", TOWER, numbers="25 360 5")
+    h.advance_to(2)
+    assert len(_texts(h)) == 2
+    h.assert_no_lua_errors()
+
+
+def test_strict_still_needs_the_runway_in_the_takeoff_readback() -> None:
+    h = _harness()
+    _call(h, "ready", TOWER)
+    _call(h, "readback", TOWER, text="cleared for takeoff viper 1 1")
+    h.advance_to(2)
+    assert _texts(h)[1:] == [
+        "Viper 1-1, readback incomplete, cleared for takeoff runway 25."
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_relaxed_matches_a_misheard_callsign_by_flight_name() -> None:
+    # Test 65: Whisper heard "Enfield 4" as "Enfield 2" and Relaxed asked again each time.
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    h.lua.execute(FAKE_SOCKET)
+    config = _config()
+    lead = dict(config["voiceAtc"]["flights"][0])
+    config["voiceAtc"]["flights"] = [
+        dict(lead, group="Viper", callsign="Enfield 4-1"),
+        dict(lead, group="Cobra", callsign="Colt 1-1"),
+    ]
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {"plugins": {}, "radioDiscipline": "relaxed", **config}
+    )
+    h.add_group(_viper())
+    h.load_plugin_script(PLUGIN)
+    _call(h, "radiocheck", callsign="enfield 2")
+    _call(h, "radiocheck", callsign="cobra 7")
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Enfield 4-1, Kobuleti Ground, read you 5 by 5.",
+        "Station calling Kobuleti Ground, say again your callsign.",
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_relaxed_matches_the_only_flight_at_the_field_and_strict_does_not() -> None:
+    for discipline, expected in (
+        ("relaxed", "Viper 1-1, Kobuleti Ground, read you 5 by 5."),
+        ("strict", "Station calling Kobuleti Ground, say again your callsign."),
+    ):
+        h = _harness(discipline=discipline)
+        _call(h, "radiocheck", callsign="enfield 2")
+        h.advance_to(2)
+        assert _texts(h) == [expected], discipline
+        h.assert_no_lua_errors()
+
+
+def test_runway_in_use_gives_the_runway_and_wind() -> None:
+    h = _harness()
+    h.lua.execute(FAKE_WIND)
+    _call(h, "runway", TOWER)
+    _call(h, "runway")
+    h.advance_to(2)
+    assert _texts(h) == ["Viper 1-1, runway 25, wind 360 at 5."] * 2
+    assert [m["frequency"] for m in _said(h)] == [TOWER, GROUND]
+    h.assert_no_lua_errors()
+
+
+# Grid north is true 351: the grid sits 9 degrees off true north, as on GermanyCW (Test 65).
+GRID_CONVERGENCE = (
+    "local c = math.rad(9) "
+    "coord.LOtoLL = function(p) "
+    "local north = p.x * math.cos(c) + p.z * math.sin(c) "
+    "local east = -p.x * math.sin(c) + p.z * math.cos(c) "
+    "return north / 111000, east / 111000, 0 end"
+)
+
+
+def test_the_wind_is_true_by_lat_lon_not_by_the_map_grid() -> None:
+    h = _harness()
+    h.lua.execute(FAKE_WIND)
+    h.lua.execute(GRID_CONVERGENCE)
+    _call(h, "runway", TOWER)
+    h.advance_to(2)
+    # From grid 360 is from true 351, spoken to 10 degrees: 350.
+    assert _texts(h) == ["Viper 1-1, runway 25, wind 350 at 5."]
+    h.assert_no_lua_errors()
+
+
+def test_an_ai_takeoff_heading_is_true_by_lat_lon() -> None:
+    h = _harness()
+    h.lua.execute(GRID_CONVERGENCE)
+    # Grid 113 is true 104: 43 degrees off 07 by the grid (no match, runway 25 kept),
+    # 34 by true (07).
+    _ai_takeoff(h, "Eagle", 1000, 113)
+    _call(h, "ready", TOWER)
+    h.advance_to(2)
+    assert _texts(h) == [
+        "Viper 1-1, runway 07, cleared for takeoff, frequency change approved."
+    ]
     h.assert_no_lua_errors()

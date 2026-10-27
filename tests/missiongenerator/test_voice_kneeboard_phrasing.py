@@ -115,10 +115,11 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     assert (
         '"Hatzerim Tower, Ford 9-1, clear of the runway."\n  ATC: "Taxi to parking."'
     ) in text
-    assert '"Hatzerim Tower, Ford 9-1, airborne."' in text
+    # The takeoff clearance approves the frequency change: no airborne call (2026-10-26).
+    assert "airborne" not in text
     # No squawk codes (user call, 2026-10-22): Ground clears taxi, the readback is the runway.
     assert (
-        '  ATC: "Taxi to runway 28L, hold short, contact Tower '
+        '  ATC: "Runway 28L, altimeter, taxi, hold short runway 28L, contact Tower '
         f'{voicepages._spoken_freq(home.tower)}."'
     ) in text
     assert '  You: "Hold short 28L, Ford 9-1."' in text
@@ -128,3 +129,34 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
         assert gone not in text, gone
     for call in _calls(text):
         assert "Ford 9-1" in call, call
+
+
+def test_atc_card_teaches_the_military_pattern(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    home = AtcField("Hatzerim", "28L", MHz(125, 100), MHz(130, 600))
+    page = AtcPage("Ford 9-1", home, home, False)
+    text = _card_lines(page, tmp_path, monkeypatch)
+    calls = _calls(text)
+    for call in (
+        '"Hatzerim Ground, Ford 9-1, flight of two, have the numbers, request taxi."',
+        '"Hatzerim Tower, Ford 9-1, 10 miles, full stop."',
+        '"Hatzerim Tower, Ford 9-1, 10 miles, request straight-in."',
+        '"Ford 9-1, initial."',
+        '"Ford 9-1, base, gear down, full stop."',
+    ):
+        assert call in calls, call
+    assert '  ATC: "Runway 28L, wind, report initial."' in text
+    assert (
+        '  ATC: "Runway 28L, wind, cleared for takeoff, frequency change approved."'
+        in text
+    )
+    assert '  ATC: "Runway 28L, wind, cleared to land."' in text
+    # Each call has one answer line; only a readback adds a "You:" line.
+    lines = text.splitlines()
+    for i, line in enumerate(lines):
+        if line.startswith('"'):
+            assert lines[i + 1].startswith("  ATC: "), line
+    # The landing clearance comes at base, never with the inbound call.
+    inbound = lines.index('"Hatzerim Tower, Ford 9-1, 10 miles, full stop."')
+    assert "cleared to land" not in lines[inbound + 1]

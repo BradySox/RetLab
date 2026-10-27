@@ -9,8 +9,9 @@
 --   flights = { { group, callsign, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
--- the field frequencies and this script decides every reply. Taxi to the runway,
--- takeoff with wind and altimeter, landing, clear of the runway. Under Strict radio discipline a
+-- the field frequencies and this script decides every reply, in military calls: the altimeter
+-- with taxi, wind and a frequency change with takeoff, report initial (or a straight-in) when
+-- inbound, cleared to land at base or final with the gear down. Under Strict radio discipline a
 -- rule bust (moving before taxi, taking off or landing without clearance) gets a scolding call and
 -- nothing more: ATC never blocks a player (user call, 2026-10-20). An F10 ATC menu makes the same
 -- requests. Replies are voice only; without LuaSocket the menu is the only way in and replies are
@@ -23,8 +24,9 @@ end
 
 local data = dcsRetribution.voiceAtc
 -- Radio discipline (§116-§119, user call 2026-10-20). Strict: readbacks checked, busts scolded.
--- Relaxed: any acknowledgement counts, only a wrong number is corrected, no scolding. Casual:
--- answer only when called, never expect a call, accept a loose call or a misheard callsign.
+-- Relaxed: any acknowledgement counts, only a wrong number is corrected, no scolding, a
+-- misheard callsign is matched. Casual: answer only when called, never expect a call, accept
+-- a loose call.
 local DISCIPLINE = dcsRetribution.radioDiscipline or "strict"
 local STRICT = DISCIPLINE == "strict"
 local CASUAL = DISCIPLINE == "casual"
@@ -33,8 +35,8 @@ local ANNOUNCE_SECONDS = 30
 local WATCH_SECONDS = 2
 local TEXT_SECONDS = 15
 local NM = 1852
--- Tower takes the landing call this close in; farther out it asks for a call at 5 NM.
-local TOWER_RANGE_NM = 15
+-- A "gear down" call farther out than this is misheard: Tower answers it as an inbound call.
+local LANDING_RANGE_NM = 10
 -- Faster than this on the ground is taxiing, about 6 kt.
 local TAXI_MPS = 3
 local KNOTS = 1.94384
@@ -73,6 +75,8 @@ for _, flight in ipairs(data.flights or {}) do
     flight.lastCall = {}
     flight.scolded = {}
     flight.landing = {}
+    -- Ship -> field it is inbound to or in the pattern at, until it lands.
+    flight.pattern = {}
     table.insert(flights, flight)
 end
 
@@ -160,8 +164,16 @@ local function digits(s)
     return { tostring(s), spokenDigits(s) }
 end
 
-local function callsignPart(callsign)
+local function callsignPart(callsign, formation)
+    if formation then
+        return { callsign .. " flight", spokenCallsign(callsign) .. " flight" }
+    end
     return { callsign, spokenCallsign(callsign) }
+end
+
+-- A whole word in the heard call: "flight" in "viper 1 1 flight of 2".
+local function heardWord(text, word)
+    return (" " .. tostring(text or ""):lower() .. " "):find("[^%a]" .. word .. "[^%a]") ~= nil
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -412,6 +424,29 @@ local function declination()
     return tonumber(data.declination) or 0
 end
 
+-- The true direction of a map vector (dx, dz) at p, by lat/lon: the map grid is not true north
+-- (about 9 degrees off on GermanyCW, Test 65). Grid direction without coord.
+local function trueDirection(p, dx, dz)
+    local length = math.sqrt(dx * dx + dz * dz)
+    if length == 0 then
+        return 0
+    end
+    local step = 1000 / length
+    local ok, lat1, lon1, lat2, lon2 = pcall(function()
+        local a1, o1 = coord.LOtoLL(p)
+        local a2, o2 = coord.LOtoLL({ x = p.x + dx * step, y = p.y, z = p.z + dz * step })
+        return a1, o1, a2, o2
+    end)
+    if not (ok and tonumber(lat1) and tonumber(lat2)) then
+        return math.deg(math.atan2(dz, dx))
+    end
+    local p1, p2 = math.rad(lat1), math.rad(lat2)
+    local dl = math.rad(lon2 - lon1)
+    local y = math.sin(dl) * math.cos(p2)
+    local x = math.cos(p1) * math.sin(p2) - math.sin(p1) * math.cos(p2) * math.cos(dl)
+    return math.deg(math.atan2(y, x))
+end
+
 -- The surface wind as a tower gives it: magnetic direction it blows from, to 10 degrees, in knots.
 local function windParts(field)
     local p = airbasePoint(field)
@@ -426,34 +461,37 @@ local function windParts(field)
     end
     local knots = math.floor(math.sqrt(wind.x * wind.x + wind.z * wind.z) * KNOTS + 0.5)
     if knots < CALM_KT then
-        return { "wind calm" }
+        return { "wind calm" }, {}
     end
-    local towards = math.deg(math.atan2(wind.z, wind.x))
+    local towards = trueDirection(p, wind.x, wind.z)
     local from = (towards + 180 - declination()) % 360
     local tens = math.floor(from / 10 + 0.5) * 10
     if tens == 0 then
         tens = 360
     end
-    return { "wind ", digits(string.format("%03d", tens)), " at ", { tostring(knots), tostring(knots) } }
+    return { "wind ", digits(string.format("%03d", tens)), " at ", { tostring(knots), tostring(knots) } }, { tens, knots }
 end
 
+-- Adds the wind to a call and returns its numbers, which a readback may say.
 local function withWind(parts, field)
-    local wind = windParts(field)
+    local wind, values = windParts(field)
     if wind then
         for _, part in ipairs(wind) do
             table.insert(parts, part)
         end
         table.insert(parts, ", ")
     end
-    return parts
+    return values or {}
 end
 
--- What a readback must hold: each item is a number (a runway or a frequency).
-local function pend(flight, member, field, position, items)
+-- What a readback must hold: each item is a number (the runway). The optional numbers (wind,
+-- altimeter, frequency) were in the call too, so reading one back is never a wrong number.
+local function pend(flight, member, field, position, items, optional)
     flight.pending[member] = {
         field = field,
         position = position,
         items = items,
+        optional = optional or {},
         at = timer.getTime(),
         state = flight.state,
     }
@@ -476,6 +514,11 @@ local function wrongNumber(pending, numbers)
         local known = false
         for _, item in ipairs(pending.items) do
             if heardNumber(n, item.value) then
+                known = true
+            end
+        end
+        for _, value in ipairs(pending.optional or {}) do
+            if heardNumber(n, value) then
                 known = true
             end
         end
@@ -537,24 +580,6 @@ end
 -- No taxiway names: DCS gives scripts none, so every field taxis "to runway 25" (user call,
 -- 2026-10-20). Taxi is the first call: there is no engine-start request, since SRS radios
 -- are dead until the jet is powered (user call, 2026-10-21).
-local function taxi(field, flight, member, on)
-    if flight.state == "parked" then
-        flight.state = "taxi"
-    end
-    local runway = field.runway
-    pend(flight, member, field, on or "ground", {
-        { kind = "number", value = runway, say = phrase({ "hold short runway ", digits(runway) }) },
-    })
-    say(field, on or "ground", flight, line({
-        callsignPart(memberCallsign(flight, member)),
-        ", taxi to runway ",
-        digits(runway),
-        ", hold short, contact Tower ",
-        digits(frequencyLabel(field.tower)),
-        ".",
-    }))
-end
-
 local function altimeterPart(field)
     local inches = field.altimeter or ""
     if inches == "" then
@@ -563,29 +588,78 @@ local function altimeterPart(field)
     return { inches, spokenDigits((inches:gsub("%.", ""))) }
 end
 
-local function takeoff(field, flight, member, on)
-    local parts = { callsignPart(memberCallsign(flight, member)), ", runway ", digits(field.runway), ", " }
-    withWind(parts, field)
+-- The lead calling for the whole formation: it said "flight", or (going out) it has wingmen.
+local function isFormation(flight, member, text, outbound)
+    if member ~= 1 then
+        return false
+    end
+    return heardWord(text, "flight") or (outbound and #liveUnits(flight.group) > 1)
+end
+
+-- "Have the numbers": the pilot has the runway, wind and altimeter, so they are left out.
+local function hasNumbers(detail, text)
+    return detail == "numbers" or heardWord(text, "numbers")
+end
+
+local function taxi(field, flight, member, on, detail, text)
+    if flight.state == "parked" then
+        flight.state = "taxi"
+    end
+    if hasNumbers(detail, text) then
+        flight.numbers = true
+    end
+    local runway = field.runway
+    local tower = frequencyLabel(field.tower)
+    local formation = isFormation(flight, member, text, true)
+    local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(runway), ", " }
+    local optional = { tower }
     local altimeter = altimeterPart(field)
-    if altimeter then
+    if altimeter and not flight.numbers then
         table.insert(parts, "altimeter ")
         table.insert(parts, altimeter)
         table.insert(parts, ", ")
+        -- "Two niner niner two" is heard as 2992.
+        table.insert(optional, field.altimeter)
+        table.insert(optional, (field.altimeter:gsub("%.", "")))
     end
-    table.insert(parts, "cleared for takeoff.")
+    for _, part in ipairs({ "taxi, hold short runway ", digits(runway), ", contact Tower ", digits(tower), "." }) do
+        table.insert(parts, part)
+    end
+    pend(flight, member, field, on or "ground", {
+        { kind = "number", value = runway, say = phrase({ "hold short runway ", digits(runway) }) },
+    }, optional)
+    say(field, on or "ground", flight, line(parts))
+end
+
+-- The frequency change is approved with the clearance, so no airborne call is needed.
+local function takeoff(field, flight, member, on, detail, text)
+    local formation = isFormation(flight, member, text, true)
+    local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(field.runway), ", " }
+    local optional = {}
+    if not (flight.numbers or hasNumbers(detail, text)) then
+        optional = withWind(parts, field)
+    end
+    table.insert(parts, "cleared for takeoff, frequency change approved.")
     flight.state = "cleared"
     pend(flight, member, field, on or "tower", {
         { kind = "number", value = field.runway, say = phrase({ "cleared for takeoff runway ", digits(field.runway) }) },
-    })
+    }, optional)
     say(field, on or "tower", flight, line(parts))
 end
 
--- Another player ship cleared to land and not down yet: the runway is busy.
-local function runwayBusy(field, flight, member)
+-- Another player flight inbound to this field or cleared to land there, not down yet.
+local function trafficInPattern(field, flight)
     for _, other in ipairs(flights) do
-        for m, landing in pairs(other.landing) do
-            if landing == field.name and not (other == flight and (m == member or member ~= 1 and m == 1)) then
-                return true
+        if other ~= flight then
+            for _, name in pairs(other.pattern) do
+                if name == field.name then
+                    return true
+                end
+            end
+            for _, name in pairs(other.landing) do
+                if name == field.name then
+                    return true
+                end
             end
         end
     end
@@ -610,34 +684,52 @@ local function memberUnit(flight, member)
     return nil
 end
 
-local function inbound(field, flight, member, detail, on)
+-- The landing clearance, at base or final with the gear down: each ship, or the formation.
+local function landing(field, flight, member, on, text)
+    local formation = isFormation(flight, member, text, false)
+    local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(field.runway), ", " }
+    local optional = withWind(parts, field)
+    table.insert(parts, "cleared to land.")
+    flight.landing[member] = field.name
+    if formation then
+        for _, seat in ipairs(playerUnits(flight)) do
+            flight.landing[seat.member] = field.name
+        end
+    end
+    pend(flight, member, field, on, {
+        { kind = "number", value = field.runway, say = phrase({ "cleared to land runway ", digits(field.runway) }) },
+    }, optional)
+    say(field, on, flight, line(parts))
+end
+
+-- Inbound gets the runway, the wind and the overhead (report initial), or a straight-in when it
+-- asks for one. Initial and the break are acknowledged; the landing call comes at base or final.
+local function inbound(field, flight, member, detail, on, text)
     on = on or "tower"
     local callsign = memberCallsign(flight, member)
     local unit = memberUnit(flight, member)
-    if unit and distanceNm(unit, field) > TOWER_RANGE_NM then
-        return say(field, on, flight, line({ callsignPart(callsign), ", report ", { "5", "five" }, " miles." }))
+    if detail == "geardown" and not (unit and distanceNm(unit, field) > LANDING_RANGE_NM) then
+        flight.pattern[member] = nil
+        return landing(field, flight, member, on, text)
     end
-    if runwayBusy(field, flight, member) then
-        return say(field, on, flight, line({
-            callsignPart(callsign),
-            ", enter the pattern at ",
-            { "3,000", "three thousand" },
-            ", report downwind.",
-        }))
+    local formation = isFormation(flight, member, text, false)
+    flight.pattern[member] = field.name
+    if detail == "initial" or detail == "break" then
+        local reply = ", roger."
+        if detail == "initial" and trafficInPattern(field, flight) then
+            reply = ", report break."
+        end
+        return say(field, on, flight, line({ callsignPart(callsign, formation), reply }))
     end
-    local parts = { callsignPart(callsign), ", " }
-    if detail == "overhead" then
-        table.insert(parts, "overhead approved, ")
-    end
-    table.insert(parts, "runway ")
-    table.insert(parts, digits(field.runway))
-    table.insert(parts, ", ")
+    local parts = { callsignPart(callsign, formation), ", runway ", digits(field.runway), ", " }
     withWind(parts, field)
-    table.insert(parts, "cleared to land.")
-    flight.landing[member] = field.name
-    pend(flight, member, field, on, {
-        { kind = "number", value = field.runway, say = phrase({ "cleared to land runway ", digits(field.runway) }) },
-    })
+    if detail == "straight-in" then
+        table.insert(parts, "make straight-in, report ")
+        table.insert(parts, { "3", "three" })
+        table.insert(parts, "-mile final.")
+    else
+        table.insert(parts, "report initial.")
+    end
     say(field, on, flight, line(parts))
 end
 
@@ -659,6 +751,20 @@ local function radioCheck(field, position, flight, member)
     }))
 end
 
+-- "Runway in use": the runway and the wind, from whoever was called.
+local function runwayInUse(field, position, flight, member)
+    local parts = { callsignPart(memberCallsign(flight, member)), ", runway ", digits(field.runway) }
+    local wind = windParts(field)
+    if wind then
+        table.insert(parts, ", ")
+        for _, part in ipairs(wind) do
+            table.insert(parts, part)
+        end
+    end
+    table.insert(parts, ".")
+    say(field, position, flight, line(parts))
+end
+
 local function sayAgain(field, position, flight, member)
     local last = flight.lastCall[field.name .. position]
     if last then
@@ -668,16 +774,19 @@ local function sayAgain(field, position, flight, member)
 end
 
 -- A call to one position: the reply, or the right frequency when it is the other position's job.
-local function handleCall(field, position, flight, member, kind, detail)
+local function handleCall(field, position, flight, member, kind, detail, text)
     if kind == "radiocheck" then
         return radioCheck(field, position, flight, member)
     elseif kind == "sayagain" then
         return sayAgain(field, position, flight, member)
     elseif kind == "emergency" then
         return emergency(field, position, flight, member)
+    elseif kind == "runway" then
+        return runwayInUse(field, position, flight, member)
     elseif kind == "startup" or kind == "airborne" then
         -- A short answer from whoever was called, never "say again": start needs no
-        -- clearance (taxi is the first call), and airborne needs nothing more.
+        -- clearance (taxi is the first call), and the takeoff clearance already approved the
+        -- frequency change, so an airborne call is answered but never needed.
         local reply = kind == "startup" and ", start at your discretion. Call ready to taxi." or ", frequency change approved."
         return say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), reply }))
     end
@@ -693,11 +802,11 @@ local function handleCall(field, position, flight, member, kind, detail)
         return contact(field, position, flight, member, "ground")
     end
     if kind == "taxi" then
-        taxi(field, flight, member, on)
+        taxi(field, flight, member, on, detail, text)
     elseif kind == "ready" then
-        takeoff(field, flight, member, on)
+        takeoff(field, flight, member, on, detail, text)
     elseif kind == "inbound" then
-        inbound(field, flight, member, detail, on)
+        inbound(field, flight, member, detail, on, text)
     elseif kind == "clear" then
         flight.landing[member] = nil
         say(field, on or "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", taxi to parking." }))
@@ -706,10 +815,13 @@ local function handleCall(field, position, flight, member, kind, detail)
     end
 end
 
--- Casual: a misheard or missing callsign is the flight with the same numbers at this field, or
--- the only player flight using it.
+-- Relaxed and Casual: a misheard or missing callsign is the flight with the same numbers at
+-- this field, the only one there with the heard flight name ("Enfield 2" for Enfield 4-1,
+-- Test 65), or the only player flight using it.
 local function guessFlight(field, callsign)
-    local wanted = normalize(callsign or ""):gsub("%a", "")
+    local heard = normalize(callsign or "")
+    local wanted = heard:gsub("%a", "")
+    local name = heard:gsub("%d", "")
     local here = {}
     for _, flight in ipairs(flights) do
         if flight.departure == field.name or flight.arrival == field.name then
@@ -727,6 +839,17 @@ local function guessFlight(field, callsign)
             end
         end
     end
+    if name ~= "" then
+        local named = {}
+        for _, flight in ipairs(here) do
+            if flight.key:gsub("%d", "") == name then
+                table.insert(named, flight)
+            end
+        end
+        if #named == 1 then
+            return named[1], 1
+        end
+    end
     if #here == 1 then
         return here[1], 1
     end
@@ -740,7 +863,7 @@ local function handleRequest(request)
     end
     local field, position = station.field, station.position
     local flight, member = findFlight(request.callsign)
-    if not flight and CASUAL then
+    if not flight and not STRICT then
         flight, member = guessFlight(field, request.callsign)
     end
     if not flight then
@@ -749,7 +872,7 @@ local function handleRequest(request)
     if request.kind == "readback" then
         return checkReadback(flight, member, request)
     end
-    handleCall(field, position, flight, member, request.kind, request.detail)
+    handleCall(field, position, flight, member, request.kind, request.detail, request.text)
 end
 
 local function pollLink(_, now)
@@ -862,8 +985,8 @@ end
 local MENU = {
     { "Ground: request taxi", "taxi" },
     { "Tower: holding short, ready", "ready" },
-    { "Tower: 5 miles, full stop", "inbound" },
-    { "Tower: 5 miles, request the overhead", "inbound", "overhead" },
+    { "Tower: 10 miles, full stop", "inbound" },
+    { "Tower: base, gear down", "inbound", "geardown" },
     { "Tower: clear of the runway", "clear" },
     { "Read back", "readback" },
     { "Mayday", "emergency" },
@@ -904,6 +1027,7 @@ local function newSortie(flight, unit)
     local member = memberOf(flight, unit)
     flight.pending[member] = nil
     flight.landing[member] = nil
+    flight.pattern[member] = nil
     flight.scolded["land" .. member] = nil
     local name = unit:getName()
     for _, seat in ipairs(playerUnits(flight)) do
@@ -914,8 +1038,10 @@ local function newSortie(flight, unit)
     flight.state = "parked"
     flight.pending = {}
     flight.landing = {}
+    flight.pattern = {}
     flight.scolded = {}
     flight.lastCall = {}
+    flight.numbers = nil
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -961,7 +1087,7 @@ local function learnRunway(unit)
     if not (ok and pos and pos.x) then
         return
     end
-    local heading = (math.deg(math.atan2(pos.x.z, pos.x.x)) - declination()) % 360
+    local heading = (trueDirection(unit:getPoint(), pos.x.x, pos.x.z) - declination()) % 360
     local ends, pairOf = {}, {}
     for name in tostring(field.runways or ""):gmatch("[^,]+") do
         table.insert(ends, name)
@@ -1059,6 +1185,7 @@ function handler:onEvent(event)
         scold(flight, "land" .. member, field, "tower", member, ", you landed without clearance.")
     end
     flight.landing[member] = nil
+    flight.pattern[member] = nil
     flight.state = "landed"
     if not CASUAL then
         say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))

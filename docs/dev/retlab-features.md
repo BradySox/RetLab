@@ -11577,24 +11577,49 @@ Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step
   first-listed runway end (Hatzerim 10, Bassel Al-Assad 17, Incirlik 05, Konya 01) whatever
   the wind, but Tel Nof broke the pattern, so the rule is not settled and the planner is
   unchanged. In 7.7 m/s (Afghanistan) the AI went into the wind. Wind is read live at the
-  field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH.
+  field (magnetic, from MOOSE's declination table); the altimeter is the mission QNH. The
+  wind direction and the AI takeoff heading are true bearings from lat/lon
+  (`trueDirection`), then magnetic; until 2026-10-26 they were map-grid angles, up to about
+  9 degrees off at fields far from the map's central meridian (GermanyCW, Test 65).
 - **No taxiway names.** DCS gives scripts none; the terrain's `AirfieldsTaxiways` files are an
-  unlabeled road graph. Every field says "taxi to runway 25, hold short" (user call,
+  unlabeled road graph. Every field says "taxi, hold short runway 25" (user call,
   2026-10-20).
 
-The calls (lead calls for the flight going out; a player wingman may ask for their own landing).
-Taxi is the first call: there is no engine-start request, since SRS radios are dead until the
-jet is powered (user call, 2026-10-21). A spoken start request gets "start at your discretion,
-call ready to taxi", and an "airborne" call "frequency change approved", from whichever
-position was called; both used to get "say again".
+The calls are military ones (user call, 2026-10-26; sources: FAA JO 7110.65 ch. 3 s. 7, 9
+and 10, AIM ch. 4 s. 3, AFI 11-2F-16V3). The lead calls for the flight going out; each ship
+gets its own landing clearance unless the lead calls for the formation. Taxi is the first
+call: there is no engine-start request, since SRS radios are dead until the jet is powered
+(user call, 2026-10-21). A spoken start request gets "start at your discretion, call ready to
+taxi" from whichever position was called. An "airborne" call is no longer needed, since the
+takeoff clearance approves the frequency change, but it is still answered "frequency change
+approved".
 
 | Position | Pilot | ATC | Readback items |
 |---|---|---|---|
-| Ground | request taxi | taxi to runway 25, hold short, contact Tower 262.0 | runway |
-| Tower | holding short runway 25, ready | runway 25, wind, altimeter, cleared for takeoff | runway |
-| Tower | 5 miles, full stop / request the overhead | runway 25, wind, cleared to land (busy: enter the pattern at 3,000) | runway |
+| Ground | request taxi | runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0 | runway |
+| Tower | holding short runway 25, ready | runway 25, wind 270 at 5, cleared for takeoff, frequency change approved | runway |
+| Tower | 10 miles, full stop (or request the overhead) | runway 25, wind, report initial | none |
+| Tower | 10 miles, request straight-in | runway 25, wind, make straight-in, report 3-mile final | none |
+| Tower | initial / break | roger (initial with another player flight in the pattern: report break) | none |
+| Tower | base, gear down (3 miles, gear down; on final, gear down) | runway 25, wind, cleared to land | runway |
 | Tower | (lands) | clear the runway, taxi to parking | none |
-| either | Mayday, emergency fuel | cleared to land any runway | none |
+| either | Mayday, emergency fuel (or engine failure, flameout, fire) | cleared to land any runway | none |
+| either | request runway in use (active runway, say active) | runway 25, wind 270 at 5 | none |
+
+- **Formation.** A lead with live wingmen, or a lead who says "flight" ("Viper 1-1 flight",
+  "flight of two"), is answered "Viper 1-1 flight" on taxi and takeoff. On landing only a
+  lead who says "flight" is; that clears every player ship in the group. "Flight of two" is a
+  count, never a ship number.
+- **Have the numbers.** A taxi call that says it leaves the altimeter out, and the takeoff
+  clearance then leaves the wind out.
+- **Pattern calls need no station.** "Viper 1-1, initial" and "Viper 1-1, base, gear down"
+  are heard without "Tower", as real pilots make them.
+- **A "gear down" call farther than 10 NM** (`LANDING_RANGE_NM`) is misheard and answered as
+  an inbound call. The old 15 NM "report 5 miles" gate and the busy-runway "enter the pattern
+  at 3,000, report downwind" are gone: inbound is no longer a clearance.
+- **Readback numbers.** The wind, the altimeter (29.92 or 2992) and the Tower frequency are
+  optional numbers: reading one back is never a wrong number under Relaxed. Before
+  2026-10-26 a Relaxed readback that included one got "negative".
 
 "Say again" repeats the last call; "radio check" answers 5 by 5. A call to the wrong position
 gets "contact Ground/Tower <freq>". An unknown callsign gets "say again your callsign".
@@ -11620,7 +11645,7 @@ migrates to Relaxed).
 | Rule busts | one scolding call each | none | none |
 | Call to the wrong position | "contact Ground/Tower <freq>" | the same | answered where called |
 | Unprompted "clear the runway" | yes | yes | no: ATC speaks only when called |
-| Callsign | must match | must match | a misheard name with the right numbers, or none when one player flight uses the field |
+| Callsign | must match | a misheard one is matched: the right numbers, the only flight there with that name, or the only player flight using the field (since 2026-10-26, Test 65) | the same, or none |
 | SkyEye parsing | station, callsign, request | the same | the station or callsign may be left out |
 
 ATC stays silent on a good readback, as real controllers do. Under Casual you may taxi and
@@ -11633,7 +11658,9 @@ landing without clearance.
 **F10 menu.** "ATC" per player group makes the same requests (user call, 2026-10-20). A menu
 readback is always complete. A group menu cannot tell which ship pressed it, so the top items
 speak for the one player aboard, else the lead, and each wingman seat has a "Ship N" submenu
-with the same items (7 calls and 3 submenus fill F1-F10 on a 4-ship). Until 2026-10-21 every
+with the same items (7 calls and 3 submenus fill F1-F10 on a 4-ship). Since 2026-10-26 the
+inbound items are "Tower: 10 miles, full stop" and "Tower: base, gear down"; the overhead
+request item went, since overhead is the default. Until 2026-10-21 every
 menu call was ship 1. Without LuaSocket the menu is the only way in and the replies
 are text only.
 
@@ -11659,6 +11686,15 @@ readback never came gets one "Ford niner one, read back" 20 s later
 (`READBACK_PROMPT_SECONDS`), only while it is still the flight's current clearance; before,
 an unheard readback was silence. The card teaches the after-landing call as "Tower, <me>,
 clear of the runway", answered "Taxi to parking". Not flown (row B271).
+
+**Military calls (2026-10-26, user call).** `BradySox/skyeye` PR (branch
+`retlab/military-atc`) sends an inbound call's `detail`: `overhead`, `straight-in`,
+`initial`, `break` ("brake" without "hot"), `geardown` (base, final, "gear's down"), and
+`numbers` on a taxi or ready call that says "have the numbers". A pattern report parses
+with no station. Two parser bugs went with it: "airborne, switching departure" was a takeoff
+request ("departure" was a ready word), and "engine failure" without "mayday" was a start
+request. From Test 65 (Relaxed): "clear for takeoff 23" (clear, not cleared, either order) is
+a readback, and "request runway in use" is the new `runway` kind. The ATC card shows the new calls. Not flown (row B292).
 
 ### Files
 
