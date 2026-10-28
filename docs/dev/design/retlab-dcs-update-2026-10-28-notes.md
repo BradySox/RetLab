@@ -9,8 +9,9 @@ been read yet. The format follows `retlab-dcs-update-2026-08-26-notes.md`.
 - **MiG-25RBT in both Iraq factions.** The patch adds the MiG-25RBT, IL-76MD and
   MiG-23MLD to DCS's Iraq country list. All three were already in pydcs and in
   `resources/units/aircraft/`. The IL-76MD was already in both Iraq factions. Iraq flew
-  MiG-25RBs, so `iraq_1991` and `iraq_2000` gain the MiG-25RBT. The MiG-23MLD stays out:
-  Iraq's Floggers were the ML.
+  MiG-25RBs, so `iraq_1991` and `iraq_2000` gain the MiG-25RBT. Both factions already fly
+  the MiG-23MLD: DCS has one Flogger, and `MiG-23MLD.yaml` names it "MiG-23ML Flogger-G" as
+  a variant, which is the name the Iraq factions use.
 - pydcs's `Iraq` country class still lacks the two jets. Nothing in RetLab reads country
   unit lists (factions name the types), so this is cosmetic and waits for the export.
 
