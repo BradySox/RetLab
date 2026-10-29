@@ -996,6 +996,7 @@ FEATURES: tuple[Feature, ...] = (
         124,
         settings_fields=("ship_damage_carry_over", "ship_damage_repair_percent"),
     ),
+    Feature("missile_site_targets", "Missile-site targets", 125),
     Feature(
         # Player flights only (game/ato/flightplans/alignpoint.py); from juanjux's fork.
         "runway_lineup",

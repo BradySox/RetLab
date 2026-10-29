@@ -353,6 +353,7 @@ linked design note.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
 124. **Carry-over ship damage** — a damaged ship starts the next mission damaged, through DCS's native set-life action; 34 points repaired a turn. Ships only.
+125. **Missile-site targets** — pick a target for your own SCUD site in its window; fog-gated, kept until it dies, else random.
 126. **Runway line-up and departure hold** — player flights get ALIGN on final (carriers on the angled deck) and hold straight out the runway. Never AI.
 
 ### Retired, removed or shelved — do not restore
