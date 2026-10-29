@@ -46,6 +46,7 @@ from .neutralborderluadata import populate_neutral_border_lua
 from .redscrambleluadata import populate_red_scramble_lua
 from game.retlab.ai_fill import populate_ai_fill_lua
 from game.retlab.package_control import populate_package_control_lua
+from game.retlab.radio_record import populate_radio_record_lua
 from game.retlab.vacuum import populate_vacuum_lua
 from game.retlab.voice_atc import populate_voice_atc_lua
 from .vietnamopsluadata import populate_vietnam_ops_lua
@@ -519,6 +520,11 @@ class LuaGenerator:
         # and a player flight uses an airfield; runs after the two above so its
         # voices stay clear of theirs.
         populate_voice_atc_lua(lua_data, self.game, self.mission_data)
+
+        # Record radios for Tacview (§127) -- emits dcsRetribution.radioRecord only when
+        # the setting is on; runs after the bots above so every frequency is known. The
+        # radiorecord plugin asks SkyEye to record them, one WAV each.
+        populate_radio_record_lua(lua_data, self.game, self.mission_data)
 
         # Neutral-faction border defense (§98) -- emits dcsRetribution.neutralBorder
         # only when neutral_border_defense is on and the generator could build
