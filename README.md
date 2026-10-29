@@ -291,7 +291,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   readback is checked. Off by default.
 - **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
   client, connected to your own server. SkyEye closes after the mission. Off by default.
-- **Record radios for Tacview.** SkyEye records the AWACS, STRIKE, Vacuum, Ground, Tower and
+- **Record radios for Tacview.** SkyEye records the AWACS, STRIKE, Vacuum, Ground, Tower, Approach and
   each player flight's own frequency, one WAV each, in Documents\Tacview. Tacview's Auto Load
   Media add-on plays them with the replay, lined up by mission time. Off by default.
 

@@ -506,8 +506,8 @@ class MissionGeneratorSettings:
         section=GAMEPLAY_SECTION,
         default=False,
         detail=(
-            "SkyEye records the AWACS, STRIKE, Vacuum, each player field's Ground and "
-            "Tower, and each player flight's own frequency: one WAV file per frequency "
+            "SkyEye records the AWACS, STRIKE, Vacuum, each player field's Ground, "
+            "Tower and Approach, and each player flight's own frequency: one WAV file per frequency "
             "in your Documents Tacview folder, named so Tacview plays it with the "
             "replay. SkyEye "
             "never answers on a flight's own frequency. A player who turned recording "

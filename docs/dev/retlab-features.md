@@ -12065,7 +12065,7 @@ file per frequency, for Tacview's synchronized audio. Ideas from A.R.E.S. only, 
 call, 2026-10-29).
 
 - **What is recorded:** SkyEye's AWACS frequency, STRIKE, Vacuum's frequency, each player field's
-  Ground and Tower (the Voice ATC plan), then each blue player flight's intra-flight frequency.
+  Ground, Tower and Approach (the Voice ATC plan), then each blue player flight's intra-flight frequency.
   Each frequency once, a bot's first. `recorded_frequencies` in `game/retlab/radio_record.py`.
 - **A flight's own frequency is record-only** (user call, 2026-10-29): SkyEye never passes a call
   heard there to speech recognition, so nothing on it is answered. Player flights only.
