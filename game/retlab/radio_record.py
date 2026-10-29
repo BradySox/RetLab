@@ -1,7 +1,7 @@
 """Record radios for Tacview (§127): SkyEye records the voice bots' frequencies.
 
 With the setting on, the ``radiorecord`` plugin asks SkyEye over its mission link to
-record the AWACS, STRIKE, Vacuum and each player field's Ground and Tower, plus each
+record the AWACS, STRIKE, Vacuum and each player field's Ground, Tower and Approach, plus each
 player flight's own frequency. SkyEye writes one WAV per frequency next to the Tacview
 recordings, named with the mission time it starts at, so Tacview plays it with the
 replay. A flight's own frequency is record-only: SkyEye never answers there (user
@@ -50,6 +50,7 @@ def recorded_frequencies(
         for atc_field in plan.fields.values():
             add(atc_field.ground, station_name(atc_field.name, "Ground"), False)
             add(atc_field.tower, station_name(atc_field.name, "Tower"), False)
+            add(atc_field.approach, station_name(atc_field.name, "Approach"), False)
     for flight in mission_data.flights:
         if flight.client_units and flight.friendly.is_blue:
             add(flight.intra_flight_channel, flight.callsign, True)

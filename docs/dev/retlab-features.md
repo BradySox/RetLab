@@ -11558,7 +11558,7 @@ Row B264.
 and a Tower controller at every airfield a player flight takes off from, lands at or diverts
 to (divert added 2026-10-21, user call). AI-only
 fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
-Tower. Departure, Approach, Arrival and Emergency come in step 2, polish in step 3.
+Tower. Step 2 (Approach, which also works departures) is built, 2026-10-29; polish in step 3.
 
 - **Frequencies:** each field gets two new UHF AM channels, Ground and Tower, reserved like
   STRIKE (`allocate_atc_frequencies`). UHF, because the F-4E, the F-5E and a Tomcat pilot
@@ -11704,13 +11704,46 @@ request ("departure" was a ready word), and "engine failure" without "mayday" wa
 request. From Test 65 (Relaxed): "clear for takeoff 23" (clear, not cleared, either order) is
 a readback, and "request runway in use" is the new `runway` kind. The ATC card shows the new calls. Not flown (row B292).
 
+### Step 2: Approach and Departure (built 2026-10-29)
+
+Each field gets a third UHF frequency, **Approach**, which also works departures, as a
+military RAPCON does (user call, 2026-10-29). Pinned for the campaign like Ground and Tower
+(`Game.voice_atc_approach_frequencies`, saved; old saves pin it on their next generate), on
+the presets after Tower, on the comm card and the ATC card.
+
+- **Departure:** Tower's takeoff clearance ends "contact Departure <freq>". On the airborne
+  call Approach gives the chart exit nearest the jet's heading, "climb and maintain" the
+  chart's arrival/departure altitude, and "report <exit>"; the report gets "frequency change
+  approved". A flight 3 NM past its exit without a report is let go anyway.
+- **Approach:** inbound, it gives the runway in use and the chart entry that serves that
+  runway nearest the jet's bearing from the field: "enter via North-East, maintain 2,000,
+  report North-East". At the report, or within 1.5 NM of the point, it hands over: "contact
+  Tower <freq>". Tower then answers the first call with the runway, wind and "report initial"
+  without the pilot repeating anything (the A.R.E.S. idea, no code).
+- **Charts:** only Caucasus draws visual arrival and departure routes on its kneeboard charts
+  (`<DCS>/Mods/terrains/Caucasus/Kneeboard/NN_VAD_*.png`); Nevada, Kola and the Falklands carry
+  instrument plates, Syria three airport diagrams (checked 2026-10-29). The facts of the 20
+  Caucasus VAD charts (Tbilisi-Lochini draws no routes) are in
+  `resources/voice_atc/caucasus.yaml`: point names, lat/lon, the runways each entry serves,
+  the altitudes. No ED artwork is copied. The charts date from 2010; DCS numbers some ends 10
+  to 30 degrees off, so a chart runway takes the nearest DCS end within 30 degrees
+  (`dcs_runway`). Sochi's 02/20 page is left out: DCS has no such runway.
+- **No chart:** a point 10 NM out on the inbound bearing ("proceed 10 miles east of the
+  field"), or on the present heading going out, at the field's elevation plus 2,000 ft. Tower's
+  initial is the existing overhead.
+- **Instrument approaches** from the Nevada, Kola and Falklands plates stay in step 3.
+- The F10 "10 miles, full stop" goes to Approach first when the field has one. Not flown
+  (row B302).
+
 ### Files
 
 - `game/retlab/voice_atc.py`: frequencies, the plan, `dcsRetribution.voiceAtc`.
+- `game/retlab/atc_routes.py`, `resources/voice_atc/caucasus.yaml`: the chart points.
 - `resources/plugins/voiceatc/`: the state machine and the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
 - `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,
-  `tests/missiongenerator/test_voice_kneeboard_pages.py`.
+  `tests/missiongenerator/test_voice_kneeboard_pages.py`, `tests/retlab/test_atc_routes.py`,
+  `tests/lua/test_voiceatc_approach_runtime.py`.
 
 ### Constraints
 
@@ -12032,7 +12065,7 @@ file per frequency, for Tacview's synchronized audio. Ideas from A.R.E.S. only, 
 call, 2026-10-29).
 
 - **What is recorded:** SkyEye's AWACS frequency, STRIKE, Vacuum's frequency, each player field's
-  Ground and Tower (the Voice ATC plan), then each blue player flight's intra-flight frequency.
+  Ground, Tower and Approach (the Voice ATC plan), then each blue player flight's intra-flight frequency.
   Each frequency once, a bot's first. `recorded_frequencies` in `game/retlab/radio_record.py`.
 - **A flight's own frequency is record-only** (user call, 2026-10-29): SkyEye never passes a call
   heard there to speech recognition, so nothing on it is answered. Player flights only.

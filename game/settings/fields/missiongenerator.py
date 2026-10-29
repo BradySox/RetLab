@@ -488,11 +488,14 @@ class MissionGeneratorSettings:
         section=GAMEPLAY_SECTION,
         default=False,
         detail=(
-            "Ground and Tower for player flights at every airfield a player flight "
-            "takes off from or lands at: taxi to the runway, "
-            "takeoff with the wind and altimeter, and landing. Each field gets its "
-            "own Ground and Tower frequencies, apart from DCS's tower frequency. The "
-            "kneeboard lists both. Every call is accepted: readbacks are never "
+            "Ground, Tower and Approach for player flights at every airfield a player "
+            "flight takes off from or lands at: taxi to the runway, takeoff with the "
+            "wind and altimeter, an exit point going out, an entry point coming in, "
+            "and landing. Approach also works departures. On Caucasus the points are "
+            "the DCS kneeboard chart points; elsewhere a point 10 NM out. Each field "
+            "gets its own Ground, Tower and Approach frequencies, apart from DCS's "
+            "tower frequency. The kneeboard lists them. Every call is accepted: "
+            "readbacks are never "
             "checked and ATC never blocks a player. AI flights keep DCS's own ATC. SkyEye, running with "
             "its mission link, hears the calls and speaks the replies."
         ),
@@ -503,8 +506,8 @@ class MissionGeneratorSettings:
         section=GAMEPLAY_SECTION,
         default=False,
         detail=(
-            "SkyEye records the AWACS, STRIKE, Vacuum, each player field's Ground and "
-            "Tower, and each player flight's own frequency: one WAV file per frequency "
+            "SkyEye records the AWACS, STRIKE, Vacuum, each player field's Ground, "
+            "Tower and Approach, and each player flight's own frequency: one WAV file per frequency "
             "in your Documents Tacview folder, named so Tacview plays it with the "
             "replay. SkyEye "
             "never answers on a flight's own frequency. A player who turned recording "

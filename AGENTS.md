@@ -348,7 +348,7 @@ linked design note.
 116. **Voice AWACS on SRS** — blue AWACS go silent for a SkyEye GCI bot; its frequency held and on the kneeboard. Off by default.
 117. **Airborne package control** — a C-130J-30 ABCCC runs player packages on STRIKE through SkyEye; nothing without it airborne. Off by default.
 118. **Vacuum ELINT** — a KC-135 (C-130J-30 backup) calls red SAM radars by bullseye through SkyEye as they come on and answers player calls; turns with SEAD or DEAD. Off by default.
-119. **Voice ATC** — Ground and Tower for player flights through SkyEye: taxi, takeoff, landing, readbacks. Off by default.
+119. **Voice ATC** — Ground, Tower and Approach for player flights through SkyEye: taxi, takeoff, the Caucasus chart routes in and out, landing. Off by default.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.

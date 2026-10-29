@@ -284,12 +284,14 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   "loose" up to 15 miles off. A site whose radar it hears is fully known on the map after
   the turn. Players can call it for the radars near them, near their target, or on an RWR
   bearing. Off by default.
-- **Voice ATC.** Ground and Tower for player flights through SkyEye on UHF, in military
-  calls: taxi, takeoff, the overhead or a straight-in, and landing at base with the gear down,
-  with an F10 ATC menu. Every call is accepted: no readback is checked. Off by default.
+- **Voice ATC.** Ground, Tower and Approach for player flights through SkyEye on UHF, in
+  military calls: taxi, takeoff, departure via an exit point, an entry point inbound, the
+  overhead or a straight-in, and landing at base with the gear down, with an F10 ATC menu.
+  On Caucasus the points are the ones on the DCS kneeboard charts. Every call is accepted: no
+  readback is checked. Off by default.
 - **Voice bots on Take Off.** File > Voice bots: Take off starts SRS, SkyEye and your SRS
   client, connected to your own server. SkyEye closes after the mission. Off by default.
-- **Record radios for Tacview.** SkyEye records the AWACS, STRIKE, Vacuum, Ground, Tower and
+- **Record radios for Tacview.** SkyEye records the AWACS, STRIKE, Vacuum, Ground, Tower, Approach and
   each player flight's own frequency, one WAV each, in Documents\Tacview. Tacview's Auto Load
   Media add-on plays them with the replay, lined up by mission time. Off by default.
 

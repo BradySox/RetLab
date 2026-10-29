@@ -1,0 +1,181 @@
+# Visual arrival and departure routes read from the DCS Caucasus kneeboard charts
+# (<DCS>/Mods/terrains/Caucasus/Kneeboard/NN_VAD_*.png, rev 3.5.0, 2012), keyed by DCS
+# airport name. Facts only: point names, positions, runways and altitudes. Runways are the
+# chart's numbers; DCS numbers some ends 10 to 30 degrees off, matched by heading.
+# entry: runways an inbound flight may enter for here ([] = exit only); exit: departures leave here.
+Kobuleti:
+  chart: VAD 01
+  max_altitude_ft: 2000
+  pattern_ft: 1500
+  points:
+    - {name: Black Sea, lat: "42 01.126", lon: "041 45.124", entry: ["07"], exit: true}
+    - {name: North-East, lat: "42 00.044", lon: "042 00.093", entry: ["25"], exit: true}
+    - {name: East, lat: "41 54.593", lon: "042 00.465", entry: ["25"], exit: true}
+    - {name: South, lat: "41 49.415", lon: "041 46.360", entry: ["07"], exit: true}
+Gudauta:
+  chart: VAD 02
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "43 08.758", lon: "040 20.657", entry: ["15", "33"], exit: true}
+    - {name: North, lat: "43 12.483", lon: "040 30.255", entry: ["15"], exit: true}
+    - {name: East, lat: "43 06.168", lon: "040 41.538", entry: ["15", "33"], exit: true}
+Soganlug:
+  chart: VAD 03
+  max_altitude_ft: 3000
+  pattern_ft: 2500
+  points:
+    - {name: North, lat: "41 42.169", lon: "044 48.495", entry: ["13"], exit: true}
+    - {name: South, lat: "41 31.860", lon: "044 59.451", entry: ["31"], exit: true}
+    - {name: Lake, lat: "41 35.642", lon: "044 51.724", entry: [], exit: true}
+Vaziani:
+  chart: VAD 04
+  max_altitude_ft: 3500
+  pattern_ft: 3000
+  points:
+    - {name: Foxtrott, lat: "41 40.620", lon: "045 08.898", entry: ["13", "31"], exit: true}
+Kutaisi:
+  chart: VAD 05
+  max_altitude_ft: 2200
+  pattern_ft: 2000
+  points:
+    - {name: West, lat: "42 07.804", lon: "042 18.018", entry: ["07"], exit: true}
+    - {name: North, lat: "42 15.924", lon: "042 30.086", entry: ["07", "25"], exit: true}
+    - {name: East, lat: "42 12.173", lon: "042 39.145", entry: ["25"], exit: true}
+    - {name: South, lat: "42 06.277", lon: "042 31.824", entry: ["07", "25"], exit: true}
+Senaki-Kolkhi:
+  chart: VAD 06
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: Zeni, lat: "42 18.904", lon: "041 54.707", entry: ["09"], exit: true}
+    - {name: Nosiri, lat: "42 16.986", lon: "042 08.669", entry: ["27"], exit: true}
+    - {name: River Ketilari, lat: "42 09.853", lon: "042 10.212", entry: ["27"], exit: true}
+    - {name: River West, lat: "42 11.486", lon: "041 55.316", entry: ["09"], exit: true}
+Batumi:
+  chart: VAD 07
+  max_altitude_ft: 3000
+  pattern_ft: 1600
+  points:
+    - {name: North, lat: "41 43.088", lon: "041 43.403", entry: ["12", "30"], exit: true}
+    - {name: East, lat: "41 32.487", lon: "041 43.017", entry: ["30"], exit: true}
+    - {name: South, lat: "41 32.509", lon: "041 33.135", entry: ["12", "30"], exit: true}
+Sukhumi-Babushara:
+  chart: VAD 08
+  max_altitude_ft: 2000
+  pattern_ft: 1500
+  points:
+    - {name: Sukhumi, lat: "42 58.838", lon: "040 58.141", entry: ["11"], exit: true}
+    - {name: North, lat: "42 55.361", lon: "041 10.726", entry: ["11", "29"], exit: true}
+    - {name: East, lat: "42 48.158", lon: "041 16.693", entry: ["29"], exit: true}
+    - {name: South, lat: "42 47.184", lon: "041 09.761", entry: ["29"], exit: true}
+# Tbilisi-Lochini: VAD 09 draws only the control zones, no routes: generated.
+Anapa-Vityazevo:
+  chart: VAD 10
+  max_altitude_ft: 3000
+  pattern_ft: 1700
+  points:
+    - {name: West, lat: "45 00.732", lon: "037 13.342", entry: ["04"], exit: true}
+    - {name: North, lat: "45 06.493", lon: "037 23.746", entry: ["22"], exit: true}
+    - {name: East, lat: "45 02.567", lon: "037 29.585", entry: ["22"], exit: true}
+    - {name: South, lat: "44 54.839", lon: "037 24.090", entry: [], exit: true}
+    - {name: Entry South, lat: "44 53.682", lon: "037 17.431", entry: ["04"], exit: false}
+Gelendzhik:
+  chart: VAD 11
+  max_altitude_ft: 2300
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "44 37.652", lon: "037 56.277", entry: ["04", "22"], exit: true}
+    - {name: East, lat: "44 32.109", lon: "038 06.589", entry: ["04", "22"], exit: true}
+Maykop-Khanskaya:
+  chart: VAD 12
+  max_altitude_ft: 2600
+  pattern_ft: 2100
+  points:
+    - {name: West, lat: "44 39.745", lon: "039 50.071", entry: ["04"], exit: true}
+    - {name: Belorechensk, lat: "44 45.876", lon: "039 58.775", entry: ["22"], exit: true}
+    - {name: North, lat: "44 48.517", lon: "040 06.192", entry: ["22"], exit: true}
+    - {name: East, lat: "44 39.631", lon: "040 13.127", entry: ["22"], exit: true}
+    - {name: South, lat: "44 33.203", lon: "039 59.772", entry: ["04"], exit: true}
+Krasnodar-Pashkovsky:
+  chart: VAD 13
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "44 57.236", lon: "038 59.757", entry: ["04L"], exit: true}
+    - {name: North, lat: "45 09.435", lon: "039 16.950", entry: ["22R"], exit: true}
+    - {name: East, lat: "45 04.360", lon: "039 22.494", entry: ["22L"], exit: true}
+    - {name: South, lat: "44 54.829", lon: "039 04.920", entry: ["04R"], exit: true}
+Krasnodar-Center:
+  chart: VAD 14
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "45 04.837", lon: "038 45.489", entry: ["08"], exit: true}
+    - {name: North, lat: "45 11.037", lon: "038 57.118", entry: ["08", "26"], exit: true}
+    - {name: Bridge, lat: "44 59.833", lon: "038 57.293", entry: ["26"], exit: true}
+    - {name: Lake, lat: "45 00.522", lon: "038 51.475", entry: ["08"], exit: true}
+Novorossiysk:
+  chart: VAD 15
+  max_altitude_ft: 2200
+  pattern_ft: 1700
+  points:
+    - {name: West, lat: "44 40.282", lon: "037 37.743", entry: ["04"], exit: true}
+    - {name: North, lat: "44 46.286", lon: "037 43.574", entry: ["22"], exit: true}
+    - {name: East, lat: "44 38.093", lon: "037 54.008", entry: ["04", "22"], exit: true}
+Krymsk:
+  chart: VAD 16
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "44 56.508", lon: "037 48.080", entry: ["03"], exit: true}
+    - {name: North, lat: "45 06.459", lon: "038 01.450", entry: ["21"], exit: true}
+    - {name: East, lat: "45 01.998", lon: "038 12.509", entry: ["21"], exit: true}
+    - {name: Abinsk, lat: "44 56.803", lon: "038 06.503", entry: [], exit: true}
+    - {name: South, lat: "44 50.086", lon: "037 54.256", entry: ["03"], exit: true}
+Mineralnye Vody:
+  chart: VAD 17
+  max_altitude_ft: 3100
+  pattern_ft: 2600
+  points:
+    - {name: West, lat: "44 18.141", lon: "042 56.205", entry: ["11"], exit: true}
+    - {name: North, lat: "44 16.753", lon: "043 09.967", entry: ["11", "29"], exit: true}
+    - {name: East, lat: "44 09.202", lon: "043 14.801", entry: ["29"], exit: true}
+    - {name: South, lat: "44 07.209", lon: "043 06.497", entry: ["29"], exit: true}
+    - {name: Bykogorka, lat: "44 11.121", lon: "042 56.458", entry: ["11"], exit: true}
+Nalchik:
+  chart: VAD 18
+  max_altitude_ft: 3400
+  pattern_ft: 2900
+  points:
+    - {name: West, lat: "43 32.285", lon: "043 29.964", entry: ["05"], exit: true}
+    - {name: North, lat: "43 36.736", lon: "043 39.750", entry: ["23"], exit: true}
+    - {name: East, lat: "43 32.497", lon: "043 47.417", entry: ["23"], exit: true}
+    - {name: South, lat: "43 26.246", lon: "043 32.586", entry: ["05"], exit: true}
+Beslan:
+  chart: VAD 19
+  max_altitude_ft: 3800
+  pattern_ft: 3300
+  points:
+    - {name: West, lat: "43 14.425", lon: "044 28.041", entry: ["09"], exit: true}
+    - {name: North, lat: "43 16.700", lon: "044 37.752", entry: ["09", "27"], exit: true}
+    - {name: East, lat: "43 11.447", lon: "044 45.007", entry: ["27"], exit: true}
+    - {name: South, lat: "43 08.839", lon: "044 34.864", entry: ["09", "27"], exit: true}
+# Sochi-Adler: the chart's second page (runway 02/20) is left out; DCS has no such runway.
+Sochi-Adler:
+  chart: VAD 20
+  max_altitude_ft: 2100
+  pattern_ft: 1600
+  points:
+    - {name: West, lat: "43 29.704", lon: "039 52.924", entry: ["06"], exit: true}
+    - {name: North, lat: "43 31.527", lon: "039 59.757", entry: ["24"], exit: true}
+    - {name: East, lat: "43 23.262", lon: "040 00.405", entry: ["06", "24"], exit: true}
+Mozdok:
+  chart: VAD 21
+  max_altitude_ft: 2500
+  pattern_ft: 2000
+  points:
+    - {name: West, lat: "43 49.176", lon: "044 25.282", entry: ["08"], exit: true}
+    - {name: North, lat: "43 51.867", lon: "044 45.042", entry: ["26"], exit: true}
+    - {name: East, lat: "43 44.628", lon: "044 46.325", entry: ["26"], exit: true}
+    - {name: South, lat: "43 42.744", lon: "044 29.795", entry: ["08"], exit: true}

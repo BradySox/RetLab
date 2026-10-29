@@ -25,6 +25,18 @@ def _spoken_freq(frequency: RadioFrequency) -> str:
     return label + "0" if label.endswith(".") else label
 
 
+def _example_point(field: AtcField, exit: bool) -> str:
+    """A chart point to show in the sample calls, or the generated one."""
+    for point in field.routes.points if field.routes else ():
+        if point.exit if exit else bool(point.entry_runways):
+            return point.name
+    return "10 miles"
+
+
+def _altitude(field: AtcField) -> str:
+    return f"{field.routes.max_altitude_ft:,}" if field.routes else "field plus 2,000"
+
+
 def _lines(writer: KneeboardPageWriter, lines: list[str]) -> None:
     for line in lines:
         writer.text(line, wrap=True)
@@ -193,10 +205,34 @@ class AtcPage(KneeboardPage):
             w.text(
                 self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
             )
+            if f.approach is not None:
+                w.text(
+                    self._station(station_name(f.name, "approach"), f.approach),
+                    fill=w.col_nav,
+                )
+            if f.routes is not None:
+                w.text(f"  Entry and exit points ({f.routes.chart} chart):")
+                for row in f.route_lines:
+                    w.text(f"    {row}")
+            elif f.approach is not None:
+                w.text("  No chart: Approach gives an entry 10 NM out.")
         # The "You:" lines are the readbacks; any readback, or none, is accepted.
         if out is not None:
             o, r = out.name, out.runway
             t = _spoken_freq(out.tower)
+            if out.approach is not None:
+                takeoff = f"contact Departure {_spoken_freq(out.approach)}."
+                exit_name = _example_point(out, exit=True)
+                departure = [
+                    f'"{o} Departure, {me}, airborne."',
+                    f'  ATC: "Radar contact, depart via {exit_name}, climb and maintain '
+                    f'{_altitude(out)}, report {exit_name}."',
+                    f'"{o} Departure, {me}, {exit_name}."',
+                    '  ATC: "Frequency change approved."',
+                ]
+            else:
+                takeoff = "frequency change approved."
+                departure = []
             w.rule()
             w.heading("Going out")
             _lines(
@@ -212,20 +248,35 @@ class AtcPage(KneeboardPage):
                     f'  ATC: "{me} flight, runway {r}, taxi, hold short runway {r}, '
                     f'contact Tower {t}."',
                     f'"{o} Tower, {me}, holding short runway {r}, ready."',
-                    f'  ATC: "Runway {r}, wind, cleared for takeoff, '
-                    'frequency change approved."',
+                    f'  ATC: "Runway {r}, wind, cleared for takeoff, {takeoff}"',
                     f'  You: "Cleared for takeoff {r}, {me}."',
+                    *departure,
                 ],
             )
         if home is not None:
             h, r = home.name, home.runway
+            if home.approach is not None:
+                entry = _example_point(home, exit=False)
+                arrival = [
+                    f'"{h} Approach, {me}, 30 miles north, inbound, full stop."',
+                    f'  ATC: "Radar contact, runway {r}, enter via {entry}, maintain '
+                    f'{_altitude(home)}, report {entry}."',
+                    f'"{h} Approach, {me}, {entry}."',
+                    f'  ATC: "Contact Tower {_spoken_freq(home.tower)}."',
+                    f'"{h} Tower, {me}."',
+                    f'  ATC: "Runway {r}, wind, report initial."',
+                ]
+            else:
+                arrival = [
+                    f'"{h} Tower, {me}, 10 miles, full stop."',
+                    f'  ATC: "Runway {r}, wind, report initial."',
+                ]
             w.rule()
             w.heading("Coming home")
             _lines(
                 w,
                 [
-                    f'"{h} Tower, {me}, 10 miles, full stop."',
-                    f'  ATC: "Runway {r}, wind, report initial."',
+                    *arrival,
                     f'"{h} Tower, {me}, 10 miles, request straight-in."',
                     f'  ATC: "Runway {r}, wind, make straight-in, report 3-mile final."',
                     f'"{me}, initial."',
