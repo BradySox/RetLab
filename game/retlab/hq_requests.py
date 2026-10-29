@@ -22,6 +22,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Iterable, Optional, Sequence
 
 from game.retlab.region_priorities import family_of
+from game.theater.iadsnetwork.iadsnetwork import is_bypassed_power_link
 from game.theater.player import Player
 
 if TYPE_CHECKING:
@@ -222,8 +223,10 @@ def wired_into_iads(game: Game) -> set[int]:
         return set()
     wired = set()
     for node in network.nodes:
-        for group in (node.group, *node.connections.values()):
-            wired.add(id(group.ground_object))
+        wired.add(id(node.group.ground_object))
+        for group in node.connections.values():
+            if not is_bypassed_power_link(node, group):
+                wired.add(id(group.ground_object))
     return wired
 
 

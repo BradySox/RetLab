@@ -991,6 +991,12 @@ FEATURES: tuple[Feature, ...] = (
     Feature("exact_site_layouts", "Exact site layouts", 122),
     Feature("trains", "Trains on drawn rail lines", 123),
     Feature(
+        "ship_damage",
+        "Carry-over ship damage",
+        124,
+        settings_fields=("ship_damage_carry_over", "ship_damage_repair_percent"),
+    ),
+    Feature(
         # Player flights only (game/ato/flightplans/alignpoint.py); from juanjux's fork.
         "runway_lineup",
         "Runway line-up and departure hold",

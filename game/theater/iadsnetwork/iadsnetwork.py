@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Iterator, Optional
 from uuid import UUID
 
+from game.data.units import UnitClass
 from game.dcs.groundunittype import GroundUnitType
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.theater.theatergroundobject import (
@@ -25,6 +26,22 @@ if TYPE_CHECKING:
 
 class IadsNetworkException(Exception):
     pass
+
+
+def brings_its_own_power(site: TheaterGroundObject) -> bool:
+    """Whether a live generator (``UnitClass.POWER``) stands anywhere on the site.
+
+    Asked when the mission is written, not when the network is built: kill the
+    generator and the site is back on the grid next mission. From
+    juanjux/dcs-escalation (LGPL-3.0); RetLab reads every group of the site, so the
+    §85 diesels in a support group count.
+    """
+    return any(
+        unit.alive
+        and unit.unit_type is not None
+        and unit.unit_type.unit_class is UnitClass.POWER
+        for unit in site.units
+    )
 
 
 @dataclass
@@ -103,6 +120,13 @@ class IadsNetworkNode:
         self.connections[uuid.uuid4()] = group
 
 
+def is_bypassed_power_link(node: IadsNetworkNode, connection: IadsGroundGroup) -> bool:
+    """A power-station link the site does not need while its own generator runs."""
+    return connection.iads_role is IadsRole.POWER_SOURCE and brings_its_own_power(
+        node.group.ground_object
+    )
+
+
 class IadsNetwork:
     """IADS Network consisting of multiple Network nodes and connections. The Network represents all possible connections of ground objects regardless if a tgo is under control of red or blue. The network can run in either advanced or basic mode. The advanced network can be created by a given configuration in the campaign yaml or computed by Range. The basic mode is a fallback mode which does not use Comms, Power or Command Centers. The network will be used to visualize all connections at the map and for creating the needed Lua data for the skynet plugin"""
 
@@ -159,6 +183,10 @@ class IadsNetwork:
                 # name left to reference. Nothing downstream can watch it.
                 continue
             for connection in node.connections.values():
+                # Skynet reads an empty power list as powered, so leaving the link
+                # out is the whole feature; the link itself stays in the network.
+                if is_bypassed_power_link(node, connection):
+                    continue
                 if (
                     not any([x.alive for x in connection.units])
                     and not connection.iads_role.is_c2

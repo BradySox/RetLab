@@ -332,6 +332,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   all at once, and anti-ship missiles fired are gone for the rest of the war. A ship group also
   stops after a set number of anti-ship missiles per mission, so a fleet fights a running battle
   instead of emptying every tube in the opening minutes. A dry ship still defends itself.
+- **Ships keep their damage.** A ship damaged but not sunk starts the next mission still
+  damaged, on both sides, and gets 34 points of health back each turn. Its group window shows
+  its health.
 - **GPS jamming.** A JDAM, JSOW, JASSM or SLAM-ER released inside an enemy jamming bubble flies
   its normal profile and lands off the aimpoint — further off the deeper inside you released.
   Laser and TV weapons are unaffected; killing the jammer restores accuracy immediately. A

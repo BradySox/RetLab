@@ -71,6 +71,7 @@ from .missiondata import MissionData
 from .rebelliongenerator import RebellionGenerator
 from .motorpoolpopulator import MotorpoolPopulator
 from .tgogenerator import TgoGenerator
+from ..retlab.ship_damage import generate_ship_health
 from .triggergenerator import TriggerGenerator
 from .visualsgenerator import VisualsGenerator
 from ..radio.TacanContainer import TacanContainer
@@ -239,6 +240,7 @@ class MissionGenerator:
         VisualsGenerator(self.mission, self.game).generate()
         self.generate_atis()
         LuaGenerator(self.game, self.mission, self.mission_data).generate()
+        generate_ship_health(self.game, self.mission, self.unit_map)
         DrawingsGenerator(self.mission, self.game, self.mission_data).generate()
 
         # Native DTC cartridges (§74): bind per-flight cartridges to the blue

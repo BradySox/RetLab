@@ -1,0 +1,3 @@
+* **[Mods]** Support for the CurrentHill German Military Assets pack (1.5.0), behind a New Game checkbox: 25 units, with the combat units, artillery, air defense and the F124 frigate in Blufor Current. The Patriot KAT1 battery moved here from the USA pack, and saves follow it. Ported from juanjux/dcs-escalation.
+* **[Mods]** Frenchpack 5.0: the FELIN rifleman, LRAC gunner and PGM marksman are selectable; the pack's own VAB Mephisto is gone and saves move to DCS's native one. From juanjux/dcs-escalation.
+* **[Mods]** Spanish Naval Assets pack 3.3.0: the Juan Carlos I spawns as the hull whose deck elevators move. The Aegis frigates carry a 150 km threat ring and the unarmed amphibious ships none. From juanjux/dcs-escalation.

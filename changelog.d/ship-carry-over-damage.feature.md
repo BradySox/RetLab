@@ -1,0 +1,1 @@
+* **[Campaign]** Ships keep their damage between turns and get 34 points of health back each turn. On by default; Campaign Management, **Ships keep their damage between turns**. The set-life trigger action is adapted from juanjux's DCS Escalation (LGPL-3.0).

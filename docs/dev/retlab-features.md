@@ -8530,6 +8530,11 @@ under 8 %. The support units are unarmed soft targets: they add strike value and
 "there is a real battery here" read, not threat. `max_threat_range` is unchanged, so SEAD/DEAD
 targeting is unaffected.
 
+**The diesels power their site (2026-10-29, DM call).** While a 5I57A (or any `Power` unit, the
+Patriot EPP and SAMP/T MGE too) lives, the site has no power-station dependency in Skynet; kill
+the diesels and it is back on the station. `brings_its_own_power` in `iadsnetwork.py`, from
+juanjux/dcs-escalation; see the Skynet return note, "Self-powered sites". Checklist: **B298**.
+
 Files: `resources/units/ground_units/{ATZ-10,ATZ-5,ATZ-60_Maz,ATMZ-5,TZ-22_KrAZ,M978 HEMTT
 Tanker,generator_5i57}.yaml`, `resources/layouts/anti_air/{S-300_Site.miz,S-300_Site.yaml,S-300 Site
 (Single Radar).yaml,SA-2-SA-3 Mixed Site.yaml,Sky_Sabre_Battery.yaml}`, `resources/groups/` (11
@@ -11995,3 +12000,36 @@ the wrong end.
 | Settings | `player_runway_lineup`, `player_departure_hold` (RetLab Features page, Cockpit & kneeboard) |
 | Tests | `tests/ato/flightplans/test_align_point.py` |
 | In-game pass | B300 |
+## §124 — Carry-over ship damage
+
+A ship that survives a mission damaged starts the next one at the same health, on both
+sides, and is repaired a set number of points each turn. Ships only: the building half of
+juanjux's Escalation version damages buildings with scripted explosions, which the DM ruled
+out (2026-10-29). Settings **Ships keep their damage between turns** (on) and **Ship damage
+repaired per turn (%)** (34), Campaign Management.
+
+- **Health is a fraction on `TheaterUnit.health`** (1.0 on old saves). `kill()` resets it,
+  so a sunk ship that is rebuilt comes back whole.
+- **Into the mission:** `generate_ship_health` adds one TriggerStart: a DO SCRIPT seeding
+  `ship_health_units` (every live ship's DCS name), then one native
+  `a_unit_set_life_percentage` action per damaged ship. That action runs in the mission
+  trigger environment, not the DO SCRIPT sandbox, and takes a percentage. `SetUnitLifePercent`
+  refuses 0, which would sink the ship at start.
+- **Out of the mission:** `dcs_retribution.lua` writes `ship_health` (life over `getLife0`)
+  with every state write, and polls it into `dirty_state` because damage that sinks nothing
+  raises no event.
+- **A report never raises a ship's health.** A ship cannot heal in a mission, so a higher
+  reading means the set-life action did not take; the saved health stands. This replaces
+  Juan's in-mission verification pass.
+- **Repair** runs in `Game.finish_turn`, skipped turns included: `+percent/100`, capped at 1.
+  With the setting off, every ship is restored at the next turn end.
+- The ship group window shows **Health NN%** on a damaged live ship.
+
+| Area | Path |
+|---|---|
+| Campaign side | `game/retlab/ship_damage.py` |
+| Hooks | `missiongenerator.py` (after `LuaGenerator`), `missionresultsprocessor.py` (`commit_ship_damage`), `game.py` (`finish_turn`) |
+| Lua | `resources/plugins/base/dcs_retribution.lua` (`ship_health_snapshot`) |
+| UI | `qt_ui/windows/groundobject/QGroundObjectMenu.py` |
+| Tests | `tests/retlab/test_ship_damage.py`, `tests/lua/test_dcs_retribution_runtime.py` |
+| In-game pass | B296 |

@@ -269,6 +269,32 @@ class CampaignManagementSettings:
         enabled_when=("cloud_preset_pack", CloudPresetPack.ATMOSX),
         advanced=True,
     )
+    ship_damage_carry_over: bool = boolean_option(
+        "Ships keep their damage between turns",
+        page=CAMPAIGN_MANAGEMENT_PAGE,
+        section=GENERAL_SECTION,
+        default=True,
+        detail=(
+            "A damaged ship starts the next mission at the health it ended the last "
+            "one with, and is repaired a little each turn (Ship damage repaired per "
+            "turn). Both sides. Off: every surviving ship starts each mission at "
+            "full health."
+        ),
+    )
+    ship_damage_repair_percent: int = bounded_int_option(
+        "Ship damage repaired per turn (%)",
+        page=CAMPAIGN_MANAGEMENT_PAGE,
+        section=GENERAL_SECTION,
+        default=34,
+        min=0,
+        max=100,
+        detail=(
+            "Points of full health a damaged ship gets back at the end of each turn: "
+            "at 34, a ship at 40% is at 74% next turn and whole the turn after. "
+            "0 means ships are never repaired; 100 repairs them in one turn."
+        ),
+        enabled_when="ship_damage_carry_over",
+    )
     # Pilots and Squadrons
     ai_pilot_levelling: bool = boolean_option(
         "Allow AI pilot leveling",
