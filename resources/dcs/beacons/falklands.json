@@ -27,7 +27,8 @@
   "channel": null,
   "x": 135880.75,
   "y": -924036.875,
-  "elevation": 198.048568
+  "elevation": 198.048568,
+  "direction": 72.999995
  },
  "airfield14_2": {
   "name": "ECA",
@@ -77,7 +78,8 @@
   "channel": null,
   "x": 73666.453125,
   "y": 45783.363281,
-  "elevation": 67.864776
+  "elevation": 67.864776,
+  "direction": 104.099978
  },
  "airfield2_4": {
   "name": "MPA",
@@ -147,7 +149,8 @@
   "channel": null,
   "x": -147614.546875,
   "y": -781243.4375,
-  "elevation": 34.279598
+  "elevation": 34.279598,
+  "direction": 77.637503
  },
  "airfield9_2": {
   "name": "NAS",
@@ -187,7 +190,8 @@
   "channel": null,
   "x": 25207.816406,
   "y": -705419.25,
-  "elevation": 18.683418
+  "elevation": 18.683418,
+  "direction": 75.800005
  },
  "airfield5_2": {
   "name": "RIOGALLEGOS",
@@ -207,7 +211,8 @@
   "channel": null,
   "x": -197423.84375,
   "y": -560901.375,
-  "elevation": 18.711458
+  "elevation": 18.711458,
+  "direction": 78.809318
  },
  "airfield6_1": {
   "name": "GRA",
@@ -277,7 +282,8 @@
   "channel": null,
   "x": -320923.90625,
   "y": -577591.8125,
-  "elevation": 18.500015
+  "elevation": 18.500015,
+  "direction": 76.89946
  },
  "airfield7_1": {
   "name": "Ushuaia",

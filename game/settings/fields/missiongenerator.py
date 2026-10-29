@@ -115,6 +115,31 @@ class MissionGeneratorSettings:
         GAMEPLAY_SECTION,
         default=True,
     )
+    player_runway_lineup: bool = boolean_option(
+        "Runway line-up waypoint for player flights",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "Adds an ALIGN waypoint before landing, on final for the active runway: "
+            "15 NM out (helicopters 2 NM), on a 3-degree glideslope between 1,500 and "
+            "6,000 ft above the field. A carrier's is 50 NM astern on its angled-deck "
+            "final bearing, where the ship will be at your landing time. The runway is "
+            "the one the kneeboard names first. AI flights never get it."
+        ),
+    )
+    player_departure_hold: bool = boolean_option(
+        "Hold straight out the departure runway for player flights",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "Puts a player flight's HOLD on the centerline of the runway it takes off "
+            "from, or ahead of the carrier on its course, at the doctrine's hold "
+            "distance. The usual hold is kept when that point is inside an enemy "
+            "threat ring. AI flights keep the usual hold."
+        ),
+    )
     target_intel_precision: TargetIntelPrecision = choices_option(
         "Player target location precision",
         MISSION_GENERATOR_PAGE,

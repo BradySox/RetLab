@@ -1,0 +1,9 @@
+date: 2026-10-29
+title: Line up on final and hold off the runway
+change: >-
+  Player flights get an ALIGN waypoint 15 NM out on final for the active runway
+  (carriers 50 NM astern on the angled deck), and their HOLD sits straight out the
+  runway they take off from.
+watch: >-
+  AI flights are unchanged. In light wind the AI may use the other runway end; your
+  ALIGN stays on the end the kneeboard names first.

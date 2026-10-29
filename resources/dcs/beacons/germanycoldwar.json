@@ -227,7 +227,8 @@
   "channel": null,
   "x": 57330.933594,
   "y": -361631.625,
-  "elevation": 15.000015
+  "elevation": 15.000015,
+  "direction": -61.186351
  },
  "airfield33_3": {
   "name": "",
@@ -267,7 +268,8 @@
   "channel": null,
   "x": 58694.804688,
   "y": -364105.1875,
-  "elevation": 15.000015
+  "elevation": 15.000015,
+  "direction": 118.940887
  },
  "airfield33_7": {
   "name": "Bornholm",
@@ -367,7 +369,8 @@
   "channel": 41,
   "x": -176020.78125,
   "y": -404704.59375,
-  "elevation": 53.745568
+  "elevation": 53.745568,
+  "direction": -82.837764
  },
  "airfield36_2": {
   "name": "Chojna",
@@ -407,7 +410,8 @@
   "channel": 41,
   "x": -175595.28125,
   "y": -408043.1875,
-  "elevation": 53.745564
+  "elevation": 53.745564,
+  "direction": 97.263397
  },
  "airfield36_6": {
   "name": "Chojna",
@@ -447,7 +451,8 @@
   "channel": null,
   "x": -335083.59375,
   "y": -939438.4375,
-  "elevation": 71.929744
+  "elevation": 71.929744,
+  "direction": 75.31931
  },
  "airfield37_1": {
   "name": "KOLN",
@@ -507,7 +512,8 @@
   "channel": null,
   "x": -332709.5625,
   "y": -938424.875,
-  "elevation": 71.929744
+  "elevation": 71.929744,
+  "direction": 148.559809
  },
  "airfield37_7": {
   "name": "KOLN",
@@ -517,7 +523,8 @@
   "channel": null,
   "x": -336429.8125,
   "y": -936133.4375,
-  "elevation": 73.727567
+  "elevation": 73.727567,
+  "direction": -31.636808
  },
  "airfield37_8": {
   "name": "Cologne",
@@ -547,7 +554,8 @@
   "channel": null,
   "x": -283788.96875,
   "y": -956281.125,
-  "elevation": 36.920451
+  "elevation": 36.920451,
+  "direction": 63.938364
  },
  "airfield38_1": {
   "name": "Dusseldorf",
@@ -557,7 +565,8 @@
   "channel": null,
   "x": -282168.90625,
   "y": -952972.5625,
-  "elevation": 36.920451
+  "elevation": 36.920451,
+  "direction": -116.078954
  },
  "airfield38_2": {
   "name": "Dusseldorf",
@@ -697,7 +706,8 @@
   "channel": null,
   "x": 133666.078125,
   "y": -490192.5,
-  "elevation": 7.751138
+  "elevation": 7.751138,
+  "direction": -131.878168
  },
  "airfield41_3": {
   "name": "Kastrup",
@@ -707,7 +717,8 @@
   "channel": null,
   "x": 130861.445313,
   "y": -493315.6875,
-  "elevation": 8.008346
+  "elevation": 8.008346,
+  "direction": 48.053632
  },
  "airfield41_4": {
   "name": "Kastrup",
@@ -717,7 +728,8 @@
   "channel": null,
   "x": 134859.90625,
   "y": -490969.9375,
-  "elevation": 7.751139
+  "elevation": 7.751139,
+  "direction": 130.05541
  },
  "airfield41_5": {
   "name": "Kastrup",
@@ -737,7 +749,8 @@
   "channel": null,
   "x": 132473.515625,
   "y": -488129.8125,
-  "elevation": 3.976403
+  "elevation": 3.976403,
+  "direction": -49.96457
  },
  "airfield41_7": {
   "name": "Kastrup",
@@ -757,7 +770,8 @@
   "channel": null,
   "x": 131866.140625,
   "y": -491292.34375,
-  "elevation": 7.751139
+  "elevation": 7.751139,
+  "direction": 47.879243
  },
  "airfield41_9": {
   "name": "Kastrup",
@@ -817,7 +831,8 @@
   "channel": null,
   "x": 134549.640625,
   "y": -488305.75,
-  "elevation": 7.744836
+  "elevation": 7.744836,
+  "direction": -131.940158
  },
  "airfield41_15": {
   "name": "Kastrup",
@@ -887,7 +902,8 @@
   "channel": null,
   "x": 18552.882813,
   "y": -667260.3125,
-  "elevation": 3.000003
+  "elevation": 3.000003,
+  "direction": -88.698995
  },
  "airfield42_1": {
   "name": "Kiel",
@@ -927,7 +943,8 @@
   "channel": null,
   "x": 18592.683594,
   "y": -669013.25,
-  "elevation": 17.746169
+  "elevation": 17.746169,
+  "direction": 91.300996
  },
  "airfield42_5": {
   "name": "Kiel",
@@ -957,7 +974,8 @@
   "channel": null,
   "x": 117509.90625,
   "y": -445206.0,
-  "elevation": 66.16142
+  "elevation": 66.16142,
+  "direction": -0.155049
  },
  "airfield45_1": {
   "name": "Sturup",
@@ -997,7 +1015,8 @@
   "channel": null,
   "x": 120880.195313,
   "y": -445214.78125,
-  "elevation": 66.16142
+  "elevation": 66.16142,
+  "direction": 179.764486
  },
  "airfield45_5": {
   "name": "Sturup",
@@ -1047,7 +1066,8 @@
   "channel": 29,
   "x": -210949.171875,
   "y": -423210.59375,
-  "elevation": 15.000015
+  "elevation": 15.000015,
+  "direction": 89.810294
  },
  "airfield46_3": {
   "name": "Marxwalde",
@@ -1107,7 +1127,8 @@
   "channel": 29,
   "x": -210948.171875,
   "y": -420399.46875,
-  "elevation": 15.000015
+  "elevation": 15.000015,
+  "direction": -90.20749
  },
  "airfield47_0": {
   "name": "Nordholz",
@@ -1117,7 +1138,8 @@
   "channel": null,
   "x": -33041.253906,
   "y": -777795.0,
-  "elevation": 12.000012
+  "elevation": 12.000012,
+  "direction": 88.579767
  },
  "airfield47_1": {
   "name": "Nordholz",
@@ -1377,7 +1399,8 @@
   "channel": null,
   "x": -365612.9375,
   "y": -669782.25,
-  "elevation": 310.096868
+  "elevation": 310.096868,
+  "direction": 104.979897
  },
  "airfield164_2": {
   "name": "Bindersleben",
@@ -1427,7 +1450,8 @@
   "channel": null,
   "x": -429216.90625,
   "y": -999970.3125,
-  "elevation": 366.947724
+  "elevation": 366.947724,
+  "direction": 66.025992
  },
  "airfield200_1": {
   "name": "Bitburg",
@@ -1487,7 +1511,8 @@
   "channel": null,
   "x": -213510.515625,
   "y": -676458.625,
-  "elevation": 83.225402
+  "elevation": 83.225402,
+  "direction": 93.070944
  },
  "airfield5_0": {
   "name": "Bremen",
@@ -1507,7 +1532,8 @@
   "channel": null,
   "x": -114341.1875,
   "y": -779809.625,
-  "elevation": 12.41253
+  "elevation": 12.41253,
+  "direction": -82.257327
  },
  "airfield5_2": {
   "name": "Bremen",
@@ -1537,7 +1563,8 @@
   "channel": null,
   "x": -113949.132813,
   "y": -782675.9375,
-  "elevation": 12.412531
+  "elevation": 12.412531,
+  "direction": 97.742384
  },
  "airfield5_5": {
   "name": "Bremen",
@@ -1657,7 +1684,8 @@
   "channel": 34,
   "x": -14606.240234,
   "y": -519747.0,
-  "elevation": 8.148032
+  "elevation": 8.148032,
+  "direction": -101.462009
  },
  "airfield10_4": {
   "name": "Damgarten",
@@ -1667,7 +1695,8 @@
   "channel": 34,
   "x": -15176.055664,
   "y": -522554.90625,
-  "elevation": 8.046685
+  "elevation": 8.046685,
+  "direction": 78.537996
  },
  "airfield10_5": {
   "name": "Damgarten",
@@ -1797,7 +1826,8 @@
   "channel": null,
   "x": -443583.90625,
   "y": -851177.8125,
-  "elevation": 100.0001
+  "elevation": 100.0001,
+  "direction": -100.841391
  },
  "airfield163_1": {
   "name": "Frankfurt",
@@ -1837,7 +1867,8 @@
   "channel": null,
   "x": -444262.40625,
   "y": -851914.8125,
-  "elevation": 100.0001
+  "elevation": 100.0001,
+  "direction": -100.825012
  },
  "airfield163_5": {
   "name": "Frankfurt",
@@ -1877,7 +1908,8 @@
   "channel": null,
   "x": -444506.75,
   "y": -855987.625,
-  "elevation": 100.0001
+  "elevation": 100.0001,
+  "direction": 79.143587
  },
  "airfield163_9": {
   "name": "Frankfurt",
@@ -1887,7 +1919,8 @@
   "channel": null,
   "x": -445112.8125,
   "y": -856363.25,
-  "elevation": 100.0001
+  "elevation": 100.0001,
+  "direction": 79.197218
  },
  "airfield163_10": {
   "name": "Frankfurt",
@@ -1957,7 +1990,8 @@
   "channel": 38,
   "x": -69312.34375,
   "y": -415805.0625,
-  "elevation": 19.351868
+  "elevation": 19.351868,
+  "direction": 111.096032
  },
  "airfield13_3": {
   "name": "Garz",
@@ -2007,7 +2041,8 @@
   "channel": 38,
   "x": -70342.171875,
   "y": -413133.125,
-  "elevation": 18.100566
+  "elevation": 18.100566,
+  "direction": -68.903972
  },
  "airfield14_0": {
   "name": "Gatow",
@@ -2017,7 +2052,8 @@
   "channel": null,
   "x": -218691.546875,
   "y": -499113.3125,
-  "elevation": 41.599109
+  "elevation": 41.599109,
+  "direction": 85.270049
  },
  "airfield14_1": {
   "name": "Gatow",
@@ -2077,7 +2113,8 @@
   "channel": null,
   "x": -232389.765625,
   "y": -837213.125,
-  "elevation": 65.000065
+  "elevation": 65.000065,
+  "direction": 100.552379
  },
  "airfield16_1": {
   "name": "Gutersloh",
@@ -2137,7 +2174,8 @@
   "channel": null,
   "x": -438922.40625,
   "y": -949526.875,
-  "elevation": 494.13703
+  "elevation": 494.13703,
+  "direction": 43.087785
  },
  "airfield155_3": {
   "name": "Hahn",
@@ -2157,7 +2195,8 @@
   "channel": null,
   "x": -436439.25,
   "y": -947203.5,
-  "elevation": 494.13703
+  "elevation": 494.13703,
+  "direction": -136.912208
  },
  "airfield155_5": {
   "name": "Hahn",
@@ -2207,7 +2246,8 @@
   "channel": null,
   "x": -63638.734375,
   "y": -690617.625,
-  "elevation": 22.186412
+  "elevation": 22.186412,
+  "direction": -18.365498
  },
  "airfield17_3": {
   "name": "Hamburg",
@@ -2227,7 +2267,8 @@
   "channel": null,
   "x": -59601.984375,
   "y": -691957.25,
-  "elevation": 22.186412
+  "elevation": 22.186412,
+  "direction": 161.629883
  },
  "airfield17_5": {
   "name": "Hamburg",
@@ -2277,7 +2318,8 @@
   "channel": null,
   "x": -61969.019531,
   "y": -690185.9375,
-  "elevation": 22.186412
+  "elevation": 22.186412,
+  "direction": -120.983469
  },
  "airfield17_10": {
   "name": "Hamburg",
@@ -2297,7 +2339,8 @@
   "channel": null,
   "x": -64012.371094,
   "y": -693583.875,
-  "elevation": 22.186412
+  "elevation": 22.186412,
+  "direction": 58.947292
  },
  "airfield18_0": {
   "name": "Finkenwerder",
@@ -2317,7 +2360,8 @@
   "channel": null,
   "x": -72264.085938,
   "y": -704273.4375,
-  "elevation": 3.15411
+  "elevation": 3.15411,
+  "direction": 60.643584
  },
  "airfield18_2": {
   "name": "Finkenwerder",
@@ -2327,7 +2371,8 @@
   "channel": null,
   "x": -71069.585938,
   "y": -702148.125,
-  "elevation": 3.150255
+  "elevation": 3.150255,
+  "direction": -119.256618
  },
  "airfield18_3": {
   "name": "Finkenwerder",
@@ -2387,7 +2432,8 @@
   "channel": null,
   "x": -189994.0,
   "y": -730121.0625,
-  "elevation": 51.180936
+  "elevation": 51.180936,
+  "direction": -78.514527
  },
  "airfield19_5": {
   "name": "Hannover",
@@ -2397,7 +2443,8 @@
   "channel": null,
   "x": -188436.453125,
   "y": -730706.875,
-  "elevation": 51.180933
+  "elevation": 51.180933,
+  "direction": -78.514527
  },
  "airfield19_6": {
   "name": "Hannover",
@@ -2407,7 +2454,8 @@
   "channel": null,
   "x": -189416.8125,
   "y": -732959.9375,
-  "elevation": 51.180936
+  "elevation": 51.180936,
+  "direction": 101.497321
  },
  "airfield19_7": {
   "name": "Hannover",
@@ -2447,7 +2495,8 @@
   "channel": null,
   "x": -187795.875,
   "y": -733856.125,
-  "elevation": 51.180936
+  "elevation": 51.180936,
+  "direction": 101.497732
  },
  "airfield19_11": {
   "name": "Hannover",
@@ -2467,7 +2516,8 @@
   "channel": 31,
   "x": -297042.09375,
   "y": -506391.125,
-  "elevation": 74.549254
+  "elevation": 74.549254,
+  "direction": 99.559515
  },
  "airfield118_1": {
   "name": "Holzdorf",
@@ -2517,7 +2567,8 @@
   "channel": 31,
   "x": -297626.15625,
   "y": -502921.5,
-  "elevation": 74.801558
+  "elevation": 74.801558,
+  "direction": -80.440497
  },
  "airfield118_6": {
   "name": "Holzdorf",
@@ -2627,7 +2678,8 @@
   "channel": 38,
   "x": -52386.953125,
   "y": -534908.375,
-  "elevation": 35.000035
+  "elevation": 35.000035,
+  "direction": -75.200389
  },
  "airfield20_3": {
   "name": "Laage",
@@ -2707,7 +2759,8 @@
   "channel": 39,
   "x": -123715.179688,
   "y": -515025.65625,
-  "elevation": 61.741597
+  "elevation": 61.741597,
+  "direction": 81.445389
  },
  "airfield21_4": {
   "name": "Lerz",
@@ -2727,7 +2780,8 @@
   "channel": 39,
   "x": -123289.101563,
   "y": -512192.09375,
-  "elevation": 65.945592
+  "elevation": 65.945592,
+  "direction": -98.554623
  },
  "airfield21_6": {
   "name": "Lerz",
@@ -2787,7 +2841,8 @@
   "channel": null,
   "x": -328420.28125,
   "y": -575638.0625,
-  "elevation": 128.346518
+  "elevation": 128.346518,
+  "direction": 112.407019
  },
  "airfield171_3": {
   "name": "Leipzig",
@@ -2867,7 +2922,8 @@
   "channel": 8,
   "x": -217528.921875,
   "y": -589563.25,
-  "elevation": 46.373223
+  "elevation": 46.373223,
+  "direction": 97.586629
  },
  "airfield22_1": {
   "name": "Mahlwinkel",
@@ -2887,7 +2943,8 @@
   "channel": 8,
   "x": -217907.375,
   "y": -586723.0,
-  "elevation": 41.793487
+  "elevation": 41.793487,
+  "direction": -82.413362
  },
  "airfield22_3": {
   "name": "Mahlwinkel",
@@ -2967,7 +3024,8 @@
   "channel": 25,
   "x": -332528.84375,
   "y": -595440.0,
-  "elevation": 103.550046
+  "elevation": 103.550046,
+  "direction": 82.910874
  },
  "airfield169_1": {
   "name": "Merseburg",
@@ -3027,7 +3085,8 @@
   "channel": 25,
   "x": -332175.40625,
   "y": -592596.5625,
-  "elevation": 103.502514
+  "elevation": 103.502514,
+  "direction": -97.089124
  },
  "airfield169_7": {
   "name": "Merseburg",
@@ -3287,7 +3346,8 @@
   "channel": null,
   "x": -498508.1875,
   "y": -936275.5,
-  "elevation": 245.303041
+  "elevation": 245.303041,
+  "direction": 96.579995
  },
  "airfield165_4": {
   "name": "Ramstein",
@@ -3297,7 +3357,8 @@
   "channel": null,
   "x": -498893.09375,
   "y": -932940.9375,
-  "elevation": 244.777131
+  "elevation": 244.777131,
+  "direction": -83.420003
  },
  "airfield26_0": {
   "name": "Schonefeld",
@@ -3337,7 +3398,8 @@
   "channel": null,
   "x": -232053.890625,
   "y": -474021.0625,
-  "elevation": 45.265899
+  "elevation": 45.265899,
+  "direction": 74.722024
  },
  "airfield26_4": {
   "name": "Schonefeld",
@@ -3347,7 +3409,8 @@
   "channel": null,
   "x": -232144.734375,
   "y": -472455.9375,
-  "elevation": 43.421629
+  "elevation": 43.421629,
+  "direction": -105.327262
  },
  "airfield26_5": {
   "name": "Schonefeld",
@@ -3397,7 +3460,8 @@
   "channel": null,
   "x": -233205.921875,
   "y": -476326.90625,
-  "elevation": 40.609339
+  "elevation": 40.609339,
+  "direction": 74.672765
  },
  "airfield160_0": {
   "name": "Schweinfurt",
@@ -3437,7 +3501,8 @@
   "channel": null,
   "x": -425782.125,
   "y": -986495.25,
-  "elevation": 300.0003
+  "elevation": 300.0003,
+  "direction": -124.386269
  },
  "airfield162_1": {
   "name": "Spangdahlem",
@@ -3447,7 +3512,8 @@
   "channel": null,
   "x": -427905.71875,
   "y": -989600.3125,
-  "elevation": 300.0003
+  "elevation": 300.0003,
+  "direction": 55.640881
  },
  "airfield162_2": {
   "name": "Spangdahlem",
@@ -3587,7 +3653,8 @@
   "channel": null,
   "x": -210448.359375,
   "y": -485153.59375,
-  "elevation": 34.910763
+  "elevation": 34.910763,
+  "direction": -93.097049
  },
  "airfield28_4": {
   "name": "Tegel",
@@ -3627,7 +3694,8 @@
   "channel": null,
   "x": -210234.828125,
   "y": -485031.09375,
-  "elevation": 31.620189
+  "elevation": 31.620189,
+  "direction": -93.096995
  },
  "airfield28_8": {
   "name": "Tegel",
@@ -3637,7 +3705,8 @@
   "channel": null,
   "x": -210438.59375,
   "y": -488777.40625,
-  "elevation": 35.237184
+  "elevation": 35.237184,
+  "direction": 86.90301
  },
  "airfield28_9": {
   "name": "Tegel",
@@ -3657,7 +3726,8 @@
   "channel": null,
   "x": -210615.453125,
   "y": -488241.84375,
-  "elevation": 35.237184
+  "elevation": 35.237184,
+  "direction": 86.90301
  },
  "airfield28_11": {
   "name": "Tegel",
@@ -3677,7 +3747,8 @@
   "channel": null,
   "x": -221100.703125,
   "y": -479021.53125,
-  "elevation": 47.000047
+  "elevation": 47.000047,
+  "direction": -86.257947
  },
  "airfield29_1": {
   "name": "Tempelhof",
@@ -3737,7 +3808,8 @@
   "channel": null,
   "x": -220954.828125,
   "y": -481205.125,
-  "elevation": 47.000047
+  "elevation": 47.000047,
+  "direction": 93.995615
  },
  "airfield15_0": {
   "name": "Templin",
@@ -3767,7 +3839,8 @@
   "channel": 17,
   "x": -159584.15625,
   "y": -466324.40625,
-  "elevation": 73.755643
+  "elevation": 73.755643,
+  "direction": 94.840018
  },
  "airfield15_3": {
   "name": "Templin",
@@ -3777,7 +3850,8 @@
   "channel": 17,
   "x": -159928.203125,
   "y": -462257.0625,
-  "elevation": 73.755643
+  "elevation": 73.755643,
+  "direction": -85.160014
  },
  "airfield15_4": {
   "name": "Templin",
@@ -3937,7 +4011,8 @@
   "channel": 24,
   "x": -133035.71875,
   "y": -528837.125,
-  "elevation": 67.418456
+  "elevation": 67.418456,
+  "direction": -98.359997
  },
  "airfield1_6": {
   "name": "Wittstock",
@@ -3957,7 +4032,8 @@
   "channel": 24,
   "x": -133452.171875,
   "y": -531672.125,
-  "elevation": 68.895043
+  "elevation": 68.895043,
+  "direction": 81.640022
  },
  "airfield1_8": {
   "name": "Wittstock",
@@ -3977,7 +4053,8 @@
   "channel": null,
   "x": -186479.90625,
   "y": -750686.875,
-  "elevation": 47.260755
+  "elevation": 47.260755,
+  "direction": 90.805152
  },
  "airfield32_1": {
   "name": "WUNSTORF",
@@ -4017,7 +4094,8 @@
   "channel": 19,
   "x": -263052.46875,
   "y": -570528.25,
-  "elevation": 76.196983
+  "elevation": 76.196983,
+  "direction": -108.352852
  },
  "airfield4_1": {
   "name": "Zerbst",
@@ -4057,7 +4135,8 @@
   "channel": 19,
   "x": -263981.8125,
   "y": -573331.3125,
-  "elevation": 76.196983
+  "elevation": 76.196983,
+  "direction": 71.664912
  },
  "airfield4_5": {
   "name": "Zerbst",
@@ -4117,7 +4196,8 @@
   "channel": null,
   "x": -520044.15625,
   "y": -952625.4375,
-  "elevation": 330.219477
+  "elevation": 330.219477,
+  "direction": -139.694254
  },
  "airfield158_2": {
   "name": "Zweibrucken",

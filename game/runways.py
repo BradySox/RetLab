@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import logging
+import math
 import re
 from dataclasses import dataclass
 from typing import Iterator, Optional, TYPE_CHECKING
 
+from dcs.mapping import Point
 from dcs.terrain.terrain import Airport, RunwayApproach
 
 from game.atcdata import AtcData
@@ -138,6 +140,59 @@ def runway_label(runway_name: str, surface_wind_mps: float) -> str:
     if opposite is None:
         return runway_name
     return f"{runway_name} / {opposite}"
+
+
+_LOCALIZERS = (
+    BeaconType.BEACON_TYPE_ILS_LOCALIZER,
+    BeaconType.BEACON_TYPE_PRMG_LOCALIZER,
+)
+
+
+def runway_centerline(
+    theater: ConflictTheater, airport: Airport, runway_name: str
+) -> Optional[tuple[Point, float]]:
+    """A point on the runway's surveyed centerline abeam the field, and its course.
+
+    Read off a localizer at either end, so the line is the beam rather than the
+    rounded pydcs heading. None when neither end has a usable localizer. Adapted
+    from juanjux/dcs-escalation (LGPL-3.0).
+    """
+    for strip in airport.runways:
+        ends = (strip.main, strip.opposite)
+        approach = next((end for end in ends if end.name == runway_name), None)
+        if approach is None:
+            continue
+        for end in (approach, *[e for e in ends if e is not approach]):
+            for aid in end.beacons:
+                beacon = RunwayData._get_beacon(aid.id, theater)
+                if beacon is None or beacon.beacon_type not in _LOCALIZERS:
+                    continue
+                if beacon.x is None or beacon.y is None or beacon.direction is None:
+                    continue
+                # The beam bearing either way; keep the one on this approach.
+                course = min(
+                    (beacon.direction % 360, (beacon.direction + 180) % 360),
+                    key=lambda h: abs((h - approach.heading + 180) % 360 - 180),
+                )
+                if abs((course - approach.heading + 180) % 360 - 180) > 30:
+                    continue
+                origin = Point(beacon.x, beacon.y, theater.terrain)
+                if origin.distance_to_point(airport.position) > 10000:
+                    continue
+                north = math.cos(math.radians(course))
+                east = math.sin(math.radians(course))
+                along = (airport.position.x - beacon.x) * north + (
+                    airport.position.y - beacon.y
+                ) * east
+                return (
+                    Point(
+                        beacon.x + along * north,
+                        beacon.y + along * east,
+                        theater.terrain,
+                    ),
+                    course,
+                )
+    return None
 
 
 class RunwayAssigner:

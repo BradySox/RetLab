@@ -727,7 +727,8 @@
   "channel": null,
   "x": 57009.949219,
   "y": 80710.171875,
-  "elevation": 5.75893
+  "elevation": 5.75893,
+  "direction": 90.550004
  },
  "airfield2_1": {
   "name": "",
@@ -747,7 +748,8 @@
   "channel": null,
   "x": 61305.1875,
   "y": 94338.507813,
-  "elevation": 5.568795
+  "elevation": 5.568795,
+  "direction": 129.1
  },
  "airfield4_1": {
   "name": "Ismailiyah",
@@ -767,7 +769,8 @@
   "channel": null,
   "x": 83677.539063,
   "y": 78174.476563,
-  "elevation": 2.853315
+  "elevation": 2.853315,
+  "direction": -162.000995
  },
  "airfield3_1": {
   "name": "AsSalihiyah",
@@ -787,7 +790,8 @@
   "channel": null,
   "x": 217916.515625,
   "y": 344256.125,
-  "elevation": 30.12503
+  "elevation": 30.12503,
+  "direction": 78.830205
  },
  "airfield24_1": {
   "name": "BenGurion",
@@ -797,7 +801,8 @@
   "channel": null,
   "x": 218416.359375,
   "y": 345202.5,
-  "elevation": 30.12503
+  "elevation": 30.12503,
+  "direction": 120.384952
  },
  "airfield24_2": {
   "name": "BenGurion",
@@ -827,7 +832,8 @@
   "channel": null,
   "x": 215991.453125,
   "y": 347258.90625,
-  "elevation": 30.12503
+  "elevation": 30.12503,
+  "direction": 27.766231
  },
  "airfield24_5": {
   "name": "BenGurion",
@@ -837,7 +843,8 @@
   "channel": null,
   "x": 216527.609375,
   "y": 348423.6875,
-  "elevation": 30.125032
+  "elevation": 30.125032,
+  "direction": -59.587602
  },
  "airfield24_6": {
   "name": "BenGurion",
@@ -857,7 +864,8 @@
   "channel": null,
   "x": 218816.8125,
   "y": 348815.5,
-  "elevation": 30.12503
+  "elevation": 30.12503,
+  "direction": -101.169793
  },
  "airfield24_8": {
   "name": "BenGurion",
@@ -897,7 +905,8 @@
   "channel": null,
   "x": 40014.640625,
   "y": 35150.449219,
-  "elevation": 28.000028
+  "elevation": 28.000028,
+  "direction": 169.690654
  },
  "airfield5_0": {
   "name": "Melez",
@@ -937,7 +946,8 @@
   "channel": null,
   "x": 101528.11145,
   "y": -147725.973999,
-  "elevation": 26.000026
+  "elevation": 26.000026,
+  "direction": 144.558128
  },
  "airfield17_0": {
   "name": "CairoInternationalAirport",
@@ -947,7 +957,8 @@
   "channel": null,
   "x": 10053.707031,
   "y": 15814.580078,
-  "elevation": 94.44353
+  "elevation": 94.44353,
+  "direction": -130.000001
  },
  "airfield17_1": {
   "name": "CairoInternationalAirport",
@@ -957,7 +968,8 @@
   "channel": null,
   "x": 8232.095703,
   "y": 18013.486328,
-  "elevation": 102.902973
+  "elevation": 102.902973,
+  "direction": -130.000001
  },
  "airfield17_2": {
   "name": "CairoInternationalAirport",
@@ -977,7 +989,8 @@
   "channel": null,
   "x": 5524.928223,
   "y": 14787.211914,
-  "elevation": 102.263141
+  "elevation": 102.263141,
+  "direction": 49.999996
  },
  "airfield17_4": {
   "name": "CairoInternationalAirport",
@@ -1007,7 +1020,8 @@
   "channel": null,
   "x": 7955.374023,
   "y": 20055.861328,
-  "elevation": 120.000105
+  "elevation": 120.000105,
+  "direction": -130.000001
  },
  "airfield17_7": {
   "name": "CairoInternationalAirport",
@@ -1047,7 +1061,8 @@
   "channel": null,
   "x": 5240.862305,
   "y": 16820.832031,
-  "elevation": 120.000112
+  "elevation": 120.000112,
+  "direction": 49.999994
  },
  "airfield17_11": {
   "name": "CairoInternationalAirport",
@@ -1057,7 +1072,8 @@
   "channel": null,
   "x": 7766.819824,
   "y": 13089.172852,
-  "elevation": 93.722506
+  "elevation": 93.722506,
+  "direction": 49.999989
  },
  "airfield18_0": {
   "name": "CairoWest",
@@ -1077,7 +1093,8 @@
   "channel": null,
   "x": 9435.099609,
   "y": -34027.714844,
-  "elevation": 134.031384
+  "elevation": 134.031384,
+  "direction": 166.77762
  },
  "airfield48_0": {
   "name": "",
@@ -1087,7 +1104,8 @@
   "channel": null,
   "x": 377186.9375,
   "y": 494795.21875,
-  "elevation": 611.330628
+  "elevation": 611.330628,
+  "direction": 46.548094
  },
  "airfield48_1": {
   "name": "",
@@ -1097,7 +1115,8 @@
   "channel": null,
   "x": 376748.5,
   "y": 497241.625,
-  "elevation": 611.330628
+  "elevation": 611.330628,
+  "direction": -133.451897
  },
  "airfield48_2": {
   "name": "",
@@ -1167,7 +1186,8 @@
   "channel": 0,
   "x": 30188.128906,
   "y": 96942.515625,
-  "elevation": 16.564409
+  "elevation": 16.564409,
+  "direction": 90.713054
  },
  "airfield6_1": {
   "name": "Faid",
@@ -1197,7 +1217,8 @@
   "channel": null,
   "x": 131308.65625,
   "y": 325872.875,
-  "elevation": 205.216407
+  "elevation": 205.216407,
+  "direction": 104.310048
  },
  "airfield7_2": {
   "name": "Hatzerim",
@@ -1237,7 +1258,8 @@
   "channel": null,
   "x": 190738.453125,
   "y": 333795.34375,
-  "elevation": 30.605156
+  "elevation": 30.605156,
+  "direction": -126.536042
  },
  "airfield38_0": {
   "name": "Hurghada",
@@ -1257,7 +1279,8 @@
   "channel": 0,
   "x": -316697.8125,
   "y": 247984.703125,
-  "elevation": 13.000013
+  "elevation": 13.000013,
+  "direction": 164.76994
  },
  "airfield38_2": {
   "name": "HURG",
@@ -1287,7 +1310,8 @@
   "channel": null,
   "x": 30602.738281,
   "y": 18873.806641,
-  "elevation": 47.104211
+  "elevation": 47.104211,
+  "direction": 47.643138
  },
  "airfield11_0": {
   "name": "Kibrit",
@@ -1317,7 +1341,8 @@
   "channel": null,
   "x": 128940.414063,
   "y": 358753.46875,
-  "elevation": 391.622401
+  "elevation": 391.622401,
+  "direction": 75.810155
  },
  "airfield8_1": {
   "name": "Nevatim",
@@ -1327,7 +1352,8 @@
   "channel": null,
   "x": 126549.851563,
   "y": 359444.1875,
-  "elevation": 398.352205
+  "elevation": 398.352205,
+  "direction": 75.810031
  },
  "airfield8_2": {
   "name": "Nevatim",
@@ -1367,7 +1393,8 @@
   "channel": null,
   "x": -13013.15625,
   "y": 355319.46875,
-  "elevation": 439.057751
+  "elevation": 439.057751,
+  "direction": 20.888003
  },
  "airfield46_1": {
   "name": "",
@@ -1377,7 +1404,8 @@
   "channel": null,
   "x": 418384.8396,
   "y": 399496.943115,
-  "elevation": 6.000006
+  "elevation": 6.000006,
+  "direction": -14.433
  },
  "airfield46_3": {
   "name": "",
@@ -1387,7 +1415,8 @@
   "channel": null,
   "x": 420651.709534,
   "y": 400986.488037,
-  "elevation": 6.000006
+  "elevation": 6.000006,
+  "direction": -148.576495
  },
  "airfield46_4": {
   "name": "",
@@ -1437,7 +1466,8 @@
   "channel": null,
   "x": 80132.539063,
   "y": 327098.5625,
-  "elevation": 621.034679
+  "elevation": 621.034679,
+  "direction": 66.08249
  },
  "airfield9_1": {
   "name": "Ramon",
@@ -1467,7 +1497,8 @@
   "channel": 0,
   "x": -37122.03125,
   "y": 363556.90625,
-  "elevation": 69.000069
+  "elevation": 69.000069,
+  "direction": 12.732402
  },
  "airfield41_1": {
   "name": "Eilat/IlanandAsafRamonAirport",
@@ -1517,7 +1548,8 @@
   "channel": 0,
   "x": -228380.84375,
   "y": 307427.8125,
-  "elevation": 30.00003
+  "elevation": 30.00003,
+  "direction": -137.83666
  },
  "airfield42_1": {
   "name": "SharmElSheikhIntl",
@@ -1547,7 +1579,8 @@
   "channel": null,
   "x": -49123.390625,
   "y": 342954.96875,
-  "elevation": 709.000709
+  "elevation": 709.000709,
+  "direction": -139.060342
  },
  "airfield53_1": {
   "name": "Taba",
@@ -1597,7 +1630,8 @@
   "channel": null,
   "x": -182073.34375,
   "y": 523783.25,
-  "elevation": 775.000775
+  "elevation": 775.000775,
+  "direction": 63.304113
  },
  "airfield47_3": {
   "name": "",
@@ -1607,7 +1641,8 @@
   "channel": null,
   "x": -180518.609375,
   "y": 521293.15625,
-  "elevation": 775.000775
+  "elevation": 775.000775,
+  "direction": 130.58766
  },
  "airfield47_4": {
   "name": "",
@@ -1647,7 +1682,8 @@
   "channel": null,
   "x": 199640.34375,
   "y": 341279.6875,
-  "elevation": 43.283578
+  "elevation": 43.283578,
+  "direction": -178.338647
  },
  "airfield43_0": {
   "name": "WADIABURISH",
@@ -1667,7 +1703,8 @@
   "channel": null,
   "x": -117549.161541,
   "y": 42801.156764,
-  "elevation": 300.0003
+  "elevation": 300.0003,
+  "direction": -165.515564
  },
  "airfield13_0": {
   "name": "WadiAlJandali",
@@ -1677,7 +1714,8 @@
   "channel": null,
   "x": 4117.239258,
   "y": 57349.34375,
-  "elevation": 222.616861
+  "elevation": 222.616861,
+  "direction": -164.194593
  },
  "airfield13_1": {
   "name": "WadiAlJandali",

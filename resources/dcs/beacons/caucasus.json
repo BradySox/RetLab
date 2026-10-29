@@ -47,7 +47,8 @@
   "channel": null,
   "x": -356584.8125,
   "y": 618472.4375,
-  "elevation": 10.03014
+  "elevation": 10.03014,
+  "direction": -54.415131
  },
  "airfield22_1": {
   "name": "Batumi",
@@ -107,7 +108,8 @@
   "channel": null,
   "x": -148692.109375,
   "y": 845322.875,
-  "elevation": 529.274577
+  "elevation": 529.274577,
+  "direction": -86.499961
  },
  "airfield32_3": {
   "name": "Beslan",
@@ -177,7 +179,8 @@
   "channel": null,
   "x": -317495.75,
   "y": 636918.25,
-  "elevation": 18.017043
+  "elevation": 18.017043,
+  "direction": -109.999979
  },
  "airfield24_3": {
   "name": "Kobuleti",
@@ -247,7 +250,8 @@
   "channel": 38,
   "x": 11798.22168,
   "y": 370113.1875,
-  "elevation": 29.298262
+  "elevation": 29.298262,
+  "direction": -92.996632
  },
  "airfield13_5": {
   "name": "Krasnodar-Center",
@@ -327,7 +331,8 @@
   "channel": 26,
   "x": -8396.038086,
   "y": 292887.1875,
-  "elevation": 31.785951
+  "elevation": 31.785951,
+  "direction": 39.519804
  },
  "airfield15_1": {
   "name": "Krymsk",
@@ -357,7 +362,8 @@
   "channel": 26,
   "x": -4817.330078,
   "y": 295839.3125,
-  "elevation": 7.263302
+  "elevation": 7.263302,
+  "direction": -140.480217
  },
  "airfield15_4": {
   "name": "Krymsk",
@@ -417,7 +423,8 @@
   "channel": null,
   "x": -284502.84375,
   "y": 685199.5,
-  "elevation": 46.542794
+  "elevation": 46.542794,
+  "direction": -105.999085
  },
  "airfield25_1": {
   "name": "Kutaisi",
@@ -487,7 +494,8 @@
   "channel": null,
   "x": -316544.0625,
   "y": 897748.5,
-  "elevation": 479.302481
+  "elevation": 479.302481,
+  "direction": -52.001372
  },
  "airfield29_3": {
   "name": "Tbilisi-Lochini",
@@ -527,7 +535,8 @@
   "channel": null,
   "x": -314562.3125,
   "y": 895211.875,
-  "elevation": 482.002923
+  "elevation": 482.002923,
+  "direction": 127.998645
  },
  "airfield29_7": {
   "name": "Tbilisi-Lochini",
@@ -627,7 +636,8 @@
   "channel": 36,
   "x": -24437.523438,
   "y": 459668.125,
-  "elevation": 175.942833
+  "elevation": 175.942833,
+  "direction": -141.000307
  },
  "airfield26_0": {
   "name": "MineralnyeVody",
@@ -657,7 +667,8 @@
   "channel": null,
   "x": -50326.4375,
   "y": 703758.5625,
-  "elevation": 313.023903
+  "elevation": 313.023903,
+  "direction": 115.300122
  },
  "airfield26_3": {
   "name": "MineralnyeVody",
@@ -697,7 +708,8 @@
   "channel": null,
   "x": -52192.085938,
   "y": 707705.4375,
-  "elevation": 315.340281
+  "elevation": 315.340281,
+  "direction": -64.699902
  },
  "airfield26_7": {
   "name": "MineralnyeVody",
@@ -727,7 +739,8 @@
   "channel": 22,
   "x": -83799.640625,
   "y": 831748.8125,
-  "elevation": 145.067482
+  "elevation": 145.067482,
+  "direction": 82.763916
  },
  "airfield28_1": {
   "name": "Mozdok",
@@ -807,7 +820,8 @@
   "channel": 22,
   "x": -83186.351563,
   "y": 836579.0,
-  "elevation": 140.971363
+  "elevation": 140.971363,
+  "direction": -97.236068
  },
  "airfield27_0": {
   "name": "Nalchik",
@@ -837,7 +851,8 @@
   "channel": null,
   "x": -125664.609375,
   "y": 759355.6875,
-  "elevation": 430.35773
+  "elevation": 430.35773,
+  "direction": 55.506625
  },
  "airfield27_3": {
   "name": "Nalchik",
@@ -877,7 +892,8 @@
   "channel": null,
   "x": -281888.875,
   "y": 648576.3125,
-  "elevation": 13.025524
+  "elevation": 13.025524,
+  "direction": -85.299767
  },
  "airfield23_3": {
   "name": "Senaki-Kolkhi",
@@ -917,7 +933,8 @@
   "channel": null,
   "x": -163681.03125,
   "y": 463753.71875,
-  "elevation": 23.207581
+  "elevation": 23.207581,
+  "direction": -117.994619
  },
  "airfield18_2": {
   "name": "Sochi-Adler",
@@ -957,7 +974,8 @@
   "channel": null,
   "x": -320054.40625,
   "y": 904121.9375,
-  "elevation": 464.386573
+  "elevation": 464.386573,
+  "direction": -44.514716
  },
  "airfield31_1": {
   "name": "Vaziani",
@@ -977,7 +995,8 @@
   "channel": null,
   "x": -318069.34375,
   "y": 902170.1875,
-  "elevation": 464.97541
+  "elevation": 464.97541,
+  "direction": 135.485284
  },
  "airfield31_3": {
   "name": "Vaziani",

@@ -61,6 +61,12 @@ def convert_lua_frequency(raw: Union[float, int]) -> int:
         return raw
 
 
+LOCALIZERS = (
+    BeaconType.BEACON_TYPE_ILS_LOCALIZER,
+    BeaconType.BEACON_TYPE_PRMG_LOCALIZER,
+)
+
+
 def beacons_from_terrain(dcs_path: Path, path: Path) -> Iterable[tuple[str, Beacon]]:
     logging.info(f"Loading terrain data from {path}")
     # TODO: Fix case-sensitive issues.
@@ -141,6 +147,7 @@ def beacons_from_terrain(dcs_path: Path, path: Path) -> Iterable[tuple[str, Beac
                 x=float(position[1]),
                 y=float(position[3]),
                 elevation=float(position[2]),
+                direction=(beacon["direction"] if beacon_type in LOCALIZERS else None),
             )
 
 

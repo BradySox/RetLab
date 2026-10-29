@@ -990,6 +990,13 @@ FEATURES: tuple[Feature, ...] = (
     ),
     Feature("exact_site_layouts", "Exact site layouts", 122),
     Feature("trains", "Trains on drawn rail lines", 123),
+    Feature(
+        # Player flights only (game/ato/flightplans/alignpoint.py); from juanjux's fork.
+        "runway_lineup",
+        "Runway line-up and departure hold",
+        126,
+        settings_fields=("player_runway_lineup", "player_departure_hold"),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

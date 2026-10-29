@@ -135,5 +135,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §121 | Radio discipline _(retired)_ | — | — |
 | §122 | Exact site layouts | — | — |
 | §123 | Trains on drawn rail lines | — | — |
+| §126 | Runway line-up and departure hold | — | `player_runway_lineup`, `player_departure_hold` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |

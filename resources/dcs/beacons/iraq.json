@@ -37,7 +37,8 @@
   "channel": null,
   "x": 61722.847656,
   "y": -161062.421875,
-  "elevation": 173.119009
+  "elevation": 173.119009,
+  "direction": -90.030014
  },
  "airfield1_4": {
   "name": "ISAD",
@@ -47,7 +48,8 @@
   "channel": null,
   "x": 61721.785156,
   "y": -165707.421875,
-  "elevation": 173.118993
+  "elevation": 173.118993,
+  "direction": 90.010009
  },
  "airfield12_0": {
   "name": "ALSAHRAAAF",
@@ -127,7 +129,8 @@
   "channel": null,
   "x": 3313.937256,
   "y": 498.205505,
-  "elevation": 23.823869
+  "elevation": 23.823869,
+  "direction": 150.438005
  },
  "airfield2_5": {
   "name": "IYDB",
@@ -137,7 +140,8 @@
   "channel": null,
   "x": -872.614075,
   "y": 2872.959961,
-  "elevation": 33.192996
+  "elevation": 33.192996,
+  "direction": -29.559996
  },
  "airfield2_6": {
   "name": "BAP",
@@ -177,7 +181,8 @@
   "channel": null,
   "x": 1520.132202,
   "y": -782.421753,
-  "elevation": 29.731492
+  "elevation": 29.731492,
+  "direction": 150.459069
  },
  "airfield2_10": {
   "name": "ITAK",
@@ -187,7 +192,8 @@
   "channel": null,
   "x": -1849.098022,
   "y": 1121.854736,
-  "elevation": 32.861754
+  "elevation": 32.861754,
+  "direction": -29.499102
  },
  "airfield8_0": {
   "name": "BLD",
@@ -207,7 +213,8 @@
   "channel": null,
   "x": 74333.4375,
   "y": 14886.862305,
-  "elevation": 44.000044
+  "elevation": 44.000044,
+  "direction": -34.005996
  },
  "airfield8_2": {
   "name": "BaladAirbase",
@@ -227,7 +234,8 @@
   "channel": null,
   "x": 77801.15625,
   "y": 12546.711914,
-  "elevation": 44.000044
+  "elevation": 44.000044,
+  "direction": 145.999992
  },
  "airfield8_4": {
   "name": "BaladAirbase",
@@ -287,7 +295,8 @@
   "channel": null,
   "x": 333515.40625,
   "y": -22313.445313,
-  "elevation": 373.681404
+  "elevation": 373.681404,
+  "direction": -179.009996
  },
  "airfield4_4": {
   "name": "ErbilInternationalAirport",
@@ -297,7 +306,8 @@
   "channel": null,
   "x": 328138.65625,
   "y": -22406.042969,
-  "elevation": 373.681404
+  "elevation": 373.681404,
+  "direction": 0.969996
  },
  "airfield4_5": {
   "name": "ErbilInternationalAirport",
@@ -307,7 +317,8 @@
   "channel": null,
   "x": 329250.09375,
   "y": -20100.587891,
-  "elevation": 373.681404
+  "elevation": 373.681404,
+  "direction": -27.680012
  },
  "airfield4_6": {
   "name": "ErbilInternationalAirport",
@@ -367,7 +378,8 @@
   "channel": null,
   "x": 246465.90625,
   "y": 11743.508789,
-  "elevation": 313.000313
+  "elevation": 313.000313,
+  "direction": 133.651585
  },
  "airfield6_0": {
   "name": "QYW",
@@ -387,7 +399,8 @@
   "channel": null,
   "x": 256688.578125,
   "y": 99231.75,
-  "elevation": 745.738539
+  "elevation": 745.738539,
+  "direction": 132.739984
  },
  "airfield7_1": {
   "name": "",
@@ -397,7 +410,8 @@
   "channel": null,
   "x": 253841.234375,
   "y": 102311.945313,
-  "elevation": 718.038926
+  "elevation": 718.038926,
+  "direction": -47.249998
  },
  "airfield7_2": {
   "name": "",

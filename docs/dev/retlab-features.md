@@ -11953,3 +11953,45 @@ waypoints. Supply between those bases goes by train. Design and probe findings:
 | Lua | `resources/plugins/base/train_losses.lua` |
 | Tests | `tests/retlab/test_trains.py`, `tests/lua/test_train_losses_runtime.py` |
 | In-game pass | B285 |
+
+## §126 — Runway line-up and departure hold
+
+Player flights get two points from the runway they use. Adapted from juanjux's
+`dcs-escalation` (`game/ato/flightplans/alignpoint.py`, LGPL-3.0), checked 2026-10-29.
+Both are **player-only** by the DM's call: the 2026-10-26 runway probes showed AI keep a
+fixed runway end in light wind whatever the app picks, so an AI ALIGN point could sit on
+the wrong end.
+
+- **ALIGN** goes at the end of the return leg (`nav_from`), `only_for_player`, named
+  `ALIGN`. Airfields: 15 NM out on final (helicopters 2 NM). Height is a 3-degree slope,
+  300 ft per NM, clamped to 1,500 to 6,000 ft above the field (`RADIO`).
+- **The runway** is `RunwayAssigner`'s into-wind pick, the end the kneeboard names first.
+  In light wind it stays there although the AI may use the other end (DM call: no light-wind
+  skip).
+- **The centerline** comes from a localizer beam at either end (`runway_centerline` in
+  `game/runways.py`). pydcs headings are rounded and can be 6 degrees off the beam (Adana 05
+  is 050 in pydcs, 055.8 on the beam), about 1.5 NM sideways at 15 NM. The beam bearing
+  (`direction`) was added to the localizer entries of `resources/dcs/beacons/*.json` from
+  the DCS install on 2026-10-29, and `import_beacons.py` now writes it. A field with no
+  localizer falls back to the airfield position and the pydcs heading.
+- **Carriers:** 50 NM astern on the angled-deck final bearing, the §88 solved course minus
+  the hull's `landing_deck_angle`, from where the ship will have steamed by the flight's
+  landing time. The ship stops at the end of the leg `steam_into_wind` gives it, so the
+  steamed distance is capped there. A plan with no TOT yet measures from the ship's start.
+- **HOLD:** a player flight's hold (strike-family and sweep plans) goes straight out the
+  departure runway, or ahead of the carrier on its course, at the doctrine hold distance
+  (25 / 15 / 10 NM). The usual `HoldZoneGeometry` hold is kept when that point is inside an
+  enemy threat ring. A runway pointing away from the join still holds out there (DM call).
+- **A late player seat:** most player seats are ticked after the planner built the route.
+  A pilot change in the flight dialog calls `Flight.refresh_player_route`, which re-places
+  ALIGN and the hold in place. It never re-plans, so edits elsewhere on the route stay.
+- Distances are fixed; the two settings are on/off only (DM call).
+
+| Area | Path |
+|---|---|
+| Points | `game/ato/flightplans/alignpoint.py` |
+| Centerline | `game/runways.py` (`runway_centerline`), `game/dcs/beacons.py` (`Beacon.direction`) |
+| Hooks | `game/ato/flightplans/ibuilder.py`, `formationattack.py`, `sweep.py`, `game/ato/flight.py`, `qt_ui/windows/mission/flight/settings/QGeneralFlightSettingsTab.py` |
+| Settings | `player_runway_lineup`, `player_departure_hold` (RetLab Features page, Cockpit & kneeboard) |
+| Tests | `tests/ato/flightplans/test_align_point.py` |
+| In-game pass | B300 |

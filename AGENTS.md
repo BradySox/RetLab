@@ -352,6 +352,7 @@ linked design note.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
+126. **Runway line-up and departure hold** — player flights get ALIGN on final (carriers on the angled deck) and hold straight out the runway. Never AI.
 
 ### Retired, removed or shelved — do not restore
 

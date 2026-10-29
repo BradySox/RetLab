@@ -52,6 +52,8 @@ class QGeneralFlightSettingsTab(QFrame):
         )
 
         roster = self.flight_slot_editor.roster_editor
+        # Before the start type's handler, which re-times the package.
+        roster.pilots_changed.connect(self.flight.refresh_player_route)
         roster.pilots_changed.connect(start_type.on_pilot_selected)
         ai_fill = QAiFillCheckbox(flight)
         roster.pilots_changed.connect(ai_fill.refresh)

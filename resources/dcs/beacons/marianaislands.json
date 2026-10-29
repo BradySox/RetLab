@@ -87,7 +87,8 @@
   "channel": null,
   "x": 11405.985352,
   "y": 16448.888672,
-  "elevation": 179.662503
+  "elevation": 179.662503,
+  "direction": -113.620825
  },
  "airfield6_6": {
   "name": "Andersen",
@@ -97,7 +98,8 @@
   "channel": null,
   "x": 11862.963303,
   "y": 16134.421092,
-  "elevation": 179.99986
+  "elevation": 179.99986,
+  "direction": -113.630831
  },
  "airfield6_7": {
   "name": "Andersen",
@@ -107,7 +109,8 @@
   "channel": null,
   "x": 10254.586245,
   "y": 12456.810317,
-  "elevation": 161.391977
+  "elevation": 161.391977,
+  "direction": 66.348484
  },
  "airfield6_8": {
   "name": "Andersen",
@@ -117,7 +120,8 @@
   "channel": null,
   "x": 9716.791016,
   "y": 12586.375977,
-  "elevation": 168.998231
+  "elevation": 168.998231,
+  "direction": 66.373456
  },
  "airfield4_0": {
   "name": "AntonioBWonPat",
@@ -127,7 +131,8 @@
   "channel": null,
   "x": 872.144714,
   "y": 1873.931763,
-  "elevation": 94.243914
+  "elevation": 94.243914,
+  "direction": -114.591552
  },
  "airfield4_1": {
   "name": "AntonioBWonPat",
@@ -147,7 +152,8 @@
   "channel": null,
   "x": 548.93129,
   "y": 1684.219787,
-  "elevation": 79.176356
+  "elevation": 79.176356,
+  "direction": -114.591552
  },
  "airfield4_3": {
   "name": "AntonioBWonPat",
@@ -177,7 +183,8 @@
   "channel": null,
   "x": 180641.455182,
   "y": 103385.992131,
-  "elevation": 64.190265
+  "elevation": 64.190265,
+  "direction": -111.80319
  },
  "airfield2_1": {
   "name": "Saipan",
