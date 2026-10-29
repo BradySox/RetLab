@@ -1,0 +1,10 @@
+date: 2026-10-29
+title: Voice ATC Approach and Departure
+change: >-
+  Each Voice ATC field now has an Approach frequency that also handles departures. After
+  takeoff, Tower sends you to Departure, which gives you an exit and an altitude. Coming home,
+  Approach gives you an entry point and hands you to Tower. On Caucasus the points are the
+  ones on the DCS kneeboard charts.
+watch: >-
+  The ATC card lists the Approach frequency and each field's entry and exit points. Away from
+  Caucasus, Approach uses a point 10 miles out. Needs Voice ATC on.

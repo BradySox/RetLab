@@ -4,7 +4,8 @@
 -- Reads dcsRetribution.voiceAtc (emitted only with the Voice ATC setting on and a player flight
 -- at an airfield): linkHost, linkPort, declination,
 --   fields = { { name, airbase, runway, runways ('10R,28L,...' in pairs), altimeter, ground,
---     tower, groundVoice, towerVoice } },
+--     tower, groundVoice, towerVoice, approach, approachVoice, and with a chart: chart,
+--     maxAltitude, patternAltitude, points = { { name, x, z, entry ('07,25'), exit } } } },
 --   flights = { { group, callsign, departure, arrival, divert } }
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
@@ -15,6 +16,12 @@
 -- the station or the callsign is answered by whoever was called, and ATC never blocks a player.
 -- "Say again" is only for a call nobody can place. An F10 ATC menu makes the same requests. Replies are voice only; without LuaSocket the menu is the only way in and replies are
 -- on-screen text. AI traffic is left to DCS's own ATC.
+--
+-- Step 2: a field's Approach also works departures (user call, 2026-10-29). Tower hands a
+-- departure to it; it gives the exit, the altitude, and approves the frequency change when the
+-- flight reports the exit. Inbound, it gives the chart entry nearest the flight that serves the
+-- runway, and hands the flight to Tower at the entry; Tower then needs no repeat. A field
+-- without a chart gets an entry 10 NM out on the inbound bearing.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.voiceAtc) then
@@ -31,6 +38,14 @@ local NM = 1852
 local LANDING_RANGE_NM = 10
 local KNOTS = 1.94384
 local CALM_KT = 3
+local FEET = 3.28084
+-- Approach hands an arrival to Tower within this of its entry point.
+local ENTRY_REACHED_NM = 1.5
+-- A departure that flies this far past its exit without reporting it is let go anyway.
+local EXIT_PASSED_NM = 3
+local GENERATED_ENTRY_NM = 10
+-- No chart: the arrival and departure altitude is the field's elevation plus this.
+local GENERATED_ALTITUDE_FT = 2000
 
 local S_EVENT_TAKEOFF = world.event.S_EVENT_TAKEOFF or 3
 local S_EVENT_LAND = world.event.S_EVENT_LAND or 4
@@ -42,7 +57,7 @@ local stations = {} -- frequency string -> { field, position }
 for _, f in ipairs(data.fields or {}) do
     table.insert(fields, f)
     fieldsByName[f.name] = f
-    for _, position in ipairs({ "ground", "tower" }) do
+    for _, position in ipairs({ "ground", "tower", "approach" }) do
         if f[position] and f[position] ~= "" then
             stations[f[position]] = { field = f, position = position }
         end
@@ -63,6 +78,11 @@ for _, flight in ipairs(data.flights or {}) do
     flight.landing = {}
     -- Ship -> field it is inbound to or in the pattern at, until it lands.
     flight.pattern = {}
+    -- Ship -> { field, point } Approach cleared it to, until Tower has it or it leaves.
+    flight.arriving = {}
+    flight.departing = {}
+    -- Ship -> field whose Tower Approach handed it to.
+    flight.handoff = {}
     table.insert(flights, flight)
 end
 
@@ -237,7 +257,7 @@ local function announce(_, now)
     local list = {}
     for _, f in ipairs(fields) do
         local positions = {}
-        for _, position in ipairs({ "ground", "tower" }) do
+        for _, position in ipairs({ "ground", "tower", "approach" }) do
             if f[position] and f[position] ~= "" then
                 table.insert(positions, { { "position", position }, { "frequency", f[position] } })
             end
@@ -361,8 +381,10 @@ end
 -- Calls
 ---------------------------------------------------------------------------------------------------
 
+local POSITION_NAMES = { ground = "Ground", tower = "Tower", approach = "Approach" }
+
 local function stationLabel(field, position)
-    return field.name .. " " .. (position == "ground" and "Ground" or "Tower")
+    return field.name .. " " .. (POSITION_NAMES[position] or "Tower")
 end
 
 -- Speaks a call on a field position and keeps it for "say again". Text only without LuaSocket.
@@ -518,7 +540,13 @@ local function takeoff(field, flight, member, on, detail, text)
     if not (flight.numbers or hasNumbers(detail, text)) then
         withWind(parts, field)
     end
-    table.insert(parts, "cleared for takeoff, frequency change approved.")
+    if field.approach and field.approach ~= "" then
+        for _, part in ipairs({ "cleared for takeoff, contact Departure ", digits(frequencyLabel(field.approach)), "." }) do
+            table.insert(parts, part)
+        end
+    else
+        table.insert(parts, "cleared for takeoff, frequency change approved.")
+    end
     flight.state = "cleared"
     say(field, on or "tower", flight, line(parts))
 end
@@ -646,8 +674,282 @@ local function sayAgain(field, position, flight, member)
     say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", say again." }))
 end
 
+---------------------------------------------------------------------------------------------------
+-- Approach and Departure (step 2)
+---------------------------------------------------------------------------------------------------
+
+local NUMBER_WORDS = { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" }
+
+-- 2500 -> { "2,500", "two thousand five hundred" }: an altitude as a controller says it.
+local function altitudePart(feet)
+    local thousands, hundreds = math.floor(feet / 1000), math.floor((feet % 1000) / 100)
+    local words = {}
+    if thousands > 0 then
+        table.insert(words, (thousands < 10 and NUMBER_WORDS[thousands] or tostring(thousands)) .. " thousand")
+    end
+    if hundreds > 0 then
+        table.insert(words, NUMBER_WORDS[hundreds] .. " hundred")
+    end
+    local text = thousands > 0 and string.format("%d,%03d", thousands, feet % 1000) or tostring(feet)
+    return { text, table.concat(words, " ") }
+end
+
+-- The chart's arrival and departure altitude, else the field's elevation plus 2,000 ft.
+local function routeAltitude(field)
+    local charted = tonumber(field.maxAltitude)
+    if charted then
+        return charted
+    end
+    local base = airbasePoint(field)
+    local elevation = base and base.y * FEET or 0
+    return math.ceil((elevation + GENERATED_ALTITUDE_FT) / 100) * 100
+end
+
+-- Grid bearing from a point to (x, z).
+local function bearing(from, x, z)
+    return math.deg(math.atan2(z - from.z, x - from.x)) % 360
+end
+
+local function bearingOff(a, b)
+    local off = math.abs(a - b) % 360
+    return off > 180 and 360 - off or off
+end
+
+local function nmBetween(a, b)
+    local dx, dz = a.x - b.x, a.z - b.z
+    return math.sqrt(dx * dx + dz * dz) / NM
+end
+
+local function endNumber(name)
+    return tonumber(tostring(name):match("^(%d+)"))
+end
+
+local function servesRunway(point, runway)
+    for entry in tostring(point.entry or ""):gmatch("[^,]+") do
+        if entry == runway or endNumber(entry) == endNumber(runway) then
+            return true
+        end
+    end
+    return false
+end
+
+-- The chart point closest in bearing from the field to `towards`: an exit, or an entry that
+-- serves the runway in use. Nil when the field has no chart or no such point.
+local function nearestPoint(field, towards, wantExit)
+    local base = airbasePoint(field)
+    if not base then
+        return nil
+    end
+    local best, bestOff = nil, nil
+    for _, point in ipairs(field.points or {}) do
+        local usable
+        if wantExit then
+            usable = point.exit == "true"
+        else
+            usable = servesRunway(point, field.runway)
+        end
+        if usable then
+            local off = bearingOff(bearing(base, tonumber(point.x), tonumber(point.z)), towards)
+            if bestOff == nil or off < bestOff then
+                best, bestOff = point, off
+            end
+        end
+    end
+    if not best then
+        return nil
+    end
+    return { name = best.name, x = tonumber(best.x), z = tonumber(best.z) }
+end
+
+-- The generated point GENERATED_ENTRY_NM out from the field on a grid bearing.
+local function generatedPoint(field, towards)
+    local base = airbasePoint(field)
+    if not base then
+        return nil
+    end
+    local r = math.rad(towards)
+    return {
+        x = base.x + math.cos(r) * GENERATED_ENTRY_NM * NM,
+        z = base.z + math.sin(r) * GENERATED_ENTRY_NM * NM,
+        generated = true,
+    }
+end
+
+local COMPASS = { "north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest" }
+
+local function compassWord(p, gridBearing)
+    local r = math.rad(gridBearing)
+    local trueBearing = trueDirection(p, math.cos(r), math.sin(r)) % 360
+    return COMPASS[math.floor(trueBearing / 45 + 0.5) % 8 + 1]
+end
+
+local function tenMiles()
+    return { tostring(GENERATED_ENTRY_NM), "ten" }
+end
+
+local function sayAgainOn(field, position, flight, member)
+    say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", say again." }))
+end
+
+-- The exit nearest the way the flight is heading, the altitude, and "report" it.
+local function departureCall(field, flight, member)
+    local unit = memberUnit(flight, member)
+    local base = airbasePoint(field)
+    if not (unit and base) then
+        return sayAgainOn(field, "approach", flight, member)
+    end
+    local p, v = unit:getPoint(), unit:getVelocity()
+    local towards = bearing(base, p.x, p.z)
+    if v and (v.x ~= 0 or v.z ~= 0) then
+        towards = math.deg(math.atan2(v.z, v.x)) % 360
+    end
+    local exit = nearestPoint(field, towards, true) or generatedPoint(field, towards)
+    local parts = { callsignPart(memberCallsign(flight, member)), ", " .. field.name .. " Departure, radar contact, " }
+    if exit.generated then
+        table.insert(parts, "depart on present heading, climb and maintain ")
+        table.insert(parts, altitudePart(routeAltitude(field)))
+        table.insert(parts, ", report ")
+        table.insert(parts, tenMiles())
+        table.insert(parts, " miles.")
+    else
+        table.insert(parts, "depart via " .. exit.name .. " exit, climb and maintain ")
+        table.insert(parts, altitudePart(routeAltitude(field)))
+        table.insert(parts, ", report " .. exit.name .. ".")
+    end
+    flight.departing[member] = { field = field.name, point = exit }
+    say(field, "approach", flight, line(parts))
+end
+
+local function releaseDeparture(field, flight, member)
+    flight.departing[member] = nil
+    say(field, "approach", flight, line({ callsignPart(memberCallsign(flight, member)), ", frequency change approved." }))
+end
+
+-- The runway and the chart entry nearest the flight that serves it, or a point 10 NM out.
+local function arrivalCall(field, flight, member, text)
+    local unit = memberUnit(flight, member)
+    local base = airbasePoint(field)
+    if not (unit and base) then
+        return sayAgainOn(field, "approach", flight, member)
+    end
+    local p = unit:getPoint()
+    local towards = bearing(base, p.x, p.z)
+    local entry = nearestPoint(field, towards, false) or generatedPoint(field, towards)
+    local formation = isFormation(flight, member, text, false)
+    local parts = {
+        callsignPart(memberCallsign(flight, member), formation),
+        ", " .. field.name .. " Approach, radar contact, runway ",
+        digits(field.runway),
+        ", ",
+    }
+    if entry.generated then
+        table.insert(parts, "proceed ")
+        table.insert(parts, tenMiles())
+        table.insert(parts, " miles " .. compassWord(base, towards) .. " of the field, maintain ")
+        table.insert(parts, altitudePart(routeAltitude(field)))
+        table.insert(parts, ", report ")
+        table.insert(parts, tenMiles())
+        table.insert(parts, " miles.")
+    else
+        table.insert(parts, "enter via " .. entry.name .. ", maintain ")
+        table.insert(parts, altitudePart(routeAltitude(field)))
+        table.insert(parts, ", report " .. entry.name .. ".")
+    end
+    flight.arriving[member] = { field = field.name, point = entry }
+    flight.pattern[member] = field.name
+    say(field, "approach", flight, line(parts))
+end
+
+local function handToTower(field, flight, member)
+    flight.arriving[member] = nil
+    flight.handoff[member] = field.name
+    say(field, "approach", flight, line({
+        callsignPart(memberCallsign(flight, member)),
+        ", contact Tower ",
+        digits(frequencyLabel(field.tower)),
+        ".",
+    }))
+end
+
+local function words(text)
+    return " " .. tostring(text or ""):lower():gsub("[^%w]", " "):gsub("%s+", " ") .. " "
+end
+
+-- A report of the entry or exit Approach gave: its name, "ten miles", "entry" or "exit".
+local function reportsPoint(pending, text)
+    if not pending then
+        return false
+    end
+    local heard = words(text)
+    if pending.point.name and heard:find(words(pending.point.name), 1, true) then
+        return true
+    end
+    return heardWord(text, "entry") or heardWord(text, "exit") or heard:find(" 10 mile", 1, true) ~= nil
+        or heard:find(" ten mile", 1, true) ~= nil
+end
+
+-- A call on Approach: a departure's airborne call or exit report, an arrival's inbound call or
+-- entry report. Anything else from a flight in the air is placed by where it flies from.
+local function approachCall(field, flight, member, kind, text)
+    local departing, arriving = flight.departing[member], flight.arriving[member]
+    if departing and departing.field == field.name and reportsPoint(departing, text) then
+        return releaseDeparture(field, flight, member)
+    end
+    if arriving and arriving.field == field.name and reportsPoint(arriving, text) then
+        return handToTower(field, flight, member)
+    end
+    if kind == "inbound" then
+        return arrivalCall(field, flight, member, text)
+    end
+    if kind == "airborne" or kind == "ready" then
+        return departureCall(field, flight, member)
+    end
+    local unit = memberUnit(flight, member)
+    if unit and unit:inAir() then
+        local leaving = flight.departure == field.name and distanceNm(unit, field) < GENERATED_ENTRY_NM
+        if flight.state == "cleared" or (flight.state == "airborne" and leaving and not arriving) then
+            return departureCall(field, flight, member)
+        end
+        return arrivalCall(field, flight, member, text)
+    end
+    sayAgainOn(field, "approach", flight, member)
+end
+
+-- Approach hands an arrival to Tower at its entry, and lets a departure go once it is past its
+-- exit, when the pilot does not report them first.
+local function watchRoutes(flight)
+    for member, pending in pairs(flight.arriving) do
+        local field, unit = fieldsByName[pending.field], memberUnit(flight, member)
+        if field and unit and nmBetween(unit:getPoint(), pending.point) <= ENTRY_REACHED_NM then
+            handToTower(field, flight, member)
+        end
+    end
+    for member, pending in pairs(flight.departing) do
+        local field, unit = fieldsByName[pending.field], memberUnit(flight, member)
+        local base = field and airbasePoint(field)
+        if base and unit and nmBetween(unit:getPoint(), base) >= nmBetween(pending.point, base) + EXIT_PASSED_NM then
+            releaseDeparture(field, flight, member)
+        end
+    end
+end
+
 -- A call to one position: the reply, or the right frequency when it is the other position's job.
 local function handleCall(field, position, flight, member, kind, detail, text)
+    if position == "approach" and kind ~= "radiocheck" and kind ~= "sayagain" and kind ~= "emergency"
+        and kind ~= "runway" then
+        return approachCall(field, flight, member, kind, text)
+    end
+    if position == "tower" and flight.handoff[member] == field.name and kind ~= "radiocheck"
+        and kind ~= "sayagain" and kind ~= "emergency" and kind ~= "runway" and kind ~= "clear"
+        and not (kind == "inbound" and detail ~= "" and detail ~= nil) then
+        -- Approach handed the flight over: it need not repeat the entry or the runway.
+        flight.handoff[member] = nil
+        flight.pattern[member] = field.name
+        local parts = { callsignPart(memberCallsign(flight, member)), ", " .. field.name .. " Tower, runway ", digits(field.runway), ", " }
+        withWind(parts, field)
+        table.insert(parts, "report initial.")
+        return say(field, "tower", flight, line(parts))
+    end
     if kind == "radiocheck" then
         return radioCheck(field, position, flight, member)
     elseif kind == "sayagain" then
@@ -661,6 +963,14 @@ local function handleCall(field, position, flight, member, kind, detail, text)
         -- clearance (taxi is the first call), and the takeoff clearance already approved the
         -- frequency change, so an airborne call is answered but never needed.
         local reply = kind == "startup" and ", start at your discretion. Call ready to taxi." or ", frequency change approved."
+        if kind == "airborne" and field.approach and field.approach ~= "" then
+            return say(field, position, flight, line({
+                callsignPart(memberCallsign(flight, member)),
+                ", contact Departure ",
+                digits(frequencyLabel(field.approach)),
+                ".",
+            }))
+        end
         return say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), reply }))
     end
     -- Whoever was called answers: a taxi call on Tower is answered on Tower.
@@ -769,6 +1079,7 @@ local function watch(_, now)
                 flight.state = "airborne"
             end
         end
+        watchRoutes(flight)
     end
     return now + WATCH_SECONDS
 end
@@ -804,6 +1115,10 @@ local function menuCall(arg)
         return
     end
     local position = kind == "taxi" and "ground" or "tower"
+    if kind == "inbound" and detail == nil and field.approach and field.approach ~= "" and not flight.handoff[member] then
+        -- With Approach, "10 miles, full stop" goes to it first: it gives the entry.
+        position = "approach"
+    end
     handleCall(field, position, flight, member, kind, detail)
 end
 
@@ -851,6 +1166,9 @@ local function newSortie(flight, unit)
     local member = memberOf(flight, unit)
     flight.landing[member] = nil
     flight.pattern[member] = nil
+    flight.arriving[member] = nil
+    flight.departing[member] = nil
+    flight.handoff[member] = nil
     local name = unit:getName()
     for _, seat in ipairs(playerUnits(flight)) do
         if seat.unit:getName() ~= name then
@@ -860,6 +1178,9 @@ local function newSortie(flight, unit)
     flight.state = "parked"
     flight.landing = {}
     flight.pattern = {}
+    flight.arriving = {}
+    flight.departing = {}
+    flight.handoff = {}
     flight.lastCall = {}
     flight.numbers = nil
 end
@@ -998,6 +1319,8 @@ function handler:onEvent(event)
     end
     flight.landing[member] = nil
     flight.pattern[member] = nil
+    flight.arriving[member] = nil
+    flight.handoff[member] = nil
     flight.state = "landed"
     say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
 end

@@ -164,6 +164,10 @@ def test_ground_and_tower_are_uhf_and_a_vhf_pin_is_picked_again() -> None:
     assert len(used) == 4 and len(set(used)) == 4
     assert all(f.band == "UHF" and f.modulation.name == "AM" for f in used)
     assert game.voice_atc_frequencies == data.atc_frequencies
+    # Each field's Approach is a sixth UHF frequency apart from the other four.
+    approaches = list(data.approach_frequencies.values())
+    assert len(approaches) == 2 and set(approaches).isdisjoint(used)
+    assert all(f.band == "UHF" for f in approaches)
 
 
 def test_atc_lines_name_the_preset_channels() -> None:
@@ -199,6 +203,7 @@ def _pin_game(*names: str) -> Any:
             ato=SimpleNamespace(packages=[SimpleNamespace(flights=flights)])
         ),
         voice_atc_frequencies={},
+        voice_atc_approach_frequencies={},
     )
 
 
@@ -216,8 +221,10 @@ def test_a_field_keeps_its_ground_and_tower_every_turn() -> None:
     second = MissionData()
     allocate_atc_frequencies(game, RadioRegistry(), second)
     assert second.atc_frequencies == first.atc_frequencies
+    assert second.approach_frequencies == first.approach_frequencies
     used = [f for pair in second.atc_frequencies.values() for f in pair]
-    assert len(set(used)) == 4
+    used.extend(second.approach_frequencies.values())
+    assert len(set(used)) == 6
 
 
 def test_a_new_field_never_takes_a_pinned_frequency() -> None:
@@ -230,9 +237,11 @@ def test_a_new_field_never_takes_a_pinned_frequency() -> None:
     # A later turn flies only from Akrotiri: Hatzerim's pair stays reserved.
     later = _pin_game("Akrotiri")
     later.voice_atc_frequencies = game.voice_atc_frequencies
+    later.voice_atc_approach_frequencies = game.voice_atc_approach_frequencies
     registry = RadioRegistry()
     allocate_atc_frequencies(later, registry, MissionData())
     assert set(later.voice_atc_frequencies["Akrotiri"]).isdisjoint(hatzerim)
+    assert game.voice_atc_approach_frequencies["Hatzerim"] in registry.atc_pinned
     assert set(hatzerim) <= registry.allocated_channels
     assert set(hatzerim) <= registry.atc_pinned
 
@@ -247,6 +256,7 @@ def test_old_saves_get_an_empty_pin_table() -> None:
     except Exception:
         pass
     assert state["voice_atc_frequencies"] == {}
+    assert state["voice_atc_approach_frequencies"] == {}
 
 
 def test_runway_ends_come_in_pairs_from_the_map() -> None:

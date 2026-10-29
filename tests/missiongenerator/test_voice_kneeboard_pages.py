@@ -113,3 +113,31 @@ def test_vacuum_card_without_strike(tmp_path: Path) -> None:
     VacuumPage(MHz(262), None, "Ford 9-1", True).write(out)
     text = out.with_suffix(".txt").read_text("utf8")
     assert "STRIKE" not in text
+
+
+def test_atc_card_with_approach_and_chart_points(tmp_path: Path) -> None:
+    from dcs.terrain import Caucasus
+
+    from game.retlab.atc_routes import chart_routes, point_lines
+    from game.missiongenerator.kneeboard.voicepages import _altitude, _example_point
+
+    terrain = Caucasus()
+    routes = chart_routes(terrain, "Kobuleti")
+    assert routes is not None
+    kobuleti = AtcField(
+        "Kobuleti", "25", MHz(260), MHz(262), approach=MHz(264), routes=routes
+    )
+    kobuleti.route_lines = point_lines(routes, terrain.airports["Kobuleti"].position)
+    assert (
+        kobuleti.route_lines[0] == "Black Sea: 7.3 NM northwest, entry runway 07, exit"
+    )
+    assert _example_point(kobuleti, exit=True) == "Black Sea"
+    assert _example_point(kobuleti, exit=False) == "Black Sea"
+    assert _altitude(kobuleti) == "2,000"
+    # A field off the charts falls back to the generated point.
+    batumi = AtcField("Batumi", "13", MHz(266), MHz(268), approach=MHz(270))
+    assert _example_point(batumi, exit=True) == "10 miles"
+    for name, arrival in (("chart", kobuleti), ("generated", batumi)):
+        out = tmp_path / f"atc-approach-{name}.png"
+        AtcPage("Viper 1-1", kobuleti, arrival, False).write(out)
+        assert out.stat().st_size > 0

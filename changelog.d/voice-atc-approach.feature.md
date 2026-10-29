@@ -1,0 +1,1 @@
+* **[Mission Generation]** Voice ATC gains Approach, which also works departures: an exit going out, an entry coming in (the DCS kneeboard chart points on Caucasus, a point 10 miles out elsewhere), and a handoff to Tower that needs no repeat.

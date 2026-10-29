@@ -44,6 +44,17 @@ def awacs_presets(
     return frequencies
 
 
+def _voice_atc(airfield_name: str, mission_data: MissionData) -> list[RadioFrequency]:
+    """A Voice ATC field's Ground, Tower and Approach (§119); empty for any other."""
+    pair = mission_data.atc_frequencies.get(airfield_name)
+    if pair is None:
+        return []
+    frequencies = list(pair)
+    if (approach := mission_data.approach_frequencies.get(airfield_name)) is not None:
+        frequencies.append(approach)
+    return frequencies
+
+
 def _tunable(radio: Any, freq: RadioFrequency) -> bool:
     return radio is None or any(
         r.minimum.hertz <= freq.hertz < r.maximum.hertz for r in radio.ranges
@@ -182,16 +193,17 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
     def _atc_frequencies(
         flight: FlightData, mission_data: MissionData
     ) -> list[RadioFrequency]:
-        """Departure, arrival and divert ATC: Voice ATC's Ground and Tower (§119),
-        else the field's DCS tower."""
+        """Departure, arrival and divert ATC: Voice ATC's Ground, Tower and Approach
+        (§119), else the field's DCS tower."""
         frequencies: list[RadioFrequency] = []
-        voice_atc = mission_data.atc_frequencies
         fields = [flight.departure, flight.arrival]
         if flight.divert is not None:
             fields.append(flight.divert)
         for field in fields:
-            pair = voice_atc.get(field.airfield_name)
-            for freq in pair if pair is not None else (field.atc,):
+            candidates: list[Optional[RadioFrequency]] = list(
+                _voice_atc(field.airfield_name, mission_data)
+            ) or [field.atc]
+            for freq in candidates:
                 if freq is not None and freq not in frequencies:
                     frequencies.append(freq)
         return frequencies
@@ -214,9 +226,8 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         flight: FlightData, mission_data: MissionData
     ) -> list[RadioFrequency]:
         frequencies: list[RadioFrequency] = []
-        # Voice ATC (§119) replaces a field's DCS tower with its Ground and Tower.
-        voice_atc = mission_data.atc_frequencies
-        if (departure_atc := voice_atc.get(flight.departure.airfield_name)) is not None:
+        # Voice ATC (§119) replaces a field's DCS tower with its Ground, Tower and Approach.
+        if departure_atc := _voice_atc(flight.departure.airfield_name, mission_data):
             frequencies.extend(departure_atc)
         elif flight.departure.atc is not None:
             frequencies.append(flight.departure.atc)
@@ -226,7 +237,7 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         if (freq := mission_data.package_frequency(flight.package)) is not None:
             frequencies.append(freq)
         if flight.arrival != flight.departure:
-            if (arrival_atc := voice_atc.get(flight.arrival.airfield_name)) is not None:
+            if arrival_atc := _voice_atc(flight.arrival.airfield_name, mission_data):
                 frequencies.extend(arrival_atc)
             elif flight.arrival.atc is not None:
                 frequencies.append(flight.arrival.atc)
