@@ -8,7 +8,7 @@ re-verify with GitHub before acting on any line.
 
 - **pydcs [#41](https://github.com/dcs-retribution/pydcs/pull/41)** (draft): the 18 stock vehicles from DCS 2.9.29 and 2.9.31 plus Iraq's three new country jets, cut from upstream's pin `3a79b8e`. Vehicles only; the 2.9.29 weapon changes are not in it. Fork side: RetLab #1413 and the August 2.9.29 cut.
 - **[#979](https://github.com/dcs-retribution/dcs-retribution/pull/979)** (draft): pins pydcs#41's head and adds 14 unit yamls. The four trailers (`CHAP_SLT50_Trailer`, `ATZ-60_TANK`, `TZ-22_TANK`, `S_75_Zil_Trailer`) are pydcs only. Every unit is stock DCS, no mod. Upstream suite: 452 passed, 2 skipped.
-- **The ZTQ-15 / PGL-625 name fix** (RetLab #1414) has the same bug upstream. Branch `BradySox:unit-variant-dupes` is pushed with the test; its draft PR is not open yet.
+- **[#980](https://github.com/dcs-retribution/dcs-retribution/pull/980)** (draft): the ZTQ-15 / PGL-625 variant-name fix (RetLab #1414), with its test. Upstream had the same bug. Upstream suite: 455 passed, 2 skipped.
 
 **2026-10-17: roundup of all open PRs. #872 closed, #896 brought up to date.** Upstream `dev` is still `49e8067f` (2026-08-29), `test/1.6` still has only its two 2026-07-25 builds, the newest release is still v1.5.0, and pydcs has merged nothing since 2026-07-25. All open PRs had green CI and no conflicts.
 
