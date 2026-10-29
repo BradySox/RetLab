@@ -183,6 +183,10 @@ function UnitFake:getLife()
     return self.life or 1
 end
 
+function UnitFake:getLife0()
+    return self.life0 or 1
+end
+
 function UnitFake:getPoint()
     return { x = self.x or 0, y = self.alt or 0, z = self.z or 0 }
 end
@@ -425,6 +429,7 @@ function Harness.addGroup(spec)
             z = u.z,
             alt = u.alt or 0,
             life = u.life,
+            life0 = u.life0,
             exists = u.exists,
             airborne = u.airborne,
             active = u.active,

@@ -990,6 +990,12 @@ FEATURES: tuple[Feature, ...] = (
     ),
     Feature("exact_site_layouts", "Exact site layouts", 122),
     Feature("trains", "Trains on drawn rail lines", 123),
+    Feature(
+        "ship_damage",
+        "Carry-over ship damage",
+        124,
+        settings_fields=("ship_damage_carry_over", "ship_damage_repair_percent"),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

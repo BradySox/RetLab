@@ -287,3 +287,29 @@ def test_troops_outside_the_zone_capture_nothing() -> None:
     harness = _load()
     _infantry(harness, "Armor 1", _BLUE, 3500.0)
     assert _taken(harness, _BLUE, _RED) is False
+
+
+def test_ship_health_reports_each_seeded_ship_and_skips_the_rest() -> None:
+    # §124: the fraction is life over the hull's starting life.
+    harness = _load()
+    harness.add_group(
+        {
+            "name": "Task force",
+            "side": 1,
+            "category": 3,
+            "units": [
+                {"name": "Cruiser", "type": "MOSCOW", "life": 400, "life0": 1000},
+                {"name": "Frigate", "type": "REZKY", "life": 500, "life0": 500},
+                {"name": "Unlisted", "type": "REZKY", "life": 10, "life0": 500},
+            ],
+        }
+    )
+    harness.lua.execute('ship_health_units = {"Cruiser", "Frigate", "Missing"}')
+    health = harness.to_python(harness.lua.eval("ship_health_snapshot()"))
+    assert health == {"Cruiser": 0.4, "Frigate": 1.0}
+    harness.assert_no_lua_errors()
+
+
+def test_ship_health_is_empty_without_the_seed() -> None:
+    harness = _load()
+    assert harness.to_python(harness.lua.eval("ship_health_snapshot()")) in ({}, [])

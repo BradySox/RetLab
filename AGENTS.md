@@ -352,6 +352,7 @@ linked design note.
 120. **Voice bots on Take Off** — Take off starts SRS, SkyEye and the SRS client, connected; SkyEye stops on debrief. Off by default.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
+124. **Carry-over ship damage** — a damaged ship starts the next mission damaged, through DCS's native set-life action; 34 points repaired a turn. Ships only.
 
 ### Retired, removed or shelved — do not restore
 

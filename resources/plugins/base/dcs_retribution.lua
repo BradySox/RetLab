@@ -153,6 +153,35 @@ function record_kill_cause(initiator, target, weapon_name)
     }
 end
 
+-- §124: life fraction of each ship named in ship_health_units, which the
+-- mission's ship-health trigger seeds. Python never lets a reading raise a ship's
+-- saved health, so a set-life action DCS did not apply costs nothing.
+function ship_health_snapshot()
+    local health = {}
+    for _, name in ipairs(ship_health_units or {}) do
+        local ok, fraction = pcall(function()
+            local unit = Unit.getByName(name)
+            if not unit or not unit:isExist() then return nil end
+            local life, life0 = unit:getLife(), unit:getLife0()
+            if type(life) ~= "number" or type(life0) ~= "number" or life0 <= 0 then return nil end
+            return math.max(0, math.min(1, life / life0))
+        end)
+        if ok and fraction then health[name] = fraction end
+    end
+    return health
+end
+
+local ship_health_last = {}
+
+-- Damage that sinks nothing raises no event, so poll it into dirty_state.
+local function ship_health_poll()
+    local now = ship_health_snapshot()
+    for name, fraction in pairs(now) do
+        if ship_health_last[name] ~= fraction then dirty_state = true end
+    end
+    ship_health_last = now
+end
+
 function write_state()
     local _debriefing_file_location = debriefing_file_location
     if not debriefing_file_location or debriefing_file_location == "" then
@@ -180,6 +209,7 @@ function write_state()
         ["cruise_missiles_state"] = cruise_missiles_state or {},
         ["naval_magazines_state"] = naval_magazines_state or {},
         ["vacuum_fixes"] = vacuum_fixes or {},
+        ["ship_health"] = ship_health_snapshot(),
         ["ejection_events"] = ejection_events,
         ["crash_positions"] = crash_positions,
         ["csar_rescued"] = csar_rescued,
@@ -281,6 +311,8 @@ write_state_error_handling = function()
         _debriefing_file_location = "[nil]"
         logger:error("Unable to find where to write DCS Retribution state")
     end
+
+    pcall(ship_health_poll)
 
     -- Only write if state has changed since last write
     if dirty_state then

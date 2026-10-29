@@ -1,0 +1,9 @@
+date: 2026-10-29
+title: Ships keep their damage
+change: >-
+  A ship you damage but do not sink starts the next mission still damaged, on both
+  sides. It gets 34 points of health back each turn, and its group window shows its
+  health.
+watch: >-
+  On by default. Campaign Management has the switch and the repair rate. A save from
+  before this starts every ship at full health.
