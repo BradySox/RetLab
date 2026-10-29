@@ -257,7 +257,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`, `radiorecord`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -353,6 +353,7 @@ linked design note.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
 124. **Carry-over ship damage** — a damaged ship starts the next mission damaged, through DCS's native set-life action; 34 points repaired a turn. Ships only.
+127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 
 ### Retired, removed or shelved — do not restore
 

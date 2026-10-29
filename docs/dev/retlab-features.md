@@ -11987,3 +11987,35 @@ repaired per turn (%)** (34), Campaign Management.
 | UI | `qt_ui/windows/groundobject/QGroundObjectMenu.py` |
 | Tests | `tests/retlab/test_ship_damage.py`, `tests/lua/test_dcs_retribution_runtime.py` |
 | In-game pass | B296 |
+
+## §127 — Record radios for Tacview
+
+With **Record radios for Tacview (SkyEye)** on (Mission Generator > SkyEye voice bots, off by
+default), SkyEye records the frequencies the voice bots and the player flights talk on, one WAV
+file per frequency, for Tacview's synchronized audio. Ideas from A.R.E.S. only, no code (user
+call, 2026-10-29).
+
+- **What is recorded:** SkyEye's AWACS frequency, STRIKE, Vacuum's frequency, each player field's
+  Ground and Tower (the Voice ATC plan), then each blue player flight's intra-flight frequency.
+  Each frequency once, a bot's first. `recorded_frequencies` in `game/retlab/radio_record.py`.
+- **A flight's own frequency is record-only** (user call, 2026-10-29): SkyEye never passes a call
+  heard there to speech recognition, so nothing on it is answered. Player flights only.
+- **The link:** the `radiorecord` plugin sends `{"type":"record","frequencies":[{frequency,
+  label, recordOnly}]}` 5 s in and every 60 s, so a SkyEye started late still records. A plugin
+  with no checkbox: the setting is the one switch.
+- **SkyEye side** (BradySox/skyeye #25, `pkg/radiorecord`): every call heard or spoken on a
+  recorded frequency, short ones included, placed by mission time with silence between calls.
+  The file name carries the mission time of its first sample (`SkyEye_<label> <freq>_
+  YYYYMMDDTHHMMSSZ.wav`), from the Tacview stream's `ReferenceTime`, so a 1991 mission lines up.
+  Folder `recording-dir`, default `Documents/Tacview`: the Auto Load Media add-on only finds
+  audio next to the `.acmi`. A sender with SRS recording consent off is left out.
+- **Limits:** one speaker per frequency at a time (the first to key wins, as SkyEye listens).
+  About 115 MB per frequency per hour (16 kHz mono 16-bit). Tacview plays 8 files at once.
+
+| Area | Path |
+|---|---|
+| Campaign side | `game/retlab/radio_record.py` |
+| Lua | `resources/plugins/radiorecord/radiorecord-config.lua` |
+| Setting | `record_radios_for_tacview` (`game/settings/fields/missiongenerator.py`) |
+| Tests | `tests/retlab/test_radio_record.py`, `tests/lua/test_radiorecord_runtime.py` |
+| In-game pass | B301 |

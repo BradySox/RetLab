@@ -136,5 +136,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §122 | Exact site layouts | — | — |
 | §123 | Trains on drawn rail lines | — | — |
 | §124 | Carry-over ship damage | — | `ship_damage_carry_over`, `ship_damage_repair_percent` |
+| §127 | Record radios for Tacview | `radiorecord` | `record_radios_for_tacview` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
