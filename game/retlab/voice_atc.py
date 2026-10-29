@@ -107,6 +107,11 @@ def station_name(field_name: str, position: str) -> str:
     return f"{field_name} {position.capitalize()}"
 
 
+def approach_name(field_name: str) -> str:
+    """``Kobuleti Approach/Departure``: one frequency works both (user call, 2026-10-29)."""
+    return f"{field_name} Approach/Departure"
+
+
 def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:
     """``COMM2 Ch 2``: the preset a frequency sits on in this flight's jets, if any."""
     channels = flight.channels_for(frequency)
@@ -130,7 +135,7 @@ def atc_lines(flight: FlightData, atc_field: AtcField) -> str:
         f"TWR {_preset(flight, atc_field.tower)}"
     )
     if atc_field.approach is not None:
-        lines += f"\nAPP {_preset(flight, atc_field.approach)}"
+        lines += f"\nAPP/DEP {_preset(flight, atc_field.approach)}"
     return lines
 
 

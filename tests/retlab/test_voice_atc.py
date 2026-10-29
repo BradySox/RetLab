@@ -276,3 +276,15 @@ def test_runway_ends_come_in_pairs_from_the_map() -> None:
     )
     assert runway_ends(game, "Hatzerim") == ["10R", "28L", "10L", "28R"]
     assert runway_ends(game, "Nowhere") == []
+
+
+def test_the_shared_frequency_is_labelled_approach_and_departure() -> None:
+    from game.retlab.voice_atc import AtcField, approach_name, atc_lines
+
+    assert approach_name("Kobuleti") == "Kobuleti Approach/Departure"
+    flight: Any = SimpleNamespace(
+        channels_for=lambda f: [],
+        aircraft_type=SimpleNamespace(channel_name=lambda radio, channel: ""),
+    )
+    field = AtcField("Kobuleti", "25", MHz(262), MHz(260), approach=MHz(264))
+    assert atc_lines(flight, field).endswith("\nAPP/DEP 264.000")
