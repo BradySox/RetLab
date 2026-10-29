@@ -1,0 +1,9 @@
+date: 2026-10-29
+title: Clean (pylon removed) only where the pylon comes off
+change: >-
+  In the loadout editor, Clean is now called Clean (pylon removed) and is listed only on
+  stations where DCS can take the pylon off. None still leaves the empty pylon fitted.
+  Stations with no removable pylon, like the F-4E Sparrow wells, list None only.
+watch: >-
+  An F-16 or Hornet wing station lists Clean (pylon removed) just under None. An F-4E
+  Sparrow well does not.

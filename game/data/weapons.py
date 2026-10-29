@@ -15,6 +15,7 @@ from dcs.flyingunit import FlyingUnit
 from dcs.weapons_data import weapon_ids
 from dcs.weapon_settings import WeaponSettings, has_settings, create_settings
 
+from game.data.cleanpylons import CLEAN_PYLONS
 from game.dcs.aircrafttype import AircraftType
 from game.utils import Distance, nautical_miles
 from game.factions.faction import Faction
@@ -109,7 +110,7 @@ class Weapon:
             # Special case for a "weapon" that isn't exposed by pydcs.
             return {
                 "clsid": self.clsid,
-                "name": "Clean",
+                "name": "Clean (pylon removed)",
                 "weight": 0,
             }
         return weapon_ids[self.clsid]
@@ -490,15 +491,12 @@ class WeaponGroup:
 class Pylon:
     number: int
     allowed: set[Weapon]
+    #: DCS offers <CLEAN> here: the pylon itself comes off. pydcs drops that store
+    #: from ``allowed``, so it comes from the generated CLEAN_PYLONS table.
+    removable: bool = False
 
     def can_equip(self, weapon: Weapon) -> bool:
-        # TODO: Fix pydcs to support the <CLEAN> "weapon".
-        # <CLEAN> is a special case because pydcs doesn't know about that "weapon", so
-        # it's not compatible with *any* pylon. Just trust the loadout and try to equip
-        # it.
-        #
-        # A similar hack exists in QPylonEditor, which offers "Clean" on every pylon for
-        # the same reason.
+        # <CLEAN> is not in ``allowed`` (see ``removable``); trust a loadout that uses it.
         return weapon in self.allowed or weapon.clsid == "<CLEAN>"
 
     def equip(
@@ -554,7 +552,8 @@ class Pylon:
                 if allowed_weapon is not None:
                     allowed.add(allowed_weapon)
 
-        return cls(number, allowed)
+        removable = number in CLEAN_PYLONS.get(aircraft.dcs_unit_type.id, ())
+        return cls(number, allowed, removable)
 
     @classmethod
     def iter_pylons(cls, aircraft: AircraftType) -> Iterator[Pylon]:

@@ -94,11 +94,10 @@ class QPylonEditor(QWidget):
         with block_signals(self.weapon_combo):
             self.weapon_combo.clear()
             self.weapon_combo.addItem("None", None)
-            # "Clean" is a fitted but empty pylon, not "None" (no pylon). pydcs leaves
-            # <CLEAN> out of Pylon.allowed, so there is no per-pylon data for it: it is
-            # offered everywhere, as Pylon.can_equip accepts it everywhere.
+            # "None" leaves the empty pylon fitted; <CLEAN> takes the pylon off, and
+            # only where DCS offers that. Elsewhere the two would be the same choice.
             clean = Weapon.with_clsid("<CLEAN>")
-            if clean is not None:
+            if clean is not None and self.pylon.removable:
                 self.weapon_combo.addItem(clean.name, clean)
             for weapon in self.allowed_weapons:
                 if self.show_training or not weapon.is_training_or_non_combat:
@@ -176,7 +175,8 @@ class QPylonEditor(QWidget):
         weapon = loadout.pylons.get(self.pylon.number)
         if weapon is None:
             return None
-        if weapon.is_training_or_non_combat and self._index_of(weapon) < 0:
+        listable = weapon.is_training_or_non_combat or weapon.clsid == "<CLEAN>"
+        if listable and self._index_of(weapon) < 0:
             # A filtered store from a preset: list it so set_from can select it.
             self.weapon_combo.addItem(weapon.name, weapon)
         return weapon
