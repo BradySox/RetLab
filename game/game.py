@@ -24,6 +24,7 @@ from dcs.vehicles import AirDefence
 from game.ato.closestairfields import ObjectiveDistanceCache
 from game.customkneeboard import CustomKneeboard
 from game.ground_forces.ai_ground_planner import GroundPlanner
+from game.missiletargets import release_spent_picks
 from game.models.game_stats import GameStats
 from game.plugins import LuaPluginManager
 from game.retlab.hq_requests import HqRequests
@@ -500,6 +501,9 @@ class Game:
         """
         self.message("End of turn #" + str(self.turn), "-" * 40)
         self.turn += 1
+
+        # §125: a dead or captured target frees its missile site.
+        release_spent_picks(self)
 
         # The coalition-specific turn finalization *must* happen before unit deliveries,
         # since the coalition-specific finalization handles transit network updates and

@@ -42,7 +42,8 @@ class PerformanceSettings:
         section=PERFORMANCE_SECTION,
         detail=(
             "If enabled, missile sites like V2s and Scuds will fire on random targets "
-            "at the start of the mission."
+            "at the start of the mission. A player site fires on the target picked "
+            "in its window instead."
         ),
         default=True,
     )
