@@ -110,6 +110,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   SAM whose ring covers the target. It is worked out again on every change and at Take Off.
   With no such package, it flies ASAP and the package window names the uncovered SAM. ASAP
   and a typed TOT are still there.
+- Player flights get an **ALIGN** waypoint on the way home: 15 NM out on final for the
+  runway the kneeboard names first (2 NM for helicopters), on a 3-degree glideslope. On a
+  carrier it is 50 NM astern on the angled-deck course, where the ship will be when you
+  land. Their **HOLD** sits straight out the runway they take off from, unless that point is
+  inside an enemy threat ring. AI flights keep the usual route.
 - A package flies the leg from the join to the ingress at one speed, so escorts stay with
   the strikers they are escorting instead of running ahead. Cruise speed is set per airframe
   where one has been measured rather than assumed the same for every jet; the F/A-18C is the

@@ -17,7 +17,8 @@
   "channel": 24,
   "x": -360542.96875,
   "y": -74232.171875,
-  "elevation": 951.059301
+  "elevation": 951.059301,
+  "direction": -88.457008
  },
  "airfield1_2": {
   "name": "Creech",
@@ -27,7 +28,8 @@
   "channel": 22,
   "x": -360622.4375,
   "y": -74673.570313,
-  "elevation": 952.943336
+  "elevation": 952.943336,
+  "direction": -34.860002
  },
  "airfield1_3": {
   "name": "Creech",
@@ -57,7 +59,8 @@
   "channel": 30,
   "x": -286660.59375,
   "y": -87720.34375,
-  "elevation": 1357.831924
+  "elevation": 1357.831924,
+  "direction": 156.426878
  },
  "airfield2_1": {
   "name": "Groom-Lake",
@@ -107,7 +110,8 @@
   "channel": null,
   "x": -416353.0,
   "y": -28740.046875,
-  "elevation": 662.86132
+  "elevation": 662.86132,
+  "direction": 88.846008
  },
  "airfield3_3": {
   "name": "McCarran-International",
@@ -117,7 +121,8 @@
   "channel": 40,
   "x": -416063.5,
   "y": -29393.269531,
-  "elevation": 664.091545
+  "elevation": 664.091545,
+  "direction": 88.846008
  },
  "airfield3_4": {
   "name": "McCarran-International",
@@ -157,7 +162,8 @@
   "channel": null,
   "x": -399661.15625,
   "y": -18468.027344,
-  "elevation": 559.453379
+  "elevation": 559.453379,
+  "direction": 40.110013
  },
  "airfield15_0": {
   "name": "North-Las-Vegas",
@@ -167,7 +173,8 @@
   "channel": null,
   "x": -401983.125,
   "y": -30840.599609,
-  "elevation": 680.161752
+  "elevation": 680.161752,
+  "direction": -46.742991
  },
  "airfield15_1": {
   "name": "North-Las-Vegas",
@@ -187,7 +194,8 @@
   "channel": null,
   "x": -228754.375,
   "y": -173747.390625,
-  "elevation": 1686.814187
+  "elevation": 1686.814187,
+  "direction": -22.918
  },
  "airfield18_1": {
   "name": "Tonopah-Test-Range",
@@ -197,7 +205,8 @@
   "channel": null,
   "x": -224471.734375,
   "y": -175559.625,
-  "elevation": 1686.831765
+  "elevation": 1686.831765,
+  "direction": 157.100006
  },
  "airfield18_2": {
   "name": "Tonopah-Test-Range",

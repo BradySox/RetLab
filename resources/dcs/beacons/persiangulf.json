@@ -327,7 +327,8 @@
   "channel": null,
   "x": 113693.740992,
   "y": 13154.132035,
-  "elevation": 5.776087
+  "elevation": 5.776087,
+  "direction": 28.001016
  },
  "airfield2_3": {
   "name": "",
@@ -447,7 +448,8 @@
   "channel": 28,
   "x": -209686.09375,
   "y": -174966.953125,
-  "elevation": 16.000016
+  "elevation": 16.000016,
+  "direction": 127.900019
  },
  "airfield4_5": {
   "name": "",
@@ -457,7 +459,8 @@
   "channel": 24,
   "x": -211626.890625,
   "y": -174631.65625,
-  "elevation": 16.000016
+  "elevation": 16.000016,
+  "direction": 127.900019
  },
  "airfield4_6": {
   "name": "",
@@ -467,7 +470,8 @@
   "channel": 24,
   "x": -214278.0,
   "y": -171226.875,
-  "elevation": 16.000015
+  "elevation": 16.000015,
+  "direction": -52.100006
  },
  "airfield4_7": {
   "name": "",
@@ -477,7 +481,8 @@
   "channel": 48,
   "x": -212361.453125,
   "y": -171526.84375,
-  "elevation": 16.000016
+  "elevation": 16.000016,
+  "direction": -52.100003
  },
  "airfield4_8": {
   "name": "AlDhafra",
@@ -497,7 +502,8 @@
   "channel": null,
   "x": -103160.304688,
   "y": -85509.226562,
-  "elevation": 5.000005
+  "elevation": 5.000005,
+  "direction": -57.960002
  },
  "airfield5_1": {
   "name": "",
@@ -507,7 +513,8 @@
   "channel": null,
   "x": -101655.835938,
   "y": -87173.15625,
-  "elevation": 5.000005
+  "elevation": 5.000005,
+  "direction": -58.009998
  },
  "airfield5_2": {
   "name": "",
@@ -517,7 +524,8 @@
   "channel": null,
   "x": -100336.234375,
   "y": -90012.007812,
-  "elevation": 5.000005
+  "elevation": 5.000005,
+  "direction": 122.059989
  },
  "airfield5_3": {
   "name": "",
@@ -527,7 +535,8 @@
   "channel": null,
   "x": -99354.195312,
   "y": -90856.460938,
-  "elevation": 5.000005
+  "elevation": 5.000005,
+  "direction": 122.069989
  },
  "airfield5_4": {
   "name": "",
@@ -577,7 +586,8 @@
   "channel": null,
   "x": -141530.671875,
   "y": -107812.914062,
-  "elevation": 37.618499
+  "elevation": 37.618499,
+  "direction": -58.079994
  },
  "airfield6_1": {
   "name": "",
@@ -607,7 +617,8 @@
   "channel": null,
   "x": -138832.65625,
   "y": -112149.820312,
-  "elevation": 37.618499
+  "elevation": 37.618499,
+  "direction": 121.949994
  },
  "airfield7_0": {
   "name": "Fujairah",
@@ -637,7 +648,8 @@
   "channel": null,
   "x": -116548.84375,
   "y": 5567.033203,
-  "elevation": 44.992561
+  "elevation": 44.992561,
+  "direction": 112.589986
  },
  "airfield9_0": {
   "name": "Havadarya",
@@ -657,7 +669,8 @@
   "channel": null,
   "x": 109565.623872,
   "y": -4888.786527,
-  "elevation": 13.732254
+  "elevation": 13.732254,
+  "direction": -100.999995
  },
  "airfield9_2": {
   "name": "",
@@ -717,7 +730,8 @@
   "channel": null,
   "x": -1521.258057,
   "y": -503.110107,
-  "elevation": 31.896827
+  "elevation": 31.896827,
+  "direction": 14.030001
  },
  "airfield10_1": {
   "name": "",
@@ -817,7 +831,8 @@
   "channel": null,
   "x": -126014.757812,
   "y": -86793.367188,
-  "elevation": 57.835705
+  "elevation": 57.835705,
+  "direction": -90.009988
  },
  "airfield12_2": {
   "name": "",
@@ -837,7 +852,8 @@
   "channel": null,
   "x": -126015.96875,
   "y": -91371.84375,
-  "elevation": 52.421538
+  "elevation": 52.421538,
+  "direction": 89.980011
  },
  "airfield12_4": {
   "name": "",
@@ -897,7 +913,8 @@
   "channel": null,
   "x": -93834.992188,
   "y": -71385.1875,
-  "elevation": 29.99998
+  "elevation": 29.99998,
+  "direction": -57.030006
  },
  "airfield14_1": {
   "name": "",
@@ -907,7 +924,8 @@
   "channel": null,
   "x": -91290.867188,
   "y": -75307.09375,
-  "elevation": 29.99998
+  "elevation": 29.99998,
+  "direction": 122.970016
  },
  "airfield14_2": {
   "name": "",
@@ -977,7 +995,8 @@
   "channel": null,
   "x": 381848.625,
   "y": -354141.90625,
-  "elevation": 1487.417259
+  "elevation": 1487.417259,
+  "direction": 116.713645
  },
  "airfield15_0": {
   "name": "SirriIsland",

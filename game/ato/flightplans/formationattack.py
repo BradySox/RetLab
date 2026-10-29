@@ -16,6 +16,7 @@ from game.theater import MissionTarget, TheaterGroundObject
 from game.theater.theatergroup import SceneryUnit, TheaterUnit
 from game.utils import Distance, nautical_miles, Speed, feet
 from game.theater.theatergroundobject import MotorpoolGroundObject
+from . import alignpoint
 from .flightplan import FlightPlan
 from .formation import FormationFlightPlan, FormationLayout
 from .ibuilder import IBuilder
@@ -600,6 +601,9 @@ class FormationAttackBuilder(IBuilder[FlightPlanT, LayoutT], ABC):
 
     def _hold_point(self) -> Point:
         assert self.package.waypoints is not None
+        runway_hold = alignpoint.hold_point(self.flight)
+        if runway_hold is not None:
+            return runway_hold
         origin = self.flight.departure.position
         target = self.package.target.position
         join = self.package.waypoints.join

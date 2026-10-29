@@ -622,6 +622,11 @@ class Flight(
             if pilot is not None:
                 results.kill_pilot(self, pilot)
 
+    def refresh_player_route(self) -> None:
+        """Re-place the player-only ALIGN and HOLD points after a seat changes."""
+        self._ensure_flight_plan_builder()
+        self._flight_plan_builder.refresh_for_players()
+
     def recreate_flight_plan(self, dump_debug_info: bool = False) -> None:
         self.manually_timed = False
         self.manual_takeoff_time = None

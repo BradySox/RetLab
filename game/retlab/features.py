@@ -998,6 +998,13 @@ FEATURES: tuple[Feature, ...] = (
     ),
     Feature("missile_site_targets", "Missile-site targets", 125),
     Feature(
+        # Player flights only (game/ato/flightplans/alignpoint.py); from juanjux's fork.
+        "runway_lineup",
+        "Runway line-up and departure hold",
+        126,
+        settings_fields=("player_runway_lineup", "player_departure_hold"),
+    ),
+    Feature(
         "record_radios_for_tacview",
         "Record radios for Tacview",
         127,

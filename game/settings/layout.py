@@ -601,6 +601,8 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     "Cockpit & kneeboard": [
         "dtc_data_cartridges",  # §74
         "generate_sitrep_kneeboard",  # §29
+        "player_runway_lineup",  # §126
+        "player_departure_hold",  # §126
     ],
     "SkyEye voice bots": [
         "voice_awacs",  # §116

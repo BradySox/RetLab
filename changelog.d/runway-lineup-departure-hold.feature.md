@@ -1,0 +1,1 @@
+* **[Flight Planner]** Player flights get an ALIGN waypoint on final for the active runway (15 NM out, 2 NM for helicopters; carriers 50 NM astern on the angled-deck course) and hold straight out the departure runway. Two settings on the RetLab Features page, both on. Adapted from juanjux's dcs-escalation.

@@ -7,6 +7,7 @@ from typing import Iterator, TYPE_CHECKING, Type
 from dcs import Point
 
 from game.utils import Heading
+from . import alignpoint
 from .ibuilder import IBuilder
 from .loiter import LoiterFlightPlan, LoiterLayout
 from .waypointbuilder import WaypointBuilder
@@ -130,6 +131,9 @@ class Builder(IBuilder[SweepFlightPlan, SweepLayout]):
 
     def _hold_point(self) -> Point:
         assert self.package.waypoints is not None
+        runway_hold = alignpoint.hold_point(self.flight)
+        if runway_hold is not None:
+            return runway_hold
         origin = self.flight.departure.position
         target = self.package.target.position
         join = self.package.waypoints.join

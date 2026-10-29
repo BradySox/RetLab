@@ -86,6 +86,9 @@ class Beacon:
     x: Optional[float] = None
     y: Optional[float] = None
     elevation: Optional[float] = None
+    #: A localizer's beam bearing (true, degrees), from beacons.lua. The runway's own
+    #: heading in pydcs is rounded and can be 6 degrees off it (Adana 05/23).
+    direction: Optional[float] = None
 
     @property
     def frequency(self) -> Optional[RadioFrequency]:
@@ -167,6 +170,7 @@ class Beacons:
                 x=beacon.get("x"),
                 y=beacon.get("y"),
                 elevation=beacon.get("elevation"),
+                direction=beacon.get("direction"),
             )
         cls._by_terrain[theater.terrain.name] = beacons
 

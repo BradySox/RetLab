@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Generic, TYPE_CHECKING, TypeVar
 
 from game.navmesh import NavMeshError
+from . import alignpoint
 from .flightplan import FlightPlan, Layout
 from .planningerror import PlanningError
 from ..packagewaypoints import PackageWaypoints
@@ -42,12 +43,29 @@ class IBuilder(ABC, Generic[FlightPlanT, LayoutT]):
         try:
             self._generate_package_waypoints_if_needed(dump_debug_info)
             self._flight_plan = self.build(dump_debug_info)
+            # Here rather than in each builder: they all end with a nav leg home.
+            alignpoint.update_align(self.flight, self._flight_plan)
         except NavMeshError as ex:
             color = "blue" if self.flight.squadron.player.is_blue else "red"
             raise PlanningError(
                 f"Could not plan {color} {self.flight.flight_type.value} from "
                 f"{self.flight.departure} to {self.package.target}"
             ) from ex
+
+    def refresh_for_players(self) -> None:
+        """Re-place the player-only ALIGN and HOLD after a player seat changes.
+
+        Moves those two points in place rather than re-planning, so the rest of the
+        route and any edits to it stay as they are.
+        """
+        plan = self._flight_plan
+        if plan is None:
+            return
+        alignpoint.update_align(self.flight, plan)
+        hold = getattr(plan.layout, "hold", None)
+        hold_point = getattr(self, "_hold_point", None)
+        if hold is not None and hold_point is not None:
+            hold.position = hold_point()
 
     def refresh_targets(self) -> None:
         """Bring the built plan's target snapshot up to date. Never re-plans."""

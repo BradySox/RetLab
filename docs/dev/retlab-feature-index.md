@@ -137,6 +137,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §123 | Trains on drawn rail lines | — | — |
 | §124 | Carry-over ship damage | — | `ship_damage_carry_over`, `ship_damage_repair_percent` |
 | §125 | Missile-site targets | — | — |
+| §126 | Runway line-up and departure hold | — | `player_runway_lineup`, `player_departure_hold` |
 | §127 | Record radios for Tacview | `radiorecord` | `record_radios_for_tacview` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
