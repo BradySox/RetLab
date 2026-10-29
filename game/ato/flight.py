@@ -74,13 +74,12 @@ _ROLE_CALLSIGN_BY_TYPE: dict[FlightType, str] = {
 }
 
 #: Role callsign families: a fresh flight takes the next name each turn (user call,
-#: 2026-10-20).
+#: 2026-10-20). No "Crown": SkyEye's Whisper hears it as "Ground" (2026-10-29).
 _ROLE_CALLSIGN_FAMILY_BY_TYPE: dict[FlightType, tuple[str, ...]] = {
     FlightType.ABCCC: (
         "Anvil",
         "Ramrod",
         "Blackjack",
-        "Crown",
         "Sentinel",
     ),
 }

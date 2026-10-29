@@ -11253,7 +11253,8 @@ adds one, optional, to each land AWACS package (`PlanAewc`). It orbits 30 NM out
 the threat rings (`ABCCC_THREAT_BUFFER` in `aewc.py`), well ahead of the AWACS's 80 NM
 standoff, and the package's 2-ship escort always flies and covers the ABCCC instead of
 the AWACS (`joinpoint.py`). It can also be fragged by hand. Callsigns rotate
-each turn through Anvil, Ramrod, Blackjack, Crown and Sentinel.
+each turn through Anvil, Ramrod, Blackjack and Sentinel. Crown was dropped 2026-10-29:
+SkyEye's Whisper hears it as "Ground".
 
 While an ABCCC C-130 is **alive and airborne** the `pkgcontrol` plugin runs every
 blue package with a player seat on **STRIKE (common)**, one UHF channel allocated per
