@@ -11715,7 +11715,7 @@ a readback, and "request runway in use" is the new `runway` kind. The ATC card s
 Each field gets a third UHF frequency, **Approach**, which also works departures, as a
 military RAPCON does (user call, 2026-10-29). Pinned for the campaign like Ground and Tower
 (`Game.voice_atc_approach_frequencies`, saved; old saves pin it on their next generate), on
-the presets after Tower, on the comm card and the ATC card.
+the presets after Tower, on the comm card and the ATC card, labelled **Approach/Departure** (APP/DEP) so a pilot sent to Departure finds it (user call, 2026-10-29).
 
 - **Departure:** Tower's takeoff clearance ends "contact Departure <freq>". On the airborne
   call Approach gives the chart exit nearest the jet's heading, "climb and maintain" the

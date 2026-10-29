@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from game.radio.radios import RadioFrequency
-from game.retlab.voice_atc import AtcField, station_name
+from game.retlab.voice_atc import AtcField, approach_name, station_name
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
 
@@ -207,7 +207,7 @@ class AtcPage(KneeboardPage):
             )
             if f.approach is not None:
                 w.text(
-                    self._station(station_name(f.name, "approach"), f.approach),
+                    self._station(approach_name(f.name), f.approach),
                     fill=w.col_nav,
                 )
             if f.routes is not None:

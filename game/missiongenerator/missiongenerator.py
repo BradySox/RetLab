@@ -37,6 +37,7 @@ from game.retlab.package_control import (
 from game.retlab.vacuum import has_vacuum, vacuum_comm_name
 from game.retlab.voice_atc import (
     allocate_atc_frequencies,
+    approach_name,
     station_name,
     voice_atc_plan,
 )
@@ -609,7 +610,7 @@ class MissionGenerator:
                 gen.add_comm(station_name(field_name, "ground"), ground)
                 gen.add_comm(station_name(field_name, "tower"), tower)
                 if approach := mission_data.approach_frequencies.get(field_name):
-                    gen.add_comm(station_name(field_name, "approach"), approach)
+                    gen.add_comm(approach_name(field_name), approach)
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 
