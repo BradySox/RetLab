@@ -497,6 +497,21 @@ class MissionGeneratorSettings:
             "its mission link, hears the calls and speaks the replies."
         ),
     )
+    record_radios_for_tacview: bool = boolean_option(
+        "Record radios for Tacview (SkyEye)",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=False,
+        detail=(
+            "SkyEye records the AWACS, STRIKE, Vacuum, each player field's Ground and "
+            "Tower, and each player flight's own frequency: one WAV file per frequency "
+            "in your Documents Tacview folder, named so Tacview plays it with the "
+            "replay. SkyEye "
+            "never answers on a flight's own frequency. A player who turned recording "
+            "off in SRS is left out. About 115 MB per frequency per hour. Needs SkyEye "
+            "running with its mission link."
+        ),
+    )
     use_ai_combat_landing: bool = boolean_option(
         "Use AI combat landing waypoint task",
         page=MISSION_GENERATOR_PAGE,

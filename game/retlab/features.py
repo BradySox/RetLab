@@ -997,6 +997,13 @@ FEATURES: tuple[Feature, ...] = (
         settings_fields=("ship_damage_carry_over", "ship_damage_repair_percent"),
     ),
     Feature("missile_site_targets", "Missile-site targets", 125),
+    Feature(
+        "record_radios_for_tacview",
+        "Record radios for Tacview",
+        127,
+        plugin_id="radiorecord",
+        settings_fields=("record_radios_for_tacview",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

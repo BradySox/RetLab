@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "Record radios for Tacview",
+    "descriptionInUI": "SkyEye records the voice bot and player flight frequencies for Tacview, one WAV each. Settings > Mission Generator > SkyEye voice bots holds the switch.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "radiorecord-config.lua",
+            "mnemonic": "radiorecord-config"
+        }
+    ]
+}
