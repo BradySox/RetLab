@@ -1,0 +1,1 @@
+* **[Units]** The CurrentHill mod's ZTQ-15 light tank and PGL-625 can be picked in factions again. Their unit files had copied the names of the ZTZ-99A2 and the LD-3000 C-RAM, so a faction listing either of those could field the wrong vehicle.
