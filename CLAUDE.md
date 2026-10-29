@@ -353,8 +353,8 @@ linked design note.
 122. **Exact site layouts** — a campaign group named `FIXED ...` generates as drawn, every unit on its spot.
 123. **Trains** — a Train group drawn in the .miz is a rail line; supply between its bases goes by train. A dead train loses its whole cargo.
 124. **Carry-over ship damage** — a damaged ship starts the next mission damaged, through DCS's native set-life action; 34 points repaired a turn. Ships only.
-127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 125. **Missile-site targets** — pick a target for your own SCUD site in its window; fog-gated, kept until it dies, else random.
+127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 
 ### Retired, removed or shelved — do not restore
 
