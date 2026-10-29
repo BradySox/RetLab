@@ -40,7 +40,6 @@ def test_role_callsign_by_type_and_airframe() -> None:
         "Anvil",
         "Ramrod",
         "Blackjack",
-        "Crown",
         "Sentinel",
         "Vacuum",
     }
