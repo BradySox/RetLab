@@ -521,6 +521,11 @@ class Game:
 
         ensure_enemy_trail_convoy(self)
 
+        # §124: damaged ships get a turn's repair; game/retlab/ship_damage.py.
+        from game.retlab.ship_damage import repair_ship_damage
+
+        repair_ship_damage(self, events)
+
         # Ambient supply convoys (§50 standardization): keep a few randomized, real
         # columns flowing on BOTH sides' roads every mission -- some sharing a road,
         # some spread out -- so the theater has traffic to protect, hunt, and simply

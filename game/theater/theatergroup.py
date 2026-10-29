@@ -45,12 +45,15 @@ class TheaterUnit:
     fixed_hdg: bool = False
     # State of the unit, dead or alive
     alive: bool = True
+    # Fraction of full health a ship carries between turns (§124).
+    health: float = 1.0
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         # The BDA damage lag was removed 2026-08-18 (a struck site is known in
         # full, immediately). Shed the confirmed-status field so a save made
         # under it does not carry a dead attribute forward.
         state.pop("alive_at_last_recon", None)
+        state.setdefault("health", 1.0)
         self.__dict__.update(state)
 
     @staticmethod
@@ -83,6 +86,8 @@ class TheaterUnit:
 
     def kill(self, events: GameUpdateEvents) -> None:
         self.alive = False
+        # A sunk ship that is rebuilt comes back whole.
+        self.health = 1.0
         self.ground_object.invalidate_threat_poly()
         events.update_tgo(self.ground_object)
         if self.ground_object.is_iads:

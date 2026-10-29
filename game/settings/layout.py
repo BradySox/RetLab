@@ -251,6 +251,8 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "front_line_salients",
                     "front_line_battles_along_border",
                     "sector_war",
+                    "ship_damage_carry_over",
+                    "ship_damage_repair_percent",
                 ],
             ),
             (
@@ -563,6 +565,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "coastal_batteries_engage_ships",  # §78
         "naval_weapon_release_stagger",  # §81
         "naval_magazines",  # §81
+        "ship_damage_carry_over",  # §124
     ],
     "Auto-planner behavior": [
         "region_priorities",  # §93

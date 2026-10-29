@@ -669,6 +669,14 @@ each other. Ours replace the existing kind-coloured dots instead of adding yello
 pins, and keep the 5 s poll. If he changes #519 before merging it, re-read it. Row
 B211; `retlab-my-aircraft-notes.md` §6a.
 
+### Adopted here 2026-10-29 — Carry-over ship damage (§124)
+
+His persistent damage, ship path only, on the DM's call: the native set-life trigger
+action (his `persistenthealth.py`, credited) and the ship health report. His building
+half damages buildings with scripted explosions and is not taken; neither are the
+workshops and mechanics. His in-mission check that DCS applied the health is replaced by
+a rule that a report never raises a ship's saved health. Row B296.
+
 ## Running the watch
 
 Cheap pass, a few minutes:

@@ -174,6 +174,11 @@ class QGroundObjectMenu(QDialog):
                             lambda u=unit, p=price: self.repair_unit(u, p)
                         )
                         self.intelLayout.addWidget(repair, i, 1)
+                    elif unit.alive and unit.health < 1:
+                        # §124 carry-over ship damage.
+                        self.intelLayout.addWidget(
+                            QLabel(f"Health {round(unit.health * 100)}%"), i, 1
+                        )
                     i += 1
 
         stretch = QVBoxLayout()

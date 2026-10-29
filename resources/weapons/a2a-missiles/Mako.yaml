@@ -26,3 +26,4 @@ year: 2027
 fallback: AIM-260A
 clsids:
   - "{MAKO_A2A_C}"   # Mako Multi-Mission Hypersonic Missile - Active Radar AAM
+  - "{MAKO_A2G_C}"   # Mako Multi-Mission Hypersonic Missile - Anti Radiation (F-22A 2.1.0; typed air-to-air)

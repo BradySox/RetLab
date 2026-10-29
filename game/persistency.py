@@ -83,6 +83,7 @@ class MigrationUnpickler(pickle.Unpickler):
             self._handle_weather_classes,
             self._handle_ch_russian_assets,
             self._handle_ch_usa_assets,
+            self._handle_frenchpack,
             self._handle_su30,
             self._handle_flight_type,
             self._handle_flight_waypoint_type,
@@ -279,6 +280,13 @@ class MigrationUnpickler(pickle.Unpickler):
 
         if name.startswith("MIM104_"):
             return getattr(usamilitaryassetspack, "CH_" + name, None)
+        if name.endswith("_KAT1"):
+            # CH 1.5.0 moved the Patriot KAT1 battery to the Germany pack.
+            from pydcs_extensions.germanymilitaryassetspack import (
+                germanymilitaryassetspack,
+            )
+
+            return getattr(germanymilitaryassetspack, name, None)
         # Mod -> native DCS: ED shipped these as CHAP units, so migrate old saves to the
         # native class (mirrors the CH Russia handler above and the groundunittype
         # display-name migrator). The HIMARS variants ED didn't add (GLSDB / PrSM /
@@ -299,6 +307,16 @@ class MigrationUnpickler(pickle.Unpickler):
         # The B-21 has no native DCS equivalent -> a rename within the mod.
         if name == "B_21":
             return getattr(usamilitaryassetspack, "CH_B_21", None)
+        return None
+
+    def _handle_frenchpack(self, module: str, name: str) -> Any:
+        """Frenchpack 5.0 dropped its own VAB Mephisto; DCS ships one natively."""
+        if module != "pydcs_extensions.frenchpack.frenchpack":
+            return None
+        if name == "VAB_MEPHISTO":
+            from dcs.vehicles import Armor
+
+            return Armor.VAB_Mephisto
         return None
 
     def _handle_su30(self, module: str, name: str) -> Any:

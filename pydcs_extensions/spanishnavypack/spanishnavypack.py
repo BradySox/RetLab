@@ -3,16 +3,20 @@ from dcs.unittype import ShipType
 from game.modsupport import shipmod
 
 
+# Pack 3.3.0's "L61SP" hull: the same ship with the alarm-state animation that drives
+# the deck elevators, which the plain L61 does not have. Same name, so a save and every
+# faction that names the Juan Carlos I keep working; only the type DCS spawns changes.
 @shipmod
 class L61(ShipType):
-    id = "L61"
+    id = "L61SP"
     name = "L61 Juan Carlos I"
     plane_num = 40
     helicopter_num = 36
     parking = 4
     detection_range = 300000
-    threat_range = 150000
-    air_weapon_dist = 150000
+    # carries no weapon system at all -- a threat ring here is a lie
+    threat_range = 0
+    air_weapon_dist = 0
 
 
 @shipmod
@@ -22,8 +26,9 @@ class F100(ShipType):
     helicopter_num = 1
     parking = 1
     detection_range = 160000
-    threat_range = 45000
-    air_weapon_dist = 45000
+    # MK41 with SM-2MR; the mod shipped 45 km for the one hull that has area SAMs
+    threat_range = 150000
+    air_weapon_dist = 150000
 
 
 @shipmod
@@ -33,8 +38,9 @@ class F105(ShipType):
     helicopter_num = 1
     parking = 1
     detection_range = 160000
-    threat_range = 45000
-    air_weapon_dist = 45000
+    # as the F100, plus two Phalanx
+    threat_range = 150000
+    air_weapon_dist = 150000
 
 
 @shipmod
@@ -44,8 +50,9 @@ class L52(ShipType):
     helicopter_num = 2
     parking = 2
     detection_range = 300000
-    threat_range = 150000
-    air_weapon_dist = 150000
+    # two Phalanx and nothing else, so a CIWS bubble
+    threat_range = 3000
+    air_weapon_dist = 3000
 
 
 @shipmod
@@ -56,8 +63,9 @@ class L02(ShipType):
     helicopter_num = 36
     parking = 4
     detection_range = 300000
-    threat_range = 150000
-    air_weapon_dist = 150000
+    # Canberra, same class as the L61 and likewise unarmed
+    threat_range = 0
+    air_weapon_dist = 0
 
 
 @shipmod
@@ -67,5 +75,6 @@ class DDG39(ShipType):
     helicopter_num = 1
     parking = 1
     detection_range = 160000
-    threat_range = 45000
-    air_weapon_dist = 45000
+    # Hobart is the same Aegis/SM-2 design and had the same 45 km
+    threat_range = 150000
+    air_weapon_dist = 150000

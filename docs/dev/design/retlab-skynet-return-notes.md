@@ -265,6 +265,22 @@ networks never had the hole. Found in juanjux/dcs-escalation#336, verified in
   late-enrol repair skips them, and the migrator removes their range-built grid links.
   Config-named ships keep what the config writes.
 - `tests/theater/test_iads_config_and_ships.py`.
+
+### Self-powered sites (2026-10-29, from juanjux/dcs-escalation, LGPL-3.0)
+
+Range wiring gave every land SAM a power-station link, so bombing the nearest station
+switched off a Patriot that deploys with its own EPP-III. DM call 2026-10-29: any site
+with a live `UnitClass.POWER` unit is off the grid, the §85 5I57A diesels included.
+
+- `brings_its_own_power(tgo)` reads every unit of the site, not only the IADS group
+  (Juan's reads the one group), so a generator in a support group counts.
+- `is_bypassed_power_link` drops the power link when the mission is written
+  (`iads_nodes`): Skynet reads an empty power list as powered, so no Lua change. The link
+  stays in the network, so a dead generator puts the site back on the station next turn.
+- The map's IADS layer, the outside-AI IADS view and HQ requests' "wired into the IADS"
+  test skip the same link. Comms links are untouched.
+- `SAMPT_MGE` was classed `Logistics` (so never a generator here); it is `Power` now.
+- `tests/theater/test_iads_self_powered.py`. Checklist row B298 is the in-game half.
 ## The flag defaults from the miz (2026-09-21)
 
 `advanced_iads` only chooses the network mode. What range mode consumes is the command

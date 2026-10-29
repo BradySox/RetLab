@@ -135,6 +135,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §121 | Radio discipline _(retired)_ | — | — |
 | §122 | Exact site layouts | — | — |
 | §123 | Trains on drawn rail lines | — | — |
+| §124 | Carry-over ship damage | — | `ship_damage_carry_over`, `ship_damage_repair_percent` |
 | §125 | Missile-site targets | — | — |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
