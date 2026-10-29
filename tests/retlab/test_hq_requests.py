@@ -314,6 +314,7 @@ def test_the_kneeboard_and_panel_name_an_open_request() -> None:
 class FakeGroup:
     def __init__(self, tgo: Any) -> None:
         self.ground_object = tgo
+        self.iads_role = None
 
 
 class FakeNode:

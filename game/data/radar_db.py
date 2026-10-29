@@ -26,6 +26,7 @@ from dcs.vehicles import AirDefence
 from pydcs_extensions import highdigitsams as hds
 from pydcs_extensions import vietnamwarvessels as vwv
 from pydcs_extensions import chinesemilitaryassetspack as cmap
+from pydcs_extensions import germanymilitaryassetspack as demap
 from pydcs_extensions import iranmilitaryassetspack as imap
 from pydcs_extensions import iranairdefensepack as irad
 from pydcs_extensions import russianmilitaryassetspack as rmap
@@ -83,6 +84,9 @@ TRACK_RADARS = {
     smap.LvS_103_PM103_HX,
     smap.UndE23,
     ukmap.CH_SkySabreGiraffe,
+    # A Patriot group can pair HEMTT launchers with the KAT1 radar; unlisted, it
+    # drew no ring for a battery that shoots.
+    demap.CH_MIM104_ANMPQ53_KAT1,
     usamap.CH_MIM104_ANMPQ65,
     usamap.CH_MIM104_ANMPQ65A,
     usamap.CH_MIM104_ANMPQ65_HEMTT,
@@ -181,6 +185,7 @@ LAUNCHER_TRACKER_PAIRS = {
     smap.RBS_98: (smap.UndE23,),
     ukmap.CH_SkySabreLN: (ukmap.CH_SkySabreGiraffe,),
     usamap.CH_MIM104_M903_PAC2: (
+        demap.CH_MIM104_ANMPQ53_KAT1,
         usamap.CH_MIM104_ANMPQ65,
         usamap.CH_MIM104_ANMPQ65A,
         usamap.CH_MIM104_LTAMDS,
@@ -189,6 +194,7 @@ LAUNCHER_TRACKER_PAIRS = {
         usamap.CH_MIM104_LTAMDS_HEMTT,
     ),
     usamap.CH_MIM104_M903_PAC3: (
+        demap.CH_MIM104_ANMPQ53_KAT1,
         usamap.CH_MIM104_ANMPQ65,
         usamap.CH_MIM104_ANMPQ65A,
         usamap.CH_MIM104_LTAMDS,
@@ -197,6 +203,7 @@ LAUNCHER_TRACKER_PAIRS = {
         usamap.CH_MIM104_LTAMDS_HEMTT,
     ),
     usamap.CH_MIM104_M903_PAC2_HEMTT: (
+        demap.CH_MIM104_ANMPQ53_KAT1,
         usamap.CH_MIM104_ANMPQ65,
         usamap.CH_MIM104_ANMPQ65A,
         usamap.CH_MIM104_LTAMDS,
@@ -205,6 +212,7 @@ LAUNCHER_TRACKER_PAIRS = {
         usamap.CH_MIM104_LTAMDS_HEMTT,
     ),
     usamap.CH_MIM104_M903_PAC3_HEMTT: (
+        demap.CH_MIM104_ANMPQ53_KAT1,
         usamap.CH_MIM104_ANMPQ65,
         usamap.CH_MIM104_ANMPQ65A,
         usamap.CH_MIM104_LTAMDS,

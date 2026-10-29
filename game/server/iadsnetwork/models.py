@@ -6,7 +6,11 @@ from pydantic import BaseModel
 
 from game.server.leaflet import LeafletPoint
 from game.theater.player import Player
-from game.theater.iadsnetwork.iadsnetwork import IadsNetworkNode, IadsNetwork
+from game.theater.iadsnetwork.iadsnetwork import (
+    IadsNetwork,
+    IadsNetworkNode,
+    is_bypassed_power_link,
+)
 
 
 class IadsConnectionJs(BaseModel):
@@ -39,6 +43,8 @@ class IadsConnectionJs(BaseModel):
         if tgo.hidden_on_player_map(viewer) or not tgo.known_for(viewer):
             return iads_connections
         for id, connection in network_node.connections.items():
+            if is_bypassed_power_link(network_node, connection):
+                continue
             connected_tgo = connection.ground_object
             if connected_tgo.hidden_on_player_map(
                 viewer

@@ -8530,6 +8530,11 @@ under 8 %. The support units are unarmed soft targets: they add strike value and
 "there is a real battery here" read, not threat. `max_threat_range` is unchanged, so SEAD/DEAD
 targeting is unaffected.
 
+**The diesels power their site (2026-10-29, DM call).** While a 5I57A (or any `Power` unit, the
+Patriot EPP and SAMP/T MGE too) lives, the site has no power-station dependency in Skynet; kill
+the diesels and it is back on the station. `brings_its_own_power` in `iadsnetwork.py`, from
+juanjux/dcs-escalation; see the Skynet return note, "Self-powered sites". Checklist: **B298**.
+
 Files: `resources/units/ground_units/{ATZ-10,ATZ-5,ATZ-60_Maz,ATMZ-5,TZ-22_KrAZ,M978 HEMTT
 Tanker,generator_5i57}.yaml`, `resources/layouts/anti_air/{S-300_Site.miz,S-300_Site.yaml,S-300 Site
 (Single Radar).yaml,SA-2-SA-3 Mixed Site.yaml,Sky_Sabre_Battery.yaml}`, `resources/groups/` (11
@@ -11954,6 +11959,37 @@ waypoints. Supply between those bases goes by train. Design and probe findings:
 | Tests | `tests/retlab/test_trains.py`, `tests/lua/test_train_losses_runtime.py` |
 | In-game pass | B285 |
 
+## §125 — Missile-site targets
+
+A player's SCUD-type missile site can be given a target in its site window (the
+**Missile target** box). With no pick it fires as upstream does: a random enemy base, up to
+2,500 m off. Ships are not covered; they stay on §63. The site half of Juan Jose Ruiz's
+dcs-escalation `game/missiletargets.py` (LGPL-3), reduced to a pick from a list.
+
+- **Blue sites only.** Red's sites fire at random as before; red picks nothing.
+- **The list:** every red base and every red land site in reach of the site's living
+  launchers (`threat_range`, with the `MISSILE_MIN_RANGE_M` floor), nearest first, in NM.
+  Ships, carrier groups and FOB structures are left out.
+- **Fog:** a site must pass `fogofwar.hidden_from(Player.BLUE, tgo)`, so a command post the
+  player has not found is never listed and never fired at, overview ticked or not. An
+  un-engaged site is listed: its position is on the map, only its composition is fogged.
+- **Aim:** dead center on the target's position. The Scud's own DCS spread is the scatter.
+- **Kept until the target dies.** `release_spent_picks` runs at the top of
+  `Game.finish_turn` and clears a pick whose site is dead or whose base was captured. A
+  pick out of reach for a mission (a launcher lost) falls back to random fire that mission
+  and stays saved.
+- **Firing time** stays random, as upstream rolls it. **Generate fire tasks for missile
+  sites** still switches all missile fire off.
+- **Save:** `MissileSiteGroundObject.missile_target` (`MissileTargetPick`), defaulted to
+  None in `__setstate__` for older saves.
+
+| Area | Path |
+|---|---|
+| Model | `game/missiletargets.py` |
+| Generator | `game/missiongenerator/tgogenerator.py` (`MissileSiteGenerator.generate`) |
+| UI | `qt_ui/windows/groundobject/QGroundObjectMenu.py` (`missile_target_layout`) |
+| Tests | `tests/retlab/test_missile_targets.py` |
+| In-game pass | B297 |
 ## §124 — Carry-over ship damage
 
 A ship that survives a mission damaged starts the next one at the same health, on both
