@@ -1,0 +1,1 @@
+* **[Units]** The eight CurrentHill units built into DCS 2.9.31 can be used in factions: ZTQ-15, BMD-2, AMN-2 Atlet, PGZ-09, ZU-23-2 on Ural 4320, Ural Typhoon-U, ZIL-131 and ZIL-131 Kung C2. They need no mod.
