@@ -1,0 +1,10 @@
+date: 2026-10-29
+title: Pick a target for your missile sites
+change: >-
+  Your own Scud-type missile site's window has a Missile target box. Pick any
+  enemy base or enemy site on your map that is in range; the site fires on it
+  every mission until it is destroyed or captured. With no pick it fires at a
+  random enemy base, as before.
+watch: >-
+  Command posts you have not found are never listed. Red sites still fire at
+  random.

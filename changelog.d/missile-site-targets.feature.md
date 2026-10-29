@@ -1,0 +1,1 @@
+* **[Campaign Management]** A player's Scud-type missile site can be given a target in its window: any enemy base or enemy site on your map in range. The pick is kept until the target is destroyed or captured. With no pick the site fires at a random enemy base as before. Based on Juan Jose Ruiz's dcs-escalation missile targets (LGPL-3).
