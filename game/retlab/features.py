@@ -1004,6 +1004,13 @@ FEATURES: tuple[Feature, ...] = (
         126,
         settings_fields=("player_runway_lineup", "player_departure_hold"),
     ),
+    Feature(
+        "record_radios_for_tacview",
+        "Record radios for Tacview",
+        127,
+        plugin_id="radiorecord",
+        settings_fields=("record_radios_for_tacview",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

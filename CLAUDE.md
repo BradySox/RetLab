@@ -257,7 +257,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`, `radiorecord`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -355,6 +355,7 @@ linked design note.
 124. **Carry-over ship damage** — a damaged ship starts the next mission damaged, through DCS's native set-life action; 34 points repaired a turn. Ships only.
 125. **Missile-site targets** — pick a target for your own SCUD site in its window; fog-gated, kept until it dies, else random.
 126. **Runway line-up and departure hold** — player flights get ALIGN on final (carriers on the angled deck) and hold straight out the runway. Never AI.
+127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 
 ### Retired, removed or shelved — do not restore
 

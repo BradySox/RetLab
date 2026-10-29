@@ -1,0 +1,9 @@
+date: 2026-10-29
+title: Radio calls in your Tacview replay
+change: >-
+  SkyEye can record the AWACS, STRIKE, Vacuum, Ground and Tower frequencies and your flight's
+  own frequency, one audio file each, next to your Tacview recordings. Tacview plays them with
+  the replay, each call at the moment it was made.
+watch: >-
+  Off by default: Mission Generator, SkyEye voice bots. Needs the matching SkyEye build. Turn on
+  Tacview's Auto Load Media add-on to have the audio open with the replay.
