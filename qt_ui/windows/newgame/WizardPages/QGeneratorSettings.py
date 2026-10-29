@@ -89,7 +89,7 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 "Expanded F-4E Weapons Pack (DSplayer v1.0.11+)",
                 self.f4e_expanded_weapons,
             ),
-            ("F-22A Raptor (v2.0.0)", self.f22_raptor),
+            ("F-22A Raptor (v2.1.0)", self.f22_raptor),
             ("F-111C Aardvark (Warpig Production v2.260208)", self.f111c),
             ("JAS 39 Gripen (v1.8.5-beta)", self.jas39_gripen),
             ("OH-6 Cayuse (v1.7)", self.oh_6),
@@ -100,6 +100,8 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         # --- Asset packs ----------------------------------------------------------
         self.chinesemilitaryassetspack = QtWidgets.QCheckBox()
         self.registerField("chinesemilitaryassetspack", self.chinesemilitaryassetspack)
+        self.germanymilitaryassetspack = QtWidgets.QCheckBox()
+        self.registerField("germanymilitaryassetspack", self.germanymilitaryassetspack)
         self.iranmilitaryassetspack = QtWidgets.QCheckBox()
         self.registerField("iranmilitaryassetspack", self.iranmilitaryassetspack)
         self.russianmilitaryassetspack = QtWidgets.QCheckBox()
@@ -131,6 +133,10 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 "CurrentHill Chinese Military Assets (1.1.4)",
                 self.chinesemilitaryassetspack,
             ),
+            (
+                "CurrentHill German Military Assets (1.5.0)",
+                self.germanymilitaryassetspack,
+            ),
             ("CurrentHill Iran Military Assets (2.1.0)", self.iranmilitaryassetspack),
             (
                 "CurrentHill Russian Military Assets (2.0.1)",
@@ -146,13 +152,13 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 self.ukrainemilitaryassetspack,
             ),
             ("CurrentHill USA Military Assets (1.5.0)", self.usamilitaryassetspack),
-            ("Frenchpack (v4.9.1)", self.frenchpack),
+            ("Frenchpack (v5.0)", self.frenchpack),
             (
                 "OH-6 Vietnam Asset Pack — ground objects (v1.2)",
                 self.oh_6_vietnamassetpack,
             ),
             (
-                "Spanish Naval Assets pack (desdemicabina 3.2.0)",
+                "Spanish Naval Assets pack (desdemicabina 3.3.0)",
                 self.spanishnavypack,
             ),
             ("Vietnam War Vessels (v3.2.0 by TeTeT)", self.vietnamwarvessels),
@@ -227,6 +233,9 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.a4_skyhawk.setChecked(s.get("a4_skyhawk", False))
         self.chinesemilitaryassetspack.setChecked(
             s.get("chinesemilitaryassetspack", False)
+        )
+        self.germanymilitaryassetspack.setChecked(
+            s.get("germanymilitaryassetspack", False)
         )
         self.iranmilitaryassetspack.setChecked(s.get("iranmilitaryassetspack", False))
         self.russianmilitaryassetspack.setChecked(

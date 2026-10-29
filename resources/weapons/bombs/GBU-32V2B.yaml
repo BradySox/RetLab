@@ -3,6 +3,7 @@ year: 2002
 fallback: GBU-16
 clsids:
   - "{GBU_32_V_2B}"   # GBU-32(V)2/B - JDAM, 1000lb GPS Guided Bomb
+  - "{GBU32_JDAM}"   # GBU32 - JDAM (F-22A 2.1.0)
   - "{BRU55_2*GBU-32}"   # BRU-55 with 2 x GBU-32(V)2/B - JDAM, 1000lb GPS Guided Bomb
   - "{SUPERHORNET_PYLON_02_OB_MK_1X_GBU-32}"   #  [ STA 02	  | SUU80 | BRU32   ] - 1x GBU-32(V)2/B - JDAM, 1000lb GPS Guided Bomb
   - "{SUPERHORNET_PYLON_03_MB_MK_1X_GBU-32}"   #  [ STA 03	  | SUU79 | BRU32   ] - 1x GBU-32(V)2/B - JDAM, 1000lb GPS Guided Bomb
