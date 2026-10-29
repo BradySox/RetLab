@@ -2,7 +2,7 @@
 
 Triage of the late-October 2026 DCS patch against this tree (`main` at #1410, pydcs pin
 `beb3763`). Read from the published patch notes and our own files; the install has not
-been read yet. The format follows `retlab-dcs-update-2026-08-26-notes.md`.
+been read yet (section 2 was later settled from the install). The format follows `retlab-dcs-update-2026-08-26-notes.md`.
 
 ## 1. Taken
 
@@ -12,20 +12,39 @@ been read yet. The format follows `retlab-dcs-update-2026-08-26-notes.md`.
   MiG-25RBs, so `iraq_1991` and `iraq_2000` gain the MiG-25RBT. Both factions already fly
   the MiG-23MLD: DCS has one Flogger, and `MiG-23MLD.yaml` names it "MiG-23ML Flogger-G" as
   a variant, which is the name the Iraq factions use.
-- pydcs's `Iraq` country class still lacks the two jets. Nothing in RetLab reads country
-  unit lists (factions name the types), so this is cosmetic and waits for the export.
+- pydcs's `Iraq` country class lacked the two jets. Nothing in RetLab reads country
+  unit lists (factions name the types), so this was cosmetic; section 2's pin bump adds them.
 
-## 2. Owed: eight new built-in CurrentHill units
+## 2. Done: eight new built-in CurrentHill units
 
-ZTQ-15 LT, Ural Typhoon MRAP, BMD-2 IFV, ZIL-131 Kung C2, PGZ-09 SPAAG, AMN-2 Atlet
-MRAP, Ural 4320 with ZU-23-2, ZIL-131 truck.
+The pin moved to `BradySox/pydcs@06d9047` (branch `dcs-2.9.31-currenthill`), cut from the
+old pin `beb3763`, so the fork gets exactly pin + this delta. Each unit has a yaml in
+`resources/units/ground_units/`. No faction uses them yet.
 
-- The pin knows 31 built-in CurrentHill units (`CHAP_` ids). None of these eight.
-- Three have mod-pack twins in `pydcs_extensions/` (`CH_BMD2`, `CH_PGZ09`, `CH_ZTQ_15`).
-  Those need the CurrentHill mod ticked; the built-in ones would not.
-- The type ids are declared only in the install. The fix is the 2026-08-26 route: a
-  `pydcs_export.lua` run on the updated machine, a surgical delta on the pydcs fork, a pin
-  bump, then unit yamls. Do not guess the ids from the mod-pack names.
+| Unit | DCS id | pydcs class |
+|---|---|---|
+| ZTQ-15 light tank | `CHAP_ZTQ15` | Armor |
+| BMD-2 IFV | `CHAP_BMD2` | Armor |
+| AMN-2 Atlet MRAP | `CHAP_Atlet` | Armor |
+| PGZ-09 SPAAG | `CHAP_PGZ09` | AirDefence |
+| ZU-23-2 on Ural 4320 | `CHAP_Ural4320_ZU232` | AirDefence |
+| Ural Typhoon-U MRAP | `CHAP_UralTyphoon` | Unarmed |
+| ZIL-131 truck | `CHAP_ZIL131` | Unarmed |
+| ZIL-131 Kung C2 | `CHAP_ZIL131_Kung` | Unarmed |
+
+- **Source: the install's own Lua, no export run.** Each unit is one file in
+  `<DCS>/CoreMods/tech/Currenthill Assets Pack/Database/Vehicles/` on 2.9.31.29434. The
+  class fields follow `pydcs_export.lua`'s own rules (`DisplayName`, `DetectionRange`,
+  `ThreatRange`, `airWeaponDist` falling back to the threat range, `EPLRS`). The public
+  `Quaggles/dcs-lua-datamine` dump of the same build (`72ea893c4`) agrees field for field.
+- The same branch adds the MiG-25RBT, MiG-23MLD and IL-76MD to pydcs's `Iraq` country,
+  as the patch's country list does. The patch also put the new vehicles in several
+  country lists (Russia, China, CJTF and others). Those were not carried: nothing in
+  RetLab reads country unit lists.
+- Three units have mod-pack twins in `pydcs_extensions/` (`CH_BMD2`, `CH_PGZ09`,
+  `CH_ZTQ_15`). Those still need the CurrentHill mod; the `CHAP_` ones do not.
+- Check on the next export: diff these eight classes and the Iraq lists against a
+  full-install export.
 
 ## 3. Fixes that change our runtime for free
 
