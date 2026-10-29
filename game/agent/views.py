@@ -24,6 +24,7 @@ from pydantic import BaseModel
 
 from game.income import Income
 from game.theater.player import Player
+from game.theater.iadsnetwork.iadsnetwork import is_bypassed_power_link
 from game.utils import meters, mps
 
 if TYPE_CHECKING:
@@ -1134,6 +1135,7 @@ def build_iads(game: Game, side: str) -> IadsView:
             str(conn.ground_object.id)
             for conn in node.connections.values()
             if conn.ground_object.id != tgo.id
+            and not is_bypassed_power_link(node, conn)
         }
         nodes.append(
             IadsNodeView(

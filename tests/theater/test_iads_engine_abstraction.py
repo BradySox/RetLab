@@ -119,6 +119,7 @@ def _c2_group(
     ground_object = SimpleNamespace(
         coalition=SimpleNamespace(player=player),
         is_friendly=lambda other, _p=player: other is _p,
+        units=[],
     )
     return SimpleNamespace(
         iads_role=iads_role,

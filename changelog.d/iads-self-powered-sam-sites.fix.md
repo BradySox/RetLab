@@ -1,0 +1,1 @@
+* **[IADS]** A SAM site with a live generator (Patriot EPP-III, SAMP/T MGE, S-300 5I57A) keeps running when the nearby power station is destroyed. Killing its generator puts it back on the station. From juanjux/dcs-escalation.
