@@ -8530,6 +8530,11 @@ under 8 %. The support units are unarmed soft targets: they add strike value and
 "there is a real battery here" read, not threat. `max_threat_range` is unchanged, so SEAD/DEAD
 targeting is unaffected.
 
+**The diesels power their site (2026-10-29, DM call).** While a 5I57A (or any `Power` unit, the
+Patriot EPP and SAMP/T MGE too) lives, the site has no power-station dependency in Skynet; kill
+the diesels and it is back on the station. `brings_its_own_power` in `iadsnetwork.py`, from
+juanjux/dcs-escalation; see the Skynet return note, "Self-powered sites". Checklist: **B298**.
+
 Files: `resources/units/ground_units/{ATZ-10,ATZ-5,ATZ-60_Maz,ATMZ-5,TZ-22_KrAZ,M978 HEMTT
 Tanker,generator_5i57}.yaml`, `resources/layouts/anti_air/{S-300_Site.miz,S-300_Site.yaml,S-300 Site
 (Single Radar).yaml,SA-2-SA-3 Mixed Site.yaml,Sky_Sabre_Battery.yaml}`, `resources/groups/` (11
