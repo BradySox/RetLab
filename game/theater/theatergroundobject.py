@@ -33,6 +33,7 @@ from ..utils import Distance, Heading, meters, nautical_miles
 if TYPE_CHECKING:
     from game.ato.flighttype import FlightType
     from game.dcs.groundunittype import GroundUnitType
+    from game.missiletargets import MissileTargetPick
     from game.threatzones import ThreatPoly
     from .theatergroup import TheaterUnit, TheaterGroup
     from .controlpoint import ControlPoint, Coalition
@@ -793,6 +794,12 @@ class MissileSiteGroundObject(TheaterGroundObject):
             sea_object=False,
             task=GroupTask.MISSILE,
         )
+        #: §125: the player's saved aim point; None fires at a random enemy base.
+        self.missile_target: Optional[MissileTargetPick] = None
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        state.setdefault("missile_target", None)
+        super().__setstate__(state)
 
     @property
     def symbol_set_and_entity(self) -> tuple[SymbolSet, Entity]:

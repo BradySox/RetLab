@@ -25,10 +25,12 @@ from game.retlab.region_priorities import RegionPriority, family_of
 from game.server import EventStream
 from game.sim.gameupdateevents import GameUpdateEvents
 from game.theater import ControlPoint, TheaterGroundObject, Player
+from game import missiletargets
 from game.theater.theatergroundobject import (
     BuildingGroundObject,
+    MissileSiteGroundObject,
 )
-from game.utils import Distance
+from game.utils import Distance, meters
 from game.utils import Heading
 from qt_ui.models import GameModel
 from qt_ui.uiconstants import EVENT_ICONS, ICONS
@@ -107,6 +109,8 @@ class QGroundObjectMenu(QDialog):
             self.mainLayout.addWidget(self.intelBox)
             if self.cruise_missile_rows:
                 self.mainLayout.addWidget(self.cruiseMissilesBox)
+            if self.show_missile_target_control:
+                self.mainLayout.addWidget(self.missileTargetBox)
             self.mainLayout.addWidget(self.orientationBox)
             if self.ground_object.is_iads and self.cp.is_friendly(to_player=Player.RED):
                 self.mainLayout.addWidget(self.hiddenBox)
@@ -192,6 +196,10 @@ class QGroundObjectMenu(QDialog):
                 QLabel(f"{remaining} missile(s) remaining (no rearm)"), row, 1
             )
         self.cruiseMissilesBox.setLayout(cruiseMissilesLayout)
+
+        self.missileTargetBox = QGroupBox("Missile target :")
+        if self.show_missile_target_control:
+            self.missileTargetBox.setLayout(self.missile_target_layout())
 
         self.buildingBox = QGroupBox("Buildings :")
         self.buildingsLayout = QGridLayout()
@@ -309,6 +317,61 @@ class QGroundObjectMenu(QDialog):
         priority_layout.addStretch()
         self.priorityBox.setLayout(priority_layout)
 
+    @property
+    def show_missile_target_control(self) -> bool:
+        return self.viewer.is_blue and missiletargets.can_pick(
+            self.game, self.ground_object
+        )
+
+    def missile_target_layout(self) -> QVBoxLayout:
+        layout = QVBoxLayout()
+        site = self.ground_object
+        assert isinstance(site, MissileSiteGroundObject)
+        self.missile_target_combo = QComboBox()
+        self.missile_target_combo.addItem("Random enemy base", None)
+        current = site.missile_target
+        for choice in missiletargets.choices(self.game, site):
+            self.missile_target_combo.addItem(
+                f"{choice.name} ({meters(choice.distance_m).nautical_miles:.0f} NM)",
+                choice.pick,
+            )
+        index = next(
+            (
+                i
+                for i in range(self.missile_target_combo.count())
+                if self.missile_target_combo.itemData(i) == current
+            ),
+            -1,
+        )
+        if index < 0 and current is not None:
+            # Saved but out of reach this turn: keep it listed so it is not lost.
+            name = missiletargets.target_name(self.game, current) or "Saved target"
+            self.missile_target_combo.addItem(f"{name} (out of range)", current)
+            index = self.missile_target_combo.count() - 1
+        self.missile_target_combo.setCurrentIndex(index)
+        self.missile_target_combo.currentIndexChanged.connect(
+            self.on_missile_target_changed
+        )
+        layout.addWidget(self.missile_target_combo)
+        note = QLabel(
+            "Kept until the target is destroyed or captured. Only targets on your"
+            " map and in range are listed."
+        )
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        if not self.game.settings.generate_fire_tasks_for_missile_sites:
+            layout.addWidget(
+                QLabel(
+                    "<i>Generate fire tasks for missile sites is off: no site fires.</i>"
+                )
+            )
+        return layout
+
+    def on_missile_target_changed(self, index: int) -> None:
+        site = self.ground_object
+        assert isinstance(site, MissileSiteGroundObject)
+        site.missile_target = self.missile_target_combo.itemData(index)
+
     def friendly_cruise_missile_magazines(self) -> list[tuple[str, int]]:
         if not self.cp.is_friendly(to_player=self.viewer):
             return []
@@ -348,6 +411,8 @@ class QGroundObjectMenu(QDialog):
                 self.mainLayout.addWidget(self.intelBox)
                 if self.cruise_missile_rows:
                     self.mainLayout.addWidget(self.cruiseMissilesBox)
+                if self.show_missile_target_control:
+                    self.mainLayout.addWidget(self.missileTargetBox)
                 self.mainLayout.addWidget(self.orientationBox)
 
             self.actionLayout = QHBoxLayout()

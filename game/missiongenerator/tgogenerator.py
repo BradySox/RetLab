@@ -101,6 +101,7 @@ from game.theater.theatergroundobject import (
 from game.theater.theatergroup import SceneryUnit, IadsGroundGroup
 from game.flightplan.carriercruisesolver import solve_carrier_cruise
 from game.unitmap import UnitMap
+from game.missiletargets import aim_point
 from pydcs_extensions.iranairdefensepack.iranairdefensepack import (
     ALARM_RED_AT_SPAWN,
     MISSILE_MIN_RANGE_M,
@@ -848,16 +849,24 @@ class MissileSiteGenerator(GroundObjectGenerator):
             return
 
         # Note : Only the SCUD missiles group can fire (V1 site cannot fire in game right now)
-        # TODO : Should be pre-planned ?
+        # §125: a player's pick is aimed dead center; no pick keeps the random base.
+        picked = (
+            aim_point(self.game, self.ground_object)
+            if isinstance(self.ground_object, MissileSiteGroundObject)
+            else None
+        )
         for group in self.ground_object.groups:
             vg = self.m.find_group(group.group_name)
             if vg is not None:
                 targets = self.possible_missile_targets()
-                if targets:
-                    target = random.choice(targets)
-                    real_target = target.point_from_heading(
-                        Heading.random().degrees, random.randint(0, 2500)
-                    )
+                if picked is not None or targets:
+                    if picked is not None:
+                        real_target = picked
+                    else:
+                        target = random.choice(targets)
+                        real_target = target.point_from_heading(
+                            Heading.random().degrees, random.randint(0, 2500)
+                        )
                     hold_seconds = random.randint(
                         60,
                         int(
