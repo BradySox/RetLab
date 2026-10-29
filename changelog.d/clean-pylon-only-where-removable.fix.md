@@ -1,0 +1,1 @@
+* **[UI]** The loadout editor lists Clean, now named Clean (pylon removed), only on stations where DCS can take the pylon off. Elsewhere it did the same as None, so stations like the F-4E Sparrow wells showed two empty choices.

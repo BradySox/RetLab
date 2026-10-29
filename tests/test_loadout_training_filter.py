@@ -12,6 +12,7 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 import re
 import sys
+from dataclasses import replace
 from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
@@ -244,6 +245,8 @@ def test_clean_is_offered_on_a_pylon_that_never_carried_it(setup_editor: Any) ->
     clean = Weapon.with_clsid("<CLEAN>")
     assert clean is not None
     data = setup_editor
+    data.editor.pylon = replace(data.pylon, removable=True)
+    data.editor.set_from(data.member.loadout)
     combo = data.editor.weapon_combo
     assert combo.currentData() == data.live
     index = combo.findData(clean)
@@ -251,6 +254,19 @@ def test_clean_is_offered_on_a_pylon_that_never_carried_it(setup_editor: Any) ->
     combo.setCurrentIndex(index)
     assert data.member.loadout.pylons[1] == clean
     assert combo.findData(clean) == index
+
+
+def test_clean_is_not_offered_where_dcs_cannot_remove_the_pylon(
+    setup_editor: Any,
+) -> None:
+    """There it would be a second "None" (the F-4E Sparrow wells)."""
+    clean = Weapon.with_clsid("<CLEAN>")
+    assert clean is not None
+    data = setup_editor
+    assert not data.pylon.removable
+    combo = data.editor.weapon_combo
+    assert combo.findData(None) == 0
+    assert data.editor._index_of(clean) == -1
 
 
 def test_show_training_still_respects_date_restrictions(setup_editor: Any) -> None:

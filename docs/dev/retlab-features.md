@@ -2248,10 +2248,16 @@ that code.
   - A mod installed while the app is open reported "No available liveries" until restart,
     because pydcs scans liveries once. `dcs_liveries_for` rescans once per aircraft before
     believing an empty list, and stops once a rescan finds nothing new.
-  - *Clean* (pylon fitted, nothing on it) was listed only on a pylon whose shown preset
-    already used it. `QPylonEditor` lists it on every pylon, which is what
-    `Pylon.can_equip` already accepted; pydcs carries no per-pylon data for `<CLEAN>`.
-    What DCS does with it on a pylon that cannot be removed is row **B214**.
+  - *Clean* was listed only on a pylon whose shown preset already used it.
+    **Corrected 2026-10-29:** `<CLEAN>` takes the pylon off (*None* leaves the empty pylon
+    fitted), and DCS offers it only on some stations. Listing it on every pylon gave the
+    F-4E Sparrow wells a second *None*. It is now **Clean (pylon removed)**, listed where
+    `Pylon.removable`: the generated `game/data/cleanpylons.py`, read by
+    `tools/clean_pylons.py` from the pydcs export's `# ERRR <CLEAN>` comments (the
+    built app has no sources to read). `tests/data/test_clean_pylons.py` fails when a
+    pydcs bump moves a station; rerun the tool with `--write`. A preset that uses
+    `<CLEAN>` elsewhere still shows it. `Pylon.can_equip` still accepts it anywhere.
+    Row **B214**.
   Tests: `tests/test_wizard_faction_ticks.py`, `test_livery_selector.py`,
   `test_loadout_training_filter.py`.
 - **The planner never targeted enemy convoys or cargo ships (fixed 2026-10-10).**
