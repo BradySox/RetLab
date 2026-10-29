@@ -74,7 +74,7 @@ feature — each carries the design rationale, the flown-test findings, and the 
 
 - **Everything is upstreamable** (2026-07-19). "Clean and correct" is the bar; there is no
   permanent fork-only category. The one named exception is the Splash Damage tuning (see PINNED).
-- **Upstream PR freeze** — see *Upstream PRs — standing rules* below.
+- **Upstream PR freeze: LIFTED 2026-10-29** (DM). See *Upstream PRs — standing rules* below.
 - **Red Tide's feature lock was LIFTED 2026-08-03.** It takes new work like any other
   campaign. One exclusion survives as a separate call: the §71 F-4E pack stays un-preseeded.
 - **Campaign ownership**: every fork-authored campaign has an owning design note and a CI lock.
@@ -92,7 +92,7 @@ feature — each carries the design rationale, the flown-test findings, and the 
 | [flycards/LOCAL.md](docs/dev/flycards/LOCAL.md) | The rolling local test card for contrived conditions. |
 | [retlab-early-systems-decision-ledger.md](docs/dev/retlab-early-systems-decision-ledger.md) | The 2026-07-18 deep-audit verdicts on the early-systems core, with self-play evidence. |
 | [retlab-upstreaming-inventory.md](docs/dev/retlab-upstreaming-inventory.md) | The upstreaming queue, priority-ordered, with readiness marks, plus the **upstream issue ledger** (standing triage of upstream's open issues). |
-| [retlab-upstream-pr-ledger.md](docs/dev/retlab-upstream-pr-ledger.md) | Every upstream PR we carved: status, review history, sync notes, DM exceptions to the freeze. |
+| [retlab-upstream-pr-ledger.md](docs/dev/retlab-upstream-pr-ledger.md) | Every upstream PR we carved: status, review history, sync notes, the freeze history (lifted 2026-10-29). |
 | [retlab-community-contribution-roadmap.md](docs/dev/retlab-community-contribution-roadmap.md) | The long view: community-value × carve-difficulty across every feature. |
 | [retlab-retribution-long-view.md](docs/dev/design/retlab-retribution-long-view.md) | Structural read of the engine (2026-08-17) and its seven seams. 1 and 4 are BUILT (§91, §90); 2 and 5 accepted, not started; 3 analysis only; 6 scoped in `retlab-coop-persistent-campaign-notes.md`; **7 (the enemy) DROPPED** — read [retlab-red-brain-phase0-notes.md](docs/dev/design/retlab-red-brain-phase0-notes.md) before proposing anything about red. |
 | [retlab-campaign-architecture-notes.md](docs/dev/design/retlab-campaign-architecture-notes.md) | Direction note (2026-08-20, DM call): the one-substrate architecture, rungs R0–R7. Nothing built; each rung lands on its own call. |
@@ -427,15 +427,12 @@ The PR-by-PR record is [retlab-upstream-pr-ledger.md](docs/dev/retlab-upstream-p
 Read it before opening, updating or re-offering an upstream PR, and re-verify its counts with
 GitHub first.
 
-- **The upstream PR freeze is in force.** No new PRs until upstream's next beta; updating an
-  existing PR is allowed. **Only the DM lifts it** — commit activity has been misread as the
-  lift twice. The evidence to bring the DM is whether `test/1.6` has had a build since
-  2026-07-25 (the check is in the ledger; use the unfiltered Actions push view).
-- **Exceptions are the DM's, one at a time**, and do not carry over. The ledger lists them;
-  #966 (the DTC) and #977 (the Time & Weather window) are each open under one. A PR that
-  answers an open issue in the
-  [upstream issue ledger](docs/dev/retlab-upstreaming-inventory.md#upstream-issue-ledger) may
-  be opened — check the issue's timeline for linked PRs first (#951 was a duplicate).
+- **The upstream PR freeze was LIFTED 2026-10-29 by the DM.** New upstream PRs may be opened
+  again. They still start as drafts, one change per PR, with upstream's gates run on the
+  upstream tree. The freeze history and its old exceptions are in the ledger.
+- Before answering an open issue in the
+  [upstream issue ledger](docs/dev/retlab-upstreaming-inventory.md#upstream-issue-ledger),
+  check the issue's timeline for linked PRs first (#951 was a duplicate).
 - **Do not re-carve:** the HDS support (#956 carries it), #873's culling exemption (premise
   wrong), the Splash Damage tuning (#880, a preference).
 - **Fork positions a sync must not undo:** `sweden_2020` keeps the KC-135 (#946's tanker half);
