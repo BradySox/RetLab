@@ -119,6 +119,8 @@ class MissionResultsProcessor:
                 self.commit_cruise_missiles(debriefing)
             with logged_duration("commit_naval_magazines"):
                 self.commit_naval_magazines(debriefing)
+            with logged_duration("commit_ship_damage"):
+                self.commit_ship_damage(debriefing, events)
             with logged_duration("record_flight_cards"):
                 self.record_flight_cards(debriefing)
             with logged_duration("record_sitrep"):
@@ -148,6 +150,14 @@ class MissionResultsProcessor:
         from game.retlab.naval_magazines import reconcile_naval_magazines
 
         reconcile_naval_magazines(self.game, debriefing)
+
+    def commit_ship_damage(
+        self, debriefing: Debriefing, events: GameUpdateEvents
+    ) -> None:
+        """§124: a ship's damage carries into the next turn."""
+        from game.retlab.ship_damage import commit_ship_damage
+
+        commit_ship_damage(self.game, debriefing, events)
 
     def record_flight_cards(self, debriefing: Debriefing) -> None:
         # §108: graded here because the flown ATO is gone once the turn passes.

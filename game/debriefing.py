@@ -22,6 +22,7 @@ from game.missiongenerator.interceptattrition import (
     reconcile_intercept_losses,
 )
 from game.losscauses import KillCause
+from game.retlab.ship_damage import parse_ship_health
 from game.sortierecord import SortieRecord, parse_sortie_records
 from game.theater import Airfield, ControlPoint, Player
 
@@ -188,6 +189,10 @@ class StateData:
     #: the last write. The debrief reveals each site. Empty with no Vacuum.
     vacuum_fixes: tuple[tuple[str, float], ...] = ()
 
+    #: Each surviving ship's life fraction at the last write (§124). Empty with
+    #: carry-over ship damage off or on a state file from before it.
+    ship_health: Dict[str, float] = field(default_factory=dict)
+
     @classmethod
     def from_json(cls, data: Dict[str, Any], unit_map: UnitMap) -> StateData:
         def clean_unit_list(unit_list: List[Any]) -> List[str]:
@@ -304,6 +309,7 @@ class StateData:
             crash_positions=crash_positions,
             kill_causes=KillCause.parse(data.get("kill_causes")),
             vacuum_fixes=tuple(vacuum_fixes),
+            ship_health=parse_ship_health(data.get("ship_health")),
         )
 
 

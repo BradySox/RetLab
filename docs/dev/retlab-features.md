@@ -11953,3 +11953,37 @@ waypoints. Supply between those bases goes by train. Design and probe findings:
 | Lua | `resources/plugins/base/train_losses.lua` |
 | Tests | `tests/retlab/test_trains.py`, `tests/lua/test_train_losses_runtime.py` |
 | In-game pass | B285 |
+
+## §124 — Carry-over ship damage
+
+A ship that survives a mission damaged starts the next one at the same health, on both
+sides, and is repaired a set number of points each turn. Ships only: the building half of
+juanjux's Escalation version damages buildings with scripted explosions, which the DM ruled
+out (2026-10-29). Settings **Ships keep their damage between turns** (on) and **Ship damage
+repaired per turn (%)** (34), Campaign Management.
+
+- **Health is a fraction on `TheaterUnit.health`** (1.0 on old saves). `kill()` resets it,
+  so a sunk ship that is rebuilt comes back whole.
+- **Into the mission:** `generate_ship_health` adds one TriggerStart: a DO SCRIPT seeding
+  `ship_health_units` (every live ship's DCS name), then one native
+  `a_unit_set_life_percentage` action per damaged ship. That action runs in the mission
+  trigger environment, not the DO SCRIPT sandbox, and takes a percentage. `SetUnitLifePercent`
+  refuses 0, which would sink the ship at start.
+- **Out of the mission:** `dcs_retribution.lua` writes `ship_health` (life over `getLife0`)
+  with every state write, and polls it into `dirty_state` because damage that sinks nothing
+  raises no event.
+- **A report never raises a ship's health.** A ship cannot heal in a mission, so a higher
+  reading means the set-life action did not take; the saved health stands. This replaces
+  Juan's in-mission verification pass.
+- **Repair** runs in `Game.finish_turn`, skipped turns included: `+percent/100`, capped at 1.
+  With the setting off, every ship is restored at the next turn end.
+- The ship group window shows **Health NN%** on a damaged live ship.
+
+| Area | Path |
+|---|---|
+| Campaign side | `game/retlab/ship_damage.py` |
+| Hooks | `missiongenerator.py` (after `LuaGenerator`), `missionresultsprocessor.py` (`commit_ship_damage`), `game.py` (`finish_turn`) |
+| Lua | `resources/plugins/base/dcs_retribution.lua` (`ship_health_snapshot`) |
+| UI | `qt_ui/windows/groundobject/QGroundObjectMenu.py` |
+| Tests | `tests/retlab/test_ship_damage.py`, `tests/lua/test_dcs_retribution_runtime.py` |
+| In-game pass | B296 |
