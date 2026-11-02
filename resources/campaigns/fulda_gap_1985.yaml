@@ -22,7 +22,7 @@ description:
   over Hesse, and the Luftwaffe and RAF Germany Tornados strike deep into
   Thuringia.</p>
   <p>The 16th Air Army is the strongest air force the Soviet Union keeps abroad, and
-  the East German air force flies beside it. Every SAM site between Meiningen and
+  the East German air force flies beside it. Every SAM site between Gotha and
   Leipzig reports to the 8th Guards Army's headquarters at Weimar. Break the 8th Guards Army,
   take Erfurt and Merseburg, and the offensive is over. Lose Frankfurt, and the
   Central Front collapses.</p>
@@ -61,7 +61,6 @@ neutral_border_postures:
 # sites are FIXED groups copied unit by unit from Carsten's Cold War Germany
 # Framework; the DM placed Kaltennordheim's launchers himself.
 ground_forces:
-  CF85-Haina-SA6: SA-6
   CF85-Obermehler-SA6: SA-6
   CF85-Erfurt-SA6: SA-6
 victory:
@@ -137,13 +136,6 @@ squadrons:
         - 11th Armored Cavalry Regiment
       size: 4
   # ========================== Warsaw Pact ==========================
-  # Haina: Hinds behind the 8th Guards Army.
-  Haina:
-    - primary: CAS
-      secondary: any
-      aircraft:
-        - 336th Independent Combat Helicopter Regiment
-      size: 8
   Obermehler Schlotheim:
     - primary: Air Assault
       secondary: any
@@ -158,6 +150,12 @@ squadrons:
         - Jagdfliegergeschwader 1
       size: 8
   Allstedt:
+    # Hinds behind the 8th Guards Army; at Haina until the front moved back.
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 336th Independent Combat Helicopter Regiment
+      size: 8
     - primary: BARCAP
       secondary: any
       aircraft:

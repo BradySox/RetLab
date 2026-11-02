@@ -37,7 +37,6 @@ MIZ = Path("resources/campaigns/fulda_gap_1985.miz")
 NATO = "NATO Central Front 1985"
 PACT = "Warsaw Pact Central Front 1985"
 OBERMEHLER = "Obermehler Schlotheim"
-MEININGEN = "Meiningen"
 #: Cut from 26 to 13 by the DM, 2026-10-24: front and key fields only.
 BLUE = {
     "Spangdahlem",
@@ -48,7 +47,8 @@ BLUE = {
     "Fritzlar",
     "Schweinfurt",
 }
-RED = {"Haina", OBERMEHLER, MEININGEN, "Bindersleben", "Allstedt", "Merseburg"}
+#: Haina and Meiningen dropped 2026-11-02: the fronts were too cramped.
+RED = {OBERMEHLER, "Bindersleben", "Allstedt", "Merseburg"}
 ROADS = {
     frozenset(pair)
     for pair in (
@@ -59,11 +59,9 @@ ROADS = {
         ("Frankfurt", "Fritzlar"),
         ("Frankfurt", "Schweinfurt"),
         ("Fulda", "Fritzlar"),
-        ("Fulda", "Haina"),
-        ("Schweinfurt", MEININGEN),
-        (MEININGEN, "Bindersleben"),
-        (OBERMEHLER, "Haina"),
-        ("Haina", "Bindersleben"),
+        ("Fulda", "Bindersleben"),
+        ("Schweinfurt", "Bindersleben"),
+        (OBERMEHLER, "Bindersleben"),
         ("Bindersleben", "Allstedt"),
         ("Allstedt", "Merseburg"),
     )
@@ -117,11 +115,8 @@ def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     assert red == RED
     # Every field outside the sector holds nothing, and nothing is off the map.
     assert len(theater.controlpoints) == len(BLUE) + len(RED)
-    fobs = {cp.name for cp in theater.controlpoints if isinstance(cp, Fob)}
-    assert fobs == {MEININGEN}
-    assert all(
-        isinstance(cp, Airfield) for cp in theater.controlpoints if cp.name != MEININGEN
-    )
+    assert not any(isinstance(cp, Fob) for cp in theater.controlpoints)
+    assert all(isinstance(cp, Airfield) for cp in theater.controlpoints)
 
 
 def test_every_red_point_inverts_and_no_blue_one_does(
@@ -148,8 +143,8 @@ def test_the_three_crossings(loaded: tuple[Campaign, ConflictTheater]) -> None:
     }
     # The Fulda Gap and the Meiningen road: a two-front war (the DM's call).
     assert opposed == {
-        frozenset(("Fulda", "Haina")),
-        frozenset(("Schweinfurt", MEININGEN)),
+        frozenset(("Fulda", "Bindersleben")),
+        frozenset(("Schweinfurt", "Bindersleben")),
     }
 
 
@@ -229,7 +224,7 @@ def test_the_soviet_iads_net(loaded: tuple[Campaign, ConflictTheater]) -> None:
         if group.name.startswith("CF85-IADS-")
     ]
     assert statics.count(".Command Center") == 1
-    assert statics.count("Comms tower M") == 12
+    assert statics.count("Comms tower M") == 11
     assert statics.count("GeneratorF") == 4
     # NATO's Patriot is the one long-range marker. Red has no SA-5: its rings
     # covered all of West Germany (the DM's call, 2026-10-24).
@@ -272,17 +267,19 @@ def test_every_road_leaves_its_bases_off_road() -> None:
 def test_carstens_sites_are_drawn_unit_by_unit(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
-    """22 FIXED sites: Hawks for NATO, SA-2/3/5 and S-60 for red."""
+    """20 FIXED sites: Hawks for NATO, SA-2 and S-60 for red."""
     _, theater = loaded
     sites = {
         site.original_name: cp
         for cp in theater.controlpoints
         for site in cp.preset_locations.exact_air_defenses
     }
-    assert len(sites) == 22
+    assert len(sites) == 20
     # The DM placed Kaltennordheim's launchers himself; it and Eckolstadt were
     # SA-5s and are SA-2s in the same revetments.
-    assert {"FIXED SA-2 Kaltennordheim", "FIXED SA-2 Eckolstadt"} <= set(sites)
+    assert "FIXED SA-2 Eckolstadt" in sites
+    # Meiningen and Kaltennordheim went with Meiningen: they bound to Fulda.
+    assert not {"FIXED SA-3 Meiningen", "FIXED SA-2 Kaltennordheim"} & set(sites)
     assert not any("SA-5" in name for name in sites)
     assert "SA-5/S-200" not in {pg.name for pg in FACTIONS[PACT].preset_groups}
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
