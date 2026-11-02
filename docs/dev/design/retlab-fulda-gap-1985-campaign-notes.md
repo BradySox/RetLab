@@ -91,7 +91,10 @@ day):** at about 140 NM their rings covered all of West Germany. Kaltennordheim 
 Eckolstadt keep their revetments as SA-2 sites: each S-200 launcher became an SA-2
 launcher, the 5N62 tracking radar a Fan Song, the command post was dropped. His
 Kaltennordheim group was three radars with no launchers; the DM placed its launchers in
-the Mission Editor. The faction has no SA-5 preset, so none can be bought. The Hawks sit in the blue
+the Mission Editor. The faction has no SA-5 preset, so none can be bought. **SA-2s kept (DM
+call, 2026-11-02):** ED's own Germany instant actions (`*_GER_IA_*` in the A-10A, F-15C, F-5E,
+FA-18C and CH-47F folders) put SA-3s on the same spots at Gotha, Kothen, Allstedt, Merseburg
+and Leipzig and an SA-5 at Quedlinburg; the campaign keeps Carsten's types. The Hawks sit in the blue
 country block, red's in the red. The red faction carries the S-60 and the KS-19/SON-9 preset so
 it can field the S-60 site's Fire Can. The CRC at Erndtebruck is still a marker. Added: mobile
 SA-6s at Haina, Obermehler and Erfurt (standing in for the SA-4 brigades), SHORAD at the fields
