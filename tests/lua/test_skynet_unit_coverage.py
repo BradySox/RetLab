@@ -22,6 +22,8 @@ from tests.lua.harness import REPO_ROOT, DcsPluginHarness
 ENGINE = "resources/plugins/skynetiads/skynet-iads-compiled.lua"
 
 RADAR_CLASSES = {
+    # A gun site's Fire Can goes to Skynet as that site's EWR (AAA -> IadsRole.EWR).
+    UnitClass.AAA_RADAR,
     UnitClass.EARLY_WARNING_RADAR,
     UnitClass.SEARCH_RADAR,
     UnitClass.SEARCH_TRACK_RADAR,
