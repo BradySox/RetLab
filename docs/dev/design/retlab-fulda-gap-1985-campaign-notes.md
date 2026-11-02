@@ -73,13 +73,13 @@ Regiment numbers are from memory and not checked against a source. Where unsure 
 MiG-27s, Obermehler) the squadron is named by its aircraft type. JG-1 was at Holzdorf and the
 Tornados at Norvenich and Bruggen: they moved with the cut.
 
-**Fronts.** Two (DM call, 2026-10-26: "a two front war"): Fulda – Haina (Hunfeld, Geisa,
-Bad Salzungen, Eisenach) and Schweinfurt – Meiningen (Bad Neustadt, Mellrichstadt). The
-Fritzlar – Obermehler road up the Werra was removed; both fields stay, Fritzlar behind
-Fulda and Obermehler behind Haina.
-Meiningen joins Erfurt through Suhl and Arnstadt. NATO's roads run to Frankfurt from
-Spangdahlem (through the Hunsruck and Mainz), Ramstein (Kaiserslautern, Alzey) and Schweinfurt
-(Wurzburg); the Pact's run from Gotha and Erfurt to Allstedt and Merseburg.
+**Fronts.** Two, both into Erfurt (DM calls: a two-front war, 2026-10-26; more room, 2026-11-02):
+Fulda – Bindersleben up the Fulda Gap (Hunfeld, Geisa, Bad Salzungen, Eisenach, Gotha), 57 NM, and
+Schweinfurt – Bindersleben over the Meiningen road (Bad Neustadt, Mellrichstadt, Meiningen, Suhl,
+Arnstadt), 64 NM. Haina and the Meiningen FOB were dropped because the old fronts were 42 and 33 NM
+and the SAM rings on both sides covered the whole gap; their markers, the Meiningen SA-3 and the
+DM's Kaltennordheim SA-2 went with them (those two would have bound to Fulda). The Haina Hinds moved
+to Allstedt. Obermehler joins Erfurt through Bad Langensalza.
 
 **Air defense.** NATO, at Carsten's sites: Hawks at Frielendorf, Kassel, Bruchkobel, Giessen,
 Fulda, Rockenhausen, Baumholder, Schmallenberg, Steinheim and Bad Driburg, and the CRC at
