@@ -83,6 +83,7 @@ our file, each with a `RetLab:` comment. Harness: `test_skynet_engine.py`. Row B
 | `CH_` prefix on 12 US Patriot ids, Pantsir-S2, Tor M2K | Juan |
 | FPS-117 and FPS-117 Dome EWRs | Skynet 3.3.0 |
 | P-37 moved into the S-200 `searchRadar` block; 1L119 Nebo-SVU and 55G6U Nebo-U EWRs | ours (found by the coverage test) |
+| Fire Can (`SON_9`, HDS `Fire Can radar`) as an EWR, 2026-11-02: a KS-19 site reaches Skynet as an EWR named after its Fire Can, which reported nothing. The coverage test now reads gun radars too. Row B303 | ours (seen in a shipped F-4E mission's Skynet table) |
 | LvS-103, RBS 70, RBS 98, IRIS-T SLM under `CHAP_` ids | Juan; RBS 90 ours |
 | HARM detection rolls for every radar that sees the HARM (the evaluated list aliased the contact's own) | Skynet 3.3.0 |
 | A zero-speed contact skips only itself in the HARM scan, instead of `return` | Juan |

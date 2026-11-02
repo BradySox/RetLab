@@ -483,6 +483,24 @@ samTypesDB = {
 		},
 		['harm_detection_chance'] = 60
 	},
+	-- RetLab: a KS-19 site's Fire Can reaches Skynet as the site's EWR; without an entry it
+	-- reported nothing. "Fire Can radar" is the retired High Digit SAMs copy.
+	['Fire Can'] = {
+		['type'] = 'ewr',
+		['searchRadar'] = {
+			['SON_9'] = {
+				['name'] = {
+					['NATO'] = 'Fire Can',
+				},
+			},
+			['Fire Can radar'] = {
+				['name'] = {
+					['NATO'] = 'Fire Can',
+				},
+			},
+		},
+		['harm_detection_chance'] = 20
+	},
 	['Dog Ear'] = {
 		['type'] = 'ewr',
 		['searchRadar'] = {
