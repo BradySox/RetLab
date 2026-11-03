@@ -50,8 +50,12 @@ def _voice_atc(airfield_name: str, mission_data: MissionData) -> list[RadioFrequ
     if pair is None:
         return []
     frequencies = list(pair)
-    if (approach := mission_data.approach_frequencies.get(airfield_name)) is not None:
-        frequencies.append(approach)
+    for table in (
+        mission_data.departure_frequencies,
+        mission_data.approach_frequencies,
+    ):
+        if (frequency := table.get(airfield_name)) is not None:
+            frequencies.append(frequency)
     return frequencies
 
 

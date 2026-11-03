@@ -6,11 +6,12 @@ No prose on what a call does (user call, 2026-10-22).
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 from typing import Callable, Optional
 
 from game.radio.radios import RadioFrequency
-from game.retlab.voice_atc import AtcField, approach_name, station_name
+from game.retlab.voice_atc import AtcField, station_name
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
 
@@ -33,8 +34,14 @@ def _example_point(field: AtcField, exit: bool) -> str:
     return "10 miles"
 
 
-def _altitude(field: AtcField) -> str:
-    return f"{field.routes.max_altitude_ft:,}" if field.routes else "field plus 2,000"
+def _altitude(field: AtcField, elevation_m: Optional[float]) -> str:
+    """The chart's arrival/departure altitude, else the field elevation plus 2,000 ft, as
+    the plugin gives it."""
+    if field.routes is not None:
+        return f"{field.routes.max_altitude_ft:,}"
+    if elevation_m is None:
+        return "2,000 above the field"
+    return f"{math.ceil((elevation_m * 3.28084 + 2000) / 100) * 100:,}"
 
 
 def _lines(writer: KneeboardPageWriter, lines: list[str]) -> None:
@@ -166,8 +173,16 @@ class AtcPage(KneeboardPage):
         dark_kneeboard: bool,
         divert: Optional[AtcField] = None,
         preset: Optional[Callable[[RadioFrequency], Optional[str]]] = None,
+        wind: Optional[str] = None,
+        altimeter: Optional[str] = None,
+        elevations_m: Optional[dict[str, float]] = None,
     ) -> None:
         self.callsign = callsign
+        #: The briefed surface wind ("230 at 8") and altimeter ("29.92"); the controllers
+        #: read the live wind, so it can drift in flight.
+        self.wind = wind
+        self.altimeter = altimeter
+        self.elevations_m = elevations_m or {}
         self.departure = departure
         self.arrival = arrival
         self.divert = divert
@@ -205,11 +220,15 @@ class AtcPage(KneeboardPage):
             w.text(
                 self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
             )
-            if f.approach is not None:
-                w.text(
-                    self._station(approach_name(f.name), f.approach),
-                    fill=w.col_nav,
-                )
+            for position, frequency in (
+                ("departure", f.departure),
+                ("approach", f.approach),
+            ):
+                if frequency is not None:
+                    w.text(
+                        self._station(station_name(f.name, position), frequency),
+                        fill=w.col_nav,
+                    )
             if f.routes is not None:
                 w.text(f"  Entry and exit points ({f.routes.chart} chart):")
                 for row in f.route_lines:
@@ -217,18 +236,29 @@ class AtcPage(KneeboardPage):
             elif f.approach is not None:
                 w.text("  No chart: Approach gives an entry 10 NM out.")
         # The "You:" lines are the readbacks; any readback, or none, is accepted.
+        wind = f"wind {self.wind}" if self.wind else "wind"
+        alt = f"altimeter {self.altimeter}" if self.altimeter else "altimeter"
+        flight_name = me.rsplit("-", 1)[0] + " flight"
         if out is not None:
             o, r = out.name, out.runway
             t = _spoken_freq(out.tower)
-            if out.approach is not None:
-                takeoff = f"contact Departure {_spoken_freq(out.approach)}."
-                exit_name = _example_point(out, exit=True)
+            departure_freq = out.departure or out.approach
+            climb = _altitude(out, self.elevations_m.get(out.name))
+            if departure_freq is not None:
+                takeoff = f"contact Departure {_spoken_freq(departure_freq)}."
+                if out.routes is not None:
+                    exit_name = _example_point(out, exit=True)
+                    clearance = f"depart via {exit_name} exit"
+                    report = exit_name
+                else:
+                    clearance = "depart on present heading"
+                    report = "10 miles"
                 departure = [
                     f'"{o} Departure, {me}, airborne."',
-                    f'  ATC: "Radar contact, depart via {exit_name}, climb and maintain '
-                    f'{_altitude(out)}, report {exit_name}."',
-                    f'"{o} Departure, {me}, {exit_name}."',
-                    '  ATC: "Frequency change approved."',
+                    f'  ATC: "{me}, {o} Departure, radar contact, {clearance}, climb and '
+                    f'maintain {climb}, report {report}."',
+                    f'"{me}, {report}."',
+                    f'  ATC: "{me}, frequency change approved."',
                 ]
             else:
                 takeoff = "frequency change approved."
@@ -239,37 +269,44 @@ class AtcPage(KneeboardPage):
                 w,
                 [
                     f'"{o} Ground, {me}, radio check."',
-                    f'  ATC: "{o} Ground, read you 5 by 5."',
-                    f'"{o} Ground, {me}, request taxi."',
-                    f'  ATC: "{o} Ground, taxi to runway {r}, altimeter, hold short, '
+                    f'  ATC: "{me}, {o} Ground, read you 5 by 5."',
+                    f'"{o} Ground, {me}, flight of two, taxi."',
+                    f'  ATC: "{flight_name}, {o} Ground, taxi to runway {r}, {alt}, '
+                    f'hold short, contact Tower {t}."',
+                    f'  You: "Taxi {r}, hold short, {me}."',
+                    f'"{o} Ground, {me}, flight of two, taxi, have the numbers."',
+                    f'  ATC: "{flight_name}, {o} Ground, taxi to runway {r}, hold short, '
                     f'contact Tower {t}."',
-                    f'  You: "Taxi runway {r}, hold short, {me}."',
-                    f'"{o} Ground, {me}, flight of two, have the numbers, request taxi."',
-                    f'  ATC: "{me} flight, {o} Ground, taxi to runway {r}, hold short, '
-                    f'contact Tower {t}."',
-                    f'"{o} Tower, {me}, holding short runway {r}, ready."',
-                    f'  ATC: "Runway {r}, wind, cleared for takeoff, {takeoff}"',
-                    f'  You: "Cleared for takeoff {r}, {me}."',
+                    f'"{o} Tower, {me}, holding short {r}, ready for takeoff."',
+                    f'  ATC: "{me}, runway {r}, {wind}, cleared for takeoff, {takeoff}"',
+                    f'  You: "Cleared for takeoff, {me}."',
                     *departure,
                 ],
             )
         if home is not None:
             h, r = home.name, home.runway
+            hold = _altitude(home, self.elevations_m.get(home.name))
             if home.approach is not None:
-                entry = _example_point(home, exit=False)
+                if home.routes is not None:
+                    entry = _example_point(home, exit=False)
+                    clearance = f"enter via {entry}"
+                    report = entry
+                else:
+                    clearance = "proceed 10 miles north of the field"
+                    report = "10 miles"
                 arrival = [
                     f'"{h} Approach, {me}, 30 miles north, inbound, full stop."',
-                    f'  ATC: "Radar contact, runway {r}, enter via {entry}, maintain '
-                    f'{_altitude(home)}, report {entry}."',
-                    f'"{h} Approach, {me}, {entry}."',
-                    f'  ATC: "Contact Tower {_spoken_freq(home.tower)}."',
+                    f'  ATC: "{me}, {h} Approach, radar contact, runway {r}, {clearance}, '
+                    f'maintain {hold}, report {report}."',
+                    f'"{me}, {report}."',
+                    f'  ATC: "{me}, contact Tower {_spoken_freq(home.tower)}."',
                     f'"{h} Tower, {me}."',
-                    f'  ATC: "Runway {r}, wind, report initial."',
+                    f'  ATC: "{me}, {h} Tower, runway {r}, {wind}, report initial."',
                 ]
             else:
                 arrival = [
                     f'"{h} Tower, {me}, 10 miles, full stop."',
-                    f'  ATC: "Runway {r}, wind, report initial."',
+                    f'  ATC: "{me}, runway {r}, {wind}, report initial."',
                 ]
             w.rule()
             w.heading("Coming home")
@@ -278,16 +315,16 @@ class AtcPage(KneeboardPage):
                 [
                     *arrival,
                     f'"{h} Tower, {me}, 10 miles, request straight-in."',
-                    f'  ATC: "Runway {r}, wind, make straight-in, report 3-mile final."',
+                    f'  ATC: "{me}, runway {r}, {wind}, make straight-in, report 3-mile final."',
                     f'"{me}, initial."',
-                    '  ATC: "Roger."',
+                    f'  ATC: "{me}, roger."',
                     f'"{me}, base, gear down, full stop."',
-                    f'  ATC: "Runway {r}, wind, cleared to land."',
-                    f'  You: "Cleared to land {r}, {me}."',
-                    f'"{h} Tower, {me}, clear of the runway."',
-                    '  ATC: "Taxi to parking."',
-                    f'"Mayday, {me}, emergency fuel."',
-                    '  ATC: "Cleared to land any runway."',
+                    f'  ATC: "{me}, runway {r}, {wind}, cleared to land."',
+                    f'  You: "Cleared to land, {me}."',
+                    f'"{h} Tower, {me}, clear of runway {r}."',
+                    f'  ATC: "{me}, taxi to parking."',
+                    f'"Mayday, mayday, mayday, {me}, engine failure."',
+                    f'  ATC: "{me}, {h} Tower, roger mayday, cleared to land any runway."',
                 ],
             )
         w.write(path)

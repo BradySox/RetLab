@@ -11564,7 +11564,7 @@ Row B264.
 and a Tower controller at every airfield a player flight takes off from, lands at or diverts
 to (divert added 2026-10-21, user call). AI-only
 fields and AI flights keep DCS's own ATC. Step 1 of three in the approved plan: Ground and
-Tower. Step 2 (Approach, which also works departures) is built, 2026-10-29; polish in step 3.
+Tower. Step 2 (Departure and Approach) is built, 2026-10-29; polish in step 3.
 
 - **Frequencies:** each field gets two new UHF AM channels, Ground and Tower, reserved like
   STRIKE (`allocate_atc_frequencies`). UHF, because the F-4E, the F-5E and a Tomcat pilot
@@ -11712,10 +11712,17 @@ a readback, and "request runway in use" is the new `runway` kind. The ATC card s
 
 ### Step 2: Approach and Departure (built 2026-10-29)
 
-Each field gets a third UHF frequency, **Approach**, which also works departures, as a
-military RAPCON does (user call, 2026-10-29). Pinned for the campaign like Ground and Tower
-(`Game.voice_atc_approach_frequencies`, saved; old saves pin it on their next generate), on
-the presets after Tower, on the comm card and the ATC card, labelled **Approach/Departure** (APP/DEP) so a pilot sent to Departure finds it (user call, 2026-10-29).
+Each field gets two more UHF frequencies, **Departure** and **Approach**. They shared one
+frequency, RAPCON style, from 2026-10-29 until the first flight (user call, 2026-11-02: split
+them). Pinned for the campaign like Ground and Tower (`Game.voice_atc_departure_frequencies`,
+`Game.voice_atc_approach_frequencies`, saved; old saves pin them on their next generate), on
+the presets in order of use (Ground, Tower, Departure, Approach), the comm card and the ATC
+card. A departure's call on Approach gets "contact Departure", an arrival's on Departure
+"contact Approach". A mission generated before the split has Approach work departures.
+- **The ATC card** (rewritten 2026-11-02, user call): every call and answer is what the pilot
+  and the plugin say, callsign and station first, with the mission's briefed wind and
+  altimeter and the real departure/arrival altitude. The controllers read the live wind, so
+  the card's can drift in flight. Mayday gets "roger mayday, cleared to land any runway".
 
 - **Departure:** Tower's takeoff clearance ends "contact Departure <freq>". On the airborne
   call Approach gives the chart exit nearest the jet's heading, "climb and maintain" the
@@ -12115,7 +12122,7 @@ file per frequency, for Tacview's synchronized audio. Ideas from A.R.E.S. only, 
 call, 2026-10-29).
 
 - **What is recorded:** SkyEye's AWACS frequency, STRIKE, Vacuum's frequency, each player field's
-  Ground, Tower and Approach (the Voice ATC plan), then each blue player flight's intra-flight frequency.
+  Ground, Tower, Departure and Approach (the Voice ATC plan), then each blue player flight's intra-flight frequency.
   Each frequency once, a bot's first. `recorded_frequencies` in `game/retlab/radio_record.py`.
 - **A flight's own frequency is record-only** (user call, 2026-10-29): SkyEye never passes a call
   heard there to speech recognition, so nothing on it is answered. Player flights only.

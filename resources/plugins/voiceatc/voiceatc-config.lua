@@ -4,7 +4,8 @@
 -- Reads dcsRetribution.voiceAtc (emitted only with the Voice ATC setting on and a player flight
 -- at an airfield): linkHost, linkPort, declination,
 --   fields = { { name, airbase, runway, runways ('10R,28L,...' in pairs), altimeter, ground,
---     tower, groundVoice, towerVoice, approach, approachVoice, and with a chart: chart,
+--     tower, groundVoice, towerVoice, departure, departureVoice, approach, approachVoice, and with
+--     a chart: chart,
 --     maxAltitude, patternAltitude, points = { { name, x, z, entry ('07,25'), exit } } } },
 --   flights = { { group, callsign, departure, arrival, divert } }
 --
@@ -57,7 +58,7 @@ local stations = {} -- frequency string -> { field, position }
 for _, f in ipairs(data.fields or {}) do
     table.insert(fields, f)
     fieldsByName[f.name] = f
-    for _, position in ipairs({ "ground", "tower", "approach" }) do
+    for _, position in ipairs({ "ground", "tower", "departure", "approach" }) do
         if f[position] and f[position] ~= "" then
             stations[f[position]] = { field = f, position = position }
         end
@@ -257,7 +258,7 @@ local function announce(_, now)
     local list = {}
     for _, f in ipairs(fields) do
         local positions = {}
-        for _, position in ipairs({ "ground", "tower", "approach" }) do
+        for _, position in ipairs({ "ground", "tower", "departure", "approach" }) do
             if f[position] and f[position] ~= "" then
                 table.insert(positions, { { "position", position }, { "frequency", f[position] } })
             end
@@ -381,10 +382,22 @@ end
 -- Calls
 ---------------------------------------------------------------------------------------------------
 
-local POSITION_NAMES = { ground = "Ground", tower = "Tower", approach = "Approach" }
+local POSITION_NAMES = { ground = "Ground", tower = "Tower", departure = "Departure", approach = "Approach" }
 
 local function stationLabel(field, position)
     return field.name .. " " .. (POSITION_NAMES[position] or "Tower")
+end
+
+-- Departure has its own frequency since 2026-11-02 (user call); a field from an older mission
+-- had Approach working departures.
+local function departurePosition(field)
+    if field.departure and field.departure ~= "" then
+        return "departure"
+    end
+    if field.approach and field.approach ~= "" then
+        return "approach"
+    end
+    return nil
 end
 
 -- Speaks a call on a field position and keeps it for "say again". Text only without LuaSocket.
@@ -551,8 +564,9 @@ local function takeoff(field, flight, member, on, detail, text)
     if not (flight.numbers or hasNumbers(detail, text)) then
         withWind(parts, field)
     end
-    if field.approach and field.approach ~= "" then
-        for _, part in ipairs({ "cleared for takeoff, contact Departure ", digits(frequencyLabel(field.approach)), "." }) do
+    local departure = departurePosition(field)
+    if departure then
+        for _, part in ipairs({ "cleared for takeoff, contact Departure ", digits(frequencyLabel(field[departure])), "." }) do
             table.insert(parts, part)
         end
     else
@@ -647,7 +661,10 @@ end
 
 local function emergency(field, position, flight, member)
     flight.landing[member] = field.name
-    say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", cleared to land any runway." }))
+    say(field, position, flight, line({
+        callsignPart(memberCallsign(flight, member)),
+        ", " .. stationLabel(field, position) .. ", roger mayday, cleared to land any runway.",
+    }))
 end
 
 local function radioCheck(field, position, flight, member)
@@ -807,7 +824,7 @@ local function departureCall(field, flight, member)
     local unit = memberUnit(flight, member)
     local base = airbasePoint(field)
     if not (unit and base) then
-        return sayAgainOn(field, "approach", flight, member)
+        return sayAgainOn(field, departurePosition(field), flight, member)
     end
     local p, v = unit:getPoint(), unit:getVelocity()
     local towards = bearing(base, p.x, p.z)
@@ -828,12 +845,12 @@ local function departureCall(field, flight, member)
         table.insert(parts, ", report " .. exit.name .. ".")
     end
     flight.departing[member] = { field = field.name, point = exit }
-    say(field, "approach", flight, line(parts))
+    say(field, departurePosition(field), flight, line(parts))
 end
 
 local function releaseDeparture(field, flight, member)
     flight.departing[member] = nil
-    say(field, "approach", flight, line({ callsignPart(memberCallsign(flight, member)), ", frequency change approved." }))
+    say(field, departurePosition(field), flight, line({ callsignPart(memberCallsign(flight, member)), ", frequency change approved." }))
 end
 
 -- The runway and the chart entry nearest the flight that serves it, or a point 10 NM out.
@@ -947,8 +964,24 @@ end
 
 -- A call to one position: the reply, or the right frequency when it is the other position's job.
 local function handleCall(field, position, flight, member, kind, detail, text)
-    if position == "approach" and kind ~= "radiocheck" and kind ~= "sayagain" and kind ~= "emergency"
+    if (position == "approach" or position == "departure") and kind ~= "radiocheck" and kind ~= "sayagain" and kind ~= "emergency"
         and kind ~= "runway" then
+        -- A departure on Approach, or an arrival on Departure, is sent to the right frequency.
+        local other
+        if position == "approach" and departurePosition(field) == "departure"
+            and (kind == "airborne" or kind == "ready" or (flight.departing[member] and kind ~= "inbound")) then
+            other = "departure"
+        elseif position == "departure" and kind == "inbound" and field.approach and field.approach ~= "" then
+            other = "approach"
+        end
+        if other then
+            return say(field, position, flight, line({
+                callsignPart(memberCallsign(flight, member)),
+                ", contact " .. POSITION_NAMES[other] .. " ",
+                digits(frequencyLabel(field[other])),
+                ".",
+            }))
+        end
         return approachCall(field, flight, member, kind, text)
     end
     if position == "tower" and flight.handoff[member] == field.name and kind ~= "radiocheck"
@@ -975,11 +1008,12 @@ local function handleCall(field, position, flight, member, kind, detail, text)
         -- clearance (taxi is the first call), and the takeoff clearance already approved the
         -- frequency change, so an airborne call is answered but never needed.
         local reply = kind == "startup" and ", start at your discretion. Call ready to taxi." or ", frequency change approved."
-        if kind == "airborne" and field.approach and field.approach ~= "" then
+        local departure = departurePosition(field)
+        if kind == "airborne" and departure and position ~= departure then
             return say(field, position, flight, line({
                 callsignPart(memberCallsign(flight, member)),
                 ", contact Departure ",
-                digits(frequencyLabel(field.approach)),
+                digits(frequencyLabel(field[departure])),
                 ".",
             }))
         end

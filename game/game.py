@@ -198,6 +198,7 @@ class Game:
         )
         #: Voice ATC's Approach per airfield (step 2), pinned the same way.
         self.voice_atc_approach_frequencies: dict[str, RadioFrequency] = {}
+        self.voice_atc_departure_frequencies: dict[str, RadioFrequency] = {}
         # Player-imported kneeboard images injected into client flights at mission
         # generation (managed in the UI; see game/customkneeboard.py).
         self.custom_kneeboards: list[CustomKneeboard] = []
@@ -256,6 +257,7 @@ class Game:
         state.setdefault("opfor_ai_notes", {})
         state.setdefault("voice_atc_frequencies", {})
         state.setdefault("voice_atc_approach_frequencies", {})
+        state.setdefault("voice_atc_departure_frequencies", {})
         state.setdefault("last_flight_cards", [])
         # §112 is on for new games only: a save from before it keeps playing as it was.
         if "hq_requests" not in state:

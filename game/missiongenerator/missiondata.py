@@ -181,6 +181,8 @@ class MissionData:
     )
     #: Voice ATC step 2: each player airfield's Approach, which also works departures.
     approach_frequencies: dict[str, RadioFrequency] = field(default_factory=dict)
+    #: Each player airfield's Departure (user call, 2026-11-02: apart from Approach).
+    departure_frequencies: dict[str, RadioFrequency] = field(default_factory=dict)
     #: Voice ATC's fields and flights, built once for the Lua and the kneeboard.
     voice_atc: Optional[VoiceAtcPlan] = None
     runways: list[RunwayData] = field(default_factory=list)
@@ -248,4 +250,5 @@ class MissionData:
         for pair in self.atc_frequencies.values():
             frequencies.update(pair)
         frequencies.update(self.approach_frequencies.values())
+        frequencies.update(self.departure_frequencies.values())
         return frequencies
