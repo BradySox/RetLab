@@ -287,7 +287,7 @@ def test_a_rain_preset_reads_overcast_with_rain() -> None:
         preset=CLOUD_PRESETS["RainyPreset1"].value,
     )
     assert format_cloud_layer(clouds) == "OVC 3500 FT RA"
-    assert format_visibility(None, clouds) == "3-5 km"
+    assert format_visibility(None, clouds) == "1.9-3.1 SM"
 
 
 @pytest.mark.parametrize(
@@ -315,9 +315,9 @@ def test_format_visibility_no_fog_is_unrestricted() -> None:
     assert format_visibility(None) == "7+ SM"
 
 
-def test_format_visibility_with_fog_emits_km() -> None:
+def test_format_visibility_with_fog_emits_statute_miles() -> None:
     fog = Fog(visibility=meters(3500), thickness=100)
-    assert format_visibility(fog) == "3.5 km (fog)"
+    assert format_visibility(fog) == "2.2 SM (fog)"
 
 
 def test_build_atis_block_zulu_optional_when_no_conversion_available() -> None:

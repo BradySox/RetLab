@@ -122,14 +122,23 @@ def format_cloud_layer(clouds: Optional["Clouds"]) -> str:
     return f"{cover} {base_ft} FT{weather}"
 
 
+def _statute_miles(km: float) -> str:
+    return f"{km / 1.609344:.1f}"
+
+
 def format_visibility(fog: Optional["Fog"], clouds: Optional["Clouds"] = None) -> str:
     if fog is not None:
-        return f"{fog.visibility.kilometers:.1f} km (fog)"
+        return f"{_statute_miles(fog.visibility.kilometers)} SM (fog)"
     if clouds is not None:
         metar = _preset_metar(clouds).split()
         if "VIS" in metar[:-1]:
-            vis = metar[metar.index("VIS") + 1]
-            return vis.lower().replace("km", " km")
+            vis = metar[metar.index("VIS") + 1].upper().removesuffix("KM")
+            try:
+                return (
+                    "-".join(_statute_miles(float(k)) for k in vis.split("-")) + " SM"
+                )
+            except ValueError:
+                pass
     return "7+ SM"
 
 
