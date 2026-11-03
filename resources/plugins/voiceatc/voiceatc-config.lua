@@ -992,6 +992,11 @@ end
 -- A call on Approach: a departure's airborne call or exit report, an arrival's inbound call or
 -- entry report. Anything else from a flight in the air is placed by where it flies from.
 local function approachCall(field, flight, member, kind, text)
+    -- "Chevy 3, climb 3000, report 10 miles" is a readback: silence (flown 2026-11-02, it got
+    -- an Approach clearance), and its "10 miles" is not the report.
+    if heardWord(text, "climb") or heardWord(text, "maintain") or heardWord(text, "report") then
+        return
+    end
     local departing, arriving = flight.departing[member], flight.arriving[member]
     if departing and departing.field == field.name and reportsPoint(departing, text) then
         return releaseDeparture(field, flight, member)
@@ -1036,6 +1041,10 @@ end
 
 -- A call to one position: the reply, or the right frequency when it is the other position's job.
 local function handleCall(field, position, flight, member, kind, detail, text)
+    if kind == "runway" and heardWord(text, "clear") then
+        -- "Clear the active" is off the runway, not a question about it (flown 2026-11-02).
+        kind = "clear"
+    end
     if (position == "approach" or position == "departure") and kind ~= "radiocheck" and kind ~= "sayagain" and kind ~= "emergency"
         and kind ~= "runway" then
         -- A departure on Approach, or an arrival on Departure, is sent to the right frequency.
@@ -1102,6 +1111,9 @@ local function handleCall(field, position, flight, member, kind, detail, text)
     elseif kind == "clear" then
         flight.landing[member] = nil
         say(field, on or "tower", flight, line(parkingParts(field, flight, member, ", taxi to parking")))
+    elseif heardWord(text, "parking") then
+        -- "Taxiing to parking" needs no clearance (flown 2026-11-02: it got "say again").
+        say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", roger." }))
     else
         say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", say again." }))
     end
