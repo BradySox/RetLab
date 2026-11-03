@@ -115,8 +115,8 @@ def test_departure_gives_the_exit_ahead_and_lets_go_at_the_report() -> None:
     _call(h, "airborne", frequency=APPROACH)
     h.advance_to(2)
     assert _texts(h)[-1] == (
-        "Viper 1-1, Kobuleti Departure, radar contact, depart via North exit, "
-        "climb and maintain 2,000, report North."
+        "Viper 1-1, Kobuleti Departure, radar contact, climb and maintain 2,000, "
+        "depart via North, report North."
     )
     _call(h, "unknown", frequency=APPROACH, text="Kobuleti Departure, Viper 1-1, North")
     h.advance_to(4)
@@ -219,9 +219,8 @@ def test_with_its_own_frequency_departure_works_the_exits_there() -> None:
     h.advance_to(4)
     frequency, text = _said_on(h)[-1]
     assert frequency == DEPARTURE
-    assert text.startswith(
-        "Viper 1-1, Kobuleti Departure, radar contact, depart via North"
-    )
+    assert text.startswith("Viper 1-1, Kobuleti Departure, radar contact, climb")
+    assert "depart via North" in text
     _call(h, "unknown", frequency=DEPARTURE, text="Viper 1-1, North")
     h.advance_to(6)
     assert _said_on(h)[-1] == (DEPARTURE, "Viper 1-1, frequency change approved.")
@@ -314,8 +313,13 @@ def test_taxi_names_the_spawn_spot_and_takeoff_gives_the_sop_turn() -> None:
     )
     _call(h, "ready", frequency=TOWER)
     h.advance_to(4)
+    assert "cleared for takeoff, contact Departure 266.0." in _texts(h)[-1]
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=DEPARTURE)
+    h.advance_to(6)
     assert (
-        "cleared for takeoff, right turn 280, contact Departure 266.0." in _texts(h)[-1]
+        "radar contact, turn right heading 280, climb and maintain 2,600, "
+        "depart via Lake, report Lake." in _texts(h)[-1]
     )
 
 
@@ -323,11 +327,19 @@ def test_the_south_exit_turns_left_and_runway_05_has_no_turn() -> None:
     h = _sop_harness(exit_name="Bravo")
     _call(h, "ready", frequency=TOWER)
     h.advance_to(2)
-    assert "cleared for takeoff, left turn 210, contact Departure" in _texts(h)[-1]
+    assert "cleared for takeoff, contact Departure" in _texts(h)[-1]
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=DEPARTURE)
+    h.advance_to(4)
+    assert "turn left heading 210, climb and maintain" in _texts(h)[-1]
     h = _sop_harness(runway="05")
     _call(h, "ready", frequency=TOWER)
     h.advance_to(2)
     assert "cleared for takeoff, contact Departure" in _texts(h)[-1]
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=DEPARTURE)
+    h.advance_to(4)
+    assert "heading" not in _texts(h)[-1]
 
 
 def test_departure_gives_the_planned_exit_whatever_the_heading() -> None:
@@ -336,7 +348,7 @@ def test_departure_gives_the_planned_exit_whatever_the_heading() -> None:
     _move(h, 2 * NM, vx=150)
     _call(h, "airborne", frequency=DEPARTURE)
     h.advance_to(2)
-    assert "depart via Bravo exit" in _texts(h)[-1]
+    assert "depart via Bravo, report Bravo." in _texts(h)[-1]
 
 
 def test_after_landing_back_home_it_is_taxi_to_parking_spot_42() -> None:
