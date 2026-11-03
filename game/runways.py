@@ -35,6 +35,8 @@ class RunwayData:
     tacan_callsign: Optional[str] = None
     ils: Optional[RadioFrequency] = None
     icls: Optional[int] = None
+    #: The ILS ident the F10 airfield panel shows ("ISPA").
+    ils_callsign: Optional[str] = None
 
     @classmethod
     def for_pydcs_runway_runway(
@@ -54,7 +56,6 @@ class RunwayData:
         atc_vhf: Optional[RadioFrequency] = None
         tacan: Optional[TacanChannel] = None
         tacan_callsign: Optional[str] = None
-        ils: Optional[RadioFrequency] = None
         atc_radio = AtcData.from_pydcs(airport)
         if atc_radio is not None:
             atc = atc_radio.uhf
@@ -68,12 +69,7 @@ class RunwayData:
                 tacan = beacon.tacan_channel
                 tacan_callsign = beacon.callsign
 
-        for beacon_data in runway.beacons:
-            beacon = cls._get_beacon(beacon_data.id, theater)
-            if not beacon:
-                continue
-            if beacon.beacon_type is BeaconType.BEACON_TYPE_ILS_GLIDESLOPE:
-                ils = beacon.frequency
+        ils_beacon = _ils_beacon(theater, airport, runway)
 
         return cls(
             airfield_name=airport.name,
@@ -83,7 +79,8 @@ class RunwayData:
             atc_vhf=atc_vhf,
             tacan=tacan,
             tacan_callsign=tacan_callsign,
-            ils=ils,
+            ils=ils_beacon.frequency if ils_beacon is not None else None,
+            ils_callsign=ils_beacon.callsign if ils_beacon is not None else None,
         )
 
     @staticmethod
@@ -142,9 +139,102 @@ def runway_label(runway_name: str, surface_wind_mps: float) -> str:
     return f"{runway_name} / {opposite}"
 
 
+def ils_label(runway: RunwayData) -> str:
+    """The kneeboard ILS cell: "108.10 ISPA" as the F10 panel reads it, or ICLS."""
+    if runway.ils is not None:
+        label = f"{runway.ils.mhz:.2f}"
+        if runway.ils_callsign:
+            label += f" {runway.ils_callsign}"
+        return label
+    if runway.icls is not None:
+        return str(runway.icls)
+    return ""
+
+
+def _angle_off(a: float, b: float) -> float:
+    return abs((a - b + 180) % 360 - 180)
+
+
+def _ils_beacon(
+    theater: ConflictTheater, airport: Airport, approach: RunwayApproach
+) -> Optional[Beacon]:
+    """The ILS serving this runway end, localizer first for its ident.
+
+    Germany ties only the localizer to the runway end, so a glideslope-only
+    lookup missed 35 of its 57 ILS ends.
+    """
+    found: list[Beacon] = []
+    for beacon_data in approach.beacons:
+        beacon = RunwayData._get_beacon(beacon_data.id, theater)
+        if beacon is not None and beacon.beacon_type in _ILS_TYPES:
+            found.append(beacon)
+    if not found:
+        return _untied_localizer(theater, airport, approach)
+    return min(
+        found, key=lambda b: b.beacon_type is not BeaconType.BEACON_TYPE_ILS_LOCALIZER
+    )
+
+
+def _untied_localizer(
+    theater: ConflictTheater, airport: Airport, approach: RunwayApproach
+) -> Optional[Beacon]:
+    """A localizer beaming down this end that DCS tied to no runway (Marianas).
+
+    Parallel ends are paired with beams left to right; an ambiguous match is None.
+    """
+    tied = {
+        aid.id
+        for strip in airport.runways
+        for end in (strip.main, strip.opposite)
+        for aid in end.beacons
+    }
+    beams = [
+        beacon
+        for bid, beacon in Beacons.for_airfield(airport.id, theater).items()
+        if bid not in tied
+        and beacon.beacon_type is BeaconType.BEACON_TYPE_ILS_LOCALIZER
+        # Kola's Ivalo carries a 212 MHz "localizer".
+        and beacon.hertz is not None
+        and 108_000_000 <= beacon.hertz < 112_000_000
+        and beacon.direction is not None
+        and beacon.x is not None
+        and beacon.y is not None
+        and _angle_off((beacon.direction + 180) % 360, approach.heading) <= 30
+    ]
+    if not beams:
+        return None
+    parallel = [
+        end.name
+        for strip in airport.runways
+        for end in (strip.main, strip.opposite)
+        if _angle_off(end.heading, approach.heading) <= 30
+    ]
+    if len(beams) != len(parallel):
+        return None
+    if len(beams) == 1:
+        return beams[0]
+    course = math.radians(approach.heading)
+
+    def leftward(beacon: Beacon) -> float:
+        assert beacon.x is not None and beacon.y is not None
+        return beacon.x * math.sin(course) - beacon.y * math.cos(course)
+
+    sides = "LCR"
+    if any(name[-1:] not in sides for name in parallel):
+        return None
+    parallel.sort(key=lambda name: sides.index(name[-1]))
+    beams.sort(key=leftward, reverse=True)
+    return beams[parallel.index(approach.name)]
+
+
 _LOCALIZERS = (
     BeaconType.BEACON_TYPE_ILS_LOCALIZER,
     BeaconType.BEACON_TYPE_PRMG_LOCALIZER,
+)
+
+_ILS_TYPES = (
+    BeaconType.BEACON_TYPE_ILS_LOCALIZER,
+    BeaconType.BEACON_TYPE_ILS_GLIDESLOPE,
 )
 
 
