@@ -511,6 +511,12 @@ local function hasNumbers(detail, text)
 end
 
 local function taxi(field, flight, member, on, detail, text)
+    -- "Springfield 7, taxi runway 23" after the clearance is its readback, answered with silence
+    -- (flown 2026-11-02: it got the whole clearance again). A menu press has no text and repeats.
+    if flight.state == "taxi" and text and text ~= "" and not (heardWord(text, "request")
+        or heardWord(text, "requesting") or heardWord(text, "ready")) then
+        return
+    end
     if flight.state == "parked" then
         flight.state = "taxi"
     end
@@ -520,14 +526,19 @@ local function taxi(field, flight, member, on, detail, text)
     local runway = field.runway
     local tower = frequencyLabel(field.tower)
     local formation = isFormation(flight, member, text, true)
-    local parts = { callsignPart(memberCallsign(flight, member), formation), ", runway ", digits(runway), ", " }
+    local parts = {
+        callsignPart(memberCallsign(flight, member), formation),
+        ", " .. stationLabel(field, "ground") .. ", taxi to runway ",
+        digits(runway),
+        ", ",
+    }
     local altimeter = altimeterPart(field)
     if altimeter and not flight.numbers then
         table.insert(parts, "altimeter ")
         table.insert(parts, altimeter)
         table.insert(parts, ", ")
     end
-    for _, part in ipairs({ "taxi, hold short runway ", digits(runway), ", contact Tower ", digits(tower), "." }) do
+    for _, part in ipairs({ "hold short, contact Tower ", digits(tower), "." }) do
         table.insert(parts, part)
     end
     say(field, on or "ground", flight, line(parts))
@@ -884,7 +895,8 @@ local function reportsPoint(pending, text)
     if pending.point.name and heard:find(words(pending.point.name), 1, true) then
         return true
     end
-    return heardWord(text, "entry") or heardWord(text, "exit") or heard:find(" 10 mile", 1, true) ~= nil
+    -- SkyEye sends a number digit by digit: "outbound, 1 0 miles" (flown 2026-11-02).
+    return heardWord(text, "entry") or heardWord(text, "exit") or heard:find(" 1 ?0 mile") ~= nil
         or heard:find(" ten mile", 1, true) ~= nil
 end
 

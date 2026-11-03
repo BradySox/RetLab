@@ -195,7 +195,7 @@ def test_a_sortie_from_taxi_to_parking() -> None:
     _call(h, "readback", TOWER, numbers="25")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0.",
         "Viper 1-1, runway 25, cleared for takeoff, frequency change approved.",
     ]
     said = _said(h)
@@ -203,8 +203,8 @@ def test_a_sortie_from_taxi_to_parking() -> None:
     assert [m["voice"] for m in said] == ["en_US-ryan-medium", "en_US-amy-medium"]
     assert [m["speaker"] for m in said] == ["Kobuleti Ground", "Kobuleti Tower"]
     assert said[0]["speech"] == (
-        "Viper one one, runway two five, altimeter two niner niner two, taxi, "
-        "hold short runway two five, contact Tower two six two decimal zero."
+        "Viper one one, Kobuleti Ground, taxi to runway two five, altimeter two niner niner two, "
+        "hold short, contact Tower two six two decimal zero."
     )
 
     _event(h, 3)
@@ -271,7 +271,7 @@ def test_any_readback_is_taken_and_whoever_was_called_answers() -> None:
     h.advance_to(2)
     said = _said(h)
     assert [m["text"] for m in said] == [
-        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0."
+        "Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0."
     ]
     assert said[0]["frequency"] == TOWER
     h.assert_no_lua_errors()
@@ -415,8 +415,8 @@ def test_say_again_repeats_the_last_call_and_radio_check_answers() -> None:
     _call(h, "radiocheck", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
-        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0.",
+        "Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0.",
         "Viper 1-1, Kobuleti Tower, read you 5 by 5.",
     ]
     h.assert_no_lua_errors()
@@ -450,7 +450,7 @@ def test_the_f10_menu_makes_the_same_requests() -> None:
     _menu(h, "Tower: holding short, ready")
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-1, runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0.",
         "Viper 1-1, runway 25, cleared for takeoff, frequency change approved.",
     ]
     h.assert_no_lua_errors()
@@ -461,8 +461,8 @@ def test_without_luasocket_the_menu_answers_in_text() -> None:
     _menu(h, "Ground: request taxi")
     h.advance_to(10)
     assert [t["text"] for t in h.records("texts")] == [
-        "Kobuleti Ground: Viper 1-1, runway 25, altimeter 29.92, taxi, "
-        "hold short runway 25, contact Tower 262.0."
+        "Kobuleti Ground: Viper 1-1, Kobuleti Ground, taxi to runway 25, altimeter 29.92, "
+        "hold short, contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
 
@@ -611,7 +611,7 @@ def test_the_f10_menu_speaks_for_a_lone_wingman() -> None:
     item.fn(item.arg)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1-2, runway 25, altimeter 29.92, taxi, hold short runway 25, "
+        "Viper 1-2, Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, "
         "contact Tower 262.0."
     ]
     h.assert_no_lua_errors()
@@ -682,7 +682,7 @@ def test_formation_taxi_and_takeoff_with_the_numbers() -> None:
     _call(h, "ready", TOWER)
     h.advance_to(2)
     assert _texts(h) == [
-        "Viper 1 flight, runway 25, taxi, hold short runway 25, contact Tower 262.0.",
+        "Viper 1 flight, Kobuleti Ground, taxi to runway 25, hold short, contact Tower 262.0.",
         "Viper 1 flight, runway 25, cleared for takeoff, frequency change approved.",
     ]
     h.assert_no_lua_errors()
@@ -806,8 +806,22 @@ def test_a_formation_call_is_heard_in_any_callsign_form() -> None:
         _call(h, "taxi", text=heard + " ready to taxi")
         h.advance_to(2)
         texts = _texts(h)
-        assert texts and texts[0].startswith("Viper 1 flight, runway 25"), (
+        assert texts and texts[0].startswith("Viper 1 flight, Kobuleti Ground"), (
             heard,
             texts,
         )
         h.assert_no_lua_errors()
+
+
+def test_a_taxi_readback_gets_silence_not_the_clearance_again() -> None:
+    # Flown 2026-11-02: "Springfield 7, taxi runway 23" got the whole clearance again.
+    h = _harness()
+    _call(h, "taxi", text="Kobuleti Ground, Viper 1-1, ready to taxi")
+    h.advance_to(2)
+    _call(h, "taxi", text="Viper 1-1, taxi runway 25")
+    h.advance_to(4)
+    assert len(_texts(h)) == 1
+    # Asking again is still answered.
+    _call(h, "taxi", text="Kobuleti Ground, Viper 1-1, request taxi")
+    h.advance_to(6)
+    assert len(_texts(h)) == 2

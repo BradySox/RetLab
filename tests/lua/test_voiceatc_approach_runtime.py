@@ -178,3 +178,19 @@ def test_no_approach_keeps_the_old_takeoff_clearance() -> None:
     _call(h, "ready", frequency=TOWER)
     h.advance_to(2)
     assert _texts(h)[-1].endswith("cleared for takeoff, frequency change approved.")
+
+
+def test_a_ten_mile_report_sent_digit_by_digit_lets_a_departure_go() -> None:
+    # SkyEye sends "10" as "1 0"; flown 2026-11-02, the report was missed.
+    for text in (
+        "Kobuleti Departure, Viper 1-1, outbound, 1 0 miles",
+        "Kobuleti Tower, Viper 1 1 0 miles",
+    ):
+        h = _harness(charted=False)
+        _move(h, 2 * NM, vx=150)
+        _call(h, "airborne", frequency=APPROACH)
+        h.advance_to(2)
+        assert _texts(h)[-1].endswith("report 10 miles.")
+        _call(h, "inbound", frequency=APPROACH, text=text)
+        h.advance_to(4)
+        assert _texts(h)[-1] == "Viper 1-1, frequency change approved.", text

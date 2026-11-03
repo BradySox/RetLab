@@ -11624,7 +11624,7 @@ approved".
 
 | Position | Pilot | ATC | Readback items |
 |---|---|---|---|
-| Ground | request taxi | runway 25, altimeter 29.92, taxi, hold short runway 25, contact Tower 262.0 | runway |
+| Ground | request taxi | Kobuleti Ground, taxi to runway 25, altimeter 29.92, hold short, contact Tower 262.0 (the runway once, the station named; 2026-11-02) | runway |
 | Tower | holding short runway 25, ready | runway 25, wind 270 at 5, cleared for takeoff, frequency change approved | runway |
 | Tower | 10 miles, full stop (or request the overhead) | runway 25, wind, report initial | none |
 | Tower | 10 miles, request straight-in | runway 25, wind, make straight-in, report 3-mile final | none |
@@ -11734,6 +11734,9 @@ the presets after Tower, on the comm card and the ATC card, labelled **Approach/
   the altitudes. No ED artwork is copied. The charts date from 2010; DCS numbers some ends 10
   to 30 degrees off, so a chart runway takes the nearest DCS end within 30 degrees
   (`dcs_runway`). Sochi's 02/20 page is left out: DCS has no such runway.
+- **Reports:** SkyEye sends a number digit by digit, so "10 miles" arrives as "1 0 miles"; the
+  plugin matches both (flown 2026-11-02: a missed report left Departure re-clearing). A taxi
+  call with no "request" or "ready" after the clearance is the readback and gets silence.
 - **No chart:** a point 10 NM out on the inbound bearing ("proceed 10 miles east of the
   field"), or on the present heading going out, at the field's elevation plus 2,000 ft. Tower's
   initial is the existing overhead.
