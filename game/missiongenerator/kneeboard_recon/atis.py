@@ -16,7 +16,7 @@ from PIL import ImageDraw
 
 from dcs.weather import Weather as PydcsWeather, Wind
 
-from game.utils import inches_hg, mps
+from game.utils import inches_hg, meters, mps
 
 from ._fonts import load_font
 
@@ -67,41 +67,79 @@ class AtisBlock:
     pressure_note: str
 
 
+_COVER = ("FEW", "SCT", "BKN", "OVC")
+_COVER_WORDS = (("Overcast", "OVC"), ("Broken", "BKN"), ("Scattered", "SCT"))
+
+
+def _preset_metar(clouds: "Clouds") -> str:
+    preset = getattr(clouds, "preset", None)
+    description = getattr(preset, "description", "") or ""
+    return description.split("METAR:", 1)[1] if "METAR:" in description else ""
+
+
+def _preset_cover(clouds: "Clouds") -> str:
+    """The lowest layer's cover from a DCS preset's METAR line.
+
+    A preset carries density 0 (the preset holds the layers), which read as CLR
+    in a rain overcast (test 66). A split like BKN/OVC takes the worse.
+    """
+    for token in _preset_metar(clouds).split():
+        parts = token.split("/")
+        if parts and all(part in _COVER for part in parts):
+            return max(parts, key=_COVER.index)
+    description = getattr(getattr(clouds, "preset", None), "description", "") or ""
+    for word, cover in _COVER_WORDS:
+        if word in description:
+            return cover
+    return "CLD"
+
+
 def format_cloud_layer(clouds: Optional["Clouds"]) -> str:
     if clouds is None:
         return "CLR"
-    density_raw = getattr(clouds, "density", None)
-    # DCS legacy clouds use integer octa-style density 0-10; older test fixtures
-    # also pass a pre-formatted string (e.g. "bkn"). Map ints into the canonical
-    # METAR-style abbreviation and pass strings through as-is.
-    if isinstance(density_raw, int):
-        if density_raw <= 0:
-            density = "CLR"
-        elif density_raw <= 2:
-            density = "FEW"
-        elif density_raw <= 4:
-            density = "SCT"
-        elif density_raw <= 7:
-            density = "BKN"
-        else:
-            density = "OVC"
-    elif isinstance(density_raw, str):
-        density = density_raw.upper() or "CLD"
+    preset = getattr(clouds, "preset", None)
+    if preset is not None:
+        cover = _preset_cover(clouds)
+        rain = "Rain" in preset.name or " RA " in f" {_preset_metar(clouds)} "
     else:
-        density = "CLD"
-    base_ft = getattr(clouds, "base_ft", None)
-    if base_ft is None:
-        return density
-    return f"{density} {int(base_ft)} FT"
+        density = clouds.density
+        if density <= 0:
+            return "CLR"
+        elif density <= 2:
+            cover = "FEW"
+        elif density <= 4:
+            cover = "SCT"
+        elif density <= 7:
+            cover = "BKN"
+        else:
+            cover = "OVC"
+        rain = clouds.precipitation == PydcsWeather.Preceptions.Rain
+    if clouds.precipitation == PydcsWeather.Preceptions.Thunderstorm:
+        weather = " TS"
+    else:
+        weather = " RA" if rain else ""
+    base_ft = int(round(meters(clouds.base).feet, -2))
+    return f"{cover} {base_ft} FT{weather}"
 
 
-def format_visibility(fog: Optional["Fog"]) -> str:
-    if fog is None:
-        return "7+ SM"
-    km = getattr(fog, "visibility_km", None)
-    if km is None:
-        return "fog"
-    return f"{km:.1f} km (fog)"
+def _statute_miles(km: float) -> str:
+    return f"{km / 1.609344:.1f}"
+
+
+def format_visibility(fog: Optional["Fog"], clouds: Optional["Clouds"] = None) -> str:
+    if fog is not None:
+        return f"{_statute_miles(fog.visibility.kilometers)} SM (fog)"
+    if clouds is not None:
+        metar = _preset_metar(clouds).split()
+        if "VIS" in metar[:-1]:
+            vis = metar[metar.index("VIS") + 1].upper().removesuffix("KM")
+            try:
+                return (
+                    "-".join(_statute_miles(float(k)) for k in vis.split("-")) + " SM"
+                )
+            except ValueError:
+                pass
+    return "7+ SM"
 
 
 def wind_from_deg(blows_to_deg: float) -> int:
@@ -251,7 +289,7 @@ def build_atis_block(
         qfe_display=qfe_display,
         temperature_c=int(round(weather.atmospheric.temperature_celsius)),
         cloud_layer=format_cloud_layer(weather.clouds),
-        visibility=format_visibility(weather.fog),
+        visibility=format_visibility(weather.fog, weather.clouds),
         atc_freq=atc_freq_str,
         tacan=tacan_str,
         pressure_note=pressure_note,

@@ -4,10 +4,12 @@
 from __future__ import annotations
 
 import datetime
+from dataclasses import replace
 from unittest.mock import MagicMock
 
 import pytest
-from dcs.weather import Wind
+from dcs.cloud_presets import CLOUD_PRESETS
+from dcs.weather import Weather as PydcsWeather, Wind
 
 from game.missiongenerator.kneeboard_recon.atis import (
     altimeter_setting_inhg,
@@ -19,7 +21,7 @@ from game.missiongenerator.kneeboard_recon.atis import (
     wind_from_deg,
 )
 from game.missiongenerator.kneeboard_recon._fonts import load_font
-from game.utils import inches_hg
+from game.utils import feet, inches_hg, meters
 from game.weather.atmosphericconditions import AtmosphericConditions
 from game.weather.clouds import Clouds
 from game.weather.fog import Fog
@@ -35,7 +37,7 @@ def _stub_weather(
     wind_2000: tuple[float, float] = (145, 22),
     wind_8000: tuple[float, float] = (160, 45),
     clouds_base_ft: int | None = 4500,
-    clouds_density: str = "bkn",
+    clouds_density: int = 6,
     fog_visibility_km: float | None = None,
 ) -> MagicMock:
     # spec= guards against typoed attribute names silently returning a fresh
@@ -53,22 +55,18 @@ def _stub_weather(
     if clouds_base_ft is None:
         m.clouds = None
     else:
-        # ``MagicMock(spec=Clouds)`` blocks attributes that aren't
-        # exposed on the class itself. Real ``Clouds`` instances always
-        # carry ``precipitation`` (set in ``__init__``); mirror that
-        # default here so the spec-guarded mock can be inspected by
-        # production code without raising.
-        m.clouds = MagicMock(spec=Clouds)
-        m.clouds.base_ft = clouds_base_ft
-        m.clouds.density = clouds_density
-        from dcs.weather import Weather as _PydcsWeather
-
-        m.clouds.precipitation = _PydcsWeather.Preceptions.None_
+        # Real objects: a mock's invented ``base_ft`` hid that the page never
+        # printed a base (test 66).
+        m.clouds = Clouds(
+            base=round(feet(clouds_base_ft).meters),
+            density=clouds_density,
+            thickness=400,
+            precipitation=PydcsWeather.Preceptions.None_,
+        )
     if fog_visibility_km is None:
         m.fog = None
     else:
-        m.fog = MagicMock(spec=Fog)
-        m.fog.visibility_km = fog_visibility_km
+        m.fog = Fog(visibility=meters(fog_visibility_km * 1000), thickness=100)
     return m
 
 
@@ -234,8 +232,9 @@ def test_atis_block_adds_storm_caveat_when_precipitation_is_thunderstorm() -> No
     # exercises the storm-drop surfacing, not the temperature correction.
     weather = _stub_weather(qnh_inhg=29.98, temp_c=15)
     # has_thunderstorm_cells reads .precipitation off the Clouds spec.
-    weather.clouds.precipitation = PydcsWeather.Preceptions.Thunderstorm
-    weather.clouds.preset = None
+    weather.clouds = replace(
+        weather.clouds, precipitation=PydcsWeather.Preceptions.Thunderstorm
+    )
     block = build_atis_block(
         weather=weather,
         start_time_local=datetime.datetime(2026, 5, 21, 6, 42),
@@ -260,21 +259,65 @@ def test_format_cloud_layer_clear() -> None:
     assert format_cloud_layer(None) == "CLR"
 
 
+def _clouds(base_ft: int, density: int = 0, preset: str | None = None) -> Clouds:
+    return Clouds(
+        base=round(feet(base_ft).meters),
+        density=density,
+        thickness=0 if preset else 400,
+        precipitation=PydcsWeather.Preceptions.None_,
+        preset=CLOUD_PRESETS[preset].value if preset else None,
+    )
+
+
 def test_format_cloud_layer_bkn() -> None:
-    clouds = MagicMock()
-    clouds.density = "bkn"
-    clouds.base_ft = 4500
-    assert format_cloud_layer(clouds) == "BKN 4500 FT"
+    assert format_cloud_layer(_clouds(4500, density=6)) == "BKN 4500 FT"
+
+
+def test_format_cloud_layer_legacy_density_zero_is_clear() -> None:
+    assert format_cloud_layer(_clouds(4500)) == "CLR"
+
+
+def test_a_rain_preset_reads_overcast_with_rain() -> None:
+    # Test 66: RainyPreset1 at a 1,076 m base read CLR and 7+ SM.
+    clouds = Clouds(
+        base=1076,
+        density=0,
+        thickness=200,
+        precipitation=PydcsWeather.Preceptions.None_,
+        preset=CLOUD_PRESETS["RainyPreset1"].value,
+    )
+    assert format_cloud_layer(clouds) == "OVC 3500 FT RA"
+    assert format_visibility(None, clouds) == "1.9-3.1 SM"
+
+
+@pytest.mark.parametrize(
+    "preset, cover",
+    [
+        ("Preset1", "SCT"),
+        ("Preset13", "BKN"),
+        ("Preset17", "OVC"),
+        ("Preset25", "OVC"),
+        ("NEWRAINPRESET4", "OVC"),
+    ],
+)
+def test_a_preset_reads_its_lowest_layer(preset: str, cover: str) -> None:
+    assert format_cloud_layer(_clouds(5000, preset=preset)).startswith(f"{cover} ")
+
+
+def test_every_preset_reads_a_cover_and_base() -> None:
+    for name in CLOUD_PRESETS:
+        text = format_cloud_layer(_clouds(5000, preset=name))
+        assert text.split()[0] in ("FEW", "SCT", "BKN", "OVC"), (name, text)
+        assert "5000 FT" in text, (name, text)
 
 
 def test_format_visibility_no_fog_is_unrestricted() -> None:
     assert format_visibility(None) == "7+ SM"
 
 
-def test_format_visibility_with_fog_emits_km() -> None:
-    fog = MagicMock()
-    fog.visibility_km = 3.5
-    assert format_visibility(fog) == "3.5 km (fog)"
+def test_format_visibility_with_fog_emits_statute_miles() -> None:
+    fog = Fog(visibility=meters(3500), thickness=100)
+    assert format_visibility(fog) == "2.2 SM (fog)"
 
 
 def test_build_atis_block_zulu_optional_when_no_conversion_available() -> None:
@@ -335,8 +378,9 @@ def test_atis_pressure_note_fits_within_panel_width() -> None:
     from dcs.weather import Weather as PydcsWeather
 
     weather = _stub_weather()
-    weather.clouds.precipitation = PydcsWeather.Preceptions.Thunderstorm
-    weather.clouds.preset = None
+    weather.clouds = replace(
+        weather.clouds, precipitation=PydcsWeather.Preceptions.Thunderstorm
+    )
     block = build_atis_block(
         weather=weather,
         start_time_local=datetime.datetime(2026, 5, 21, 6, 42),
