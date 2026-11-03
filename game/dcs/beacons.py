@@ -184,5 +184,17 @@ class Beacons:
         yield from cls._dict_for_theater(theater).values()
 
     @classmethod
+    def for_airfield(
+        cls, airfield_id: int, theater: ConflictTheater
+    ) -> dict[str, Beacon]:
+        """The airfield's beacons by id, tied to a runway end or not."""
+        prefix = f"airfield{airfield_id}_"
+        return {
+            bid: beacon
+            for bid, beacon in cls._dict_for_theater(theater).items()
+            if bid.startswith(prefix)
+        }
+
+    @classmethod
     def with_id(cls, beacon_id: str, theater: ConflictTheater) -> Beacon:
         return cls._dict_for_theater(theater)[beacon_id]
