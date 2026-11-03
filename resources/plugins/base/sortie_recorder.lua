@@ -220,8 +220,13 @@ end
 -- scored 68 "hits" and the SITREP read 106 shots for 381 hits (test 8, 2026-08-18).
 -- A hit is now counted only against a weapon we saw fired, and only the first time
 -- that weapon strikes, which makes shots and hits commensurable.
-local pending_shots = {} -- [weapon key] = fired-at time
+-- A bomblet still scores, once, for its parent canister (test 67, 2026-11-03: 42
+-- Rockeyes destroyed a whole SA-2 site and the card read 0 hits).
+local pending_shots = {} -- [weapon key] = { at, shooter, bomb, weapon }
 local PENDING_TTL_S = 900
+-- Release to bomblet impact. A Rockeye opens 1 s after release and its bomblets
+-- land about 12 s later; a minute keeps a bomblet off an earlier pass's canister.
+local SUBMUNITION_WINDOW_S = 60
 
 -- DCS Weapon:getName() returns the object's runtime id; id_ is the raw field MOOSE
 -- reads. A weapon we cannot key (a gun round raises no shot at all) is not counted
@@ -243,9 +248,14 @@ local function weapon_key(weapon)
     return nil
 end
 
+local function is_bomb(weapon)
+    local desc = safe(weapon, "getDesc")
+    return type(desc) == "table" and desc.category == Weapon.Category.BOMB
+end
+
 local function prune_pending(now)
-    for key, fired_at in pairs(pending_shots) do
-        if now - fired_at > PENDING_TTL_S then
+    for key, shot in pairs(pending_shots) do
+        if now - shot.at > PENDING_TTL_S then
             pending_shots[key] = nil
         end
     end
@@ -385,16 +395,51 @@ function sortie_recorder_on_shot(initiator, weapon)
     count_on(initiator, "shots")
     local key = weapon_key(weapon)
     if key then
-        pending_shots[key] = timer.getTime()
+        pending_shots[key] = {
+            at = timer.getTime(),
+            shooter = safe(initiator, "getName"),
+            bomb = is_bomb(weapon),
+            weapon = weapon,
+        }
     end
+end
+
+-- The oldest bomb this jet released in the window that has stopped existing: a
+-- canister that opened, never a bomb still falling, so a bomblet cannot take a
+-- Mk-84's own hit. Bombs only, so a gun round cannot claim a missile shot.
+local function canister_for(initiator, weapon)
+    if not is_bomb(weapon) then
+        return nil
+    end
+    local shooter = safe(initiator, "getName")
+    if not shooter then
+        return nil
+    end
+    local now = timer.getTime()
+    local found, found_at
+    for key, shot in pairs(pending_shots) do
+        if
+            shot.bomb
+            and shot.shooter == shooter
+            and now - shot.at <= SUBMUNITION_WINDOW_S
+            and not safe(shot.weapon, "isExist")
+            and (found_at == nil or shot.at < found_at)
+        then
+            found, found_at = key, shot.at
+        end
+    end
+    return found
 end
 
 function sortie_recorder_on_hit(initiator, weapon)
     local key = weapon_key(weapon)
     if not key or not pending_shots[key] then
-        -- A submunition, a gun round, or a weapon released before the recorder
-        -- started. Counting these is what made hits exceed shots.
-        return
+        -- A gun round, a weapon released before the recorder started, or a
+        -- submunition. Only the last scores, and only for its canister.
+        key = canister_for(initiator, weapon)
+        if not key then
+            return
+        end
     end
     pending_shots[key] = nil -- first impact only
     count_on(initiator, "hits")

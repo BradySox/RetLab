@@ -59,6 +59,26 @@ def _weapon(harness: DcsPluginHarness, name: str) -> Any:
     )(name)
 
 
+def _store(
+    harness: DcsPluginHarness, name: str, category: int, exists: bool = False
+) -> Any:
+    """A weapon with a DCS category and an existence flag.
+
+    A cluster canister stops existing when it opens; its bomblets are new BOMB
+    objects. Category: 0 shell, 1 missile, 2 rocket, 3 bomb.
+    """
+    return harness.lua.eval("""
+        function(n, c, e) return {
+            getName = function(self) return n end,
+            getDesc = function(self) return { category = c } end,
+            isExist = function(self) return e end,
+        } end
+        """)(name, category, exists)
+
+
+BOMB, SHELL = 3, 0
+
+
 def _load(harness: DcsPluginHarness) -> None:
     harness.load_plugin_script(PLUGIN)
     harness.assert_no_lua_errors()
@@ -338,6 +358,7 @@ def test_a_submunition_impact_is_not_a_hit() -> None:
     # The test 8 defect: DCS raises one SHOT for the weapon released and one HIT per
     # IMPACTING object, and a cluster weapon's bomblets are different objects. Two
     # CBU-105 releases scored 68 "hits" and the SITREP read 106 shots for 381.
+    # A submunition DCS does not call a bomb still scores nothing.
     harness = DcsPluginHarness()
     _load(harness)
     harness.add_group(_ai_pair("Enfield 1-1"))
@@ -353,6 +374,86 @@ def test_a_submunition_impact_is_not_a_hit() -> None:
     record = _records(harness)["Enfield 1-1-1"]
     assert record["shots"] == 1
     assert record["hits"] == 0
+
+
+def test_bomblets_score_one_hit_per_canister() -> None:
+    # Test 67: 42 Rockeyes destroyed a whole SA-2 site and the card read 0 hits.
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(_ai_pair("Enfield 1-1"))
+    lead = harness.lua.eval('Unit.getByName("Enfield 1-1-1")')
+    shot = harness.lua.eval("sortie_recorder_on_shot")
+    hit = harness.lua.eval("sortie_recorder_on_hit")
+
+    shot(lead, _store(harness, "Rockeye A", BOMB))
+    shot(lead, _store(harness, "Rockeye B", BOMB))
+    shot(lead, _store(harness, "Rockeye C", BOMB))
+    for i in range(30):
+        hit(lead, _store(harness, f"Mk 118 #{i}", BOMB))
+    harness.assert_no_lua_errors()
+
+    record = _records(harness)["Enfield 1-1-1"]
+    assert (record["shots"], record["hits"]) == (3, 3)
+
+
+def test_a_bomblet_never_takes_a_bomb_still_falling() -> None:
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(_ai_pair("Enfield 1-1"))
+    lead = harness.lua.eval('Unit.getByName("Enfield 1-1-1")')
+    shot = harness.lua.eval("sortie_recorder_on_shot")
+    hit = harness.lua.eval("sortie_recorder_on_hit")
+    mk84 = _store(harness, "Mk-84", BOMB, exists=True)
+
+    shot(lead, mk84)
+    hit(lead, _store(harness, "Mk 118 #1", BOMB))
+    assert _records(harness)["Enfield 1-1-1"]["hits"] == 0
+
+    hit(lead, mk84)
+    harness.assert_no_lua_errors()
+    assert _records(harness)["Enfield 1-1-1"]["hits"] == 1
+
+
+def test_a_bomblet_scores_only_for_its_own_jet() -> None:
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(_ai_pair("Enfield 1-1"))
+    lead = harness.lua.eval('Unit.getByName("Enfield 1-1-1")')
+    wing = harness.lua.eval('Unit.getByName("Enfield 1-1-2")')
+
+    harness.lua.eval("sortie_recorder_on_shot")(lead, _store(harness, "Rockeye", BOMB))
+    harness.lua.eval("sortie_recorder_on_hit")(wing, _store(harness, "Mk 118", BOMB))
+    harness.assert_no_lua_errors()
+
+    assert _records(harness)["Enfield 1-1-1"]["hits"] == 0
+
+
+def test_a_gun_round_never_claims_a_canister() -> None:
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(_ai_pair("Enfield 1-1"))
+    lead = harness.lua.eval('Unit.getByName("Enfield 1-1-1")')
+
+    harness.lua.eval("sortie_recorder_on_shot")(lead, _store(harness, "Rockeye", BOMB))
+    harness.lua.eval("sortie_recorder_on_hit")(lead, _store(harness, "M61", SHELL))
+    harness.assert_no_lua_errors()
+
+    assert _records(harness)["Enfield 1-1-1"]["hits"] == 0
+
+
+def test_a_bomblet_after_the_window_scores_nothing() -> None:
+    harness = DcsPluginHarness()
+    _load(harness)
+    harness.add_group(_ai_pair("Enfield 1-1"))
+    lead = harness.lua.eval('Unit.getByName("Enfield 1-1-1")')
+
+    harness.advance_to(0.0)
+    harness.lua.eval("sortie_recorder_on_shot")(lead, _store(harness, "Rockeye", BOMB))
+    harness.advance_to(61.0)
+    harness.lua.eval("sortie_recorder_on_hit")(lead, _store(harness, "Mk 118", BOMB))
+    harness.assert_no_lua_errors()
+
+    assert _records(harness)["Enfield 1-1-1"]["hits"] == 0
 
 
 def test_only_the_first_impact_of_a_weapon_counts() -> None:
