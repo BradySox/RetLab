@@ -1,0 +1,1 @@
+* **[SEAD Escort]** SEAD Escorts fire their anti-radiation missiles. From the join they were on Open Fire with only the Escort task, which never cleared a HARM shot: a Tornado sat 8 NM from a firing SA-2 and shot nothing. The join now also tells them to engage SAMs within the escort range.
