@@ -178,7 +178,7 @@ def test_atc_card_names_the_spot_and_the_sop_turn(tmp_path: Path) -> None:
         "Spangdahlem", "23", MHz(276), MHz(348), approach=MHz(310), routes=routes
     )
     home.departure = MHz(279)
-    assert _turn_for(home, "Lake") == "right turn 280"
+    assert _turn_for(home, "Lake") == "turn right heading 280"
     assert _turn_for(home, "Bravo") is None
     page = AtcPage("Chevy 3-1", home, home, False, spot="42", exit_name="Lake")
     out = tmp_path / "atc-sop.png"

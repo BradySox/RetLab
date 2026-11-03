@@ -45,11 +45,11 @@ def _altitude(field: AtcField, elevation_m: Optional[float]) -> str:
 
 
 def _turn_for(field: AtcField, exit_name: str) -> Optional[str]:
-    """``right turn 280``: the SOP turn off the field's runway for this exit, if any."""
+    """``turn right heading 280``: the SOP turn off the field's runway for this exit."""
     number = field.runway.rstrip("LRC")
     for turn in field.routes.departure_turns if field.routes else ():
         if turn.runway.rstrip("LRC") == number and exit_name in turn.exits:
-            return f"{turn.direction} turn {turn.heading:03d}"
+            return f"turn {turn.direction} heading {turn.heading:03d}"
     return None
 
 
@@ -264,17 +264,18 @@ class AtcPage(KneeboardPage):
                 if out.routes is not None:
                     exit_name = self.exit_name or _example_point(out, exit=True)
                     turn = _turn_for(out, exit_name)
-                    if turn:
-                        takeoff = f"{turn}, {takeoff}"
-                    clearance = f"depart via {exit_name} exit"
+                    lead = f"{turn}, " if turn else ""
+                    clearance = (
+                        f"{lead}climb and maintain {climb}, depart via {exit_name}"
+                    )
                     report = exit_name
                 else:
-                    clearance = "depart on present heading"
+                    clearance = f"depart on present heading, climb and maintain {climb}"
                     report = "10 miles"
                 departure = [
                     f'"{o} Departure, {me}, airborne."',
-                    f'  ATC: "{me}, {o} Departure, radar contact, {clearance}, climb and '
-                    f'maintain {climb}, report {report}."',
+                    f'  ATC: "{me}, {o} Departure, radar contact, {clearance}, '
+                    f'report {report}."',
                     f'"{me}, {report}."',
                     f'  ATC: "{me}, frequency change approved."',
                 ]

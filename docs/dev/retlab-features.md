@@ -11780,8 +11780,9 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
 - **Departure turns** (user call, 2026-11-03): a chart file may list `departure_turns`, each a
   runway, a turn, a heading and the exits it serves. Each player flight's exit is picked when
   the mission is made: the chart exit nearest the bearing to its first waypoint past 5 NM
-  (`planned_exit`). Tower's takeoff clearance then carries the turn ("cleared for takeoff, right
-  turn 280, contact Departure"), and Departure gives that exit whatever the jet's heading.
+  (`planned_exit`). Departure's first reply carries the turn and the exit whatever the jet's heading ("radar
+  contact, turn right heading 280, climb and maintain 2,600, depart via Lake, report Lake"); Tower
+  only clears the takeoff (user call, 2026-11-03).
   Spangdahlem: right 280 to the north fixes, left 210 to the south, off 23 only.
 - **Parking spot** (user call, 2026-11-03): each player seat's spawn spot, as the Mission Editor
   names it (pydcs `parking_id`), goes to the plugin. Ground's taxi says "from spot 42", and

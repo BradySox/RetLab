@@ -608,14 +608,8 @@ local function takeoff(field, flight, member, on, detail, text)
         withWind(parts, field)
     end
     local departure = departurePosition(field)
-    local turn = departureTurn(field, flight)
     if departure then
         table.insert(parts, "cleared for takeoff, ")
-        if turn then
-            table.insert(parts, turn.turn .. " turn ")
-            table.insert(parts, digits(turn.heading))
-            table.insert(parts, ", ")
-        end
         for _, part in ipairs({ "contact Departure ", digits(frequencyLabel(field[departure])), "." }) do
             table.insert(parts, part)
         end
@@ -905,6 +899,13 @@ local function departureCall(field, flight, member)
     end
     exit = exit or nearestPoint(field, towards, true) or generatedPoint(field, towards)
     local parts = { callsignPart(memberCallsign(flight, member)), ", " .. field.name .. " Departure, radar contact, " }
+    -- Departure gives the SOP turn, not Tower (user call, 2026-11-03).
+    local turn = departureTurn(field, flight)
+    if turn and exit.name == flight.exit then
+        table.insert(parts, "turn " .. turn.turn .. " heading ")
+        table.insert(parts, digits(turn.heading))
+        table.insert(parts, ", ")
+    end
     if exit.generated then
         table.insert(parts, "depart on present heading, climb and maintain ")
         table.insert(parts, altitudePart(routeAltitude(field)))
@@ -912,9 +913,9 @@ local function departureCall(field, flight, member)
         table.insert(parts, tenMiles())
         table.insert(parts, " miles.")
     else
-        table.insert(parts, "depart via " .. exit.name .. " exit, climb and maintain ")
+        table.insert(parts, "climb and maintain ")
         table.insert(parts, altitudePart(routeAltitude(field)))
-        table.insert(parts, ", report " .. exit.name .. ".")
+        table.insert(parts, ", depart via " .. exit.name .. ", report " .. exit.name .. ".")
     end
     flight.departing[member] = { field = field.name, point = exit }
     say(field, departurePosition(field), flight, line(parts))
