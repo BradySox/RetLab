@@ -30,6 +30,8 @@ for a Retribution campaign with the most historical accuracy we can get.
 - **Luftwaffe and RAF Germany** fly beside the USAF.
 - **Soviets and East Germans** on red, East German squadrons under the GDR flag.
 - **No MiG-29s.** Dropped from the faction and the laydown.
+- **Leopard 2A4 beside the Leopard 1A3** (DM call, 2026-11-03). DCS has no 1985 Abrams or
+  Bradley (its M1A2 is 1992, its M2A2 1988), so V Corps keeps the M60A3.
 - **Real SAM sites.** The DM supplied Carsten's Cold War Germany Framework (a
   free Mission Editor template by Carsten, 2025, shared for mission makers to
   build on). Its Hawk, CRC, SA-2, SA-3, SA-5 and S-60 sites inside the sector
@@ -97,7 +99,7 @@ FA-18C and CH-47F folders) put SA-3s on the same spots at Gotha, Kothen, Allsted
 and Leipzig and an SA-5 at Quedlinburg; the campaign keeps Carsten's types. The Hawks sit in the blue
 country block, red's in the red. The red faction carries the S-60 and the KS-19/SON-9 preset so
 it can field the S-60 site's Fire Can. The CRC at Erndtebruck is still a marker. Added: mobile
-SA-6s at Haina, Obermehler and Erfurt (standing in for the SA-4 brigades), SHORAD at the fields
+SA-6s at Obermehler and Erfurt (standing in for the SA-4 brigades; Haina's went with the base), SHORAD at the fields
 and five roadside towns. Skynet's advanced mode, wired by range from statics named
 `CF85-IADS-*`: the 8th Guards Army HQ at Weimar; 12 comms towers including the Inselsberg and
 the Brocken; 4 power plants (Lippendorf, Vockerode, Zschornewitz, Erfurt). A Scud battery near
