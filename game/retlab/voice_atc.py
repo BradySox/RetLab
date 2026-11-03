@@ -107,9 +107,11 @@ def station_name(field_name: str, position: str) -> str:
     return f"{field_name} {position.capitalize()}"
 
 
-def approach_name(field_name: str) -> str:
-    """``Kobuleti Approach/Departure``: one frequency works both (user call, 2026-10-29)."""
-    return f"{field_name} Approach/Departure"
+def approach_name(field_name: str, short: bool = False) -> str:
+    """``Kobuleti Approach/Departure``: one frequency works both (user call, 2026-10-29).
+    Short, ``Kobuleti App/Dep``, for the comm card's column (flown 2026-11-02: cut off).
+    """
+    return f"{field_name} {'App/Dep' if short else 'Approach/Departure'}"
 
 
 def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:

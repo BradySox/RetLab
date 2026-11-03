@@ -610,7 +610,7 @@ class MissionGenerator:
                 gen.add_comm(station_name(field_name, "ground"), ground)
                 gen.add_comm(station_name(field_name, "tower"), tower)
                 if approach := mission_data.approach_frequencies.get(field_name):
-                    gen.add_comm(approach_name(field_name), approach)
+                    gen.add_comm(approach_name(field_name, short=True), approach)
             for dynamic_runway in mission_data.runways:
                 gen.add_dynamic_runway(dynamic_runway)
 
