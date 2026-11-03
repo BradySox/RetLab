@@ -10,6 +10,7 @@ point 10 NM out. How SkyEye hears and says it is in-game only.
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from tests.lua.harness import DcsPluginHarness
@@ -26,6 +27,7 @@ from tests.lua.test_voiceatc_runtime import (
 )
 
 APPROACH = "264.000AM"
+DEPARTURE = "266.000AM"
 
 
 def _points() -> list[dict[str, str]]:
@@ -37,7 +39,10 @@ def _points() -> list[dict[str, str]]:
 
 
 def _harness(
-    charted: bool = True, x: float = 0, airborne: bool = False
+    charted: bool = True,
+    x: float = 0,
+    airborne: bool = False,
+    departure: bool = False,
 ) -> DcsPluginHarness:
     field: dict[str, Any] = {
         "name": "Kobuleti",
@@ -52,6 +57,8 @@ def _harness(
         "towerVoice": "en_US-amy-medium",
         "approachVoice": "en_GB-alan-medium",
     }
+    if departure:
+        field.update({"departure": DEPARTURE, "departureVoice": "en_US-joe-medium"})
     if charted:
         field.update(
             {"chart": "VAD 01", "maxAltitude": "2000", "patternAltitude": "1500"}
@@ -194,3 +201,49 @@ def test_a_ten_mile_report_sent_digit_by_digit_lets_a_departure_go() -> None:
         _call(h, "inbound", frequency=APPROACH, text=text)
         h.advance_to(4)
         assert _texts(h)[-1] == "Viper 1-1, frequency change approved.", text
+
+
+def _said_on(h: DcsPluginHarness) -> list[tuple[str, str]]:
+    sent = h.to_python(h.lua.globals().SENT) or []
+    said = [json.loads(m["msg"]) for m in sent if '"say"' in m["msg"]]
+    return [(m["frequency"], m["text"]) for m in said]
+
+
+def test_with_its_own_frequency_departure_works_the_exits_there() -> None:
+    h = _harness(departure=True)
+    _call(h, "ready", frequency=TOWER)
+    h.advance_to(2)
+    assert _texts(h)[-1].endswith("cleared for takeoff, contact Departure 266.0.")
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=DEPARTURE)
+    h.advance_to(4)
+    frequency, text = _said_on(h)[-1]
+    assert frequency == DEPARTURE
+    assert text.startswith(
+        "Viper 1-1, Kobuleti Departure, radar contact, depart via North"
+    )
+    _call(h, "unknown", frequency=DEPARTURE, text="Viper 1-1, North")
+    h.advance_to(6)
+    assert _said_on(h)[-1] == (DEPARTURE, "Viper 1-1, frequency change approved.")
+
+
+def test_a_call_on_the_wrong_one_is_sent_to_the_right_one() -> None:
+    h = _harness(departure=True, x=2 * NM, airborne=True)
+    _call(h, "airborne", frequency=APPROACH)
+    h.advance_to(2)
+    assert _said_on(h)[-1] == (APPROACH, "Viper 1-1, contact Departure 266.0.")
+    _move(h, 20 * NM)
+    _call(h, "inbound", frequency=DEPARTURE)
+    h.advance_to(4)
+    assert _said_on(h)[-1] == (DEPARTURE, "Viper 1-1, contact Approach 264.0.")
+    _call(h, "inbound", frequency=APPROACH)
+    h.advance_to(6)
+    frequency, text = _said_on(h)[-1]
+    assert frequency == APPROACH and "enter via North" in text
+
+
+def test_skyeye_hears_departure_too() -> None:
+    h = _harness(departure=True)
+    h.advance_to(2)
+    sent = h.to_python(h.lua.globals().SENT) or []
+    assert any(DEPARTURE in m["msg"] and '"departure"' in m["msg"] for m in sent)

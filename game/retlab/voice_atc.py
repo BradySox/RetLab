@@ -64,13 +64,17 @@ def allocate_atc_frequencies(
     # A pair pinned while Ground and Tower were VHF AM (#1340) is picked again.
     for name in [n for n, pair in pinned.items() if not all(is_uhf(f) for f in pair)]:
         del pinned[name]
+    # Departure and Approach each have their own frequency (user call, 2026-11-02).
     approaches = game.voice_atc_approach_frequencies
-    for name in [n for n, f in approaches.items() if not is_uhf(f)]:
-        del approaches[name]
+    departures = game.voice_atc_departure_frequencies
+    for table in (approaches, departures):
+        for name in [n for n, f in table.items() if not is_uhf(f)]:
+            del table[name]
     for name, pair in pinned.items():
         frequencies = list(pair)
-        if name in approaches:
-            frequencies.append(approaches[name])
+        for table in (departures, approaches):
+            if name in table:
+                frequencies.append(table[name])
         for frequency in frequencies:
             if frequency in registry.allocated_channels:
                 logging.warning(
@@ -86,10 +90,12 @@ def allocate_atc_frequencies(
         if name not in pinned:
             pinned[name] = (registry.alloc_uhf(), registry.alloc_uhf())
             registry.atc_pinned.update(pinned[name])
-        if name not in approaches:
-            approaches[name] = registry.alloc_uhf()
-            registry.atc_pinned.add(approaches[name])
+        for table in (departures, approaches):
+            if name not in table:
+                table[name] = registry.alloc_uhf()
+                registry.atc_pinned.add(table[name])
         mission_data.atc_frequencies[name] = pinned[name]
+        mission_data.departure_frequencies[name] = departures[name]
         mission_data.approach_frequencies[name] = approaches[name]
 
 
@@ -105,11 +111,6 @@ def frequency_text(frequency: RadioFrequency) -> str:
 def station_name(field_name: str, position: str) -> str:
     """``Tel Nof Ground``: a field position as the comm card, the ATC card and ATC say it."""
     return f"{field_name} {position.capitalize()}"
-
-
-def approach_name(field_name: str) -> str:
-    """``Kobuleti Approach/Departure``: one frequency works both (user call, 2026-10-29)."""
-    return f"{field_name} Approach/Departure"
 
 
 def preset_name(flight: FlightData, frequency: RadioFrequency) -> Optional[str]:
@@ -129,13 +130,15 @@ def _preset(flight: FlightData, frequency: RadioFrequency) -> str:
 
 
 def atc_lines(flight: FlightData, atc_field: AtcField) -> str:
-    """The Ground, Tower and Approach lines an airfield's ATC box shows under Voice ATC."""
+    """The Ground, Tower, Departure and Approach lines an airfield's ATC box shows."""
     lines = (
         f"GND {_preset(flight, atc_field.ground)}\n"
         f"TWR {_preset(flight, atc_field.tower)}"
     )
+    if atc_field.departure is not None:
+        lines += f"\nDEP {_preset(flight, atc_field.departure)}"
     if atc_field.approach is not None:
-        lines += f"\nAPP/DEP {_preset(flight, atc_field.approach)}"
+        lines += f"\nAPP {_preset(flight, atc_field.approach)}"
     return lines
 
 
@@ -155,11 +158,14 @@ class AtcField:
     runway: str
     tower: RadioFrequency
     ground: RadioFrequency
-    #: Approach, which also works departures (step 2); None on a save from before it.
+    #: Approach (step 2), arrivals; None on a save from before it.
     approach: Optional[RadioFrequency] = None
     ground_voice: str = ""
     tower_voice: str = ""
     approach_voice: str = ""
+    #: Departure, apart from Approach since 2026-11-02 (user call).
+    departure: Optional[RadioFrequency] = None
+    departure_voice: str = ""
     #: The chart's entry and exit points; None where the map has no chart, and the
     #: plugin generates the route.
     routes: Optional[FieldRoutes] = None
@@ -219,6 +225,9 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
                     approach=mission_data.approach_frequencies.get(
                         runway.airfield_name
                     ),
+                    departure=mission_data.departure_frequencies.get(
+                        runway.airfield_name
+                    ),
                     runways=runway_ends(game, runway.airfield_name),
                     routes=_routes(game, runway.airfield_name),
                 ),
@@ -241,6 +250,9 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
         taken.append(atc_field.ground_voice)
         atc_field.tower_voice = pick_another_voice(country, taken)
         taken.append(atc_field.tower_voice)
+        if atc_field.departure is not None:
+            atc_field.departure_voice = pick_another_voice(country, taken)
+            taken.append(atc_field.departure_voice)
         if atc_field.approach is not None:
             atc_field.approach_voice = pick_another_voice(country, taken)
             taken.append(atc_field.approach_voice)
@@ -285,6 +297,9 @@ def populate_voice_atc_lua(
         item.add_key_value("tower", frequency_text(atc_field.tower))
         item.add_key_value("groundVoice", atc_field.ground_voice)
         item.add_key_value("towerVoice", atc_field.tower_voice)
+        if atc_field.departure is not None:
+            item.add_key_value("departure", frequency_text(atc_field.departure))
+            item.add_key_value("departureVoice", atc_field.departure_voice)
         if atc_field.approach is not None:
             item.add_key_value("approach", frequency_text(atc_field.approach))
             item.add_key_value("approachVoice", atc_field.approach_voice)

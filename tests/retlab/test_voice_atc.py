@@ -164,10 +164,10 @@ def test_ground_and_tower_are_uhf_and_a_vhf_pin_is_picked_again() -> None:
     assert len(used) == 4 and len(set(used)) == 4
     assert all(f.band == "UHF" and f.modulation.name == "AM" for f in used)
     assert game.voice_atc_frequencies == data.atc_frequencies
-    # Each field's Approach is a sixth UHF frequency apart from the other four.
-    approaches = list(data.approach_frequencies.values())
-    assert len(approaches) == 2 and set(approaches).isdisjoint(used)
-    assert all(f.band == "UHF" for f in approaches)
+    # Each field's Departure and Approach are two more UHF frequencies, all apart.
+    extra = [*data.departure_frequencies.values(), *data.approach_frequencies.values()]
+    assert len(extra) == 4 and len(set(extra)) == 4 and set(extra).isdisjoint(used)
+    assert all(f.band == "UHF" for f in extra)
 
 
 def test_atc_lines_name_the_preset_channels() -> None:
@@ -204,6 +204,7 @@ def _pin_game(*names: str) -> Any:
         ),
         voice_atc_frequencies={},
         voice_atc_approach_frequencies={},
+        voice_atc_departure_frequencies={},
     )
 
 
@@ -222,9 +223,11 @@ def test_a_field_keeps_its_ground_and_tower_every_turn() -> None:
     allocate_atc_frequencies(game, RadioRegistry(), second)
     assert second.atc_frequencies == first.atc_frequencies
     assert second.approach_frequencies == first.approach_frequencies
+    assert second.departure_frequencies == first.departure_frequencies
     used = [f for pair in second.atc_frequencies.values() for f in pair]
     used.extend(second.approach_frequencies.values())
-    assert len(set(used)) == 6
+    used.extend(second.departure_frequencies.values())
+    assert len(set(used)) == 8
 
 
 def test_a_new_field_never_takes_a_pinned_frequency() -> None:
@@ -238,6 +241,7 @@ def test_a_new_field_never_takes_a_pinned_frequency() -> None:
     later = _pin_game("Akrotiri")
     later.voice_atc_frequencies = game.voice_atc_frequencies
     later.voice_atc_approach_frequencies = game.voice_atc_approach_frequencies
+    later.voice_atc_departure_frequencies = game.voice_atc_departure_frequencies
     registry = RadioRegistry()
     allocate_atc_frequencies(later, registry, MissionData())
     assert set(later.voice_atc_frequencies["Akrotiri"]).isdisjoint(hatzerim)
@@ -257,6 +261,7 @@ def test_old_saves_get_an_empty_pin_table() -> None:
         pass
     assert state["voice_atc_frequencies"] == {}
     assert state["voice_atc_approach_frequencies"] == {}
+    assert state["voice_atc_departure_frequencies"] == {}
 
 
 def test_runway_ends_come_in_pairs_from_the_map() -> None:
@@ -278,13 +283,14 @@ def test_runway_ends_come_in_pairs_from_the_map() -> None:
     assert runway_ends(game, "Nowhere") == []
 
 
-def test_the_shared_frequency_is_labelled_approach_and_departure() -> None:
-    from game.retlab.voice_atc import AtcField, approach_name, atc_lines
+def test_the_atc_box_lists_departure_then_approach() -> None:
+    from game.retlab.voice_atc import AtcField, atc_lines
 
-    assert approach_name("Kobuleti") == "Kobuleti Approach/Departure"
     flight: Any = SimpleNamespace(
         channels_for=lambda f: [],
         aircraft_type=SimpleNamespace(channel_name=lambda radio, channel: ""),
     )
-    field = AtcField("Kobuleti", "25", MHz(262), MHz(260), approach=MHz(264))
-    assert atc_lines(flight, field).endswith("\nAPP/DEP 264.000")
+    field = AtcField(
+        "Kobuleti", "25", MHz(262), MHz(260), approach=MHz(264), departure=MHz(266)
+    )
+    assert atc_lines(flight, field).splitlines()[-2:] == ["DEP 266.000", "APP 264.000"]

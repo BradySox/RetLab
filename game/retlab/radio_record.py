@@ -50,6 +50,7 @@ def recorded_frequencies(
         for atc_field in plan.fields.values():
             add(atc_field.ground, station_name(atc_field.name, "Ground"), False)
             add(atc_field.tower, station_name(atc_field.name, "Tower"), False)
+            add(atc_field.departure, station_name(atc_field.name, "Departure"), False)
             add(atc_field.approach, station_name(atc_field.name, "Approach"), False)
     for flight in mission_data.flights:
         if flight.client_units and flight.friendly.is_blue:

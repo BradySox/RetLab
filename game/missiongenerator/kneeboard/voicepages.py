@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from game.radio.radios import RadioFrequency
-from game.retlab.voice_atc import AtcField, approach_name, station_name
+from game.retlab.voice_atc import AtcField, station_name
 from ..kneeboard_page import KneeboardPage
 from .writer import KneeboardPageWriter
 
@@ -205,11 +205,15 @@ class AtcPage(KneeboardPage):
             w.text(
                 self._station(station_name(f.name, "tower"), f.tower), fill=w.col_nav
             )
-            if f.approach is not None:
-                w.text(
-                    self._station(approach_name(f.name), f.approach),
-                    fill=w.col_nav,
-                )
+            for position, frequency in (
+                ("departure", f.departure),
+                ("approach", f.approach),
+            ):
+                if frequency is not None:
+                    w.text(
+                        self._station(station_name(f.name, position), frequency),
+                        fill=w.col_nav,
+                    )
             if f.routes is not None:
                 w.text(f"  Entry and exit points ({f.routes.chart} chart):")
                 for row in f.route_lines:
@@ -220,8 +224,9 @@ class AtcPage(KneeboardPage):
         if out is not None:
             o, r = out.name, out.runway
             t = _spoken_freq(out.tower)
-            if out.approach is not None:
-                takeoff = f"contact Departure {_spoken_freq(out.approach)}."
+            departure_freq = out.departure or out.approach
+            if departure_freq is not None:
+                takeoff = f"contact Departure {_spoken_freq(departure_freq)}."
                 exit_name = _example_point(out, exit=True)
                 departure = [
                     f'"{o} Departure, {me}, airborne."',
