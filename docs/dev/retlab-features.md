@@ -11719,6 +11719,10 @@ them). Pinned for the campaign like Ground and Tower (`Game.voice_atc_departure_
 the presets in order of use (Ground, Tower, Departure, Approach), the comm card and the ATC
 card. A departure's call on Approach gets "contact Departure", an arrival's on Departure
 "contact Approach". A mission generated before the split has Approach work departures.
+- **The ATC card** (rewritten 2026-11-02, user call): every call and answer is what the pilot
+  and the plugin say, callsign and station first, with the mission's briefed wind and
+  altimeter and the real departure/arrival altitude. The controllers read the live wind, so
+  the card's can drift in flight. Mayday gets "roger mayday, cleared to land any runway".
 
 - **Departure:** Tower's takeoff clearance ends "contact Departure <freq>". On the airborne
   call Approach gives the chart exit nearest the jet's heading, "climb and maintain" the

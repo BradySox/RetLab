@@ -661,7 +661,10 @@ end
 
 local function emergency(field, position, flight, member)
     flight.landing[member] = field.name
-    say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", cleared to land any runway." }))
+    say(field, position, flight, line({
+        callsignPart(memberCallsign(flight, member)),
+        ", " .. stationLabel(field, position) .. ", roger mayday, cleared to land any runway.",
+    }))
 end
 
 local function radioCheck(field, position, flight, member)

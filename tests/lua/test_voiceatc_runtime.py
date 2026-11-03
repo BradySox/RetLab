@@ -426,7 +426,9 @@ def test_a_mayday_is_cleared_to_land_any_runway() -> None:
     h = _harness(airborne=True, x=20 * NM)
     _call(h, "emergency", TOWER)
     h.advance_to(2)
-    assert _texts(h) == ["Viper 1-1, cleared to land any runway."]
+    assert _texts(h) == [
+        "Viper 1-1, Kobuleti Tower, roger mayday, cleared to land any runway."
+    ]
     h.assert_no_lua_errors()
 
 

@@ -113,16 +113,16 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     page = AtcPage("Ford 9-1", home, home, False)
     text = _card_lines(page, tmp_path, monkeypatch)
     assert (
-        '"Hatzerim Tower, Ford 9-1, clear of the runway."\n  ATC: "Taxi to parking."'
+        '"Hatzerim Tower, Ford 9-1, clear of runway 28L."\n  ATC: "Ford 9-1, taxi to parking."'
     ) in text
     # The takeoff clearance approves the frequency change: no airborne call (2026-10-26).
     assert "airborne" not in text
     # No squawk codes (user call, 2026-10-22): Ground clears taxi, the readback is the runway.
     assert (
-        '  ATC: "Hatzerim Ground, taxi to runway 28L, altimeter, hold short, contact Tower '
-        f'{voicepages._spoken_freq(home.tower)}."'
+        '  ATC: "Ford 9 flight, Hatzerim Ground, taxi to runway 28L, altimeter, hold short, '
+        f'contact Tower {voicepages._spoken_freq(home.tower)}."'
     ) in text
-    assert '  You: "Taxi runway 28L, hold short, Ford 9-1."' in text
+    assert '  You: "Taxi 28L, hold short, Ford 9-1."' in text
     assert "squawk" not in text.lower()
     # Calls only: no explanations of readbacks, discipline or the F10 menu.
     for gone in ("Readback incomplete", "F10", "Nothing stops you", "(or "):
@@ -139,19 +139,19 @@ def test_atc_card_teaches_the_military_pattern(
     text = _card_lines(page, tmp_path, monkeypatch)
     calls = _calls(text)
     for call in (
-        '"Hatzerim Ground, Ford 9-1, flight of two, have the numbers, request taxi."',
+        '"Hatzerim Ground, Ford 9-1, flight of two, taxi, have the numbers."',
         '"Hatzerim Tower, Ford 9-1, 10 miles, full stop."',
         '"Hatzerim Tower, Ford 9-1, 10 miles, request straight-in."',
         '"Ford 9-1, initial."',
         '"Ford 9-1, base, gear down, full stop."',
     ):
         assert call in calls, call
-    assert '  ATC: "Runway 28L, wind, report initial."' in text
+    assert '  ATC: "Ford 9-1, runway 28L, wind, report initial."' in text
     assert (
-        '  ATC: "Runway 28L, wind, cleared for takeoff, frequency change approved."'
-        in text
+        '  ATC: "Ford 9-1, runway 28L, wind, cleared for takeoff, '
+        'frequency change approved."' in text
     )
-    assert '  ATC: "Runway 28L, wind, cleared to land."' in text
+    assert '  ATC: "Ford 9-1, runway 28L, wind, cleared to land."' in text
     # Each call has one answer line; only a readback adds a "You:" line.
     lines = text.splitlines()
     for i, line in enumerate(lines):

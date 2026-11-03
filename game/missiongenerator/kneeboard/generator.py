@@ -21,7 +21,9 @@ from ..aircraft.flightdata import FlightData
 from ..csarbeacon import sar_beacon_brief
 from ..briefinggenerator import MissionInfoGenerator
 from ..kneeboard_page import KneeboardPage
+from game.utils import mps
 from ..kneeboard_recon import generate_recon_pages
+from ..kneeboard_recon.atis import wind_from_deg
 from ..kneeboard_recon.pages import (
     _FLIGHT_TYPES_WITH_RECON,
     _should_emit_departure,
@@ -32,7 +34,7 @@ from ...persistency import kneeboards_dir
 if TYPE_CHECKING:
     from game import Game
     from game.customkneeboard import CustomKneeboard
-from .briefing import BriefingPage, _brief_loadout
+from .briefing import BriefingPage, _airfield_elevation_m, _brief_loadout
 from .commcard import CommCardPage
 from .support import (
     FriendlyPackagesPage,
@@ -232,6 +234,21 @@ class KneeboardGenerator(MissionInfoGenerator):
             page_cursor += len(concrete)
         return KneeboardIndexPage(aircraft, rows, self.dark_kneeboard)
 
+    def _briefed_wind(self) -> str:
+        """``230 at 8``: the briefed surface wind as the ATC card's controllers say it."""
+        wind = self.game.conditions.weather.wind.at_0m
+        tens = round(wind_from_deg(wind.direction) / 10) * 10 or 360
+        return f"{tens:03d} at {round(mps(wind.speed).knots)}"
+
+    def _atc_elevations(self) -> dict[str, float]:
+        """Each Voice ATC field's elevation (m), for the generated routes' altitude."""
+        elevations: dict[str, float] = {}
+        for name in self.voice_atc.fields if self.voice_atc else {}:
+            elevation = _airfield_elevation_m(self.game.theater, name)
+            if elevation is not None:
+                elevations[name] = elevation
+        return elevations
+
     def _briefing_sitrep(self) -> Optional[Sitrep]:
         """The SITREP to show on the briefing page, gated by the setting + non-empty
         (§29): None on turn 1, after a quiet turn, or when the toggle is off."""
@@ -412,6 +429,9 @@ class KneeboardGenerator(MissionInfoGenerator):
                     self.dark_kneeboard,
                     divert=self.voice_atc.fields.get(atc.divert or ""),
                     preset=lambda frequency: preset_name(flight, frequency),
+                    wind=self._briefed_wind(),
+                    altimeter=f"{self.game.conditions.weather.atmospheric.qnh.inches_hg:.2f}",
+                    elevations_m=self._atc_elevations(),
                 )
             )
 

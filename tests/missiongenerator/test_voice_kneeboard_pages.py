@@ -133,7 +133,22 @@ def test_atc_card_with_approach_and_chart_points(tmp_path: Path) -> None:
     )
     assert _example_point(kobuleti, exit=True) == "Black Sea"
     assert _example_point(kobuleti, exit=False) == "Black Sea"
-    assert _altitude(kobuleti) == "2,000"
+    assert _altitude(kobuleti, None) == "2,000"
+    # No chart: the field elevation plus 2,000 ft, to the next hundred, as the plugin says it.
+    plain = AtcField("Spangdahlem", "23", MHz(276), MHz(348), approach=MHz(310))
+    assert _altitude(plain, 365.0) == "3,200"
+    page = AtcPage(
+        "Chevy 3-1",
+        plain,
+        plain,
+        False,
+        wind="230 at 8",
+        altimeter="29.92",
+        elevations_m={"Spangdahlem": 365.0},
+    )
+    out = tmp_path / "atc-values.png"
+    page.write(out)
+    assert out.stat().st_size > 0
     # A field off the charts falls back to the generated point.
     batumi = AtcField("Batumi", "13", MHz(266), MHz(268), approach=MHz(270))
     assert _example_point(batumi, exit=True) == "10 miles"
