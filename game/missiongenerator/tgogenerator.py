@@ -2094,6 +2094,7 @@ class PortableTacanGenerator:
             tacan=tacan,
             tacan_callsign=callsign,
             ils=runway_data.ils,
+            ils_callsign=runway_data.ils_callsign,
             icls=runway_data.icls,
         )
 
