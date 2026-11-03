@@ -52,6 +52,54 @@ def test_a_map_without_charts_has_no_routes() -> None:
     assert chart_routes(Syria(), "Incirlik") is None
 
 
+def test_a_route_leaves_by_the_exit_nearest_its_first_point_past_5_nm() -> None:
+    from dcs.mapping import Point
+
+    from game.retlab.atc_routes import FieldRoutes, RoutePoint, planned_exit
+
+    terrain = Caucasus()
+    field = Point(0, 0, terrain)
+    north = RoutePoint("Lake", Point(13000, 0, terrain), ("23",), True)
+    south = RoutePoint("Bravo", Point(-13000, 0, terrain), ("05",), True)
+    routes = FieldRoutes("52 TFW SOP", 2600, 2600, (north, south))
+    # The first waypoint is the climb-out 2 NM north; the route then heads south.
+    waypoints = [Point(3700, 0, terrain), Point(-40000, 5000, terrain)]
+    assert planned_exit(routes, field, waypoints) == "Bravo"
+    assert planned_exit(routes, field, []) is None
+
+
+def test_departure_turns_load_and_take_the_dcs_runway(tmp_path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from game.retlab import atc_routes
+
+    (tmp_path / "caucasus.yaml").write_text(
+        """
+Kobuleti:
+  chart: test
+  max_altitude_ft: 2000
+  pattern_ft: 1500
+  points:
+    - {name: Black Sea, lat: "42 01.126", lon: "041 45.124", entry: ["07"], exit: true}
+  departure_turns:
+    - {runway: "25", turn: right, heading: 280, exits: [Black Sea]}
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(atc_routes, "ROUTES_DIR", tmp_path)
+    atc_routes._chart_file.cache_clear()
+    try:
+        routes = chart_routes(Caucasus(), "Kobuleti")
+    finally:
+        atc_routes._chart_file.cache_clear()
+    assert routes is not None
+    (turn,) = routes.departure_turns
+    assert (turn.runway, turn.direction, turn.heading, turn.exits) == (
+        "25",
+        "right",
+        280,
+        ("Black Sea",),
+    )
+
+
 def test_spangdahlem_fixes_sit_on_their_sop_radials_from_spa() -> None:
     terrain = GermanyColdWar()
     routes = chart_routes(terrain, "Spangdahlem")
@@ -72,3 +120,16 @@ def test_spangdahlem_fixes_sit_on_their_sop_radials_from_spa() -> None:
         assert round(spa.distance_to_point(point.position) / 1852, 1) == dme
         bearing = (spa.heading_between_point(point.position) + 2.5) % 360
         assert abs(bearing - radial) < 0.5, point.name
+
+
+def test_spangdahlem_turns_right_280_north_and_left_210_south_off_23() -> None:
+    from dcs.terrain import GermanyColdWar
+
+    routes = chart_routes(GermanyColdWar(), "Spangdahlem")
+    assert routes is not None
+    turns = {
+        (t.runway, t.direction, t.heading): set(t.exits) for t in routes.departure_turns
+    }
+    assert set(turns) == {("23", "right", 280), ("23", "left", 210)}
+    assert turns[("23", "right", 280)] == {"Alpha", "Lake", "Bangor"}
+    assert turns[("23", "left", 210)] == {"Bravo", "Tucson"}

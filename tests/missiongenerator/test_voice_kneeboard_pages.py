@@ -156,3 +156,31 @@ def test_atc_card_with_approach_and_chart_points(tmp_path: Path) -> None:
         out = tmp_path / f"atc-approach-{name}.png"
         AtcPage("Viper 1-1", kobuleti, arrival, False).write(out)
         assert out.stat().st_size > 0
+
+
+def test_atc_card_names_the_spot_and_the_sop_turn(tmp_path: Path) -> None:
+    from dcs.mapping import Point
+    from dcs.terrain import Caucasus
+
+    from game.missiongenerator.kneeboard.voicepages import _turn_for
+    from game.retlab.atc_routes import DepartureTurn, FieldRoutes, RoutePoint
+
+    terrain = Caucasus()
+    lake = RoutePoint("Lake", Point(13000, 0, terrain), ("23",), True)
+    routes = FieldRoutes(
+        "52 TFW SOP",
+        2600,
+        2600,
+        (lake,),
+        (DepartureTurn("23", "right", 280, ("Lake",)),),
+    )
+    home = AtcField(
+        "Spangdahlem", "23", MHz(276), MHz(348), approach=MHz(310), routes=routes
+    )
+    home.departure = MHz(279)
+    assert _turn_for(home, "Lake") == "right turn 280"
+    assert _turn_for(home, "Bravo") is None
+    page = AtcPage("Chevy 3-1", home, home, False, spot="42", exit_name="Lake")
+    out = tmp_path / "atc-sop.png"
+    page.write(out)
+    assert out.stat().st_size > 0

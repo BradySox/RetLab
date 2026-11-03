@@ -7,7 +7,9 @@
 --     tower, groundVoice, towerVoice, departure, departureVoice, approach, approachVoice, and with
 --     a chart: chart,
 --     maxAltitude, patternAltitude, points = { { name, x, z, entry ('07,25'), exit } } } },
---   flights = { { group, callsign, departure, arrival, divert } }
+--   flights = { { group, callsign, departure, arrival, divert, exit (the chart exit its route
+--     leaves by), spots = { { unit, spot } } (each player seat's parking spot) } }
+--   A charted field may carry turns = { { runway, turn ('right'), heading ('280'), exits } }.
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
 -- the field frequencies and this script decides every reply, in military calls: the altimeter
@@ -84,6 +86,11 @@ for _, flight in ipairs(data.flights or {}) do
     flight.departing = {}
     -- Ship -> field whose Tower Approach handed it to.
     flight.handoff = {}
+    -- Unit name -> the parking spot it spawned on, as the Mission Editor names it.
+    flight.spotByUnit = {}
+    for _, s in ipairs(flight.spots or {}) do
+        flight.spotByUnit[s.unit] = s.spot
+    end
     table.insert(flights, flight)
 end
 
@@ -302,6 +309,16 @@ local function shipNumber(u, index)
         return u:getNumber()
     end)
     return ok and tonumber(number) or index
+end
+
+-- The parking spot a ship spawned on (user call, 2026-11-03: taxi back to it), or nil.
+local function spotOf(flight, member)
+    for index, u in ipairs(liveUnits(flight.group)) do
+        if shipNumber(u, index) == member then
+            return flight.spotByUnit[u:getName()]
+        end
+    end
+    return nil
 end
 
 local function playerUnits(flight)
@@ -541,10 +558,17 @@ local function taxi(field, flight, member, on, detail, text)
     local formation = isFormation(flight, member, text, true)
     local parts = {
         callsignPart(memberCallsign(flight, member), formation),
-        ", " .. stationLabel(field, "ground") .. ", taxi to runway ",
-        digits(runway),
-        ", ",
+        ", " .. stationLabel(field, "ground") .. ", ",
     }
+    local spot = flight.departure == field.name and spotOf(flight, member)
+    if spot then
+        table.insert(parts, "from spot ")
+        table.insert(parts, digits(spot))
+        table.insert(parts, ", ")
+    end
+    table.insert(parts, "taxi to runway ")
+    table.insert(parts, digits(runway))
+    table.insert(parts, ", ")
     local altimeter = altimeterPart(field)
     if altimeter and not flight.numbers then
         table.insert(parts, "altimeter ")
@@ -557,6 +581,25 @@ local function taxi(field, flight, member, on, detail, text)
     say(field, on or "ground", flight, line(parts))
 end
 
+-- The SOP turn off the runway in use for the flight's planned exit (Spangdahlem: right 280 to the
+-- north fixes, left 210 to the south ones, off 23 only; user call 2026-11-03), or nil.
+local function departureTurn(field, flight)
+    if flight.departure ~= field.name or not flight.exit or flight.exit == "" then
+        return nil
+    end
+    local inUse = tonumber(tostring(field.runway):match("^(%d+)"))
+    for _, turn in ipairs(field.turns or {}) do
+        if tonumber(tostring(turn.runway):match("^(%d+)")) == inUse then
+            for exit in tostring(turn.exits or ""):gmatch("[^,]+") do
+                if exit == flight.exit then
+                    return turn
+                end
+            end
+        end
+    end
+    return nil
+end
+
 -- The frequency change is approved with the clearance, so no airborne call is needed.
 local function takeoff(field, flight, member, on, detail, text)
     local formation = isFormation(flight, member, text, true)
@@ -565,8 +608,15 @@ local function takeoff(field, flight, member, on, detail, text)
         withWind(parts, field)
     end
     local departure = departurePosition(field)
+    local turn = departureTurn(field, flight)
     if departure then
-        for _, part in ipairs({ "cleared for takeoff, contact Departure ", digits(frequencyLabel(field[departure])), "." }) do
+        table.insert(parts, "cleared for takeoff, ")
+        if turn then
+            table.insert(parts, turn.turn .. " turn ")
+            table.insert(parts, digits(turn.heading))
+            table.insert(parts, ", ")
+        end
+        for _, part in ipairs({ "contact Departure ", digits(frequencyLabel(field[departure])), "." }) do
             table.insert(parts, part)
         end
     else
@@ -574,6 +624,19 @@ local function takeoff(field, flight, member, on, detail, text)
     end
     flight.state = "cleared"
     say(field, on or "tower", flight, line(parts))
+end
+
+-- "Chevy 3-1, taxi to parking, spot 42": back to the spot it spawned on when it landed where it
+-- took off from.
+local function parkingParts(field, flight, member, words)
+    local parts = { callsignPart(memberCallsign(flight, member)), words }
+    local spot = flight.departure == field.name and spotOf(flight, member)
+    if spot then
+        table.insert(parts, ", spot ")
+        table.insert(parts, digits(spot))
+    end
+    table.insert(parts, ".")
+    return parts
 end
 
 -- Another player flight inbound to this field or cleared to land there, not down yet.
@@ -831,7 +894,16 @@ local function departureCall(field, flight, member)
     if v and (v.x ~= 0 or v.z ~= 0) then
         towards = math.deg(math.atan2(v.z, v.x)) % 360
     end
-    local exit = nearestPoint(field, towards, true) or generatedPoint(field, towards)
+    local exit = nil
+    if flight.exit and flight.exit ~= "" and flight.departure == field.name then
+        -- The exit the route leaves by, picked when the mission was made (and given with the turn).
+        for _, point in ipairs(field.points or {}) do
+            if point.name == flight.exit then
+                exit = { name = point.name, x = tonumber(point.x), z = tonumber(point.z) }
+            end
+        end
+    end
+    exit = exit or nearestPoint(field, towards, true) or generatedPoint(field, towards)
     local parts = { callsignPart(memberCallsign(flight, member)), ", " .. field.name .. " Departure, radar contact, " }
     if exit.generated then
         table.insert(parts, "depart on present heading, climb and maintain ")
@@ -1038,7 +1110,7 @@ local function handleCall(field, position, flight, member, kind, detail, text)
         inbound(field, flight, member, detail, on, text)
     elseif kind == "clear" then
         flight.landing[member] = nil
-        say(field, on or "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", taxi to parking." }))
+        say(field, on or "tower", flight, line(parkingParts(field, flight, member, ", taxi to parking")))
     elseif heardWord(text, "parking") then
         -- "Taxiing to parking" needs no clearance (flown 2026-11-02: it got "say again").
         say(field, position, flight, line({ callsignPart(memberCallsign(flight, member)), ", roger." }))
@@ -1380,7 +1452,7 @@ function handler:onEvent(event)
     flight.arriving[member] = nil
     flight.handoff[member] = nil
     flight.state = "landed"
-    say(field, "tower", flight, line({ callsignPart(memberCallsign(flight, member)), ", clear the runway, taxi to parking." }))
+    say(field, "tower", flight, line(parkingParts(field, flight, member, ", clear the runway, taxi to parking")))
 end
 
 ---------------------------------------------------------------------------------------------------

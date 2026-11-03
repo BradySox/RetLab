@@ -40,11 +40,23 @@ class RoutePoint:
 
 
 @dataclass(frozen=True)
+class DepartureTurn:
+    """``right turn 280`` off ``runway`` for a flight leaving by one of ``exits``."""
+
+    runway: str
+    direction: str
+    heading: int
+    exits: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class FieldRoutes:
     chart: str
     max_altitude_ft: int
     pattern_ft: int
     points: tuple[RoutePoint, ...]
+    #: The SOP's turns after takeoff, by runway and exit (Spangdahlem, user call 2026-11-03).
+    departure_turns: tuple[DepartureTurn, ...] = ()
 
 
 def _degrees(text: str) -> float:
@@ -137,9 +149,50 @@ def chart_routes(terrain: Terrain, airfield_name: str) -> Optional[FieldRoutes]:
                 point["name"], position, tuple(runways), bool(point.get("exit", True))
             )
         )
+    turns = []
+    for turn in entry.get("departure_turns", []):
+        if (end := dcs_runway(str(turn["runway"]), ends)) is None:
+            logging.warning(
+                "Voice ATC: %s turn runway %s matches no DCS runway",
+                airfield_name,
+                turn["runway"],
+            )
+            continue
+        turns.append(
+            DepartureTurn(
+                end,
+                str(turn["turn"]),
+                int(turn["heading"]),
+                tuple(str(e) for e in turn["exits"]),
+            )
+        )
     return FieldRoutes(
         str(entry["chart"]),
         int(entry["max_altitude_ft"]),
         int(entry["pattern_ft"]),
         tuple(points),
+        tuple(turns),
     )
+
+
+#: A route's first point this close to its field is still the climb-out, not the way out.
+EXIT_LOOKAHEAD_M = 5 * 1852
+
+
+def planned_exit(
+    routes: FieldRoutes, field: Point, waypoints: list[Point]
+) -> Optional[str]:
+    """The chart exit nearest the bearing to the flight's first point past 5 NM."""
+    exits = [p for p in routes.points if p.exit]
+    ahead = next(
+        (w for w in waypoints if field.distance_to_point(w) > EXIT_LOOKAHEAD_M), None
+    )
+    if not exits or ahead is None:
+        return None
+    heading = field.heading_between_point(ahead)
+
+    def off(point: RoutePoint) -> float:
+        diff = abs(field.heading_between_point(point.position) - heading) % 360
+        return min(diff, 360 - diff)
+
+    return min(exits, key=off).name
