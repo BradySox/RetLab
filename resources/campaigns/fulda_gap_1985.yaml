@@ -97,6 +97,13 @@ squadrons:
       aircraft:
         - Jagdbombergeschwader 31 Boelcke
       size: 8
+    # RAF Germany's air defence Phantoms: 92 Squadron flew FGR2s from Wildenrath,
+    # which is off the map.
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - No. 92 Squadron
+      size: 8
   # Ramstein: the 86th TFW's Phantoms, RAF Germany Tornados and the NATO AWACS.
   Ramstein:
     - primary: CAS
@@ -113,6 +120,13 @@ squadrons:
       aircraft:
         - NATO E-3A Component
       size: 1
+    # 1 Canadian Air Group's CF-18s: 409 Squadron converted at Baden-Soellingen in
+    # 1985, which is off the map.
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - 409 Tactical Fighter Squadron
+      size: 6
   # Rhein-Main: the A-10s, the tanker and the airlift.
   Frankfurt:
     - primary: CAS
