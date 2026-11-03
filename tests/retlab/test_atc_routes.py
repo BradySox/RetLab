@@ -1,8 +1,9 @@
-"""Voice ATC step 2 (§119): the Caucasus chart points and runway matching."""
+"""Voice ATC step 2 (§119): the chart points and runway matching."""
 
 from __future__ import annotations
 
-from dcs.terrain import Caucasus, Syria
+from dcs.mapping import LatLng, Point
+from dcs.terrain import Caucasus, GermanyColdWar, Syria
 
 from game.retlab.atc_routes import _chart_file, chart_routes, dcs_runway
 
@@ -49,3 +50,25 @@ def test_a_chart_runway_takes_the_nearest_dcs_end() -> None:
 
 def test_a_map_without_charts_has_no_routes() -> None:
     assert chart_routes(Syria(), "Incirlik") is None
+
+
+def test_spangdahlem_fixes_sit_on_their_sop_radials_from_spa() -> None:
+    terrain = GermanyColdWar()
+    routes = chart_routes(terrain, "Spangdahlem")
+    assert routes is not None and routes.chart == "52 TFW SOP"
+    # TACAN SPA, from the DCS GermanyCW beacons file; the SOP's variation is 2.5 W.
+    spa = Point.from_latlng(LatLng(49.976839, 6.702138), terrain)
+    sop = {
+        "Lake": (29, 8, ("23",)),
+        "Alpha": (88, 9, ("23",)),
+        "Bangor": (56, 10, ("23",)),
+        "Bravo": (209, 7, ("05",)),
+        "Tucson": (238, 11, ("05",)),
+    }
+    assert {p.name for p in routes.points} == set(sop)
+    for point in routes.points:
+        radial, dme, runways = sop[point.name]
+        assert point.entry_runways == runways, point.name
+        assert round(spa.distance_to_point(point.position) / 1852, 1) == dme
+        bearing = (spa.heading_between_point(point.position) + 2.5) % 360
+        assert abs(bearing - radial) < 0.5, point.name
