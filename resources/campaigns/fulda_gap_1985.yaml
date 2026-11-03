@@ -83,7 +83,7 @@ squadrons:
     - primary: SEAD
       secondary: any
       aircraft:
-        - 480th Tactical Fighter Squadron
+        - 480th TFS (Spangdahlem)
       size: 16
   # Bitburg: the 36th TFW's Eagles, and Luftwaffe Tornados.
   Bitburg:
