@@ -15,8 +15,10 @@ Design note: docs/dev/design/retlab-fulda-gap-1985-campaign-notes.md
 """
 
 import copy
+import pickle
 from collections import defaultdict
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 import pytest
@@ -27,6 +29,7 @@ from game import persistency
 from game.campaignloader.campaign import Campaign
 from game.dcs.aircrafttype import AircraftType
 from game.factions import FACTIONS
+from game.migrator import Migrator
 from game.theater import ConflictTheater
 from game.theater.controlpoint import Airfield, Fob
 from game.theater.start_generator import ModSettings
@@ -306,3 +309,42 @@ def test_the_1985_neighbours_take_sides(
         assert pinned[country] == "red", country
     for country in ("Austria", "Switzerland", "Sweden", "GDR", "Germany"):
         assert pinned[country] is None, country
+
+
+def _assert_sides(theater: ConflictTheater) -> None:
+    sides = {z.country: z.posture_override for z in theater.neutral_border_zones}
+    for country in ("Belgium", "The Netherlands", "Denmark", "France", "Luxembourg"):
+        assert sides[country] == "blue", country
+    for country in ("Czech Republic", "Slovakia", "Poland", "Hungary"):
+        assert sides[country] == "red", country
+
+
+def test_the_neighbours_keep_their_sides_when_the_borders_are_re_read(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    # Test 66: every load re-reads the terrain borders (and dates them), and the
+    # postures went with the old list; Belgium stood up SA-2s against blue again.
+    campaign, theater = loaded
+    start = campaign.recommended_start_date
+    assert start is not None
+    theater.date_borders(start)
+    _assert_sides(theater)
+    _assert_sides(pickle.loads(pickle.dumps(theater)))
+
+
+def test_a_save_that_lost_the_sides_gets_them_back(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    campaign, theater = loaded
+    lost = copy.copy(theater)
+    lost.neutral_border_postures = {}
+    lost.neutral_border_zones = ConflictTheater._terrain_border_zones(
+        lost.terrain.name, campaign.recommended_start_date
+    )
+    game = SimpleNamespace(
+        theater=lost, campaign_name=campaign.name, date=campaign.recommended_start_date
+    )
+    Migrator._restore_neutral_border_postures(
+        SimpleNamespace(game=game)  # type: ignore[arg-type]
+    )
+    _assert_sides(lost)

@@ -16,7 +16,7 @@ from .daytimemap import DaytimeMap
 from .frontline import FrontLine
 from .iadsnetwork.iadsnetwork import IadsNetwork
 from .landmap import poly_contains, load_landmap
-from .neutralborder import NeutralBorderZone
+from .neutralborder import NeutralBorderZone, pin_postures
 from .player import Player
 from .seasonalconditions import SeasonalConditions
 from ..utils import Heading
@@ -49,6 +49,8 @@ class ConflictTheater:
         self.controlpoints: list[ControlPoint] = []
         self.rebel_zones: list[TriggerZone] = []
         self.neutral_border_zones: list[NeutralBorderZone] = []
+        #: The campaign's ``neutral_border_postures:``, re-pinned on every re-read.
+        self.neutral_border_postures: dict[str, str] = {}
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         if "landmap_path" not in state:
@@ -68,12 +70,13 @@ class ConflictTheater:
         # have seen Iraq or Syria. A campaign that authors its own is campaign
         # state and is never touched; that is what `from_terrain` distinguishes.
         # An unmarked list predates the flag, so it is left alone.
+        state.setdefault("neutral_border_postures", {})
         existing = state.get("neutral_border_zones")
         if not existing or all(
             getattr(zone, "from_terrain", False) for zone in existing
         ):
             state["neutral_border_zones"] = self._terrain_border_zones(
-                state["terrain"].name
+                state["terrain"].name, postures=state["neutral_border_postures"]
             )
         self.__dict__ = state
         self.landmap = load_landmap(self.landmap_path)
@@ -84,12 +87,14 @@ class ConflictTheater:
         existing = getattr(self, "neutral_border_zones", None) or []
         if all(getattr(zone, "from_terrain", False) for zone in existing):
             self.neutral_border_zones = self._terrain_border_zones(
-                self.terrain.name, on
+                self.terrain.name, on, getattr(self, "neutral_border_postures", {})
             )
 
     @staticmethod
     def _terrain_border_zones(
-        terrain_name: str, on: Optional[date] = None
+        terrain_name: str,
+        on: Optional[date] = None,
+        postures: Optional[dict[str, str]] = None,
     ) -> list[NeutralBorderZone]:
         """Shipped border zones for a terrain. Never raises: a bad file costs
         the borders, never the save."""
@@ -105,7 +110,7 @@ class ConflictTheater:
             logging.warning(
                 "Could not load shipped borders for %s.", terrain_name, exc_info=True
             )
-        return zones
+        return pin_postures(zones, postures or {})
 
     @staticmethod
     def landmap_path_for_terrain_name(terrain_name: str) -> Path:

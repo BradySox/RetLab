@@ -3,7 +3,6 @@ from __future__ import annotations
 import itertools
 import logging
 import zipfile
-from dataclasses import replace
 from functools import cached_property
 from pathlib import Path
 from typing import Any, Iterator, List, TYPE_CHECKING, Tuple, Optional
@@ -22,7 +21,11 @@ from dcs.unitgroup import PlaneGroup, ShipGroup, StaticGroup, VehicleGroup
 from dcs.vehicles import AirDefence, Armor, MissilesSS, Unarmed
 
 from game.controlpoint_influenceradius import ControlPointInfluenceRadius, point_in_zone
-from game.theater.neutralborder import POSTURES, NeutralBorderZone
+from game.theater.neutralborder import (
+    NeutralBorderZone,
+    campaign_postures,
+    pin_postures,
+)
 from game.theater.terrainborders import load_terrain_borders
 from game.point_with_heading import PointWithHeading
 from game.positioned import Positioned
@@ -1065,24 +1068,15 @@ class MizCampaignLoader:
         # A terrain border cannot know a campaign's alliances: a country with no
         # field on the map reads neutral, so Fulda's NATO neighbours fired SA-2s
         # at blue (test 65). The campaign pins them without owning the geometry.
-        postures = self.campaign_data.get("neutral_border_postures") or {}
+        # Kept on the theater: terrain zones are re-read on every load (test 66).
+        postures = campaign_postures(self.campaign_data.get("neutral_border_postures"))
+        self.theater.neutral_border_postures = postures
         zones = []
         for entry in entries or []:
             zone = NeutralBorderZone.from_yaml(entry, from_terrain=source == "terrain")
-            if zone is None:
-                continue
-            posture = postures.get(zone.country)
-            if posture is not None:
-                if str(posture).lower() in POSTURES:
-                    zone = replace(zone, posture_override=str(posture).lower())
-                else:
-                    logging.warning(
-                        "neutral_border_postures: %s for %s is not one of %s",
-                        posture,
-                        zone.country,
-                        "/".join(POSTURES),
-                    )
-            zones.append(zone)
+            if zone is not None:
+                zones.append(zone)
+        zones = pin_postures(zones, postures)
         if zones:
             logging.info(
                 "Neutral borders: %d zone(s) from %s data.", len(zones), source

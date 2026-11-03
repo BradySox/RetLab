@@ -9959,7 +9959,10 @@ neutral that intercepts you, in a campaign where Russia is the enemy. `posture:`
 overrides. A campaign on terrain borders pins postures with a
 `neutral_border_postures:` map (country to `blue`/`red`/`neutral`/`contested`) and
 keeps the shipped geometry: Fulda Gap 1985 uses it for NATO's and the Pact's
-field-less neighbours, which read neutral and stood up SA-2s against blue in test 65. **Overflight is derived from the same airbases** (DM call, 2026-08-26) — a
+field-less neighbours, which read neutral and stood up SA-2s against blue in test 65. The
+map is kept on the theater (`neutral_border_postures`) and re-pinned whenever the terrain
+zones are re-read (every load and the campaign-date step); before that (test 66) the first
+re-read dropped it, and the migrator restores it on older saves from the campaign yaml. **Overflight is derived from the same airbases** (DM call, 2026-08-26) — a
 country you fly from has let you in, one both sides use has let both in, and one
 with no coalition base inside it has invited nobody and defends. `overflight:`
 overrides. The dated posture table used to answer this and was dropped as the

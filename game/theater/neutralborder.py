@@ -56,7 +56,7 @@ from __future__ import annotations
 
 import logging
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from collections.abc import Sequence
 from typing import Any, Optional
 
@@ -573,3 +573,35 @@ class NeutralBorderZone:
                 "neutral_border_defense entry malformed — skipped", exc_info=True
             )
             return None
+
+
+def campaign_postures(raw: Any) -> dict[str, str]:
+    """A campaign's ``neutral_border_postures:`` map, with bad entries dropped."""
+    postures: dict[str, str] = {}
+    if not isinstance(raw, dict):
+        return postures
+    for country, posture in raw.items():
+        if str(posture).lower() in POSTURES:
+            postures[str(country)] = str(posture).lower()
+        else:
+            logging.warning(
+                "neutral_border_postures: %s for %s is not one of %s",
+                posture,
+                country,
+                "/".join(POSTURES),
+            )
+    return postures
+
+
+def pin_postures(
+    zones: list[NeutralBorderZone], postures: dict[str, str]
+) -> list[NeutralBorderZone]:
+    """The zones with a campaign's postures pinned by country."""
+    return [
+        (
+            replace(zone, posture_override=postures[zone.country])
+            if zone.country in postures
+            else zone
+        )
+        for zone in zones
+    ]
