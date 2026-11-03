@@ -827,3 +827,17 @@ def test_a_taxi_readback_gets_silence_not_the_clearance_again() -> None:
     _call(h, "taxi", text="Kobuleti Ground, Viper 1-1, request taxi")
     h.advance_to(6)
     assert len(_texts(h)) == 2
+
+
+def test_clear_the_active_and_taxiing_to_parking_are_answered() -> None:
+    # Flown 2026-11-02: "clear the active" got the runway and wind; "taxiing to parking"
+    # on Ground got "say again".
+    h = _harness()
+    _call(
+        h, "runway", frequency=TOWER, text="Kobuleti Tower, Viper 1-1, clear the active"
+    )
+    h.advance_to(2)
+    assert _texts(h)[-1] == "Viper 1-1, taxi to parking."
+    _call(h, "unknown", text="Kobuleti Ground, Viper 1-1, taxiing to parking")
+    h.advance_to(4)
+    assert _texts(h)[-1] == "Viper 1-1, roger."
