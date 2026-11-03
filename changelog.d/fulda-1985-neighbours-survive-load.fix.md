@@ -1,0 +1,1 @@
+* **[Campaign]** Fulda Gap 1985: NATO's neighbours stay friendly and the Pact's stay with the Pact after a save loads. The side list was dropped on the first load, so Belgium, the Netherlands, Denmark, France and Luxembourg stood up hostile SAMs again. A game already under way gets the sides back when it loads.

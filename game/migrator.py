@@ -18,6 +18,7 @@ from game.data.carrier_comms import is_retired_curated_link4
 from game.data.doctrine import MODERN_DOCTRINE, COLDWAR_DOCTRINE, WWII_DOCTRINE
 from game.radio.Link4Container import Link4Container
 from game.theater import ParkingType, SeasonalConditions, Airfield
+from game.theater.neutralborder import campaign_postures
 from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
 
 if TYPE_CHECKING:
@@ -75,6 +76,7 @@ class Migrator:
         self._reload_terrain()
         self._update_theater()
         self._update_campaign_name()
+        self._restore_neutral_border_postures()
 
         from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator
 
@@ -514,9 +516,21 @@ class Migrator:
         if not hasattr(self.game, "campaign_name"):
             self.game.campaign_name = None
 
+    def _restore_neutral_border_postures(self) -> None:
+        # Saves before test 66 lost the campaign's postures on the first border
+        # re-read, so Fulda's NATO neighbours read neutral again.
+        theater = getattr(self.game, "theater", None)
+        if theater is None or getattr(theater, "neutral_border_postures", None):
+            return
+        data = _campaign_yaml(getattr(self.game, "campaign_name", None))
+        postures = campaign_postures((data or {}).get("neutral_border_postures"))
+        if postures:
+            theater.neutral_border_postures = postures
+            theater.date_borders(self.game.date)
 
-def _campaign_iads_config_names(campaign_name: Optional[str]) -> Optional[set[str]]:
-    """The site names the campaign's own ``iads_config`` writes, or None if unknown."""
+
+def _campaign_yaml(campaign_name: Optional[str]) -> Optional[dict[str, Any]]:
+    """The campaign's own yaml, found by its name, or None if unknown."""
     if not campaign_name:
         return None
     try:
@@ -530,15 +544,22 @@ def _campaign_iads_config_names(campaign_name: Optional[str]) -> Optional[set[st
                     data = yaml.safe_load(campaign_file)
             except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
                 continue
-            if not isinstance(data, dict) or data.get("name") != campaign_name:
-                continue
-            names: set[str] = set()
-            for element in data.get("iads_config") or []:
-                if isinstance(element, str):
-                    names.add(element)
-                elif isinstance(element, dict):
-                    names.update(element)
-            return names
+            if isinstance(data, dict) and data.get("name") == campaign_name:
+                return data
     except Exception:  # noqa: BLE001
-        logging.exception("IADS: campaign lookup failed for %r", campaign_name)
+        logging.exception("Campaign lookup failed for %r", campaign_name)
     return None
+
+
+def _campaign_iads_config_names(campaign_name: Optional[str]) -> Optional[set[str]]:
+    """The site names the campaign's own ``iads_config`` writes, or None if unknown."""
+    data = _campaign_yaml(campaign_name)
+    if data is None:
+        return None
+    names: set[str] = set()
+    for element in data.get("iads_config") or []:
+        if isinstance(element, str):
+            names.add(element)
+        elif isinstance(element, dict):
+            names.update(element)
+    return names

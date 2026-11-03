@@ -108,6 +108,9 @@ the Netherlands, Denmark, France and Luxembourg blue, and the Czech Republic, Sl
 for Czechoslovakia), Poland and Hungary red. Austria, Switzerland and Sweden stay neutral. Without
 it every field-less neighbour read neutral and the NATO ones stood up SA-2s against blue.
 Kaltennordheim keeps its 18 launchers (DM call, same night), though it shot down five blue jets.
+Test 66 (2026-11-02) still had the NATO neighbours' SAMs: every load re-read the terrain
+borders and dropped the postures. They now live on the theater and are re-pinned on each
+re-read; a save made before the fix gets them back from the yaml when it loads.
 
 **Flavor.** 26 of the scenery target sets Red Tide authored come with the map: the
 Staudinger power station, the Frankenbach fuel terminal, the Giessen and Mendig rail yards and
