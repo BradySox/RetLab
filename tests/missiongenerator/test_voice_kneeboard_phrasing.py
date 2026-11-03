@@ -119,10 +119,10 @@ def test_atc_card_after_landing_is_a_pilot_call_with_station_and_callsign(
     assert "airborne" not in text
     # No squawk codes (user call, 2026-10-22): Ground clears taxi, the readback is the runway.
     assert (
-        '  ATC: "Runway 28L, altimeter, taxi, hold short runway 28L, contact Tower '
+        '  ATC: "Hatzerim Ground, taxi to runway 28L, altimeter, hold short, contact Tower '
         f'{voicepages._spoken_freq(home.tower)}."'
     ) in text
-    assert '  You: "Hold short 28L, Ford 9-1."' in text
+    assert '  You: "Taxi runway 28L, hold short, Ford 9-1."' in text
     assert "squawk" not in text.lower()
     # Calls only: no explanations of readbacks, discipline or the F10 menu.
     for gone in ("Readback incomplete", "F10", "Nothing stops you", "(or "):

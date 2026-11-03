@@ -241,11 +241,11 @@ class AtcPage(KneeboardPage):
                     f'"{o} Ground, {me}, radio check."',
                     f'  ATC: "{o} Ground, read you 5 by 5."',
                     f'"{o} Ground, {me}, request taxi."',
-                    f'  ATC: "Runway {r}, altimeter, taxi, hold short runway {r}, '
+                    f'  ATC: "{o} Ground, taxi to runway {r}, altimeter, hold short, '
                     f'contact Tower {t}."',
-                    f'  You: "Hold short {r}, {me}."',
+                    f'  You: "Taxi runway {r}, hold short, {me}."',
                     f'"{o} Ground, {me}, flight of two, have the numbers, request taxi."',
-                    f'  ATC: "{me} flight, runway {r}, taxi, hold short runway {r}, '
+                    f'  ATC: "{me} flight, {o} Ground, taxi to runway {r}, hold short, '
                     f'contact Tower {t}."',
                     f'"{o} Tower, {me}, holding short runway {r}, ready."',
                     f'  ATC: "Runway {r}, wind, cleared for takeoff, {takeoff}"',
