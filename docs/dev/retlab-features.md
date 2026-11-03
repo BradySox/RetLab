@@ -11744,6 +11744,12 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
   the altitudes. No ED artwork is copied. The charts date from 2010; DCS numbers some ends 10
   to 30 degrees off, so a chart runway takes the nearest DCS end within 30 degrees
   (`dcs_runway`). Sochi's 02/20 page is left out: DCS has no such runway.
+- **Spangdahlem** (Germany CW) flies the 52 TFW SOP the v23rd TFS uses
+  (`resources/voice_atc/germanycw.yaml`, 2026-11-02): ALPHA, LAKE and BANGOR enter for 23,
+  BRAVO and TUCSON for 05, each a radial/DME off TACAN SPA (DCS 32X) with 2.5 degrees W
+  variation. One field altitude, 2,600 ft: the SOP's 2,500 ft for 05 and the FL080-095
+  TUCSON/BANGOR recoveries do not fit the format. The SOP's departure turns (right 280,
+  left 210) are not built.
 - **Reports:** SkyEye sends a number digit by digit, so "10 miles" arrives as "1 0 miles"; the
   plugin matches both (flown 2026-11-02: a missed report left Departure re-clearing). A taxi
   call with no "request" or "ready" after the clearance is the readback and gets silence.
@@ -11766,7 +11772,8 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
 ### Files
 
 - `game/retlab/voice_atc.py`: frequencies, the plan, `dcsRetribution.voiceAtc`.
-- `game/retlab/atc_routes.py`, `resources/voice_atc/caucasus.yaml`: the chart points.
+- `game/retlab/atc_routes.py`, `resources/voice_atc/caucasus.yaml`, `germanycw.yaml`: the
+  chart points.
 - `resources/plugins/voiceatc/`: the state machine and the F10 menu.
 - `game/missiongenerator/kneeboard/voicepages.py`: `AtcPage`, one per player flight.
 - `tests/retlab/test_voice_atc.py`, `tests/lua/test_voiceatc_runtime.py`,

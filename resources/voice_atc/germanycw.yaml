@@ -1,0 +1,20 @@
+# Spangdahlem's VFR entry and recovery fixes from the 52 TFW SOP pages the v23rd TFS flies,
+# keyed by DCS airport name. Each fix is a radial and distance from TACAN SPA (DCS channel 32X),
+# turned true with the SOP's 2.5 degrees west variation. The SOP flies 2,500 ft for runway 05 and
+# FL080-095 for the TUCSON and BANGOR recoveries; one field altitude is all the format holds.
+# entry: runways an inbound flight may enter for here ([] = exit only); exit: departures leave here.
+Spangdahlem:
+  chart: 52 TFW SOP
+  max_altitude_ft: 2600
+  pattern_ft: 2600
+  points:
+    - {name: Alpha, lat: "50 00.978", lon: "006 55.409", entry: ["23"], exit: true}
+    - {name: Lake, lat: "50 06.219", lon: "006 45.397", entry: ["23"], exit: true}
+    - {name: Bangor, lat: "50 05.885", lon: "006 52.483", entry: ["23"], exit: true}
+    - {name: Bravo, lat: "49 51.953", lon: "006 39.279", entry: ["05"], exit: true}
+    - {name: Tucson, lat: "49 50.856", lon: "006 30.373", entry: ["05"], exit: true}
+  # The SOP departure turns off 23: right 280 to the north fixes, left 210 to the south ones.
+  # Off 05 the SOP gives none (user call, 2026-11-03).
+  departure_turns:
+    - {runway: "23", turn: right, heading: 280, exits: [Alpha, Lake, Bangor]}
+    - {runway: "23", turn: left, heading: 210, exits: [Bravo, Tucson]}
