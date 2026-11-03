@@ -11787,7 +11787,20 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
 - **Parking spot** (user call, 2026-11-03): each player seat's spawn spot, as the Mission Editor
   names it (pydcs `parking_id`), goes to the plugin. Ground's taxi says "from spot 42", and
   after landing back where it took off from, "taxi to parking, spot 42". The ATC card lists both.
-- **Instrument approaches** from the Nevada, Kola and Falklands plates stay in step 3.
+- **Instrument approaches** (step 3, user call, 2026-11-03): ILS, TACAN and LOC only.
+  `game/retlab/atc_approaches.py` reads the plates' fixes from
+  `resources/voice_atc/approaches/<map>.yaml`: Kola 19, Falklands 8, Nellis and Tonopah Test
+  Range 4 (McCarran is civil, left to the generated one). Each is a start fix (the plate's IF,
+  else its IAF) and the final fix, by name or DME, with altitudes. An ILS takes DCS's own
+  frequency when the runway end has one. Every other ILS end gets a generated straight-in:
+  12 NM final at the field plus 3,000 ft, Tower at 5 NM. In low weather (a BKN/OVC ceiling under
+  3,000 ft above the field, or visibility under 5 SM, from the ATIS cloud and fog readers) or
+  when the pilot says ILS, TACAN, localizer or instrument, Approach says "cleared ILS runway 25,
+  via TAKUP, maintain 3,500 until established, at 8 DME contact Tower 262.0", ILS before TACAN
+  before LOC, for the runway in use only. Tower then clears the flight to land on its first
+  call. The ATC card lists the field's approaches; in low weather its arrival lines are the ILS
+  calls, and the straight-in and initial examples were dropped to keep one page (user call).
+  Row B307.
 - The F10 "10 miles, full stop" goes to Approach first when the field has one. Not flown
   (row B302).
 

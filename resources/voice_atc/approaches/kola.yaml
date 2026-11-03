@@ -1,0 +1,38 @@
+# ILS, TACAN and LOC approaches read from the DCS Kola kneeboard plates
+# (<DCS>/Mods/terrains/Kola/Kneeboard/*.png), keyed by DCS airport name. Facts only.
+# start: the fix Approach clears the flight via (the plate's IF, else its IAF); null name =
+# an unnamed DME fix. final: the final approach fix, where the flight goes to Tower.
+# Altitudes are feet MSL; dme is the plate's DME at the fix.
+Bodo:
+  - {type: ILS, runway: "25", course: 262, frequency: "108.70", ident: BD, start: {name: TAKUP, ft: 3500}, final: {dme: 8.0, ft: 3000}}
+  - {type: ILS, runway: "07", course: 72, frequency: "110.30", ident: BO, start: {name: RIPDO, ft: 2000}, final: {dme: 4.7, ft: 1500}}
+Bardufoss:
+  - {type: ILS, runway: "28", course: 278, frequency: "108.70", ident: BF, start: {name: ELROR, ft: 6500}, final: {dme: 12.6, ft: 5200}}
+  - {type: LOC, runway: "10", course: 100, frequency: "110.30", ident: DU, start: {name: VAXEX, ft: 5000}, final: {name: DU400, ft: 4000}}
+Ivalo:
+  - {type: ILS, runway: "22", course: 212, frequency: "109.90", ident: IV, start: {name: KUTIS, ft: 3500}, final: {name: ARVUL, ft: 2400}}
+Kemi Tornio:
+  - {type: ILS, runway: "18", course: 175, frequency: "110.90", ident: KE, start: {name: LEGVU, ft: 2500}, final: {name: TOTMO, ft: 2000}}
+Kittila:
+  - {type: ILS, runway: "34", course: 334, frequency: "111.90", ident: KT, start: {name: XIVPA, ft: 3800}, final: {name: BENUG, ft: 2500}}
+  - {type: LOC, runway: "16", course: 156, frequency: "111.90", ident: HOU, start: {name: EKLIM, ft: 3800}, final: {name: MEBUV, ft: 2600}}
+Kuusamo:
+  - {type: ILS, runway: "12", course: 118, frequency: "110.30", ident: KO, start: {name: PESEG, ft: 3000}, final: {name: XISTA, ft: 2500}}
+Rovaniemi:
+  - {type: ILS, runway: "21", course: 205, frequency: "111.70", ident: RO, start: {name: NIPAK, ft: 2500}, final: {name: INSAR, ft: 2400}}
+Alta:
+  - {type: ILS, runway: "11", course: 109, frequency: "108.90", ident: AT, start: {name: OGDOL, ft: 5000}, final: {dme: 10.2, ft: 4000}}
+Andoya:
+  - {type: LOC, runway: "14", course: 142, frequency: "109.35", ident: AN, start: {name: ROBUM, ft: 1500}, final: {name: OTROR, ft: 1500}}
+Evenes:
+  - {type: ILS, runway: "17", course: 170, frequency: "108.90", ident: EV, start: {name: EV512, ft: 4500}, final: {dme: 9.7, ft: 4000}}
+Kirkenes:
+  - {type: ILS, runway: "23", course: 233, frequency: "110.30", ident: KR, start: {name: UNDEN, ft: 3000}, final: {dme: 7.3, ft: 2900}}
+Banak:
+  - {type: ILS, runway: "34", course: 342, frequency: "108.30", ident: BA, start: {name: RIMIN, ft: 4300}, final: {dme: 9.4, ft: 3500}}
+  - {type: LOC, runway: "16", course: 162, frequency: "109.35", ident: BK, start: {name: NEPKO, ft: 4000}, final: {dme: 9.2, ft: 3200}}
+Kallax:
+  - {type: ILS, runway: "32", course: 307, frequency: "109.90", ident: SPA, start: {name: PA570, ft: 2100}, final: {dme: 6.8, ft: 2100}}
+  - {type: ILS, runway: "14", course: 127, frequency: "110.30", ident: PA, start: {name: PA920, ft: 2100}, final: {dme: 7.8, ft: 2100}}
+Kiruna:
+  - {type: ILS, runway: "21", course: 204, frequency: "110.30", ident: NQ, start: {dme: 10.0, ft: 3600}, final: {dme: 6.8, ft: 3600}}

@@ -44,6 +44,24 @@ def _altitude(field: AtcField, elevation_m: Optional[float]) -> str:
     return f"{math.ceil((elevation_m * 3.28084 + 2000) / 100) * 100:,}"
 
 
+def _instrument_lines(field: AtcField, me: str, wind: str) -> list[str]:
+    """A request for the best approach to the runway in use, and Tower's landing clearance."""
+    number = field.runway.rstrip("LRC")
+    usable = [a for a in field.approaches if a.runway.rstrip("LRC") == number]
+    if field.approach is None or not usable:
+        return []
+    approach = usable[0]
+    h = field.name
+    at = f"{approach.final.dme:g} miles" if approach.generated else approach.final.label
+    return [
+        f'"{h} Approach, {me}, request {approach.kind}."',
+        f'  ATC: "{me}, {h} Approach, radar contact, {approach.clearance()} contact '
+        f'Tower {_spoken_freq(field.tower)}."',
+        f'"{h} Tower, {me}, {at}, {approach.kind} runway ' f'{approach.runway}."',
+        f'  ATC: "{me}, {h} Tower, runway {field.runway}, {wind}, cleared to land."',
+    ]
+
+
 def _turn_for(field: AtcField, exit_name: str) -> Optional[str]:
     """``turn right heading 280``: the SOP turn off the field's runway for this exit."""
     number = field.runway.rstrip("LRC")
@@ -249,6 +267,10 @@ class AtcPage(KneeboardPage):
                     w.text(f"    {row}")
             elif f.approach is not None:
                 w.text("  No chart: Approach gives an entry 10 NM out.")
+            if f.approach is not None and f.approaches:
+                w.text('  Instrument approaches ("request ILS" on Approach):')
+                for approach in f.approaches:
+                    w.text(f"    {approach.card_line()}")
         # The "You:" lines are the readbacks; any readback, or none, is accepted.
         wind = f"wind {self.wind}" if self.wind else "wind"
         alt = f"altimeter {self.altimeter}" if self.altimeter else "altimeter"
@@ -327,16 +349,17 @@ class AtcPage(KneeboardPage):
                     f'"{h} Tower, {me}, 10 miles, full stop."',
                     f'  ATC: "{me}, runway {r}, {wind}, report initial."',
                 ]
+            # One page (user call, 2026-11-03): the ILS calls replace the visual arrival
+            # in low weather, and the straight-in and initial examples are left out.
+            instrument = _instrument_lines(home, me, wind)
+            if home.instrument and instrument:
+                arrival = instrument
             w.rule()
             w.heading("Coming home")
             _lines(
                 w,
                 [
                     *arrival,
-                    f'"{h} Tower, {me}, 10 miles, request straight-in."',
-                    f'  ATC: "{me}, runway {r}, {wind}, make straight-in, report 3-mile final."',
-                    f'"{me}, initial."',
-                    f'  ATC: "{me}, roger."',
                     f'"{me}, base, gear down, full stop."',
                     f'  ATC: "{me}, runway {r}, {wind}, cleared to land."',
                     f'  You: "Cleared to land, {me}."',

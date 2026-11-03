@@ -184,3 +184,37 @@ def test_atc_card_names_the_spot_and_the_sop_turn(tmp_path: Path) -> None:
     out = tmp_path / "atc-sop.png"
     page.write(out)
     assert out.stat().st_size > 0
+
+
+def test_atc_card_lists_the_approaches_and_the_instrument_calls(
+    tmp_path: Path,
+) -> None:
+    from game.missiongenerator.kneeboard.voicepages import _instrument_lines
+    from game.retlab.atc_approaches import ApproachFix, InstrumentApproach
+
+    ils = InstrumentApproach(
+        "ILS",
+        "25",
+        262,
+        "108.70",
+        "BD",
+        ApproachFix("TAKUP", None, 3500),
+        ApproachFix(None, 8.0, 3000),
+    )
+    bodo = AtcField("Bodo", "25", MHz(262), MHz(260), approach=MHz(264))
+    bodo.approaches = [ils]
+    bodo.instrument = True
+    calls = _instrument_lines(bodo, "Viper 1-1", "wind")
+    assert calls[0] == '"Bodo Approach, Viper 1-1, request ILS."'
+    assert "cleared ILS runway 25, via TAKUP, maintain 3,500 until established" in (
+        calls[1]
+    )
+    assert calls[2] == '"Bodo Tower, Viper 1-1, 8 DME, ILS runway 25."'
+    assert calls[3].endswith('cleared to land."')
+    # The runway in use has no approach: no instrument calls.
+    bodo.runway = "07"
+    assert _instrument_lines(bodo, "Viper 1-1", "wind") == []
+    bodo.runway = "25"
+    out = tmp_path / "atc-ils.png"
+    AtcPage("Viper 1-1", bodo, bodo, False).write(out)
+    assert out.stat().st_size > 0
