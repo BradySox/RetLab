@@ -1,0 +1,13 @@
+---
+name: No. 92 Squadron
+nickname: East India
+country: UK
+role: Air Defence Fighter
+aircraft: F-4E-45MC Phantom II
+livery: "RAF 23 Sqn FGR2 XV484 1983"
+female_pilot_percentage: 0
+mission_types:
+  - BARCAP
+  - TARCAP
+  - Escort
+  - Fighter sweep
