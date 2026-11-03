@@ -208,7 +208,7 @@ def test_the_23rd_flies_from_spangdahlem(
     names = {s.aircraft[0] for s in config.by_location[spangdahlem]}
     assert names == {
         "23rd Tactical Fighter Squadron",
-        "480th Tactical Fighter Squadron",
+        "480th TFS (Spangdahlem)",
     }
 
 

@@ -1,0 +1,14 @@
+---
+name: 480th TFS (Spangdahlem)
+nickname: Warhawks
+country: USA
+role: Fighter Bomber
+aircraft: F-4E-45MC Phantom II
+livery: "F-4G - USAF - SP69-269 - Euro One - 480th TFS Warhawks"
+female_pilot_percentage: 0
+mission_types:
+  - SEAD
+  - SEAD Sweep
+  - SEAD Escort
+  - DEAD
+  - Escort
