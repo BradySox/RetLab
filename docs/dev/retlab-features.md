@@ -11750,6 +11750,15 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
 - **No chart:** a point 10 NM out on the inbound bearing ("proceed 10 miles east of the
   field"), or on the present heading going out, at the field's elevation plus 2,000 ft. Tower's
   initial is the existing overhead.
+- **Departure turns** (user call, 2026-11-03): a chart file may list `departure_turns`, each a
+  runway, a turn, a heading and the exits it serves. Each player flight's exit is picked when
+  the mission is made: the chart exit nearest the bearing to its first waypoint past 5 NM
+  (`planned_exit`). Tower's takeoff clearance then carries the turn ("cleared for takeoff, right
+  turn 280, contact Departure"), and Departure gives that exit whatever the jet's heading.
+  Spangdahlem: right 280 to the north fixes, left 210 to the south, off 23 only.
+- **Parking spot** (user call, 2026-11-03): each player seat's spawn spot, as the Mission Editor
+  names it (pydcs `parking_id`), goes to the plugin. Ground's taxi says "from spot 42", and
+  after landing back where it took off from, "taxi to parking, spot 42". The ATC card lists both.
 - **Instrument approaches** from the Nevada, Kola and Falklands plates stay in step 3.
 - The F10 "10 miles, full stop" goes to Approach first when the field has one. Not flown
   (row B302).

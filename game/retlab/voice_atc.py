@@ -15,7 +15,12 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
-from game.retlab.atc_routes import FieldRoutes, chart_routes, point_lines
+from game.retlab.atc_routes import (
+    FieldRoutes,
+    chart_routes,
+    planned_exit,
+    point_lines,
+)
 from game.retlab.package_control import (
     SKYEYE_LINK_HOST,
     SKYEYE_LINK_PORT,
@@ -183,6 +188,10 @@ class AtcFlight:
     departure: Optional[str]
     arrival: Optional[str]
     divert: Optional[str] = None
+    #: The chart exit its route leaves the departure field by, if the field has a chart.
+    exit: Optional[str] = None
+    #: Each player seat's parking spot as the Mission Editor names it ("42"), by unit name.
+    spots: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass
@@ -241,6 +250,12 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
                 names[0],
                 names[1],
                 names[2],
+                exit=_planned_exit(game, flight, plan.fields.get(names[0] or "")),
+                spots={
+                    unit.name: str(unit.parking_id)
+                    for unit in flight.client_units
+                    if getattr(unit, "parking_id", None)
+                },
             )
         )
     country = game.blue.faction.country.name
@@ -264,6 +279,20 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
 def _routes(game: Game, airfield_name: str) -> Optional[FieldRoutes]:
     terrain = getattr(getattr(game, "theater", None), "terrain", None)
     return chart_routes(terrain, airfield_name) if terrain is not None else None
+
+
+def _planned_exit(
+    game: Game, flight: FlightData, atc_field: Optional[AtcField]
+) -> Optional[str]:
+    """The departure field's chart exit the flight's route leaves by."""
+    if atc_field is None or atc_field.routes is None:
+        return None
+    terrain = getattr(getattr(game, "theater", None), "terrain", None)
+    airport = getattr(terrain, "airports", {}).get(atc_field.name) if terrain else None
+    if airport is None:
+        return None
+    waypoints = [w.position for w in getattr(flight, "waypoints", [])]
+    return planned_exit(atc_field.routes, airport.position, waypoints)
 
 
 def _route_lines(game: Game, atc_field: AtcField) -> list[str]:
@@ -315,6 +344,13 @@ def populate_voice_atc_lua(
                 record.add_key_value("z", str(round(point.position.y)))
                 record.add_key_value("entry", ",".join(point.entry_runways))
                 record.add_key_value("exit", "true" if point.exit else "")
+            turns_node = item.add_item("turns")
+            for turn in routes.departure_turns:
+                record = turns_node.add_item()
+                record.add_key_value("runway", turn.runway)
+                record.add_key_value("turn", turn.direction)
+                record.add_key_value("heading", f"{turn.heading:03d}")
+                record.add_key_value("exits", ",".join(turn.exits))
     flights_node = node.add_item("flights")
     for flight in plan.flights:
         item = flights_node.add_item()
@@ -323,3 +359,9 @@ def populate_voice_atc_lua(
         item.add_key_value("departure", flight.departure or "")
         item.add_key_value("arrival", flight.arrival or "")
         item.add_key_value("divert", flight.divert or "")
+        item.add_key_value("exit", flight.exit or "")
+        spots = item.add_item("spots")
+        for unit_name, spot in flight.spots.items():
+            record = spots.add_item()
+            record.add_key_value("unit", unit_name)
+            record.add_key_value("spot", spot)

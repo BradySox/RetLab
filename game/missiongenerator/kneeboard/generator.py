@@ -432,6 +432,8 @@ class KneeboardGenerator(MissionInfoGenerator):
                     wind=self._briefed_wind(),
                     altimeter=f"{self.game.conditions.weather.atmospheric.qnh.inches_hg:.2f}",
                     elevations_m=self._atc_elevations(),
+                    spot=next(iter(atc.spots.values()), None),
+                    exit_name=atc.exit,
                 )
             )
 

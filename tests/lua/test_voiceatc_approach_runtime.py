@@ -247,3 +247,105 @@ def test_skyeye_hears_departure_too() -> None:
     h.advance_to(2)
     sent = h.to_python(h.lua.globals().SENT) or []
     assert any(DEPARTURE in m["msg"] and '"departure"' in m["msg"] for m in sent)
+
+
+def _sop_harness(runway: str = "23", exit_name: str = "Lake") -> DcsPluginHarness:
+    """Spangdahlem-like: right 280 to the north fixes, left 210 to the south, off 23 only."""
+    field: dict[str, Any] = {
+        "name": "Kobuleti",
+        "airbase": "Kobuleti",
+        "runway": runway,
+        "runways": "05,23",
+        "altimeter": "29.92",
+        "ground": GROUND,
+        "tower": TOWER,
+        "departure": DEPARTURE,
+        "approach": APPROACH,
+        "chart": "52 TFW SOP",
+        "maxAltitude": "2600",
+        "patternAltitude": "2600",
+        "points": [
+            {"name": "Lake", "x": str(7 * NM), "z": "0", "entry": "23", "exit": "true"},
+            {
+                "name": "Bravo",
+                "x": str(-7 * NM),
+                "z": "0",
+                "entry": "05",
+                "exit": "true",
+            },
+        ],
+        "turns": [
+            {"runway": "23", "turn": "right", "heading": "280", "exits": "Lake"},
+            {"runway": "23", "turn": "left", "heading": "210", "exits": "Bravo"},
+        ],
+    }
+    config = {
+        "voiceAtc": {
+            "linkHost": "127.0.0.1",
+            "linkPort": "42690",
+            "fields": [field],
+            "flights": [
+                {
+                    "group": "Viper",
+                    "callsign": "Viper 1-1",
+                    "departure": "Kobuleti",
+                    "arrival": "Kobuleti",
+                    "exit": exit_name,
+                    "spots": [{"unit": "Viper #1", "spot": "42"}],
+                }
+            ],
+        }
+    }
+    h = DcsPluginHarness()
+    h.lua.execute(FAKE_AIRBASE)
+    h.lua.execute(FAKE_SOCKET)
+    h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}, **config})
+    h.add_group(_viper())
+    h.load_plugin_script(PLUGIN)
+    return h
+
+
+def test_taxi_names_the_spawn_spot_and_takeoff_gives_the_sop_turn() -> None:
+    h = _sop_harness()
+    _call(h, "taxi", text="Kobuleti Ground, Viper 1-1, ready to taxi")
+    h.advance_to(2)
+    assert _texts(h)[-1].startswith(
+        "Viper 1-1, Kobuleti Ground, from spot 42, taxi to runway 23, "
+    )
+    _call(h, "ready", frequency=TOWER)
+    h.advance_to(4)
+    assert (
+        "cleared for takeoff, right turn 280, contact Departure 266.0." in _texts(h)[-1]
+    )
+
+
+def test_the_south_exit_turns_left_and_runway_05_has_no_turn() -> None:
+    h = _sop_harness(exit_name="Bravo")
+    _call(h, "ready", frequency=TOWER)
+    h.advance_to(2)
+    assert "cleared for takeoff, left turn 210, contact Departure" in _texts(h)[-1]
+    h = _sop_harness(runway="05")
+    _call(h, "ready", frequency=TOWER)
+    h.advance_to(2)
+    assert "cleared for takeoff, contact Departure" in _texts(h)[-1]
+
+
+def test_departure_gives_the_planned_exit_whatever_the_heading() -> None:
+    h = _sop_harness(exit_name="Bravo")
+    # Heading north, but the route leaves by Bravo to the south.
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=DEPARTURE)
+    h.advance_to(2)
+    assert "depart via Bravo exit" in _texts(h)[-1]
+
+
+def test_after_landing_back_home_it_is_taxi_to_parking_spot_42() -> None:
+    h = _sop_harness()
+    _call(
+        h,
+        "clear",
+        frequency=TOWER,
+        text="Kobuleti Tower, Viper 1-1, clear of runway 23",
+    )
+    h.advance_to(2)
+    assert _texts(h)[-1] == "Viper 1-1, taxi to parking, spot 42."

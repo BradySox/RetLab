@@ -49,3 +49,51 @@ def test_a_chart_runway_takes_the_nearest_dcs_end() -> None:
 
 def test_a_map_without_charts_has_no_routes() -> None:
     assert chart_routes(Syria(), "Incirlik") is None
+
+
+def test_a_route_leaves_by_the_exit_nearest_its_first_point_past_5_nm() -> None:
+    from dcs.mapping import Point
+
+    from game.retlab.atc_routes import FieldRoutes, RoutePoint, planned_exit
+
+    terrain = Caucasus()
+    field = Point(0, 0, terrain)
+    north = RoutePoint("Lake", Point(13000, 0, terrain), ("23",), True)
+    south = RoutePoint("Bravo", Point(-13000, 0, terrain), ("05",), True)
+    routes = FieldRoutes("52 TFW SOP", 2600, 2600, (north, south))
+    # The first waypoint is the climb-out 2 NM north; the route then heads south.
+    waypoints = [Point(3700, 0, terrain), Point(-40000, 5000, terrain)]
+    assert planned_exit(routes, field, waypoints) == "Bravo"
+    assert planned_exit(routes, field, []) is None
+
+
+def test_departure_turns_load_and_take_the_dcs_runway(tmp_path, monkeypatch) -> None:  # type: ignore[no-untyped-def]
+    from game.retlab import atc_routes
+
+    (tmp_path / "caucasus.yaml").write_text(
+        """
+Kobuleti:
+  chart: test
+  max_altitude_ft: 2000
+  pattern_ft: 1500
+  points:
+    - {name: Black Sea, lat: "42 01.126", lon: "041 45.124", entry: ["07"], exit: true}
+  departure_turns:
+    - {runway: "25", turn: right, heading: 280, exits: [Black Sea]}
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(atc_routes, "ROUTES_DIR", tmp_path)
+    atc_routes._chart_file.cache_clear()
+    try:
+        routes = chart_routes(Caucasus(), "Kobuleti")
+    finally:
+        atc_routes._chart_file.cache_clear()
+    assert routes is not None
+    (turn,) = routes.departure_turns
+    assert (turn.runway, turn.direction, turn.heading, turn.exits) == (
+        "25",
+        "right",
+        280,
+        ("Black Sea",),
+    )

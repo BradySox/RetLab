@@ -44,6 +44,15 @@ def _altitude(field: AtcField, elevation_m: Optional[float]) -> str:
     return f"{math.ceil((elevation_m * 3.28084 + 2000) / 100) * 100:,}"
 
 
+def _turn_for(field: AtcField, exit_name: str) -> Optional[str]:
+    """``right turn 280``: the SOP turn off the field's runway for this exit, if any."""
+    number = field.runway.rstrip("LRC")
+    for turn in field.routes.departure_turns if field.routes else ():
+        if turn.runway.rstrip("LRC") == number and exit_name in turn.exits:
+            return f"{turn.direction} turn {turn.heading:03d}"
+    return None
+
+
 def _lines(writer: KneeboardPageWriter, lines: list[str]) -> None:
     for line in lines:
         writer.text(line, wrap=True)
@@ -176,8 +185,13 @@ class AtcPage(KneeboardPage):
         wind: Optional[str] = None,
         altimeter: Optional[str] = None,
         elevations_m: Optional[dict[str, float]] = None,
+        spot: Optional[str] = None,
+        exit_name: Optional[str] = None,
     ) -> None:
         self.callsign = callsign
+        #: The lead's spawn spot ("42") and the chart exit its route leaves by.
+        self.spot = spot
+        self.exit_name = exit_name
         #: The briefed surface wind ("230 at 8") and altimeter ("29.92"); the controllers
         #: read the live wind, so it can drift in flight.
         self.wind = wind
@@ -239,6 +253,7 @@ class AtcPage(KneeboardPage):
         wind = f"wind {self.wind}" if self.wind else "wind"
         alt = f"altimeter {self.altimeter}" if self.altimeter else "altimeter"
         flight_name = me.rsplit("-", 1)[0] + " flight"
+        from_spot = f"from spot {self.spot}, " if self.spot else ""
         if out is not None:
             o, r = out.name, out.runway
             t = _spoken_freq(out.tower)
@@ -247,7 +262,10 @@ class AtcPage(KneeboardPage):
             if departure_freq is not None:
                 takeoff = f"contact Departure {_spoken_freq(departure_freq)}."
                 if out.routes is not None:
-                    exit_name = _example_point(out, exit=True)
+                    exit_name = self.exit_name or _example_point(out, exit=True)
+                    turn = _turn_for(out, exit_name)
+                    if turn:
+                        takeoff = f"{turn}, {takeoff}"
                     clearance = f"depart via {exit_name} exit"
                     report = exit_name
                 else:
@@ -271,12 +289,12 @@ class AtcPage(KneeboardPage):
                     f'"{o} Ground, {me}, radio check."',
                     f'  ATC: "{me}, {o} Ground, read you 5 by 5."',
                     f'"{o} Ground, {me}, flight of two, taxi."',
-                    f'  ATC: "{flight_name}, {o} Ground, taxi to runway {r}, {alt}, '
-                    f'hold short, contact Tower {t}."',
+                    f'  ATC: "{flight_name}, {o} Ground, {from_spot}taxi to runway {r}, '
+                    f'{alt}, hold short, contact Tower {t}."',
                     f'  You: "Taxi {r}, hold short, {me}."',
                     f'"{o} Ground, {me}, flight of two, taxi, have the numbers."',
-                    f'  ATC: "{flight_name}, {o} Ground, taxi to runway {r}, hold short, '
-                    f'contact Tower {t}."',
+                    f'  ATC: "{flight_name}, {o} Ground, {from_spot}taxi to runway {r}, '
+                    f'hold short, contact Tower {t}."',
                     f'"{o} Tower, {me}, holding short {r}, ready for takeoff."',
                     f'  ATC: "{me}, runway {r}, {wind}, cleared for takeoff, {takeoff}"',
                     f'  You: "Cleared for takeoff, {me}."',
@@ -322,7 +340,8 @@ class AtcPage(KneeboardPage):
                     f'  ATC: "{me}, runway {r}, {wind}, cleared to land."',
                     f'  You: "Cleared to land, {me}."',
                     f'"{h} Tower, {me}, clear of runway {r}."',
-                    f'  ATC: "{me}, taxi to parking."',
+                    f'  ATC: "{me}, taxi to parking'
+                    + (f', spot {self.spot}."' if self.spot and home is out else '."'),
                     f'"Mayday, mayday, mayday, {me}, engine failure."',
                     f'  ATC: "{me}, {h} Tower, roger mayday, cleared to land any runway."',
                 ],
