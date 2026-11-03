@@ -2,7 +2,8 @@
 
 Caucasus is the one DCS map whose kneeboard charts draw visual arrival and departure
 routes (checked 2026-10-29): Nevada, Kola and the Falklands carry instrument plates only,
-Syria three airport diagrams. Its points live in ``resources/voice_atc/caucasus.yaml``;
+Syria three airport diagrams. Its points live in ``resources/voice_atc/caucasus.yaml``.
+Spangdahlem's come from the 52 TFW SOP (``germanycw.yaml``, user call, 2026-11-02);
 any other field gets the plugin's generated route, an entry 10 NM out on the inbound
 bearing and an initial 5 NM out (user call, 2026-10-29).
 """
