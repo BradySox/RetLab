@@ -11747,6 +11747,9 @@ card. A departure's call on Approach gets "contact Departure", an arrival's on D
 - **Reports:** SkyEye sends a number digit by digit, so "10 miles" arrives as "1 0 miles"; the
   plugin matches both (flown 2026-11-02: a missed report left Departure re-clearing). A taxi
   call with no "request" or "ready" after the clearance is the readback and gets silence.
+  On Departure or Approach, a call with "climb", "maintain" or "report" is a readback and gets
+  silence; "clear the active" is off the runway; "taxiing to parking" gets "roger" (flown
+  2026-11-02).
 - **No chart:** a point 10 NM out on the inbound bearing ("proceed 10 miles east of the
   field"), or on the present heading going out, at the field's elevation plus 2,000 ft. Tower's
   initial is the existing overhead.

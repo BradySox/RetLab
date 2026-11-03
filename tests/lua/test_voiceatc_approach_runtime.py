@@ -247,3 +247,20 @@ def test_skyeye_hears_departure_too() -> None:
     h.advance_to(2)
     sent = h.to_python(h.lua.globals().SENT) or []
     assert any(DEPARTURE in m["msg"] and '"departure"' in m["msg"] for m in sent)
+
+
+def test_a_departure_readback_gets_silence_not_a_release_or_an_approach() -> None:
+    # Flown 2026-11-02: "Chevy 3, climb 3000, report 10 miles" got an Approach clearance.
+    h = _harness(charted=False)
+    _move(h, 2 * NM, vx=150)
+    _call(h, "airborne", frequency=APPROACH)
+    h.advance_to(2)
+    before = len(_texts(h))
+    _call(
+        h,
+        "inbound",
+        frequency=APPROACH,
+        text="Viper 1-1, climb 3000, report 1 0 miles",
+    )
+    h.advance_to(4)
+    assert len(_texts(h)) == before
