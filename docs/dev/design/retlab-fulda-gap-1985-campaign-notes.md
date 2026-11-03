@@ -131,9 +131,10 @@ statics stand on the Buna and Leuna chemical works.
 
 The Tornado GR4 stands in for the RAF's GR1; the C-130J for the C-130E; the Patriot arrived in
 Germany in 1985. The 357th's Su-25s reached Brandis in 1986, and fly from Merseburg here. The
-50th TFW's F-16As at Hahn are missing: DCS has no F-16A. The 23rd TFS and the 480th TFS (Spangdahlem) fly a `livery_set` of
-the DM's ten "52FW 23TFS" liveries (one per tail, `52nd_Fighter_Wing_*` in his Saved Games); without
-them the jets fly the default. The shared `480th Tactical Fighter Squadron` preset keeps its old
+50th TFW's F-16As at Hahn are missing: DCS has no F-16A. The 23rd TFS flies a `livery_set` of the DM's ten "52FW 23TFS"
+liveries (one per tail, `52nd_Fighter_Wing_*` in his Saved Games). The 480th TFS (Spangdahlem) flies
+"F-4G - USAF - SP69-269 - Euro One - 480th TFS Warhawks" from DCS User Files (file 3338352). Without
+these mods the jets fly the default. The shared `480th Tactical Fighter Squadron` preset keeps its old
 livery for Red Bear 1985.
 
 ## Not verified

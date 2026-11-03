@@ -1,1 +1,1 @@
-* **[Campaigns]** Fulda Gap 1985: the 23rd TFS and 480th TFS Phantoms wear the 52nd Fighter Wing Spangdahlem liveries, a different tail on each jet; the 23rd pointed at a livery that was no longer installed.
+* **[Campaigns]** Fulda Gap 1985: the 23rd TFS Phantoms wear the 52nd Fighter Wing Spangdahlem liveries, a different tail on each jet, and the 480th TFS wears its Euro One Warhawks livery; the 23rd pointed at a livery that was no longer installed.

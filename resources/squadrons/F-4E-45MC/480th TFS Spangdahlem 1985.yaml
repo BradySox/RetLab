@@ -4,17 +4,7 @@ nickname: Warhawks
 country: USA
 role: Fighter Bomber
 aircraft: F-4E-45MC Phantom II
-livery_set:
-  - "52nd_Fighter_Wing_72-045"
-  - "52nd_Fighter_Wing_72-060"
-  - "52nd_Fighter_Wing_72-165"
-  - "52nd_Fighter_Wing_72-166"
-  - "52nd_Fighter_Wing_72-777"
-  - "52nd_Fighter_Wing_74-1055"
-  - "52nd_Fighter_Wing_74-638"
-  - "52nd_Fighter_Wing_74-639"
-  - "52nd_Fighter_Wing_74-647"
-  - "52nd_Fighter_Wing_74-653"
+livery: "F-4G - USAF - SP69-269 - Euro One - 480th TFS Warhawks"
 female_pilot_percentage: 0
 mission_types:
   - SEAD
