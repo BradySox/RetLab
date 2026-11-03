@@ -9405,6 +9405,24 @@ Deliberate consequence: **gun hits are no longer counted**, because DCS raises n
 for them and there is nothing to rate them against. An uncountable shot must not become a
 free hit.
 
+### A bomblet scores once for its canister (2026-11-03)
+
+Test 67: four F-4Es dropped 42 Rockeyes, destroyed all 13 units of an SA-2 site, and the
+report card read *42 weapons released, 0 hits*. The canister opens about 1 s after release and
+never strikes anything itself, so the rule above could never score it.
+
+A hit from a weapon the recorder did not see fired now falls through to `canister_for`. When
+the impacting weapon is a bomb (`getDesc().category`), it claims the **oldest** bomb this same
+jet released in the last 60 s whose weapon no longer exists (an opened canister), and clears
+it. One hit per canister at most, so hits still never exceed shots.
+
+- Bombs only: a gun round cannot claim a canister.
+- A bomb still falling exists, so a bomblet never takes a Mk-84's own hit.
+- Two canisters from one jet, only the second's bomblets landing: the first is credited. The
+  total is right; which canister is not.
+- A submunition DCS does not report as a bomb (the test 8 CBU-105 case in the harness) still
+  scores nothing. Whether the CBU-97/105 skeets are bombs in DCS is unverified.
+
 ## §92 — What's New
 
 The fork lands several player-visible changes a week, and most of them are runtime
