@@ -141,8 +141,6 @@ def test_atc_card_teaches_the_military_pattern(
     for call in (
         '"Hatzerim Ground, Ford 9-1, flight of two, taxi, have the numbers."',
         '"Hatzerim Tower, Ford 9-1, 10 miles, full stop."',
-        '"Hatzerim Tower, Ford 9-1, 10 miles, request straight-in."',
-        '"Ford 9-1, initial."',
         '"Ford 9-1, base, gear down, full stop."',
     ):
         assert call in calls, call

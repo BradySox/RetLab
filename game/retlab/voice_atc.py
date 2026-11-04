@@ -15,6 +15,11 @@ import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Optional
 
+from game.retlab.atc_approaches import (
+    InstrumentApproach,
+    field_approaches,
+    instrument_weather,
+)
 from game.retlab.atc_routes import (
     FieldRoutes,
     chart_routes,
@@ -179,6 +184,10 @@ class AtcField:
     #: Every runway end at the field, in pairs ("10R", "28L", ...), for the plugin to
     #: switch to the one DCS's AI is using.
     runways: list[str] = field(default_factory=list)
+    #: ILS, TACAN and LOC approaches Approach can clear a flight for (step 3).
+    approaches: list[InstrumentApproach] = field(default_factory=list)
+    #: Low cloud or visibility: Approach gives an instrument approach unasked.
+    instrument: bool = False
 
 
 @dataclass
@@ -272,8 +281,29 @@ def voice_atc_plan(game: Game, mission_data: MissionData) -> Optional[VoiceAtcPl
             atc_field.approach_voice = pick_another_voice(country, taken)
             taken.append(atc_field.approach_voice)
         atc_field.route_lines = _route_lines(game, atc_field)
+        _add_approaches(game, atc_field)
     mission_data.voice_atc = plan
     return plan
+
+
+def _add_approaches(game: Game, atc_field: AtcField) -> None:
+    """The field's instrument approaches and whether the weather calls for one."""
+    from game.missiongenerator.kneeboard_recon.airport_imagery import (
+        field_elevation_for_airport,
+    )
+    from game.runways import RunwayData
+
+    theater = getattr(game, "theater", None)
+    terrain = getattr(theater, "terrain", None)
+    airport = getattr(terrain, "airports", {}).get(atc_field.name) if terrain else None
+    if theater is None or terrain is None or airport is None:
+        return
+    elevation_ft = (field_elevation_for_airport(terrain, airport) or 0) * 3.28084
+    runways = list(RunwayData.for_pydcs_airport(theater, airport))
+    atc_field.approaches = field_approaches(
+        terrain.name, airport, runways, elevation_ft
+    )
+    atc_field.instrument = instrument_weather(game.conditions.weather, elevation_ft)
 
 
 def _routes(game: Game, airfield_name: str) -> Optional[FieldRoutes]:
@@ -351,6 +381,26 @@ def populate_voice_atc_lua(
                 record.add_key_value("turn", turn.direction)
                 record.add_key_value("heading", f"{turn.heading:03d}")
                 record.add_key_value("exits", ",".join(turn.exits))
+        item.add_key_value("instrument", "true" if atc_field.instrument else "")
+        approaches_node = item.add_item("approaches")
+        for approach in atc_field.approaches:
+            record = approaches_node.add_item()
+            record.add_key_value("kind", approach.kind)
+            record.add_key_value("runway", approach.runway)
+            record.add_key_value("nav", approach.nav)
+            record.add_key_value("startName", approach.start.name or "")
+            record.add_key_value(
+                "startDme",
+                f"{approach.start.dme:g}" if approach.start.dme is not None else "",
+            )
+            record.add_key_value("startFeet", str(approach.start.feet))
+            record.add_key_value("finalName", approach.final.name or "")
+            record.add_key_value(
+                "finalDme",
+                f"{approach.final.dme:g}" if approach.final.dme is not None else "",
+            )
+            record.add_key_value("finalFeet", str(approach.final.feet))
+            record.add_key_value("generated", "true" if approach.generated else "")
     flights_node = node.add_item("flights")
     for flight in plan.flights:
         item = flights_node.add_item()

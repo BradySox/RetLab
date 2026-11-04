@@ -10,6 +10,9 @@
 --   flights = { { group, callsign, departure, arrival, divert, exit (the chart exit its route
 --     leaves by), spots = { { unit, spot } } (each player seat's parking spot) } }
 --   A charted field may carry turns = { { runway, turn ('right'), heading ('280'), exits } }.
+--   Every field: instrument ('true' in low weather) and approaches = { { kind ('ILS', 'TACAN',
+--     'LOC'), runway, nav, startName, startDme, startFeet, finalName, finalDme, finalFeet,
+--     generated } }.
 --
 -- Ground and Tower for player flights, through SkyEye's mission link: SkyEye hears the calls on
 -- the field frequencies and this script decides every reply, in military calls: the altimeter
@@ -25,6 +28,10 @@
 -- flight reports the exit. Inbound, it gives the chart entry nearest the flight that serves the
 -- runway, and hands the flight to Tower at the entry; Tower then needs no repeat. A field
 -- without a chart gets an entry 10 NM out on the inbound bearing.
+--
+-- Step 3 (user call, 2026-11-03): in low weather, or when the pilot asks for one, Approach clears
+-- an ILS, TACAN or LOC approach to the runway in use instead, and Tower clears the flight to land
+-- on its first call.
 ---------------------------------------------------------------------------------------------------
 
 if not (dcsRetribution and dcsRetribution.voiceAtc) then
@@ -86,6 +93,8 @@ for _, flight in ipairs(data.flights or {}) do
     flight.departing = {}
     -- Ship -> field whose Tower Approach handed it to.
     flight.handoff = {}
+    -- Ship -> field whose instrument approach it is flying.
+    flight.instrument = {}
     -- Unit name -> the parking spot it spawned on, as the Mission Editor names it.
     flight.spotByUnit = {}
     for _, s in ipairs(flight.spots or {}) do
@@ -926,12 +935,84 @@ local function releaseDeparture(field, flight, member)
     say(field, departurePosition(field), flight, line({ callsignPart(memberCallsign(flight, member)), ", frequency change approved." }))
 end
 
--- The runway and the chart entry nearest the flight that serves it, or a point 10 NM out.
-local function arrivalCall(field, flight, member, text)
+local KIND_ORDER = { ILS = 1, TACAN = 2, LOC = 3 }
+local KIND_SPEECH = { ILS = { "ILS", "I L S" }, TACAN = "TACAN", LOC = { "LOC", "localizer" } }
+local NUMBER_SPEECH = { ["5"] = "five", ["12"] = "twelve" }
+
+-- The best instrument approach to the runway in use: ILS, then TACAN, then LOC.
+local function approachFor(field)
+    local best
+    for _, a in ipairs(field.approaches or {}) do
+        if a.runway == field.runway or endNumber(a.runway) == endNumber(field.runway) then
+            if not best or (KIND_ORDER[a.kind] or 9) < (KIND_ORDER[best.kind] or 9) then
+                best = a
+            end
+        end
+    end
+    return best
+end
+
+-- "TAKUP", or an unnamed fix by its DME: "6.8 DME", spoken "six point eight DME".
+local function fixPart(name, dme)
+    if name and name ~= "" then
+        return name
+    end
+    local whole, tenths = tostring(dme):match("^(%d+)%.?(%d*)$")
+    local speech = spokenDigits(whole or dme)
+    if tenths and tenths ~= "" then
+        speech = speech .. " point " .. spokenDigits(tenths)
+    end
+    return { tostring(dme) .. " DME", speech .. " DME" }
+end
+
+local function instrumentCall(field, flight, member, approach, formation)
+    local parts = {
+        callsignPart(memberCallsign(flight, member), formation),
+        ", " .. field.name .. " Approach, radar contact, cleared ",
+        KIND_SPEECH[approach.kind] or approach.kind,
+        " runway ",
+        digits(approach.runway),
+        ", ",
+    }
+    if approach.generated == "true" then
+        table.insert(parts, "proceed to a ")
+        table.insert(parts, { approach.startDme, NUMBER_SPEECH[approach.startDme] or spokenDigits(approach.startDme) })
+        table.insert(parts, " mile final, maintain ")
+        table.insert(parts, altitudePart(tonumber(approach.startFeet)))
+        table.insert(parts, " until established, at ")
+        table.insert(parts, { approach.finalDme, NUMBER_SPEECH[approach.finalDme] or spokenDigits(approach.finalDme) })
+        table.insert(parts, " miles contact Tower ")
+    else
+        table.insert(parts, "via ")
+        table.insert(parts, fixPart(approach.startName, approach.startDme))
+        table.insert(parts, ", maintain ")
+        table.insert(parts, altitudePart(tonumber(approach.startFeet)))
+        table.insert(parts, " until established, at ")
+        table.insert(parts, fixPart(approach.finalName, approach.finalDme))
+        table.insert(parts, " contact Tower ")
+    end
+    table.insert(parts, digits(frequencyLabel(field.tower)))
+    table.insert(parts, ".")
+    flight.arriving[member] = nil
+    flight.handoff[member] = field.name
+    flight.instrument[member] = field.name
+    flight.pattern[member] = field.name
+    say(field, "approach", flight, line(parts))
+end
+
+-- The runway and the chart entry nearest the flight that serves it, or a point 10 NM out; an
+-- instrument approach instead in low weather or when the pilot asks for one.
+local function arrivalCall(field, flight, member, text, wantsInstrument)
     local unit = memberUnit(flight, member)
     local base = airbasePoint(field)
     if not (unit and base) then
         return sayAgainOn(field, "approach", flight, member)
+    end
+    if wantsInstrument or field.instrument == "true" then
+        local approach = approachFor(field)
+        if approach then
+            return instrumentCall(field, flight, member, approach, isFormation(flight, member, text, false))
+        end
     end
     local p = unit:getPoint()
     local towards = bearing(base, p.x, p.z)
@@ -976,6 +1057,15 @@ local function words(text)
     return " " .. tostring(text or ""):lower():gsub("[^%w]", " "):gsub("%s+", " ") .. " "
 end
 
+-- "Request ILS", "request the TACAN", "localizer", "instrument approach"; Whisper may write
+-- the ILS as "I.L.S.".
+local function asksInstrument(text)
+    local heard = words(text)
+    return heard:find(" ils ", 1, true) ~= nil or heard:find(" i l s ", 1, true) ~= nil
+        or heard:find(" tacan ", 1, true) ~= nil or heard:find(" localizer ", 1, true) ~= nil
+        or heard:find(" instrument ", 1, true) ~= nil
+end
+
 -- A report of the entry or exit Approach gave: its name, "ten miles", "entry" or "exit".
 local function reportsPoint(pending, text)
     if not pending then
@@ -999,6 +1089,10 @@ local function approachCall(field, flight, member, kind, text)
         return
     end
     local departing, arriving = flight.departing[member], flight.arriving[member]
+    local inAir = memberUnit(flight, member)
+    if asksInstrument(text) and inAir and inAir:inAir() and not departing then
+        return arrivalCall(field, flight, member, text, true)
+    end
     if departing and departing.field == field.name and reportsPoint(departing, text) then
         return releaseDeparture(field, flight, member)
     end
@@ -1045,6 +1139,18 @@ local function handleCall(field, position, flight, member, kind, detail, text)
     if kind == "runway" and heardWord(text, "clear") then
         -- "Clear the active" is off the runway, not a question about it (flown 2026-11-02).
         kind = "clear"
+    end
+    if position == "tower" and flight.instrument[member] == field.name and kind ~= "radiocheck"
+        and kind ~= "sayagain" and kind ~= "emergency" and kind ~= "runway" and kind ~= "clear" then
+        -- On the approach Approach cleared: the landing clearance, whatever the call says.
+        flight.instrument[member] = nil
+        flight.handoff[member] = nil
+        flight.pattern[member] = nil
+        flight.landing[member] = field.name
+        local parts = { callsignPart(memberCallsign(flight, member)), ", " .. field.name .. " Tower, runway ", digits(field.runway), ", " }
+        withWind(parts, field)
+        table.insert(parts, "cleared to land.")
+        return say(field, "tower", flight, line(parts))
     end
     if (position == "approach" or position == "departure") and kind ~= "radiocheck" and kind ~= "sayagain" and kind ~= "emergency"
         and kind ~= "runway" then
@@ -1312,6 +1418,7 @@ local function newSortie(flight, unit)
     flight.arriving = {}
     flight.departing = {}
     flight.handoff = {}
+    flight.instrument = {}
     flight.lastCall = {}
     flight.numbers = nil
 end

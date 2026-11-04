@@ -1,0 +1,17 @@
+# ILS and TACAN approaches read from the DCS Falklands kneeboard plates
+# (<DCS>/Mods/terrains/Falklands/Kneeboard/*.PNG), keyed by DCS airport name. Facts only.
+# Same fields as kola.yaml; a TACAN approach gives its channel instead of a frequency.
+Mount Pleasant:
+  - {type: ILS, runway: "28", course: 282, frequency: "111.90", ident: IMP, start: {name: Point Alpha, ft: 4700}, final: {dme: 4.7, ft: 1700}}
+  - {type: TACAN, runway: "10", course: 109, channel: 59X, ident: MPA, start: {dme: 13.1, ft: 3740}, final: {dme: 7.2, ft: 2340}}
+  - {type: TACAN, runway: "23", course: 237, channel: 59X, ident: MPA, start: {dme: 10.5, ft: 2700}, final: {dme: 6.3, ft: 1900}}
+Punta Arenas:
+  - {type: ILS, runway: "25", course: 256, frequency: "109.90", ident: INAS, start: {dme: 10.0, ft: 3000}, final: {dme: 5.0, ft: 1700}}
+Rio Gallegos:
+  - {type: ILS, runway: "25", course: 254, frequency: "110.30", ident: GL, start: {name: ORODA, ft: 2200}, final: {dme: 6.6, ft: 2200}}
+Rio Grande:
+  - {type: ILS, runway: "26", course: 256, frequency: "109.50", ident: GR, start: {dme: 9.5, ft: 2100}, final: {dme: 6.3, ft: 2100}}
+Ushuaia:
+  - {type: ILS, runway: "25", course: 252, frequency: "111.30", ident: US, start: {dme: 18.0, ft: 5700}, final: {dme: 15.0, ft: 5700}}
+El Calafate:
+  - {type: ILS, runway: "25", course: 252, frequency: "108.90", ident: EC, start: {name: ISAXO, ft: 2900}, final: {dme: 7.0, ft: 2900}}

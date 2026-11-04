@@ -1,0 +1,10 @@
+# ILS and TACAN approaches read from the DCS Nevada kneeboard plates
+# (<DCS>/Mods/terrains/Nevada/Kneeboard/*.png), keyed by DCS airport name. Facts only.
+# Same fields as kola.yaml. McCarran's plates are civil RNAV and ILS; it gets the generated
+# straight-in like an uncharted field.
+Nellis:
+  - {type: ILS, runway: "21L", course: 209, frequency: "109.10", ident: IDIQ, start: {name: SHEET, ft: 5000}, final: {name: ROTSE, ft: 4200}}
+  - {type: TACAN, runway: "03R", course: 29, channel: 12X, ident: LSV, start: {name: HUSTS, ft: 6300}, final: {name: WEBSO, ft: 3200}}
+Tonopah Test Range:
+  - {type: ILS, runway: "14", course: 141, frequency: "108.30", ident: IRVP, start: {name: JEPAR, ft: 9300}, final: {name: JANAV, ft: 7200}}
+  - {type: ILS, runway: "32", course: 321, frequency: "111.70", ident: IUVV, start: {name: JIREM, ft: 8700}, final: {name: DRAKO, ft: 7600}}
