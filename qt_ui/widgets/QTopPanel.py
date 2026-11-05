@@ -58,7 +58,7 @@ class QTopPanel(QFrame):
             pass_turn_text = "Begin Campaign"
         # Exactly one control in this strip is the primary action, and it is the
         # one that generates and launches the mission. Everything else here —
-        # Pass Turn, Air Wing, Transfers, Re-plan RED — is an ordinary button.
+        # Pass Turn, Air Wing, Transfers, Re-plan — is an ordinary button.
         # They all used to carry "btn-primary" too, which is why nothing in the
         # strip read as more important than anything else.
         self.passTurnButton = QPushButton(pass_turn_text)
@@ -91,18 +91,15 @@ class QTopPanel(QFrame):
         self.transfers.setDisabled(True)
         self.transfers.clicked.connect(self.open_transfers)
 
-        # Re-plan ONLY the enemy (RED) air tasking for the current turn, keeping the
-        # player's (BLUE) hand-built frag untouched -- the coalition-selective form of
-        # initialize_turn (the same path the engine uses on a red TGO buy/sell). Handy
-        # after editing the enemy laydown so RED retasks onto it without discarding
-        # your packages.
-        self.reroll_red_button = QPushButton("Re-plan RED")
-        self.reroll_red_button.setDisabled(True)
-        self.reroll_red_button.setToolTip(
-            "Discard and re-plan the RED (enemy) air tasking for this turn while "
-            "keeping your BLUE frag untouched. Does not change the clock or weather."
+        # Mid-turn re-plan of RED, BLUE or both: the coalition-selective form of
+        # initialize_turn. Blue keeps every package with a player seat.
+        self.replan_button = QPushButton("Re-plan...")
+        self.replan_button.setDisabled(True)
+        self.replan_button.setToolTip(
+            "Re-plan RED, BLUE or both sides' flights for this turn. Packages with "
+            "a player seat are kept. Does not change the clock or weather."
         )
-        self.reroll_red_button.clicked.connect(self.reroll_red)
+        self.replan_button.clicked.connect(self.replan)
 
         self.intel_box = QIntelBox(self.game)
 
@@ -111,7 +108,7 @@ class QTopPanel(QFrame):
         self.buttonBoxLayout.addWidget(self.air_wing)
         self.buttonBoxLayout.addWidget(self.playable)
         self.buttonBoxLayout.addWidget(self.transfers)
-        self.buttonBoxLayout.addWidget(self.reroll_red_button)
+        self.buttonBoxLayout.addWidget(self.replan_button)
         self.buttonBox.setLayout(self.buttonBoxLayout)
 
         self.simSpeedControls = SimSpeedControls(sim_controller)
@@ -129,7 +126,7 @@ class QTopPanel(QFrame):
             self.air_wing,
             self.playable,
             self.transfers,
-            self.reroll_red_button,
+            self.replan_button,
             self.simSpeedControls,
             self.passTurnButton,
             self.proceedButton,
@@ -186,7 +183,7 @@ class QTopPanel(QFrame):
             self.proceedButton.setEnabled(False)
             self.simSpeedControls.setEnabled(False)
             # No turn to re-plan before the campaign starts.
-            self.reroll_red_button.setEnabled(False)
+            self.replan_button.setEnabled(False)
         else:
             raise RuntimeError(f"game.turn out of bounds!\n  value = {game.turn}")
 
@@ -204,14 +201,11 @@ class QTopPanel(QFrame):
         self.dialog = PendingTransfersDialog(self.game_model)
         self.dialog.show()
 
-    def reroll_red(self):
-        """Re-plan RED's ATO for the current turn, keeping BLUE's frag untouched.
+    def replan(self) -> None:
+        """Re-plan RED, BLUE or both for the current turn, keeping the clock.
 
-        Uses the coalition-selective ``Game.initialize_turn(for_red=True,
-        for_blue=False)`` -- the same path the engine takes on a red TGO buy/sell -- so
-        the player's hand-built BLUE packages, rosters, loadouts and TOTs are left
-        exactly as they were while RED replans against the current laydown. The clock
-        and weather are not touched.
+        Blue keeps every package with a player seat (``game/ato/replan.py``); red
+        has none, so it is re-planned whole.
         """
         from game.server import EventStream
         from game.sim.gameupdateevents import GameUpdateEvents
@@ -220,23 +214,35 @@ class QTopPanel(QFrame):
         if game is None or game.turn <= 0:
             return
 
-        confirm = QMessageBox.question(
-            self,
-            "Re-plan RED?",
-            (
-                "This discards RED's current flight plans and re-plans them for the "
-                "current laydown.<br /><br />"
-                "Your BLUE frag is kept untouched. Continue?"
-            ),
-            QMessageBox.StandardButton.No,
-            QMessageBox.StandardButton.Yes,
+        box = QMessageBox(self)
+        box.setWindowTitle("Re-plan")
+        box.setIcon(QMessageBox.Icon.Question)
+        box.setText(
+            "Throw away the planned flights and plan them again for the current "
+            "map.<br /><br />"
+            "Any BLUE package with a player seat is kept as it is. The clock and "
+            "weather do not change."
         )
-        if confirm != QMessageBox.StandardButton.Yes:
+        red = box.addButton("Re-plan RED", QMessageBox.ButtonRole.AcceptRole)
+        blue = box.addButton("Re-plan BLUE", QMessageBox.ButtonRole.AcceptRole)
+        both = box.addButton("Re-plan both", QMessageBox.ButtonRole.AcceptRole)
+        cancel = box.addButton(QMessageBox.StandardButton.Cancel)
+        box.setDefaultButton(cancel)
+        box.exec()
+        clicked = box.clickedButton()
+        if clicked not in (red, blue, both):
             return
+        for_red = clicked in (red, both)
+        for_blue = clicked in (blue, both)
 
-        with logged_duration("Re-planning RED"):
+        with logged_duration("Re-planning"):
             events = GameUpdateEvents()
-            game.initialize_turn(events, for_red=True, for_blue=False)
+            game.initialize_turn(
+                events,
+                for_red=for_red,
+                for_blue=for_blue,
+                keep_player_packages=True,
+            )
             EventStream.put_nowait(events)
             GameUpdateSignal.get_instance().updateGame(game)
             state = game.check_win_loss()

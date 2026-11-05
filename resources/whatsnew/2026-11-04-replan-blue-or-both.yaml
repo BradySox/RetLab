@@ -1,0 +1,9 @@
+date: 2026-11-04
+title: Re-plan blue, red or both mid-turn
+change: >-
+  Re-plan RED on the top bar is now Re-plan... It asks whether to re-plan
+  RED, BLUE or both for this turn. Any blue package you have a seat in stays
+  as it is, and blue does not plan a second package for its target.
+watch: >-
+  The clock and weather do not change. Packages with no player seat are
+  thrown away and planned again, including ones you edited.
