@@ -1,0 +1,8 @@
+date: 2026-11-05
+title: F-4E AUX radio presets
+change: >-
+  The Phantom's AUX radio, which can only receive, now has presets: your flight, AWACS, Vacuum
+  and STRIKE. Listen to one of them on AUX while you talk on COMM. The comm card lists them in
+  its AUX column. COMM still has every station you talk to.
+watch: >-
+  Turn the AUX channel knob and check that each channel carries the net the card names.

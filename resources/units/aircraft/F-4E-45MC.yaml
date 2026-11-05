@@ -28,6 +28,8 @@ radios:
     # AUX (radio 2) is receive-only (F-4E manual, radios), so the flight talks on COMM.
     intra_flight_radio_index: 1
     inter_flight_radio_index: 1
+    # AUX gets listen copies of the flight, AWACS, Vacuum and STRIKE (2026-11-05).
+    listen_radio_index: 2
 laser_codes:
   - properties:
       - id: LaserCodeDigit1

@@ -226,3 +226,30 @@ def test_ground_and_tower_sit_where_each_jet_can_tune_them(tmp_path: Path) -> No
         assert aircraft.channel_allocator is not None
         aircraft.channel_allocator.assign_channels_for_flight(flight, _data())  # type: ignore[arg-type]
         assert set(atc) <= set(_channels(flight, radio)), dcs_type.id
+
+
+def test_a_receive_only_radio_gets_listen_copies() -> None:
+    flight = _Flight()
+    data = _data()
+    data.strike_frequency = MHz(266)
+    data.strike_packages = {id(flight.package)}
+    # The F-4E: one radio to talk on, AUX to listen (receive only).
+    CommonRadioChannelAllocator(1, 1, 2).assign_channels_for_flight(flight, data)  # type: ignore[arg-type]
+    comm = _channels(flight, 1)
+    assert comm[:4] == [MHz(140), MHz(255), MHz(256), MHz(251)]
+    assert MHz(270) in comm and MHz(266) in comm
+    # Flight, AWACS, Vacuum (on both radios) and STRIKE; never ATC.
+    assert _channels(flight, 2) == [MHz(140), MHz(251), MHz(270), MHz(266)]
+    labels = {MHz(270): "VACUUM"}
+    rows = preset_rows(flight, labels)  # type: ignore[arg-type]
+    assert rows[2][2] == "VACUUM\nUHF 270.000"
+
+
+def test_the_phantom_listens_on_aux() -> None:
+    from dcs.planes import F_4E_45MC
+
+    from game.dcs.aircrafttype import AircraftType
+
+    allocator = next(iter(AircraftType.for_dcs_type(F_4E_45MC))).channel_allocator
+    assert isinstance(allocator, CommonRadioChannelAllocator)
+    assert allocator.listen_radio_index == 2
