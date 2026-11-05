@@ -11365,6 +11365,10 @@ its yaml now puts the ARC-164 support nets on COMM1 and the flight and ATC on th
 Only the flight's own side's JTACs and tankers are preset: a red KC-135 sat on a blue F-16's
 COM1 Ch 5 before. A frequency the radio cannot tune is never preset, on either radio or on a
 one-radio jet.
+The F-4E talks on COMM only; its AUX set is receive-only, 20 channels set in the mission
+(F-4E manual, UHF radio). `listen_radio_index: 2` in its yaml puts listen copies of the
+flight, SkyEye (or the AWACS), Vacuum and STRIKE on AUX, so a pilot hears them while talking
+on another net (user call, 2026-11-05). Vacuum stays on COMM too, to ask it things.
 A **Comm Card** kneeboard page after the comms page lists every preset on both radios by
 name (`kneeboard/commcard.py`). Its column heads use the airframe's own radio names (COM1,
 UHF, AUX) as the other pages do, and a name too long for its column is cut with "...".

@@ -138,15 +138,40 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
     #: index of the panel_radio field of the pydcs.dcs.planes object.
     intra_flight_radio_index: Optional[int]
 
+    #: A receive-only radio (the F-4E's AUX): listen copies of the flight, AWACS,
+    #: Vacuum and STRIKE, so a pilot hears them while talking on another net.
+    listen_radio_index: Optional[int] = None
+
     def assign_channels_for_flight(
         self, flight: FlightData, mission_data: MissionData
     ) -> None:
         if flight.client_units and flight.squadron.radio_presets:
             return self.assign_from_squadron_presets(flight)
         self._assign_presets(flight, mission_data)
-        for radio_id in {self.inter_flight_radio_index, self.intra_flight_radio_index}:
+        if self.listen_radio_index is not None:
+            self._assign_listen(flight, mission_data, self.listen_radio_index)
+        for radio_id in {
+            self.inter_flight_radio_index,
+            self.intra_flight_radio_index,
+            self.listen_radio_index,
+        }:
             if radio_id is not None:
                 _fill_unused(flight, radio_id)
+
+    def _assign_listen(
+        self, flight: FlightData, mission_data: MissionData, radio_id: int
+    ) -> None:
+        """The nets worth monitoring, on a radio that cannot transmit (user call,
+        2026-11-05: flight, AWACS and STRIKE; Vacuum on both radios)."""
+        radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
+        frequencies = [flight.intra_flight_channel]
+        frequencies.extend(awacs_presets(flight, mission_data))
+        if (freq := mission_data.package_frequency(flight.package)) is not None:
+            frequencies.append(freq)
+        unique = [f for i, f in enumerate(frequencies) if f not in frequencies[:i]]
+        self._assign_sequential(
+            flight, radio_id, 1, [f for f in unique if _tunable(radio, f)]
+        )
 
     def _assign_presets(self, flight: FlightData, mission_data: MissionData) -> None:
         if flight.client_units and flight.squadron.radio_presets:
@@ -277,6 +302,7 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
         return CommonRadioChannelAllocator(
             inter_flight_radio_index=cfg["inter_flight_radio_index"],
             intra_flight_radio_index=cfg["intra_flight_radio_index"],
+            listen_radio_index=cfg.get("listen_radio_index"),
         )
 
     @classmethod
