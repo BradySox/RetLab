@@ -264,15 +264,29 @@ class Coalition:
         """
         self.air_wing.populate_for_turn_0(squadrons_start_full)
 
-    def initialize_turn(self, is_turn_0: bool, events: GameUpdateEvents) -> None:
+    def initialize_turn(
+        self,
+        is_turn_0: bool,
+        events: GameUpdateEvents,
+        keep_player_packages: bool = False,
+    ) -> None:
         """Processes coalition-specific turn initialization.
 
         For more information on turn initialization in general, see the documentation
-        for `Game.initialize_turn`.
+        for `Game.initialize_turn`. ``keep_player_packages`` is the mid-turn re-plan:
+        packages with a player seat stay as they are (`game/ato/replan.py`).
         """
+        from game.ato.replan import (
+            detach_player_packages,
+            reclaim_crews,
+            restore_player_packages,
+        )
+
+        kept = detach_player_packages(self.ato) if keep_player_packages else []
         # Needs to happen *before* planning transfers so we don't cancel them.
         self.ato.clear()
         self.air_wing.reset()
+        reclaim_crews(kept)
         self.refund_outstanding_orders()
         self.procurement_requests.clear()
 
@@ -287,6 +301,8 @@ class Coalition:
         # (or a mid-turn re-plan) never leaves red empty; the AI edits this plan.
         if not is_turn_0:
             self.plan_missions(self.game.conditions.start_time)
+        if kept:
+            restore_player_packages(self.ato, kept)
         self.plan_procurement()
 
     def refund_outstanding_orders(self) -> None:
