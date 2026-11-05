@@ -192,16 +192,11 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
         "FIXED SA-3 Zachow",
     }
     assert {fixed[name].name for name in flank} == {"Templin"}
-    # The generated sites are the mobile ones, each pinned.
-    pins = campaign.data["ground_forces"]
-    generated = {
-        p.original_name
-        for cp in theater.controlpoints
-        for p in cp.preset_locations.medium_range_sams
-        + cp.preset_locations.long_range_sams
-    }
-    assert generated == set(pins)
-    assert set(pins.values()) == {"Hawk", "SA-6", "SA-11"}
+    # No medium or long range SAM is generated (the DM's call).
+    assert "ground_forces" not in campaign.data
+    for cp in theater.controlpoints:
+        assert not cp.preset_locations.medium_range_sams, cp.name
+        assert not cp.preset_locations.long_range_sams, cp.name
     mission = _miz()
     kinds = {
         unit.type

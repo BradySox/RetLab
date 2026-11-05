@@ -1,6 +1,6 @@
 # Germany — Northern Shield 1988
 
-**Status: BUILT 2026-11-05; headless-verified (a fresh turn 0 plans 10 blue and 9 red
+**Status: BUILT 2026-11-05; headless-verified (a fresh turn 0 plans 10 blue and 8 red
 packages and generates a mission). In-game pass is checklist row B310. New game required.**
 
 Owner: this note. CI lock: `tests/retlab/test_northern_shield_1988.py`.
@@ -80,15 +80,17 @@ water and the coast, only an Air Assault (or a C-130J paradrop) can put blue tro
 ## Air defense
 
 The fixed sites are FIXED groups (features doc §122) copied unit by unit from Carsten's
-framework. The mobile ones are generated and pinned in the yaml's `ground_forces`.
+framework. **No medium or long range SAM is generated** (DM call, 2026-11-05: "only
+template sites"). The template has no short-range sites, so the fields' SHORAD and guns
+are generated; each FIXED site also gets its layout's point defense.
 
 | Belt | Sites |
 |---|---|
-| Coast | SA-3 Dranske, SA-3 Barhoft, SA-2 Franzburg (Barth); SA-2 Ueckermunde, SA-3 Swinoujscie, generated SA-6 (Peenemunde) |
-| Middle | SA-2 Neubrandenburg, generated SA-11; S-60 Prenzlau |
+| Coast | SA-3 Dranske, SA-3 Barhoft, SA-2 Franzburg (Barth); SA-2 Ueckermunde, SA-3 Swinoujscie (Peenemunde) |
+| Middle | SA-2 Neubrandenburg; S-60 Prenzlau |
 | Rear | SA-3 Templin, SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna; EWR Furstenwalde (a generated 1L13 at the template's spot: its 55G6 is not a §122 air-defense site) |
 | Deep rear | **SA-5 Magdeburg**, 89 NM south-west of Templin, which owns it. Its flanks are the template's SA-2s at Stendal, Mahlwinkel, Quedlinburg, Kothen and Dessau, SA-3 Zachow and S-60 Burg (DM call: so it cannot be killed cheaply) |
-| NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template), a generated Hawk at Sturup (RBS 77); EWRs at Stevns and Almindingen |
+| NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template); EWRs at Stevns and Almindingen |
 
 The S-60 57mm joined `russia_1980_red_tide.json` for Prenzlau (DM call, 2026-11-05).
 Without it §122 put a stock AAA site there. Red Tide's generated AAA and point defense

@@ -60,14 +60,10 @@ neutral_border_postures:
   Czech Republic: red
   Slovakia: red
   Hungary: red
-# The fixed Hawk, SA-2, SA-3, SA-5 and S-60 sites are FIXED groups copied unit by unit
-# from Carsten's Cold War Germany Framework. The template has no SA-10, so the campaign
-# fields none; its one long-range SAM is the SA-5 at Magdeburg, far in the rear (the DM's
-# calls). The mobile sites are pinned here.
-ground_forces:
-  NS88-Hawk-Sturup: Hawk
-  NS88-Peenemunde-SA6: SA-6
-  NS88-Neubrandenburg-SA11: SA-11
+# Every SAM site is a FIXED group copied unit by unit from Carsten's Cold War
+# Germany Framework; none is generated (the DM's call). The template has no SA-10,
+# so the campaign fields none; its one long-range SAM is the SA-5 at Magdeburg,
+# far in the rear. The fields' own short-range SAMs and guns are generated.
 victory:
   description: "Take Neubrandenburg and Templin. Hold Copenhagen."
   win_when:
