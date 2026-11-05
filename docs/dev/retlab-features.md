@@ -2201,6 +2201,20 @@ that code.
   was Mk 22). The AGM-78A and AGM-78B lost their tables: each has one head in DCS, and
   the 78A's rules set head ids it does not have. Tests:
   `tests/test_weapon_target_settings.py`.
+- **The F-4E payload editor allowed inboard racks beside loaded Sidewinder rails
+  (test 68, 2026-11-04).** Heatblur's F-4E forbids most inboard stores (TERs, MERs,
+  singles, pods, and the pylon removed) on the same wing as a loaded AIM-9 rail; pydcs
+  does not export DCS `forbidden` rules, so RetLab never knew. Mk-83 TERs went out
+  beside AIM-9Ls, DCS kept the AIM-9Ls and dropped the TERs: 4 Mk-83 instead of 10.
+  `game/data/stationconflicts.py` holds the rule (pylon 3 with rails 2/4, 11 with
+  10/12) and the 112 blocking stores copied from `F-4E.lua`
+  `create_inner_wing_loadout`; SWA adapter loads, bare LAU-68s and mod stores (the
+  §71 AGM-78/-88 fits) are not listed and keep the rails. The editor clears what a
+  pick blocks, last pick wins as in the DCS ME (`QPylonEditor.on_pylon_change`,
+  `stations_cleared`); `setup_payload` empties clashing rails and logs it, so an old
+  save keeps its bombs. Other airframes have no rules yet; add one to
+  `SHARED_PYLONS` from the module's Lua. Tests:
+  `tests/data/test_station_conflicts.py` (every RetLab F-4E preset passes). Row B311.
 
 ### Ground movement
 

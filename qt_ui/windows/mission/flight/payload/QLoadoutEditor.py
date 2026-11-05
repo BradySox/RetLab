@@ -77,7 +77,9 @@ class QLoadoutEditor(QGroupBox):
                 QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
             )
             pylon_grid.addWidget(label, i, 0)
-            pylon_grid.addWidget(QPylonEditor(game, flight, flight_member, pylon), i, 1)
+            pylon_editor = QPylonEditor(game, flight, flight_member, pylon)
+            pylon_editor.stations_cleared.connect(self._redraw_stations)
+            pylon_grid.addWidget(pylon_editor, i, 1)
 
         # The pylon list scrolls rather than shrinking its rows when the window
         # cannot be tall enough for every station. Without the scroll the list's
@@ -113,6 +115,11 @@ class QLoadoutEditor(QGroupBox):
 
     def iter_pylon_editors(self) -> Iterator[QPylonEditor]:
         yield from self.findChildren(QPylonEditor)
+
+    def _redraw_stations(self, numbers: list[int]) -> None:
+        for pylon_editor in self.iter_pylon_editors():
+            if pylon_editor.pylon.number in numbers:
+                pylon_editor.set_from(self.flight_member.loadout)
 
     def _show_training_changed(self, show: bool) -> None:
         for pylon_editor in self.iter_pylon_editors():
