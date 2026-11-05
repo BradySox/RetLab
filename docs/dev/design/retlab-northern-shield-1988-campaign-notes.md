@@ -87,7 +87,7 @@ framework. The mobile ones are generated and pinned in the yaml's `ground_forces
 | Coast | SA-3 Dranske, SA-3 Barhoft, SA-2 Franzburg (Barth); SA-2 Ueckermunde, SA-3 Swinoujscie, generated SA-6 (Peenemunde) |
 | Middle | SA-2 Neubrandenburg, generated SA-11; S-60 Prenzlau |
 | Rear | SA-3 Templin, SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna; EWR Furstenwalde (a generated 1L13 at the template's spot: its 55G6 is not a §122 air-defense site) |
-| Deep rear | **SA-5 Magdeburg**, 89 NM south-west of Templin, which owns it |
+| Deep rear | **SA-5 Magdeburg**, 89 NM south-west of Templin, which owns it, with three generated SHORAD sites 2 NM out on its flanks (DM call: so it cannot be killed cheaply) |
 | NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template), a generated Hawk at Sturup (RBS 77); EWRs at Stevns and Almindingen |
 
 The S-60 57mm joined `russia_1980_red_tide.json` for Prenzlau (DM call, 2026-11-05).

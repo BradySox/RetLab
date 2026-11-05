@@ -181,6 +181,14 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
         assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
     assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Magdeburg"]
     assert fixed["FIXED SA-5 Magdeburg"].name == "Templin"
+    # Three SHORAD sites on its flanks, so it cannot be killed cheaply.
+    templin = theater.control_point_named("Templin")
+    flank = [
+        p.original_name
+        for p in templin.preset_locations.short_range_sams
+        if p.original_name.startswith("NS88-Magdeburg-SHORAD-")
+    ]
+    assert len(flank) == 3
     # The generated sites are the mobile ones, each pinned.
     pins = campaign.data["ground_forces"]
     generated = {
