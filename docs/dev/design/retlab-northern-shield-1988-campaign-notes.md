@@ -30,6 +30,8 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
   ("AS MUCH AS we can from that sam template"). The template has no SA-10, so the campaign
   has none: "only 5s". The Berlin ring north and the Polish coast sites come in; the
   Rostock and Wismar group does not, and neither does the coastal SA-5 at Rostock.
+- **Neubrandenburg's ammo depot moved 400 m south**, off the runway line past the west
+  threshold (DM call); New Game flagged it on the runway strip.
 - **His laydown stands** for everything but the SAMs: he moved the bases' defenses, depots
   and IADS nodes in the Mission Editor before the SAM call.
 
@@ -84,9 +86,9 @@ framework. The mobile ones are generated and pinned in the yaml's `ground_forces
 | Rear | SA-3 Templin, **SA-5 Badingen** (by Zehdenick), SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna |
 | NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template), a generated Hawk at Sturup (RBS 77); EWRs at Stevns and Almindingen |
 
-Red Tide's faction cannot field the S-60, so Prenzlau generates a stock AAA site in its
-place (§122's fallback). Adding the S-60 and its SON-9 to `russia_1980_red_tide.json` would
-change Red Tide too; not done.
+The S-60 57mm joined `russia_1980_red_tide.json` for Prenzlau (DM call, 2026-11-05).
+Without it §122 put a stock AAA site there. Red Tide's generated AAA and point defense
+can roll S-60s too.
 
 The Skynet net is range mode: HQs at Neubrandenburg (the GDR 3rd Air Defense Division) and
 Eberswalde (20th Guards Army), 8 comms towers, 3 power sources including the Lubmin plant.
