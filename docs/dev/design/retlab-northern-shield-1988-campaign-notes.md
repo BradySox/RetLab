@@ -1,0 +1,102 @@
+# Germany — Northern Shield 1988
+
+**Status: BUILT 2026-11-05; headless-verified (a fresh turn 0 plans 8 blue and 9 red
+packages and generates a mission). In-game pass is checklist row B310. New game required.**
+
+Owner: this note. CI lock: `tests/retlab/test_northern_shield_1988.py`.
+
+| | |
+|---|---|
+| Files | `resources/campaigns/northern_shield_1988.yaml` + `.miz` |
+| `.miz` | Built from `red_tide.miz` by `tools/build_northern_shield_miz.py`. Once the DM saves his own laydown from the Mission Editor, that save is the source and the tool is deleted |
+| Routes | 4 M-113 roads and 1 Train rail line from real town and station lat/lon; 4 HandyWind sea lanes |
+| Factions | Red Tide's: `Blufor Late Cold War (80s)`, `Russia 1980 (Red Tide)` (stock DCS) |
+| Squadrons | 24 squadrons, existing presets only: 73 blue and 79 red aircraft |
+| Checklist row | B310 |
+
+## Why it exists
+
+The DM asked for a campaign on the northernmost fields of the Germany Cold War map, which no
+campaign used, shaped like Red Tide but with blue in the north pushing south.
+
+## The DM's calls (2026-11-05)
+
+- **1988, Red Tide's factions.** The same war: Hamburg fell, Copenhagen never did.
+- **Blue in the north, separated by water.** No land front until the first red base is
+  taken.
+- **Long legs, few bases.** Smaller is better, like Fulda Gap 1985: 3 blue, 4 red.
+- **Heavy air defense, the SA-5 in the rear, not on the coast.**
+
+## The laydown
+
+| Side | Base | Squadrons |
+|---|---|---|
+| NATO | Kastrup (Copenhagen) | F-15C 525th TFS, F-16 23rd FS, F-15E 414th TFS, A-10C 81st TFS, Tornado JBG 31, AH-64D, E-3A, KC-135, C-130J |
+| NATO | Sturup (Sweden) | AJS-37 Viggen 71. Attackflygdivisionen, F/A-18C VMFA-251 |
+| NATO | Bornholm | CH-47F and UH-1H, Air Assault |
+| Pact | Barth | Mi-24P |
+| Pact | Peenemunde | MiG-23MLD, MiG-21bis JG-1 (GDR), Su-24M naval, An-26 |
+| Pact | Neubrandenburg | MiG-29A, Su-25, Mi-8, A-50 |
+| Pact | Templin | Su-27, Su-24M |
+
+Red has no tanker and no Backfires: no red field but Neubrandenburg has a stand for a heavy,
+and it has one, which the A-50 takes.
+
+Red base legs: Barth to Neubrandenburg 50 NM, Neubrandenburg to Templin 35 NM, Peenemunde to
+Neubrandenburg 37 NM. Copenhagen to Templin is 158 NM, so `max_mission_range_planes` is 200.
+
+## How the first base falls
+
+A control point is captured when the attacker has ground units within 3 km of it and the
+defender has none (`capture_zone_taken`, `dcs_retribution.lua`). With no road between the
+water and the coast, only an Air Assault (or a C-130J paradrop) can put blue troops there.
+
+- **Barth is the door.** Its garrison armor and its AAA are placed 1.5-2.7 km from the field
+  (the tool's `inner` placement), inside the capture zone, so the garrison has to be
+  destroyed before troops can take it.
+- **The NATO fields hold their own.** Kastrup, Sturup and Bornholm each keep an armor
+  garrison inside the zone. Without it the red HTN planned a Mi-8 air assault on an empty
+  blue island on turn 0 (one fresh game in two).
+- Every other marker at every base is 3.4 km or more out, so no stray SHORAD or AAA
+  battery decides a capture.
+- **The blue AI waits for the air defense.** `PlanAirAssault` needs the target area clear of
+  IADS threats, so the planner flies DEAD first.
+- **Supply after the capture** comes by sea: lanes Kastrup to Barth and Bornholm to
+  Peenemunde. Kastrup has the blue factory, so ground units bought for a captured coastal
+  field ship from there.
+- **No land front on turn 0.** Every blue control point has no road, and the HTN planner
+  lists them as isolated.
+
+## Air defense
+
+All SAM types are pinned by marker name in the yaml's `ground_forces`.
+
+| Belt | Sites |
+|---|---|
+| Coast | SA-3 Zingst, SA-2 Stralsund, SA-6 Peenemunde, SA-2/SA-3 Greifswald, SA-3 Anklam |
+| Middle | SA-10 Burg Stargard, SA-11 Neubrandenburg, SA-2 Demmin |
+| Rear | SA-10 Gerswalde, SA-3 Templin, **SA-5 Badingen** (by Zehdenick) |
+| NATO | Hawk at Kongelunden, Tune and Sturup (RBS 77); EWRs at Stevns and Almindingen |
+
+The Skynet net is range mode: HQs at Neubrandenburg (the GDR 3rd Air Defense Division) and
+Eberswalde (20th Guards Army), 8 comms towers, 3 power sources including the Lubmin plant.
+
+## Neighbours
+
+`neutral_border_postures` pins Germany (the FRG) and Sweden blue, and the Pact states red.
+Without the Germany pin, the Federal Republic holds no field here and reads as an uninvolved
+neutral that hails and fires on blue.
+
+## Rail
+
+The Barth to Neubrandenburg line is the Nordbahn through Velgast, Stralsund, Grimmen and
+Demmin. It has not been probed in DCS; Fulda Gap's probe 2 found two lines that ran away
+from their next station. B310 covers it.
+
+## Open
+
+- The Red Tide scenery sets around Copenhagen (4 of 21) are blue-owned here and only red can
+  strike them. Kastrup's comms set sits on the runway strip (an Airfield clearance warning);
+  scenery spawns nothing, so it does not block taxi.
+- No new squadron presets. Danish F-16s and Marineflieger Tornados would fit and are not in
+  the tree.

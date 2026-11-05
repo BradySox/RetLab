@@ -456,6 +456,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Mount Pleasant 2032 | Falklands | Hold the islands against a rearmed Argentina, either side |
 | Red Bear 1985 | Afghanistan | USAF F-4Es against the Soviet 40th Army across the top of the map, in winter |
 | Fulda Gap 1985 | Germany | The 52nd TFW's Phantoms at Spangdahlem against the 8th Guards Army and the 16th Air Army |
+| Northern Shield 1988 | Germany | Red Tide from the north: NATO across the Baltic takes the East German coast by air assault |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -524,6 +525,12 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   Germany Tornados, A-10s at Frankfurt. The SAM sites stand where Carsten's Cold War Germany
   Framework puts the real ones, and a networked Soviet IADS answers to Weimar. Take Erfurt and Merseburg to win, lose
   Frankfurt and you lose. Stock DCS units only.
+- **Northern Shield 1988** — fictional: Red Tide's war on the northern edge of the map. NATO
+  holds Copenhagen, Bornholm and Sturup in Sweden; the Soviets and East Germans hold the coast
+  from Barth to Peenemunde and the fields south to Templin. There is no land front at the start:
+  clear Barth's garrison and take it by air assault, then drive south past two SA-10s and an SA-5
+  at Zehdenick. Take Neubrandenburg and Templin to win, lose Copenhagen and you lose. Stock DCS
+  units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock
 by surging the Trail or opening a Tet-style ground push on a scheduled window, and its MiGs fly
