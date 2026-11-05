@@ -4,13 +4,11 @@ from typing import List
 from dcs.point import MovingPoint
 from dcs.task import (
     ControlledTask,
-    EngageTargets,
     EscortTaskAction,
     OptECMUsing,
     OptFormation,
     OptROE,
     Targets,
-    TargetType,
     SetUnlimitedFuelCommand,
 )
 
@@ -47,7 +45,12 @@ class JoinPointBuilder(PydcsWaypointBuilder):
             # OpenFire here, where the escort duty actually begins. The in-flight
             # spawn path re-applies JOIN tasks to a mid-mission spawn's first point
             # (waypointgenerator.py), so late spawns pick this up automatically.
-            waypoint.tasks.append(OptROE(OptROE.Values.OpenFire))
+            # A SEAD Escort under OpenFire never fired a HARM, with the Escort task
+            # or an added EngageTargets (test 66, HARM probes v2 and v3).
+            if self.flight.flight_type == FlightType.SEAD_ESCORT:
+                waypoint.tasks.append(OptROE(OptROE.Values.OpenFireWeaponFree))
+            else:
+                waypoint.tasks.append(OptROE(OptROE.Values.OpenFire))
 
         if self.flight.flight_type == FlightType.ESCORT:
             targets = [
@@ -96,24 +99,14 @@ class JoinPointBuilder(PydcsWaypointBuilder):
             waypoint.tasks.append(ecm_option)
 
     def handle_sead_escort(self, doctrine: Doctrine, waypoint: MovingPoint) -> None:
-        targets: list[type[TargetType]] = [
-            Targets.All.GroundUnits.AirDefence.AAA.SAMRelated
-        ]
+        targets = [Targets.All.GroundUnits.AirDefence.AAA.SAMRelated.id]
         if isinstance(self.flight.package.target, NavalControlPoint):
-            targets.insert(0, Targets.All.Naval)
-        max_dist = doctrine.sead_escort_engagement_range.nautical_miles
+            targets.insert(0, Targets.All.Naval.id)
         self.configure_escort_tasks(
             waypoint,
-            [target.id for target in targets],
-            max_dist=max_dist,
+            targets,
+            max_dist=doctrine.sead_escort_engagement_range.nautical_miles,
             vertical_spacing=doctrine.sead_escort_spacing.feet,
-        )
-        # Under OpenFire the Escort task alone never cleared a HARM shot: Tornado
-        # SEAD Escorts sat 7 NM from a firing SA-2 silent (test 66, HARM probe v2).
-        waypoint.tasks.append(
-            EngageTargets(
-                max_distance=int(nautical_miles(max_dist).meters), targets=targets
-            )
         )
 
     def configure_escort_tasks(

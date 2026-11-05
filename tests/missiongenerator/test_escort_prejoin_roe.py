@@ -1,4 +1,4 @@
-"""Escort pre-join ROE: ReturnFire at spawn, OpenFire from the JOIN waypoint.
+"""Escort pre-join ROE: ReturnFire at spawn, OpenFire (SEAD Escort: Weapon Free) from JOIN.
 
 pydcs OptROE semantics: OpenFire(2) = "engage ONLY targets specified in its
 taskings" -- it grants NO return-fire allowance. An escort's one
@@ -13,7 +13,7 @@ ReturnFire, escalate to OpenFire at JOIN where the escort duty begins.
 from types import SimpleNamespace
 from typing import Any
 
-from dcs.task import ControlledTask, EngageTargets, OptROE
+from dcs.task import ControlledTask, OptROE
 
 from game.ato import FlightType
 from game.missiongenerator.aircraft.aircraftbehavior import AircraftBehavior
@@ -90,34 +90,20 @@ def test_join_escalates_escort_to_open_fire() -> None:
     assert any(isinstance(t, ControlledTask) for t in wp.tasks)
 
 
-def test_join_escalates_sead_escort_to_open_fire() -> None:
+def test_join_sets_sead_escort_weapon_free() -> None:
+    # Test 66: under OpenFire the Tornado SEAD Escorts never fired a HARM, with
+    # or without an EngageTargets task; Weapon Free fired 8 (HARM probe v2).
     wp = _waypoint()
     _join_builder(FlightType.SEAD_ESCORT).add_tasks(wp)
     roes = [t for t in wp.tasks if isinstance(t, OptROE)]
     assert len(roes) == 1
     assert roes[0].dict()["params"]["action"]["params"]["value"] == int(
-        OptROE.Values.OpenFire
+        OptROE.Values.OpenFireWeaponFree
     )
+    assert any(isinstance(t, ControlledTask) for t in wp.tasks)
 
 
 def test_non_escort_join_gets_no_roe_change() -> None:
     wp = _waypoint()
     _join_builder(FlightType.BAI).add_tasks(wp)
     assert not any(isinstance(t, OptROE) for t in wp.tasks)
-
-
-def test_sead_escort_join_designates_sams_to_engage() -> None:
-    # Test 66: the Escort task alone cleared no HARM under OpenFire.
-    wp = _waypoint()
-    _join_builder(FlightType.SEAD_ESCORT).add_tasks(wp)
-    engage = [t for t in wp.tasks if isinstance(t, EngageTargets)]
-    assert len(engage) == 1
-    params = engage[0].dict()["params"]
-    assert params["maxDist"] == int(30.0 * 1852)
-    assert params["value"] == "SAM related"
-
-
-def test_air_escort_join_gets_no_ground_engage_task() -> None:
-    wp = _waypoint()
-    _join_builder(FlightType.ESCORT).add_tasks(wp)
-    assert not any(isinstance(t, EngageTargets) for t in wp.tasks)
