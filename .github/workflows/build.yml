@@ -48,6 +48,8 @@ jobs:
         with:
           name: dcs-retribution
           path: dist/dcs-retribution.zip
+          # A private repo's artifact storage filled with 90-day PR zips (2026-11-05).
+          retention-days: 1
 
       - name: Send status to Discord
         uses: stegzilla/discord-notify@v2
