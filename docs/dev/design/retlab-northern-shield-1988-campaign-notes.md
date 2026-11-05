@@ -8,7 +8,7 @@ Owner: this note. CI lock: `tests/retlab/test_northern_shield_1988.py`.
 | | |
 |---|---|
 | Files | `resources/campaigns/northern_shield_1988.yaml` + `.miz` |
-| `.miz` | Built from `red_tide.miz` by `tools/build_northern_shield_miz.py`. Once the DM saves his own laydown from the Mission Editor, that save is the source and the tool is deleted |
+| `.miz` | **The DM's Mission Editor save (2026-11-05)** with the template SAM sites swapped in. First built from `red_tide.miz` by `tools/build_northern_shield_miz.py`, deleted; it is in the first two commits of PR #1447. Edit the `.miz` in the Mission Editor from now on |
 | Routes | 4 M-113 roads and 1 Train rail line from real town and station lat/lon; 4 HandyWind sea lanes |
 | Factions | Red Tide's: `Blufor Late Cold War (80s)`, `Russia 1980 (Red Tide)` (stock DCS) |
 | Squadrons | 24 squadrons, existing presets only: 73 blue and 79 red aircraft |
@@ -26,6 +26,12 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
   taken.
 - **Long legs, few bases.** Smaller is better, like Fulda Gap 1985: 3 blue, 4 red.
 - **Heavy air defense, the SA-5 in the rear, not on the coast.**
+- **The SAMs are Carsten's Cold War Germany Framework sites**, as many as the sector holds
+  ("AS MUCH AS we can from that sam template"). The template has no SA-10, so the campaign
+  has none: "only 5s". The Berlin ring north and the Polish coast sites come in; the
+  Rostock and Wismar group does not, and neither does the coastal SA-5 at Rostock.
+- **His laydown stands** for everything but the SAMs: he moved the bases' defenses, depots
+  and IADS nodes in the Mission Editor before the SAM call.
 
 ## The laydown
 
@@ -51,14 +57,13 @@ A control point is captured when the attacker has ground units within 3 km of it
 defender has none (`capture_zone_taken`, `dcs_retribution.lua`). With no road between the
 water and the coast, only an Air Assault (or a C-130J paradrop) can put blue troops there.
 
-- **Barth is the door.** Its garrison armor and its AAA are placed 1.5-2.7 km from the field
-  (the tool's `inner` placement), inside the capture zone, so the garrison has to be
-  destroyed before troops can take it.
+- **Barth is the door.** Its garrison armor stands inside the capture zone, so it has to
+  be destroyed before troops can take it.
 - **The NATO fields hold their own.** Kastrup, Sturup and Bornholm each keep an armor
   garrison inside the zone. Without it the red HTN planned a Mi-8 air assault on an empty
-  blue island on turn 0 (one fresh game in two).
-- Every other marker at every base is 3.4 km or more out, so no stray SHORAD or AAA
-  battery decides a capture.
+  blue field on turn 0 (one fresh game in two).
+- Anything else the DM puts inside a zone also has to die before a capture: Sturup's Hawk
+  and two of Neubrandenburg's guns stand inside theirs in his laydown.
 - **The blue AI waits for the air defense.** `PlanAirAssault` needs the target area clear of
   IADS threats, so the planner flies DEAD first.
 - **Supply after the capture** comes by sea: lanes Kastrup to Barth and Bornholm to
@@ -69,14 +74,19 @@ water and the coast, only an Air Assault (or a C-130J paradrop) can put blue tro
 
 ## Air defense
 
-All SAM types are pinned by marker name in the yaml's `ground_forces`.
+The fixed sites are FIXED groups (features doc §122) copied unit by unit from Carsten's
+framework. The mobile ones are generated and pinned in the yaml's `ground_forces`.
 
 | Belt | Sites |
 |---|---|
-| Coast | SA-3 Zingst, SA-2 Stralsund, SA-6 Peenemunde, SA-2/SA-3 Greifswald, SA-3 Anklam |
-| Middle | SA-10 Burg Stargard, SA-11 Neubrandenburg, SA-2 Demmin |
-| Rear | SA-10 Gerswalde, SA-3 Templin, **SA-5 Badingen** (by Zehdenick) |
-| NATO | Hawk at Kongelunden, Tune and Sturup (RBS 77); EWRs at Stevns and Almindingen |
+| Coast | SA-3 Dranske, SA-3 Barhoft, SA-2 Franzburg (Barth); SA-2 Ueckermunde, SA-3 Swinoujscie, generated SA-6 (Peenemunde) |
+| Middle | SA-2 Neubrandenburg, generated SA-11; S-60 Prenzlau |
+| Rear | SA-3 Templin, **SA-5 Badingen** (by Zehdenick), SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna |
+| NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template), a generated Hawk at Sturup (RBS 77); EWRs at Stevns and Almindingen |
+
+Red Tide's faction cannot field the S-60, so Prenzlau generates a stock AAA site in its
+place (§122's fallback). Adding the S-60 and its SON-9 to `russia_1980_red_tide.json` would
+change Red Tide too; not done.
 
 The Skynet net is range mode: HQs at Neubrandenburg (the GDR 3rd Air Defense Division) and
 Eberswalde (20th Guards Army), 8 comms towers, 3 power sources including the Lubmin plant.

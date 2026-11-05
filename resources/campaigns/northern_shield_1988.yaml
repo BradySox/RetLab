@@ -15,8 +15,8 @@ description:
   <p>Now the Danish islands, Bornholm and the fields of Skane are NATO's northern
   shield, and the Baltic is the only road south. The Soviet coast from Barth to
   Peenemunde is held by a thin line of garrisons, but behind it the 3rd Air Defense
-  Division at Neubrandenburg has its S-300s, and an S-200 battery at Zehdenick covers
-  the whole of the Uckermark. There is no land front. The first coastal field has to
+  Division at Neubrandenburg rings the coast with SA-2s and SA-3s, and an S-200 battery
+  at Zehdenick covers the whole of the Uckermark. There is no land front. The first coastal field has to
   be cleared and taken from the air.</p>
   <p>Take Barth, put a front on the coast, and drive south through Neubrandenburg to
   Templin. Lose Copenhagen, and the north is lost.</p>
@@ -60,22 +60,14 @@ neutral_border_postures:
   Czech Republic: red
   Slovakia: red
   Hungary: red
+# The fixed Hawk, SA-2, SA-3, SA-5 and S-60 sites are FIXED groups copied unit by unit
+# from Carsten's Cold War Germany Framework. The template has no SA-10, so the campaign
+# fields none; its one long-range SAM is the SA-5 at Badingen, in the rear (the DM's
+# calls). The mobile sites are pinned here.
 ground_forces:
-  NS88-Hawk-Kongelunden: Hawk
-  NS88-Hawk-Tune: Hawk
   NS88-Hawk-Sturup: Hawk
-  NS88-SA3-Zingst: SA-3/S-125
-  NS88-SA2-Stralsund: SA-2/S-75
   NS88-Peenemunde-SA6: SA-6
-  NS88-SA2-Greifswald: SA-2/SA-3 Mixed Site
-  NS88-SA3-Anklam: SA-3/S-125
-  NS88-SA10-Burg-Stargard: SA-10/S-300PS (Single Radar)
   NS88-Neubrandenburg-SA11: SA-11
-  NS88-SA2-Demmin: SA-2/S-75
-  NS88-SA10-Gerswalde: SA-10/S-300PS (Single Radar)
-  NS88-Templin-SA3: SA-3/S-125
-  # The S-200 stands in the rear, not on the coast (the DM's call).
-  NS88-SA5-Badingen: SA-5/S-200 (Single Radar)
 victory:
   description: "Take Neubrandenburg and Templin. Hold Copenhagen."
   win_when:

@@ -528,8 +528,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Northern Shield 1988** — fictional: Red Tide's war on the northern edge of the map. NATO
   holds Copenhagen, Bornholm and Sturup in Sweden; the Soviets and East Germans hold the coast
   from Barth to Peenemunde and the fields south to Templin. There is no land front at the start:
-  clear Barth's garrison and take it by air assault, then drive south past two SA-10s and an SA-5
-  at Zehdenick. Take Neubrandenburg and Templin to win, lose Copenhagen and you lose. Stock DCS
+  clear Barth's garrison and take it by air assault, then drive south through the SA-2 and SA-3
+  sites where Carsten's Cold War Germany Framework puts them, to the SA-5 at Zehdenick. Take Neubrandenburg and Templin to win, lose Copenhagen and you lose. Stock DCS
   units only.
 
 The Vietnam campaign layer also changes how the enemy fights: Hanoi answers the campaign clock

@@ -8,7 +8,7 @@ What these pin is what fails silently:
 * a red control point without the invert flag stays red in an inverted game;
 * a road to a blue base would open a land front the DM ruled out;
 * a garrison outside Barth's capture zone lets an air assault take it untouched;
-* a SAM marker without its pin rolls a random type, and the SA-5 must stay inland;
+* the SAMs are the template's sites, and the SA-5 must stay inland;
 * DCS stands are nested, so a base's slot count is not the constraint.
 
 Design note: docs/dev/design/retlab-northern-shield-1988-campaign-notes.md
@@ -152,56 +152,53 @@ def test_garrisons_hold_the_capture_zones(
     """Barth's garrison must be cleared before an air assault takes it, and each
     NATO field keeps one so a red air assault cannot take it unopposed."""
     _, theater = loaded
-    inside: dict[str, set[str]] = defaultdict(set)
-    for cp in theater.controlpoints:
-        locations = cp.preset_locations
-        for group in (
-            locations.armor_groups,
-            locations.aaa,
-            locations.short_range_sams,
-            locations.medium_range_sams,
-            locations.long_range_sams,
-            locations.ewrs,
-        ):
-            for p in group:
-                if p.distance_to_point(cp.position) < TRIGGER_RADIUS_CAPTURE:
-                    inside[cp.name].add(p.original_name)
-    assert inside == {
-        "Barth": {"NS88-Barth-AAA", "NS88-Barth-Garrison"},
-        "Kastrup": {"NS88-Kastrup-Garrison"},
-        "Sturup": {"NS88-Sturup-Garrison"},
-        "Bornholm": {"NS88-Bornholm-Garrison"},
-    }
-    # Every marker inside a zone is well inside, so its units are too.
-    for name, markers in inside.items():
+    for name in ("Barth", "Kastrup", "Sturup", "Bornholm"):
         cp = theater.control_point_named(name)
-        for p in cp.preset_locations.armor_groups + cp.preset_locations.aaa:
-            if p.original_name in markers:
-                assert p.distance_to_point(cp.position) < 2800, p.original_name
+        garrisons = [
+            p
+            for p in cp.preset_locations.armor_groups
+            if p.original_name == f"NS88-{name}-Garrison"
+        ]
+        assert len(garrisons) == 1, name
+        # Well inside, so the garrison's units are too.
+        assert garrisons[0].distance_to_point(cp.position) < 2800, name
 
 
-def test_every_sam_is_pinned_and_the_sa5_is_inland(
+def test_the_sams_are_the_templates_and_the_sa5_is_inland(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
+    """Carsten's framework sites, unit by unit; no SA-10; one SA-5, in the rear."""
     campaign, theater = loaded
+    fixed = {
+        site.original_name: cp
+        for cp in theater.controlpoints
+        for site in cp.preset_locations.exact_air_defenses
+    }
+    assert len(fixed) == 18
+    hawks = {name for name in fixed if name.startswith("FIXED Hawk ")}
+    assert {fixed[name].name for name in hawks} == {"Kastrup"}
+    for name, cp in fixed.items():
+        assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
+    assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Badingen"]
+    assert fixed["FIXED SA-5 Badingen"].name == "Templin"
+    # The generated sites are the mobile ones, each pinned.
     pins = campaign.data["ground_forces"]
-    sams = {
-        p.original_name: cp
+    generated = {
+        p.original_name
         for cp in theater.controlpoints
         for p in cp.preset_locations.medium_range_sams
         + cp.preset_locations.long_range_sams
     }
-    assert set(sams) == set(pins)
-    sa5 = [name for name, group in pins.items() if group.startswith("SA-5")]
-    assert sa5 == ["NS88-SA5-Badingen"]
-    assert sams["NS88-SA5-Badingen"].name == "Templin"
-    sa10 = {name for name, group in pins.items() if group.startswith("SA-10")}
-    assert {sams[n].name for n in sa10} == {"Neubrandenburg", "Templin"}
-    for name, cp in sams.items():
-        assert cp.starting_coalition.is_blue is (pins[name] == "Hawk"), name
-    groups = {pg.name for pg in FACTIONS[PACT].preset_groups}
-    groups |= {pg.name for pg in FACTIONS[NATO].preset_groups}
-    assert set(pins.values()) <= groups
+    assert generated == set(pins)
+    assert set(pins.values()) == {"Hawk", "SA-6", "SA-11"}
+    mission = _miz()
+    kinds = {
+        unit.type
+        for country in mission.coalition["red"].countries.values()
+        for group in country.vehicle_group
+        for unit in group.units
+    }
+    assert not any("S-300" in kind for kind in kinds)
 
 
 def test_the_neighbours_take_sides(loaded: tuple[Campaign, ConflictTheater]) -> None:
