@@ -15,17 +15,19 @@ What it writes, starting from ``red_tide.miz`` for the map and its scenery targe
 2.  **Invert Sides.** Every red control point carries the invert flag.
 3.  **Scenery.** Red Tide's scenery target sets inside the sector; its markers,
     influence zones and every group are dropped.
-4.  **The land.** Base defenses, garrisons, depots, factories and the Soviet IADS
+4.  **The SAM sites.** Eighteen Hawk, SA-2, SA-3, SA-5 and S-60 sites from Carsten's
+    Cold War Germany Framework, unit by unit, as FIXED groups.
+5.  **The land.** Base defenses, garrisons, depots, factories and the Soviet IADS
     nodes (HQs, comms towers, power) on real places. Barth's garrison stands inside
     its capture zone, so it has to be cleared before an air assault can take it.
-5.  **The water.** Four HandyWind sea lanes: NATO's own ferries, and the two
+6.  **The water.** Four HandyWind sea lanes: NATO's own ferries, and the two
     crossings that supply the first captured coastal fields.
-6.  **The roads and the rail.** One M-113 route group per road, traced from real
+7.  **The roads and the rail.** One M-113 route group per road, traced from real
     town lat/lon, Off Road at the ends and On Road between; one Train rail line.
 
 Run from the repo root::
 
-    python tools/build_northern_shield_miz.py
+    python tools/build_northern_shield_miz.py <CG_Cold_War_Germany_Framework_1_1.miz>
 
 Once the DM edits the laydown in the Mission Editor, his save is the source and this
 tool is deleted, as Fulda Gap 1985's was.
@@ -45,7 +47,7 @@ from dcs.ships import USS_Arleigh_Burke_IIa
 from dcs.statics import Fortification, Warehouse
 from dcs.terrain.terrain import Airport
 from dcs.triggers import TriggerZone
-from dcs.vehicles import AirDefence, Armor
+from dcs.vehicles import AirDefence, Armor, vehicle_map
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
 for _path in (_REPO_ROOT, _REPO_ROOT / "tools"):
@@ -71,7 +73,6 @@ SECTOR_LON = (11.9, 15.2)
 
 # --- Marker vocabulary (must match MizCampaignLoader's *_UNIT_TYPE(S)) ---------
 EWR = AirDefence.x_1L13_EWR
-LONG_SAM = AirDefence.S_300PS_5P85C_ln
 MEDIUM_SAM = AirDefence.S_75M_Volhov
 SHORAD = AirDefence.Strela_1_9P31
 AAA = AirDefence.ZSU_23_4_Shilka
@@ -86,11 +87,9 @@ Anchor = Union[str, tuple[float, float]]
 # (name, anchor, marker type, country block, placement). An anchor is an airfield
 # name or a (lat, lon). Placement: "ring" 3-15 km out, "near" within 6 km first,
 # "inner" 1.5-2.7 km out (inside the 3 km capture zone), "at" on the spot or as
-# close as clear land allows. The yaml's ground_forces pins each SAM's type by name.
+# close as clear land allows. The yaml's ground_forces pins each mobile SAM's type.
 ADDED_MARKERS: tuple[tuple[str, Anchor, Any, str, str], ...] = (
-    # Denmark: the Hawk battalions around Copenhagen and the Stevns radar.
-    ("NS88-Hawk-Kongelunden", (55.575, 12.575), MEDIUM_SAM, RED_BLOCK, "at"),
-    ("NS88-Hawk-Tune", (55.595, 12.170), MEDIUM_SAM, RED_BLOCK, "at"),
+    # Denmark: the Stevns radar. The Hawks are template sites (FRAMEWORK_SITES).
     ("NS88-Stevns-EWR", (55.325, 12.440), EWR, RED_BLOCK, "at"),
     # Each NATO field keeps a garrison on it, or a red air assault takes it unopposed.
     ("NS88-Kastrup-Garrison", "Kastrup", ARMOR, BLUE_BLOCK, "inner"),
@@ -111,12 +110,8 @@ ADDED_MARKERS: tuple[tuple[str, Anchor, Any, str, str], ...] = (
     ("NS88-Barth-Garrison", "Barth", ARMOR, RED_BLOCK, "inner"),
     ("NS88-Barth-AAA", "Barth", AAA, RED_BLOCK, "inner"),
     ("NS88-Barth-SHORAD", "Barth", SHORAD, RED_BLOCK, "near"),
-    ("NS88-SA3-Zingst", (54.405, 12.640), MEDIUM_SAM, RED_BLOCK, "at"),
-    ("NS88-SA2-Stralsund", (54.270, 13.030), MEDIUM_SAM, RED_BLOCK, "at"),
     # Peenemunde: the coast's fighter field.
     ("NS88-Peenemunde-SA6", "Peenemunde", MEDIUM_SAM, RED_BLOCK, "ring"),
-    ("NS88-SA2-Greifswald", (54.075, 13.420), MEDIUM_SAM, RED_BLOCK, "at"),
-    ("NS88-SA3-Anklam", (53.860, 13.700), MEDIUM_SAM, RED_BLOCK, "at"),
     ("NS88-Peenemunde-SHORAD", "Peenemunde", SHORAD, RED_BLOCK, "near"),
     ("NS88-Peenemunde-AAA-1", "Peenemunde", AAA, RED_BLOCK, "near"),
     ("NS88-Peenemunde-AAA-2", "Peenemunde", AAA, RED_BLOCK, "near"),
@@ -124,24 +119,44 @@ ADDED_MARKERS: tuple[tuple[str, Anchor, Any, str, str], ...] = (
     ("NS88-Peenemunde-Armor-1", "Peenemunde", ARMOR, RED_BLOCK, "near"),
     ("NS88-Peenemunde-Armor-2", "Peenemunde", ARMOR, RED_BLOCK, "near"),
     # Neubrandenburg: the 3rd Air Defense Division at Trollenhagen.
-    ("NS88-SA10-Burg-Stargard", (53.495, 13.330), LONG_SAM, RED_BLOCK, "at"),
     ("NS88-Neubrandenburg-SA11", "Neubrandenburg", MEDIUM_SAM, RED_BLOCK, "ring"),
-    ("NS88-SA2-Demmin", (53.905, 13.000), MEDIUM_SAM, RED_BLOCK, "at"),
     ("NS88-Neubrandenburg-SHORAD", "Neubrandenburg", SHORAD, RED_BLOCK, "near"),
     ("NS88-Neubrandenburg-AAA-1", "Neubrandenburg", AAA, RED_BLOCK, "near"),
     ("NS88-Neubrandenburg-AAA-2", "Neubrandenburg", AAA, RED_BLOCK, "near"),
     ("NS88-Neubrandenburg-EWR", "Neubrandenburg", EWR, RED_BLOCK, "ring"),
     ("NS88-Neubrandenburg-Armor-1", "Neubrandenburg", ARMOR, RED_BLOCK, "near"),
     ("NS88-Neubrandenburg-Armor-2", "Neubrandenburg", ARMOR, RED_BLOCK, "near"),
-    # Templin: the rear. The SA-5 stands at Badingen, by Zehdenick.
-    ("NS88-SA5-Badingen", (52.995, 13.265), LONG_SAM, RED_BLOCK, "at"),
-    ("NS88-SA10-Gerswalde", (53.165, 13.735), LONG_SAM, RED_BLOCK, "at"),
-    ("NS88-Templin-SA3", "Templin", MEDIUM_SAM, RED_BLOCK, "ring"),
+    # Templin: the rear.
     ("NS88-Templin-SHORAD", "Templin", SHORAD, RED_BLOCK, "near"),
     ("NS88-Templin-AAA", "Templin", AAA, RED_BLOCK, "near"),
     ("NS88-Templin-EWR", "Templin", EWR, RED_BLOCK, "ring"),
     ("NS88-Templin-Armor-1", "Templin", ARMOR, RED_BLOCK, "near"),
     ("NS88-Templin-Armor-2", "Templin", ARMOR, RED_BLOCK, "near"),
+)
+
+#: The fixed SAM sites, copied unit by unit from Carsten's Cold War Germany
+#: Framework (a free Mission Editor template) as FIXED groups (features doc §122).
+#: Rostock's SA-5 is left out: the S-200 stands in the rear, not on the coast (the
+#: DM's call), and the campaign fields no SA-10 because the template has none.
+FRAMEWORK_SITES: tuple[tuple[str, str], ...] = (
+    ("DEN AD HAWK Kastrup", "FIXED Hawk Kastrup"),
+    ("DEN AD HAWK Rolskilde", "FIXED Hawk Roskilde"),
+    ("DEN AD HAWK Rodvig", "FIXED Hawk Rodvig"),
+    ("DEN AD HAWK Rodvig South", "FIXED Hawk Rodvig South"),
+    ("GDR AD SA3 Dranske", "FIXED SA-3 Dranske"),
+    ("GDR AD SA3 Barhöft", "FIXED SA-3 Barhoft"),
+    ("GDR AD SA2 Franzburg", "FIXED SA-2 Franzburg"),
+    ("GDR AD SA2 Ueckermünde", "FIXED SA-2 Ueckermunde"),
+    ("GDR AD SA2 Neubrandenburg", "FIXED SA-2 Neubrandenburg"),
+    ("GDR AD S-60 Prenzlau", "FIXED S-60 Prenzlau"),
+    ("GDR AD SA3 Templin", "FIXED SA-3 Templin"),
+    ("GDR AD SA5 Badingen", "FIXED SA-5 Badingen"),
+    ("GDR AD SA3 Velten", "FIXED SA-3 Velten"),
+    ("GDR AD SA3 Fehrbellin", "FIXED SA-3 Fehrbellin"),
+    ("GDR AD SA2 Werneuchen", "FIXED SA-2 Werneuchen"),
+    ("POL AD SA3 Swinoujscie", "FIXED SA-3 Swinoujscie"),
+    ("POL AD SA2 Szczecin", "FIXED SA-2 Szczecin"),
+    ("POL AD SA3 Chojna", "FIXED SA-3 Chojna"),
 )
 
 #: The Baltic Fleet's surface group, in the Pomeranian Bay.
@@ -582,6 +597,40 @@ def _author_land(mission: Mission, placer: Placer) -> None:
         _report(name, position)
 
 
+def _author_framework_sites(mission: Mission, framework: Path) -> None:
+    """Copy each template site's units (type, position, heading) as one FIXED group."""
+    source = Mission()
+    source.load_file(str(framework))
+    by_name = {
+        group.name: group
+        for coalition in source.coalition.values()
+        for country in coalition.countries.values()
+        for group in country.vehicle_group
+    }
+    print("\nframework sites:")
+    for source_name, name in FRAMEWORK_SITES:
+        group = by_name[source_name]
+        first = group.units[0]
+        copy = mission.vehicle_group(
+            country=_country(mission, RED_BLOCK),
+            name=name,
+            _type=vehicle_map[first.type],
+            position=first.position,
+            heading=first.heading,
+        )
+        for unit in group.units[1:]:
+            added = mission.vehicle(
+                f"{name} {len(copy.units) + 1}", vehicle_map[unit.type]
+            )
+            added.position = unit.position
+            added.heading = unit.heading
+            copy.add_unit(added)
+        for point in copy.points:
+            point.action = PointAction.OffRoad
+            point.speed = 0
+        _report(f"{name} ({len(copy.units)})", first.position)
+
+
 def _author_routes(mission: Mission, theater: Any) -> None:
     from campaign_routes import draw
 
@@ -627,6 +676,9 @@ def _author_routes(mission: Mission, theater: Any) -> None:
 def main() -> None:
     if not SOURCE.exists():
         raise SystemExit(f"missing source miz: {SOURCE}")
+    if len(sys.argv) != 2:
+        raise SystemExit("usage: build_northern_shield_miz.py <framework .miz>")
+    framework = Path(sys.argv[1])
 
     mission = Mission()
     mission.load_file(str(SOURCE))
@@ -640,6 +692,7 @@ def main() -> None:
     runways = [segment for airport in fields for segment in _runway_segments(airport)]
     placer = Placer(theater, taken, runways)
     _author_land(mission, placer)
+    _author_framework_sites(mission, framework)
     _author_routes(mission, theater)
 
     if placer.relaxed:
