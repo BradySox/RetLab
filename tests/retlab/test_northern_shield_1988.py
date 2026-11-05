@@ -179,8 +179,8 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
     assert {fixed[name].name for name in hawks} == {"Kastrup"}
     for name, cp in fixed.items():
         assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
-    assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Badingen"]
-    assert fixed["FIXED SA-5 Badingen"].name == "Templin"
+    assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Magdeburg"]
+    assert fixed["FIXED SA-5 Magdeburg"].name == "Templin"
     # The generated sites are the mobile ones, each pinned.
     pins = campaign.data["ground_forces"]
     generated = {

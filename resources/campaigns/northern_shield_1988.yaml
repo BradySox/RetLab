@@ -16,7 +16,7 @@ description:
   shield, and the Baltic is the only road south. The Soviet coast from Barth to
   Peenemunde is held by a thin line of garrisons, but behind it the 3rd Air Defense
   Division at Neubrandenburg rings the coast with SA-2s and SA-3s, and an S-200 battery
-  at Zehdenick covers the whole of the Uckermark. There is no land front. The first coastal field has to
+  at Magdeburg reaches up over the whole of Brandenburg. There is no land front. The first coastal field has to
   be cleared and taken from the air.</p>
   <p>Take Barth, put a front on the coast, and drive south through Neubrandenburg to
   Templin. Lose Copenhagen, and the north is lost.</p>
@@ -62,7 +62,7 @@ neutral_border_postures:
   Hungary: red
 # The fixed Hawk, SA-2, SA-3, SA-5 and S-60 sites are FIXED groups copied unit by unit
 # from Carsten's Cold War Germany Framework. The template has no SA-10, so the campaign
-# fields none; its one long-range SAM is the SA-5 at Badingen, in the rear (the DM's
+# fields none; its one long-range SAM is the SA-5 at Magdeburg, far in the rear (the DM's
 # calls). The mobile sites are pinned here.
 ground_forces:
   NS88-Hawk-Sturup: Hawk
@@ -104,6 +104,17 @@ squadrons:
       secondary: any
       aircraft:
         - Jagdbombergeschwader 31 Boelcke
+      size: 8
+    # Phantoms: Luftwaffe F-4Fs (as the F-4E) and a 52nd TFW SEAD squadron.
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - GAF JG 74
+      size: 8
+    - primary: SEAD
+      secondary: any
+      aircraft:
+        - 480th TFS (Spangdahlem)
       size: 8
     - primary: CAS
       secondary: any

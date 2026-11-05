@@ -1,6 +1,6 @@
 # Germany — Northern Shield 1988
 
-**Status: BUILT 2026-11-05; headless-verified (a fresh turn 0 plans 8 blue and 9 red
+**Status: BUILT 2026-11-05; headless-verified (a fresh turn 0 plans 10 blue and 9 red
 packages and generates a mission). In-game pass is checklist row B310. New game required.**
 
 Owner: this note. CI lock: `tests/retlab/test_northern_shield_1988.py`.
@@ -11,7 +11,7 @@ Owner: this note. CI lock: `tests/retlab/test_northern_shield_1988.py`.
 | `.miz` | **The DM's Mission Editor save (2026-11-05)** with the template SAM sites swapped in. First built from `red_tide.miz` by `tools/build_northern_shield_miz.py`, deleted; it is in the first two commits of PR #1447. Edit the `.miz` in the Mission Editor from now on |
 | Routes | 4 M-113 roads and 1 Train rail line from real town and station lat/lon; 4 HandyWind sea lanes |
 | Factions | Red Tide's: `Blufor Late Cold War (80s)`, `Russia 1980 (Red Tide)` (stock DCS) |
-| Squadrons | 24 squadrons, existing presets only: 73 blue and 79 red aircraft |
+| Squadrons | 26 squadrons, existing presets only: 89 blue and 79 red aircraft |
 | Checklist row | B310 |
 
 ## Why it exists
@@ -32,6 +32,9 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
   Rostock and Wismar group does not, and neither does the coastal SA-5 at Rostock.
 - **Neubrandenburg's ammo depot moved 400 m south**, off the runway line past the west
   threshold (DM call); New Game flagged it on the runway strip.
+- **The SA-5 moved south** from Badingen to the template's Magdeburg site (DM call,
+  2026-11-05).
+- **F-4s added**: JG 74 (BARCAP) and the 480th TFS (SEAD) at Kastrup (DM call, 2026-11-05).
 - **His laydown stands** for everything but the SAMs: he moved the bases' defenses, depots
   and IADS nodes in the Mission Editor before the SAM call.
 
@@ -39,7 +42,7 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
 
 | Side | Base | Squadrons |
 |---|---|---|
-| NATO | Kastrup (Copenhagen) | F-15C 525th TFS, F-16 23rd FS, F-15E 414th TFS, A-10C 81st TFS, Tornado JBG 31, AH-64D, E-3A, KC-135, C-130J |
+| NATO | Kastrup (Copenhagen) | F-15C 525th TFS, F-4E JG 74 and 480th TFS, F-16 23rd FS, F-15E 414th TFS, A-10C 81st TFS, Tornado JBG 31, AH-64D, E-3A, KC-135, C-130J |
 | NATO | Sturup (Sweden) | AJS-37 Viggen 71. Attackflygdivisionen, F/A-18C VMFA-251 |
 | NATO | Bornholm | CH-47F and UH-1H, Air Assault |
 | Pact | Barth | Mi-24P |
@@ -83,7 +86,8 @@ framework. The mobile ones are generated and pinned in the yaml's `ground_forces
 |---|---|
 | Coast | SA-3 Dranske, SA-3 Barhoft, SA-2 Franzburg (Barth); SA-2 Ueckermunde, SA-3 Swinoujscie, generated SA-6 (Peenemunde) |
 | Middle | SA-2 Neubrandenburg, generated SA-11; S-60 Prenzlau |
-| Rear | SA-3 Templin, **SA-5 Badingen** (by Zehdenick), SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna |
+| Rear | SA-3 Templin, SA-3 Velten, SA-3 Fehrbellin, SA-2 Werneuchen, SA-2 Szczecin, SA-3 Chojna; EWR Furstenwalde (a generated 1L13 at the template's spot: its 55G6 is not a §122 air-defense site) |
+| Deep rear | **SA-5 Magdeburg**, 89 NM south-west of Templin, which owns it |
 | NATO | Hawks at Kastrup, Roskilde, Rodvig and Rodvig South (template), a generated Hawk at Sturup (RBS 77); EWRs at Stevns and Almindingen |
 
 The S-60 57mm joined `russia_1980_red_tide.json` for Prenzlau (DM call, 2026-11-05).
