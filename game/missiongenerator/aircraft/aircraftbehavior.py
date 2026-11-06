@@ -509,7 +509,8 @@ class AircraftBehavior:
         self.configure_behavior(
             flight,
             group,
-            # ReturnFire until JOIN escalates to OpenFire -- see configure_escort.
+            # ReturnFire until JOIN escalates to Weapon Free (joinpoint.py) -- see
+            # configure_escort.
             roe=OptROE.Values.ReturnFire,
             # Guided includes ARMs and TALDs (among other things, but those are the useful
             # weapons for SEAD).
