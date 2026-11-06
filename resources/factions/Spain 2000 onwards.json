@@ -63,6 +63,9 @@
     "Truck KAMAZ 43101"
   ],
   "air_defense_units": [
+    "SAM Hawk CWAR AN/MPQ-55",
+    "EWR AN/FPS-117 Radar (domed)",
+    "EWR AN/FPS-117 Control Shelter",
     "EWR AN/FPS-117 Radar",
     "M1097 Heavy HMMWV Avenger",
     "2 cm Flak 38",

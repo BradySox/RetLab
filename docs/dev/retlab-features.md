@@ -11485,8 +11485,9 @@ unit by unit, and New Game keeps it as drawn: each unit's type, position and hea
 Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; design note
 `docs/dev/design/retlab-exact-site-layouts-notes.md`).
 
-- The task comes from the preset group the drawn units match best (trucks left out). Radars
-  that match no preset are an EWR site (2026-11-06; before that a drawn EWR was skipped).
+- The task comes from the preset group the drawn units match best (trucks left out). A site
+  that matches no preset takes its units' class: SHORAD, AAA, then EWR (2026-11-06; factions
+  field those from single units, and before this such a site was skipped).
 - If the owner's faction cannot field a drawn unit other than a truck, a stock site of that
   task generates at the group's first unit instead.
 - Guns in a long or medium range site are its `(PD)` group (Skynet point defense).
@@ -11498,7 +11499,8 @@ Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; desi
   Levant template (`tools/data/levant_sam_template.json`, freeware) through
   `tools/place_levant_sam_sites.py`, which leaves out units on a runway strip or stand and
   leads each group with a launcher stock Retribution reads as a marker. Anatolian Reach has
-  41 (row B312).
+  41 (row B312). The other Syria campaigns use `--swap`: 140 markers became the nearest
+  same-band real site within 10 NM that the owner fields (row B313).
 - Upstream carve: branch `claude/project-thread-1lvonx` on the PR fork, drafted 2026-11-06.
 
 ### Files
@@ -11506,7 +11508,8 @@ Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; desi
 - `game/theater/exactsite.py`, `game/theater/presetlocation.py` (`ExactSitePreset`),
   `game/campaignloader/mizcampaignloader.py` (`is_exact_site`).
 - `game/theater/airfieldclearance.py` (`field_under`), `tools/place_levant_sam_sites.py`.
-- `tests/theater/test_exact_site_layouts.py`, `tests/retlab/test_anatolian_reach.py`.
+- `tests/theater/test_exact_site_layouts.py`, `tests/retlab/test_anatolian_reach.py`,
+  `tests/retlab/test_syria_real_sam_sites.py`.
 
 ## §121 — Radio discipline — REMOVED (2026-10-26)
 
