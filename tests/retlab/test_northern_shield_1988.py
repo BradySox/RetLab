@@ -181,6 +181,13 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
         assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
     assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Magdeburg"]
     assert fixed["FIXED SA-5 Magdeburg"].name == "Templin"
+    sa5 = next(
+        site
+        for site in fixed["FIXED SA-5 Magdeburg"].preset_locations.exact_air_defenses
+        if site.original_name == "FIXED SA-5 Magdeburg"
+    )
+    # The template's six, plus one on each pad of the map's two batteries (DM call).
+    assert sum(u.type_id == "S-200_Launcher" for u in sa5.units) == 18
     # The template's SA-2, SA-3 and S-60 sites around it cover its flanks.
     flank = {
         "FIXED SA-2 Stendal",
