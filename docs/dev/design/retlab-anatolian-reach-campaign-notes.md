@@ -241,6 +241,25 @@ setting is one range for both sides, and at 100 NM red planned no BARCAP at all.
 turn 1 (blue BARCAP / Israeli aircraft on offensive missions / red BARCAP): 100 NM 4/49/0,
 150 NM 6/51/2, 200 NM 8/43/10, 225 NM 12/14/14, 300 NM 14/2/18. 200 NM is the setting.
 
+## Real Syrian and Turkish sites (2026-11-06, DM call)
+
+41 sites from the Levant template are drawn as `FIXED` groups, kept as drawn by §122:
+every template site within 40 NM of a red airfield, the SA-10 near Latakia left out
+(Syria had no S-300 in 2004). See `retlab-real-sam-sites-notes.md` for the source,
+its license and the tool (`tools/place_levant_sam_sites.py`).
+
+- Syria: 8 SA-2, 7 SA-3, 2 SA-5 (Aleppo near Kuweires, and Latakia), 2 SA-6, 12 EWRs.
+- Turkey: the Adana Hawk, 6 Rapiers around Incirlik, 3 FPS-117s. The Sanliurfa Hawk
+  sits inside the runway band and was left out whole.
+- Nine markers that stood for the same real sites went (Aleppo North and South,
+  Kuweires, Jirah and Latakia North MERAD markers; four EWRs).
+- Red's faction gained SA-2/S-75 and SA-5/S-200 (DM call) plus the Hawk CWAR and the
+  domed FPS-117 with its shelter, which the drawn Turkish sites carry. The two SA-5s
+  are red's second and third long-range rings, next to the Incirlik SA-10; the
+  "one S-300" call below still holds.
+- Locked by `test_drawn_levant_sites_build_as_drawn` and
+  `test_drawn_sites_keep_runways_and_aprons_clear`. Not flown (row B312).
+
 ## What the first flown turn established
 
 Turn 2, 36.9 minutes, 2004-06-01 at 22:36 local (night — see below).
