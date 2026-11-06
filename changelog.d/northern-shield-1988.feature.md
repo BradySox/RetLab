@@ -1,0 +1,1 @@
+* **[Campaigns]** New Germany campaign, Northern Shield 1988: Red Tide's war from the north. NATO holds Copenhagen, Sturup and Bornholm across the water and has to take the first East German coastal field by air assault before a land front opens, then drive south to Templin. Stock DCS only.
