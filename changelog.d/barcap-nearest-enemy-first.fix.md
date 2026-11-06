@@ -1,1 +1,0 @@
-* **[Campaign AI]** BARCAP is planned over carriers first, then over the land bases nearest an enemy base, instead of in campaign-file order. A side short of fighters no longer covers its rear fields and leaves the front fields bare.

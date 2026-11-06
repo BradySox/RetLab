@@ -1,1 +1,0 @@
-* **[Mission Generation]** Vacuum's bearings in answers are true by lat/lon, then magnetic; on GermanyCW they read about 9 degrees high. A radar that goes tight and then dark before its call still gets its tight call.

@@ -1,1 +1,0 @@
-* **[Campaign]** Anatolian Reach sets the airbase threat range to 200 NM: BARCAPs over every blue field no longer use up the escorts, so the Israeli strike squadrons get missions, and red still flies BARCAPs.

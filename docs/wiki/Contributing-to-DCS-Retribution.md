@@ -108,7 +108,10 @@ To release a pinned version of the fork, follow upstream's steps:
    branch so they stay in sync. (**RetLab:** we usually tag `main` directly rather than
    keeping a separate release branch — in that case this step is just "make sure `main`
    is green and the docs/changelog are current." Fold the pending `changelog.d/` entries
-   into `changelog.md` first: `python tools/changelog.py fold`.)
+   into `changelog.md` first: `python tools/changelog.py fold`, and bump
+   `game/version.py`. A release page holds at most 125,000 characters, so write a short
+   summary in `docs/releases/<tag>.md`; `release.yml` uses it and links the full
+   changelog. Without one it cuts the top changelog block to fit.)
 2. Announce a preview build before creating the release, with a link to the GitHub
    Action build for the specific branch, and wait some time. This allows you to get some
    feedback on the build. (**RetLab:** the rolling `latest` build *is* the standing
@@ -116,7 +119,7 @@ To release a pinned version of the fork, follow upstream's steps:
 3. When everything is ready for release, tag the corresponding branch. **Do not create a
    release by hand.** A release will be created and published automatically by the
    GitHub action from the tag. For example:
-   `git tag v1.6.3-retlab && git push origin v1.6.3-retlab` — push the specific tag rather
+   `git tag v1.7.0-retlab && git push origin v1.7.0-retlab` — push the specific tag rather
    than `--tags`, which would push every local tag (**RetLab:** including your local
    `latest`, which must never be pushed manually).
 4. Smoke test the tagged build.

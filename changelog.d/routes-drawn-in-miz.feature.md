@@ -1,1 +1,0 @@
-* **[Campaign]** Every campaign draws its supply routes and shipping lanes in its .miz (M-113 and cargo-ship route groups, waypoints set On Road), as upstream campaigns do. The yaml supply_routes and shipping_lanes lists are retired; the loaded routes are unchanged.

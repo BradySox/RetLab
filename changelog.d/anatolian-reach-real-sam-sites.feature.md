@@ -1,1 +1,0 @@
-* **[Campaigns]** Syria - Anatolian Reach draws 41 real Syrian and Turkish air-defense sites unit by unit from the Levant SAM template (freeware, DCS user files), so each launcher and radar sits in the map's own emplacement. Red gains the SA-2 and SA-5. A drawn group of radars alone now builds as an early-warning site.

@@ -1,1 +1,0 @@
-* **[Flight Planning]** Aircraft that cannot refuel in the air in DCS (Su-25, Su-17M4, MiG-23MLD, MiG-25PD, Su-27, MiG-29 and others) no longer get a refuel waypoint or count toward tanker demand. `air_refuel_type: none` marks one in the aircraft data.

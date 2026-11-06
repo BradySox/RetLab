@@ -1,1 +1,0 @@
-* **[Mission Generation]** Voice ATC gives no squawk code. Ground clears "taxi to runway 25, hold short, contact Tower", a readback needs only the runway, and the ATC card and the Support page show no squawk. A readback that still says a squawk is accepted.

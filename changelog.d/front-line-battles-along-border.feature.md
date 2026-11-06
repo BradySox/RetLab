@@ -1,1 +1,0 @@
-* **[Mission Generation]** Each front's ground units fight a battle in every sector along the border between the two sides' territory, out to the Maximum frontline width, instead of on one short line across the road. Setting: Front line battles spread along the border (on by default).

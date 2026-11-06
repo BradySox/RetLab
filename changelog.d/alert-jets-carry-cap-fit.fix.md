@@ -1,1 +1,0 @@
-* **[Mission Generation]** Alert (QRA) fighters and the host's scramble jets carry their squadron's CAP loadout. They used to launch with the aircraft type's default payload: practice bombs on an F-15E, nothing on a Mirage F1.

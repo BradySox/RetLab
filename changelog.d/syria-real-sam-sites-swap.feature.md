@@ -1,1 +1,0 @@
-* **[Campaigns]** 15 more Syria campaigns put 140 of their SAM and radar sites on the real sites from the Levant SAM template, drawn unit by unit. Only a marker with a real site of the same kind within 10 NM moves, so each campaign's balance is unchanged. Single-unit systems such as the SA-8 now build as drawn too.

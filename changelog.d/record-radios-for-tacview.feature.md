@@ -1,1 +1,0 @@
-* **[Mission Generation]** New setting **Record radios for Tacview (SkyEye)**: SkyEye records the AWACS, STRIKE, Vacuum, Ground, Tower and each player flight's frequency, one WAV each, which Tacview plays with the replay. Needs the matching SkyEye build.

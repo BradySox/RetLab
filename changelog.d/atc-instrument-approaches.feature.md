@@ -1,1 +1,0 @@
-* **[Plugins]** Voice ATC: Approach clears an ILS, TACAN or LOC approach in low weather or when you ask for one ("request ILS"), from the Kola, Falklands and Nevada plates, or a generated 12-mile straight-in at any other ILS runway; Tower then clears you to land. The ATC card lists the approaches.

@@ -1,1 +1,0 @@
-* **[Plugins]** Voice ATC: the SOP departure turn comes from Departure, not Tower ("radar contact, turn right heading 280, climb and maintain 2,600, depart via Lake, report Lake"); Tower only clears the takeoff.
