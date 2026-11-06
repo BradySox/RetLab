@@ -1,0 +1,1 @@
+* **[Kneeboard]** The F-4E's receive-only AUX radio now has presets: the flight, AWACS, Vacuum and STRIKE, so you can listen to one while you talk on COMM. They show in the AUX column of the comm card. COMM keeps every station you talk to.

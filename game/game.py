@@ -738,6 +738,7 @@ class Game:
         for_red: bool = True,
         for_blue: bool = True,
         squadrons_start_full: bool = False,
+        keep_player_packages: bool = False,
     ) -> None:
         """Performs turn initialization for the specified players.
 
@@ -773,6 +774,8 @@ class Game:
             for_red: True if opfor should be re-initialized.
             for_blue: True if the player coalition should be re-initialized.
             squadrons_start_full: True if generator setting was checked.
+            keep_player_packages: True to keep blue's packages that have a player
+                seat (the top bar's mid-turn Re-plan).
         """
         # Check for win or loss condition FIRST!
         turn_state = self.check_win_loss()
@@ -806,7 +809,11 @@ class Game:
 
         # Plan Coalition specific turn
         if for_blue:
-            self.blue.initialize_turn(self.turn == 0 and squadrons_start_full, events)
+            self.blue.initialize_turn(
+                self.turn == 0 and squadrons_start_full,
+                events,
+                keep_player_packages=keep_player_packages,
+            )
         if for_red:
             self.red.initialize_turn(self.turn == 0 and squadrons_start_full, events)
 
