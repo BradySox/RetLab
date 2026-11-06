@@ -1,6 +1,7 @@
 ﻿# Retribution v1.7.0 (RetLab)
 
 ## Features/Improvements
+* **[Campaigns]** A drawn FIXED air-defense site keeps its spots when the owning faction fields a different SAM: support units it lacks are left out, and its own radars and launchers go into the drawn spots.
 * **[Mission Generation]** The ABCCC calls "push to join" when the package leaves its hold, then "execute" once the strikers and escorts are at the join point. A late flight gets 3 minutes, then the package executes without it. AI flights that reach the join early orbit there until execute.
 * **[Mission Generation]** The ABCCC calls "All players, check in" 3 minutes before the push; a player who stays silent holds or misses the push by their role in the package.
 * **[Campaigns]** New Caucasus campaign, Abchazian Blitz: Georgia and a European air force against Russia's Southern Military District in 2018, with its two factions and six squadrons. Adopted from upstream #976.
