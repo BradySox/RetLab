@@ -88,7 +88,9 @@ Fulda, Rockenhausen, Baumholder, Schmallenberg, Steinheim and Bad Driburg, and t
 Erndtebruck; plus an EWR on the Wasserkuppe, Patriot at Ramstein, and Roland, Rapier, Gepard and
 Vulcan at the bases. Red, at Carsten's sites: SA-2s at Gotha, Allstedt, Quedlinburg, Merseburg,
 Bad Durrenberg, Leipzig, Kothen and Dessau; an SA-3 at Meiningen; an S-60 battery at Leipzig.
-Each is a `FIXED` group copied unit by unit from his mission. **No SA-5s (DM call, same
+Each is a `FIXED` group copied unit by unit from his mission. Gotha, Allstedt, Quedlinburg,
+Merseburg, Leipzig and Kothen had 4 launchers; each has 6 since 2026-11-06, the 2 extra placed by
+the DM in the Mission Editor. **No SA-5s (DM call, same
 day):** at about 140 NM their rings covered all of West Germany. Kaltennordheim and
 Eckolstadt keep their revetments as SA-2 sites: each S-200 launcher became an SA-2
 launcher, the 5N62 tracking radar a Fan Song, the command post was dropped. His

@@ -11499,22 +11499,16 @@ Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; desi
 - The owner's closest ForceGroup adds its layout's optional trucks and point defense.
 - Repair keeps the spots; a site bought new in the base menu is a stock layout.
 - Not flown (row B279).
-- **Real sites in every Syria and Germany campaign is a standing goal** (DM call,
-  2026-11-06): `docs/dev/design/retlab-real-sam-sites-notes.md`. Syria's sites come from the
-  Levant template (`tools/data/levant_sam_template.json`, freeware) through
-  `tools/place_levant_sam_sites.py`, which leaves out units on a runway strip or stand and
-  leads each group with a launcher stock Retribution reads as a marker. Anatolian Reach has
-  41 (row B312). The other Syria campaigns use `--swap`: 140 markers became the nearest
-  same-band real site within 10 NM that the owner fields (row B313).
+- **Real sites with every pad filled in Germany campaigns** (DM call, 2026-11-06):
+  `docs/dev/design/retlab-real-sam-sites-notes.md`. Syria's Levant template sites (#1451,
+  #1452) were reverted to markers the same day: the template predates the current Syria map.
 - Upstream carve: branch `claude/project-thread-1lvonx` on the PR fork, drafted 2026-11-06.
 
 ### Files
 
 - `game/theater/exactsite.py`, `game/theater/presetlocation.py` (`ExactSitePreset`),
   `game/campaignloader/mizcampaignloader.py` (`is_exact_site`).
-- `game/theater/airfieldclearance.py` (`field_under`), `tools/place_levant_sam_sites.py`.
-- `tests/theater/test_exact_site_layouts.py`, `tests/retlab/test_anatolian_reach.py`,
-  `tests/retlab/test_syria_real_sam_sites.py`.
+- `tests/theater/test_exact_site_layouts.py`.
 
 ## §121 — Radio discipline — REMOVED (2026-10-26)
 

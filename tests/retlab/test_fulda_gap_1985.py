@@ -284,6 +284,12 @@ def test_carstens_sites_are_drawn_unit_by_unit(
     # Meiningen and Kaltennordheim went with Meiningen: they bound to Fulda.
     assert not {"FIXED SA-3 Meiningen", "FIXED SA-2 Kaltennordheim"} & set(sites)
     assert not any("SA-5" in name for name in sites)
+    # Every SA-2 has a full battery of 6 launchers (DM call, 2026-11-06).
+    for cp in theater.controlpoints:
+        for site in cp.preset_locations.exact_air_defenses:
+            if "SA-2" in site.original_name:
+                launchers = [u for u in site.units if u.type_id == "S_75M_Volhov"]
+                assert len(launchers) == 6, site.original_name
     assert "SA-5/S-200" not in {pg.name for pg in FACTIONS[PACT].preset_groups}
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
     assert len(hawks) == 10

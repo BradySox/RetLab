@@ -15,7 +15,7 @@ from __future__ import annotations
 import logging
 import math
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Optional
+from typing import TYPE_CHECKING, Any, Iterator
 
 if TYPE_CHECKING:
     from game.theater import ConflictTheater
@@ -68,26 +68,6 @@ def _runway_offsets(airport: Any, x: float, y: float) -> list[tuple[float, float
         vx, vy = x - airport.position.x, y - airport.position.y
         out.append((vx * dx + vy * dy, vx * dy - vy * dx))
     return out
-
-
-def field_under(airports: Iterable[Any], x: float, y: float) -> Optional[str]:
-    """The field whose runway strip or a stand this point sits on, if any."""
-    for airport in airports:
-        if math.hypot(x - airport.position.x, y - airport.position.y) > SEARCH_RADIUS_M:
-            continue
-        for along, perp in _runway_offsets(airport, x, y):
-            if (
-                abs(perp) < RUNWAY_STRIP_HALF_WIDTH_M
-                and abs(along) < RUNWAY_HALF_LENGTH_M
-            ):
-                return str(airport.name)
-        for slot in getattr(airport, "parking_slots", []) or []:
-            if (
-                math.hypot(x - slot.position.x, y - slot.position.y)
-                < PARKING_CLEARANCE_M
-            ):
-                return str(airport.name)
-    return None
 
 
 def airfield_clearance_conflicts(

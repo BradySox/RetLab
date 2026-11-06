@@ -38,6 +38,8 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
   in a clearing and left the map's two six-pad batteries empty. One launcher now sits on each
   pad (18 in all), placed from his F10 screenshot to within a few metres; the Strela that sat
   on a pad moved into the clearing.
+- **Every SA-2 has 6 launchers** (DM call, 2026-11-06): Stendal, Mahlwinkel, Quedlinburg and
+  Kothen had 4; the DM placed the 2 extra in the Mission Editor.
 - **F-4s added**: JG 74 (BARCAP) and the 480th TFS (SEAD) at Kastrup (DM call, 2026-11-05).
 - **His laydown stands** for everything but the SAMs: he moved the bases' defenses, depots
   and IADS nodes in the Mission Editor before the SAM call.

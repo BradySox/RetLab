@@ -26,16 +26,11 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from dcs.vehicles import vehicle_map
 from shapely.geometry import Point as ShapelyPoint
 
 from game import persistency
 from game.campaignloader.campaign import Campaign
-from game.data.units import UnitClass
-from game.factions.faction import Faction
 from game.theater import ConflictTheater
-from game.theater.airfieldclearance import field_under
-from game.theater.exactsite import classify, unit_class_of
 
 YAML = Path("resources/campaigns/anatolian_reach.yaml")
 
@@ -291,46 +286,3 @@ def test_airbase_threat_range_leaves_escorts_free() -> None:
     Israeli strike squadrons sit idle (2026-10-18)."""
     # Above ~220 the Israeli strikes collapse; below ~150 red flies no BARCAP.
     assert 150 <= _data()["settings"]["airbase_threat_range"] <= 200
-
-
-def test_drawn_levant_sites_build_as_drawn(tmp_path: Path) -> None:
-    """The FIXED sites from the Levant template (2026-11-06) must not fall back.
-
-    A drawn shooter or radar red cannot field turns the whole site into a stock
-    layout at its first unit, with nothing louder than a log line. The SA-2s, SA-5s,
-    the Hawk CWAR and the domed FPS-117 are in the faction for exactly this.
-    """
-    _, theater = _theater(tmp_path)
-    presets = [
-        preset
-        for cp in theater.controlpoints
-        for preset in cp.preset_locations.exact_air_defenses
-    ]
-    assert len(presets) >= 40, "the Levant template sites are missing"
-    faction = Faction.from_dict(_data()["recommended_enemy_faction"])
-    fieldable = {u.dcs_unit_type.id for u in faction.accessible_units}
-    for preset in presets:
-        types = [vehicle_map[u.type_id] for u in preset.units]
-        assert classify(types) is not None, preset.original_name
-        missing = {
-            t.id
-            for t in types
-            if unit_class_of(t) is not UnitClass.LOGISTICS and t.id not in fieldable
-        }
-        assert not missing, f"{preset.original_name}: red cannot field {missing}"
-
-
-def test_drawn_sites_keep_runways_and_aprons_clear(tmp_path: Path) -> None:
-    _, theater = _theater(tmp_path)
-    for cp in theater.controlpoints:
-        for preset in cp.preset_locations.exact_air_defenses:
-            for unit in preset.units:
-                field = field_under(
-                    theater.terrain.airports.values(),
-                    unit.position.x,
-                    unit.position.y,
-                )
-                assert field is None, (
-                    f"{preset.original_name}: {unit.type_id} on {field}'s runway "
-                    "or apron holds every AI taxi there"
-                )
