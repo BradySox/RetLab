@@ -1,0 +1,1 @@
+* **[Campaigns]** A drawn FIXED air-defense site keeps its spots when the owning faction fields a different SAM: support units it lacks are left out, and its own radars and launchers go into the drawn spots.

@@ -12,7 +12,9 @@ radar, launcher and truck in its real revetment) survive into Fulda Gap 1985.
 |---|---|
 | What marks a drawn site | The name prefix `FIXED`, followed by a non-letter or the end of the name. Not unit count: an author opts in per group. |
 | The site's task | The air-defense preset group (`resources/groups`) whose units match the drawn ones best, trucks left out. A tie goes to the longer-range task. No match: the group is skipped with an error in the log. |
-| The owner cannot field the units | Every drawn unit that is not a truck must be in the owner's `accessible_units`. If not, a stock site of the same task generates at the group's first unit, with the same step-down a marker gets. |
+| The owner cannot field a support unit | A drawn search radar, command post, power unit or point-defense gun missing from the owner's `accessible_units` is left out. The site generates without it (2026-11-06). |
+| The owner cannot field the shooters | A drawn launcher or tracking radar (any radar on an EWR site, the guns on a SHORAD or AAA site) the owner cannot field means the owner's own ForceGroup for the task fits into the drawn spots: one unit type per required slot of its stock layout, a launcher on every drawn launcher spot, each radar and command post on the closest-matching drawn radar spot (same class, then tracking with tracking, then any radar), anything with no spot left 40 m apart beside the site. Spare spots stay empty. Trucks and units it fields stay as drawn (2026-11-06, Brady's pick when a faction switch changes the SAM). |
+| The owner has no system for the task | A stock site of the same task generates at the group's first unit, with the same step-down a marker gets. |
 | Guns inside a long or medium range site | SHORAD, AAA and MANPAD units become the site's `(PD)` group, Skynet role point defense. In a SHORAD or AAA site they are the site. |
 | Extras | The owner's closest ForceGroup for the task adds its stock layout's **optional** slots, only trucks, power, SHORAD, AAA and MANPAD. They are placed by the template around the first unit, so they can land in odd spots; Brady accepted that. |
 

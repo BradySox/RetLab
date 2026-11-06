@@ -11488,8 +11488,13 @@ Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; desi
 - The task comes from the preset group the drawn units match best (trucks left out). A site
   that matches no preset takes its units' class: SHORAD, AAA, then EWR (2026-11-06; factions
   field those from single units, and before this such a site was skipped).
-- If the owner's faction cannot field a drawn unit other than a truck, a stock site of that
-  task generates at the group's first unit instead.
+- A drawn support unit the owner cannot field (a search radar, command post, power unit or
+  point-defense gun) is left out; the rest stays as drawn (2026-11-06, DM call).
+- If the owner cannot field the drawn launchers or tracking radar, its own system for the
+  task fits into the drawn spots: a launcher on every launcher spot, each of its radars and
+  command posts on the closest-matching radar spot, and any with no spot left about 130 ft
+  beside the site. Spare spots stay empty (2026-11-06, DM call; row B314).
+- Only an owner with no system for the task gets a stock site at the group's first unit.
 - Guns in a long or medium range site are its `(PD)` group (Skynet point defense).
 - The owner's closest ForceGroup adds its layout's optional trucks and point defense.
 - Repair keeps the spots; a site bought new in the base menu is a stock layout.

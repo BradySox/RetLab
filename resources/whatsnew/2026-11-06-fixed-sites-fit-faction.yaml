@@ -1,0 +1,8 @@
+date: 2026-11-06
+title: Drawn SAM sites follow your faction pick
+change: >-
+  A campaign's drawn SAM sites now keep their spots when you pick a faction with a different
+  SAM. That faction's own radars and launchers go into the drawn spots, and support units it
+  does not have are left out. Before, the site became a stock layout.
+watch: >-
+  Check that the site comes up and engages, and its radars sit in the drawn spots.
