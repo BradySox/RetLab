@@ -34,6 +34,10 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
   threshold (DM call); New Game flagged it on the runway strip.
 - **The SA-5 moved south** from Badingen to the template's Magdeburg site (DM call,
   2026-11-05).
+- **Every SA-5 pad filled** (DM call, 2026-11-06): the template drew Magdeburg's six launchers
+  in a clearing and left the map's two six-pad batteries empty. One launcher now sits on each
+  pad (18 in all), placed from his F10 screenshot to within a few metres; the Strela that sat
+  on a pad moved into the clearing.
 - **F-4s added**: JG 74 (BARCAP) and the 480th TFS (SEAD) at Kastrup (DM call, 2026-11-05).
 - **His laydown stands** for everything but the SAMs: he moved the bases' defenses, depots
   and IADS nodes in the Mission Editor before the SAM call.
