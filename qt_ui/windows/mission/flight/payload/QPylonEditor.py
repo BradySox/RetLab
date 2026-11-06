@@ -10,6 +10,7 @@ from game import Game
 from game.ato.flight import Flight
 from game.ato.flightmember import FlightMember
 from game.ato.loadouts import Loadout
+from game.data.stationconflicts import blocked_by
 from game.data.weapons import Pylon, Weapon
 from qt_ui.blocksignals import block_signals
 from qt_ui.widgets.dropdownwidth import bound_dropdown_width
@@ -20,6 +21,9 @@ class QPylonEditor(QWidget):
     #: Emitted after this pylon's store changed (the loadout is already updated).
     #: Lets the payload tab refresh derived readouts (the §46 fuel-plan line).
     pylon_changed = Signal()
+    #: Emitted with the station numbers this pick emptied (the store cannot share
+    #: its pylon with them); the loadout editor redraws those stations.
+    stations_cleared = Signal(list)
 
     #: Width, in characters, a pylon's store dropdown asks for. See
     #: :func:`bound_dropdown_width` -- a full pylon list of un-bounded store names
@@ -154,11 +158,19 @@ class QPylonEditor(QWidget):
 
     def on_pylon_change(self) -> None:
         selected: Optional[Weapon] = self.weapon_combo.currentData()
-        self.flight_member.loadout.pylons[self.pylon.number] = selected
+        loadout = self.flight_member.loadout
+        loadout.pylons[self.pylon.number] = selected
 
         # Clear settings when weapon changes
-        if self.pylon.number in self.flight_member.loadout.pylon_settings:
-            del self.flight_member.loadout.pylon_settings[self.pylon.number]
+        if self.pylon.number in loadout.pylon_settings:
+            del loadout.pylon_settings[self.pylon.number]
+
+        cleared = blocked_by(
+            self.flight.unit_type.dcs_unit_type.id, loadout.pylons, self.pylon.number
+        )
+        for number in cleared:
+            loadout.pylons[number] = None
+            loadout.pylon_settings.pop(number, None)
 
         self.update_settings_button_visibility()
         self._update_store_tooltip()
@@ -169,6 +181,8 @@ class QPylonEditor(QWidget):
             logging.debug(f"Pylon {self.pylon.number} changed to {selected.name}")
         # Drops a filtered store that was listed only because it was fitted.
         self._populate_weapons(selected)
+        if cleared:
+            self.stations_cleared.emit(cleared)
         self.pylon_changed.emit()
 
     def weapon_from_loadout(self, loadout: Loadout) -> Optional[Weapon]:

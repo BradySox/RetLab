@@ -1,0 +1,9 @@
+date: 2026-11-05
+title: F-4E racks and Sidewinders
+change: >-
+  On the F-4E payload screen, picking a store on an inboard pylon now empties the
+  Sidewinder rails it blocks, and picking a Sidewinder empties a blocking inboard store.
+  DCS had dropped the rack at spawn, so wingmen flew with fewer bombs than the screen
+  showed. Loads on the SWA adapter keep their Sidewinders.
+watch: >-
+  An F-4E strike's wingmen should carry every bomb the payload screen lists.

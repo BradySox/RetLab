@@ -18,6 +18,7 @@ from game.data.gunammunition import (
     GAU8_AMMUNITION,
     GAU8_DEFAULT_AMMUNITION,
 )
+from game.data.stationconflicts import conflicting_rails, drop_conflicting_rails
 from game.data.weapons import Pylon, Weapon
 from game.lasercodes.lasercode import LaserCode
 from game.missiongenerator.logisticsgenerator import LogisticsGenerator
@@ -510,6 +511,10 @@ class FlightGroupConfigurator:
         ):
             loadout = loadout.clone()
             loadout.apply_target_overrides(self.flight.package.target)
+        aircraft_id = unit.type
+        if conflicting_rails(aircraft_id, loadout.pylons):
+            loadout = loadout.clone()
+            drop_conflicting_rails(aircraft_id, loadout.pylons, unit.name)
 
         if unit.type in GAU8_AIRCRAFT:
             ammo_type = (

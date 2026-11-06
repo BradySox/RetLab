@@ -1,0 +1,1 @@
+* **[Payload]** The F-4E payload editor no longer lets an inboard rack sit beside loaded Sidewinder rails. Picking one empties the other, as in the DCS Mission Editor. DCS had kept the Sidewinders and dropped the rack at spawn, so a flight could launch with 4 of its 10 Mk-83s.
