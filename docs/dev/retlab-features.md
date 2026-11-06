@@ -11485,19 +11485,28 @@ unit by unit, and New Game keeps it as drawn: each unit's type, position and hea
 Every other group stays a one-unit marker (built 2026-10-24, Brady's calls; design note
 `docs/dev/design/retlab-exact-site-layouts-notes.md`).
 
-- The task comes from the preset group the drawn units match best (trucks left out).
+- The task comes from the preset group the drawn units match best (trucks left out). Radars
+  that match no preset are an EWR site (2026-11-06; before that a drawn EWR was skipped).
 - If the owner's faction cannot field a drawn unit other than a truck, a stock site of that
   task generates at the group's first unit instead.
 - Guns in a long or medium range site are its `(PD)` group (Skynet point defense).
 - The owner's closest ForceGroup adds its layout's optional trucks and point defense.
 - Repair keeps the spots; a site bought new in the base menu is a stock layout.
 - Not flown (row B279).
+- **Real sites in every Syria and Germany campaign is a standing goal** (DM call,
+  2026-11-06): `docs/dev/design/retlab-real-sam-sites-notes.md`. Syria's sites come from the
+  Levant template (`tools/data/levant_sam_template.json`, freeware) through
+  `tools/place_levant_sam_sites.py`, which leaves out units on a runway strip or stand and
+  leads each group with a launcher stock Retribution reads as a marker. Anatolian Reach has
+  41 (row B312).
+- Upstream carve: branch `claude/project-thread-1lvonx` on the PR fork, drafted 2026-11-06.
 
 ### Files
 
 - `game/theater/exactsite.py`, `game/theater/presetlocation.py` (`ExactSitePreset`),
   `game/campaignloader/mizcampaignloader.py` (`is_exact_site`).
-- `tests/theater/test_exact_site_layouts.py`.
+- `game/theater/airfieldclearance.py` (`field_under`), `tools/place_levant_sam_sites.py`.
+- `tests/theater/test_exact_site_layouts.py`, `tests/retlab/test_anatolian_reach.py`.
 
 ## §121 — Radio discipline — REMOVED (2026-10-26)
 
