@@ -59,7 +59,6 @@ recommended_player_faction:
     - CVN-74 John C. Stennis
   missiles: []
   air_defense_units:
-    - SAM Hawk CWAR AN/MPQ-55
     - SAM Hawk SR (AN/MPQ-50)
     - M163 Vulcan Air Defense System
     - M48 Chaparral
