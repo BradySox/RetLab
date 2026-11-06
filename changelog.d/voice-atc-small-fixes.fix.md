@@ -1,1 +1,0 @@
-* **[Plugins]** Voice ATC: a respawn in the same slot starts a fresh sortie, the F10 ATC menu speaks for the ship that uses it, a three-digit flight number is matched as its own flight, and the comm card names a field's Ground and Tower as the ATC card does.

@@ -1,1 +1,0 @@
-* **[Campaign AI]** The Outside AI plans red setting (Campaign Management) hands red's missions and purchases to an outside AI on the AI connect link: it plans packages, sets TOTs and front stances, and buys and sells. If red has no packages at Take Off, the game plans red's missions as before. Off by default.

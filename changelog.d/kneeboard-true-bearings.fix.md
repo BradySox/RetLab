@@ -1,1 +1,0 @@
-* **[Kneeboard]** The flight plan's Brg column, the bullseye bearings on the task and threat pages, and the recon pages' attack axis are true courses. They were map-grid courses, about 10° off true on the Germany map.

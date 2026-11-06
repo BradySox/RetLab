@@ -1,1 +1,0 @@
-* **[Plugins]** Voice ATC: Ground names your spawn spot ("from spot 42, taxi to runway 23") and sends you back to it after landing; a chart file can give SOP departure turns ("cleared for takeoff, right turn 280") with the exit your route leaves by.

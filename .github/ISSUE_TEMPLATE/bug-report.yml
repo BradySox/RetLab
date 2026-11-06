@@ -31,7 +31,8 @@ body:
         If the bug was found in a test/development build, select "Test build" or "Development build"
         and provide a link to the applicable build in the field below.
       options:
-        - v1.5.0
+        - v1.7.0-retlab
+        - Rolling latest build
         - Test build
   - type: input
     attributes:

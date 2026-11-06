@@ -1,1 +1,0 @@
-* **[Mission Generation]** Tanker, AWACS and CAP orbits on the F10 map are outlines in one colour per job (tanker green, AWACS amber, CAP cyan) with larger labels, so overlapping boxes stay readable over the sea.

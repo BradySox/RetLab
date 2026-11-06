@@ -1,1 +1,0 @@
-* **[Plugins]** Voice ATC: Departure hears a "10 miles" report, a taxi readback gets silence instead of the clearance again, and Ground says the runway once and names itself ("Kobuleti Ground, taxi to runway 25, ...").

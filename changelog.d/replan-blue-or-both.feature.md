@@ -1,1 +1,0 @@
-* **[UI]** The top bar's Re-plan RED button is now Re-plan..., which re-plans RED, BLUE or both for the current turn. Blue packages with a player seat are kept as they are, and the planner skips their targets.

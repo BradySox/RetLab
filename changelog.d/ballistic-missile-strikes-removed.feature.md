@@ -1,1 +1,0 @@
-* **[Plugins]** Removed the Ballistic missile strikes plugin (the F10 radio menu that called rounds from a Scud, Iskander or ATACMS launcher onto a map marker). The launchers themselves are unchanged.

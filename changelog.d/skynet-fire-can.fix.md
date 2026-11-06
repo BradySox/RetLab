@@ -1,1 +1,0 @@
-* **[IADS]** Skynet now knows the KS-19 gun site's Fire Can radar. The Fire Can already joined the IADS as an early-warning radar but reported nothing; now its contacts reach the network. The guns still fire on their own.
