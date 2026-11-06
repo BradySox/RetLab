@@ -164,6 +164,7 @@
   ],
   "missiles": [],
   "air_defense_units": [
+    "SAM Hawk CWAR AN/MPQ-55",
     "EWR AN/FPS-117 Radar",
     "SAM Patriot STR",
     "M163 Vulcan Air Defense System",

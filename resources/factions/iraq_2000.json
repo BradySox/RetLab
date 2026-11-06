@@ -62,6 +62,7 @@
   ],
   "naval_units": [],
   "air_defense_units": [
+    "SAM Roland EWR",
     "EWR 1L13",
     "Roland 2 (Marder Chassis)",
     "S-60 57mm",

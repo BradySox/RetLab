@@ -137,6 +137,8 @@
   ],
   "missiles": [],
   "air_defense_units": [
+    "EWR AN/FPS-117 Radar (domed)",
+    "EWR AN/FPS-117 Control Shelter",
     "EWR AN/FPS-117 Radar",
     "Flakpanzer Gepard",
     "M163 Vulcan Air Defense System",

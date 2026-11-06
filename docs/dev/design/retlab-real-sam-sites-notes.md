@@ -13,8 +13,10 @@ DM first (which sites, how far out, faction changes).
 |---|---|---|---|
 | Fulda Gap 1985 | Germany CW | drawn by hand in the ME | built (§122's first user) |
 | Northern Shield 1988 | Germany CW | drawn by hand in the ME | built, laydown still being edited |
-| Anatolian Reach | Syria | Levant template | built 2026-11-06, row B312 |
-| other Syria and Germany campaigns | | | not started |
+| Anatolian Reach | Syria | Levant template, 40 NM rule | built 2026-11-06, row B312 |
+| 15 more Syria campaigns | Syria | Levant template, swap mode | built 2026-11-06, row B313 (140 markers swapped) |
+| Aegean Aegis, Blackball | Syria | | no real site near any marker; unchanged |
+| other Germany campaigns | Germany CW | | not started |
 
 ## The Levant template (Syria)
 
@@ -46,13 +48,48 @@ DM first (which sites, how far out, faction changes).
   authored as a marker). Gun markers stay: the template draws no AAA.
 - Re-runnable: it replaces the FIXED groups an earlier run wrote.
 
+## Swap mode (every Syria campaign but Anatolian Reach)
+
+DM call 2026-11-06: keep each campaign's balance. `--swap` replaces a SAM or EWR marker
+with the nearest unused template site of the same band within 10 NM (5 NM caught 132,
+10 NM 188, 15 NM 230 before the owner check). Short-range markers rarely match: the
+template draws few SHORADs.
+
+- **Owner check.** A site is taken only if the side that will own it fields everything
+  in it but `SUPPORT_UNITS` (Hawk CWAR, domed FPS-117 and its shelter, the Roland search
+  radar, the P-19). The tool guesses the owner from the nearest airfield, then loads the
+  theater and redoes any swap the loader binds to a side that cannot field it (Golan
+  South, a FOB, owns a Tha'lah SA-6 in Golan Heights and Assault on Damascus). So a US
+  faction never inherits a Syrian SA-2.
+- **Period check.** `IN_SERVICE`: Syria's SA-10 only from 2018.
+- **Faction support units** (DM call: add them): `SAM Hawk CWAR AN/MPQ-55` to Israel 2000,
+  USA-Israel 2000, Spain 2000 onwards, Morocco 2000 onwards, WRL - Task Force Blue and
+  Allied Sword's inline Israel-USN 2005; the domed FPS-117 and its shelter to USA-Israel
+  2000, Spain 2000 onwards and Bluefor Modern; `SAM Roland EWR` to Iraq 2000. The domed
+  FPS-117 is an `EarlyWarningRadar`, so those factions' random EWRs can now roll it too.
+
+| Campaign | Swapped | | Campaign | Swapped |
+|---|---|---|---|---|
+| Into the Hornet's Nest | 10 | | Allied Sword | 16 |
+| Canary Islands | 4 | | Desert Trident | 5 |
+| Task Force Thunder | 10 | | Peace Spring | 5 |
+| Falcon over the Mountain | 7 | | Syrian Shield | 7 |
+| WRL Aleppo Insurgency | 5 | | Long Road to H3 | 19 |
+| WRL Assault on Damascus | 14 | | Full Map | 19 |
+| WRL Battle for Syria North | 9 | | Tripoint Hostility | 4 |
+| Golan Heights | 6 | | | |
+
+Locked by `tests/retlab/test_syria_real_sam_sites.py`: every FIXED site in every Syria
+campaign classifies, its owner fields it, and none sits on a runway strip or stand.
+
 ## Lessons
 
 - **A drawn unit the owner cannot field turns the whole site into a stock layout.** Check the
   New Game log for `FIXED site ... cannot field`. Anatolian Reach needed SA-2/S-75 and
   SA-5/S-200 presets, `SAM Hawk CWAR AN/MPQ-55` (in no preset group) and the domed FPS-117 and
   its control shelter. `test_drawn_levant_sites_build_as_drawn` locks it.
-- **A drawn radar on its own** is classified as an EWR (§122, 2026-11-06); before that it was
-  skipped as unclassifiable.
+- **A drawn radar, SA-8 or gun on its own** is classified by its unit class (EWR, SHORAD,
+  AAA; §122, 2026-11-06). Factions field those from single units, so no preset group names
+  them; before, such a site was skipped as unclassifiable.
 - **The template sits in country blocks Retribution never reads** (Syria, Iraq, Turkey ...).
   Only the CJTF blocks are campaign data, so the template cannot be pasted in directly.

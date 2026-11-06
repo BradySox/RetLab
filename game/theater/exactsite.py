@@ -96,12 +96,19 @@ def _best_match(
 def classify(types: list[Type[VehicleType]]) -> Optional[GroupTask]:
     """The air-defense task of the preset group the drawn units match best."""
     task, _ = _best_match(ForceGroup.preset_groups(), _core_ids(types))
-    if task is None and any(
-        unit_class_of(t) is UnitClass.EARLY_WARNING_RADAR for t in types
+    if task is not None:
+        return task
+    # Factions field EWRs and many SHORAD and AAA systems from single units, not
+    # preset groups, so no preset names them.
+    classes = {unit_class_of(t) for t in types}
+    for unit_class, fallback in (
+        (UnitClass.SHORAD, GroupTask.SHORAD),
+        (UnitClass.AAA, GroupTask.AAA),
+        (UnitClass.EARLY_WARNING_RADAR, GroupTask.EARLY_WARNING_RADAR),
     ):
-        # Factions field EWRs from single units, not preset groups.
-        return GroupTask.EARLY_WARNING_RADAR
-    return task
+        if unit_class in classes:
+            return fallback
+    return None
 
 
 def faction_group_for(

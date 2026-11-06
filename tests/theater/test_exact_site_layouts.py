@@ -213,7 +213,8 @@ def test_a_site_the_faction_cannot_field_falls_back_to_stock(game: Any) -> None:
     assert AirDefence.Patriot_ln.id not in types
 
 
-def test_a_drawn_radar_alone_is_an_ewr() -> None:
-    # Factions field EWRs from single units, so no preset group names the radar.
+def test_single_unit_systems_classify_by_unit_class() -> None:
+    # Factions field EWRs and SA-8s from single units; no preset group names them.
     assert classify([AirDefence.x_1L13_EWR]) is GroupTask.EARLY_WARNING_RADAR
+    assert classify([AirDefence.Osa_9A33_ln]) is GroupTask.SHORAD
     assert classify([Unarmed.Ural_375]) is None
