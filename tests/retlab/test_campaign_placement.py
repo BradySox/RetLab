@@ -157,7 +157,7 @@ def test_the_ewr_takes_the_high_ground_and_spreads_out(tmp_path: Path) -> None:
     _fill(placer, lambda x, y: Reading(x / 10 + y / 100, 1, 1, 0, -1, "-"))
     picks = placer.resolve(check_dir=tmp_path)
     one, two = picks["ewr 1"], picks["ewr 2"]
-    assert one.x == 12000.0 and one.y == 0.0
+    assert one.x == 8000.0 and one.y == 0.0
     assert one.x is not None and one.y is not None
     assert two.x is not None and two.y is not None
     assert math.hypot(one.x - two.x, one.y - two.y) >= 2000.0

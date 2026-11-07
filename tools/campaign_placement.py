@@ -209,6 +209,9 @@ class Job(Enum):
     SPOT = "spot"
 
 
+#: An EWR takes the highest flat ground within this of its field (about 5 miles).
+EWR_MAX_M = 8000.0
+
 #: Minimum distance from every earlier pick, by job.
 SEPARATION_M = {
     Job.DEPOT: 250.0,
@@ -278,11 +281,12 @@ def candidates(
                         out.append(Candidate(px, py, rank, f"{runway.heading}{end}"))
         return sorted(out, key=lambda c: c.rank)
     if job is Job.EWR:
+        # Eastern Reach, 2026-11-07: the DM pulled radars on peaks 6-12 km out back down.
         out = []
-        for gx in _span(-12000, 12000, 1000):
-            for gy in _span(-12000, 12000, 1000):
+        for gx in _span(-EWR_MAX_M, EWR_MAX_M, 1000):
+            for gy in _span(-EWR_MAX_M, EWR_MAX_M, 1000):
                 d = math.hypot(gx, gy)
-                if 2000 <= d <= 12000:
+                if 2000 <= d <= EWR_MAX_M:
                     out.append(Candidate(x + gx, y + gy, d))
         return out
     if job is Job.TOWN:
