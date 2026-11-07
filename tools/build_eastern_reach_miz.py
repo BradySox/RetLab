@@ -40,7 +40,7 @@ from dcs import ships
 from dcs.mapping import LatLng, Point
 from dcs.mission import Mission
 from dcs.point import PointAction
-from dcs.statics import Fortification, Warehouse
+from dcs.statics import Fortification, Heliport, Warehouse
 from dcs.unitgroup import VehicleGroup
 from dcs.vehicles import AirDefence, Armor, MissilesSS, Unarmed
 
@@ -84,6 +84,8 @@ MISSILE = MissilesSS.Scud_B
 COASTAL = MissilesSS.hy_launcher
 BLUE_SHORAD = AirDefence.M1097_Avenger
 FOB = Unarmed.SKP_11
+#: A FOB's helicopter pad (FARP_HELIPADS_TYPE); without one a FOB parks nothing.
+HELIPAD = Heliport.Invisible_FARP
 ROAD = Armor.M_113
 
 RED_BLOCK = "red"
@@ -164,8 +166,10 @@ def _red_field(
     return items
 
 
-def _red_fob(fob: str, short: str, guns: int = 1) -> list[Item]:
+def _red_fob(fob: str, short: str, guns: int = 1, pads: int = 0) -> list[Item]:
     items = [
+        Item(f"ER-{short}-Pad-{i}", Job.DEPOT, fob, HELIPAD) for i in range(1, pads + 1)
+    ] + [
         Item(f"ER-{short}-Garrison-1", Job.GARRISON, fob, ARMOR),
         Item(f"ER-{short}-Garrison-2", Job.GARRISON, fob, ARMOR),
         Item(f"ER-{short}-Ammo", Job.DEPOT, fob, Warehouse._Ammunition_depot),
@@ -208,13 +212,13 @@ ITEMS: tuple[Item, ...] = tuple(
         Item("ER-JebalBarez-Comms", Job.SPOT, "Jebal Barez pass", Fortification.Comms_tower_M),
     ]
     # Kahnuj.
-    + _red_fob("FOB Kahnuj", "Kahnuj")
+    + _red_fob("FOB Kahnuj", "Kahnuj", pads=4)
     + [
         Item("ER-Kahnuj-SHORAD", Job.AIR_DEFENSE, "FOB Kahnuj", SHORAD),
         Item("ER-Kahnuj-Power", Job.TOWN, "Kahnuj town", Fortification.GeneratorF),
     ]
     # Minab: the gate to the valley.
-    + _red_fob("FOB Minab", "Minab")
+    + _red_fob("FOB Minab", "Minab", pads=4)
     + [
         Item("ER-Minab-SHORAD", Job.AIR_DEFENSE, "FOB Minab", SHORAD),
         Item("ER-Minab-MERAD", Job.SPOT, "Minab hills", MERAD),
@@ -447,7 +451,14 @@ def _write_unit(mission: Mission, item: Item, position: Point) -> None:
     """A static for buildings and depots, a one-unit vehicle marker otherwise."""
     from dcs.unittype import StaticType
 
-    if isinstance(item.unit_type, type) and issubclass(item.unit_type, StaticType):
+    if item.unit_type is HELIPAD:
+        mission.farp(
+            _country(mission, item.block),
+            item.name,
+            position,
+            farp_type="Invisible FARP",
+        )
+    elif isinstance(item.unit_type, type) and issubclass(item.unit_type, StaticType):
         mission.static_group(
             country=_country(mission, item.block),
             name=item.name,

@@ -43,8 +43,10 @@ victory:
     - label: "The beachhead is lost"
       lose_cps: [Bandar-e-Jask]
 squadrons:
+  # Squadron sizes fit each field's DCS parking: Jask has 4 spots, Fujairah 4,
+  # Jiroft 3 and Lar 5, and Al Dhafra, Al Ain and Al Minhad only 5, 5 and 2 big-jet stands.
   # ============================== United States ==============================
-  # Al Dhafra: the tankers, the AWACS, the bombers and the air-superiority wing.
+  # Al Dhafra: the AWACS, the tankers and the air-superiority wing.
   Al Dhafra AFB:
     - primary: AEW&C
       aircraft:
@@ -54,15 +56,6 @@ squadrons:
       aircraft:
         - KC-135 Stratotanker
       size: 3
-    - primary: Refueling
-      aircraft:
-        - KC-135 Stratotanker MPRS
-      size: 2
-    - primary: Strike
-      secondary: any
-      aircraft:
-        - B-1B Lancer
-      size: 4
     - primary: BARCAP
       secondary: any
       aircraft:
@@ -73,7 +66,7 @@ squadrons:
       aircraft:
         - F-22A Raptor
       size: 8
-  # Al Minhad: suppression and deep strike.
+  # Al Minhad: suppression, deep strike and the probe-and-drogue tankers.
   Al Minhad AFB:
     - primary: SEAD
       secondary: any
@@ -85,8 +78,17 @@ squadrons:
       aircraft:
         - F-15E Strike Eagle (Suite 4+)
       size: 12
-  # Al Ain: the Hercules.
+    - primary: Refueling
+      aircraft:
+        - KC-135 Stratotanker MPRS
+      size: 2
+  # Al Ain: the bombers and the Hercules.
   Al Ain Intl:
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - B-1B Lancer
+      size: 3
     - primary: Transport
       aircraft:
         - C-130J-30
@@ -97,8 +99,8 @@ squadrons:
       secondary: any
       aircraft:
         - CH-47F Block I
-      size: 4
-  # The carrier in the Gulf of Oman, kept to about 36 jets.
+      size: 3
+  # The carrier in the Gulf of Oman, kept to about 30 jets.
   ER-CVN:
     - primary: BARCAP
       secondary: any
@@ -119,7 +121,7 @@ squadrons:
       aircraft:
         - E-2D Advanced Hawkeye
       size: 2
-  # The LHA: the Marines' Harriers, Cobras and Super Stallions.
+  # The LHA: the Marines' Harriers, Cobras, Super Stallions and the Army's Black Hawks.
   ER-LHA:
     - primary: CAS
       secondary: any
@@ -136,20 +138,20 @@ squadrons:
       aircraft:
         - CH-53E
       size: 4
-  # Jask: the Army's helicopters on the beachhead.
-  Bandar-e-Jask:
-    - primary: CAS
-      secondary: any
-      aircraft:
-        - AH-64D Apache Longbow
-      size: 6
     - primary: Air Assault
       secondary: any
       aircraft:
         - UH-60L
       size: 4
+  # Jask: the Apaches on the beachhead.
+  Bandar-e-Jask:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - AH-64D Apache Longbow
+      size: 2
   # ============================== Iran ==============================
-  # Kerman: two Tomcat squadrons, the Fulcrums, the A-50 and the tanker.
+  # Kerman: nearly the whole air force, the A-50 and the tanker.
   Kerman:
     - primary: BARCAP
       secondary: air-to-air
@@ -160,12 +162,18 @@ squadrons:
       secondary: air-to-air
       aircraft:
         - F-14A Tomcat (Block 95-GR Export)
-      size: 10
+      size: 8
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - MiG-29A Fulcrum-A
-      size: 12
+      size: 10
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - IRIAF 61 TFS
+      aircraft_type: F-4E Phantom II
+      size: 10
     - primary: AEW&C
       aircraft:
         - A-50
@@ -174,26 +182,20 @@ squadrons:
       aircraft:
         - IL-78M
       size: 1
-  # Jiroft: the valley's Fulcrums and the Phantoms that strike the beachhead.
+  # Jiroft: three Fulcrums on alert for the valley.
   Jiroft:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - MiG-29A Fulcrum-A
-      size: 12
-    - primary: Strike
-      secondary: any
-      aircraft:
-        - IRIAF 61 TFS
-      aircraft_type: F-4E Phantom II
-      size: 10
+      size: 3
   # Lar: the Tomcats across the mountains.
   Lar:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - F-14A Tomcat (Block 95-GR Export)
-      size: 10
+      size: 5
   # The forward bases: the Havocs.
   FOB Minab:
     - primary: CAS
