@@ -1,0 +1,1 @@
+* **[Campaign]** An unrescued pilot is taken prisoner only in enemy territory and within the new capture radius (default 30 NM) of the nearest enemy base; anyone else is missing in action. Before, the nearest enemy base anywhere on the map held them. Adopted from upstream #929.

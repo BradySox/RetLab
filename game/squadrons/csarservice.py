@@ -192,15 +192,23 @@ class CsarService:
     def _nearest_enemy_control_point(
         self, downed: DownedPilot
     ) -> Optional[ControlPoint]:
-        """The enemy base that would have picked this pilot up."""
-        enemy = [
-            cp
-            for cp in self.game.theater.controlpoints
-            if not cp.is_friendly(downed.player)
-        ]
-        if not enemy:
+        """The enemy base that took this pilot prisoner, if any did.
+
+        Only a pilot in enemy territory and within csar_capture_radius of that
+        base is captured; anyone else is missing. Without the distance test every
+        unrescued pilot was held by the nearest enemy base, however far away
+        (upstream #929, 12e340f7).
+        """
+        radius = nautical_miles(self.game.settings.csar_capture_radius)
+        if radius.meters <= 0:
             return None
-        return min(enemy, key=lambda cp: cp.position.distance_to_point(downed.position))
+
+        nearest = self.game.theater.closest_control_point(downed.position)
+        if nearest.is_friendly(downed.player):
+            return None
+        if nearest.position.distance_to_point(downed.position) > radius.meters:
+            return None
+        return nearest
 
     def liberate_prisoners_at(self, control_point: ControlPoint) -> None:
         """Frees any pilots held at a control point that has just changed hands.

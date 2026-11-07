@@ -29,6 +29,7 @@ from game.sim.missionresultsprocessor import MissionResultsProcessor
 from game.squadrons.csarservice import CsarService
 from game.squadrons.downedpilot import DownedPilot
 from game.squadrons.pilot import Pilot, PilotStatus
+from game.utils import nautical_miles
 
 
 @pytest.fixture(autouse=True)
@@ -199,6 +200,7 @@ def _make_game(**settings: Any) -> Any:
         # Off unless a test is exercising it, so the rest keep placing pilots on
         # the map rather than resolving them against a mocked control point.
         csar_control_point_radius=0,
+        csar_capture_radius=30,
         csar_survival_turns=3,
         csar_survival_turns_hostile=2,
         csar_ai_recovery_turns=2,
@@ -383,33 +385,49 @@ def _control_point(name: str, friendly_to_blue: bool, x: float) -> Any:
     return cp
 
 
-def test_unrescued_pilot_is_held_at_the_nearest_enemy_base() -> None:
-    """A pilot who times out is taken prisoner by whoever was closest, so the
-    campaign has somewhere to send a rescue in the form of a ground offensive."""
-    game = _make_game()
-    near_enemy = _control_point("Krymsk", friendly_to_blue=False, x=1000.0)
-    far_enemy = _control_point("Anapa", friendly_to_blue=False, x=90000.0)
-    friendly = _control_point("Batumi", friendly_to_blue=True, x=500.0)
-    game.theater.controlpoints = [far_enemy, friendly, near_enemy]
-
+def _expire_near(game: Any, control_point: Any, distance_meters: float) -> DownedPilot:
+    """Times a downed pilot out with the nearest base the given distance away."""
+    control_point.position.distance_to_point = MagicMock(return_value=distance_meters)
+    game.theater.closest_control_point.return_value = control_point
     downed = _standalone_downed()
     downed._position = Point(0.0, 0.0, _TERRAIN)
     downed.pilot.go_down()
     CsarService(game).go_mia(downed)
+    return downed
+
+
+def test_unrescued_pilot_in_enemy_territory_is_taken_prisoner() -> None:
+    game = _make_game()
+    captor = _control_point("Krymsk", friendly_to_blue=False, x=1000.0)
+    downed = _expire_near(game, captor, distance_meters=1000.0)
 
     assert downed.pilot.missing_in_action
-    # Nearest *enemy* base, not the nearest base outright.
-    assert downed.pilot.held_at == near_enemy.id
+    assert downed.pilot.held_at == captor.id
 
 
-def test_pilot_with_no_enemy_bases_is_simply_missing() -> None:
+def test_unrescued_pilot_beyond_the_capture_radius_is_simply_missing() -> None:
+    """Every expired pilot used to be held by the nearest enemy base, however far."""
+    game = _make_game(csar_capture_radius=30)
+    captor = _control_point("Krymsk", friendly_to_blue=False, x=1000.0)
+    downed = _expire_near(game, captor, distance_meters=nautical_miles(30).meters + 1)
+
+    assert downed.pilot.missing_in_action
+    assert downed.pilot.held_at is None
+
+
+def test_unrescued_pilot_in_friendly_territory_is_simply_missing() -> None:
     game = _make_game()
-    game.theater.controlpoints = [_control_point("Batumi", True, 500.0)]
+    friendly = _control_point("Batumi", friendly_to_blue=True, x=500.0)
+    downed = _expire_near(game, friendly, distance_meters=500.0)
 
-    downed = _standalone_downed()
-    downed._position = Point(0.0, 0.0, _TERRAIN)
-    downed.pilot.go_down()
-    CsarService(game).go_mia(downed)
+    assert downed.pilot.missing_in_action
+    assert downed.pilot.held_at is None
+
+
+def test_zero_capture_radius_never_takes_prisoners() -> None:
+    game = _make_game(csar_capture_radius=0)
+    captor = _control_point("Krymsk", friendly_to_blue=False, x=0.0)
+    downed = _expire_near(game, captor, distance_meters=0.0)
 
     assert downed.pilot.missing_in_action
     assert downed.pilot.held_at is None

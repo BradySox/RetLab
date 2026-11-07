@@ -103,6 +103,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "csar_enabled_red",
                     "csar_ejection_chance",
                     "csar_control_point_radius",
+                    "csar_capture_radius",
                     "csar_cluster_radius",
                     "csar_survival_turns",
                     "csar_survival_turns_hostile",
