@@ -1,8 +1,8 @@
 """Persian Gulf - Eastern Reach 2025 laydown guards.
 
 A fictional 2025 war: the Marines hold Bandar-e-Jask and drive up the
-Minab-Kahnuj-Jiroft highway to Kerman. Built from the map by
-``tools/build_eastern_reach_miz.py``.
+Minab-Kahnuj-Jiroft highway to Kerman. The .miz is the DM's Mission Editor
+save; edit it there.
 
 What these pin is what fails silently:
 

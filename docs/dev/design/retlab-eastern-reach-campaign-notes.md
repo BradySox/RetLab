@@ -8,7 +8,7 @@ Owner: this note. CI lock: `tests/retlab/test_eastern_reach_2025.py`.
 | | |
 |---|---|
 | Files | `resources/campaigns/eastern_reach_2025.yaml` + `.miz` |
-| Build tool | `python tools/build_eastern_reach_miz.py --template <Arabian_SAM_Template.miz>` — **never hand-edit the `.miz`** |
+| Source | The `.miz` is the DM's Mission Editor save (2026-11-07). **Edit it in the ME**; the build tool that made the first cut (`tools/build_eastern_reach_miz.py`, on the placement tool) was dropped before merge; it is in PR #1461's commits |
 | Placement | `tools/campaign_placement.py`; the readings cache is `Saved Games\DCS\RetLab placement\PersianGulf.json` |
 | Factions | `USA 2020` (stock + CurrentHill USA + F-15EX V3), `[CH] Iran 2025` (CurrentHill Iran + RetLab Iran Air Defense Pack) |
 | Checklist row | B317 |
@@ -54,7 +54,13 @@ east end of the map, inland, with every deep strike 300 NM or more from the UAE 
 Win: take Kerman. Lose: lose Jask. `max_mission_range_planes` is 420 (Al Dhafra to Kerman
 is 383 NM).
 
-## How the .miz is built
+## How the .miz was built
+
+The DM moved 25 of the 85 placed units in the Mission Editor before the merge: Jiroft's
+command post 8.4 km, the Kerman EWRs 8 and 21 km, the Jebal Barez SAM 6.2 km, the Minab
+EWR 4.3 km, Kerman's first missile site 5.9 km, and the rest of Jiroft and Kahnuj under
+1-3 km. His save is the source from then on.
+
 
 - The map, coalitions and weather come from `operation_noisy_cricket.miz`; every group and
   zone in it is stripped.
