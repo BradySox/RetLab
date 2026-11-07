@@ -113,6 +113,9 @@ def _faction(path: str, ticked: bool) -> Faction:
     [
         ("resources/factions/usa_2020.json", {"F-15EX Eagle II (CFTs)"}),
         ("resources/factions/israel_2017.json", {"F-15IA Eagle II"}),
+        ("resources/factions/nato_baltic_2027.json", {"F-15EX Eagle II (CFTs)"}),
+        ("resources/factions/blufor_current.json", {"F-15EX Eagle II (CFTs)"}),
+        ("resources/factions/wrl_taskforceblue.json", {"F-15EX Eagle II (CFTs)"}),
         (
             "resources/factions/bluefor_modern.json",
             {"F-15EX Eagle II (CFTs)", "F-15IA Eagle II"},

@@ -7,7 +7,7 @@ Built 2026-11-06. Off unless **F-15EX V3 (Spino v3.0)** is ticked in New Game.
 
 | DCS id | RetLab name | Factions |
 |---|---|---|
-| `F15EX_CFT` | F-15EX Eagle II (CFTs) | USA 2020, Bluefor Modern |
+| `F15EX_CFT` | F-15EX Eagle II (CFTs) | USA 2020, Bluefor Modern, Blufor Current, NATO Baltic 2027, WRL - Task Force Blue |
 | `F15IA` | F-15IA Eagle II | Israel 2017, Bluefor Modern |
 
 - The mod's non-CFT `F15EX` is left out of RetLab (Brady's call, 2026-11-06). It only
