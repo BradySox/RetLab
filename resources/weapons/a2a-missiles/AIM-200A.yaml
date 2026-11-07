@@ -5,7 +5,7 @@ name: AIM-200A
 year: 2027
 fallback: AIM-260A
 clsids:
-  - "{F15EX_AIM-200A_CFT_F}"   # AIM-200A - Active Radar AAM (CFT F)
-  - "{F15EX_AIM-200A_CFT_A}"   # AIM-200A - Active Radar AAM (CFT A)
-  - "{F15EX_AIM-200A_CFT_RA}"   # AIM-200A - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-200A_CFT_F}"   # AIM-200A - Active Radar AAM (conformal front)
+  - "{F15EX_AIM-200A_CFT_A}"   # AIM-200A - Active Radar AAM (conformal aft)
+  - "{F15EX_AIM-200A_CFT_RA}"   # AIM-200A - Active Radar AAM (conformal right aft)
   - "{AIM200-4XRACK}"   # BRU-61C - 4 x AIM-200A - Active Radar AAM

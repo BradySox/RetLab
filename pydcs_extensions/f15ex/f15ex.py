@@ -104,17 +104,17 @@ class WeaponsF15EX:
     }
     F15EX_AIM_120C_5_CFT_A = {
         "clsid": "{F15EX_AIM-120C-5_CFT_A}",
-        "name": "AIM-120C AMRAAM - Active Radar AAM (CFT A)",
+        "name": "AIM-120C AMRAAM - Active Radar AAM (conformal aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_5_CFT_F = {
         "clsid": "{F15EX_AIM-120C-5_CFT_F}",
-        "name": "AIM-120C AMRAAM - Active Radar AAM (CFT F)",
+        "name": "AIM-120C AMRAAM - Active Radar AAM (conformal front)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_5_CFT_RA = {
         "clsid": "{F15EX_AIM-120C-5_CFT_RA}",
-        "name": "AIM-120C AMRAAM - Active Radar AAM (CFT RA)",
+        "name": "AIM-120C AMRAAM - Active Radar AAM (conformal right aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_5_STA11A = {
@@ -139,17 +139,17 @@ class WeaponsF15EX:
     }
     F15EX_AIM_120C_7_CFT_A = {
         "clsid": "{F15EX_AIM-120C-7_CFT_A}",
-        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (CFT A)",
+        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (conformal aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_7_CFT_F = {
         "clsid": "{F15EX_AIM-120C-7_CFT_F}",
-        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (CFT F)",
+        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (conformal front)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_7_CFT_RA = {
         "clsid": "{F15EX_AIM-120C-7_CFT_RA}",
-        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (CFT RA)",
+        "name": "AIM-120C-7 AMRAAM - Active Radar AAM (conformal right aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120C_7_STA11A = {
@@ -174,17 +174,17 @@ class WeaponsF15EX:
     }
     F15EX_AIM_120C_8_CFT_A = {
         "clsid": "{F15EX_AIM-120C-8_CFT_A}",
-        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (CFT A)",
+        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (conformal aft)",
         "weight": 166.7241,
     }
     F15EX_AIM_120C_8_CFT_F = {
         "clsid": "{F15EX_AIM-120C-8_CFT_F}",
-        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (CFT F)",
+        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (conformal front)",
         "weight": 166.7241,
     }
     F15EX_AIM_120C_8_CFT_RA = {
         "clsid": "{F15EX_AIM-120C-8_CFT_RA}",
-        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (CFT RA)",
+        "name": "AIM-120C-8 AMRAAM - Active Radar AAM (conformal right aft)",
         "weight": 166.7241,
     }
     F15EX_AIM_120C_8_STA11A = {
@@ -209,17 +209,17 @@ class WeaponsF15EX:
     }
     F15EX_AIM_120D_3_CFT_A = {
         "clsid": "{F15EX_AIM-120D-3_CFT_A}",
-        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (CFT A)",
+        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (conformal aft)",
         "weight": 165.0,
     }
     F15EX_AIM_120D_3_CFT_F = {
         "clsid": "{F15EX_AIM-120D-3_CFT_F}",
-        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (CFT F)",
+        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (conformal front)",
         "weight": 165.0,
     }
     F15EX_AIM_120D_3_CFT_RA = {
         "clsid": "{F15EX_AIM-120D-3_CFT_RA}",
-        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (CFT RA)",
+        "name": "AIM-120D-3 AMRAAM - Active Radar AAM (conformal right aft)",
         "weight": 165.0,
     }
     F15EX_AIM_120D_3_STA11A = {
@@ -244,17 +244,17 @@ class WeaponsF15EX:
     }
     F15EX_AIM_120D_CFT_A = {
         "clsid": "{F15EX_AIM-120D_CFT_A}",
-        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (CFT A)",
+        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (conformal aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120D_CFT_F = {
         "clsid": "{F15EX_AIM-120D_CFT_F}",
-        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (CFT F)",
+        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (conformal front)",
         "weight": 161.48,
     }
     F15EX_AIM_120D_CFT_RA = {
         "clsid": "{F15EX_AIM-120D_CFT_RA}",
-        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (CFT RA)",
+        "name": "AIM-120D P3I AMRAAM - Active Radar AAM (conformal right aft)",
         "weight": 161.48,
     }
     F15EX_AIM_120D_STA11A = {
@@ -279,7 +279,7 @@ class WeaponsF15EX:
     }
     F15EX_AIM_174B_CFT = {
         "clsid": "{F15EX_AIM-174B_CFT}",
-        "name": "AIM-174B Gunslinger - Active Radar ULRAAM (CFT)",
+        "name": "AIM-174B Gunslinger - Active Radar ULRAAM (conformal)",
         "weight": 860.0,
     }
     F15EX_AIM_174B = {
@@ -289,32 +289,32 @@ class WeaponsF15EX:
     }
     F15EX_AIM_200A_CFT_A = {
         "clsid": "{F15EX_AIM-200A_CFT_A}",
-        "name": "AIM-200A - Active Radar AAM (CFT A)",
+        "name": "AIM-200A - Active Radar AAM (conformal aft)",
         "weight": 157.85,
     }
     F15EX_AIM_200A_CFT_F = {
         "clsid": "{F15EX_AIM-200A_CFT_F}",
-        "name": "AIM-200A - Active Radar AAM (CFT F)",
+        "name": "AIM-200A - Active Radar AAM (conformal front)",
         "weight": 157.85,
     }
     F15EX_AIM_200A_CFT_RA = {
         "clsid": "{F15EX_AIM-200A_CFT_RA}",
-        "name": "AIM-200A - Active Radar AAM (CFT RA)",
+        "name": "AIM-200A - Active Radar AAM (conformal right aft)",
         "weight": 157.85,
     }
     F15EX_AIM_260A_CFT_A = {
         "clsid": "{F15EX_AIM-260A_CFT_A}",
-        "name": "AIM-260A - Active Radar AAM (CFT A)",
+        "name": "AIM-260A - Active Radar AAM (conformal aft)",
         "weight": 160.0,
     }
     F15EX_AIM_260A_CFT_F = {
         "clsid": "{F15EX_AIM-260A_CFT_F}",
-        "name": "AIM-260A - Active Radar AAM (CFT F)",
+        "name": "AIM-260A - Active Radar AAM (conformal front)",
         "weight": 160.0,
     }
     F15EX_AIM_260A_CFT_RA = {
         "clsid": "{F15EX_AIM-260A_CFT_RA}",
-        "name": "AIM-260A - Active Radar AAM (CFT RA)",
+        "name": "AIM-260A - Active Radar AAM (conformal right aft)",
         "weight": 160.0,
     }
     F15EX_AIM_260A_STA11A = {
