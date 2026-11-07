@@ -24,6 +24,7 @@ from tools.campaign_placement import (
     parse_probe_output,
     point_id,
     probe_config,
+    read_miz,
     write_review_map,
 )
 
@@ -171,3 +172,11 @@ def test_the_review_map_escapes_names(tmp_path: Path) -> None:
     )
     text = page.read_text(encoding="utf-8")
     assert "&lt;SAM&gt;" in text and "<SAM>" not in text
+
+
+def test_drawn_sites_and_route_markers_are_not_checked() -> None:
+    _, units = read_miz(Path("resources/campaigns/fulda_gap_1985.miz"))
+    drawn = {u.group for u in units if u.drawn}
+    assert any(name.startswith("FIXED") for name in drawn)
+    assert any("Road" in name for name in drawn)
+    assert "CF85-Spangdahlem-Ammo" not in drawn
