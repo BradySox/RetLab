@@ -1138,21 +1138,19 @@ class GenericCarrierGenerator(GroundObjectGenerator):
         """Carrier TACAN.
 
         A channel the user chose in the base dialog (``tacan_is_auto`` False)
-        always wins. An *auto*-assigned channel is re-derived so the curated
-        card can supersede a value an earlier (pre-curation) turn persisted --
-        an in-progress campaign whose carrier already carried the old
-        first-free ``1X`` + random ident would otherwise keep that junk forever,
-        since the pre-curation generator persisted the TACAN (but not the ATC /
-        ICLS / Link 4, which is why only TACAN stuck). Falls back to the legacy
-        allocator + random ident when the hull has no curated plan. ``True`` is
-        the getattr default so a legacy pickle without the flag is treated as
-        auto (re-derivable), not as a user choice.
+        always wins. A curated hull's *auto* channel is re-derived each mission,
+        so the card supersedes a value a pre-curation turn persisted (the old
+        first-free ``1X`` + random ident). A hull with no curated card keeps its
+        first channel and ident: re-deriving there re-rolled the ident every
+        turn. ``True`` is the getattr default, so a legacy pickle without the
+        flag counts as auto, not as a user choice. ``keeps_stored_tacan``
+        (missiongenerator.py) reserves exactly the channels kept here.
         """
         stored = self.control_point.tacan
         user_chosen = stored is not None and not getattr(
             self.control_point, "tacan_is_auto", True
         )
-        if stored is not None and user_chosen:
+        if stored is not None and (user_chosen or comms is None):
             tacan = stored
             tacan_callsign = self.control_point.tcn_name
             if tacan_callsign is None:

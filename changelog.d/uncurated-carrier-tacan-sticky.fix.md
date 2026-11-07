@@ -1,0 +1,1 @@
+* **[Mission Generation]** A carrier with no curated comms card (the Vietnam War Vessels carriers, Vinson, Invincible, 25 de Mayo, Bennington, Type 071, Canberra, Juan Carlos) keeps the same TACAN channel and ident every mission instead of a new random ident each turn.

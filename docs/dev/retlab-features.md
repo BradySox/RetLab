@@ -6561,8 +6561,9 @@ number** where that's legal for a surface transmit/receive beacon (channels 2–
 are excluded by DCS datalink constraints, so Forrestal 59 → 64X and Tarawa hull 1 → 41X) with
 a **boat-name ident** (TRO/ABE/GWN/STN/HST/FID/TAR/KUZ), **hull-keyed ICLS** (CVN-71 → 11 …
 CVN-75 → 15, Forrestal 9, Tarawa 1), **Link 4 at 320.1–320.9 MHz** (one per hull), and a
-**stable ATC UHF** (304–312, one per hull). Mod carriers without an
-entry keep the legacy allocator path end to end.
+**stable ATC UHF** (304–312, one per hull). A hull without an entry (`VINSON`, Invincible,
+25 de Mayo, Bennington, Type 071, Canberra, Juan Carlos, the VWV carriers) gets the legacy
+allocator once, then keeps that TACAN channel and ident for the campaign.
 
 **Link 4 moved out of the 336 MHz band 2026-10-10.** The F-14's Data Link Control Panel
 dials 300.0–324.9 MHz only (Heatblur manual), so a Tomcat could not tune the 336.1–336.9
@@ -6589,9 +6590,13 @@ value is persisted back to the control point** (`frequency`, `tacan`, `tcn_name`
 `icls_channel`) so the whole card is stable across turns — ATC, Link 4, and ICLS previously
 re-rolled or re-allocated every mission.
 The mission generator's up-front TACAN reservation (`keeps_stored_tacan`, `missiongenerator.py`)
-skips a carrier's *auto* channel, since `_resolve_tacan` re-derives it: reserving it made the
-boat walk off its own last value, so where the map owns the hull channel it flipped every
-generation (CVN-71 on Persian Gulf, 69X/72X; test 47, 2026-09-29, row B156).
+skips a curated carrier's *auto* channel, since `_resolve_tacan` re-derives it: reserving it
+made the boat walk off its own last value, so where the map owns the hull channel it flipped
+every generation (CVN-71 on Persian Gulf, 69X/72X; test 47, 2026-09-29, row B156).
+A hull with no curated card is the other way round: `_resolve_tacan` keeps its first auto
+channel and ident, and `keeps_stored_tacan` reserves that channel. Re-deriving it re-rolled the
+random ident every turn (the VWV Enterprise on 1968 Yankee Station read 1X GER, 1X TRU,
+1X ACC …), a regression from the carried-save gate (#619) found in the 2026-11-07 recheck.
 
 **Flagship naming.** The page's Callsign line prints the flagship's *unit name*, so
 `_flagship_name` names the carrier unit by its hull name ("CVN-74 John C. Stennis") instead
@@ -6632,10 +6637,12 @@ so an in-progress campaign keeps its known numbers).
 **Tests.** `tests/test_carrier_comms.py`: table invariants (unique TACAN/ATC/ICLS/Link 4,
 T/R-legal channels, Link 4 inside the F-14's band, 3-letter idents, ACLS-capable hulls carry full deck
 data), the `IclsAllocator`, the curated → stored → fallback precedence for all four
-resolvers, the nearest-neighbor TACAN degrade, and the flagship-name collision guard.
+resolvers, the nearest-neighbor TACAN degrade, the flagship-name collision guard, and a
+no-card hull keeping one TACAN channel and ident over six generations.
 
 **In-game pass DONE** (checklist B18): that the CV Operations Data page renders the
-curated card (clean Callsign line, 7XX TACAN, 336-band Link 4), and that the boat's TACAN /
+curated card (clean Callsign line, 7XX TACAN, Link 4 then still at 336; the 320 move is row
+B213), and that the boat's TACAN /
 ICLS / Link 4 actually radiate on those channels for a Hornet/Tomcat recovery.
 
 ---

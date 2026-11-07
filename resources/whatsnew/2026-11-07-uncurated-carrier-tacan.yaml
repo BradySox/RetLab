@@ -1,0 +1,14 @@
+date: 2026-11-07
+title: Every carrier keeps one TACAN
+change: >-
+  A carrier with no curated comms card kept its TACAN channel but drew a
+  new random ident every mission (1X GER, then 1X TRU, then 1X ACC). It
+  now keeps the channel and ident it first gets for the whole campaign.
+  This covers the Vietnam War Vessels carriers on 1968 Yankee Station and
+  the Vinson, Invincible, 25 de Mayo, Bennington, Type 071, Canberra and
+  Juan Carlos. Curated carriers such as the Roosevelt and Stennis are
+  unchanged.
+watch: >-
+  On 1968 Yankee Station, the CV Operations Data kneeboard page shows the
+  same TACAN channel and three-letter ident for the VWV carrier on every
+  turn.
