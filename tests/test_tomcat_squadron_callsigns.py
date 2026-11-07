@@ -24,7 +24,7 @@ TOMCAT_FILES = sorted(
 
 
 def test_the_tomcat_squadron_files_are_found() -> None:
-    assert len(TOMCAT_FILES) == 18
+    assert len(TOMCAT_FILES) == 45
 
 
 @pytest.mark.parametrize(

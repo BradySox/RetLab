@@ -1,0 +1,1 @@
+* **[Squadrons]** About 220 new squadron presets for real units whose paint ships with DCS, among them the F-100D, P-51D, F4U-1D, early F-14A, JF-17 and J-11A, which had none, and 34 presets gain their unit's other stock tail-number skins.

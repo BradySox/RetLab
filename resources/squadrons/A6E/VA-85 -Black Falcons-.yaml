@@ -4,6 +4,7 @@ nickname: Black Falcons
 country: USA
 role: Carrier-based Attack
 aircraft: A-6E Intruder
+livery: "VA85-505-1991"
 mission_types:
   - Anti-ship
   - BAI

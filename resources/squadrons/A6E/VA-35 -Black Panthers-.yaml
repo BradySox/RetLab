@@ -4,6 +4,7 @@ nickname: Black Panthers
 country: USA
 role: Carrier-based Attack
 aircraft: A-6E Intruder
+livery: "VA35-500-1977"
 mission_types:
   - Anti-ship
   - BAI
