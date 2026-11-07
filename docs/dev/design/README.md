@@ -66,6 +66,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (§94; the `aiReactionExempt`
   protocol any plugin setting reaction-on-threat must use), `retlab-ai-fill-notes.md`
   (§113; the AI twin of an empty player flight, row B234)
+- **Squadron presets** — `retlab-stock-livery-squadrons-notes.md` (presets for stock DCS
+  liveries: what counts as useful, the Tomcat set rules, `tools/stock_livery_survey.py`)
 - **F-15EX V3 mod** — `retlab-f15ex-v3-mod-notes.md` (the two supported jets, their
   loadouts, how the store ids were read, row B315)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract

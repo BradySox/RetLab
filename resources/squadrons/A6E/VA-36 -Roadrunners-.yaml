@@ -4,6 +4,7 @@ nickname: Roadrunners
 country: USA
 role: Carrier-based Attack
 aircraft: A-6E Intruder
+livery: "VA36-530-1992"
 mission_types:
   - Anti-ship
   - BAI

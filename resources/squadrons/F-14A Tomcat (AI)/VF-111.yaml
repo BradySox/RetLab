@@ -1,0 +1,10 @@
+---
+name: "VF-111"
+nickname: "Sundowners"
+callsign: Sundowner
+country: USA
+role: Fleet Defense Fighter
+aircraft: "F-14A Tomcat (AI)"
+livery_set:
+  - "vf-111 `sundowners`- 1"
+  - "vf-111 `sundowners`- 2"
