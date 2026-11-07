@@ -1,6 +1,6 @@
-# AIM-260A (JATM), shipped by the F-22A pack. Dated at its projected IOC; no
-# stock or fork payload frags it today, so this only date-gates what the payload
-# editor offers. Falls back to AIM-120D.
+# AIM-260A (JATM), shipped by the F-22A and F-15EX V3 packs. Dated at its
+# projected IOC; the F-22A and F-15EX (CFTs) fits that carry it fall back to
+# AIM-120D before 2026 when weapons are restricted by date.
 name: AIM-260A
 year: 2026
 fallback: AIM-120D
@@ -9,3 +9,12 @@ clsids:
   - "{AIM_260A_IRST_LEFT}"   # AIM-260A - Active Radar AAM + IRST POD
   - "{AIM_260A_IRST_RIGHT}"   # AIM-260A - Active Radar AAM + IRST POD
   - "{LAU_115_2xAIM-260A}"   # 2x AIM-260A - Active Radar AAM
+  - "{AMBER_2xAIM260A}"   # AMBER 2x AIM-260A - Active Radar AAM
+  - "{F15EX_2xAIM-260A}"   # 2x AIM-260A - Active Radar AAM
+  - "{F15EX_AIM-260A_CFT_A}"   # AIM-260A - Active Radar AAM (CFT A)
+  - "{F15EX_AIM-260A_CFT_F}"   # AIM-260A - Active Radar AAM (CFT F)
+  - "{F15EX_AIM-260A_CFT_RA}"   # AIM-260A - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-260A_STA11A}"   # AIM-260A - Active Radar AAM (STA11A)
+  - "{F15EX_AIM-260A_STA11B}"   # AIM-260A - Active Radar AAM (STA11B)
+  - "{F15EX_AIM-260A_STA2A}"   # AIM-260A - Active Radar AAM (STA2A)
+  - "{F15EX_AIM-260A_STA2B}"   # AIM-260A - Active Radar AAM (STA2B)

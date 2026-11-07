@@ -1,0 +1,8 @@
+# AIM-174B Gunslinger (SM-6 air-launched), shipped by the F-15EX V3 pack. In no
+# shipped fit; registered so a hand-load is date-gated. US Navy IOC 2024.
+name: AIM-174B
+year: 2024
+fallback: AIM-120D
+clsids:
+  - "{F15EX_AIM-174B}"   # AIM-174B Gunslinger - Active Radar ULRAAM
+  - "{F15EX_AIM-174B_CFT}"   # AIM-174B Gunslinger - Active Radar ULRAAM (CFT)

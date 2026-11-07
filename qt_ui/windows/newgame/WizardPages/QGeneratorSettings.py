@@ -42,6 +42,8 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.registerField("fa_18efg", self.fa_18efg)
         self.fa18ef_tanker = QtWidgets.QCheckBox()
         self.registerField("fa18ef_tanker", self.fa18ef_tanker)
+        self.f15ex_v3 = QtWidgets.QCheckBox()
+        self.registerField("f15ex_v3", self.f15ex_v3)
         self.f22_raptor = QtWidgets.QCheckBox()
         self.registerField("f22_raptor", self.f22_raptor)
         self.f111c = QtWidgets.QCheckBox()
@@ -89,6 +91,7 @@ class GeneratorOptions(QtWidgets.QWizardPage):
                 "Expanded F-4E Weapons Pack (DSplayer v1.0.11+)",
                 self.f4e_expanded_weapons,
             ),
+            ("F-15EX V3 (Spino v3.0)", self.f15ex_v3),
             ("F-22A Raptor (v2.1.0)", self.f22_raptor),
             ("F-111C Aardvark (Warpig Production v2.260208)", self.f111c),
             ("JAS 39 Gripen (v1.8.5-beta)", self.jas39_gripen),
@@ -249,6 +252,7 @@ class GeneratorOptions(QtWidgets.QWizardPage):
         self.ukrainemilitaryassetspack.setChecked(
             s.get("ukrainemilitaryassetspack", False)
         )
+        self.f15ex_v3.setChecked(s.get("f15ex_v3", False))
         self.f22_raptor.setChecked(s.get("f22_raptor", False))
         self.f111c.setChecked(s.get("f111c", False))
         self.f4e_expanded_weapons.setChecked(s.get("f4e_expanded_weapons", False))

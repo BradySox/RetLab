@@ -64,6 +64,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **AI behaviour** — `retlab-ai-threat-reaction-notes.md` (§94; the `aiReactionExempt`
   protocol any plugin setting reaction-on-threat must use), `retlab-ai-fill-notes.md`
   (§113; the AI twin of an empty player flight, row B234)
+- **F-15EX V3 mod** — `retlab-f15ex-v3-mod-notes.md` (the two supported jets, their
+  loadouts, how the store ids were read, row B315)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract
   and numbers), `retlab-iran-air-defense-pack-HANDOFF.md` (the private pack's local build)
 - **Neutral factions** — `retlab-neutral-border-defense-notes.md` (§98; why a true neutral
