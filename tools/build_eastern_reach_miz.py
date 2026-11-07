@@ -14,33 +14,34 @@ What it writes:
     holds Jiroft, Kerman and Lar. Every other field is neutral.
 2.  **The valley.** Four red FOBs on the highway (Sirik, Minab, Kahnuj, the Jebal
     Barez pass) and six roads drawn on the real highway, every waypoint On Road.
-3.  **The sea.** A carrier, an LHA and an escort in the Gulf of Oman, Silkworm sites
-    on the Sirik coast and two IRGCN boat groups off it.
-4.  **The land.** SAM, EWR, AAA and garrison markers per base; command posts at
-    Jiroft and Kerman; missile sites in the hills; depots, factories and power.
-
-Every land marker is inside a landmap inclusion zone and outside every exclusion
-zone, at least 3.4 km from an airfield's centre, and apart from every other
-marker. Every sea position is checked to be off land.
+3.  **The land.** Every marker is placed by its job with ``tools/campaign_placement.py``
+    on ground DCS has read. The first build writes a check mission to run once.
+4.  **UAE batteries.** Four sites from the freeware Arabian SAM Template at Al Dhafra,
+    Al Minhad and Fujairah, copied as drawn as FIXED groups.
+5.  **The sea.** A carrier, an LHA and an escort in the Gulf of Oman, and two IRGCN
+    boat groups off the Sirik coast.
 
 Run from the repo root::
 
-    python tools/build_eastern_reach_miz.py
+    python tools/build_eastern_reach_miz.py [--template <Arabian_SAM_Template.miz>]
 
 Never hand-edit ``eastern_reach_2025.miz``.
 """
 
 from __future__ import annotations
 
+import argparse
 import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Optional
 
 from dcs import ships
 from dcs.mapping import LatLng, Point
 from dcs.mission import Mission
 from dcs.point import PointAction
 from dcs.statics import Fortification, Warehouse
+from dcs.unitgroup import VehicleGroup
 from dcs.vehicles import AirDefence, Armor, MissilesSS, Unarmed
 
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -48,10 +49,18 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from game.campaignloader.mizcampaignloader import MizCampaignLoader  # noqa: E402
+from tools.campaign_placement import (  # noqa: E402
+    Job,
+    NeedsCheck,
+    Placer,
+    placement_markers,
+    write_review_map,
+)
 
 SOURCE = _REPO_ROOT / "resources/campaigns/operation_noisy_cricket.miz"
 SOURCE_YAML = _REPO_ROOT / "resources/campaigns/operation_noisy_cricket.yaml"
 DEST = _REPO_ROOT / "resources/campaigns/eastern_reach_2025.miz"
+REVIEW_MAP = _REPO_ROOT / "tmp/eastern_reach_placement.html"
 
 BLUE_AIRFIELDS = (
     "Al Dhafra AFB",
@@ -71,7 +80,6 @@ EWR = AirDefence.x_1L13_EWR
 ARMOR = Armor.M_1_Abrams
 MISSILE = MissilesSS.Scud_B
 COASTAL = MissilesSS.hy_launcher
-BLUE_LORAD = AirDefence.Patriot_ln
 BLUE_SHORAD = AirDefence.M1097_Avenger
 FOB = Unarmed.SKP_11
 ROAD = Armor.M_113
@@ -79,8 +87,7 @@ ROAD = Armor.M_113
 RED_BLOCK = "red"
 BLUE_BLOCK = "blue"
 
-#: Red FOBs on the highway (name, lat, lon): each sits beside the real road,
-#: on clear land just outside its town.
+#: Red FOBs beside the real highway (name, lat, lon), each just outside its town.
 FOBS = (
     ("FOB Sirik", 26.5292, 57.1391),
     ("FOB Minab", 27.1501, 57.0880),
@@ -88,106 +95,144 @@ FOBS = (
     ("FOB Jebal Barez", 29.2902, 57.9948),
 )
 
-#: Named spots off the bases (name, lat, lon): radar heads on high ground,
-#: the missile hides in the hills and the Silkworm coast.
-SPOTS = {
-    "Kerman south ridge": (30.02, 56.88),
+#: Real towns (centre lat, lon) for command posts, power and comms (Job.TOWN),
+#: and named spots for the missile hides, the Silkworm coast and the pass (Job.SPOT).
+PLACES = {
+    "Kerman town": (30.2839, 57.0834),
+    "Jiroft town": (28.6751, 57.7380),
+    "Minab town": (27.1467, 57.0801),
+    "Kahnuj town": (27.9473, 57.7003),
     "Kerman east hills": (30.20, 57.30),
-    "Jiroft west range": (28.70, 57.42),
-    "Sardu hills": (29.15, 57.80),
+    "Kerman south ridge": (30.03, 56.88),
+    "Jiroft west range": (28.74, 57.50),
+    "Sardu hills": (29.18, 57.86),
     "Minab hills": (27.30, 57.30),
-    "Sirik coast north": (26.75, 57.02),
-    "Sirik coast south": (26.36, 57.12),
     "Bashagard hills": (26.55, 57.50),
-    "Lar ridge": (27.55, 54.30),
+    "Sirik coast north": (26.76, 57.05),
+    "Sirik coast south": (26.36, 57.12),
+    "Jebal Barez pass": (29.2887, 57.9934),
 }
 
-# (name, anchor, marker type, country block, placement). An anchor is an
-# airfield, a FOB or a named spot. "axis" puts a marker off the runway's ends,
-# "near" within 6 km, "ring" at the first clear spot outward.
-ADDED_MARKERS: tuple[tuple[str, str, Any, str, str], ...] = (
-    # Kerman: the long-range belt, the A-50's base, the regional HQ.
-    ("ER-Kerman-LORAD-1", "Kerman", LORAD, RED_BLOCK, "axis"),
-    ("ER-Kerman-LORAD-2", "Kerman east hills", LORAD, RED_BLOCK, "ring"),
-    ("ER-Kerman-MERAD", "Kerman south ridge", MERAD, RED_BLOCK, "ring"),
-    ("ER-Kerman-SHORAD-1", "Kerman", SHORAD, RED_BLOCK, "near"),
-    ("ER-Kerman-SHORAD-2", "Kerman", SHORAD, RED_BLOCK, "near"),
-    ("ER-Kerman-AAA-1", "Kerman", AAA, RED_BLOCK, "near"),
-    ("ER-Kerman-AAA-2", "Kerman", AAA, RED_BLOCK, "near"),
-    ("ER-Kerman-EWR", "Kerman south ridge", EWR, RED_BLOCK, "ring"),
-    ("ER-Kerman-Garrison-1", "Kerman", ARMOR, RED_BLOCK, "near"),
-    ("ER-Kerman-Garrison-2", "Kerman", ARMOR, RED_BLOCK, "near"),
-    ("ER-Kerman-Missiles-1", "Kerman east hills", MISSILE, RED_BLOCK, "ring"),
-    ("ER-Kerman-Missiles-2", "Kerman south ridge", MISSILE, RED_BLOCK, "ring"),
-    # Jiroft: the valley's air base and the IRGC's forward HQ.
-    ("ER-Jiroft-LORAD", "Jiroft", LORAD, RED_BLOCK, "axis"),
-    ("ER-Jiroft-MERAD", "Jiroft west range", MERAD, RED_BLOCK, "ring"),
-    ("ER-Jiroft-SHORAD-1", "Jiroft", SHORAD, RED_BLOCK, "near"),
-    ("ER-Jiroft-SHORAD-2", "Jiroft", SHORAD, RED_BLOCK, "near"),
-    ("ER-Jiroft-AAA-1", "Jiroft", AAA, RED_BLOCK, "near"),
-    ("ER-Jiroft-AAA-2", "Jiroft", AAA, RED_BLOCK, "near"),
-    ("ER-Jiroft-EWR", "Jiroft west range", EWR, RED_BLOCK, "ring"),
-    ("ER-Jiroft-Garrison-1", "Jiroft", ARMOR, RED_BLOCK, "near"),
-    ("ER-Jiroft-Garrison-2", "Jiroft", ARMOR, RED_BLOCK, "near"),
-    ("ER-Jiroft-Missiles", "Jiroft west range", MISSILE, RED_BLOCK, "ring"),
-    # The Jebal Barez pass.
-    ("ER-JebalBarez-MERAD", "Sardu hills", MERAD, RED_BLOCK, "ring"),
-    ("ER-JebalBarez-AAA", "FOB Jebal Barez", AAA, RED_BLOCK, "near"),
-    ("ER-JebalBarez-Garrison-1", "FOB Jebal Barez", ARMOR, RED_BLOCK, "near"),
-    ("ER-JebalBarez-Garrison-2", "FOB Jebal Barez", ARMOR, RED_BLOCK, "near"),
-    # Kahnuj.
-    ("ER-Kahnuj-SHORAD", "FOB Kahnuj", SHORAD, RED_BLOCK, "near"),
-    ("ER-Kahnuj-AAA", "FOB Kahnuj", AAA, RED_BLOCK, "near"),
-    ("ER-Kahnuj-Garrison-1", "FOB Kahnuj", ARMOR, RED_BLOCK, "near"),
-    ("ER-Kahnuj-Garrison-2", "FOB Kahnuj", ARMOR, RED_BLOCK, "near"),
-    # Minab: the gate to the valley.
-    ("ER-Minab-MERAD", "Minab hills", MERAD, RED_BLOCK, "ring"),
-    ("ER-Minab-SHORAD", "FOB Minab", SHORAD, RED_BLOCK, "near"),
-    ("ER-Minab-EWR", "Minab hills", EWR, RED_BLOCK, "ring"),
-    ("ER-Minab-Garrison-1", "FOB Minab", ARMOR, RED_BLOCK, "near"),
-    ("ER-Minab-Garrison-2", "FOB Minab", ARMOR, RED_BLOCK, "near"),
-    # Sirik: the coast facing the landing.
-    ("ER-Sirik-SHORAD", "FOB Sirik", SHORAD, RED_BLOCK, "near"),
-    ("ER-Sirik-AAA-1", "FOB Sirik", AAA, RED_BLOCK, "near"),
-    ("ER-Sirik-AAA-2", "FOB Sirik", AAA, RED_BLOCK, "near"),
-    ("ER-Sirik-Garrison-1", "FOB Sirik", ARMOR, RED_BLOCK, "near"),
-    ("ER-Sirik-Garrison-2", "FOB Sirik", ARMOR, RED_BLOCK, "near"),
-    ("ER-Sirik-Silkworm-1", "Sirik coast north", COASTAL, RED_BLOCK, "ring"),
-    ("ER-Sirik-Silkworm-2", "Sirik coast south", COASTAL, RED_BLOCK, "ring"),
-    ("ER-Bashagard-Missiles", "Bashagard hills", MISSILE, RED_BLOCK, "ring"),
-    # Lar: the F-14 base across the mountains.
-    ("ER-Lar-MERAD", "Lar ridge", MERAD, RED_BLOCK, "ring"),
-    ("ER-Lar-SHORAD", "Lar", SHORAD, RED_BLOCK, "near"),
-    ("ER-Lar-AAA", "Lar", AAA, RED_BLOCK, "near"),
-    ("ER-Lar-EWR", "Lar ridge", EWR, RED_BLOCK, "ring"),
-    # Blue: the beachhead and the rear.
-    ("ER-Jask-SHORAD", "Bandar-e-Jask", BLUE_SHORAD, BLUE_BLOCK, "near"),
-    ("ER-Jask-Garrison-1", "Bandar-e-Jask", ARMOR, BLUE_BLOCK, "near"),
-    ("ER-Jask-Garrison-2", "Bandar-e-Jask", ARMOR, BLUE_BLOCK, "near"),
-    ("ER-Fujairah-SHORAD", "Fujairah Intl", BLUE_SHORAD, BLUE_BLOCK, "near"),
-    ("ER-Dhafra-Patriot", "Al Dhafra AFB", BLUE_LORAD, BLUE_BLOCK, "axis"),
-)
+TEMPLATE_DEFAULT = _REPO_ROOT / "Arabian_SAM_Template.miz"
+#: The freeware Arabian SAM Template's UAE sites kept (Brady's call: just the
+#: batteries at the three fields blue flies from). Copied unit for unit.
+TEMPLATE_SITES = {
+    "BSAM-Patriot-UAE-2": "FIXED Al Dhafra Patriot",
+    "BSAM-Hawk-UAE-13": "FIXED Al Dhafra Hawk",
+    "BSAM-Patriot-UAE-4": "FIXED Al Minhad Patriot",
+    "BEW-AN117-DN37": "FIXED Fujairah EWR",
+}
 
-#: (name, anchor, static type, block). Ownership follows the nearest control point.
-ADDED_STATICS: tuple[tuple[str, str, Any, str], ...] = (
-    ("ER-Kerman-Command", "Kerman", Fortification._Command_Center, RED_BLOCK),
-    ("ER-Kerman-Power", "Kerman", Fortification.GeneratorF, RED_BLOCK),
-    ("ER-Kerman-Comms", "Kerman east hills", Fortification.Comms_tower_M, RED_BLOCK),
-    ("ER-Kerman-Factory-1", "Kerman", Fortification.Workshop_A, RED_BLOCK),
-    ("ER-Kerman-Factory-2", "Kerman", Fortification.Workshop_A, RED_BLOCK),
-    ("ER-Kerman-Missile-Works", "Kerman", Fortification.Tech_combine, RED_BLOCK),
-    ("ER-Kerman-Ammo", "Kerman", Warehouse._Ammunition_depot, RED_BLOCK),
-    ("ER-Kerman-Motorpool", "Kerman", Fortification.Garage_A, RED_BLOCK),
-    ("ER-Jiroft-Command", "Jiroft", Fortification._Command_Center, RED_BLOCK),
-    ("ER-Jiroft-Ammo", "Jiroft", Warehouse._Ammunition_depot, RED_BLOCK),
-    ("ER-JebalBarez-Comms", "FOB Jebal Barez", Fortification.Comms_tower_M, RED_BLOCK),
-    ("ER-Kahnuj-Ammo", "FOB Kahnuj", Warehouse._Ammunition_depot, RED_BLOCK),
-    ("ER-Minab-Comms", "Minab hills", Fortification.Comms_tower_M, RED_BLOCK),
-    ("ER-Minab-Ammo", "FOB Minab", Warehouse._Ammunition_depot, RED_BLOCK),
-    ("ER-Sirik-Ammo", "FOB Sirik", Warehouse._Ammunition_depot, RED_BLOCK),
-    ("ER-Jask-Ammo", "Bandar-e-Jask", Warehouse._Ammunition_depot, BLUE_BLOCK),
-    ("ER-Fujairah-Ammo", "Fujairah Intl", Warehouse._Ammunition_depot, BLUE_BLOCK),
-    ("ER-Dhafra-Factory", "Al Dhafra AFB", Fortification.Workshop_A, BLUE_BLOCK),
+
+@dataclass(frozen=True)
+class Item:
+    """One unit to place: its name, job, anchor, type and country block."""
+
+    name: str
+    job: Job
+    anchor: str
+    unit_type: Any
+    block: str = RED_BLOCK
+
+
+def _red_field(field: str, short: str, town: str, ewr: bool = True) -> list[Item]:
+    items = [
+        Item(f"ER-{short}-SHORAD-1", Job.AIR_DEFENSE, field, SHORAD),
+        Item(f"ER-{short}-SHORAD-2", Job.AIR_DEFENSE, field, SHORAD),
+        Item(f"ER-{short}-AAA-1", Job.AIR_DEFENSE, field, AAA),
+        Item(f"ER-{short}-AAA-2", Job.AIR_DEFENSE, field, AAA),
+        Item(f"ER-{short}-Garrison-1", Job.GARRISON, field, ARMOR),
+        Item(f"ER-{short}-Garrison-2", Job.GARRISON, field, ARMOR),
+        Item(f"ER-{short}-Ammo", Job.DEPOT, field, Warehouse._Ammunition_depot),
+        Item(f"ER-{short}-Command", Job.TOWN, town, Fortification._Command_Center),
+    ]
+    if ewr:
+        items.append(Item(f"ER-{short}-EWR", Job.EWR, field, EWR))
+    return items
+
+
+def _red_fob(fob: str, short: str, guns: int = 1) -> list[Item]:
+    items = [
+        Item(f"ER-{short}-Garrison-1", Job.GARRISON, fob, ARMOR),
+        Item(f"ER-{short}-Garrison-2", Job.GARRISON, fob, ARMOR),
+        Item(f"ER-{short}-Ammo", Job.DEPOT, fob, Warehouse._Ammunition_depot),
+    ]
+    items += [
+        Item(f"ER-{short}-AAA-{i}", Job.AIR_DEFENSE, fob, AAA)
+        for i in range(1, guns + 1)
+    ]
+    return items
+
+
+ITEMS: tuple[Item, ...] = tuple(
+    # Kerman: the long-range belt, the regional HQ and the missile works.
+    _red_field("Kerman", "Kerman", "Kerman town")
+    + [
+        Item("ER-Kerman-LORAD-1", Job.AIR_DEFENSE, "Kerman", LORAD),
+        Item("ER-Kerman-LORAD-2", Job.SPOT, "Kerman east hills", LORAD),
+        Item("ER-Kerman-MERAD", Job.SPOT, "Kerman south ridge", MERAD),
+        Item("ER-Kerman-EWR-South", Job.EWR, "Kerman south ridge", EWR),
+        Item("ER-Kerman-Power", Job.TOWN, "Kerman town", Fortification.GeneratorF),
+        Item("ER-Kerman-Comms", Job.TOWN, "Kerman town", Fortification.Comms_tower_M),
+        Item("ER-Kerman-Factory-1", Job.DEPOT, "Kerman", Fortification.Workshop_A),
+        Item("ER-Kerman-Factory-2", Job.DEPOT, "Kerman", Fortification.Workshop_A),
+        Item("ER-Kerman-Missile-Works", Job.DEPOT, "Kerman", Fortification.Tech_combine),
+        Item("ER-Kerman-Motorpool", Job.DEPOT, "Kerman", Fortification.Garage_A),
+        Item("ER-Kerman-Missiles-1", Job.SPOT, "Kerman east hills", MISSILE),
+        Item("ER-Kerman-Missiles-2", Job.SPOT, "Kerman south ridge", MISSILE),
+    ]
+    # Jiroft: the valley's air base and the IRGC's forward HQ.
+    + _red_field("Jiroft", "Jiroft", "Jiroft town")
+    + [
+        Item("ER-Jiroft-LORAD", Job.AIR_DEFENSE, "Jiroft", LORAD),
+        Item("ER-Jiroft-MERAD", Job.SPOT, "Jiroft west range", MERAD),
+        Item("ER-Jiroft-Missiles", Job.SPOT, "Jiroft west range", MISSILE),
+    ]
+    # The Jebal Barez pass.
+    + _red_fob("FOB Jebal Barez", "JebalBarez")
+    + [
+        Item("ER-JebalBarez-MERAD", Job.SPOT, "Sardu hills", MERAD),
+        Item("ER-JebalBarez-Comms", Job.SPOT, "Jebal Barez pass", Fortification.Comms_tower_M),
+    ]
+    # Kahnuj.
+    + _red_fob("FOB Kahnuj", "Kahnuj")
+    + [
+        Item("ER-Kahnuj-SHORAD", Job.AIR_DEFENSE, "FOB Kahnuj", SHORAD),
+        Item("ER-Kahnuj-Power", Job.TOWN, "Kahnuj town", Fortification.GeneratorF),
+    ]
+    # Minab: the gate to the valley.
+    + _red_fob("FOB Minab", "Minab")
+    + [
+        Item("ER-Minab-SHORAD", Job.AIR_DEFENSE, "FOB Minab", SHORAD),
+        Item("ER-Minab-MERAD", Job.SPOT, "Minab hills", MERAD),
+        Item("ER-Minab-EWR", Job.EWR, "FOB Minab", EWR),
+        Item("ER-Minab-Comms", Job.TOWN, "Minab town", Fortification.Comms_tower_M),
+    ]
+    # Sirik: the coast facing the landing.
+    + _red_fob("FOB Sirik", "Sirik", guns=2)
+    + [
+        Item("ER-Sirik-SHORAD", Job.AIR_DEFENSE, "FOB Sirik", SHORAD),
+        Item("ER-Sirik-Silkworm-1", Job.SPOT, "Sirik coast north", COASTAL),
+        Item("ER-Sirik-Silkworm-2", Job.SPOT, "Sirik coast south", COASTAL),
+        Item("ER-Bashagard-Missiles", Job.SPOT, "Bashagard hills", MISSILE),
+    ]
+    # Lar: the Tomcat base across the mountains.
+    + [
+        Item("ER-Lar-MERAD", Job.AIR_DEFENSE, "Lar", MERAD),
+        Item("ER-Lar-SHORAD", Job.AIR_DEFENSE, "Lar", SHORAD),
+        Item("ER-Lar-AAA", Job.AIR_DEFENSE, "Lar", AAA),
+        Item("ER-Lar-EWR", Job.EWR, "Lar", EWR),
+    ]
+    # Blue: the beachhead and the rear.
+    + [
+        Item("ER-Jask-SHORAD", Job.AIR_DEFENSE, "Bandar-e-Jask", BLUE_SHORAD, BLUE_BLOCK),
+        Item("ER-Jask-Garrison-1", Job.GARRISON, "Bandar-e-Jask", ARMOR, BLUE_BLOCK),
+        Item("ER-Jask-Garrison-2", Job.GARRISON, "Bandar-e-Jask", ARMOR, BLUE_BLOCK),
+        Item("ER-Jask-Ammo", Job.DEPOT, "Bandar-e-Jask", Warehouse._Ammunition_depot, BLUE_BLOCK),
+        Item("ER-Fujairah-SHORAD", Job.AIR_DEFENSE, "Fujairah Intl", BLUE_SHORAD, BLUE_BLOCK),
+        Item("ER-Fujairah-Ammo", Job.DEPOT, "Fujairah Intl", Warehouse._Ammunition_depot, BLUE_BLOCK),
+        Item("ER-Dhafra-Factory", Job.DEPOT, "Al Dhafra AFB", Fortification.Workshop_A, BLUE_BLOCK),
+    ]
 )
 
 #: The roads: (from, real highway junctions as (lat, lon), to). Traced from the
@@ -235,17 +280,6 @@ SHIP_MARKERS = (
     ("ER-IRGCN-Kuh-e-Mobarak", RED_BLOCK, 25.70, 57.25),
 )
 
-# --- Placement tolerances ------------------------------------------------------
-MIN_OFFSET_M = 3400.0
-MAX_OFFSET_M = 15000.0
-STEP_M = 500.0
-BEARING_STEP_DEG = 15
-LATERAL_OFFSETS_M = (0.0, 500.0, -500.0, 1000.0, -1000.0)
-MIN_SEPARATION_M = 900.0
-NEAR_OFFSET_M = 6000.0
-#: Garrisons stand inside a FOB's 3 km capture zone.
-FOB_NEAR_START_M = 1500.0
-
 
 def _theater() -> Any:
     """The Persian Gulf theatre, loaded only for its landmap."""
@@ -258,75 +292,6 @@ def _theater() -> Any:
 
 def _xy(terrain: Any, lat: float, lon: float) -> Point:
     return Point.from_latlng(LatLng(lat, lon), terrain)
-
-
-class Placer:
-    """Finds clear land for an added marker, deterministically.
-
-    "Clear" is the landmap's own answer: inside an inclusion zone, outside every
-    exclusion zone, and at least MIN_OFFSET_M from every airfield's centre.
-    """
-
-    def __init__(self, theater: Any, taken: list[Point], airfields: list[Point]):
-        self.theater = theater
-        self.taken = taken
-        self.airfields = airfields
-        self.relaxed: list[str] = []
-
-    def _free(self, candidate: Point) -> bool:
-        return all(
-            candidate.distance_to_point(other) >= MIN_SEPARATION_M
-            for other in self.taken
-        ) and all(
-            candidate.distance_to_point(field) >= MIN_OFFSET_M
-            for field in self.airfields
-        )
-
-    def _pick(self, name: str, passes: Iterable[tuple[list[Point], bool]]) -> Point:
-        for candidates, relaxed in passes:
-            for candidate in candidates:
-                if not self.theater.is_on_land(candidate, ignore_exclusion=relaxed):
-                    continue
-                if self._free(candidate):
-                    if relaxed:
-                        self.relaxed.append(name)
-                    self.taken.append(candidate)
-                    return candidate
-        raise RuntimeError(f"no land for {name} within {MAX_OFFSET_M} m of its anchor")
-
-    @staticmethod
-    def _rings(origin: Point, start: float, stop: float = MAX_OFFSET_M) -> list[Point]:
-        found = []
-        radius = start
-        while radius <= stop:
-            for bearing in range(0, 360, BEARING_STEP_DEG):
-                found.append(origin.point_from_heading(bearing, radius))
-            radius += STEP_M
-        return found
-
-    def ring(self, name: str, origin: Point, start: float) -> Point:
-        rings = [origin] + self._rings(origin, max(start, STEP_M))
-        return self._pick(name, ((rings, False), (rings, True)))
-
-    def near(self, name: str, origin: Point, start: float) -> Point:
-        close = self._rings(origin, start, NEAR_OFFSET_M)
-        far = self._rings(origin, NEAR_OFFSET_M + STEP_M)
-        return self._pick(
-            name, ((close, False), (close, True), (far, False), (far, True))
-        )
-
-    def axis(self, name: str, airport: Any) -> Point:
-        heading = float(airport.runways[0].heading)
-        candidates = []
-        distance = MIN_OFFSET_M + 1000.0
-        while distance <= MAX_OFFSET_M:
-            for along in (heading, heading + 180.0):
-                centre = airport.position.point_from_heading(along, distance)
-                for lateral in LATERAL_OFFSETS_M:
-                    candidates.append(centre.point_from_heading(along + 90.0, lateral))
-            distance += STEP_M
-        candidates += self._rings(airport.position, MIN_OFFSET_M)
-        return self._pick(name, ((candidates, False), (candidates, True)))
 
 
 def _country(mission: Mission, block: str) -> Any:
@@ -401,59 +366,121 @@ def _anchors(mission: Mission) -> dict[str, Point]:
     }
     for name, lat, lon in FOBS:
         anchors[name] = _xy(terrain, lat, lon)
-    for name, (lat, lon) in SPOTS.items():
+    for name, (lat, lon) in PLACES.items():
         anchors[name] = _xy(terrain, lat, lon)
     return anchors
 
 
-def _author_fobs(mission: Mission, anchors: dict[str, Point]) -> None:
+def _place(mission: Mission, theater: Any, anchors: dict[str, Point]) -> Placer:
+    """Request every FOB and marker by job; resolve against DCS's own ground."""
+    terrain = mission.terrain
+    placer = Placer(
+        terrain,
+        "eastern_reach",
+        on_land=lambda x, y: bool(theater.is_on_land(Point(x, y, terrain))),
+    )
+    for name, _, _ in FOBS:
+        placer.request(name, Job.SPOT, anchors[name].x, anchors[name].y)
+    for item in ITEMS:
+        origin = anchors[item.anchor]
+        airport = terrain.airports.get(item.anchor)
+        placer.request(item.name, item.job, origin.x, origin.y, airport=airport)
+    try:
+        placer.resolve()
+    except NeedsCheck as check:
+        raise SystemExit(str(check))
+    return placer
+
+
+def _author(mission: Mission, placer: Placer, anchors: dict[str, Point]) -> list[str]:
+    """Write every pick; return the names that found no good ground."""
+    terrain = mission.terrain
+    unplaced = []
     print("\nFOBs:")
     for name, _, _ in FOBS:
+        pick = placer.placements[name]
+        if pick.x is None or pick.y is None:
+            unplaced.append(name)
+            continue
+        position = Point(pick.x, pick.y, terrain)
+        # The roads end on the FOB's final spot.
+        anchors[name] = position
         mission.vehicle_group(
-            country=_country(mission, RED_BLOCK),
-            name=name,
-            _type=FOB,
-            position=anchors[name],
+            country=_country(mission, RED_BLOCK), name=name, _type=FOB, position=position
         )
-        _report(name, anchors[name])
+        _report(name, position)
+
+    print("\nmarkers, economy and command:")
+    for item in ITEMS:
+        pick = placer.placements[item.name]
+        if pick.x is None or pick.y is None:
+            unplaced.append(item.name)
+            continue
+        position = Point(pick.x, pick.y, terrain)
+        _write_unit(mission, item, position)
+        _report(item.name, position, item.anchor)
+    return unplaced
 
 
-def _author_land(
-    mission: Mission, placer: Placer, anchors: dict[str, Point]
-) -> None:
-    airports = mission.terrain.airports
-    fob_names = {name for name, _, _ in FOBS}
+def _write_unit(mission: Mission, item: Item, position: Point) -> None:
+    """A static for buildings and depots, a one-unit vehicle marker otherwise."""
+    from dcs.unittype import StaticType
 
-    def start_of(anchor: str) -> float:
-        if anchor in airports:
-            return MIN_OFFSET_M
-        if anchor in fob_names:
-            return FOB_NEAR_START_M
-        return 0.0
-
-    print("\nadded markers:")
-    for name, anchor, unit_type, block, placement in ADDED_MARKERS:
-        origin = anchors[anchor]
-        if placement == "axis":
-            position = placer.axis(name, airports[anchor])
-        elif placement == "near":
-            position = placer.near(name, origin, start_of(anchor))
-        else:
-            position = placer.ring(name, origin, start_of(anchor))
-        _add_vehicle(mission, block, name, position, unit_type)
-        _report(name, position, anchor)
-
-    print("\neconomy and command:")
-    for name, anchor, static_type, block in ADDED_STATICS:
-        origin = anchors[anchor]
-        position = placer.near(name, origin, max(start_of(anchor), STEP_M))
+    if isinstance(item.unit_type, type) and issubclass(item.unit_type, StaticType):
         mission.static_group(
-            country=_country(mission, block),
-            name=name,
-            _type=static_type,
+            country=_country(mission, item.block),
+            name=item.name,
+            _type=item.unit_type,
             position=position,
         )
-        _report(name, position, anchor)
+    else:
+        _add_vehicle(mission, item.block, item.name, position, item.unit_type)
+
+
+def _copy_template_sites(mission: Mission, template: Optional[Path]) -> None:
+    """Copy the kept UAE sites as drawn, renamed FIXED so New Game keeps them."""
+    if template is None or not template.exists():
+        raise SystemExit(
+            f"missing the Arabian SAM Template at {template}; pass --template <path>"
+        )
+    source = Mission()
+    source.load_file(str(template))
+    found: dict[str, VehicleGroup] = {}
+    for coalition in source.coalition.values():
+        for country in coalition.countries.values():
+            for group in country.vehicle_group:
+                if group.name in TEMPLATE_SITES:
+                    found[group.name] = group
+    missing = set(TEMPLATE_SITES) - set(found)
+    if missing:
+        raise SystemExit(f"template has no group(s) {sorted(missing)}")
+    print("\ntemplate sites:")
+    blue = _country(mission, BLUE_BLOCK)
+    for source_name, new_name in TEMPLATE_SITES.items():
+        group = found[source_name]
+        units = list(group.units)
+        copy = mission.vehicle_group(
+            country=blue,
+            name=new_name,
+            _type=_vehicle_type(units[0].type),
+            position=units[0].position,
+            heading=units[0].heading,
+            group_size=1,
+        )
+        copy.points[0].action = PointAction.OffRoad
+        copy.points[0].speed = 0
+        for unit in units[1:]:
+            added = mission.vehicle(f"{new_name} {len(copy.units) + 1}", _vehicle_type(unit.type))
+            added.position = Point(unit.position.x, unit.position.y, mission.terrain)
+            added.heading = unit.heading
+            copy.add_unit(added)
+        _report(f"{new_name} ({len(copy.units)})", copy.units[0].position)
+
+
+def _vehicle_type(type_id: str) -> Any:
+    from dcs.vehicles import vehicle_map
+
+    return vehicle_map[type_id]
 
 
 def _author_roads(mission: Mission, anchors: dict[str, Point]) -> None:
@@ -501,6 +528,9 @@ def _author_sea(mission: Mission, theater: Any) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--template", type=Path, default=TEMPLATE_DEFAULT)
+    args = parser.parse_args()
     if not SOURCE.exists():
         raise SystemExit(f"missing source miz: {SOURCE}")
 
@@ -509,19 +539,26 @@ def main() -> None:
     print(f"loaded {SOURCE.name} ({mission.terrain.name})\n")
     theater = _theater()
 
+    anchors = _anchors(mission)
+    placer = _place(mission, theater, anchors)
+
     _strip(mission)
     _set_ownership(mission)
-    anchors = _anchors(mission)
-    airfields = [p.position for p in mission.terrain.airport_list()]
-    placer = Placer(theater, [anchors[name] for name, _, _ in FOBS], airfields)
-    _author_fobs(mission, anchors)
-    _author_land(mission, placer, anchors)
+    unplaced = _author(mission, placer, anchors)
+    _copy_template_sites(mission, args.template)
     _author_roads(mission, anchors)
     _author_sea(mission, theater)
 
-    if placer.relaxed:
-        print("\nplaced on inclusion-only ground (no fully clear point in reach):")
-        for name in placer.relaxed:
+    write_review_map(
+        REVIEW_MAP,
+        "Eastern Reach placement",
+        f"{len(placer.placements)} picks, {len(unplaced)} with no good ground",
+        placement_markers(mission.terrain, placer),
+    )
+    print(f"\nreview map: {REVIEW_MAP.relative_to(_REPO_ROOT)}")
+    if unplaced:
+        print("\nno good ground in reach (left out):")
+        for name in unplaced:
             print(f"  {name}")
 
     mission.save(str(DEST))
