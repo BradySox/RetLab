@@ -1,0 +1,1 @@
+* **[Campaigns]** Persian Gulf - Eastern Reach 2025: Marines at Bandar-e-Jask drive up the Minab-Jiroft highway to Kerman, with strikes flown 300 NM or more from the UAE. Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack and the F-15EX V3 mod.

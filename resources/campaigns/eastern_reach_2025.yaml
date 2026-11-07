@@ -1,0 +1,211 @@
+---
+name: Persian Gulf - Eastern Reach 2025
+theater: Persian Gulf
+authors: RetLab
+recommended_player_faction: USA 2020
+recommended_enemy_faction: "[CH] Iran 2025"
+description: >-
+  <p><strong>Note -</strong> Built for CurrentHill's Iran and USA Asset Packs and the
+  RetLab Iran Air Defense Pack; New Game ticks all three, and without them Iran loses
+  its Bavar-373 and 3rd Khordad batteries and its missile launchers.</p>
+  <p>In the spring of 2025, Iranian missile boats sank two tankers off Jask and a
+  Kheibar fired from the hills above Jiroft struck the port at Fujairah. Washington
+  answered from the east, away from the mines and guns of the Strait of Hormuz. A
+  Marine expeditionary unit came ashore at Bandar-e-Jask, and its airfield is now the
+  American beachhead.</p>
+  <p>The launchers are inland. The highway north from Jask runs through Sirik and
+  Minab, up the valley past Kahnuj to Jiroft, and over the Jebal Barez pass to Kerman,
+  where the Revolutionary Guard keeps its missile works and Iran's best fighters. Every
+  strike on Kerman is flown 300 nautical miles or more from the Emirates, and every
+  one of them needs a tanker.</p>
+  <p>Take Kerman and the war is won. Lose Jask, and it is over.</p>
+miz: eastern_reach_2025.miz
+performance: 2
+recommended_start_date: 2025-04-12
+recommended_player_money: 2000
+recommended_enemy_money: 1200
+version: "10.9"
+settings:
+  squadron_start_full: true
+  # Ticks the New Game mod boxes for both factions.
+  iranmilitaryassetspack: true
+  iranairdefensepack: true
+  usamilitaryassetspack: true
+  f15ex_v3: true
+  # Al Dhafra is 383 NM from Kerman.
+  max_mission_range_planes: 420
+victory:
+  description: "Take Kerman. Hold Jask."
+  win_when:
+    - label: "Kerman falls"
+      capture_cps: [Kerman]
+  lose_when:
+    - label: "The beachhead is lost"
+      lose_cps: [Bandar-e-Jask]
+squadrons:
+  # Squadron sizes fit each field's DCS parking: Jask has 4 spots, Fujairah 4,
+  # Jiroft 3 and Lar 5, and Al Dhafra, Al Ain and Al Minhad only 5, 5 and 2 big-jet stands.
+  # ============================== United States ==============================
+  # Al Dhafra: the AWACS, the tankers and the air-superiority wing.
+  Al Dhafra AFB:
+    - primary: AEW&C
+      aircraft:
+        - E-3A
+      size: 2
+    - primary: Refueling
+      aircraft:
+        - KC-135 Stratotanker
+      size: 3
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - F-15EX Eagle II (CFTs)
+      size: 12
+    - primary: Escort
+      secondary: air-to-air
+      aircraft:
+        - F-22A Raptor
+      size: 8
+  # Al Minhad: suppression, deep strike and the probe-and-drogue tankers.
+  Al Minhad AFB:
+    - primary: SEAD
+      secondary: any
+      aircraft:
+        - F-16CM Fighting Falcon (Block 50)
+      size: 12
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - F-15E Strike Eagle (Suite 4+)
+      size: 12
+    - primary: Refueling
+      aircraft:
+        - KC-135 Stratotanker MPRS
+      size: 2
+  # Al Ain: the bombers and the Hercules.
+  Al Ain Intl:
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - B-1B Lancer
+      size: 3
+    - primary: Transport
+      aircraft:
+        - C-130J-30
+      size: 2
+  # Fujairah: the heavy lift into the beachhead.
+  Fujairah Intl:
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - CH-47F Block I
+      size: 3
+  # The carrier in the Gulf of Oman, kept to about 30 jets.
+  ER-CVN:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - F/A-18C Hornet (Lot 20)
+      size: 12
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - F/A-18E Super Hornet
+      size: 12
+    - primary: SEAD Escort
+      secondary: any
+      aircraft:
+        - EA-18G Growler
+      size: 4
+    - primary: AEW&C
+      aircraft:
+        - E-2D Advanced Hawkeye
+      size: 2
+  # The LHA: the Marines' Harriers, Cobras, Super Stallions and the Army's Black Hawks.
+  ER-LHA:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - AV-8B Harrier II Night Attack
+      size: 8
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - AH-1W SuperCobra
+      size: 4
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - CH-53E
+      size: 4
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - UH-60L
+      size: 4
+  # Jask: the Apaches on the beachhead.
+  Bandar-e-Jask:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - AH-64D Apache Longbow
+      size: 2
+  # ============================== Iran ==============================
+  # Kerman: nearly the whole air force, the A-50 and the tanker.
+  Kerman:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - F-14A Tomcat (Block 95-GR Export)
+      size: 12
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - F-14A Tomcat (Block 95-GR Export)
+      size: 8
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-29A Fulcrum-A
+      size: 10
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - IRIAF 61 TFS
+      aircraft_type: F-4E Phantom II
+      size: 10
+    - primary: AEW&C
+      aircraft:
+        - A-50
+      size: 1
+    - primary: Refueling
+      aircraft:
+        - IL-78M
+      size: 1
+  # Jiroft: three Fulcrums on alert for the valley.
+  Jiroft:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-29A Fulcrum-A
+      size: 3
+  # Lar: the Tomcats across the mountains.
+  Lar:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - F-14A Tomcat (Block 95-GR Export)
+      size: 5
+  # The forward bases: the Havocs.
+  FOB Minab:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - Mi-28N Havoc
+      size: 4
+  FOB Kahnuj:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - Mi-28N Havoc
+      size: 4
