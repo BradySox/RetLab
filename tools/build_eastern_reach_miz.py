@@ -53,7 +53,9 @@ from tools.campaign_placement import (  # noqa: E402
     Job,
     NeedsCheck,
     Placer,
+    parse_probe_output,
     placement_markers,
+    probe_output_path,
     write_review_map,
 )
 
@@ -98,11 +100,9 @@ FOBS = (
 #: Real towns (centre lat, lon) for command posts, power and comms (Job.TOWN),
 #: and named spots for the missile hides, the Silkworm coast and the pass (Job.SPOT).
 PLACES = {
-    "Kerman town": (30.2839, 57.0834),
     "Jiroft town": (28.6751, 57.7380),
     "Minab town": (27.1467, 57.0801),
     "Kahnuj town": (27.9473, 57.7003),
-    "Kerman east hills": (30.20, 57.30),
     "Kerman south ridge": (30.03, 56.88),
     "Jiroft west range": (28.74, 57.50),
     "Sardu hills": (29.18, 57.86),
@@ -111,6 +111,18 @@ PLACES = {
     "Sirik coast north": (26.76, 57.05),
     "Sirik coast south": (26.36, 57.12),
     "Jebal Barez pass": (29.2887, 57.9934),
+}
+
+#: Spots taken straight from the check mission's readings (map x, y): the first
+#: flat, clear ground found where the nearer guesses were too steep or inside
+#: the landmap's Kerman town exclusion (first build, 2026-11-07).
+PLACES_XY = {
+    "Kerman west edge": (459117.0, 78096.0),
+    "Kerman south edge": (451117.0, 77096.0),
+    "Kerman north plain": (464117.0, 77096.0),
+    "Kerman north field": (465117.0, 74096.0),
+    "Kerman west hills": (447117.0, 62096.0),
+    "Jiroft west plain": (284608.0, 130685.0),
 }
 
 TEMPLATE_DEFAULT = _REPO_ROOT / "Arabian_SAM_Template.miz"
@@ -135,7 +147,9 @@ class Item:
     block: str = RED_BLOCK
 
 
-def _red_field(field: str, short: str, town: str, ewr: bool = True) -> list[Item]:
+def _red_field(
+    field: str, short: str, town: str, town_job: Job = Job.TOWN
+) -> list[Item]:
     items = [
         Item(f"ER-{short}-SHORAD-1", Job.AIR_DEFENSE, field, SHORAD),
         Item(f"ER-{short}-SHORAD-2", Job.AIR_DEFENSE, field, SHORAD),
@@ -144,10 +158,9 @@ def _red_field(field: str, short: str, town: str, ewr: bool = True) -> list[Item
         Item(f"ER-{short}-Garrison-1", Job.GARRISON, field, ARMOR),
         Item(f"ER-{short}-Garrison-2", Job.GARRISON, field, ARMOR),
         Item(f"ER-{short}-Ammo", Job.DEPOT, field, Warehouse._Ammunition_depot),
-        Item(f"ER-{short}-Command", Job.TOWN, town, Fortification._Command_Center),
+        Item(f"ER-{short}-Command", town_job, town, Fortification._Command_Center),
+        Item(f"ER-{short}-EWR", Job.EWR, field, EWR),
     ]
-    if ewr:
-        items.append(Item(f"ER-{short}-EWR", Job.EWR, field, EWR))
     return items
 
 
@@ -166,19 +179,19 @@ def _red_fob(fob: str, short: str, guns: int = 1) -> list[Item]:
 
 ITEMS: tuple[Item, ...] = tuple(
     # Kerman: the long-range belt, the regional HQ and the missile works.
-    _red_field("Kerman", "Kerman", "Kerman town")
+    _red_field("Kerman", "Kerman", "Kerman west edge", Job.SPOT)
     + [
         Item("ER-Kerman-LORAD-1", Job.AIR_DEFENSE, "Kerman", LORAD),
-        Item("ER-Kerman-LORAD-2", Job.SPOT, "Kerman east hills", LORAD),
+        Item("ER-Kerman-LORAD-2", Job.SPOT, "Kerman north field", LORAD),
         Item("ER-Kerman-MERAD", Job.SPOT, "Kerman south ridge", MERAD),
         Item("ER-Kerman-EWR-South", Job.EWR, "Kerman south ridge", EWR),
-        Item("ER-Kerman-Power", Job.TOWN, "Kerman town", Fortification.GeneratorF),
-        Item("ER-Kerman-Comms", Job.TOWN, "Kerman town", Fortification.Comms_tower_M),
+        Item("ER-Kerman-Power", Job.SPOT, "Kerman south edge", Fortification.GeneratorF),
+        Item("ER-Kerman-Comms", Job.SPOT, "Kerman north plain", Fortification.Comms_tower_M),
         Item("ER-Kerman-Factory-1", Job.DEPOT, "Kerman", Fortification.Workshop_A),
         Item("ER-Kerman-Factory-2", Job.DEPOT, "Kerman", Fortification.Workshop_A),
         Item("ER-Kerman-Missile-Works", Job.DEPOT, "Kerman", Fortification.Tech_combine),
         Item("ER-Kerman-Motorpool", Job.DEPOT, "Kerman", Fortification.Garage_A),
-        Item("ER-Kerman-Missiles-1", Job.SPOT, "Kerman east hills", MISSILE),
+        Item("ER-Kerman-Missiles-1", Job.SPOT, "Kerman west hills", MISSILE),
         Item("ER-Kerman-Missiles-2", Job.SPOT, "Kerman south ridge", MISSILE),
     ]
     # Jiroft: the valley's air base and the IRGC's forward HQ.
@@ -186,7 +199,7 @@ ITEMS: tuple[Item, ...] = tuple(
     + [
         Item("ER-Jiroft-LORAD", Job.AIR_DEFENSE, "Jiroft", LORAD),
         Item("ER-Jiroft-MERAD", Job.SPOT, "Jiroft west range", MERAD),
-        Item("ER-Jiroft-Missiles", Job.SPOT, "Jiroft west range", MISSILE),
+        Item("ER-Jiroft-Missiles", Job.SPOT, "Jiroft west plain", MISSILE),
     ]
     # The Jebal Barez pass.
     + _red_fob("FOB Jebal Barez", "JebalBarez")
@@ -368,6 +381,8 @@ def _anchors(mission: Mission) -> dict[str, Point]:
         anchors[name] = _xy(terrain, lat, lon)
     for name, (lat, lon) in PLACES.items():
         anchors[name] = _xy(terrain, lat, lon)
+    for name, (x, y) in PLACES_XY.items():
+        anchors[name] = Point(x, y, terrain)
     return anchors
 
 
@@ -379,6 +394,12 @@ def _place(mission: Mission, theater: Any, anchors: dict[str, Point]) -> Placer:
         "eastern_reach",
         on_land=lambda x, y: bool(theater.is_on_land(Point(x, y, terrain))),
     )
+    # Take in the last check mission's readings, if DCS has written them.
+    output = probe_output_path(placer.name)
+    if output.exists():
+        _, readings = parse_probe_output(output)
+        placer.cache.add(readings)
+        placer.cache.save()
     for name, _, _ in FOBS:
         placer.request(name, Job.SPOT, anchors[name].x, anchors[name].y)
     for item in ITEMS:
