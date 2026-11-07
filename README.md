@@ -457,6 +457,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Red Bear 1985 | Afghanistan | USAF F-4Es against the Soviet 40th Army across the top of the map, in winter |
 | Fulda Gap 1985 | Germany | The 52nd TFW's Phantoms at Spangdahlem against the 8th Guards Army and the 16th Air Army |
 | Northern Shield 1988 | Germany | Red Tide from the north: NATO across the Baltic takes the East German coast by air assault |
+| Eastern Reach 2025 | Persian Gulf | Marines at Jask drive up the highway to Kerman; every deep strike needs a tanker |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -511,6 +512,12 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   tankers flying in from Ascension. Take both landings to win, lose Mount Pleasant and you lose;
   the mainland can't be taken. Play the landing with Invert Sides. Needs the CurrentHill UK
   pack and the community A-4E.
+- **Eastern Reach 2025** — fictional: Marines hold Bandar-e-Jask and drive north up the real
+  highway through Sirik, Minab, Kahnuj, Jiroft and the Jebal Barez pass to Kerman, where Iran
+  keeps its missile works and most of its Tomcats and Fulcrums behind Bavar-373 batteries.
+  Strikes on Kerman fly 300 NM or more from the UAE fields. A carrier and an LHA sit in the
+  Gulf of Oman. Take Kerman to win, lose Jask and you lose. Bandar Abbas is out of the war.
+  Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack and the F-15EX V3 mod.
 - **Red Bear 1985** — fictional: a USAF F-4E wing holds Herat and Shindand in January 1985,
   and the Soviet 40th Army holds the north and Kabul. One axis follows the ring road through
   Maymana and Mazar-i-Sharif to the Salang; the other crosses the mountains through Chaghcharan
