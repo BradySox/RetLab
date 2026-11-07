@@ -23,6 +23,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
 | Germany — Fulda Gap 1985 | `retlab-fulda-gap-1985-campaign-notes.md` — the `.miz` is the DM's hand laydown, no build tool; SAM sites from Carsten's framework; Gutersloh is a rear base with no road |
 | Germany — Northern Shield 1988 | `retlab-northern-shield-1988-campaign-notes.md` — the `.miz` is the DM's hand laydown with Carsten's template SAM sites, no build tool; no land front until Barth falls to an air assault |
 | Afghanistan — Red Bear 1985 | `retlab-red-bear-1985-campaign-notes.md` — the `.miz` is the DM's hand laydown, no build tool; Camp Bastion is a rear base with no road |
+| Any campaign build tool | `retlab-campaign-placement-notes.md` — place units by job and check them against DCS's own ground (`tools/campaign_placement.py`); why the DM moved most generated laydowns |
 | Afghanistan — Enduring Resolve (COIN) | `retlab-coin-HANDOFF.md` — **start here for COIN** |
 | Caucasus — Iron Gate | `retlab-iron-gate-campaign-notes.md` |
 | Nevada — Red Flag 81-2 | `retlab-red-flag-81-campaign-notes.md` |
