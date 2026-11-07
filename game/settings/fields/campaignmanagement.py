@@ -408,6 +408,23 @@ class CampaignManagementSettings:
             "become downed pilots on the map. Set to 0 to always require a rescue."
         ),
     )
+    csar_capture_radius: int = bounded_int_option(
+        "Capture radius for unrescued pilots (NM)",
+        CAMPAIGN_MANAGEMENT_PAGE,
+        PILOTS_AND_SQUADRONS_SECTION,
+        default=30,
+        min=0,
+        max=200,
+        detail=(
+            "A pilot whose survival turns run out is taken prisoner only if they "
+            "are in enemy territory and this close to the enemy base nearest them. "
+            "Anyone further out is missing in action. Prisoners come home if their "
+            "base is captured; the missing do not. Set to 0 so an unrescued pilot "
+            "is always missing rather than captured. Separate from Control point "
+            "radius resolving a downed pilot (NM), which only applies when a pilot "
+            "first comes down."
+        ),
+    )
     csar_cluster_radius: int = bounded_int_option(
         "Collect downed pilots within (m) on one flight",
         CAMPAIGN_MANAGEMENT_PAGE,
