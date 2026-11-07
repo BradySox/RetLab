@@ -134,6 +134,7 @@ class NewGameWizard(QtWidgets.QWizard):
             a4_skyhawk=self.field("a4_skyhawk"),
             ea6b_prowler=self.field("ea6b_prowler"),
             f4e_expanded_weapons=self.field("f4e_expanded_weapons"),
+            f15ex_v3=self.field("f15ex_v3"),
             f22_raptor=self.field("f22_raptor"),
             f111c=self.field("f111c"),
             high_digit_sams=self.field("high_digit_sams"),

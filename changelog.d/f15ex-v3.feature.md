@@ -1,0 +1,1 @@
+* **[Modding]** Support for the F-15EX V3 mod (Spino v3.0): the F-15EX (CFTs) and F-15IA, with air-to-air loadouts. USA 2020, Israel 2017 and Bluefor Modern list them when the mod is ticked in New Game.

@@ -7,3 +7,12 @@ clsids:
   - "{JAS39_AIM120C7}"   # AIM-120C-7 AMRAAM Active Rdr AAM
   - "{AIM_120C-7_IRST_LEFT}"   # AIM-120C7 - Active Radar AAM + IRST POD
   - "{AIM_120C-7_IRST_RIGHT}"   # AIM-120C7 - Active Radar AAM + IRST POD
+  - "{AMBER_2xAIM120C7}"   # AMBER 2x AIM-120C-7 AMRAAM - Active Radar AAM
+  - "{F15EX_2xAIM-120C-7}"   # 2x AIM-120C-7 AMRAAM - Active Radar AAM
+  - "{F15EX_AIM-120C-7_CFT_A}"   # AIM-120C-7 AMRAAM - Active Radar AAM (CFT A)
+  - "{F15EX_AIM-120C-7_CFT_F}"   # AIM-120C-7 AMRAAM - Active Radar AAM (CFT F)
+  - "{F15EX_AIM-120C-7_CFT_RA}"   # AIM-120C-7 AMRAAM - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-120C-7_STA11A}"   # AIM-120C-7 AMRAAM - Active Radar AAM (STA11A)
+  - "{F15EX_AIM-120C-7_STA11B}"   # AIM-120C-7 AMRAAM - Active Radar AAM (STA11B)
+  - "{F15EX_AIM-120C-7_STA2A}"   # AIM-120C-7 AMRAAM - Active Radar AAM (STA2A)
+  - "{F15EX_AIM-120C-7_STA2B}"   # AIM-120C-7 AMRAAM - Active Radar AAM (STA2B)
