@@ -66,9 +66,17 @@ except NeedsCheck as check:
 A pick with `x is None` found no good ground in reach; the review map lists it. A FIXED
 site (§122) or a drawn template site is never placed by this: it stays as drawn.
 
+## First run (Fulda Gap, 2026-11-07)
+
+DCS read 290 spots in about 20 s. Of 294 units, 123 flags were on Carsten's template SAM
+sites (revetment pads read as road, berms as slope over 25 m) and 15 on supply-route and
+rail markers. `report` now draws FIXED groups and multi-waypoint groups grey as drawn and
+never checks them; 28 units remain flagged. Scenery returns buildings, tents and tank
+covers; no tree was ever the nearest object.
+
 ## Open
 
-- Trees: DCS scripting most likely does not return trees from `world.searchObjects`. The
-  first run on a wooded map settles it; the readings record the nearest object's type.
+- Trees: not returned by `world.searchObjects` on the Fulda run, so wooded ground is not
+  flagged.
 - A town node lands near buildings, not on a named one; snapping to a specific scenery
   building is not built.

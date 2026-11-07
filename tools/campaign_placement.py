@@ -486,6 +486,16 @@ class MizUnit:
     side: str
     x: float
     y: float
+    #: A FIXED site (§122) or a route marker: placed on purpose, never checked. A
+    #: template SAM site's revetment pad reads as road and its berms as slope.
+    drawn: bool = False
+
+
+def _is_drawn(group: dict[str, Any]) -> bool:
+    if str(group.get("name", "")).startswith("FIXED"):
+        return True
+    points = ((group.get("route") or {}).get("points")) or {}
+    return len(points) > 1
 
 
 def read_miz(path: Path) -> tuple[str, list[MizUnit]]:
@@ -509,6 +519,7 @@ def read_miz(path: Path) -> tuple[str, list[MizUnit]]:
                                 side,
                                 float(unit["x"]),
                                 float(unit["y"]),
+                                _is_drawn(group),
                             )
                         )
     return mission["theatre"], units
@@ -531,7 +542,7 @@ class Marker:
     lon: float
     label: str
     lines: list[str]
-    status: str  # "ok", "flagged", "unread", "anchor"
+    status: str  # "ok", "flagged", "unread", "anchor", "drawn"
 
 
 _MAP_TEMPLATE = """<!doctype html>
@@ -563,14 +574,14 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
 <div id="map"></div>
 <script>
 const markers = __MARKERS__;
-const colors = { ok: "#27ae60", flagged: "#c0392b", unread: "#b9770e", anchor: "#2e86c1" };
+const colors = { ok: "#27ae60", flagged: "#c0392b", unread: "#b9770e", anchor: "#2e86c1", drawn: "#8a8a84" };
 const map = L.map("map");
 L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
   { maxZoom: 19, attribution: "Imagery: Esri" }).addTo(map);
 const list = document.getElementById("list");
 const bounds = [];
 for (const m of markers) {
-  const dot = L.circleMarker([m.lat, m.lon], { radius: m.status === "ok" ? 5 : 8,
+  const dot = L.circleMarker([m.lat, m.lon], { radius: m.status === "ok" || m.status === "drawn" ? 5 : 8,
     color: colors[m.status], fillOpacity: 0.85 }).addTo(map);
   dot.bindPopup("<b>" + m.label + "</b><br>" + m.lines.join("<br>"));
   bounds.push([m.lat, m.lon]);
@@ -682,10 +693,14 @@ def _cmd_report(args: argparse.Namespace) -> int:
         cache.save()
     airports = list(terrain.airport_list())
     markers = []
-    flagged = unread = 0
+    flagged = unread = drawn = 0
     for u in units:
         lat, lon = _latlon(terrain, u.x, u.y)
         label = f"{u.group} / {u.unit_type}"
+        if u.drawn:
+            drawn += 1
+            markers.append(Marker(lat, lon, label, ["drawn, not checked"], "drawn"))
+            continue
         problems = []
         on_field = airfield_problem(airports, u.x, u.y)
         if on_field:
@@ -702,7 +717,10 @@ def _cmd_report(args: argparse.Namespace) -> int:
             lines.append("; ".join(problems))
             print(f"{u.group} ({u.unit_type}): {'; '.join(problems)}")
         markers.append(Marker(lat, lon, label, lines, "flagged" if problems else "ok"))
-    summary = f"{len(units)} units, {flagged} flagged, {unread} not read yet."
+    summary = (
+        f"{len(units)} units, {flagged} flagged, {unread} not read yet, "
+        f"{drawn} drawn sites and route markers not checked."
+    )
     page = args.map or REPO_ROOT / "tmp" / "placement" / f"{name}_review.html"
     write_review_map(page, args.miz.stem, summary, markers)
     print(summary)
