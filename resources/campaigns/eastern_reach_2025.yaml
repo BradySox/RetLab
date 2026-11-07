@@ -5,9 +5,10 @@ authors: RetLab
 recommended_player_faction: USA 2020
 recommended_enemy_faction: "[CH] Iran 2025"
 description: >-
-  <p><strong>Note -</strong> Built for CurrentHill's Iran and USA Asset Packs and the
-  RetLab Iran Air Defense Pack; New Game ticks all three, and without them Iran loses
-  its Bavar-373 and 3rd Khordad batteries and its missile launchers.</p>
+  <p><strong>Note -</strong> Built for CurrentHill's Iran and USA Asset Packs, the
+  RetLab Iran Air Defense Pack, and the F-15EX, Super Hornet, F-22A and UH-60L mods; New
+  Game ticks them all. Without the packs Iran loses its Bavar-373 and 3rd Khordad
+  batteries and its missile launchers.</p>
   <p>In the spring of 2025, Iranian missile boats sank two tankers off Jask and a
   Kheibar fired from the hills above Jiroft struck the port at Fujairah. Washington
   answered from the east, away from the mines and guns of the Strait of Hormuz. A
@@ -32,6 +33,11 @@ settings:
   iranairdefensepack: true
   usamilitaryassetspack: true
   f15ex_v3: true
+  # The carrier's Super Hornets and Growlers, the F-22s and the LHA's Black Hawks;
+  # unticked, New Game swaps them for F-14Bs, Hornets, Cobras and Seahawks.
+  fa_18efg: true
+  f22_raptor: true
+  uh_60l: true
   # Al Dhafra is 383 NM from Kerman.
   max_mission_range_planes: 420
 victory:

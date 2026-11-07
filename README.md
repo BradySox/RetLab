@@ -517,7 +517,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   keeps its missile works and most of its Tomcats and Fulcrums behind Bavar-373 batteries.
   Strikes on Kerman fly 300 NM or more from the UAE fields. A carrier and an LHA sit in the
   Gulf of Oman. Take Kerman to win, lose Jask and you lose. Bandar Abbas is out of the war.
-  Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack and the F-15EX V3 mod.
+  Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack, and the F-15EX V3,
+  CJS Super Hornet, F-22A and UH-60L mods.
 - **Red Bear 1985** — fictional: a USAF F-4E wing holds Herat and Shindand in January 1985,
   and the Soviet 40th Army holds the north and Kabul. One axis follows the ring road through
   Maymana and Mazar-i-Sharif to the Salang; the other crosses the mountains through Chaghcharan

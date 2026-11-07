@@ -17,7 +17,9 @@ What these pin is what fails silently:
 Design note: docs/dev/design/retlab-eastern-reach-campaign-notes.md
 """
 
+import copy
 from collections import defaultdict
+from dataclasses import fields
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +33,7 @@ from game.factions import FACTIONS
 from game.theater import ConflictTheater, ParkingType
 from game.theater.airfieldclearance import airfield_clearance_conflicts
 from game.theater.controlpoint import Airfield
+from game.theater.start_generator import ModSettings
 
 YAML = Path("resources/campaigns/eastern_reach_2025.yaml")
 MIZ = Path("resources/campaigns/eastern_reach_2025.miz")
@@ -93,6 +96,9 @@ def test_new_game_ticks_every_mod(loaded: tuple[Campaign, ConflictTheater]) -> N
         "iranairdefensepack",
         "usamilitaryassetspack",
         "f15ex_v3",
+        "fa_18efg",
+        "f22_raptor",
+        "uh_60l",
     ):
         assert campaign.settings[mod] is True, mod
 
@@ -150,18 +156,29 @@ def test_the_victory_rules(loaded: tuple[Campaign, ConflictTheater]) -> None:
 def test_every_squadron_flies_a_type_its_side_fields(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
+    """With only the campaign's own mod boxes ticked, as New Game does.
+
+    A type the ticked mods do not provide is swapped at New Game with no log
+    line: unticked Super Hornets came out as F-14Bs and F-22s as AH-1Ws (2026-11-07).
+    """
     campaign, theater = loaded
+    names = {f.name for f in fields(ModSettings)}
+    mods = ModSettings(
+        **{k: v for k, v in campaign.settings.items() if k in names and v is True}
+    )
+    rosters = {}
+    for blue, faction_name in ((True, BLUE_FACTION), (False, RED_FACTION)):
+        faction = copy.deepcopy(FACTIONS[faction_name])
+        faction.apply_mod_settings(mods)
+        rosters[blue] = {a.display_name for a in faction.all_aircrafts}
     config = campaign.load_air_wing_config(theater)
-    rosters = {True: FACTIONS[BLUE_FACTION], False: FACTIONS[RED_FACTION]}
     for cp, squadrons in config.by_location.items():
-        fielded = {
-            a.display_name for a in rosters[cp.starting_coalition.is_blue].all_aircrafts
-        }
+        fielded = rosters[cp.starting_coalition.is_blue]
         for squadron in squadrons:
             kind = AircraftType.named(
                 squadron.aircraft_type or squadron.aircraft[0]
             ).display_name
-            assert kind in fielded, f"{cp.name}: the faction has no {kind}"
+            assert kind in fielded, f"{cp.name}: New Game would swap the {kind}"
 
 
 def test_no_base_oversubscribes_a_stand_class(

@@ -1,0 +1,1 @@
+* **[Campaigns]** Eastern Reach 2025: New Game ticks the Super Hornet, F-22A and UH-60L mods. Unticked, the carrier's Super Hornets came out as F-14Bs, the F-22s as AH-1Ws and the Black Hawks as SH-60Bs.
