@@ -128,3 +128,16 @@ def test_factions_list_the_jets_only_when_the_mod_is_ticked(
     jets = set(NAMES.values())
     assert {a.variant_id for a in _faction(path, True).aircraft} & jets == names
     assert not {a.variant_id for a in _faction(path, False).aircraft} & jets
+
+
+def test_only_the_610_gal_tanks_count_as_fuel() -> None:
+    """A conformal-station missile once read as a drop tank in the fuel plan."""
+    from game.retlab.range_fuel import is_fuel_tank
+    from pydcs_extensions.f15ex.f15ex import WeaponsF15EX
+
+    stores = [v for v in vars(WeaponsF15EX).values() if isinstance(v, dict)]
+    assert not [s["name"] for s in stores if is_fuel_tank(s["clsid"])]
+    for unit in UNITS:
+        for name, fit in _fits(unit).items():
+            tanks = [c for c in fit.values() if is_fuel_tank(c)]
+            assert tanks == ["{F15E_EXTTANK}"] * 3, f"{unit} {name}"

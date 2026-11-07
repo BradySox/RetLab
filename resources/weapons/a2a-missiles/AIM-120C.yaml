@@ -31,9 +31,9 @@ clsids:
   - "Herc_Ammo_AIM120C_missiles"   # Ammo AIM-120C*24 [10665lb]
   - "{AMBER_2xAIM120C5}"   # AMBER 2x AIM-120C AMRAAM - Active Radar AAM
   - "{F15EX_2xAIM-120C-5}"   # 2x AIM-120C AMRAAM - Active Radar AAM
-  - "{F15EX_AIM-120C-5_CFT_A}"   # AIM-120C AMRAAM - Active Radar AAM (CFT A)
-  - "{F15EX_AIM-120C-5_CFT_F}"   # AIM-120C AMRAAM - Active Radar AAM (CFT F)
-  - "{F15EX_AIM-120C-5_CFT_RA}"   # AIM-120C AMRAAM - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-120C-5_CFT_A}"   # AIM-120C AMRAAM - Active Radar AAM (conformal aft)
+  - "{F15EX_AIM-120C-5_CFT_F}"   # AIM-120C AMRAAM - Active Radar AAM (conformal front)
+  - "{F15EX_AIM-120C-5_CFT_RA}"   # AIM-120C AMRAAM - Active Radar AAM (conformal right aft)
   - "{F15EX_AIM-120C-5_STA11A}"   # AIM-120C AMRAAM - Active Radar AAM (STA11A)
   - "{F15EX_AIM-120C-5_STA11B}"   # AIM-120C AMRAAM - Active Radar AAM (STA11B)
   - "{F15EX_AIM-120C-5_STA2A}"   # AIM-120C AMRAAM - Active Radar AAM (STA2A)

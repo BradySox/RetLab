@@ -53,16 +53,16 @@ clsids:
   - "{AMBER_2xAIM120D}"   # AMBER 2x AIM-120D-3 AMRAAM - Active Radar AAM
   - "{F15EX_2xAIM-120D-3}"   # 2x AIM-120D-3 AMRAAM - Active Radar AAM
   - "{F15EX_2xAIM-120D}"   # 2x AIM-120D P3I AMRAAM - Active Radar AAM
-  - "{F15EX_AIM-120D-3_CFT_A}"   # AIM-120D-3 AMRAAM - Active Radar AAM (CFT A)
-  - "{F15EX_AIM-120D-3_CFT_F}"   # AIM-120D-3 AMRAAM - Active Radar AAM (CFT F)
-  - "{F15EX_AIM-120D-3_CFT_RA}"   # AIM-120D-3 AMRAAM - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-120D-3_CFT_A}"   # AIM-120D-3 AMRAAM - Active Radar AAM (conformal aft)
+  - "{F15EX_AIM-120D-3_CFT_F}"   # AIM-120D-3 AMRAAM - Active Radar AAM (conformal front)
+  - "{F15EX_AIM-120D-3_CFT_RA}"   # AIM-120D-3 AMRAAM - Active Radar AAM (conformal right aft)
   - "{F15EX_AIM-120D-3_STA11A}"   # AIM-120D-3 AMRAAM - Active Radar AAM (STA11A)
   - "{F15EX_AIM-120D-3_STA11B}"   # AIM-120D-3 AMRAAM - Active Radar AAM (STA11B)
   - "{F15EX_AIM-120D-3_STA2A}"   # AIM-120D-3 AMRAAM - Active Radar AAM (STA2A)
   - "{F15EX_AIM-120D-3_STA2B}"   # AIM-120D-3 AMRAAM - Active Radar AAM (STA2B)
-  - "{F15EX_AIM-120D_CFT_A}"   # AIM-120D P3I AMRAAM - Active Radar AAM (CFT A)
-  - "{F15EX_AIM-120D_CFT_F}"   # AIM-120D P3I AMRAAM - Active Radar AAM (CFT F)
-  - "{F15EX_AIM-120D_CFT_RA}"   # AIM-120D P3I AMRAAM - Active Radar AAM (CFT RA)
+  - "{F15EX_AIM-120D_CFT_A}"   # AIM-120D P3I AMRAAM - Active Radar AAM (conformal aft)
+  - "{F15EX_AIM-120D_CFT_F}"   # AIM-120D P3I AMRAAM - Active Radar AAM (conformal front)
+  - "{F15EX_AIM-120D_CFT_RA}"   # AIM-120D P3I AMRAAM - Active Radar AAM (conformal right aft)
   - "{F15EX_AIM-120D_STA11A}"   # AIM-120D P3I AMRAAM - Active Radar AAM (STA11A)
   - "{F15EX_AIM-120D_STA11B}"   # AIM-120D P3I AMRAAM - Active Radar AAM (STA11B)
   - "{F15EX_AIM-120D_STA2A}"   # AIM-120D P3I AMRAAM - Active Radar AAM (STA2A)
