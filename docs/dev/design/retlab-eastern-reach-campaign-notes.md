@@ -10,7 +10,7 @@ Owner: this note. CI lock: `tests/retlab/test_eastern_reach_2025.py`.
 | Files | `resources/campaigns/eastern_reach_2025.yaml` + `.miz` |
 | Source | The `.miz` is the DM's Mission Editor save (2026-11-07). **Edit it in the ME**; the build tool that made the first cut (`tools/build_eastern_reach_miz.py`, on the placement tool) was dropped before merge; it is in PR #1461's commits |
 | Placement | `tools/campaign_placement.py`; the readings cache is `Saved Games\DCS\RetLab placement\PersianGulf.json` |
-| Factions | `USA 2020` (stock + CurrentHill USA + F-15EX V3), `[CH] Iran 2025` (CurrentHill Iran + RetLab Iran Air Defense Pack) |
+| Factions | `USA 2020` (stock + CurrentHill USA + the F-15EX V3, CJS Super Hornet, F-22A and UH-60L mods; New Game ticks them all, and an unticked one is swapped silently, 2026-11-07), `[CH] Iran 2025` (CurrentHill Iran + RetLab Iran Air Defense Pack) |
 | Checklist row | B317 |
 
 ## Why it exists
