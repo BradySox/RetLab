@@ -189,11 +189,20 @@ ITEMS: tuple[Item, ...] = tuple(
         Item("ER-Kerman-LORAD-2", Job.SPOT, "Kerman north field", LORAD),
         Item("ER-Kerman-MERAD", Job.SPOT, "Kerman south ridge", MERAD),
         Item("ER-Kerman-EWR-South", Job.EWR, "Kerman south ridge", EWR),
-        Item("ER-Kerman-Power", Job.SPOT, "Kerman south edge", Fortification.GeneratorF),
-        Item("ER-Kerman-Comms", Job.SPOT, "Kerman north plain", Fortification.Comms_tower_M),
+        Item(
+            "ER-Kerman-Power", Job.SPOT, "Kerman south edge", Fortification.GeneratorF
+        ),
+        Item(
+            "ER-Kerman-Comms",
+            Job.SPOT,
+            "Kerman north plain",
+            Fortification.Comms_tower_M,
+        ),
         Item("ER-Kerman-Factory-1", Job.DEPOT, "Kerman", Fortification.Workshop_A),
         Item("ER-Kerman-Factory-2", Job.DEPOT, "Kerman", Fortification.Workshop_A),
-        Item("ER-Kerman-Missile-Works", Job.DEPOT, "Kerman", Fortification.Tech_combine),
+        Item(
+            "ER-Kerman-Missile-Works", Job.DEPOT, "Kerman", Fortification.Tech_combine
+        ),
         Item("ER-Kerman-Motorpool", Job.DEPOT, "Kerman", Fortification.Garage_A),
         Item("ER-Kerman-Missiles-1", Job.SPOT, "Kerman west hills", MISSILE),
         Item("ER-Kerman-Missiles-2", Job.SPOT, "Kerman south ridge", MISSILE),
@@ -209,7 +218,12 @@ ITEMS: tuple[Item, ...] = tuple(
     + _red_fob("FOB Jebal Barez", "JebalBarez")
     + [
         Item("ER-JebalBarez-MERAD", Job.SPOT, "Sardu hills", MERAD),
-        Item("ER-JebalBarez-Comms", Job.SPOT, "Jebal Barez pass", Fortification.Comms_tower_M),
+        Item(
+            "ER-JebalBarez-Comms",
+            Job.SPOT,
+            "Jebal Barez pass",
+            Fortification.Comms_tower_M,
+        ),
     ]
     # Kahnuj.
     + _red_fob("FOB Kahnuj", "Kahnuj", pads=4)
@@ -242,13 +256,39 @@ ITEMS: tuple[Item, ...] = tuple(
     ]
     # Blue: the beachhead and the rear.
     + [
-        Item("ER-Jask-SHORAD", Job.AIR_DEFENSE, "Bandar-e-Jask", BLUE_SHORAD, BLUE_BLOCK),
+        Item(
+            "ER-Jask-SHORAD", Job.AIR_DEFENSE, "Bandar-e-Jask", BLUE_SHORAD, BLUE_BLOCK
+        ),
         Item("ER-Jask-Garrison-1", Job.GARRISON, "Bandar-e-Jask", ARMOR, BLUE_BLOCK),
         Item("ER-Jask-Garrison-2", Job.GARRISON, "Bandar-e-Jask", ARMOR, BLUE_BLOCK),
-        Item("ER-Jask-Ammo", Job.DEPOT, "Bandar-e-Jask", Warehouse._Ammunition_depot, BLUE_BLOCK),
-        Item("ER-Fujairah-SHORAD", Job.AIR_DEFENSE, "Fujairah Intl", BLUE_SHORAD, BLUE_BLOCK),
-        Item("ER-Fujairah-Ammo", Job.DEPOT, "Fujairah Intl", Warehouse._Ammunition_depot, BLUE_BLOCK),
-        Item("ER-Dhafra-Factory", Job.DEPOT, "Al Dhafra AFB", Fortification.Workshop_A, BLUE_BLOCK),
+        Item(
+            "ER-Jask-Ammo",
+            Job.DEPOT,
+            "Bandar-e-Jask",
+            Warehouse._Ammunition_depot,
+            BLUE_BLOCK,
+        ),
+        Item(
+            "ER-Fujairah-SHORAD",
+            Job.AIR_DEFENSE,
+            "Fujairah Intl",
+            BLUE_SHORAD,
+            BLUE_BLOCK,
+        ),
+        Item(
+            "ER-Fujairah-Ammo",
+            Job.DEPOT,
+            "Fujairah Intl",
+            Warehouse._Ammunition_depot,
+            BLUE_BLOCK,
+        ),
+        Item(
+            "ER-Dhafra-Factory",
+            Job.DEPOT,
+            "Al Dhafra AFB",
+            Fortification.Workshop_A,
+            BLUE_BLOCK,
+        ),
     ]
 )
 
@@ -257,7 +297,12 @@ ITEMS: tuple[Item, ...] = tuple(
 ROADS = (
     (
         "Bandar-e-Jask",
-        ((25.7916, 57.7749), (25.8437, 57.6132), (25.8516, 57.3780), (26.3263, 57.2452)),
+        (
+            (25.7916, 57.7749),
+            (25.8437, 57.6132),
+            (25.8516, 57.3780),
+            (26.3263, 57.2452),
+        ),
         "FOB Sirik",
     ),
     (
@@ -267,7 +312,12 @@ ROADS = (
     ),
     (
         "FOB Minab",
-        ((27.2209, 57.0557), (27.4311, 57.0350), (27.4982, 57.4047), (27.6632, 57.6593)),
+        (
+            (27.2209, 57.0557),
+            (27.4311, 57.0350),
+            (27.4982, 57.4047),
+            (27.6632, 57.6593),
+        ),
         "FOB Kahnuj",
     ),
     (
@@ -282,7 +332,12 @@ ROADS = (
     ),
     (
         "FOB Jebal Barez",
-        ((29.5329, 57.7989), (29.7631, 57.5848), (30.0335, 57.2935), (30.1091, 57.1839)),
+        (
+            (29.5329, 57.7989),
+            (29.7631, 57.5848),
+            (30.0335, 57.2935),
+            (30.1091, 57.1839),
+        ),
         "Kerman",
     ),
 )
@@ -378,8 +433,7 @@ def _report(name: str, position: Point, anchor: str = "") -> None:
 def _anchors(mission: Mission) -> dict[str, Point]:
     terrain = mission.terrain
     anchors = {
-        name: terrain.airports[name].position
-        for name in BLUE_AIRFIELDS + RED_AIRFIELDS
+        name: terrain.airports[name].position for name in BLUE_AIRFIELDS + RED_AIRFIELDS
     }
     for name, lat, lon in FOBS:
         anchors[name] = _xy(terrain, lat, lon)
@@ -431,7 +485,10 @@ def _author(mission: Mission, placer: Placer, anchors: dict[str, Point]) -> list
         # The roads end on the FOB's final spot.
         anchors[name] = position
         mission.vehicle_group(
-            country=_country(mission, RED_BLOCK), name=name, _type=FOB, position=position
+            country=_country(mission, RED_BLOCK),
+            name=name,
+            _type=FOB,
+            position=position,
         )
         _report(name, position)
 
@@ -502,7 +559,9 @@ def _copy_template_sites(mission: Mission, template: Optional[Path]) -> None:
         copy.points[0].action = PointAction.OffRoad
         copy.points[0].speed = 0
         for unit in units[1:]:
-            added = mission.vehicle(f"{new_name} {len(copy.units) + 1}", _vehicle_type(unit.type))
+            added = mission.vehicle(
+                f"{new_name} {len(copy.units) + 1}", _vehicle_type(unit.type)
+            )
             added.position = Point(unit.position.x, unit.position.y, mission.terrain)
             added.heading = unit.heading
             copy.add_unit(added)
