@@ -32,7 +32,7 @@ Three causes:
 - **Jobs** (`Job`): DEPOT (ring 600-1,800 m), GARRISON (1,500-2,700 m, inside the 3 km
   capture zone), AIR_DEFENSE (under both approaches of each runway, 800-2,400 m past the
   runway end, up to 1,000 m either side; picks spread across the ends), EWR (1 km grid
-  2-12 km out, highest ground first), TOWN (100 m grid within 1,500 m; prefers a spot with
+  2-8 km out, highest ground first), TOWN (100 m grid within 1,500 m; prefers a spot with
   a building inside 60 m), SPOT (as close to a named point as good ground allows).
 - **Separation** between picks by job (`SEPARATION_M`): EWRs 2 km apart, air defense
   900 m.
@@ -73,6 +73,14 @@ sites (revetment pads read as road, berms as slope over 25 m) and 15 on supply-r
 rail markers. `report` now draws FIXED groups and multi-waypoint groups grey as drawn and
 never checks them; 28 units remain flagged. Scenery returns buildings, tents and tank
 covers; no tree was ever the nearest object.
+
+## Eastern Reach (2026-11-07)
+
+Built on the placer; the DM still moved 25 of 95 groups. Depots, factories and motor
+pools all stayed. 9 were nudges under 1 km; 6 were named spots or town centres I had
+guessed (the Jiroft command post 8 km); the whole Kahnuj FOB moved 0.5 km together; 5
+were EWRs, three pulled down off peaks. His calls: guessed anchors stay (no anchor
+sheet for him to drag); EWRs search 8 km, not 12.
 
 ## Open
 
