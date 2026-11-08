@@ -56,13 +56,13 @@ squadrons:
   # Hatzor
   20:
     - primary: BAI
-      secondary: any
+      secondary: air-to-ground
       aircraft:
         - A-4E Skyhawk
         - F-4E-45MC Phantom II
       size: 20
     - primary: Strike
-      secondary: any
+      secondary: air-to-ground
       aircraft:
         - A-4E Skyhawk
         - F-4E-45MC Phantom II
@@ -83,8 +83,8 @@ squadrons:
       size: 4
   # Melez
   5:
-    - primary: BAI
-      secondary: any
+    - primary: BARCAP
+      secondary: air-to-air
       aircraft:
         - MiG-15bis Fagot
       size: 16
