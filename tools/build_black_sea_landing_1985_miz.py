@@ -80,10 +80,11 @@ RED_BLOCK = "red"
 BLUE_BLOCK = "blue"
 
 #: Red FOBs on the highway (name, lat, lon), each just outside its town. Khashuri
-#: is the spot Northern Russia and Iron Gate already use.
+#: is the spot Northern Russia and Iron Gate already use. The landmap has no land
+#: in the Rioni delta round Poti, so FOB Poti sits on the Poti road 15 km inland.
 FOBS = (
-    ("FOB Poti", 42.13, 41.70),
-    ("FOB Zugdidi", 42.509, 41.871),
+    ("FOB Poti", 42.2367, 41.8673),
+    ("FOB Zugdidi", 42.5252, 41.9036),
     ("FOB Zestafoni", 42.125, 43.06),
     ("FOB Khashuri", 41.993, 43.632),
     ("FOB Gori", 41.965, 44.14),
@@ -96,20 +97,19 @@ PLACES = {
     "Tbilisi command": (41.738, 44.811),
     "Tbilisi tower": (41.742, 44.764),
     "Tbilisi power": (41.698, 44.784),
-    "Tbilisi north hills": (41.80, 44.80),
-    "Mtskheta": (41.845, 44.715),
+    "Tbilisi north hills": (41.8133, 44.7994),
+    "Mtskheta": (41.8619, 44.7223),
     "Rustavi steel works": (41.55, 45.01),
     "Zhinvali dam": (42.13, 44.77),
     "Gori town": (41.984, 44.113),
-    "Gori south ridge": (41.666, 44.116),
+    "Gori east hills": (41.95, 44.20),
     "Mukhrani plain": (41.93, 44.57),
     "Surami pass": (42.03, 43.50),
     "Zestafoni works": (42.11, 43.03),
-    "Kutaisi town": (42.27, 42.70),
+    "Kutaisi town": (42.283, 42.665),
     "Tskaltubo hills": (42.33, 42.60),
     "Jvari": (42.715, 42.05),
-    "Poti port": (42.15, 41.67),
-    "Sukhumi town": (43.00, 41.02),
+    "Sukhumi town": (43.0194, 41.0273),
     "Mozdok town": (43.74, 44.65),
 }
 
@@ -211,7 +211,7 @@ ITEMS: tuple[Item, ...] = tuple(
     + [
         Item("BSL-Gori-SAM", Job.SPOT, "Gori town", MERAD),
         Item(
-            "BSL-Gori-Tower", Job.SPOT, "Gori south ridge", Fortification.Comms_tower_M
+            "BSL-Gori-Tower", Job.SPOT, "Gori east hills", Fortification.Comms_tower_M
         ),
         Item("BSL-Gori-EWR", Job.EWR, "FOB Gori", EWR),
     ]
@@ -244,12 +244,9 @@ ITEMS: tuple[Item, ...] = tuple(
         Item("BSL-Senaki-SAM", Job.AIR_DEFENSE, "Senaki-Kolkhi", MERAD),
         Item("BSL-Jvari-Power", Job.TOWN, "Jvari", Fortification.GeneratorF),
     ]
-    # Poti: the port on the coast road.
+    # Poti: the road inland from the port.
     + _red_fob("FOB Poti", "Poti")
-    + [
-        Item("BSL-Poti-SHORAD", Job.AIR_DEFENSE, "FOB Poti", SHORAD),
-        Item("BSL-Poti-Port", Job.TOWN, "Poti port", Warehouse._Ammunition_depot),
-    ]
+    + [Item("BSL-Poti-SHORAD", Job.AIR_DEFENSE, "FOB Poti", SHORAD)]
     # Zugdidi and Sukhumi up the Abkhaz coast.
     + _red_fob("FOB Zugdidi", "Zugdidi")
     + _red_field("Sukhumi-Babushara", "Sukhumi", "Sukhumi town")
@@ -273,12 +270,17 @@ ROADS = (
     ),
     (
         "Kobuleti",
-        ((41.9375, 41.8226), (41.986, 41.7747), (42.0626, 41.7243)),
+        (
+            (41.9375, 41.8226),
+            (41.986, 41.7747),
+            (42.0626, 41.7243),
+            (42.2047, 41.7316),
+        ),
         "FOB Poti",
     ),
     (
         "FOB Poti",
-        ((42.2047, 41.7316), (42.2367, 41.8673), (42.2572, 42.0078)),
+        ((42.245, 41.93), (42.2572, 42.0078)),
         "Senaki-Kolkhi",
     ),
     (
