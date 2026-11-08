@@ -30,7 +30,7 @@ from game.factions import FACTIONS
 from game.squadrons.squadrondefloader import SquadronDefLoader
 from game.theater import ConflictTheater, ParkingType
 from game.theater.airfieldclearance import airfield_clearance_conflicts
-from game.theater.controlpoint import Airfield
+from game.theater.controlpoint import Airfield, motorpools_inside_capture_zone
 from game.theater.start_generator import ModSettings
 
 YAML = Path("resources/campaigns/black_sea_landing_1985.yaml")
@@ -196,3 +196,11 @@ def test_nothing_stands_on_a_runway_or_stand(
 ) -> None:
     _, theater = loaded
     assert airfield_clearance_conflicts(theater) == []
+
+
+def test_motor_pools_sit_outside_the_capture_zone(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """A motor pool's parked reserve inside 3 km blocks the base's capture."""
+    _, theater = loaded
+    assert motorpools_inside_capture_zone(theater.controlpoints) == []

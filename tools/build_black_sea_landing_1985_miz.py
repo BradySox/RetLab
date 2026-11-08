@@ -114,6 +114,15 @@ PLACES = {
 }
 
 
+#: Motor pools (map x, y): outside the 3 km capture zone, or their parked reserve
+#: blocks the base's capture. Flat, clear ground the check runs read, about 3.8 km
+#: from Lochini and FOB Khashuri (2026-11-08).
+MOTORPOOLS_XY = {
+    "BSL-Tbilisi-Motorpool": (-318671.0, 898630.0),
+    "BSL-Khashuri-Motorpool": (-290585.0, 781612.0),
+}
+
+
 @dataclass(frozen=True)
 class Item:
     """One unit to place: its name, job, anchor, type and country block."""
@@ -177,12 +186,6 @@ ITEMS: tuple[Item, ...] = tuple(
             "BSL-Tbilisi-Tower", Job.TOWN, "Tbilisi tower", Fortification.Comms_tower_M
         ),
         Item("BSL-Tbilisi-Power", Job.TOWN, "Tbilisi power", Fortification.GeneratorF),
-        Item(
-            "BSL-Tbilisi-Motorpool",
-            Job.DEPOT,
-            "Tbilisi-Lochini",
-            Fortification.Garage_A,
-        ),
         Item("BSL-Mukhrani-Missiles", Job.SPOT, "Mukhrani plain", MISSILE),
         Item("BSL-Zhinvali-Power", Job.SPOT, "Zhinvali dam", Fortification.GeneratorF),
     ]
@@ -219,7 +222,6 @@ ITEMS: tuple[Item, ...] = tuple(
     + _red_fob("FOB Khashuri", "Khashuri")
     + [
         Item("BSL-Surami-SAM", Job.SPOT, "Surami pass", MERAD),
-        Item("BSL-Khashuri-Depot", Job.DEPOT, "FOB Khashuri", Fortification.Garage_A),
     ]
     # Zestafoni: the ferroalloy works at the foot of the pass.
     + _red_fob("FOB Zestafoni", "Zestafoni", pads=2)
@@ -506,6 +508,15 @@ def _author(mission: Mission, placer: Placer, anchors: dict[str, Point]) -> list
         position = Point(pick.x, pick.y, terrain)
         _write_unit(mission, item, position)
         _report(item.name, position, item.anchor)
+    for name, (x, y) in MOTORPOOLS_XY.items():
+        position = Point(x, y, terrain)
+        mission.static_group(
+            country=_country(mission, RED_BLOCK),
+            name=name,
+            _type=Fortification.Garage_A,
+            position=position,
+        )
+        _report(name, position)
     return unplaced
 
 
