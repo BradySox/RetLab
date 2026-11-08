@@ -150,16 +150,18 @@ the CJTF Red block:
 
 | Where | Added | Binds to |
 |---|---|---|
-| Latakia | LORAD beside Bassel, MERAD 12 nm north, EWR 27 nm north | Bassel Al-Assad |
-| Aleppo | MERAD north, south, Kuweires, Jirah, Tabqa; EWR north, Minakh, Tabqa | Aleppo |
+| Latakia | two MERADs and an EWR at Bassel Al-Assad | Bassel Al-Assad |
+| Aleppo | two MERADs at Aleppo; MERADs at Kuweires, Jirah, Tabqa; EWRs at Aleppo, Minakh, Tabqa | Aleppo |
 | Tal Siman | MERAD, EWR | Sanliurfa |
 | Gaziantep | MERAD | Azaz FOB |
 | South-west of Konya | LORAD, MERAD and EWR at Seydisehir-Beysehir (44-48 nm); MERAD at Bozkir (50 nm) | Konya |
 
-- **Positions came from two DCS user-file Syria missions**, a Turkish F-16 strike
-  mission (Skynet laydown) and `SY_Envio_v3`. Neither file names an author or a
-  licence, so only the site positions were used. The markers are our own.
-  The Konya belt is the exception: see the next bullet.
+- **The 14 Syrian and Gaziantep sites are placed by job (re-placed 2026-11-07, DM
+  call).** `tools/campaign_placement.py`: each MERAD under a runway approach of the
+  field it defends, each EWR on the highest flat ground within 5 miles of its
+  field, every spot read in DCS (slope at most 4.4 degrees, no buildings, roads or
+  water). History: they first sat at positions read from two unlicensed DCS
+  user-file missions; upstream PR #990 needed our own.
 - **The first Konya belt was a misread template row (re-laid 2026-10-08).**
   `SY_Envio_v3`'s nine late-activated template groups sit in one dead-straight
   line off the map; the mission's real sites are copies of them. Read as a

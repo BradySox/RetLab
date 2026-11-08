@@ -1,0 +1,1 @@
+* **[Campaigns]** Anatolian Reach: 14 Syrian and Gaziantep air-defense sites move to new spots, each under a runway approach or on high ground near the field it defends and checked in DCS for slope and buildings. New games only.
