@@ -44,7 +44,7 @@ BLUE_AIRPORTS = {4, 1}  # Nellis, Creech (Indian Springs)
 RED_AIRPORTS = {2, 16, 17, 18, 5}  # Groom, Pahute Mesa, Tonopah, TTR, Beatty
 
 # --- The laydown (design note section 3), re-pointed 2026-07-02 at the
-# --- Reflected Simulations "F-4E Red Flag 81-2" reference miz set: positions
+# --- campaign K (a commercial F-4E Red Flag 81-2 campaign) reference miz set: positions
 # --- below are cross-mission cluster centers extracted from the 15 campaign
 # --- missions (raw-Lua parse; see the design note for the method + census).
 SA2_SITES = [

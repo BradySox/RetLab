@@ -5,11 +5,11 @@ Design and build notes for **Nevada - Red Flag 81-2**
 campaign on the NTTR that recreates the **1981 Red Flag exercise war** with the full
 **Vietnam mechanics stack** (political will, static front, ROE/phases arc, Vietnam Ops
 runtime suite, Vietnam doctrines). The styling/laydown reference is the commercial
-**Reflected Simulations "F-4E Red Flag 81-2"** DCS campaign the squadron flies (its
+**campaign K**, a commercial F-4E Red Flag 81-2 DCS campaign the squadron flies (its
 kneeboard idiom is already harvested in `retlab-campaign-doc-ideas-harvest.md` §1).
 
 > **Laydown refined against the reference (2026-07-02):** the squadron supplied the
-> Reflected 81-2 campaign's 15 mission `.miz` files and the laydown tables were
+> campaign K's 15 mission `.miz` files and the laydown tables were
 > re-pointed at the real placements (see §3a for the extraction method and what the
 > reference actually showed). The dreamlandresort first cut is superseded; a NEW game
 > is required to see the refined laydown.
@@ -43,7 +43,7 @@ the exercise assessment.
   Nellis 1981), **388th TFW F-4Es** (until their 1980 F-16 conversion), **George AFB
   F-4G Advanced Wild Weasels**, **RF-4C** recon squadrons flying the reconnaissance
   block of nearly every flag, plus ANG/AFRES F-4C/D units.
-- **Red Flag 81-2** (second flag of FY81): the Reflected campaign puts the player in
+- **Red Flag 81-2** (second flag of FY81): campaign K puts the player in
   the **336th TFS "Rocketeers" (4th TFW, Seymour Johnson AFB)** on a two-week
   detachment to Nellis — **13 missions**, force-on-force over the NTTR.
 
@@ -71,7 +71,7 @@ the exercise assessment.
 Sources: Wikipedia "Exercise Red Flag", Air & Space Forces Magazine "Red Flag",
 dreamlandresort.com NTTR exercise/range pages, Nellis RetLab CTS fact sheet (yes — the
 real Red Flag is run by the **RetLab** Combat Training Squadron, which is too good a
-coincidence not to note), Reflected Simulations product page.
+coincidence not to note), campaign K's product page.
 
 ---
 
@@ -96,7 +96,7 @@ aggressors are *playing* Hanoi; that's the fiction of the exercise itself.
 
 ---
 
-## 3. Laydown (re-pointed at the Reflected reference, 2026-07-02)
+## 3. Laydown (re-pointed at the campaign K reference, 2026-07-02)
 
 Base `.miz` derived from `exercise_vegas_nerve.miz` (same theater, rebuilt marker set,
 ownership flipped to the classic Red Flag geometry: Blue in the SE corner, Red holding
@@ -264,8 +264,11 @@ Two new faction files (era-correct, doctrine-wired):
   `vietnam`** (MiGCAP/knife-fight ranges, strike-through-threat, no-SEAD whitelist —
   Iron Hand rides the strike packages, which is exactly how an F-4E wing without
   co-located Weasels fought). Air: F-4E-45MC (player), A-10A (new at Red Flag
-  ~1979+), OV-10A (mod), RF-101B (VWV; RF-4C stand-in — no DCS RF-4C), B-52H, C-130,
-  UH-1H/CH-47D helos, E-3A (IOC 1977) + KC-135s.
+  ~1979+), OV-10A (mod), B-52H, C-130J-30 (a fudge: DCS retired its AI C-130),
+  UH-1H and CH-53E helos, E-3A (IOC 1977) + KC-135s. No photo jet: the RF-101B
+  was retired in 1975 and DCS has no RF-4C. Period cleanup 2026-11-08 (DM call):
+  the CH-47D became the CH-53E (the USAF flew
+  CH-53s, never Chinooks), and the AH-1W and the RF-101B were dropped.
 - **`red_force_aggressors_1981.json`** — "Red Force 1981 (Nellis Aggressors)",
   country **USAF Aggressors** (a real DCS country), **doctrine
   `vietnam_air_defense`** (red's air force IS its BARCAP + `gci_ambush`). Air: F-5E
@@ -318,7 +321,7 @@ Mirrors Yankee Station's block except:
 - `vietnam_political_will: true`, `vietnam_static_front: true` — the requested core.
 - `restrict_weapons_by_date: true` + start date **1981-01-26** → AIM-7F/AIM-9J/L-era
   loadouts fall out of the date gate; JHMCS-era props gated off by §24.
-- Mods: `vietnamwarvessels: true` (MiG-17F/MiG-21MF/RF-101B), `ov10a_bronco: true`,
+- Mods: `vietnamwarvessels: true` (MiG-17F/MiG-21MF), `ov10a_bronco: true`,
   `high_digit_sams: true` (the two EWR sites fill with the period **P-37 Bar Lock** —
   flipped ON across all five Vietnam-era campaigns 2026-07-02, squadron call; HDS
   Ultimate is on the Required-Mods pages).
