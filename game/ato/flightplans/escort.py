@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from datetime import datetime
+import math
+from collections.abc import Iterator
+from dataclasses import dataclass
+from datetime import datetime, timedelta
 from typing import Type
 
 from .airassault import AirAssaultLayout
@@ -16,6 +19,24 @@ from .. import FlightType
 from ..flightwaypoint import FlightWaypoint
 from ..packagewaypoints import PackageWaypoints
 from ...utils import feet
+
+
+@dataclass
+class EscortLayout(FormationAttackLayout):
+    """An escort's run ends at its Escort Hold.
+
+    The TARGET point stays in the layout as the package-TOT reference but is not
+    flown: it sat on the defended site, so a player escort's route ran through
+    the SAM rings the shooters launch from outside of.
+    """
+
+    def is_hidden_target(self, waypoint: FlightWaypoint) -> bool:
+        return self.initial is not None and any(waypoint is t for t in self.targets)
+
+    def iter_waypoints(self) -> Iterator[FlightWaypoint]:
+        for waypoint in super().iter_waypoints():
+            if not self.is_hidden_target(waypoint):
+                yield waypoint
 
 
 class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
@@ -42,6 +63,23 @@ class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
         ]
         return escort_overlay(route=route, engagement_range=rng)
 
+    def _travel_time_to_waypoint(self, destination: FlightWaypoint) -> timedelta:
+        # The unflown TARGET still times the escort, as if reached via the hold.
+        layout = self.layout
+        if not (
+            isinstance(layout, EscortLayout) and layout.is_hidden_target(destination)
+        ):
+            return super()._travel_time_to_waypoint(destination)
+        assert layout.initial is not None
+        total = sum(
+            (
+                self.total_time_between_waypoints(a, b)
+                for a, b in self.edges(until=layout.initial)
+            ),
+            timedelta(),
+        ) + self.total_time_between_waypoints(layout.initial, destination)
+        return timedelta(seconds=math.floor(total.total_seconds()))
+
     @property
     def split_time(self) -> datetime:
         # Avoid infinite recursion when this escort flight is itself the primary flight
@@ -57,7 +95,7 @@ class EscortFlightPlan(FormationAttackFlightPlan, TacticalOverlayDisplay):
 
 
 class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
-    def layout(self) -> FormationAttackLayout:
+    def layout(self) -> FormationAttackLayout:  # noqa: C901
         non_formation_escort = False
         if self.package.waypoints is None:
             self.package.waypoints = PackageWaypoints.create(
@@ -126,9 +164,12 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
 
         ingress_nav: list[FlightWaypoint] = []
         egress_nav: list[FlightWaypoint] = []
-        if not non_formation_escort and not (
+        # An air assault or airlift escort holds at the drop-off, and a
+        # non-formation escort's TARGET is its join: both keep the whole route.
+        package_escort = not non_formation_escort and not (
             pf and pf.flight_type in [FlightType.AIR_ASSAULT, FlightType.TRANSPORT]
-        ):
+        )
+        if package_escort:
             ingress_nav, egress_nav = self._sam_detours(
                 builder, builder.get_cruise_altitude, False
             )
@@ -154,7 +195,8 @@ class Builder(FormationAttackBuilder[EscortFlightPlan, FormationAttackLayout]):
             builder.get_cruise_altitude,
         )
 
-        return FormationAttackLayout(
+        layout_type = EscortLayout if package_escort else FormationAttackLayout
+        return layout_type(
             departure=departure,
             hold=hold,
             pre_push_refuel=pre_push_refuel,
