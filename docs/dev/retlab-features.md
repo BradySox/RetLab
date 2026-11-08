@@ -1968,6 +1968,13 @@ that code.
   where bombers release), and one attacker with no ranged weapon keeps the IP. It matters for a
   player escort's route and for an escort whose primary never flies, which holds its anchor
   (the test 36 entry below). Tests: `tests/ato/test_escort_hold_standoff.py`.
+- **A player escort's route ran on from the Escort Hold to a TARGET point on the SAM (2026-11-07).**
+  Afghanistan: an F-15C escort of a Maverick DEAD held 13 NM out, then its route crossed the
+  site and left out the far side. `EscortLayout` keeps the TARGET point as the package-TOT
+  reference but leaves it out of the route, so the escort turns onto the egress at the hold;
+  takeoff and join times are unchanged (`EscortFlightPlan._travel_time_to_waypoint`). AI
+  escorts never flew that point. Air assault, airlift and non-formation escorts keep the full
+  route. Tests: `tests/ato/flightplans/test_escort_route_ends_at_hold.py`. Row B319.
 - **A SEAD package's escorts held on the ingress, 60-80 NM out (2026-10-17).** The HARM's
   authored 80 NM range set the hold. SEAD and SEAD Sweep primaries now use their SEAD Search
   point (`WaypointBuilder.sead_search_point`), where the flight plan actually works from.
