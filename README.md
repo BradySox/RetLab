@@ -515,7 +515,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Eastern Reach 2025** — fictional: Marines hold Bandar-e-Jask and drive north up the real
   highway through Sirik, Minab, Kahnuj, Jiroft and the Jebal Barez pass to Kerman, where Iran
   keeps its missile works and most of its Tomcats and Fulcrums behind Bavar-373 batteries.
-  Strikes on Kerman fly 300 NM or more from the UAE fields. A carrier and an LHA sit in the
+  Strikes on Kerman fly 300 NM or more from the UAE fields, and the missile country beyond
+  it 400 to 440 NM. A carrier and an LHA sit in the
   Gulf of Oman. Take Kerman to win, lose Jask and you lose. Bandar Abbas is out of the war.
   Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack, and the F-15EX V3,
   CJS Super Hornet, F-22A and UH-60L mods.

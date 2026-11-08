@@ -38,8 +38,8 @@ settings:
   fa_18efg: true
   f22_raptor: true
   uh_60l: true
-  # Al Dhafra is 383 NM from Kerman.
-  max_mission_range_planes: 420
+  # Al Dhafra is 383 NM from Kerman and 442 NM from the Bafq missile site.
+  max_mission_range_planes: 460
 victory:
   description: "Take Kerman. Hold Jask."
   win_when:

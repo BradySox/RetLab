@@ -1,0 +1,1 @@
+* **[Campaigns]** Eastern Reach 2025: six missile launch sites, a Bavar-373, a 3rd Khordad, a radar and a missile works north and east of Kerman, 400 to 440 NM from Al Dhafra. The mission range cap is 460 NM.

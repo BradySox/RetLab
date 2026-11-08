@@ -51,8 +51,8 @@ east end of the map, inland, with every deep strike 300 NM or more from the UAE 
 | Red | Lar | F-14A 5 (no road to the front) |
 | Red | Minab, Kahnuj | Mi-28N 4 each (four helipads each) |
 
-Win: take Kerman. Lose: lose Jask. `max_mission_range_planes` is 420 (Al Dhafra to Kerman
-is 383 NM).
+Win: take Kerman. Lose: lose Jask. `max_mission_range_planes` is 460 (Al Dhafra to Kerman
+is 383 NM, to the Bafq missile site 442 NM).
 
 ## How the .miz was built
 
@@ -74,6 +74,23 @@ EWR 4.3 km, Kerman's first missile site 5.9 km, and the rest of Jiroft and Kahnu
 - Red markers are generic types; the faction picks the system (Bavar-373 and 3rd Khordad
   for the long and medium sites, Kheibar, Fattah-2 and Shahed 238 launchers for missile
   sites, Silkworm on the coast).
+
+## Deep missile country (2026-11-07, DM call)
+
+The map north and east of Kerman has no airfields, so it holds strike targets only, bound to
+the nearest red control point. Brady's pick: six launch sites, one Bavar-373 (not two).
+
+| Unit | Where |
+|---|---|
+| Missile launch sites | Zarand, Ravar, Kuhbanan, Bafq, Shahdad, the Lut edge |
+| Long-range SAM (Bavar-373) | Zarand |
+| Medium-range SAM (3rd Khordad) | Shahdad |
+| EWR | high ground south of Ravar |
+| Missile works + factory | Shahdad |
+
+Added to the DM's saved `.miz` by a one-off script that only appends groups; placed by job
+with `tools/campaign_placement.py` after his check run (`eastern_reach_north`, 1,741 spots).
+Yazd, Tabas and Birjand are off the landmap.
 
 ## Open
 

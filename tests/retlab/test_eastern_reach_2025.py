@@ -228,3 +228,21 @@ def test_the_uae_batteries_stay_as_drawn() -> None:
     for name in UAE_SITES:
         assert name in groups, name
         assert len(groups[name].units) > 1, name
+
+
+def test_al_dhafra_reaches_every_missile_site(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """The deep missile country north of Kerman is in range of the bombers' field."""
+    campaign, theater = loaded
+    dhafra = theater.control_point_named("Al Dhafra AFB").position
+    sites = [
+        site
+        for cp in theater.controlpoints
+        if cp.starting_coalition.is_red
+        for site in cp.preset_locations.missile_sites
+    ]
+    # Kerman 2, Jiroft 1, Bashagard 1, and six north of Kerman (2026-11-07).
+    assert len(sites) == 10
+    farthest = max(site.distance_to_point(dhafra) for site in sites) / 1852
+    assert farthest < campaign.settings["max_mission_range_planes"]
