@@ -19,6 +19,7 @@ from dcs.unitgroup import Group
 
 from game.ato.flighttype import FlightType
 from game.atcdata import AtcData
+from game.data.carrier_comms import CARRIER_COMMS_PLANS
 from game.dcs.beacons import Beacons
 from game.dcs.helpers import unit_type_from_name
 from game.missiongenerator.aircraft.aircraftgenerator import (
@@ -111,12 +112,15 @@ def reserve_ato_frequencies(game: Game, registry: RadioRegistry) -> None:
 def keeps_stored_tacan(cp: TacanContainer) -> bool:
     """Whether a control point's stored TACAN is reserved before generation.
 
-    A carrier's auto channel is re-derived by its generator every mission;
-    reserving last mission's value made it walk off itself (69X, 72X, 69X ...).
+    A curated carrier's auto channel is re-derived by its generator every
+    mission; reserving last mission's value made it walk off itself (69X, 72X,
+    69X ...). A hull with no curated card keeps its first channel, so it stays
+    reserved.
     """
-    return not (
-        isinstance(cp, NavalControlPoint) and getattr(cp, "tacan_is_auto", True)
-    )
+    if not isinstance(cp, NavalControlPoint) or not getattr(cp, "tacan_is_auto", True):
+        return True
+    carrier_type = cp.get_carrier_group_type()
+    return carrier_type is None or carrier_type.id not in CARRIER_COMMS_PLANS
 
 
 def refresh_motorpool_target_flight_plans(game: Game) -> None:

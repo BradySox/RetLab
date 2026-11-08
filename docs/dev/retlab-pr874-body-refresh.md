@@ -7,9 +7,10 @@ fork's §62 board numbers (`afa5d01b`), then the pinned board number and the X00
 livery rule (`0e1ccf92`), then the Navy-only scope for both (`c8804d0d`), then the take-over picker (`4b81c578`). Updating an existing PR is allowed under
 the freeze.
 
-Head after the update: `4b81c578` on `BradySox/dcs-retribution:carrier-comms-curation`, with
-upstream `dev` @ `49e8067f` merged in (`568e5930`) and another session's header rewording
-(`832b7a72`) merged in. Black, `mypy game tests` and pytest (529 passed) green on that head.
+Head after the update: `94f298b7` on `BradySox/dcs-retribution:carrier-comms-curation`,
+which merges cleanly with upstream `dev` @ `49e8067f`. `94f298b7` (2026-11-07) moved Link 4
+from 336.x to 320.x, the F-14's band (fork #1193). Black, `mypy game`, `mypy tests` and
+pytest (531 passed) green on that head.
 
 ## Title
 
@@ -20,16 +21,17 @@ Navy: curated carrier comms, sequenced board numbers, and a pinnable board numbe
 ## Body
 
 ```markdown
-Navy fixes in three isolated commits, so each can be reviewed or dropped on its own.
+Navy fixes in three isolated parts, so each can be reviewed or dropped on its own.
 
-## 1. Curated carrier comms (`b65729ac`)
+## 1. Curated carrier comms (`b65729ac`, `94f298b7`)
 
 DCS builds the "CV Operations Data" kneeboard page from the miz. The generator fed it
 allocator output: the boat named `0796 | CVN-71 Theodore Roosevelt`, TACAN 1X with a random
 ident re-rolled every turn, ICLS 1, Link 4 on a random UHF, a new ATC frequency each mission.
 
 - `game/data/carrier_comms.py`: one plan per hull. TACAN follows the hull number with a boat
-  ident (CVN-71 → 71X `TRO`), hull-keyed ICLS, Link 4 in the 336 MHz ACLS band, a stable ATC.
+  ident (CVN-71 → 71X `TRO`), hull-keyed ICLS, a hull-keyed 320 MHz Link 4 (CVN-71 → 320.1),
+  a stable ATC.
 - Values stored on the control point win. Resolved values persist, so they stay put across turns.
 - `TacanRegistry.alloc_near`: a hull channel owned by a map beacon (Bagram is 74X on
   Afghanistan) goes to the nearest free channel, not the bottom of the band.
@@ -40,8 +42,13 @@ ident re-rolled every turn, ICLS 1, Link 4 on a random UHF, a new ATC frequency 
 - The flagship unit is named by its hull name, set before `UnitMap` registration so debrief
   kill tracking keys off the same string.
 - Hulls with no plan (`VINSON`, `Essex`, `hms_invincible`, mod carriers) keep the old allocators.
+- `94f298b7`: Link 4 moves from 336.x to 320.x MHz. The F-14's Data Link Control Panel dials
+  300.0–324.9 MHz only (Heatblur manual), so a Tomcat could not tune 336.x. The fallback
+  (`RadioRegistry.alloc_link4`) and the Set LINK4 dialog use that range instead of the whole
+  225–400 MHz UHF band. The allocator range follows red-one1's
+  `fix/carrier-datalink-f14-frequency` branch.
 
-Tests: `tests/test_carrier_comms.py` (25).
+Tests: `tests/test_carrier_comms.py` (27).
 
 ## 2. Squadron-sequenced board numbers (`afa5d01b`)
 
@@ -99,7 +106,7 @@ Tests: the pinned cases in `tests/missiongenerator/test_modex.py` (18 in all), a
 
 ## Checks
 
-Black, `mypy game tests`, pytest (529 passed) on current `dev` (`49e8067f`).
+Black, `mypy game tests`, pytest (531 passed) on current `dev` (`49e8067f`).
 ```
 
 ## Notes for whoever pastes it

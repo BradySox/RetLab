@@ -4,7 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from dcs.ships import CVN_71, KUZNECOW, LHA_Tarawa, Stennis
+from dcs.ships import CVN_71, KUZNECOW, VINSON, LHA_Tarawa, Stennis
+from dcs.unittype import ShipType
 
 from game.data.carrier_comms import CARRIER_COMMS_PLANS, is_retired_curated_link4
 from game.missiongenerator.missiongenerator import keeps_stored_tacan
@@ -134,6 +135,13 @@ def _make_generator() -> GenericCarrierGenerator:
     return gen
 
 
+def _carrier(hull: type[ShipType]) -> Carrier:
+    """A bare carrier control point that reports ``hull`` as its carrier type."""
+    cp = Carrier.__new__(Carrier)
+    cp.get_carrier_group_type = lambda always_supercarrier=False: hull  # type: ignore[method-assign]
+    return cp
+
+
 def _reserve_stored_tacan(registry: TacanRegistry, cp: Carrier) -> None:
     """The mission generator's up-front reservation, for one control point."""
     if cp.tacan is not None and keeps_stored_tacan(cp):
@@ -204,7 +212,7 @@ class TestCommsResolution:
         """Test 47: with the curated channel map-owned, the boat's own auto
         value from last mission must not be reserved, or it alternates."""
         plan = CARRIER_COMMS_PLANS[CVN_71.id]
-        cp = Carrier.__new__(Carrier)
+        cp = _carrier(CVN_71)
         cp.tacan = None
         cp.tacan_is_auto = True
         channels = []
@@ -222,6 +230,37 @@ class TestCommsResolution:
         cp.tacan = TacanChannel(42, TacanBand.X)
         cp.tacan_is_auto = False
         assert keeps_stored_tacan(cp)
+
+    def test_auto_tacan_reserved_only_for_hulls_without_a_card(self) -> None:
+        curated = _carrier(CVN_71)
+        curated.tacan_is_auto = True
+        uncurated = _carrier(VINSON)
+        uncurated.tacan_is_auto = True
+        assert not keeps_stored_tacan(curated)
+        assert keeps_stored_tacan(uncurated)
+
+    def test_no_plan_auto_tacan_is_kept(self) -> None:
+        """A hull with no curated card keeps its first channel and ident."""
+        gen = _make_generator()
+        gen.control_point.tacan = TacanChannel(31, TacanBand.X)
+        gen.control_point.tcn_name = "GER"
+        gen.control_point.tacan_is_auto = True
+        assert gen._resolve_tacan(None) == (TacanChannel(31, TacanBand.X), "GER")
+
+    def test_no_plan_tacan_is_stable_across_generations(self) -> None:
+        """Re-deriving an un-curated hull each mission re-rolled its random
+        ident every turn (1X GER, 1X TRU, 1X ACC ...)."""
+        cp = _carrier(VINSON)
+        cp.tacan = None
+        cp.tcn_name = None
+        cp.tacan_is_auto = True
+        seen = set()
+        for _ in range(6):
+            gen = _make_generator()
+            gen.control_point = cp
+            _reserve_stored_tacan(gen.tacan_registry, cp)
+            seen.add(gen._resolve_tacan(None))
+        assert len(seen) == 1
 
     def test_no_plan_uses_legacy_allocator(self) -> None:
         gen = _make_generator()
