@@ -33,9 +33,6 @@ settings:
   # 1985: AIM-9L and AGM-45 yes, AMRAAM and HARM no.
   restrict_weapons_by_date: true
   restrict_props_by_date: true
-  # Herat and Shindand are 150 to 165 NM from Chaghcharan; 250 opens the central
-  # axis from both and keeps Bagram and Kabul out of reach at the start.
-  max_mission_range_planes: 250
 victory:
   description: "Take Bagram and Kabul. Hold Herat."
   win_when:

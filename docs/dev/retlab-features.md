@@ -6106,9 +6106,9 @@ setting. Bandit kills *of* players record natively (players are real tracked uni
 (name, nearest-front first) — only when the setting is on and both lists are non-empty;
 `resources/plugins/redscramble/` runs the menu/spawn/vector runtime (options: `hostPlayers`,
 `takeoff` air/hot/runway, `vectorIntervalS`). Gated `host_red_scramble` (Mission Generation →
-the new "Host & event tools" section, default **OFF**), **preseeded ON in Red Tide** (with the
-`redscramble` plugin until 2026-10-15, when it lost its checkbox — and `redscramble.hostPlayers: Flash`,
-the host's static name tag) ahead of the Friday 2026-07-17 regeneration.
+the new "Host & event tools" section, default **OFF**). No campaign preseeds it since
+2026-11-08 (it was on in Red Tide, Baltic Fury and Desert Storm with `hostPlayers: Flash`): it
+is the host's own setting.
 
 **Tests.** `tests/missiongenerator/test_redscrambleluadata.py` (emit contract: gating, red-only
 airfields, front-first ordering, no-node cases) + `tests/lua/test_redscramble_runtime.py` (the

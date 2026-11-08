@@ -60,19 +60,6 @@ settings:
   # a deliberate pick: an unset helmet device still writes JHMCS into the .miz, so the
   # Block 50s and Lot 20s would spawn with a 2003 helmet in a July 1988 campaign.
   restrict_props_by_date: true
-  # Human-led offensive: keep the blue auto-planner cautious so the AI fills fewer of
-  # the ATO's offensive slots and the human's player sorties (F-16CM/F-A-18C/F-15E/
-  # F-14B/A-10C) carry the push. Recommended NEW-GAME defaults; the player can
-  # still change them in the wizard.
-  #
-  # Fraction of OPFOR threat-radius the blue auto-planner ignores. Default 20; lowered
-  # so blue AI won't auto-throw strike/SEAD packages deep into red's IADS belt -- the
-  # human flies those dangerous sorties instead. (Red/OPFOR aggressiveness untouched.)
-  ownfor_autoplanner_aggressiveness: 10
-  # Aircraft an airfield must hold before blue auto-plans an OCA strike on it. Default
-  # 20; raised so airfield attack becomes a human-chosen objective, not AI busywork
-  # (red squadrons are 4-8 jets, so most fields now fall below this threshold).
-  oca_target_autoplanner_min_aircraft_count: 40
   # Front-line ground density (diagnosed 2026-08-02 from the flown M2 Tacview): red's Haina
   # maneuver force generated near-empty. Two compounding causes -- (1) Haina's deployable-unit
   # CAP is only the 15-unit floor because NO ammo depot is bound to the front CPs (Red Tide's
@@ -118,25 +105,12 @@ settings:
   # untouched -- a decapitated red still defends. Default OFF; preseeded ON here because this
   # laydown is one of the very few with a real, per-base, destroyable command network to key on.
   c2_decapitation_effects: true
-  # §61 host red-interceptor scramble -- the game master's "give the boys something to
-  # shoot" button, built off the M1 debrief ("once the first wave was over it felt
-  # quiet"). An F10 "HOST: Red Scramble" menu clones a 2/4-ship red fighter flight at
-  # any red airfield and vectors it onto the nearest blue fighters. Default OFF
-  # globally; preseeded here for the squadron's MP events, with the menu gated to the
-  # host's static "Flash" name tag via the plugin option below. Spawns are
-  # free/untracked event content.
-  host_red_scramble: true
   plugins:
     # advanced_iads (line 33) is this laydown's centerpiece, and skynetiads owns its entire
     # runtime: the plugin is the only consumer of the emitted IADS table. Off, the IADS
     # command unit is skipped at generation AND the auto-planner drops IADS buildings as
     # strike targets outright.
     skynetiads: true
-    # §61 host-menu gate: the host's DCS name runs "<flight> 1-x | Flash" with a
-    # changing prefix, so gate on the static tag -- hostPlayers is a substring
-    # match, and "Flash" covers every event's prefix. Only names containing it
-    # see the HOST: Red Scramble menu.
-    redscramble.hostPlayers: Flash
 squadrons:
   #Ramstein — rear heavy-iron + the eyes: the B-52s, the Strike Eagles, and the E-3A.
   165:
@@ -419,7 +393,7 @@ squadrons:
       size: 8
     - primary: OCA/Runway
       # No `secondary: any` (2026-07-10): confine the Backfires to OCA (which is itself
-      # gated by oca_target_autoplanner_min_aircraft_count: 40, so it rarely auto-frags)
+      # gated by the OCA minimum-aircraft setting, so it rarely auto-frags)
       # instead of letting them fly STRIKE-as-secondary + BARCAP filler. Airframes stay.
       aircraft:
         - 326th Heavy Bomber Aviation Regiment

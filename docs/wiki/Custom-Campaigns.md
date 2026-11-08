@@ -194,7 +194,17 @@ carrier's squadrons are assignable at all — see
 [Air Defense and the Air War](Air-Defense-and-the-Air-War#long-range-carrier-ops)).
 
 A preseed only sets the **default** for a new campaign — the player can still change any of
-it in Settings before starting.
+it in Settings before starting. It does beat the player's saved defaults, so preset only what
+the campaign needs:
+
+- the mods its squadrons and ground units come from (a mod box set to `false` does nothing)
+- the features it is built around
+- the era date limits
+- a planner value the map needs, with the measured reason in a comment (a range past 150 NM
+  across open water, a threat range or orbit standoff tuned on a flown turn)
+
+Leave skill levels, map labels, day or night, automation, host tools and other taste to the
+player.
 
 > A feature whose runtime is a Lua plugin needs only its setting: those plugins have no
 > checkbox and are always on. Skynet IADS is the exception. A campaign built around

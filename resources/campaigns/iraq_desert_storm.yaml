@@ -60,10 +60,6 @@ settings:
   # gear. Bomb-it-or-tap-it.
   # s50: real supply convoys run the highway graph below; the pipeline-road ladder
   # legs live in the .miz and light up as blue captures the rungs.
-  # s61 host tools for the DM (gated to the host's tag via the plugin option below).
-  host_red_scramble: true
-  plugins:
-    redscramble.hostPlayers: Flash
 
 red_tempo:
   - from_turn: 4

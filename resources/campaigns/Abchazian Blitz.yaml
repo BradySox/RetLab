@@ -13,7 +13,6 @@ performance: 2
 settings:
   restrict_weapons_by_date: true
   squadron_start_full: true 
-  enable_squadron_aircraft_limits: true
 version: "10.8"
 recommended_player_money: 500
 recommended_enemy_money: 800
