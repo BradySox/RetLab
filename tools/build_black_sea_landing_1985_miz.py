@@ -521,7 +521,7 @@ def _author(mission: Mission, placer: Placer, anchors: dict[str, Point]) -> list
 
 
 def _author_roads(mission: Mission, anchors: dict[str, Point]) -> None:
-    """One M-113 group per road, every waypoint On Road (the .miz route standard)."""
+    """One M-113 group per road, the highway points On Road (the .miz route standard)."""
     print("\nroads:")
     for index, (start, corridor, end) in enumerate(ROADS, start=1):
         points = (
@@ -535,9 +535,13 @@ def _author_roads(mission: Mission, anchors: dict[str, Point]) -> None:
             _type=ROAD,
             position=points[0],
         )
-        group.points[0].action = PointAction.OnRoad
-        for point in points[1:]:
+        # The ends sit on base and FOB centres, off the road net: an On Road end the
+        # ME cannot route to crashed it on load (me_mission.lua calc_route_length,
+        # 2026-11-08), so only the highway points between are On Road.
+        group.points[0].action = PointAction.OffRoad
+        for point in points[1:-1]:
             group.add_waypoint(point, PointAction.OnRoad)
+        group.add_waypoint(points[-1], PointAction.OffRoad)
         print(f"  {group.name} ({len(points)} waypoints)")
 
 
