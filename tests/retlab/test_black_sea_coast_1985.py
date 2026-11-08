@@ -1,18 +1,18 @@
-"""Caucasus - Black Sea Landing 1985 laydown guards.
+"""Caucasus - Black Sea Coast 1985 laydown guards.
 
-A fictional 1985 war: NATO holds Batumi and Kobuleti with a carrier offshore and
-drives up the coast road and the main highway to Tbilisi.
+A fictional 1985 war: NATO holds Georgia with a carrier offshore and drives up the
+Black Sea coast road through Sukhumi and Sochi to Krasnodar.
 
 What these pin is what fails silently:
 
-* a road that skips a FOB, or one to Mozdok, changes the front the campaign is
+* a road that skips a FOB changes the front the campaign is
   built around;
 * a red control point without the invert flag stays red in an inverted game;
 * a squadron pinned to a type its faction does not field is quietly swapped;
 * a long-range SAM marker would put an SA-5 or SA-10 in a campaign kept to the
   SA-2, SA-3, SA-6 and SA-11 (the DM's period call).
 
-Design note: docs/dev/design/retlab-black-sea-landing-1985-campaign-notes.md
+Design note: docs/dev/design/retlab-black-sea-coast-1985-campaign-notes.md
 """
 
 import copy
@@ -33,33 +33,40 @@ from game.theater.airfieldclearance import airfield_clearance_conflicts
 from game.theater.controlpoint import Airfield, motorpools_inside_capture_zone
 from game.theater.start_generator import ModSettings
 
-YAML = Path("resources/campaigns/black_sea_landing_1985.yaml")
+YAML = Path("resources/campaigns/black_sea_coast_1985.yaml")
 
 BLUE_FACTION = "Blufor Late Cold War (80s)"
 RED_FACTION = "Russia 1980"
-BLUE = {"Batumi", "Kobuleti", "BSL-CV", "BSL-LHA"}
-FOBS = {"FOB Poti", "FOB Zugdidi", "FOB Zestafoni", "FOB Khashuri", "FOB Gori"}
+BLUE = {"Senaki-Kolkhi", "Kutaisi", "Tbilisi-Lochini", "Vaziani", "BSC-CV", "BSC-LHA"}
+FOBS = {"FOB Gali", "FOB Lazarevskoye", "FOB Tuapse", "FOB Goryachy Klyuch"}
 RED = FOBS | {
-    "Senaki-Kolkhi",
-    "Kutaisi",
     "Sukhumi-Babushara",
-    "Tbilisi-Lochini",
-    "Vaziani",
-    "Mozdok",
+    "Gudauta",
+    "Sochi-Adler",
+    "Maykop-Khanskaya",
+    "Krasnodar-Center",
+    "Krasnodar-Pashkovsky",
+    "Krymsk",
 }
-HIGHWAY = (
-    "Batumi",
-    "Kobuleti",
-    "FOB Poti",
+COAST_ROAD = (
     "Senaki-Kolkhi",
-    "Kutaisi",
-    "FOB Zestafoni",
-    "FOB Khashuri",
-    "FOB Gori",
-    "Tbilisi-Lochini",
-    "Vaziani",
+    "FOB Gali",
+    "Sukhumi-Babushara",
+    "Gudauta",
+    "Sochi-Adler",
+    "FOB Lazarevskoye",
+    "FOB Tuapse",
+    "FOB Goryachy Klyuch",
+    "Krasnodar-Pashkovsky",
+    "Krasnodar-Center",
+    "Krymsk",
 )
-ABKHAZ_COAST = ("Senaki-Kolkhi", "FOB Zugdidi", "Sukhumi-Babushara")
+OTHER_ROADS = {
+    frozenset(("FOB Tuapse", "Maykop-Khanskaya")),
+    frozenset(("Kutaisi", "Senaki-Kolkhi")),
+    frozenset(("Tbilisi-Lochini", "Kutaisi")),
+    frozenset(("Tbilisi-Lochini", "Vaziani")),
+}
 
 
 def _type_of(name: str) -> AircraftType:
@@ -73,7 +80,7 @@ def _type_of(name: str) -> AircraftType:
 
 @pytest.fixture(scope="module")
 def loaded(tmp_path_factory: Any) -> tuple[Campaign, ConflictTheater]:
-    persistency.setup(str(tmp_path_factory.mktemp("black-sea-landing")), False, 0)
+    persistency.setup(str(tmp_path_factory.mktemp("black-sea-coast")), False, 0)
     campaign = Campaign.from_file(YAML)
     return campaign, campaign.load_theater(campaign.advanced_iads)
 
@@ -91,7 +98,7 @@ def test_who_holds_what(loaded: tuple[Campaign, ConflictTheater]) -> None:
     red = {cp.name for cp in theater.controlpoints if cp.starting_coalition.is_red}
     assert blue == BLUE
     assert red == RED
-    # Sochi, Gudauta, Nalchik, Beslan and the Krasnodar fields are out of the war.
+    # Batumi, Kobuleti, Mozdok, Nalchik and the rest are out of the war.
     assert len(theater.controlpoints) == len(blue) + len(red)
 
 
@@ -106,24 +113,22 @@ def test_every_red_field_inverts_and_no_blue_one_does(
             assert not cp.captured_invert, cp.name
 
 
-def test_the_roads_are_the_highway(loaded: tuple[Campaign, ConflictTheater]) -> None:
+def test_the_roads_are_the_coast(loaded: tuple[Campaign, ConflictTheater]) -> None:
     _, theater = loaded
     roads = set()
     for cp in theater.controlpoints:
         roads |= {frozenset((cp.name, other.name)) for other in cp.connected_points}
-    expected = {frozenset(pair) for pair in zip(HIGHWAY, HIGHWAY[1:])}
-    expected |= {frozenset(pair) for pair in zip(ABKHAZ_COAST, ABKHAZ_COAST[1:])}
-    assert roads == expected
-    assert not theater.control_point_named("Mozdok").connected_points
+    expected = {frozenset(pair) for pair in zip(COAST_ROAD, COAST_ROAD[1:])}
+    assert roads == expected | OTHER_ROADS
 
 
-def test_the_range_cap_reaches_vaziani_from_kobuleti(
+def test_the_range_cap_reaches_krymsk_from_senaki(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
     campaign, theater = loaded
     distance = (
-        theater.control_point_named("Kobuleti").position.distance_to_point(
-            theater.control_point_named("Vaziani").position
+        theater.control_point_named("Senaki-Kolkhi").position.distance_to_point(
+            theater.control_point_named("Krymsk").position
         )
         / 1852
     )
@@ -133,8 +138,11 @@ def test_the_range_cap_reaches_vaziani_from_kobuleti(
 def test_the_victory_rules(loaded: tuple[Campaign, ConflictTheater]) -> None:
     campaign, _ = loaded
     victory = campaign.data["victory"]
-    assert victory["win_when"][0]["capture_cps"] == ["Tbilisi-Lochini", "Vaziani"]
-    assert victory["lose_when"][0]["lose_cps"] == ["Kobuleti"]
+    assert victory["win_when"][0]["capture_cps"] == [
+        "Krasnodar-Center",
+        "Krasnodar-Pashkovsky",
+    ]
+    assert victory["lose_when"][0]["lose_cps"] == ["Senaki-Kolkhi"]
 
 
 def test_no_long_range_sam(loaded: tuple[Campaign, ConflictTheater]) -> None:

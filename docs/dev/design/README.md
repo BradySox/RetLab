@@ -16,7 +16,7 @@ Read before touching a campaign's `.yaml`, `.miz` or build tool.
 | Marianas — Operation Forager (1944) | `retlab-marianas-wwii-terrain-notes.md` (the terrain note owns it) |
 | Syria — Anatolian Reach (2004) | `retlab-anatolian-reach-campaign-notes.md` — **Akrotiri stays support-only**; read the note first |
 | Iraq — Umm al-Ma'arik (Desert Storm) | `retlab-desert-storm-campaign-notes.md` |
-| Caucasus — Black Sea Landing 1985 | `retlab-black-sea-landing-1985-campaign-notes.md` — built by `tools/build_black_sea_landing_1985_miz.py` on the placement tool; Batumi to Tbilisi, SA-2/3/6/11 only |
+| Caucasus — Black Sea Coast 1985 | `retlab-black-sea-coast-1985-campaign-notes.md` — built by `tools/build_black_sea_coast_1985_miz.py` on the placement tool; blue holds Georgia, the coast road to Krasnodar, SA-2/3/6/11 only |
 | Persian Gulf — Eastern Reach 2025 | `retlab-eastern-reach-campaign-notes.md` — the `.miz` is the DM's Mission Editor save of a placement-tool build, no build tool; Jask to Kerman, Bandar Abbas out of play |
 | Falklands — Mount Pleasant 2032 | `retlab-mount-pleasant-2032-campaign-notes.md` — built by `tools/build_mount_pleasant_2032_miz.py`; defensive, plays both ways with Invert Sides |
 | Falklands — Operation Corporate 1982 | `retlab-corporate-1982-campaign-notes.md` — built by `tools/build_corporate_1982_miz.py`; plays both ways with Invert Sides |

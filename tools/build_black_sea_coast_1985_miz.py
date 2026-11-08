@@ -1,17 +1,16 @@
-"""Build ``resources/campaigns/black_sea_landing_1985.miz``: Caucasus - Black Sea Landing 1985.
+"""Build ``resources/campaigns/black_sea_coast_1985.miz``: Caucasus - Black Sea Coast 1985.
 
-A fictional 1985 war: NATO holds a beachhead at Batumi and Kobuleti with a carrier
-offshore and drives up the coast to Poti, then inland along the main highway
-through Senaki, Kutaisi, Zestafoni, the Rikoti pass, Khashuri and Gori to Tbilisi.
-Sukhumi is a flank base up the Abkhaz coast; Mozdok is the rear bomber base across
-the mountains with no road to the front. The tool takes only the map, coalitions
-and weather from ``northern_russia.miz`` and strips every group and zone it carries.
+A fictional 1985 war: NATO holds Georgia (Senaki, Kutaisi, Lochini, Vaziani) with a
+carrier offshore and drives up the Black Sea coast through Gali, Sukhumi, Gudauta and
+Sochi, then up to Tuapse and over the hills to Krasnodar, with branches to Maykop and
+Krymsk. The tool takes only the map, coalitions and weather from
+``northern_russia.miz`` and strips every group and zone it carries.
 
-Design note: docs/dev/design/retlab-black-sea-landing-1985-campaign-notes.md
+Design note: docs/dev/design/retlab-black-sea-coast-1985-campaign-notes.md
 
 Run from the repo root::
 
-    python tools/build_black_sea_landing_1985_miz.py
+    python tools/build_black_sea_coast_1985_miz.py
 
 The first build writes a check mission to run once in DCS; the next build places
 every unit on ground DCS has read. Never hand-edit the .miz while this tool owns it.
@@ -48,17 +47,18 @@ from tools.campaign_placement import (  # noqa: E402
 
 SOURCE = _REPO_ROOT / "resources/campaigns/northern_russia.miz"
 SOURCE_YAML = _REPO_ROOT / "resources/campaigns/northern_russia.yaml"
-DEST = _REPO_ROOT / "resources/campaigns/black_sea_landing_1985.miz"
-REVIEW_MAP = _REPO_ROOT / "tmp/black_sea_landing_1985_placement.html"
+DEST = _REPO_ROOT / "resources/campaigns/black_sea_coast_1985.miz"
+REVIEW_MAP = _REPO_ROOT / "tmp/black_sea_coast_1985_placement.html"
 
-BLUE_AIRFIELDS = ("Batumi", "Kobuleti")
+BLUE_AIRFIELDS = ("Senaki-Kolkhi", "Kutaisi", "Tbilisi-Lochini", "Vaziani")
 RED_AIRFIELDS = (
-    "Senaki-Kolkhi",
-    "Kutaisi",
     "Sukhumi-Babushara",
-    "Tbilisi-Lochini",
-    "Vaziani",
-    "Mozdok",
+    "Gudauta",
+    "Sochi-Adler",
+    "Maykop-Khanskaya",
+    "Krasnodar-Center",
+    "Krasnodar-Pashkovsky",
+    "Krymsk",
 )
 
 # --- Marker vocabulary (must match MizCampaignLoader's *_UNIT_TYPE(S)) ---------
@@ -79,47 +79,42 @@ ROAD = Armor.M_113
 RED_BLOCK = "red"
 BLUE_BLOCK = "blue"
 
-#: Red FOBs on the highway (name, lat, lon), each just outside its town. Khashuri
-#: is the spot Northern Russia and Iron Gate already use. The landmap has no land
-#: in the Rioni delta round Poti, so FOB Poti sits on the Poti road 15 km inland.
+#: Red FOBs on the coast road (name, lat, lon). Tuapse is the spot Black Sea
+#: already uses (its "FOB Sochi").
 FOBS = (
-    ("FOB Poti", 42.2367, 41.8673),
-    ("FOB Zugdidi", 42.5252, 41.9036),
-    ("FOB Zestafoni", 42.125, 43.06),
-    ("FOB Khashuri", 41.993, 43.632),
-    ("FOB Gori", 41.965, 44.14),
+    ("FOB Gali", 42.6091, 41.7367),
+    ("FOB Lazarevskoye", 43.91, 39.33),
+    ("FOB Tuapse", 44.079, 39.134),
+    ("FOB Goryachy Klyuch", 44.63, 39.13),
 )
 
 #: Real places (lat, lon) for command posts, power, comms, factories (Job.TOWN)
-#: and named spots for SAMs, radars and missile hides (Job.SPOT). The Tbilisi
-#: nodes are where WRL Kutaisi to Vaziani puts its own.
+#: and named spots for SAMs, radars, missile hides and motor pools (Job.SPOT).
+#: Town anchors sit on the edge of the landmap's town exclusions (2026-11-08).
+#: Motor pools sit about 4 km out, outside the 3 km capture zone. The rail
+#: stations and the Adagum works are where Abchazian Blitz and Black Sea put theirs.
 PLACES = {
-    "Tbilisi command": (41.738, 44.811),
-    "Tbilisi tower": (41.742, 44.764),
-    "Tbilisi power": (41.698, 44.784),
-    "Tbilisi north hills": (41.8133, 44.7994),
-    "Mtskheta": (41.8619, 44.7223),
-    "Rustavi steel works": (41.55, 45.01),
-    "Zhinvali dam": (42.13, 44.77),
-    "Gori town": (41.984, 44.113),
-    "Gori east hills": (41.95, 44.20),
-    "Mukhrani plain": (41.93, 44.57),
-    "Surami pass": (42.03, 43.50),
-    "Zestafoni works": (42.11, 43.03),
-    "Kutaisi town": (42.283, 42.665),
-    "Tskaltubo hills": (42.33, 42.60),
-    "Jvari": (42.715, 42.05),
     "Sukhumi town": (43.0194, 41.0273),
-    "Mozdok town": (43.74, 44.65),
-}
-
-
-#: Motor pools (map x, y): outside the 3 km capture zone, or their parked reserve
-#: blocks the base's capture. Flat, clear ground the check runs read, about 3.8 km
-#: from Lochini and FOB Khashuri (2026-11-08).
-MOTORPOOLS_XY = {
-    "BSL-Tbilisi-Motorpool": (-318671.0, 898630.0),
-    "BSL-Khashuri-Motorpool": (-290585.0, 781612.0),
+    "Psyrtsha rail station": (43.085, 40.842),
+    "Gudauta town": (43.1251, 40.6275),
+    "Bzyb rail station": (43.229, 40.347),
+    "Sochi town": (43.60, 39.74),
+    "Sochi hills": (43.62, 39.82),
+    "Akhun tower": (43.548, 39.845),
+    "Adler motor pool": (43.475, 39.975),
+    "Tuapse refinery": (44.095, 39.095),
+    "Tuapse hills": (44.1208, 39.1445),
+    "Goryachy Klyuch hills": (44.6183, 39.0857),
+    "Maykop town": (44.61, 40.10),
+    "Krasnodar command": (45.0744, 38.9301),
+    "Krasnodar refinery": (44.9756, 39.0833),
+    "Krasnodar power": (45.05, 39.13),
+    "Krasnodar north": (45.15, 38.95),
+    "Krasnodar motor pool": (45.122, 38.94),
+    "Krymsk town": (44.9351, 38.0243),
+    "Krymsk hills": (44.90, 37.90),
+    "Adagum works": (45.106, 37.716),
+    "Novorossiysk port": (44.7424, 37.7919),
 }
 
 
@@ -136,37 +131,37 @@ class Item:
 
 def _red_field(field: str, short: str, town: str) -> list[Item]:
     return [
-        Item(f"BSL-{short}-SHORAD", Job.AIR_DEFENSE, field, SHORAD),
-        Item(f"BSL-{short}-AAA-1", Job.AIR_DEFENSE, field, AAA),
-        Item(f"BSL-{short}-AAA-2", Job.AIR_DEFENSE, field, AAA),
-        Item(f"BSL-{short}-Garrison-1", Job.GARRISON, field, ARMOR),
-        Item(f"BSL-{short}-Garrison-2", Job.GARRISON, field, ARMOR),
-        Item(f"BSL-{short}-Ammo", Job.DEPOT, field, Warehouse._Ammunition_depot),
-        Item(f"BSL-{short}-Command", Job.TOWN, town, Fortification._Command_Center),
-        Item(f"BSL-{short}-EWR", Job.EWR, field, EWR),
+        Item(f"BSC-{short}-SHORAD", Job.AIR_DEFENSE, field, SHORAD),
+        Item(f"BSC-{short}-AAA-1", Job.AIR_DEFENSE, field, AAA),
+        Item(f"BSC-{short}-AAA-2", Job.AIR_DEFENSE, field, AAA),
+        Item(f"BSC-{short}-Garrison-1", Job.GARRISON, field, ARMOR),
+        Item(f"BSC-{short}-Garrison-2", Job.GARRISON, field, ARMOR),
+        Item(f"BSC-{short}-Ammo", Job.DEPOT, field, Warehouse._Ammunition_depot),
+        Item(f"BSC-{short}-Command", Job.TOWN, town, Fortification._Command_Center),
+        Item(f"BSC-{short}-EWR", Job.EWR, field, EWR),
     ]
 
 
 def _red_fob(fob: str, short: str, pads: int = 0) -> list[Item]:
     return [
-        Item(f"BSL-{short}-Pad-{i}", Job.DEPOT, fob, HELIPAD)
+        Item(f"BSC-{short}-Pad-{i}", Job.DEPOT, fob, HELIPAD)
         for i in range(1, pads + 1)
     ] + [
-        Item(f"BSL-{short}-Garrison-1", Job.GARRISON, fob, ARMOR),
-        Item(f"BSL-{short}-Garrison-2", Job.GARRISON, fob, ARMOR),
-        Item(f"BSL-{short}-Ammo", Job.DEPOT, fob, Warehouse._Ammunition_depot),
-        Item(f"BSL-{short}-AAA", Job.AIR_DEFENSE, fob, AAA),
+        Item(f"BSC-{short}-Garrison-1", Job.GARRISON, fob, ARMOR),
+        Item(f"BSC-{short}-Garrison-2", Job.GARRISON, fob, ARMOR),
+        Item(f"BSC-{short}-Ammo", Job.DEPOT, fob, Warehouse._Ammunition_depot),
+        Item(f"BSC-{short}-AAA", Job.AIR_DEFENSE, fob, AAA),
     ]
 
 
 def _blue_field(field: str, short: str) -> list[Item]:
     return [
-        Item(f"BSL-{short}-SHORAD", Job.AIR_DEFENSE, field, BLUE_SHORAD, BLUE_BLOCK),
-        Item(f"BSL-{short}-Hawk", Job.AIR_DEFENSE, field, MERAD, BLUE_BLOCK),
-        Item(f"BSL-{short}-Garrison-1", Job.GARRISON, field, ARMOR, BLUE_BLOCK),
-        Item(f"BSL-{short}-Garrison-2", Job.GARRISON, field, ARMOR, BLUE_BLOCK),
+        Item(f"BSC-{short}-SHORAD", Job.AIR_DEFENSE, field, BLUE_SHORAD, BLUE_BLOCK),
+        Item(f"BSC-{short}-Hawk", Job.AIR_DEFENSE, field, MERAD, BLUE_BLOCK),
+        Item(f"BSC-{short}-Garrison-1", Job.GARRISON, field, ARMOR, BLUE_BLOCK),
+        Item(f"BSC-{short}-Garrison-2", Job.GARRISON, field, ARMOR, BLUE_BLOCK),
         Item(
-            f"BSL-{short}-Ammo",
+            f"BSC-{short}-Ammo",
             Job.DEPOT,
             field,
             Warehouse._Ammunition_depot,
@@ -176,155 +171,125 @@ def _blue_field(field: str, short: str) -> list[Item]:
 
 
 ITEMS: tuple[Item, ...] = tuple(
-    # Tbilisi: the Transcaucasus Military District HQ, the capital's SAM ring.
-    _red_field("Tbilisi-Lochini", "Lochini", "Tbilisi command")
+    # Sukhumi and Gudauta: the Abkhaz coast.
+    _red_field("Sukhumi-Babushara", "Sukhumi", "Sukhumi town")
     + [
-        Item("BSL-Lochini-SAM", Job.AIR_DEFENSE, "Tbilisi-Lochini", MERAD),
-        Item("BSL-Tbilisi-North-SAM", Job.SPOT, "Tbilisi north hills", MERAD),
-        Item("BSL-Mtskheta-SAM", Job.SPOT, "Mtskheta", MERAD),
+        Item("BSC-Sukhumi-SAM", Job.AIR_DEFENSE, "Sukhumi-Babushara", MERAD),
         Item(
-            "BSL-Tbilisi-Tower", Job.TOWN, "Tbilisi tower", Fortification.Comms_tower_M
+            "BSC-Psyrtsha-Depot",
+            Job.SPOT,
+            "Psyrtsha rail station",
+            Warehouse._Ammunition_depot,
         ),
-        Item("BSL-Tbilisi-Power", Job.TOWN, "Tbilisi power", Fortification.GeneratorF),
-        Item("BSL-Mukhrani-Missiles", Job.SPOT, "Mukhrani plain", MISSILE),
-        Item("BSL-Zhinvali-Power", Job.SPOT, "Zhinvali dam", Fortification.GeneratorF),
     ]
-    # Vaziani: the fighter base east of the capital, and Rustavi's steel works.
+    + _red_field("Gudauta", "Gudauta", "Gudauta town")
     + [
-        Item("BSL-Vaziani-SAM", Job.AIR_DEFENSE, "Vaziani", MERAD),
-        Item("BSL-Vaziani-SHORAD", Job.AIR_DEFENSE, "Vaziani", SHORAD),
-        Item("BSL-Vaziani-AAA", Job.AIR_DEFENSE, "Vaziani", AAA),
-        Item("BSL-Vaziani-Garrison", Job.GARRISON, "Vaziani", ARMOR),
-        Item("BSL-Vaziani-Ammo", Job.DEPOT, "Vaziani", Warehouse._Ammunition_depot),
+        Item("BSC-Gudauta-SAM", Job.AIR_DEFENSE, "Gudauta", MERAD),
+        Item("BSC-Bzyb-Depot", Job.SPOT, "Bzyb rail station", Fortification.Workshop_A),
+    ]
+    # Sochi: the coast's main base, under the Akhun tower.
+    + _red_field("Sochi-Adler", "Sochi", "Sochi town")
+    + [
+        Item("BSC-Adler-SAM", Job.AIR_DEFENSE, "Sochi-Adler", MERAD),
+        Item("BSC-Sochi-Hills-SAM", Job.SPOT, "Sochi hills", MERAD),
+        Item("BSC-Akhun-Tower", Job.SPOT, "Akhun tower", Fortification.Comms_tower_M),
         Item(
-            "BSL-Rustavi-Works-1",
+            "BSC-Adler-Motorpool", Job.SPOT, "Adler motor pool", Fortification.Garage_A
+        ),
+    ]
+    # The coast road north.
+    + _red_fob("FOB Gali", "Gali")
+    + _red_fob("FOB Lazarevskoye", "Lazarevskoye")
+    + [Item("BSC-Lazarevskoye-SHORAD", Job.AIR_DEFENSE, "FOB Lazarevskoye", SHORAD)]
+    + _red_fob("FOB Tuapse", "Tuapse", pads=2)
+    + [
+        Item("BSC-Tuapse-SAM", Job.SPOT, "Tuapse hills", MERAD),
+        Item(
+            "BSC-Tuapse-Refinery",
             Job.TOWN,
-            "Rustavi steel works",
+            "Tuapse refinery",
+            Fortification.Tech_combine,
+        ),
+        Item("BSC-Tuapse-EWR", Job.EWR, "FOB Tuapse", EWR),
+    ]
+    + _red_fob("FOB Goryachy Klyuch", "GoryachyKlyuch", pads=2)
+    + [Item("BSC-GoryachyKlyuch-Missiles", Job.SPOT, "Goryachy Klyuch hills", MISSILE)]
+    # Maykop.
+    + _red_field("Maykop-Khanskaya", "Maykop", "Maykop town")
+    + [Item("BSC-Maykop-SAM", Job.AIR_DEFENSE, "Maykop-Khanskaya", MERAD)]
+    # Krasnodar: the front HQ, its refinery and SAM ring.
+    + _red_field("Krasnodar-Center", "Krasnodar", "Krasnodar command")
+    + [
+        Item("BSC-Krasnodar-SAM", Job.AIR_DEFENSE, "Krasnodar-Center", MERAD),
+        Item("BSC-Krasnodar-North-SAM", Job.SPOT, "Krasnodar north", MERAD),
+        Item(
+            "BSC-Krasnodar-Refinery",
+            Job.TOWN,
+            "Krasnodar refinery",
             Fortification.Tech_combine,
         ),
         Item(
-            "BSL-Rustavi-Works-2",
-            Job.TOWN,
-            "Rustavi steel works",
-            Fortification.Workshop_A,
+            "BSC-Krasnodar-Power", Job.TOWN, "Krasnodar power", Fortification.GeneratorF
         ),
-    ]
-    # Gori and the road east.
-    + _red_fob("FOB Gori", "Gori", pads=2)
-    + [
-        Item("BSL-Gori-SAM", Job.SPOT, "Gori town", MERAD),
         Item(
-            "BSL-Gori-Tower", Job.SPOT, "Gori east hills", Fortification.Comms_tower_M
-        ),
-        Item("BSL-Gori-EWR", Job.EWR, "FOB Gori", EWR),
-    ]
-    # Khashuri and the Surami pass.
-    + _red_fob("FOB Khashuri", "Khashuri")
-    + [
-        Item("BSL-Surami-SAM", Job.SPOT, "Surami pass", MERAD),
-    ]
-    # Zestafoni: the ferroalloy works at the foot of the pass.
-    + _red_fob("FOB Zestafoni", "Zestafoni", pads=2)
-    + [
-        Item(
-            "BSL-Zestafoni-Works",
+            "BSC-Krasnodar-Tower",
             Job.TOWN,
-            "Zestafoni works",
-            Fortification.Tech_combine,
+            "Krasnodar command",
+            Fortification.Comms_tower_M,
+        ),
+        Item(
+            "BSC-Krasnodar-Motorpool",
+            Job.SPOT,
+            "Krasnodar motor pool",
+            Fortification.Garage_A,
         ),
     ]
-    # Kutaisi: the western Georgia HQ and its auto works.
-    + _red_field("Kutaisi", "Kutaisi", "Kutaisi town")
     + [
-        Item("BSL-Kutaisi-SAM", Job.AIR_DEFENSE, "Kutaisi", MERAD),
-        Item("BSL-Kutaisi-Factory", Job.TOWN, "Kutaisi town", Fortification.Workshop_A),
-        Item("BSL-Tskaltubo-Missiles", Job.SPOT, "Tskaltubo hills", MISSILE),
+        Item("BSC-Pashkovsky-SAM", Job.AIR_DEFENSE, "Krasnodar-Pashkovsky", MERAD),
+        Item("BSC-Pashkovsky-SHORAD", Job.AIR_DEFENSE, "Krasnodar-Pashkovsky", SHORAD),
+        Item("BSC-Pashkovsky-AAA", Job.AIR_DEFENSE, "Krasnodar-Pashkovsky", AAA),
+        Item("BSC-Pashkovsky-Garrison-1", Job.GARRISON, "Krasnodar-Pashkovsky", ARMOR),
+        Item("BSC-Pashkovsky-Garrison-2", Job.GARRISON, "Krasnodar-Pashkovsky", ARMOR),
     ]
-    # Senaki: the closest red field to the beachhead.
-    + _red_field("Senaki-Kolkhi", "Senaki", "Senaki-Kolkhi")
+    # Krymsk: the rear, with the Adagum works and the Novorossiysk port.
+    + _red_field("Krymsk", "Krymsk", "Krymsk town")
     + [
-        Item("BSL-Senaki-SAM", Job.AIR_DEFENSE, "Senaki-Kolkhi", MERAD),
-        Item("BSL-Jvari-Power", Job.TOWN, "Jvari", Fortification.GeneratorF),
+        Item("BSC-Krymsk-SAM", Job.AIR_DEFENSE, "Krymsk", MERAD),
+        Item("BSC-Krymsk-Missiles", Job.SPOT, "Krymsk hills", MISSILE),
+        Item("BSC-Adagum-Works", Job.SPOT, "Adagum works", Fortification.Workshop_A),
+        Item(
+            "BSC-Novorossiysk-Port",
+            Job.TOWN,
+            "Novorossiysk port",
+            Warehouse._Ammunition_depot,
+        ),
     ]
-    # Poti: the road inland from the port.
-    + _red_fob("FOB Poti", "Poti")
-    + [Item("BSL-Poti-SHORAD", Job.AIR_DEFENSE, "FOB Poti", SHORAD)]
-    # Zugdidi and Sukhumi up the Abkhaz coast.
-    + _red_fob("FOB Zugdidi", "Zugdidi")
-    + _red_field("Sukhumi-Babushara", "Sukhumi", "Sukhumi town")
-    + [Item("BSL-Sukhumi-SAM", Job.AIR_DEFENSE, "Sukhumi-Babushara", MERAD)]
-    # Mozdok: the bomber base across the mountains.
-    + _red_field("Mozdok", "Mozdok", "Mozdok town")
-    + [Item("BSL-Mozdok-SAM", Job.AIR_DEFENSE, "Mozdok", MERAD)]
-    # Blue: the beachhead.
-    + _blue_field("Kobuleti", "Kobuleti")
-    + _blue_field("Batumi", "Batumi")
+    # Blue: Georgia.
+    + _blue_field("Senaki-Kolkhi", "Senaki")
+    + _blue_field("Kutaisi", "Kutaisi")
+    + _blue_field("Tbilisi-Lochini", "Lochini")
+    + _blue_field("Vaziani", "Vaziani")
 )
 
 #: The roads: (from, real highway points as (lat, lon), to). Traced from OpenStreetMap
-#: routing (2026-11-08); Zugdidi to Sukhumi by hand through Gali and Ochamchire, since
-#: today's router will not cross the Enguri.
+#: routing (2026-11-08); Senaki to Sukhumi by hand through Zugdidi, Gali and
+#: Ochamchire, since today's router will not cross the Enguri.
 ROADS = (
     (
-        "Batumi",
-        ((41.6717, 41.6978), (41.787, 41.7875), (41.9, 41.8108)),
-        "Kobuleti",
-    ),
-    (
-        "Kobuleti",
-        (
-            (41.9375, 41.8226),
-            (41.986, 41.7747),
-            (42.0626, 41.7243),
-            (42.2047, 41.7316),
-        ),
-        "FOB Poti",
-    ),
-    (
-        "FOB Poti",
-        ((42.245, 41.93), (42.2572, 42.0078)),
+        "Kutaisi",
+        ((42.1503, 42.3499), (42.1877, 42.237), (42.2579, 42.1224)),
         "Senaki-Kolkhi",
     ),
     (
-        "Senaki-Kolkhi",
-        ((42.2548, 42.1302), (42.1838, 42.2446), (42.1514, 42.3527)),
-        "Kutaisi",
-    ),
-    (
-        "Kutaisi",
-        (
-            (42.1675, 42.5349),
-            (42.1867, 42.6793),
-            (42.2111, 42.8191),
-            (42.1612, 42.9465),
-        ),
-        "FOB Zestafoni",
-    ),
-    (
-        "FOB Zestafoni",
-        (
-            (42.0927, 43.1263),
-            (42.1021, 43.2333),
-            (42.1063, 43.355),
-            (42.0855, 43.4674),
-            (42.0348, 43.5584),
-        ),
-        "FOB Khashuri",
-    ),
-    (
-        "FOB Khashuri",
-        ((42.029, 43.7767), (42.0522, 43.906), (42.01, 44.0408)),
-        "FOB Gori",
-    ),
-    (
-        "FOB Gori",
-        (
-            (42.0234, 44.2776),
-            (41.9443, 44.5048),
-            (41.8764, 44.7241),
-            (41.7212, 44.7834),
-        ),
         "Tbilisi-Lochini",
+        (
+            (41.8875, 44.7167),
+            (42.0244, 44.2562),
+            (42.0301, 43.7804),
+            (42.1112, 43.3283),
+            (42.195, 42.8892),
+        ),
+        "Kutaisi",
     ),
     (
         "Tbilisi-Lochini",
@@ -333,24 +298,80 @@ ROADS = (
     ),
     (
         "Senaki-Kolkhi",
-        ((42.2581, 41.991), (42.3331, 41.8754), (42.4204, 41.794)),
-        "FOB Zugdidi",
+        ((42.3331, 41.8754), (42.4204, 41.794), (42.53, 41.80)),
+        "FOB Gali",
     ),
     (
-        "FOB Zugdidi",
-        ((42.53, 41.80), (42.627, 41.735), (42.712, 41.47), (42.80, 41.25)),
+        "FOB Gali",
+        ((42.712, 41.47), (42.78, 41.30), (42.83, 41.18)),
         "Sukhumi-Babushara",
+    ),
+    (
+        "Sukhumi-Babushara",
+        ((42.9722, 41.0661), (43.0637, 40.9669), (43.0885, 40.7722)),
+        "Gudauta",
+    ),
+    (
+        "Gudauta",
+        ((43.2165, 40.481), (43.2314, 40.3178), (43.3281, 40.2156), (43.3866, 40.0595)),
+        "Sochi-Adler",
+    ),
+    (
+        "Sochi-Adler",
+        ((43.551, 39.8011), (43.6558, 39.6921), (43.7287, 39.5635), (43.8211, 39.4384)),
+        "FOB Lazarevskoye",
+    ),
+    (
+        "FOB Lazarevskoye",
+        ((43.9615, 39.2713), (44.0047, 39.1923), (44.0415, 39.1509)),
+        "FOB Tuapse",
+    ),
+    (
+        "FOB Tuapse",
+        (
+            (44.1772, 38.9761),
+            (44.2687, 38.8143),
+            (44.4172, 38.7457),
+            (44.5304, 38.9408),
+        ),
+        "FOB Goryachy Klyuch",
+    ),
+    (
+        "FOB Goryachy Klyuch",
+        ((44.7315, 39.2189), (44.849, 39.2046), (44.9595, 39.1198)),
+        "Krasnodar-Pashkovsky",
+    ),
+    (
+        "Krasnodar-Pashkovsky",
+        ((45.0431, 39.1071), (45.034, 39.022), (45.0783, 38.9744)),
+        "Krasnodar-Center",
+    ),
+    (
+        "FOB Tuapse",
+        (
+            (44.1833, 39.2403),
+            (44.3617, 39.3008),
+            (44.4346, 39.5166),
+            (44.4432, 39.7648),
+            (44.5342, 39.9889),
+        ),
+        "Maykop-Khanskaya",
+    ),
+    (
+        "Krasnodar-Center",
+        ((45.064, 38.7418), (45.1781, 38.5235), (45.2063, 38.2888), (45.1413, 38.0947)),
+        "Krymsk",
     ),
 )
 
 # --- The sea, by lat/lon -------------------------------------------------------
-CARRIER = ("BSL-CV", 41.70, 41.05)
-LHA = ("BSL-LHA", 41.90, 41.45)
+CARRIER = ("BSC-CV", 42.85, 40.25)
+LHA = ("BSC-LHA", 42.65, 40.95)
 #: Ship markers (Arleigh Burke hull; the faction fills the real ships).
 SHIP_MARKERS = (
-    ("BSL-NATO-Escort", BLUE_BLOCK, 41.80, 41.25),
-    ("BSL-Soviet-Sukhumi", RED_BLOCK, 42.80, 40.85),
-    ("BSL-Soviet-Poti", RED_BLOCK, 42.30, 41.35),
+    ("BSC-NATO-Escort", BLUE_BLOCK, 42.75, 40.55),
+    ("BSC-Soviet-Tuapse", RED_BLOCK, 44.00, 38.85),
+    ("BSC-Soviet-Novorossiysk", RED_BLOCK, 44.55, 37.85),
 )
 
 
@@ -435,7 +456,7 @@ def _place(mission: Mission, theater: Any, anchors: dict[str, Point]) -> Placer:
     terrain = mission.terrain
     placer = Placer(
         terrain,
-        "black_sea_landing_1985",
+        "black_sea_coast_1985",
         on_land=lambda x, y: bool(theater.is_on_land(Point(x, y, terrain))),
     )
     # Take in the last check mission's readings, if DCS has written them.
@@ -508,15 +529,6 @@ def _author(mission: Mission, placer: Placer, anchors: dict[str, Point]) -> list
         position = Point(pick.x, pick.y, terrain)
         _write_unit(mission, item, position)
         _report(item.name, position, item.anchor)
-    for name, (x, y) in MOTORPOOLS_XY.items():
-        position = Point(x, y, terrain)
-        mission.static_group(
-            country=_country(mission, RED_BLOCK),
-            name=name,
-            _type=Fortification.Garage_A,
-            position=position,
-        )
-        _report(name, position)
     return unplaced
 
 
@@ -531,7 +543,7 @@ def _author_roads(mission: Mission, anchors: dict[str, Point]) -> None:
         )
         group = mission.vehicle_group(
             country=_country(mission, BLUE_BLOCK),
-            name=f"BSL-Road-{index} {start} - {end}",
+            name=f"BSC-Road-{index} {start} - {end}",
             _type=ROAD,
             position=points[0],
         )
@@ -588,7 +600,7 @@ def main() -> None:
 
     write_review_map(
         REVIEW_MAP,
-        "Black Sea Landing 1985 placement",
+        "Black Sea Coast 1985 placement",
         f"{len(placer.placements)} picks, {len(unplaced)} with no good ground",
         placement_markers(mission.terrain, placer),
     )

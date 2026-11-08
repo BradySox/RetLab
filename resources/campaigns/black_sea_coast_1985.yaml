@@ -1,5 +1,5 @@
 ---
-name: Caucasus - Black Sea Landing 1985
+name: Caucasus - Black Sea Coast 1985
 theater: Caucasus
 authors: RetLab
 recommended_player_faction: Blufor Late Cold War (80s)
@@ -7,21 +7,19 @@ recommended_enemy_faction: Russia 1980
 description:
   <p><strong>Note -</strong> This campaign was designed for the F-4E Phantom II and
   the F-14A Tomcat. Every unit is stock DCS.</p>
-  <p>In the spring of 1985 the war in Europe stalled on the Weser, and both sides
-  looked for another front. NATO looked to the Black Sea. Turkey opened the
-  Bosporus to the Sixth Fleet, and on the night of 2 May a Marine amphibious force
-  came ashore at Kobuleti while the Forrestal's air wing struck the coastal radars.
-  By morning the Marines held Batumi and Kobuleti, and the first Phantoms were on
-  the ramp.</p>
-  <p>The beachhead is small. Soviet armor holds the coast road at Poti, and Senaki,
-  Kutaisi and Sukhumi are close enough that their MiG-23s are over the beach in
-  minutes. Beyond them the main highway climbs through the Rikoti pass to Khashuri
-  and Gori, and an SA-2, SA-3 and SA-6 belt guards every town on the way. The
-  Transcaucasus Military District commands it all from Tbilisi, with the Backfires
-  at Mozdok waiting across the mountains for the carrier.</p>
-  <p>Break out of the beachhead, drive up the highway and take Tbilisi and Vaziani.
-  Lose Kobuleti, and the landing is over.</p>
-miz: black_sea_landing_1985.miz
+  <p>In the spring of 1985 Tbilisi rose. The Georgian Communist Party declared the
+  republic sovereign, the Transcaucasus Military District split along national lines,
+  and Turkey opened its bases and the Bosporus to NATO. By the end of April USAF
+  Phantoms were on the ramp at Senaki and Vaziani, and a Forrestal-class carrier was
+  in the Black Sea. Moscow answered by moving the North Caucasus Military District to
+  the border at the Enguri.</p>
+  <p>The Soviets hold the coast from Gali to Novorossiysk. MiG-23s fly from Sukhumi,
+  Gudauta and Sochi, the Fulcrums sit at Maykop, and the Fencers and Backfires wait
+  at Krasnodar and Krymsk. An SA-2, SA-3 and SA-6 belt guards every base on the coast
+  road, and the front's headquarters at Krasnodar runs it all.</p>
+  <p>Drive up the coast road through Sukhumi and Sochi, over the hills from Tuapse,
+  and take both Krasnodar fields. Lose Senaki, and Georgia falls with it.</p>
+miz: black_sea_coast_1985.miz
 performance: 1
 recommended_start_date: 1985-05-03
 version: "10.9"
@@ -33,8 +31,8 @@ settings:
   # 1985: AIM-9L/9M, AIM-7F/7M, AIM-54A, AGM-45, AGM-78 and HARM yes; AMRAAM no.
   restrict_weapons_by_date: true
   restrict_props_by_date: true
-  # Kobuleti is 170 NM from Vaziani, past the 150 NM default.
-  max_mission_range_planes: 250
+  # Senaki is about 245 NM from Krymsk, past the 150 NM default.
+  max_mission_range_planes: 260
   plugins:
     skynetiads: true
 # Who the map's neighbours sided with in 1985. Without this, every country with
@@ -45,17 +43,17 @@ neutral_border_postures:
   Azerbaijan: red
   Ukraine: red
 victory:
-  description: "Take Tbilisi and Vaziani. Hold Kobuleti."
+  description: "Take both Krasnodar fields. Hold Senaki."
   win_when:
-    - label: "The Transcaucasus Military District loses its capital"
-      capture_cps: [Tbilisi-Lochini, Vaziani]
+    - label: "The North Caucasus front loses its headquarters"
+      capture_cps: [Krasnodar-Center, Krasnodar-Pashkovsky]
   lose_when:
-    - label: "Kobuleti falls"
-      lose_cps: [Kobuleti]
+    - label: "Senaki falls"
+      lose_cps: [Senaki-Kolkhi]
 squadrons:
   # ================================ NATO ================================
-  # Kobuleti: the beachhead's main field.
-  Kobuleti:
+  # Senaki: the Phantoms, closest to the front.
+  Senaki-Kolkhi:
     - primary: DEAD
       secondary: any
       aircraft:
@@ -66,24 +64,36 @@ squadrons:
       aircraft:
         - 480th TFS (Spangdahlem)
       size: 8
+  # Kutaisi: Eagles and Warthogs.
+  Kutaisi:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - 22nd Tactical Fighter Squadron
       size: 8
-    - primary: Refueling
-      aircraft:
-        - KC-135 Stratotanker
-      size: 2
-  # Batumi: a short field, close-support Warthogs.
-  Batumi:
     - primary: CAS
       secondary: any
       aircraft:
         - 510th Tactical Fighter Squadron
       size: 8
+  # Tbilisi: the tankers and the AWACS, out of reach.
+  Tbilisi-Lochini:
+    - primary: Refueling
+      aircraft:
+        - KC-135 Stratotanker
+      size: 2
+    - primary: AEW&C
+      aircraft:
+        - 960th AAC Squadron
+      size: 2
+  Vaziani:
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - CH-47D
+      size: 4
   # The carrier: a 1985 Forrestal air wing.
-  BSL-CV:
+  BSC-CV:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
@@ -107,8 +117,8 @@ squadrons:
       aircraft:
         - VA-34 (Tanker)
       size: 4
-  # The LHA: the Marines' lift.
-  BSL-LHA:
+  # The LHA: the Marines' lift up the coast.
+  BSC-LHA:
     - primary: Air Assault
       secondary: any
       aircraft:
@@ -120,41 +130,12 @@ squadrons:
         - UH-1H Iroquois
       size: 6
   # ============================= Soviet Union ===========================
-  # Senaki: the closest field to the beachhead.
-  Senaki-Kolkhi:
-    - primary: BARCAP
-      secondary: air-to-air
-      aircraft:
-        - 33rd Fighter Aviation Regiment
-      size: 12
-    - primary: CAS
-      secondary: any
-      aircraft:
-        - 357th Assault Aviation Regiment
-      size: 12
-  # Kutaisi: Fishbeds, Fitters and Hinds.
-  Kutaisi:
-    - primary: BARCAP
-      secondary: air-to-air
-      aircraft:
-        - 115th GvIAP Fighter Regiment
-      size: 12
-    - primary: BAI
-      secondary: any
-      aircraft:
-        - 20th Guards Fighter-Bomber Aviation Regiment
-      size: 12
-    - primary: CAS
-      secondary: any
-      aircraft:
-        - 336th Independent Combat Helicopter Regiment
-      size: 8
-  # Sukhumi: the naval Fencers watching the sea.
+  # Sukhumi: the closest field to the Enguri.
   Sukhumi-Babushara:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
-        - 35th Fighter Aviation Regiment
+        - 33rd Fighter Aviation Regiment
       size: 8
     - primary: Anti-ship
       secondary: any
@@ -162,20 +143,44 @@ squadrons:
         - 4th Guards Naval Assault Aviation Regiment
       # Babushara has five stands wide enough for a Fencer.
       size: 4
-  # Tbilisi: the district's only Fulcrums.
-  Tbilisi-Lochini:
+  # Gudauta: Fishbeds.
+  Gudauta:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 115th GvIAP Fighter Regiment
+      size: 12
+  # Sochi: Floggers, Frogfoots and Hinds.
+  Sochi-Adler:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 35th Fighter Aviation Regiment
+      size: 12
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 357th Assault Aviation Regiment
+      size: 12
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 336th Independent Combat Helicopter Regiment
+      size: 8
+  # Maykop: the coast's only Fulcrums, and Fitters.
+  Maykop-Khanskaya:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
         - 85th Guards Fighter Aviation Regiment
       size: 8
-    - primary: Transport
+    - primary: BAI
       secondary: any
       aircraft:
-        - 239th Independent Helicopter Regiment
-      size: 6
-  # Vaziani: Floggers and Fencers.
-  Vaziani:
+        - 20th Guards Fighter-Bomber Aviation Regiment
+      size: 12
+  # Krasnodar: Floggers and Fencers at the front's headquarters.
+  Krasnodar-Center:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:
@@ -186,8 +191,14 @@ squadrons:
       aircraft:
         - 11th Guards Bomber Aviation Regiment
       size: 12
-  # Mozdok: the rear, across the mountains.
-  Mozdok:
+  Krasnodar-Pashkovsky:
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - 239th Independent Helicopter Regiment
+      size: 6
+  # Krymsk: the rear, with the Backfires watching the carrier.
+  Krymsk:
     - primary: BARCAP
       secondary: air-to-air
       aircraft:

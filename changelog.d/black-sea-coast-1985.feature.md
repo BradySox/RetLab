@@ -1,0 +1,1 @@
+* **[Campaigns]** Caucasus - Black Sea Coast 1985: NATO holds Georgia and drives up the coast road through Sukhumi, Sochi and Tuapse to Krasnodar. F-4E, F-14A and A-6E against MiG-21s, MiG-23s and a few MiG-29s, with an SA-2, SA-3, SA-6 and SA-11 belt. Every unit is stock DCS.

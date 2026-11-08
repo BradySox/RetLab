@@ -458,7 +458,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Fulda Gap 1985 | Germany | The 52nd TFW's Phantoms at Spangdahlem against the 8th Guards Army and the 16th Air Army |
 | Northern Shield 1988 | Germany | Red Tide from the north: NATO across the Baltic takes the East German coast by air assault |
 | Eastern Reach 2025 | Persian Gulf | Marines at Jask drive up the highway to Kerman; every deep strike needs a tanker |
-| Black Sea Landing 1985 | Caucasus | NATO lands at Batumi and Kobuleti and drives up the highway to Tbilisi; F-4E and F-14A |
+| Black Sea Coast 1985 | Caucasus | NATO holds Georgia and drives up the coast road through Sochi to Krasnodar; F-4E and F-14A |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
@@ -513,12 +513,12 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   tankers flying in from Ascension. Take both landings to win, lose Mount Pleasant and you lose;
   the mainland can't be taken. Play the landing with Invert Sides. Needs the CurrentHill UK
   pack and the community A-4E.
-- **Black Sea Landing 1985** — fictional: in May 1985 NATO holds a beachhead at Batumi and
-  Kobuleti with a carrier offshore and drives up the coast road to Poti, then along the main
-  highway through Senaki, Kutaisi, the Rikoti pass, Khashuri and Gori to Tbilisi. USAF F-4Es and
-  F-15Cs at Kobuleti, F-14As and A-6Es on the carrier, against MiG-21s, MiG-23s, a few MiG-29s
-  and an SA-2, SA-3, SA-6 and SA-11 belt. Sukhumi is a flank base; Mozdok's Backfires have no
-  road to the front. Take Tbilisi and Vaziani to win, lose Kobuleti and you lose. Stock DCS only.
+- **Black Sea Coast 1985** — fictional: in May 1985 Georgia has broken from Moscow and NATO
+  holds Senaki, Kutaisi and the Tbilisi fields with a carrier offshore. Blue drives up the coast
+  road through Sukhumi, Gudauta and Sochi to Tuapse, then over the hills to Krasnodar, with Maykop
+  and Krymsk on the flanks. USAF F-4Es at Senaki, F-14As and A-6Es on the carrier, against
+  MiG-21s, MiG-23s, a few MiG-29s and an SA-2, SA-3, SA-6 and SA-11 belt. Take both Krasnodar
+  fields to win, lose Senaki and you lose. Stock DCS only.
 - **Eastern Reach 2025** — fictional: Marines hold Bandar-e-Jask and drive north up the real
   highway through Sirik, Minab, Kahnuj, Jiroft and the Jebal Barez pass to Kerman, where Iran
   keeps its missile works and most of its Tomcats and Fulcrums behind Bavar-373 batteries.
