@@ -1,0 +1,1 @@
+* **[Campaigns]** Caucasus - Black Sea Landing 1985: NATO lands at Batumi and Kobuleti and drives up the coast road and the main highway through Kutaisi and the Rikoti pass to Tbilisi. F-4E, F-14A and A-6E against MiG-21s, MiG-23s and a few MiG-29s, with an SA-2, SA-3, SA-6 and SA-11 belt. Every unit is stock DCS.

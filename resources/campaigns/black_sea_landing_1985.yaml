@@ -1,0 +1,208 @@
+---
+name: Caucasus - Black Sea Landing 1985
+theater: Caucasus
+authors: RetLab
+recommended_player_faction: Blufor Late Cold War (80s)
+recommended_enemy_faction: Russia 1980
+description:
+  <p><strong>Note -</strong> This campaign was designed for the F-4E Phantom II and
+  the F-14A Tomcat. Every unit is stock DCS.</p>
+  <p>In the spring of 1985 the war in Europe stalled on the Weser, and both sides
+  looked for another front. NATO looked to the Black Sea. Turkey opened the
+  Bosporus to the Sixth Fleet, and on the night of 2 May a Marine amphibious force
+  came ashore at Kobuleti while the Forrestal's air wing struck the coastal radars.
+  By morning the Marines held Batumi and Kobuleti, and the first Phantoms were on
+  the ramp.</p>
+  <p>The beachhead is small. Soviet armor holds the coast road at Poti, and Senaki,
+  Kutaisi and Sukhumi are close enough that their MiG-23s are over the beach in
+  minutes. Beyond them the main highway climbs through the Rikoti pass to Khashuri
+  and Gori, and an SA-2, SA-3 and SA-6 belt guards every town on the way. The
+  Transcaucasus Military District commands it all from Tbilisi, with the Backfires
+  at Mozdok waiting across the mountains for the carrier.</p>
+  <p>Break out of the beachhead, drive up the highway and take Tbilisi and Vaziani.
+  Lose Kobuleti, and the landing is over.</p>
+miz: black_sea_landing_1985.miz
+performance: 1
+recommended_start_date: 1985-05-03
+version: "10.9"
+# The Soviet net is wired by range from the .miz's command centres, comms towers and
+# power sources. NATO has no nodes.
+advanced_iads: true
+settings:
+  squadron_start_full: true
+  # 1985: AIM-9L/9M, AIM-7F/7M, AIM-54A, AGM-45, AGM-78 and HARM yes; AMRAAM no.
+  restrict_weapons_by_date: true
+  restrict_props_by_date: true
+  # Kobuleti is 170 NM from Vaziani, past the 150 NM default.
+  max_mission_range_planes: 250
+  plugins:
+    skynetiads: true
+# Who the map's neighbours sided with in 1985. Without this, every country with
+# no field on the map reads neutral and fires on both sides.
+neutral_border_postures:
+  Turkey: blue
+  Armenia: red
+  Azerbaijan: red
+  Ukraine: red
+victory:
+  description: "Take Tbilisi and Vaziani. Hold Kobuleti."
+  win_when:
+    - label: "The Transcaucasus Military District loses its capital"
+      capture_cps: [Tbilisi-Lochini, Vaziani]
+  lose_when:
+    - label: "Kobuleti falls"
+      lose_cps: [Kobuleti]
+squadrons:
+  # ================================ NATO ================================
+  # Kobuleti: the beachhead's main field.
+  Kobuleti:
+    - primary: DEAD
+      secondary: any
+      aircraft:
+        - 23rd Tactical Fighter Squadron
+      size: 16
+    - primary: SEAD
+      secondary: any
+      aircraft:
+        - 480th TFS (Spangdahlem)
+      size: 8
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 22nd Tactical Fighter Squadron
+      size: 8
+    - primary: Refueling
+      aircraft:
+        - KC-135 Stratotanker
+      size: 2
+  # Batumi: a short field, close-support Warthogs.
+  Batumi:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 510th Tactical Fighter Squadron
+      size: 8
+  # The carrier: a 1985 Forrestal air wing.
+  BSL-CV:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - VF-11
+      size: 12
+    - primary: Fighter sweep
+      secondary: air-to-air
+      aircraft:
+        - VF-33
+      size: 12
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - VA-85
+      size: 10
+    - primary: AEW&C
+      aircraft:
+        - VAW-122
+      size: 2
+    - primary: Refueling
+      aircraft:
+        - VA-34 (Tanker)
+      size: 4
+  # The LHA: the Marines' lift.
+  BSL-LHA:
+    - primary: Air Assault
+      secondary: any
+      aircraft:
+        - CH-53E
+      size: 6
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - UH-1H Iroquois
+      size: 6
+  # ============================= Soviet Union ===========================
+  # Senaki: the closest field to the beachhead.
+  Senaki-Kolkhi:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 33rd Fighter Aviation Regiment
+      size: 12
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 357th Assault Aviation Regiment
+      size: 12
+  # Kutaisi: Fishbeds, Fitters and Hinds.
+  Kutaisi:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 115th GvIAP Fighter Regiment
+      size: 12
+    - primary: BAI
+      secondary: any
+      aircraft:
+        - 20th Guards Fighter-Bomber Aviation Regiment
+      size: 12
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - 336th Independent Combat Helicopter Regiment
+      size: 8
+  # Sukhumi: the naval Fencers watching the sea.
+  Sukhumi-Babushara:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 35th Fighter Aviation Regiment
+      size: 8
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - 4th Guards Naval Assault Aviation Regiment
+      # Babushara has five stands wide enough for a Fencer.
+      size: 4
+  # Tbilisi: the district's only Fulcrums.
+  Tbilisi-Lochini:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 85th Guards Fighter Aviation Regiment
+      size: 8
+    - primary: Transport
+      secondary: any
+      aircraft:
+        - 239th Independent Helicopter Regiment
+      size: 6
+  # Vaziani: Floggers and Fencers.
+  Vaziani:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - 73rd Guards Fighter Aviation Regiment
+      size: 12
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - 11th Guards Bomber Aviation Regiment
+      size: 12
+  # Mozdok: the rear, across the mountains.
+  Mozdok:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-25PD Foxbat-E
+      size: 8
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - 924th Guards Naval Missile-Carrier Aviation Regiment
+      size: 6
+    - primary: AEW&C
+      aircraft:
+        - A-50
+      size: 2
+    - primary: Refueling
+      aircraft:
+        - IL-78M
+      size: 2
