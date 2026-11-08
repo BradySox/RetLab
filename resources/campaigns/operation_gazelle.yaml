@@ -11,7 +11,7 @@ description:
     Operation Gazelle represents a critical Israeli counter-offensive to 
     reclaim these areas. Supported by armoured brigades, paratrooper units, 
     and air cover, Israeli forces are tasked with driving the Egyptian Third 
-    Army back across the Al Salam Bridge. Their mission also involves encircling 
+    Army back across the Suez Canal. Their mission also involves encircling 
     and cutting off the Egyptian forces that are advancing eastward from the 
     Port Tewfik Pontoon Bridge through the Mitla and Gidi mountain passes. This 
     operation aims to decisively shift the war's momentum, re-establishing 
@@ -21,7 +21,7 @@ performance: 1
 recommended_start_date: 1973-10-15
 version: "10.9"
 settings:
-  a4_skyhawk: false
+  a4_skyhawk: true
   squadron_start_full: true
 squadrons:
   # Ben-Gurion
@@ -43,10 +43,6 @@ squadrons:
       aircraft:
         - F-4E-45MC Phantom II
       size: 20
-    - primary: AEW&C
-      aircraft:
-        - E-2C Hawkeye
-      size: 2
     - primary: Air Assault
       secondary: any
       aircraft:
@@ -62,13 +58,13 @@ squadrons:
     - primary: BAI
       secondary: any
       aircraft:
-        - F-4E Phantom II
+        - A-4E Skyhawk
         - F-4E-45MC Phantom II
       size: 20
     - primary: Strike
       secondary: any
       aircraft:
-        - F-4E Phantom II
+        - A-4E Skyhawk
         - F-4E-45MC Phantom II
       size: 20
   # El Arish
@@ -109,6 +105,27 @@ squadrons:
       aircraft:
         - MiG-19P Farmer-B
       size: 16
+  # Abu Suwayr
+  2:
+    - primary: BARCAP
+      secondary: any
+      aircraft:
+        - MiG-21bis Fishbed-N
+      size: 16
+  # Fayed
+  6:
+    - primary: BAI
+      secondary: any
+      aircraft:
+        - MiG-19P Farmer-B
+      size: 12
+  # Kibrit
+  11:
+    - primary: CAS
+      secondary: any
+      aircraft:
+        - MiG-15bis Fagot
+      size: 12
   # Cairo West
   18:
     - primary: Strike

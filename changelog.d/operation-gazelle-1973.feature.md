@@ -1,0 +1,2 @@
+* **[Campaign]** Operation Gazelle: the A-4E Skyhawk flies from Hatzor again, the E-2C Hawkeye and Egypt's SA-5 are gone (neither existed there in 1973), Fayed, Kibrit and Abu Suwayr are Egyptian airbases, and Egypt has a Scud site east of Cairo.
+* **[Faction]** Egypt 1973 fields the T-62, AT-3 Sagger teams, the BTR-60 in place of the BTR-80, KS-19 guns and the Scud-B; it loses the SA-5. Israel 1973 has no AWACS.
