@@ -1,0 +1,1 @@
+* **[Campaigns]** Red Flag 81-2: types that do not fit January 1981 are gone. The CH-47D Chinooks are now CH-53E Sea Stallions (the USAF flew CH-53s, never Chinooks). The RF-101B photo squadron (retired 1975) and the AH-1W Cobras are dropped. New games only.

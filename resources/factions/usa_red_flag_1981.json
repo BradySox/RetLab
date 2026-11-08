@@ -10,12 +10,10 @@
     "F-4E-45MC Phantom II",
     "A-10A Thunderbolt II",
     "OV-10A Bronco",
-    "RF-101B Voodoo",
     "B-52H Stratofortress",
     "C-130J-30",
     "UH-1H Iroquois",
-    "CH-47D",
-    "AH-1W SuperCobra"
+    "CH-53E"
   ],
   "awacs": [
     "E-3A"

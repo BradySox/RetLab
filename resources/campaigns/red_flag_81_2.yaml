@@ -2,7 +2,7 @@
 name: Nevada - Red Flag 81-2
 era: vietnam
 theater: Nevada
-authors: RetLab (laydown after Reflected Simulations' F-4E Red Flag 81-2)
+authors: RetLab
 description: >-
   <p><strong>Note -</strong> Built for High Digit SAMs, the OV-10A mod and Vietnam War
   Vessels; New Game ticks them.</p>
@@ -150,12 +150,6 @@ squadrons:
           aircraft:
             - OV-10A Bronco
           size: 4
-        - primary: TARPS
-          # Unarmed photo bird, TARPS only -- no secondary (the old air-to-ground
-          # alias is what put recon birds on Armed Recon/Strike, G19).
-          aircraft:
-            - RF-101B Voodoo
-          size: 2
         - primary: AEW&C
           aircraft:
             - E-3A
@@ -172,11 +166,6 @@ squadrons:
 
     # Indian Springs AAF (Creech's 1981 name) -- forward helo field on the range boundary
     Creech:
-        - primary: CAS
-          secondary: air-to-ground
-          aircraft:
-            - AH-1W SuperCobra
-          size: 4
         - primary: Air Assault
           secondary: any
           aircraft:
@@ -185,7 +174,7 @@ squadrons:
         - primary: Transport
           secondary: any
           aircraft:
-            - CH-47D
+            - CH-53E
           size: 2
 
     # Camp Mercury -- blue's toe-hold inside the range boundary (Super Gaggle destination)
