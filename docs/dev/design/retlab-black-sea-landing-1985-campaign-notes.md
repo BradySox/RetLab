@@ -51,6 +51,9 @@ Red Bear).
 
 Five red FOBs on the road: Poti, Zugdidi, Zestafoni, Khashuri (the spot Northern Russia and
 Iron Gate use) and Gori. Gori and Zestafoni carry two Invisible FARP pads each.
+The landmap has no buildable ground in the Rioni delta, so FOB Poti sits on the Poti road
+about 15 km inland, and the town-centre anchors at Tbilisi, Kutaisi, Sukhumi and Zugdidi
+moved to the town edges (second check run, 2026-11-08).
 
 Win: take Tbilisi-Lochini and Vaziani. Lose: lose Kobuleti. `max_mission_range_planes` is 250
 (Kobuleti to Vaziani is about 170 NM).
@@ -82,5 +85,6 @@ the Enguri. Mozdok has no road: it is across the mountains, like Eastern Reach's
 - Every marker is placed by job (`Job.AIR_DEFENSE`, `GARRISON`, `DEPOT`, `EWR`, `TOWN`,
   `SPOT`). The first build writes the check mission
   `Saved Games\DCS\Missions\RetLab probes\black_sea_landing_1985_placement.miz`; the DM runs
-  it once and the tool reads its output from `Saved Games\DCS\Logs` itself.
+  it once and the tool reads its output from `Saved Games\DCS\Logs` itself. Two runs placed
+  all 119 units, 0 flagged (2026-11-08).
 - Red markers are generic types; the faction picks the system.
