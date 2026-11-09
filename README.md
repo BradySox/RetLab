@@ -267,8 +267,10 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   pilots recovered.
 - A Threat Intel Brief gives one card per enemy air-defence system — NATO name, guidance, ceiling,
   range, RWR symbol, how to beat it. It respects recon fog: un-engaged sites show only a threat tier.
-- Planned flights always use RetLab's shipped loadouts, which carry the newest weapons and
+- Planned flights use RetLab's shipped loadouts, which carry the newest weapons and
   step down for the campaign date. Loadouts saved in the DCS Mission Editor are not read.
+- Save your own loadouts from the payload tab. A saved loadout is listed as `Saved: <name>`
+  for that aircraft in every campaign, and can be a blue squadron's loadout for one task.
   Fuel and cockpit settings are remembered per airframe.
 - The payload editor hides practice, captive, inert, smoke and illumination stores, TCTS
   pods and travel pods until **Show training and non-combat stores** is ticked. White

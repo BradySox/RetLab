@@ -16,13 +16,32 @@ In *Edit flight → Payload*, tick **Use custom loadout** and set each pylon by 
 applies to that flight only. The named-loadout dropdown also lists every stock DCS loadout for
 the aircraft.
 
+### Saved loadouts
+
+**RetLab:** under the Loadout list in *Edit flight → Payload*:
+
+| Button | What it does |
+|---|---|
+| **Save loadout as...** | Saves the selected member's stations under a name you type. |
+| **Delete saved** | Deletes the saved loadout picked in the Loadout list, for every campaign. |
+| **Use for squadron's <task>** | Every flight the squadron plans for that task from now on takes the picked saved loadout. This campaign only. Blue squadrons only. |
+| **Clear** | The squadron's flights for that task go back to the shipped loadout. |
+
+- A saved loadout is listed as `Saved: <name>` for that aircraft in every campaign.
+- It never replaces a shipped loadout and red never uses it.
+- Missiles step up to the newest variant the pylon takes (an AIM-9M becomes an AIM-9X), then
+  **Restrict weapons by campaign date** steps them down for the campaign.
+- A store the aircraft cannot carry now, such as a mod weapon with the mod off, is left off and
+  you get a note saying which station.
+- The file is `Saved Games\DCS\Retribution\saved_loadouts.json`.
+
 ### Loadouts saved in the Mission Editor are not read
 
 **RetLab:** upstream Retribution also reads `Saved Games/DCS/MissionEditor/UnitPayloads`, so a
 Mission Editor loadout named `Retribution <mission type>` replaces the shipped one. RetLab
-removed this on 2026-10-17. Such a loadout replaced the shipped fit for both sides in every
+does not read that folder. Such a loadout replaced the shipped fit for both sides in every
 campaign, and an old weapon on it stayed old in a modern campaign. Your files are not deleted;
-the Mission Editor still uses them.
+the Mission Editor still uses them. Use **Save loadout as...** instead.
 
 ### Shipped payload files
 

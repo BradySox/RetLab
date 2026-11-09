@@ -132,11 +132,16 @@ class Squadron:
     )
     #: Heatblur Wear and Tear the squadron's player jets spawn with (§43).
     airframe_wear: float = field(init=False, hash=False, compare=False, default=0.0)
+    #: The player's saved loadout (§128) each task's flights take, by name. Blue only.
+    saved_loadouts: dict[FlightType, str] = field(
+        init=False, hash=False, compare=False, repr=False, default_factory=dict
+    )
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         state.setdefault("saved_points", [])
         state.setdefault("saved_drawings", [])
         state.setdefault("airframe_wear", 0.0)
+        state.setdefault("saved_loadouts", {})
         if "id" not in state:
             state["id"] = uuid4()
         if "callsign" not in state:

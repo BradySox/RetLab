@@ -1011,6 +1011,12 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="radiorecord",
         settings_fields=("record_radios_for_tacview",),
     ),
+    Feature(
+        # RetLab's own file, never DCS's UnitPayloads; blue squadron fit per task.
+        "saved_loadouts",
+        "Saved loadouts",
+        128,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

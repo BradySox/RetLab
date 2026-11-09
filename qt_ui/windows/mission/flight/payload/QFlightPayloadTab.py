@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QGroupBox,
     QLabel,
     QHBoxLayout,
+    QInputDialog,
     QMessageBox,
     QPushButton,
     QSizePolicy,
@@ -22,6 +23,7 @@ from game import Game
 from game.ato.flight import Flight
 from game.ato.flightmember import FlightMember
 from game.ato.loadouts import Loadout
+from game.retlab import saved_loadouts
 from game.missiongenerator.aircraft.modex import (
     MIN_BOARD_NUMBER,
     is_modex_flight,
@@ -43,14 +45,23 @@ from .weaponlasercodeselector import WeaponLaserCodeSelector
 class DcsLoadoutSelector(QComboBox):
     def __init__(self, flight: Flight, member: FlightMember) -> None:
         super().__init__()
-        for loadout in Loadout.iter_for(flight):
-            self.addItem(loadout.name, loadout)
-        self.model().sort(0)
+        self.flight = flight
+        self.fill()
         self.setDisabled(member.loadout.is_custom)
         if member.loadout.is_custom:
             self.setCurrentText(Loadout.default_for(flight).name)
         else:
             self.setCurrentText(member.loadout.name)
+
+    def fill(self) -> None:
+        """The shipped presets, then the player's saved fits (§128) below them."""
+        with block_signals(self):
+            self.clear()
+            for loadout in Loadout.iter_for(self.flight):
+                self.addItem(loadout.name, loadout)
+            self.model().sort(0)
+            for loadout in saved_loadouts.all_for(self.flight.unit_type):
+                self.addItem(loadout.name, loadout)
 
 
 class FlightMemberSelector(QSpinBox):
@@ -434,10 +445,14 @@ class QFlightPayloadTab(QFrame):
             self.member_selector.selected_member.loadout.is_custom
         )
         right_column.addLayout(loadout_row)
+        right_column.addLayout(self._build_saved_loadouts_row())
+        self.squadron_fit_label = QLabel()
+        _wrap_without_widening(self.squadron_fit_label)
+        right_column.addWidget(self.squadron_fit_label)
         right_column.addWidget(self.payload_editor, stretch=1)
 
         docsText = QLabel(
-            '<a href="https://github.com/dcs-retribution/dcs-retribution/wiki/Custom-Loadouts"><span style="color:#FFFFFF;">How to create your own default loadout</span></a>'
+            '<a href="https://github.com/BradySox/RetLab/wiki/Custom-Loadouts"><span style="color:#FFFFFF;">How saved loadouts work</span></a>'
         )
         docsText.setAlignment(Qt.AlignmentFlag.AlignCenter)
         docsText.setOpenExternalLinks(True)
@@ -456,6 +471,7 @@ class QFlightPayloadTab(QFrame):
         """Refresh everything derived from the selected member's loadout."""
         self.refresh_fuel_brief()
         self.refresh_laser_code_visibility()
+        self.refresh_saved_loadout_buttons()
 
     def refresh_laser_code_visibility(self) -> None:
         """Hide the laser-code rows when this loadout has no use for a code.
@@ -564,6 +580,7 @@ class QFlightPayloadTab(QFrame):
             self.flight.roster.use_same_loadout_for_all_members()
         self.payload_editor.reset_pylons()
         self.refresh_loadout_readouts()
+        self._report_saved_fit_changes(loadout.name)
 
     def on_custom_toggled(self, use_custom: bool) -> None:
         self.loadout_selector.setDisabled(use_custom)
@@ -675,3 +692,163 @@ class QFlightPayloadTab(QFrame):
             f"Removed the saved default for {name}. New {name} flights will use the "
             f"stock values again.",
         )
+
+    # RetLab (§128): the player's saved loadouts, kept for every campaign, and a
+    # blue squadron's saved fit for a task in this save.
+    def _build_saved_loadouts_row(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        self.save_loadout_btn = QPushButton("Save loadout as...")
+        self.save_loadout_btn.setToolTip(
+            "Save this member's stations under a name of your own. It is listed as "
+            '"Saved: <name>" for every '
+            f"{self.flight.unit_type.display_name} flight in every campaign, and "
+            "only flies on a flight you pick it for."
+        )
+        self.save_loadout_btn.clicked.connect(self._on_save_loadout)
+        row.addWidget(self.save_loadout_btn)
+
+        self.delete_loadout_btn = QPushButton("Delete saved")
+        self.delete_loadout_btn.setToolTip(
+            "Delete the saved loadout picked in the Loadout list, for every "
+            "campaign. Flights already planned keep their stations."
+        )
+        self.delete_loadout_btn.clicked.connect(self._on_delete_loadout)
+        row.addWidget(self.delete_loadout_btn)
+
+        task = self.flight.flight_type.value
+        self.squadron_fit_btn = QPushButton(f"Use for squadron's {task}")
+        self.squadron_fit_btn.setToolTip(
+            f"Every {task} flight {self.flight.squadron} plans from now on takes "
+            "the saved loadout picked in the Loadout list, AI and player. This "
+            "campaign only."
+        )
+        self.squadron_fit_btn.clicked.connect(self._on_use_for_squadron)
+        row.addWidget(self.squadron_fit_btn)
+
+        self.clear_squadron_fit_btn = QPushButton("Clear")
+        self.clear_squadron_fit_btn.setToolTip(
+            f"{self.flight.squadron}'s {task} flights go back to the shipped "
+            "loadout from now on."
+        )
+        self.clear_squadron_fit_btn.clicked.connect(self._on_clear_squadron_fit)
+        row.addWidget(self.clear_squadron_fit_btn)
+        row.addStretch(1)
+
+        blue = self.flight.squadron.player.is_blue
+        self.squadron_fit_btn.setVisible(blue)
+        self.clear_squadron_fit_btn.setVisible(blue)
+        return row
+
+    def _selected_saved_name(self) -> str | None:
+        """The saved fit picked in the Loadout list, while it is what is loaded."""
+        if self.member_selector.selected_member.loadout.is_custom:
+            return None
+        name = self.loadout_selector.currentText()
+        if not saved_loadouts.is_saved_name(name):
+            return None
+        return name[len(saved_loadouts.PREFIX) :]
+
+    def refresh_saved_loadout_buttons(self) -> None:
+        if not hasattr(self, "squadron_fit_label"):
+            return
+        picked = self._selected_saved_name()
+        self.delete_loadout_btn.setEnabled(picked is not None)
+        squadron = self.flight.squadron
+        task = self.flight.flight_type
+        current = saved_loadouts.squadron_fit_name(squadron, task)
+        self.squadron_fit_btn.setEnabled(picked is not None and picked != current)
+        self.clear_squadron_fit_btn.setEnabled(current is not None)
+        if not squadron.player.is_blue:
+            self.squadron_fit_label.setVisible(False)
+            return
+        if current is None:
+            text = f"{squadron}'s {task.value} flights take the shipped loadout."
+        elif saved_loadouts.exists(self.flight.unit_type, current):
+            text = (
+                f"{squadron}'s {task.value} flights take "
+                f"{saved_loadouts.display_name(current)}."
+            )
+        else:
+            text = (
+                f"{squadron}'s {task.value} loadout "
+                f"{saved_loadouts.display_name(current)} was deleted, so its "
+                "flights take the shipped loadout."
+            )
+        self.squadron_fit_label.setText(text)
+        self.squadron_fit_label.setVisible(True)
+
+    def _report_saved_fit_changes(self, loadout_name: str) -> None:
+        if not saved_loadouts.is_saved_name(loadout_name):
+            return
+        fit = saved_loadouts.load(
+            self.flight.unit_type, loadout_name[len(saved_loadouts.PREFIX) :]
+        )
+        if fit is None or not fit.notes:
+            return
+        QMessageBox.information(self, "Saved loadout changed", "\n".join(fit.notes))
+
+    def _on_save_loadout(self) -> None:
+        member = self.member_selector.selected_member
+        name, ok = QInputDialog.getText(
+            self,
+            "Save loadout",
+            "Name for this loadout:",
+            text=self._selected_saved_name() or "",
+        )
+        if not ok:
+            return
+        name = saved_loadouts.clean_name(name)
+        if not name:
+            QMessageBox.warning(self, "Save loadout", "Type a name for the loadout.")
+            return
+        aircraft = self.flight.unit_type
+        if saved_loadouts.exists(aircraft, name):
+            answer = QMessageBox.question(
+                self, "Save loadout", f'Replace the saved loadout "{name}"?'
+            )
+            if answer != QMessageBox.StandardButton.Yes:
+                return
+        if not saved_loadouts.save(aircraft, name, member.loadout):
+            QMessageBox.warning(
+                self,
+                "Save loadout",
+                "Could not write the saved loadouts file in Saved Games.",
+            )
+            return
+        self.loadout_selector.fill()
+        self.sync_loadout_selector()
+        self.refresh_saved_loadout_buttons()
+        QMessageBox.information(
+            self,
+            "Loadout saved",
+            f'Saved as "{saved_loadouts.display_name(name)}". Pick it in the '
+            f"Loadout list on any {aircraft.display_name} flight.",
+        )
+
+    def _on_delete_loadout(self) -> None:
+        name = self._selected_saved_name()
+        if name is None:
+            return
+        answer = QMessageBox.question(
+            self,
+            "Delete saved loadout",
+            f'Delete the saved loadout "{name}" for every campaign? Flights '
+            "already planned keep their stations.",
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return
+        saved_loadouts.delete(self.flight.unit_type, name)
+        self.loadout_selector.fill()
+        self.sync_loadout_selector()
+        self.refresh_saved_loadout_buttons()
+
+    def _on_use_for_squadron(self) -> None:
+        name = self._selected_saved_name()
+        if name is None:
+            return
+        self.flight.squadron.saved_loadouts[self.flight.flight_type] = name
+        self.refresh_saved_loadout_buttons()
+
+    def _on_clear_squadron_fit(self) -> None:
+        self.flight.squadron.saved_loadouts.pop(self.flight.flight_type, None)
+        self.refresh_saved_loadout_buttons()

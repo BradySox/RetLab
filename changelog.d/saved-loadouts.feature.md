@@ -1,0 +1,2 @@
+* **[UI]** Save your own loadouts from the payload tab. A saved loadout is listed as "Saved: <name>" for that aircraft in every campaign, and can be a blue squadron's loadout for one task. Its missiles step up to the newest variant, then the campaign date steps them down.
+* **[Loadouts]** Loadouts in the DCS Mission Editor's UnitPayloads folder are no longer read, so none can replace a shipped loadout.

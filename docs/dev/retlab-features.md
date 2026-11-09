@@ -7187,10 +7187,11 @@ buttons, `DcsPayload`, `QFlightPayloadTab.on_saved_payload`, and `tests/retlab/t
 fuel and properties defaults, and the files on disk: RetLab never deletes them, and the Mission
 Editor still reads them.
 
-**Constraint: RetLab does not register the user's `UnitPayloads` folder** (`qt_ui/main.py`
-sets only the fallback directory). Upstream registers it as preferred. Re-adding it brings back
+**Constraint: RetLab does not read the user's `UnitPayloads` folder** (`qt_ui/main.py`
+sets only the fallback directory, and since §128 `game/dcs/payloadpatch.py` skips the folder
+pydcs yields anyway). Upstream registers it as preferred. Re-adding it brings back
 name-shadowing of every shipped preset; a planned flight would again take whatever the user
-once saved under that name.
+once saved under that name. Saved loadouts came back as §128, in RetLab's own file.
 
 **Saves:** a flight already in the ATO keeps the loadout it was planned with. Flights planned
 from the next turn take the shipped preset.
@@ -12242,3 +12243,36 @@ call, 2026-10-29).
 | Setting | `record_radios_for_tacview` (`game/settings/fields/missiongenerator.py`) |
 | Tests | `tests/retlab/test_radio_record.py`, `tests/lua/test_radiorecord_runtime.py` |
 | In-game pass | B301 |
+
+## §128 — Saved loadouts
+
+The payload tab saves a member's stations under a name of your own, kept on the PC for every
+campaign, and can make a saved fit one blue squadron's loadout for one task (user call,
+2026-11-08). It replaces the §73 save, which went for the five problems below.
+
+| §73 problem | §128 |
+|---|---|
+| A fit saved as `Retribution <task>` replaced the shipped preset for both sides in every campaign. | Fits live in RetLab's own file and are offered as `Saved: <name>`, a name no preset carries. They fly only where picked, or as a squadron's fit. Red never uses one. |
+| Old missiles stayed old: the date only steps a weapon down. | On load each missile steps up to the newest variant of its family the pylon takes (`game/data/weapon_variants.py`, the #1273 table), then the date steps it down. |
+| A mod store (the F-4E's AGM-78B) flew with the mod off. | A store the pylon cannot carry now is left off, with a note to the player. |
+| The Mission Editor writes the same `UnitPayloads` folder. | RetLab no longer reads it: `game/dcs/payloadpatch.py` skips `PayloadDirectories.user()`, which pydcs yields even unregistered. No import of old ME fits (user call). |
+| A fit could pair an F-4E inboard rack with a loaded Sidewinder rail (#1449). | The rail is emptied on load; the mission build already does the same. |
+
+- **Store:** `Saved Games\DCS\Retribution\saved_loadouts.json`, `{"version": 1, "aircraft":
+  {<dcs id>: {<name>: {"pylons": {<num>: {"clsid", "settings"}}, "ammo_type"}}}}`.
+- **Buttons** (payload tab, under the Loadout list): **Save loadout as...**, **Delete saved**,
+  **Use for squadron's <task>** and **Clear** (blue squadrons only). A line under them names the
+  squadron's fit for the flight's task.
+- **Squadron fit:** `Squadron.saved_loadouts`, `{FlightType: name}`, in the save.
+  `Loadout.default_for` takes it before the shipped presets, for that exact task only (no
+  fallback chain). A deleted fit falls back to the shipped preset. Flights already planned keep
+  their stations.
+- A saved fit is not `is_custom`, so the no-pod LGB swap at mission generation applies to it.
+
+| Area | Path |
+|---|---|
+| Store | `game/retlab/saved_loadouts.py` |
+| Step-up table | `game/data/weapon_variants.py` |
+| Payload tab | `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py` |
+| Tests | `tests/retlab/test_saved_loadouts.py`, `tests/retlab/test_user_payload_folder_ignored.py`, `tests/qt_ui/test_saved_loadout_selector.py` |
+| In-game pass | B322 |

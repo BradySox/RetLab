@@ -356,6 +356,7 @@ linked design note.
 125. **Missile-site targets** — pick a target for your own SCUD site in its window; fog-gated, kept until it dies, else random.
 126. **Runway line-up and departure hold** — player flights get ALIGN on final (carriers on the angled deck) and hold straight out the runway. Never AI.
 127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
+128. **Saved loadouts** — your own named fits for every campaign, in RetLab's own file; pick one per flight or make it a blue squadron's fit for a task. Never a preset name, never red.
 
 ### Retired, removed or shelved — do not restore
 
