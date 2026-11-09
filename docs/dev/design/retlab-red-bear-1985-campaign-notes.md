@@ -106,8 +106,8 @@ Kabul.
 - **Neither Herat nor Shindand has a stand for a B-52, KC-135, E-3A or C-130.** The heavies
   fly from Camp Bastion. **Never draw a road to Camp Bastion**: a road opens a southern front. A
   test pins it, and checks every squadron against the nested stand classes.
-- **Mission range is 250 NM.** Herat and Shindand are 150 to 165 NM from Chaghcharan, past
-  the 150 NM default; Bagram and Kabul (about 350 NM) stay out of reach at the start.
+- **Mission range is the host's own setting** (no preseed since 2026-11-08, the DM's call).
+  Herat and Shindand are 150 to 165 NM from Chaghcharan; Bagram and Kabul are about 350 NM.
 - **Motorpools sit 3,500 m or more from their base.** Parked reserve armor inside a 3,000 m
   capture zone blocks the capture, and New Game errors on it.
 - **A road's first and last waypoints are Off Road.** The Mission Editor crashed

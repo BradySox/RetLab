@@ -179,7 +179,8 @@ the offensive framing works — that captured ground is the objective set RetLab
 >    > reserve is what makes red fly a dense defensive screen, and the M1 Tacview showed the QRA
 >    > path is red's *only proven-firing* planned fighter path. Do not "restore" this to 0.
 >
-> 4. **Auto-planner restraint (human-led ATO) — APPLIED (2026-06-23).** A campaign `settings:`
+> 4. **Auto-planner restraint (human-led ATO) — APPLIED (2026-06-23), preseed DROPPED
+>    2026-11-08 (DM call: campaigns preset only what they need; the host's defaults decide).** A campaign `settings:`
 >    block recommends two new-game defaults that make the **blue** auto-planner fill fewer
 >    offensive ATO slots, so the human's flights are the spearhead:
 >    `ownfor_autoplanner_aggressiveness: 10` (default 20 — blue AI ignores less of red's

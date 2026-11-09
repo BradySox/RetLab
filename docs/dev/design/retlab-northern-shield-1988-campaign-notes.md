@@ -60,7 +60,8 @@ Red has no tanker and no Backfires: no red field but Neubrandenburg has a stand 
 and it has one, which the A-50 takes.
 
 Red base legs: Barth to Neubrandenburg 50 NM, Neubrandenburg to Templin 35 NM, Peenemunde to
-Neubrandenburg 37 NM. Copenhagen to Templin is 158 NM, so `max_mission_range_planes` is 200.
+Neubrandenburg 37 NM. Copenhagen to Templin is 158 NM. Mission range is the host's own setting (no preseed since
+2026-11-08, the DM's call).
 
 ## How the first base falls
 

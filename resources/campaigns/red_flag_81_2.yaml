@@ -57,7 +57,6 @@ settings:
   # naval gunfire: the NTTR has no sea.
   vietnam_arc_light: true
   vietnam_flak_gauntlet: true
-  vietnam_naval_gunfire: false
   vietnam_convoy_interdiction: true
   vietnam_super_gaggle: true
   vietnam_fac_marking: true
@@ -71,54 +70,14 @@ settings:
   # aggressor MiGs on hot alert for reactive scrambles instead of standing forward BARCAP
   # orbits. 4 QRA airframes per BARCAP-capable OPFOR squadron (was the global default of 2).
   opfor_default_qra_reserve: 4
-  automate_runway_repair: true
-  automate_front_line_reinforcements: true
-  automate_aircraft_reinforcements: false
   no_enemy_navy: true
-  desired_player_mission_duration: 60
-  external_views_allowed: true
   max_frontline_width: 30
   # Everything is staged before an exercise begins.
   squadron_start_full: true
-
- #Mods to be used
-  a4_skyhawk: false
-  a6a_intruder: false
-  a7e_corsair2: false
-  f4bc_phantom: false
-  f15d_baz: false
-  f_16_idf: false
-  fa_18efg: false
-  f22_raptor: false
-  f84g_thunderjet: false
-  f100_supersabre: false
-  f104_starfighter: false
-  f105_thunderchief: false
-  uh_60l: false
-  jas39_gripen: false
-  su30_flanker_h: false
-  su57_felon: false
-  frenchpack: false
+  # Mods the campaign needs.
   high_digit_sams: true
   ov10a_bronco: true
-  swedishmilitaryassetspack: false
   vietnamwarvessels: true
-  russianmilitaryassetspack: false
-  f111c: false
-  oh_6: false
-  oh_6_vietnamassetpack: false
-
-# Difficulty settings
-# AI Difficulty -- the aggressors are hand-picked; the airframes are the handicap.
-  player_skill: "Excellent"
-  enemy_skill: "High"
-  enemy_vehicle_skill: "Average"
-  invulnerable_player_pilots: true
-  manpads: false
-  night_day_missions: NightMissions.OnlyDay
-
-# Mission Restrictions
-  labels: "Dot Only"
 
 # Order of battle. Blue = the 81-2 deployment at Nellis (F-4E wing detachment +
 # support), the Indian Springs (Creech) forward helo field, the Camp Mercury FOB

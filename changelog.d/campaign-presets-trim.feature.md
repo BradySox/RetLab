@@ -1,0 +1,1 @@
+* **[Campaigns]** Eight RetLab campaigns preset fewer settings, so your saved defaults decide more: no mission range on Fulda Gap, Red Bear or Northern Shield, no host red scramble, no cautious blue planner on Red Tide and Baltic Fury, and none of Red Flag 81-2's skill, label, day-only or automation picks. New games only.
