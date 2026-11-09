@@ -17,21 +17,9 @@ from dcs.lua.parse import loads
 
 from game import persistency
 from game.data.weapons import Pylon, Weapon
+from game.data.weapon_variants import RANK, SAME_FIT_SIMILARITY
 from game.dcs.aircrafttype import AircraftType
 
-FAMILIES = (
-    ("AIM-9B", "AIM-9J", "AIM-9L", "AIM-9M", "AIM-9X"),
-    ("2xAIM-9B", "2xAIM-9J", "2xAIM-9L", "2xAIM-9M", "2xAIM-9X"),
-    ("AIM-7E", "AIM-7E-2", "AIM-7F", "AIM-7M"),
-    ("AGM-65G", "AGM-65K"),
-    ("R-27R", "R-27ER"),
-    ("AGM-45A Shrike ARM", "AGM-45B Shrike ARM (Imp)"),
-)
-RANK = {
-    group: (f, r) for f, family in enumerate(FAMILIES) for r, group in enumerate(family)
-}
-# A newer store on a different rack or adapter is not the same fit.
-SAME_FIT_SIMILARITY = 0.6
 # The file's own header: the mod's newer Sidewinders did not load, so it flies the 9B.
 EXEMPT = frozenset({"vwv_crusader.lua"})
 

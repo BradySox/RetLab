@@ -495,6 +495,10 @@ class Loadout:
 
     @classmethod
     def default_for(cls, flight: Flight) -> Loadout:
+        from game.retlab.saved_loadouts import squadron_default
+
+        if (saved := squadron_default(flight)) is not None:
+            return saved
         return cls.default_for_task_and_aircraft(
             flight.flight_type, flight.unit_type.dcs_unit_type, flight.package.target
         )
