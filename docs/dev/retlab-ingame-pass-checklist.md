@@ -2866,7 +2866,9 @@ Built 2026-09-29. Unit-tested (`test_briefing_image.py`); never loaded in DCS.
 - **Fail signatures:** the old Ghost of Kyiv picture (the change is not in the build); a
   blank picture box (DCS could not read the file — try a JPEG).
 
-### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ◐ PARTIAL (2026-10-11, test 55; was ☐ UNTESTED)
+### B156 — A carrier keeps the same TACAN every time the mission is generated · §65 · ◇ AUTO-PASS (2026-11-10, `tools/row_checks.py`; was ◐ PARTIAL)
+
+**2026-11-10, `python tools/row_checks.py B156`** (Afghanistan - COIN Enduring Resolve, new game, turn 1, three real mission generations, no DCS): **the collision case passes.** The Stennis's hull channel 74X belongs to the map there; the boat got 73X on all three generations. With test 55's Caucasus pair this covers both halves.
 
 **2026-10-11, test 55** (Caucasus — Vectron's Claw turn 1 (new game), no player slot, 82 min of sim at acceleration, `Tacview-20261011-160744`, DCS 2.9.30.28738, main `fd3809cac` (#1208), `Desktop\New test\55`; the flown mission is the archive copy stamped `20261011-160700`, the folder's `.miz` is a 17:02 regeneration) — **the same channel on two generations, on a map without the collision.** This turn was generated at 16:07 and again at 17:02: CVN-72 72X, LHA-1 41X, Kuznetsov 36X both times, ICLS and Link 4 unchanged. Caucasus has no hull channel to collide with, so the Persian Gulf and Afghanistan case is still owed.
 
