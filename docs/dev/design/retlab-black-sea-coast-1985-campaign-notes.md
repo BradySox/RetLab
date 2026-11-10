@@ -57,8 +57,9 @@ Red Bear).
 Four red FOBs on the road: Gali, Lazarevskoye, Tuapse (Black Sea's "FOB Sochi" spot) and
 Goryachy Klyuch. Tuapse and Goryachy Klyuch carry two Invisible FARP pads each.
 
-Win: take both Krasnodar fields. Lose: lose Senaki. `max_mission_range_planes` is 260
-(Senaki to Krymsk is about 245 NM).
+Win: take both Krasnodar fields. Lose: lose Senaki. No mission range preset: a land
+campaign leaves the range to the host, and blue forward-deploys as bases fall (DM call,
+2026-11-08, #1476).
 
 `neutral_border_postures`: Turkey blue; Armenia, Azerbaijan and Ukraine red.
 

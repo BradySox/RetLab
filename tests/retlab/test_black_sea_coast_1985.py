@@ -122,19 +122,6 @@ def test_the_roads_are_the_coast(loaded: tuple[Campaign, ConflictTheater]) -> No
     assert roads == expected | OTHER_ROADS
 
 
-def test_the_range_cap_reaches_krymsk_from_senaki(
-    loaded: tuple[Campaign, ConflictTheater],
-) -> None:
-    campaign, theater = loaded
-    distance = (
-        theater.control_point_named("Senaki-Kolkhi").position.distance_to_point(
-            theater.control_point_named("Krymsk").position
-        )
-        / 1852
-    )
-    assert distance < campaign.settings["max_mission_range_planes"]
-
-
 def test_the_victory_rules(loaded: tuple[Campaign, ConflictTheater]) -> None:
     campaign, _ = loaded
     victory = campaign.data["victory"]

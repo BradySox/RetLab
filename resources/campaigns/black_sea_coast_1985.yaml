@@ -31,8 +31,6 @@ settings:
   # 1985: AIM-9L/9M, AIM-7F/7M, AIM-54A, AGM-45, AGM-78 and HARM yes; AMRAAM no.
   restrict_weapons_by_date: true
   restrict_props_by_date: true
-  # Senaki is about 245 NM from Krymsk, past the 150 NM default.
-  max_mission_range_planes: 260
   plugins:
     skynetiads: true
 # Who the map's neighbours sided with in 1985. Without this, every country with
