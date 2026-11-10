@@ -7,10 +7,12 @@ from PySide6.QtWidgets import (
     QSpinBox,
     QGridLayout,
 )
+from PySide6.QtCore import Qt
 from dcs.cloud_presets import CLOUD_PRESETS
 
 from game.utils import mps
 from game.weather.weather import ClearSkies, Cloudy, Raining, Thunderstorm, Weather
+from game.weather.weathertext import WIND_LEVEL_LABELS, cloud_preset_label
 from game.weather.wind import MAX_WIND_SPEED
 from qt_ui.widgets.conditions.DcsCloudBaseSelector import DcsCloudBaseSelector
 from qt_ui.widgets.conditions.DcsCloudDensitySelector import DcsCloudDensitySelector
@@ -58,11 +60,18 @@ class QWeatherAdjustmentWidget(QWidget):
         hbox.addWidget(QLabel("Preset"))
         self.preset_selector = QComboBox()
         for _, preset in CLOUD_PRESETS.items():
-            self.preset_selector.addItem(preset.value.ui_name, preset.value)
+            self.preset_selector.addItem(cloud_preset_label(preset.value), preset.value)
+            self.preset_selector.setItemData(
+                self.preset_selector.count() - 1,
+                preset.value.ui_name,
+                Qt.ItemDataRole.ToolTipRole,
+            )
         self.preset_selector.addItem("Custom", None)
-        self.preset_selector.setCurrentText(
-            clouds.preset.ui_name if clouds and clouds.preset else "Custom"
-        )
+        current = clouds.preset.name if clouds and clouds.preset else None
+        for index in range(self.preset_selector.count()):
+            data = self.preset_selector.itemData(index)
+            if (data.name if data else None) == current:
+                self.preset_selector.setCurrentIndex(index)
         self.preset_selector.currentIndexChanged.connect(self.update_ui)
         hbox.addWidget(self.preset_selector)
         vbox.addLayout(hbox)
@@ -102,19 +111,19 @@ class QWeatherAdjustmentWidget(QWidget):
             sb.setValue(current_deg or 0)
             return sb
 
-        grid.addWidget(QLabel("Ground"), 1, 0)
+        grid.addWidget(QLabel(WIND_LEVEL_LABELS[0]), 1, 0)
         self.wind_gl_speed = _make_speed_spin(wind.at_0m.speed or 0)
         self.wind_gl_dir = _make_dir_spin(wind.at_0m.direction or 0)
         grid.addWidget(self.wind_gl_speed, 1, 1)
         grid.addWidget(self.wind_gl_dir, 1, 2)
 
-        grid.addWidget(QLabel("6,600 ft"), 2, 0)
+        grid.addWidget(QLabel(WIND_LEVEL_LABELS[1]), 2, 0)
         self.wind_fl08_speed = _make_speed_spin(wind.at_2000m.speed or 0)
         self.wind_fl08_dir = _make_dir_spin(wind.at_2000m.direction or 0)
         grid.addWidget(self.wind_fl08_speed, 2, 1)
         grid.addWidget(self.wind_fl08_dir, 2, 2)
 
-        grid.addWidget(QLabel("26,200 ft"), 3, 0)
+        grid.addWidget(QLabel(WIND_LEVEL_LABELS[2]), 3, 0)
         self.wind_fl26_speed = _make_speed_spin(wind.at_8000m.speed or 0)
         self.wind_fl26_dir = _make_dir_spin(wind.at_8000m.direction or 0)
         grid.addWidget(self.wind_fl26_speed, 3, 1)

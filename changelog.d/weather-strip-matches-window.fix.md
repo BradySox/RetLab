@@ -1,0 +1,1 @@
+* **[UI]** The top-bar weather strip and the Time & Weather window describe the weather the same way: the same cloud names, wind heights in feet, and the strip now shows cloud base, temperature, altimeter and fog or dust. A cloud-preset sky with fog no longer reads "No fog" on the strip. Fog and dust numbers in the window show only when their box is ticked.

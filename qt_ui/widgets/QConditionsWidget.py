@@ -42,12 +42,14 @@ class QConditionsWidget(QFrame):
     def mouseDoubleClickEvent(self, event: QtGui.QMouseEvent) -> None:
         QConditionsDialog(self.time_turn_widget, self.weather_widget).exec()
 
-    def setCurrentTurn(self, turn: int, conditions: Conditions) -> None:
+    def setCurrentTurn(
+        self, turn: int, conditions: Conditions, auto_fog: bool = False
+    ) -> None:
         """Sets the turn information display.
 
         :arg turn Current turn number.
         :arg conditions Current time and weather conditions.
         """
         self.time_turn_widget.set_current_turn(turn, conditions)
-        self.weather_widget.setCurrentTurn(turn, conditions)
+        self.weather_widget.setCurrentTurn(turn, conditions, auto_fog)
         self.weather_widget.show()
