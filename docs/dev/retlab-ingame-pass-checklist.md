@@ -61,6 +61,7 @@ in the stub it writes, `checklist-rows/<ID>.md`.
 | ☐ UNTESTED | Built; no in-game observation yet |
 | ◐ PARTIAL | Flown, but not under the conditions that stress the fix |
 | ☑ VERIFIED | Watched for the fail signature in-game; did not occur (note date/Tacview) |
+| ◇ AUTO-PASS | `python tools/row_checks.py` ran a real shipped campaign with no DCS and it showed the pass line. Nobody watched it in-game; a row with a cockpit half never gets this mark |
 | ✗ REGRESSED | Fail signature reproduced in-game — reopen the fix |
 | ⊘ RETIRED | Feature dormant/removed — the scenario no longer runs; not a pending test |
 | ✖ REMOVED | The feature was deleted; the row is kept so old notes stay readable |
@@ -149,6 +150,8 @@ knowable. Test 9's "full deck" was 24 on CVN-72 and launched clean, so the ceili
 - **Fail signature:** the player still spawns on the six-pack under last resort (the 1s activation didn't fire — check `FlightLateActivationTrigger<gid>` exists in the miz triggers); a delayed player flight's slots missing until push time (the uncontrolled path didn't take — check the group is `uncontrolled` with a `FlightStartTrigger<gid>`); AI wingmen of the delayed flight crank at mission start (StartCommand push not holding); aircraft spawning stacked/inside each other when the deck is heavily loaded (DCS refused to overflow gracefully — fall back to exempting overflow flights at generation, we know the deck count); a client slot unenterable in MP after the 1s activation (late-activated client groups misbehaving — revert clients to spawn-at-start and accept the six-pack in that mode).
 
 ### B19 — Weather-aware auto-planning · §67 · ☐ UNTESTED
+
+**2026-11-10, real planner run, no DCS** (Syria - The Long Road to H3, new game, turn 1, thunderstorm forced, setting on and off, main `1802e7b63`): **the storm moved nothing, and it cannot move CAS.** All four plans were identical (CAS, Anti-ship x2, DEAD x3 after the support and BARCAP packages). The storm order did reach the planner (`CaptureBases, AttackAirInfrastructure, AttackBuildings, AttackShips, DegradeIads, InterdictReinforcements, AttackBattlePositions`). Front-line CAS is planned by `DefendBase` (the fixed lead) and by `CaptureBase`, and neither is one of the two demoted methods. The demoted ones plan battle-position BAI, motorpool attack, Armed Recon and convoy/shipping interdiction, and this turn planned none of the first three. The pass line and the setting's own text both name front-line CAS. Open: correct the text, or have the storm act on CAS.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not decidable from the captures.** Three turns ran on a Raining preset (tests 6 and 7 on Desert Trident and Sinai, test 20 on Afghanistan), but the ATO is not in a capture and the recon-suppression clause has no control: Desert Trident's clear-sky test 9 planned no recon flight either (the campaign fielded none), and the September campaigns carry `auto_add_tarps_recon` off. Needs the app open on a rain turn.
 

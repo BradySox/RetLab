@@ -30,8 +30,8 @@ ROW_ID = re.compile(r"[A-Z]+[0-9]+")
 ROW_HEADING = re.compile(r"^### (?P<row>[A-Z]+[0-9]+) ")
 #: A row's status is the first symbol and word pair on its heading, as the board reads it.
 STATUS = re.compile(
-    r"[☐☑☒⊘✖✗◐✅] "
-    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED)"
+    r"[☐☑☒⊘✖✗◐✅◇] "
+    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED|AUTO-PASS)"
 )
 #: Statuses that owe no flight.
 SETTLED = frozenset({"VERIFIED", "RETIRED", "REMOVED", "CLOSED"})
