@@ -11401,6 +11401,12 @@ its yaml now puts the ARC-164 support nets on COMM1 and the flight and ATC on th
 Only the flight's own side's JTACs and tankers are preset: a red KC-135 sat on a blue F-16's
 COM1 Ch 5 before. A frequency the radio cannot tune is never preset, on either radio or on a
 one-radio jet.
+The F-16 and F/A-18 use `layout: flight_order` in their yaml (user call, 2026-11-10):
+COMM1 in the order a sortie uses it (departure Ground, Tower, Departure, AWACS, STRIKE,
+Vacuum, JTACs, tankers, departure Approach, then arrival and divert ATC); the other radio
+the flight on Ch 1, then the intra-flight frequencies of the package's other flights.
+Vacuum gets its preset whenever it flies, not only with Voice AWACS on. On the Hornet DCS
+forces the flight onto COMM1 Ch 1, so the order starts on Ch 2.
 The F-4E talks on COMM only; its AUX set is receive-only, 20 channels set in the mission
 (F-4E manual, UHF radio). `listen_radio_index: 2` in its yaml puts listen copies of the
 flight, SkyEye (or the AWACS), Vacuum and STRIKE on AUX, so a pilot hears them while talking

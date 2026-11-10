@@ -51,6 +51,8 @@ radios:
     # intra-flight communication to leave COM1 open for UHF inter-flight.
     intra_flight_radio_index: 2
     inter_flight_radio_index: 1
+    # Order of flight on COMM1, the package's flights on the other radio.
+    layout: flight_order
 # default_overrides:
 #   HelmetMountedDevice: 1
 #   LAU3ROF: 0
