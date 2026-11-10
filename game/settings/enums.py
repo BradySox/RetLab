@@ -36,6 +36,16 @@ class CloudPresetPack(Enum):
 
 
 @unique
+class CivilAirTraffic(Enum):
+    """How many civil aircraft fly at once (civiliantraffic.TARGETS)."""
+
+    OFF = "Off"
+    LIGHT = "Light"
+    NORMAL = "Normal"
+    BUSY = "Busy"
+
+
+@unique
 class NightMissions(Enum):
     DayAndNight = "nightmissions_nightandday"
     OnlyDay = "nightmissions_onlyday"
@@ -154,6 +164,7 @@ class IadsEngine(Enum):
 
 SERIALIZABLE_ENUM_TYPES = (
     AutoAtoBehavior,
+    CivilAirTraffic,
     CloudPresetPack,
     NightMissions,
     FastForwardStopCondition,

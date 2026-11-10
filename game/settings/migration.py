@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     pass
 from .enums import (
     AiRadioBehavior,
+    CivilAirTraffic,
     CloudPresetPack,
     CombatResolutionMethod,
     DatalinkPolicy,
@@ -84,7 +85,17 @@ def migrate_legacy_settings(state: dict[str, Any]) -> dict[str, Any]:
     if str(migrated.get("voice_awacs_callsign", "")).strip() == "Sentinel":
         migrated["voice_awacs_callsign"] = "Chalice, Chainsaw, Image"
 
+    # The civil traffic checkbox became a level (2026-11-09): on keeps the new
+    # default, Light; off stays off. The old key is dropped in the sweep below.
+    if "civil_air_traffic" not in migrated and "civilian_air_traffic" in migrated:
+        migrated["civil_air_traffic"] = (
+            CivilAirTraffic.LIGHT
+            if migrated["civilian_air_traffic"]
+            else CivilAirTraffic.OFF
+        )
+
     for obsolete_key in (
+        "civilian_air_traffic",
         # Voice ATC's "Strict readbacks", then the shared Radio discipline (§121),
         # REMOVED 2026-10-26: every SkyEye voice bot accepts every call (the
         # RadioDiscipline stub only exists so the old enum still unpickles).

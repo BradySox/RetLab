@@ -416,7 +416,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                 # In-mission life on the ground: traffic and convoys.
                 "Battlefield life",
                 [
-                    "civilian_air_traffic",
+                    "civil_air_traffic",
                     "ambient_supply_convoys",
                     "mission_briefing_popup",
                     "neutral_border_defense",

@@ -1,0 +1,14 @@
+{
+    "skipUI": true,
+    "nameInUI": "Civilian air traffic",
+    "descriptionInUI": "Switches planned civil flights on through the mission so the number in the air stays level. Mission Generation > General holds the Civilian air traffic level.",
+    "defaultValue": true,
+    "specificOptions": [],
+    "scriptsWorkOrders": [],
+    "configurationWorkOrders": [
+        {
+            "file": "civtraffic-config.lua",
+            "mnemonic": "civtraffic-config"
+        }
+    ]
+}

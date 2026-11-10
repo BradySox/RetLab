@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from ..booleanoption import boolean_option
 from ..boundedintoption import bounded_int_option
+from ..choicesoption import choices_option
+from ..enums import CivilAirTraffic
 
 if TYPE_CHECKING:
     pass
@@ -103,19 +105,19 @@ class MissionGenerationSettings:
             "event content."
         ),
     )
-    civilian_air_traffic: bool = boolean_option(
-        "Civilian background air traffic",
+    civil_air_traffic: CivilAirTraffic = choices_option(
+        "Civilian air traffic",
         page=MISSION_GENERATION_PAGE,
         section=GENERAL_SECTION,
-        default=True,
+        default=CivilAirTraffic.LIGHT,
+        choices={v.value: v for v in CivilAirTraffic},
         detail=(
-            "Neutral civilian aircraft (airliners, freighters, light props and "
-            "helicopters) fly multi-leg milk runs between uncontrolled rear-area "
-            "airfields for ambient life. They keep ~40 NM clear of the front line "
-            "but NOT of deep BVR/intercept corridors, so a campaign whose air war "
-            "reaches far behind the lines may want this off: an IL-76 at altitude "
-            "is indistinguishable from a military transport on radar (the flown "
-            "Red Tide M1 lost a neutral airliner to a long-range Phoenix shot)."
+            "Neutral civil aircraft (Yak-40 airliners, plus the An-26 on the "
+            "ex-Soviet maps, light planes and civil helicopters) fly the whole "
+            "mission. New flights take over as others land or leave the map. They "
+            "stay 40 NM clear of the front and outside every SAM ring you know of, "
+            "and the AI never sees them. Light keeps about 5 in the air at once, "
+            "Normal about 9 and Busy about 14."
         ),
     )
     ambient_supply_convoys: bool = boolean_option(

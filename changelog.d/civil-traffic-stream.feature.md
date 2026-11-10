@@ -1,0 +1,1 @@
+* **[Mission Generation]** Civilian air traffic is rebuilt: real civil types only (Yak-40, An-26 on the ex-Soviet maps, light planes, civil helicopters), a steady number in the air all mission, routes clear of the front and every known SAM ring, and an Off / Light / Normal / Busy setting (default Light).

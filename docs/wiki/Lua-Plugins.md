@@ -109,6 +109,7 @@ setting off costs nothing at runtime.
 | `opscsar` | on | **Combat SAR** — spawns downed pilots and runs the rescue via MOOSE `Ops.CSAR`, and carries the King's on-scene systems (`KingOnScene.lua`: DF cuts on the beacon, the threat sweep, the picture passed to the Sandy and the helo). See [Combat SAR](Combat-SAR). |
 | `intercept` | on | Per-squadron QRA intercept reserve feeding the MOOSE `AI_A2A_DISPATCHER`. |
 | `redscramble` | always | Host tool: an F10 menu to scramble red interceptors. Inert unless the setting is on. |
+| `civtraffic` | always | Civilian air traffic: switches the planned civil flights on through the mission to hold the level set in Mission Generation > General. Inert when the level is Off. |
 | `briefing` | always | The mission-start briefing card each pilot sees when they slot in. Inert unless the setting is on. |
 | `splashdamage3` | on | The squadron's locked, softened Splash Damage 3.4.2 build. No user-adjustable options by design. |
 | `ai_reaction` | on | Smart threat reaction — only the flight a missile is actually guiding on goes defensive; everything else holds formation and uses countermeasures. |
@@ -119,9 +120,9 @@ setting off costs nothing at runtime.
 > Recon's surviving job — finding hidden enemy command posts — is planner-side Python. See
 > [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
 
-> Civilian background air traffic is **no longer a Lua plugin** — it was reimplemented
-> as Python-planned, pydcs-spawned air traffic (`game/missiongenerator/civiliantraffic.py`),
-> replacing the MOOSE RAT plugin that caused recurring sim crashes.
+> Civilian air traffic is planned in Python (`game/missiongenerator/civiliantraffic.py`),
+> which spawns every flight; `civtraffic` only switches the queued ones on and removes
+> finished ones. It is not the MOOSE RAT plugin, which caused recurring sim crashes.
 
 ## Writing or modifying a plugin
 

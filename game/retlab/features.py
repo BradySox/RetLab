@@ -1017,6 +1017,14 @@ FEATURES: tuple[Feature, ...] = (
         "Saved loadouts",
         128,
     ),
+    Feature(
+        # Real civil types, a steady stream, clear of the fronts and known SAM rings.
+        "civil_air_traffic",
+        "Civilian air traffic",
+        129,
+        plugin_id="civtraffic",
+        settings_fields=("civil_air_traffic",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

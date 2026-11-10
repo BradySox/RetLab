@@ -1,0 +1,12 @@
+date: 2026-11-09
+title: Civilian air traffic all mission long
+change: >-
+  Civil traffic now keeps flying the whole mission. New flights come in
+  from the map edge or take off from fields neither side uses as others
+  land or leave. Only real civil types fly: Yak-40 airliners (plus the
+  An-26 on the ex-Soviet maps), light planes and civil helicopters. They
+  stay 40 NM clear of the front and outside every SAM ring you know of.
+  Mission Generation > General has a Civilian air traffic level: Off,
+  Light (the default, about 5 in the air), Normal or Busy.
+watch: >-
+  Check the F10 map an hour into a mission: civil traffic is still there.

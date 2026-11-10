@@ -38,6 +38,7 @@ from .interceptluadata import (
     defense_zone_entries,
     populate_intercept_lua,
 )
+from .civiltrafficluadata import populate_civil_traffic_lua
 from .cruisemissileluadata import populate_cruise_missiles_lua
 from .missiondata import MissionData
 from .gpsjammingluadata import populate_gps_jamming_lua
@@ -506,6 +507,11 @@ class LuaGenerator:
         # AI fills an empty player flight (§113) -- emits dcsRetribution.aiFill only when a
         # flight carries an AI twin; the aifill plugin launches a twin whose seats stay empty.
         populate_ai_fill_lua(lua_data, self.game, self.mission_data)
+
+        # Civil air traffic -- emits dcsRetribution.civilTraffic only when the setting
+        # is not Off and flights were spawned; the civtraffic plugin switches the
+        # queued ones on to hold the airborne count.
+        populate_civil_traffic_lua(lua_data, self.mission_data)
 
         # AWACS package controller (§117) -- emits dcsRetribution.packageControl only when
         # package_controller is on and a blue AWACS and a player package fly; the

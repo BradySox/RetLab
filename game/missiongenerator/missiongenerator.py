@@ -485,7 +485,7 @@ class MissionGenerator:
             NavalCivilianTrafficGenerator,
         )
 
-        CivilianTrafficGenerator(self.mission, self.game).generate()
+        CivilianTrafficGenerator(self.mission, self.game, self.mission_data).generate()
         NavalCivilianTrafficGenerator(self.mission, self.game).generate()
 
         # Neutral border defense (§98): late-activation alert templates at each

@@ -257,7 +257,7 @@ linked design note.
 - **A plugin that runs a setting has no checkbox.** An unticked plugin silently kills its
   setting, so such a plugin is `skipUI`, always on (`LuaPlugin.enabled`), and the setting is
   the one switch: `base`, `intercept`, `opscsar`, `vietnamops`, `gpsjamming`, `cruisemissiles`,
-  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`, `radiorecord`. A test fails if one gains a
+  `navalmagazines`, `briefing`, `redscramble`, `neutralborder`, `aifill`, `pkgcontrol`, `vacuum`, `voiceatc`, `radiorecord`, `civtraffic`. A test fails if one gains a
   checkbox again.
 
 ### Live features
@@ -357,6 +357,7 @@ linked design note.
 126. **Runway line-up and departure hold** — player flights get ALIGN on final (carriers on the angled deck) and hold straight out the runway. Never AI.
 127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 128. **Saved loadouts** — your own named fits for every campaign, in RetLab's own file; pick one per flight or make it a blue squadron's fit for a task. Never a preset name, never red.
+129. **Civilian air traffic** — real civil types fly all mission, a steady stream clear of the fronts and known SAM rings. Off / Light / Normal / Busy, default Light.
 
 ### Retired, removed or shelved — do not restore
 
