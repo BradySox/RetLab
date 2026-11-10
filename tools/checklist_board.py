@@ -18,8 +18,8 @@ from checklist_rows import checklist_text
 
 # Same pairing as tests/test_flycard_board.py.
 STATUS = re.compile(
-    r"(?P<symbol>[☐☑☒⊘✖✗◐✅]) "
-    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED)"
+    r"(?P<symbol>[☐☑☒⊘✖✗◐✅◇]) "
+    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED|AUTO-PASS)"
 )
 ROW = re.compile(r"^### (?P<row>[A-Z]+[0-9]+) — (?P<rest>.*)$")
 OUTSTANDING = {"UNTESTED", "PARTIAL", "REGRESSED"}
