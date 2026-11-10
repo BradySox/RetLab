@@ -190,16 +190,77 @@ def airfield_in(terrain: Any, polygon: Polygon) -> Optional[str]:
     return best[1] if best else None
 
 
+def fill_gaps(
+    pieces: list[tuple[str, Any]], takers: list[str]
+) -> list[tuple[str, Any]]:
+    """Every hole in the coverage that touches a taker joins it.
+
+    A hole is land no listed country owns, closed in by the ones that are: the
+    West Bank, between Israel and Jordan. Left as a hole, its edges belong to one
+    country each, so no frontier runs through it (the DTC drew the Jordan River
+    as nothing, 2026-11-10). Folded in, the taker takes the neighbour's own
+    vertices and the frontier is shared, vertex for vertex.
+    """
+    from shapely.geometry import Polygon as ShapelyPolygon
+    from shapely.ops import unary_union
+
+    union = unary_union([piece for _name, piece in pieces])
+    holes = [
+        ShapelyPolygon(ring)
+        for part in getattr(union, "geoms", [union])
+        for ring in part.interiors
+    ]
+    out: list[tuple[str, Any]] = []
+    for name, piece in pieces:
+        if name in takers:
+            touching = [
+                h for h in holes if piece.boundary.intersection(h.boundary).length > 0
+            ]
+            if touching:
+                merged = unary_union([piece, *touching])
+                if merged.geom_type != "Polygon":
+                    raise SystemExit(f"{name}: filling its gaps split it into pieces.")
+                piece = ShapelyPolygon(merged.exterior)
+                holes = [h for h in holes if h not in touching]
+        out.append((name, piece))
+    return out
+
+
+def refill_existing(target: Path, takers: list[str]) -> None:
+    """Fold the gaps into an already-shipped file, in terrain XY, keeping every
+    other line. Conversion to XY is per vertex, so this is the same result a
+    rebuild with ``--fill-gaps`` gives."""
+    import yaml
+    from shapely.geometry import Polygon as ShapelyPolygon
+
+    text = target.read_text(encoding="utf-8")
+    zones = yaml.safe_load(text)["zones"]
+    pieces = [(z["country"], ShapelyPolygon(z["border"])) for z in zones]
+    filled = fill_gaps(pieces, takers)
+    lines = text.split("\n")
+    for (name, before), (_n, after) in zip(pieces, filled):
+        if after is before:
+            continue
+        ring = [(float(x), float(y)) for x, y in list(after.exterior.coords)[:-1]]
+        start = lines.index(f"  - country: {name}")
+        if lines[start - 1].startswith(f"  # {name} "):
+            lines[start - 1] = f"  # {name} — {len(ring)} vertices"
+        begin = lines.index("    border: [", start)
+        end = lines.index("    ]", begin)
+        lines[begin : end + 1] = border_lines(ring)
+    target.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    print(f"refilled {target}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("terrain", choices=sorted(TERRAINS))
-    parser.add_argument("--geojson-dir", type=Path, required=True)
-    parser.add_argument("--countries", nargs="+", required=True)
+    parser.add_argument("--geojson-dir", type=Path)
+    parser.add_argument("--countries", nargs="+")
     parser.add_argument(
         "--clip",
         nargs=4,
         type=float,
-        required=True,
         metavar=("LAT_MIN", "LAT_MAX", "LON_MIN", "LON_MAX"),
     )
     parser.add_argument(
@@ -240,8 +301,26 @@ def main() -> None:
         help="A country that ceased to exist, its successor and the month it "
         "ended, e.g. GDR:Germany:1990-10.",
     )
+    parser.add_argument(
+        "--fill-gaps",
+        nargs="*",
+        default=[],
+        metavar="COUNTRY",
+        help="Countries that take any unowned land the coverage closes in "
+        "around them: Israel on syria and sinai (the West Bank).",
+    )
+    parser.add_argument(
+        "--refill-existing",
+        action="store_true",
+        help="Apply --fill-gaps to the shipped file, with no GeoJSON.",
+    )
     parser.add_argument("--out", type=Path, default=Path("resources/borders"))
     args = parser.parse_args()
+    if args.refill_existing:
+        refill_existing(args.out / f"{args.terrain}.yaml", args.fill_gaps)
+        return
+    if args.geojson_dir is None or not args.countries or args.clip is None:
+        parser.error("--geojson-dir, --countries and --clip are required")
     ceased: dict[str, tuple[str, str]] = {}
     for token in args.ceased:
         country, successor, until = token.split(":")
@@ -312,6 +391,9 @@ def main() -> None:
             else:
                 print(f"  -- {name}: dropped a {km2:.0f} km² fragment", file=sys.stderr)
         simplified = kept
+
+    if args.fill_gaps:
+        simplified = fill_gaps(simplified, args.fill_gaps)
 
     land = modelled_land(args.terrain)
 

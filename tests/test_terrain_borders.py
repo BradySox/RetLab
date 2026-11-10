@@ -466,3 +466,34 @@ def test_a_campaign_dates_its_borders_on_load() -> None:
     ConflictTheater.date_borders(theater, date(2027, 7, 17))  # type: ignore[arg-type]
     names = {zone.country for zone in theater.neutral_border_zones}
     assert "Germany" in names and "GDR" not in names
+
+
+@pytest.mark.parametrize("terrain", ["Syria", "Sinai"])
+def test_the_west_bank_is_israels_so_the_jordan_river_is_a_frontier(
+    terrain: str,
+) -> None:
+    """Land no listed country owns leaves a frontier undrawn: the F-16 DTC drew
+    the Israel-Jordan line as a 3-point stub at Beit She'an (2026-11-10). Israel
+    takes the gap (``--fill-gaps Israel``, DM call), so the river is shared."""
+    import importlib
+
+    from dcs.mapping import LatLng, Point
+    from shapely.geometry import Point as ShapelyPoint, Polygon
+    from shapely.ops import unary_union
+
+    module, name = _TERRAIN_CLASSES[terrain].split(".")
+    dcs_terrain = getattr(importlib.import_module(f"dcs.terrain.{module}"), name)()
+    zones = {e["country"]: Polygon(e["border"]) for e in load_terrain_borders(terrain)}
+    for town, lat, lon in (("Jericho", 31.86, 35.46), ("Hebron", 31.53, 35.10)):
+        p = Point.from_latlng(LatLng(lat, lon), dcs_terrain)
+        assert zones["Israel"].contains(ShapelyPoint(p.x, p.y)), town
+    union = unary_union(list(zones.values()))
+    holes = [
+        Polygon(ring)
+        for part in getattr(union, "geoms", [union])
+        for ring in part.interiors
+    ]
+    assert not [h for h in holes if h.touches(zones["Israel"])]
+    shared = zones["Israel"].boundary.intersection(zones["Jordan"].boundary)
+    # Beit She'an to the Dead Sea's south end is about 150 km of river and sea.
+    assert shared.length > 150_000
