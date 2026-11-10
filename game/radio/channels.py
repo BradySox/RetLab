@@ -142,6 +142,11 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
     #: Vacuum and STRIKE, so a pilot hears them while talking on another net.
     listen_radio_index: Optional[int] = None
 
+    #: COMM1 in the order a sortie uses it (user call, 2026-11-10, F-16 and F/A-18):
+    #: Ground, Tower, Departure, AWACS, STRIKE, Vacuum, tankers, Approach; the
+    #: other radio the flight, then the package's other flights.
+    flight_order: bool = False
+
     def assign_channels_for_flight(
         self, flight: FlightData, mission_data: MissionData
     ) -> None:
@@ -201,6 +206,9 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
             self._assign_sequential(flight, radio_id, first_channel, frequencies)
             return
 
+        if self.flight_order:
+            return self._assign_flight_order(flight, mission_data, radio_id, intra)
+
         # Two radios, laid out like a squadron comm card (user call, 2026-10-21):
         # COMM1 the support nets, COMM2 the flight then each field's Ground and
         # Tower, where that radio tunes UHF (an F-16's COM2 is VHF only).
@@ -217,6 +225,71 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
             flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
             first = 2
         self._assign_sequential(flight, radio_id, first, support)
+
+    def _assign_flight_order(
+        self,
+        flight: FlightData,
+        mission_data: MissionData,
+        radio_id: int,
+        intra: int,
+    ) -> None:
+        inter_radio = getattr(flight.aircraft_type, "inter_flight_radio", None)
+        intra_radio = flight.aircraft_type.intra_flight_radio
+
+        def field_atc(field: Any) -> list[RadioFrequency]:
+            voice = _voice_atc(field.airfield_name, mission_data)
+            if voice:
+                return voice
+            return [field.atc] if field.atc is not None else []
+
+        departure = field_atc(flight.departure)
+        # Voice ATC lists Ground, Tower, Departure, Approach: Approach goes last.
+        approach = departure[3:]
+        ordered = departure[:3]
+        ordered.extend(awacs_presets(flight, mission_data))
+        if (freq := mission_data.package_frequency(flight.package)) is not None:
+            ordered.append(freq)
+        if mission_data.vacuum_frequency is not None and flight.friendly.is_blue:
+            ordered.append(mission_data.vacuum_frequency)
+        ordered.extend(friendly_jtacs(flight, mission_data))
+        ordered.extend(friendly_tankers(flight, mission_data))
+        ordered.extend(approach)
+        if flight.arrival.airfield_name != flight.departure.airfield_name:
+            ordered.extend(field_atc(flight.arrival))
+        if flight.divert is not None:
+            ordered.extend(field_atc(flight.divert))
+        unique = [f for i, f in enumerate(ordered) if f not in ordered[:i]]
+
+        # DCS puts the group's frequency on Ch 1 of the first radio that tunes it.
+        first = 1
+        if _tunable(inter_radio, flight.intra_flight_channel):
+            flight.assign_channel(radio_id, 1, flight.intra_flight_channel)
+            first = 2
+        self._assign_sequential(
+            flight,
+            radio_id,
+            first,
+            [
+                f
+                for f in unique
+                if _tunable(inter_radio, f) and f != flight.intra_flight_channel
+            ],
+        )
+        others = [
+            other.intra_flight_channel
+            for other in getattr(mission_data, "flights", [])
+            if other is not flight
+            and other.package is flight.package
+            and other.friendly == flight.friendly
+        ]
+        others = [
+            f
+            for i, f in enumerate(others)
+            if f not in others[:i]
+            and f != flight.intra_flight_channel
+            and _tunable(intra_radio, f)
+        ]
+        self._assign_sequential(flight, intra, 2, others)
 
     @staticmethod
     def _atc_frequencies(
@@ -303,6 +376,7 @@ class CommonRadioChannelAllocator(RadioChannelAllocator):
             inter_flight_radio_index=cfg["inter_flight_radio_index"],
             intra_flight_radio_index=cfg["intra_flight_radio_index"],
             listen_radio_index=cfg.get("listen_radio_index"),
+            flight_order=cfg.get("layout") == "flight_order",
         )
 
     @classmethod

@@ -253,3 +253,59 @@ def test_the_phantom_listens_on_aux() -> None:
     allocator = next(iter(AircraftType.for_dcs_type(F_4E_45MC))).channel_allocator
     assert isinstance(allocator, CommonRadioChannelAllocator)
     assert allocator.listen_radio_index == 2
+
+
+def _flight_order_data() -> MissionData:
+    data = MissionData()
+    data.vacuum_frequency = MHz(270)
+    data.atc_frequencies = {"Kobuleti": (MHz(255), MHz(256))}
+    data.departure_frequencies = {"Kobuleti": MHz(257)}
+    data.approach_frequencies = {"Kobuleti": MHz(258)}
+    return data
+
+
+def test_flight_order_puts_comm1_in_the_order_a_sortie_uses_it() -> None:
+    flight = _Flight(_uhf())
+    flight.aircraft_type.inter_flight_radio = _uhf()
+    flight.intra_flight_channel = MHz(305)
+    data = _flight_order_data()
+    data.awacs = [SimpleNamespace(freq=MHz(251), blue=flight.friendly)]  # type: ignore[list-item]
+    wing = SimpleNamespace(
+        package=flight.package, friendly=flight.friendly, intra_flight_channel=MHz(306)
+    )
+    data.flights = [flight, wing]  # type: ignore[list-item]
+    CommonRadioChannelAllocator(1, 2, flight_order=True).assign_channels_for_flight(flight, data)  # type: ignore[arg-type]
+    # DCS puts the flight on Ch 1 of the first radio that tunes it.
+    assert _channels(flight, 1) == [
+        MHz(305),
+        MHz(255),
+        MHz(256),
+        MHz(257),
+        MHz(251),
+        MHz(264),
+        MHz(270),
+        MHz(258),
+    ]
+    assert _channels(flight, 2) == [MHz(305), MHz(306)]
+
+
+def test_flight_order_leaves_a_vhf_flight_off_a_uhf_comm1() -> None:
+    vhf = SimpleNamespace(ranges=[SimpleNamespace(minimum=MHz(116), maximum=MHz(156))])
+    flight = _Flight(vhf)
+    flight.aircraft_type.inter_flight_radio = _uhf()
+    data = _flight_order_data()
+    data.flights = [flight]  # type: ignore[list-item]
+    CommonRadioChannelAllocator(1, 2, flight_order=True).assign_channels_for_flight(flight, data)  # type: ignore[arg-type]
+    assert _channels(flight, 1)[:3] == [MHz(255), MHz(256), MHz(257)]
+    assert _channels(flight, 2) == [MHz(140)]
+
+
+def test_the_viper_and_hornet_use_the_flight_order() -> None:
+    from game.dcs.aircrafttype import AircraftType
+    from dcs.planes import F_16C_50, FA_18C_hornet
+
+    for dcs_type in (F_16C_50, FA_18C_hornet):
+        aircraft = next(AircraftType.for_dcs_type(dcs_type))
+        allocator = aircraft.channel_allocator
+        assert isinstance(allocator, CommonRadioChannelAllocator)
+        assert allocator.flight_order
