@@ -99,6 +99,11 @@ true, then the dated sections for why.
 - **Borders ship with the terrain**, built by `tools/build_terrain_borders.py` from
   public-domain GeoJSON into `resources/borders/*.yaml` -- 8 terrains, 7,166 vertices at a
   384-vertex / 500 km2 budget. A campaign authors none of this.
+- **Israel takes the West Bank on syria and sinai** (DM call, 2026-11-10). The source data
+  lists no Palestine, so the West Bank was a hole in the coverage and the Jordan River was
+  no one's frontier: the F-16 DTC drew Israel-Jordan as a 3-point stub. `--fill-gaps Israel`
+  folds any hole touching Israel into it; `--refill-existing` applied it to the shipped files.
+  Gaza is not a hole (it meets the sea), so it is unchanged.
 - **Reference campaign: Into the Hornet's Nest + Lebanon** (DM call). Rayak field, MiG-29A
   (the type Russia offered Lebanon in 2008), 10,000 ft floor, SA-6 on. Desert Storm + Iran
   was investigated and rejected on the evidence: the DS corridor is H-3 to Baghdad (west)
