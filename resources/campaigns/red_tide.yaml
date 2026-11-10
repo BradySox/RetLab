@@ -78,8 +78,8 @@ settings:
   # (an airliner profile is indistinguishable from a Soviet transport on an AWG-9),
   # but the squadron keeps the civilians -- the ambient life is worth the occasional
   # Aeroflot incident, and BVR target discrimination past the FLOT is on the shooter.
-  # Deliberately NOT preseeded (the generic default is ON); do not re-add
-  # `civilian_air_traffic: false` here without a new squadron call.
+  # Deliberately NOT preseeded (the generic default is Light); do not re-add
+  # `civil_air_traffic: Off` here without a new squadron call.
   # Support-orbit standoff: the `aewc_threat_buffer_min_distance: 30` /
   # `tanker_threat_buffer_min_distance: 25` preseeds (the M1 tuning batch, 2026-07-11)
   # were STRIPPED 2026-08-02 -- the campaign no longer preseeds either, so the generic

@@ -58,5 +58,6 @@ def test_a_plugin_that_only_runs_a_setting_has_no_checkbox() -> None:
         "vacuum",
         "voiceatc",
         "radiorecord",
+        "civtraffic",
     ):
         assert not _plugin(name).show_in_ui, name

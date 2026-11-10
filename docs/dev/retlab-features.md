@@ -12276,3 +12276,31 @@ campaign, and can make a saved fit one blue squadron's loadout for one task (use
 | Payload tab | `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py` |
 | Tests | `tests/retlab/test_saved_loadouts.py`, `tests/retlab/test_user_payload_folder_ignored.py`, `tests/qt_ui/test_saved_loadout_selector.py` |
 | In-game pass | B322 |
+
+## §129 — Civilian air traffic
+
+A steady stream of real civil aircraft for the whole mission, clear of the war (DM picks,
+2026-11-09). Replaces the 2026-08-05 one-batch model: mostly military freighters dressed as
+airliners, popping in mid-map, the sky emptying as they landed. Design and the picks:
+`docs/dev/design/retlab-civil-traffic-notes.md`.
+
+- **Types:** Yak-40 airliners everywhere, the An-26 only on Caucasus, Kola, Afghanistan and
+  Syria, light planes (Yak-52, Christen Eagle) and civil helicopters (Mi-8MT, UH-1H), gated by
+  the year each entered civil service. No IL-76, An-30, C-130 or C-47.
+- **Stream:** Python plans every flight; the ones flying at start are live, the rest
+  late-activated. The `civtraffic` plugin (`skipUI`) switches them on to hold each layer's
+  target and removes flights that landed, left the map, never took off or got stuck.
+- **Routes:** map-edge gates and fields no control point owns. Every leg stays out of 40 NM
+  round each front and every SAM ring blue knows of (+5 NM).
+- **Setting:** `civil_air_traffic`, Off / Light / Normal / Busy, default Light (4+1, 6+3,
+  10+4 airways + hops). An old save's checkbox migrates: on to Light.
+- **Gotcha:** `Terrain.bounds` is not used for the gates; the box round every airfield is.
+
+| Area | Path |
+|---|---|
+| Planner + spawner | `game/missiongenerator/civiliantraffic.py` |
+| Types, regions, liveries | `game/missiongenerator/civilianfleet.py` |
+| Lua bridge | `game/missiongenerator/civiltrafficluadata.py` |
+| Plugin | `resources/plugins/civtraffic/civtraffic-config.lua` |
+| Tests | `tests/test_civilian_traffic.py`, `tests/lua/test_civtraffic_runtime.py` |
+| In-game pass | B323 |

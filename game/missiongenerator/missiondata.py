@@ -18,6 +18,7 @@ from game.runways import RunwayData
 if TYPE_CHECKING:
     from dcs import Point
 
+    from game.missiongenerator.civiliantraffic import CivilTrafficLua
     from game.ato.package import Package
     from game.radio.radios import RadioFrequency
     from game.radio.tacan import TacanChannel
@@ -229,6 +230,8 @@ class MissionData:
     renamed_units: dict[str, str] = field(default_factory=dict)
     #: Player flights with an AI twin waiting to replace them (§113).
     ai_fill_pairs: list[AiFillPair] = field(default_factory=list)
+    #: The civil traffic schedule for the civtraffic plugin; None when off.
+    civil_traffic: Optional[CivilTrafficLua] = None
 
     def package_frequency(self, package: Package) -> Optional[RadioFrequency]:
         """The package frequency its players use: STRIKE in a package the ABCCC runs."""
