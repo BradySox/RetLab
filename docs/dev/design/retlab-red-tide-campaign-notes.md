@@ -534,7 +534,7 @@ considered and declined.
     `["static"]` groups (**both Invisible FARPs**, clobbered by the Kastrup Command Center + Ammo
     Depot). Earlier notes flagged this as out-of-scope ("Hamburg's stock marker silently dropped",
     "10 of 12 FARPs survive"); the Hamburg **MERAD** marker (`[52]`, gid 406) was actually fine — the
-    real loss was these 6 `[1]`/`[2]` collisions. **Fix** (`tools/fix_red_tide_dup_keys.py`): renumber
+    real loss was these 6 `[1]`/`[2]` collisions. **Fix** (`fix_red_tide_dup_keys.py`, at `git show a32da7721:tools/fix_red_tide_dup_keys.py`): renumber
     only the six hand-added Kastrup blocks to free keys — vehicle `[55]`–`[58]`, static `[38]`/`[39]`
     — leaving stock `[1]`/`[2]` intact. groupIds/unitIds were already unique and are untouched; only
     table keys change. Text-edit + re-zip (pydcs `Mission.save` is broken for this miz). **Verified
