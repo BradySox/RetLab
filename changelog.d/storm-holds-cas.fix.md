@@ -1,0 +1,1 @@
+* **[Campaign AI]** With *Auto-planner reads the weather* on, a thunderstorm now holds front-line CAS behind the strike, OCA and SEAD packages, as the setting says. CAS used to be planned first whatever the weather.

@@ -12,8 +12,10 @@ from game.theater import FrontLine
 @dataclass(frozen=True)
 class DestroyEnemyGroundUnits(CompoundTask[TheaterState]):
     front_line: FrontLine
+    plan_cas: bool = True
 
     def each_valid_method(self, state: TheaterState) -> Iterator[Method[TheaterState]]:
         yield [EliminationAttack(self.front_line, state.context.coalition.player)]
         yield [AggressiveAttack(self.front_line, state.context.coalition.player)]
-        yield [PlanCas(self.front_line)]
+        if self.plan_cas:
+            yield [PlanCas(self.front_line)]

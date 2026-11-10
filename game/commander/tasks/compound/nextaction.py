@@ -10,7 +10,10 @@ from game.commander.tasks.compound.attackbattlepositions import AttackBattlePosi
 from game.commander.tasks.compound.attackbuildings import AttackBuildings
 from game.commander.tasks.compound.attackships import AttackShips
 from game.commander.tasks.compound.capturebases import CaptureBases
-from game.commander.tasks.compound.defendbases import DefendBases
+from game.commander.tasks.compound.defendbases import (
+    DefendBases,
+    DelayedFrontLineCas,
+)
 from game.commander.tasks.compound.degradeiads import DegradeIads
 from game.commander.tasks.compound.interdictreinforcements import (
     InterdictReinforcements,
@@ -34,7 +37,9 @@ class PlanNextAction(CompoundTask[TheaterState]):
         yield [ProtectAirSpace()]
         # A downed pilot expires on a timer, so plan rescues early.
         yield [RescueDownedPilots()]
-        yield [DefendBases()]
+        # §67: in a thunderstorm front-line CAS is planned after the offensive middle.
+        hold_cas = self._storm_holds_cas(state)
+        yield [DefendBases(plan_cas=not hold_cas)]
         # The offensive middle is emitted in stock priority order (§67 weather may
         # demote low-level visual-attack methods to the tail; see _offensive_order).
         # §52 A2: a decapitated command network THROTTLES the offensive middle --
@@ -43,7 +48,13 @@ class PlanNextAction(CompoundTask[TheaterState]):
         # prefix and recovery tail are never throttled.
         if not self._offensive_tempo_exhausted(state):
             for name in self._offensive_order(state):
-                yield [self._OFFENSIVE_FACTORIES[name](self)]
+                if name == "CaptureBases":
+                    yield [CaptureBases(plan_cas=not hold_cas)]
+                else:
+                    yield [self._OFFENSIVE_FACTORIES[name](self)]
+        if hold_cas:
+            # Outside the §52 throttle, as CAS always was.
+            yield [DelayedFrontLineCas()]
         yield [RecoverySupport()]  # for recovery tankers
 
     # PlanNextAction's offensive methods by class name, in stock priority order.
@@ -103,6 +114,12 @@ class PlanNextAction(CompoundTask[TheaterState]):
             if package.primary_task in self._OFFENSIVE_PACKAGE_TYPES
         )
         return planned >= cap
+
+    @staticmethod
+    def _storm_holds_cas(state: TheaterState) -> bool:
+        from game.retlab.weather_planning import storm_holds_cas
+
+        return storm_holds_cas(state.context.coalition.game)
 
     def _offensive_order(self, state: TheaterState) -> list[str]:
         """The offensive method order for this planning run.

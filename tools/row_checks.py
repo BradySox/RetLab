@@ -34,6 +34,49 @@ def _replan(game: Any) -> None:
     game.initialize_turn(GameUpdateEvents(), for_red=True, for_blue=True)
 
 
+def _tasks(game: Any, coalition: str) -> list[str]:
+    ato = getattr(game, coalition).ato
+    return [p.primary_task.value for p in ato.packages if p.primary_task]
+
+
+def check_b19() -> list[str]:
+    """Weather-aware planning: a storm puts front-line attack behind the deep work."""
+    from game.weather.weather import ClearSkies, Thunderstorm
+
+    game = build_game(CARRIER_CAMPAIGN)
+    conditions = game.conditions
+    args = (
+        game.theater.seasonal_conditions,
+        conditions.start_time.date(),
+        conditions.time_of_day,
+    )
+    front = {"CAS", "BAI", "Armed Recon"}
+    plans: dict[tuple[str, bool], dict[str, list[str]]] = {}
+    for name, weather in (("clear", ClearSkies(*args)), ("storm", Thunderstorm(*args))):
+        for enabled in (False, True):
+            conditions.weather = weather
+            game.settings.weather_aware_planning = enabled
+            _replan(game)
+            plans[name, enabled] = {s: _tasks(game, s) for s in ("blue", "red")}
+
+    stock = plans["clear", False]
+    assert plans["clear", True] == stock, "a clear-sky plan changes with the setting"
+    assert plans["storm", False] == stock, "a storm changes the plan with it off"
+    stormy = plans["storm", True]
+    evidence = []
+    for side in ("blue", "red"):
+        assert front & set(stock[side]), f"{side} plans no front-line attack when clear"
+        assert stormy[side] != stock[side], f"the storm left {side}'s plan alone"
+        seen_front = False
+        for task in stormy[side]:
+            seen_front = seen_front or task in front
+            deep = task in {"Strike", "DEAD", "Anti-ship", "OCA/Runway", "OCA/Aircraft"}
+            assert not (seen_front and deep), f"{side}: {task} planned after CAS or BAI"
+        evidence.append(f"{side} clear or setting off: {stock[side]}")
+        evidence.append(f"{side} thunderstorm, setting on: {stormy[side]}")
+    return evidence
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -71,6 +114,7 @@ def check_b188() -> list[str]:
 
 
 CHECKS: dict[str, Check] = {
+    "B19": check_b19,
     "B188": check_b188,
 }
 

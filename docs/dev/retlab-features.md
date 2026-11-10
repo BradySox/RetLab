@@ -6745,6 +6745,13 @@ is the same sky):
    if jets are left after the weather-tolerant strikes claim theirs. Rain does NOT demote
    (only the recon gate fires in rain) — DCS AI flies fine in rain; the storm is the
    grounding sky.
+   **Front-line CAS is held the same way since 2026-11-10.** CAS is planned by
+   `DefendBase` (the fixed lead) and `CaptureBase`, not by a demotable root method, so a
+   storm used to leave it first. `storm_holds_cas` now has `PlanNextAction` pass
+   `plan_cas=False` to both and plan the CAS from `DelayedFrontLineCas` after the
+   offensive middle, outside the §52 throttle. Found by a real planner run for row B19;
+   on Long Road to H3 turn 1 the held CAS found no jets left on either side and did not
+   fly, which is the "if jets are left" rule doing its job.
 
 **Deliberately absent: night.** The model carries no per-airframe night-capability data, so
 demoting night CAS would wrongly ground an A-10C II alongside an A-1. Night awareness is

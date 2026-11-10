@@ -82,6 +82,15 @@ def storm(game: "Game") -> bool:
     return _archetype_id(game) == "thunderstorm"
 
 
+def storm_holds_cas(game: "Game") -> bool:
+    """True when front-line CAS waits behind the offensive plan (feature on, storm).
+
+    CAS is planned by ``DefendBase`` and ``CaptureBase``, not by a demotable root
+    method, so ``PlanNextAction`` holds it back with this instead.
+    """
+    return _enabled(game) and storm(game)
+
+
 def demote_weather_hostile_methods(game: "Game", order: Iterable[str]) -> list[str]:
     """Reorder the offensive method names for the weather.
 
