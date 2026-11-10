@@ -73,6 +73,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   loadouts, how the store ids were read, row B315)
 - **Iran air defense (§105)** — `retlab-iran-air-defense-pack-notes.md` (the unit-id contract
   and numbers), `retlab-iran-air-defense-pack-HANDOFF.md` (the private pack's local build)
+- **Civil air traffic** — `retlab-civil-traffic-notes.md` (§129; the DM's 2026-11-09 picks,
+  the steady stream and the war airspace, row B323)
 - **Neutral factions** — `retlab-neutral-border-defense-notes.md` (§98; why a true neutral
   cannot fire, and the DM-locked rules), `retlab-national-postures-notes.md` (the posture
   table; consent moved to airbases 2026-08-26; the measured country-per-map table)
@@ -119,6 +121,9 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Other forks and projects we watch** — `retlab-juanjux-fork-watch-notes.md`,
   `retlab-liberation-watch-notes.md`, `retlab-mist-author-repos-notes.md` (licence-gated),
   `retlab-fincenturion-dist-notes.md` (study only; read, never vendor)
+- **Engine direction** — `retlab-retribution-long-view.md` (the seven seams),
+  `retlab-campaign-architecture-notes.md` (rungs R0–R7; nothing built),
+  `retlab-red-brain-phase0-notes.md` (seam 7 dropped; read before proposing anything about red)
 
 ## Superseded, draft or historical
 

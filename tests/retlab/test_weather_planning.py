@@ -101,3 +101,30 @@ def test_htn_offensive_order_reads_the_weather() -> None:
     ]
     clear = task._offensive_order(cast(Any, _planner_state(ClearSkies)))
     assert clear == STOCK
+
+
+def _root_methods(weather_cls: type | None, on: bool = True) -> list[Any]:
+    task = PlanNextAction(aircraft_cold_start=False)
+    state = cast(Any, _planner_state(weather_cls, on))
+    return [method[0] for method in task.each_valid_method(state)]
+
+
+def test_storm_holds_front_line_cas_behind_the_offensive_plan() -> None:
+    methods = _root_methods(Thunderstorm)
+    names = [type(m).__name__ for m in methods]
+    assert names[-2:] == ["DelayedFrontLineCas", "RecoverySupport"]
+    assert names.index("DelayedFrontLineCas") > names.index("DegradeIads")
+    held = [m for m in methods if type(m).__name__ in ("DefendBases", "CaptureBases")]
+    assert [m.plan_cas for m in held] == [False, False]
+
+
+def test_cas_keeps_its_place_outside_a_storm() -> None:
+    for weather_cls, on in ((ClearSkies, True), (Raining, True), (Thunderstorm, False)):
+        methods = _root_methods(weather_cls, on)
+        names = [type(m).__name__ for m in methods]
+        assert "DelayedFrontLineCas" not in names
+        assert all(
+            m.plan_cas
+            for m in methods
+            if type(m).__name__ in ("DefendBases", "CaptureBases")
+        )

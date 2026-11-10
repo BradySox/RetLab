@@ -394,6 +394,16 @@ function GroupFake:activate()
     table.insert(Harness.records.activations, self.name)
 end
 
+-- Group:destroy() -- removes the group silently (no dead event); recorded with the
+-- MOOSE GROUP:Destroy calls.
+function GroupFake:destroy()
+    self.exists = false
+    for _, unit in ipairs(self.units) do
+        unit.exists = false
+    end
+    table.insert(Harness.records.destroys, self.name)
+end
+
 Group.getByName = function(name)
     return Harness.groupsByName[name]
 end

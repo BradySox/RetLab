@@ -8,13 +8,15 @@ Two checks, both cheap and both near-zero on a clean tree:
   code. ``tools/vulture_whitelist.py`` lists the names a signature requires but
   the body never reads.
 
-Exit 1 when either finds anything. Run from the repo root:
+Exit 1 when either finds anything, 2 when a scanner is not installed. Run from
+the repo root:
 
     python tools/dead_code_report.py
 """
 
 from __future__ import annotations
 
+import importlib.util
 import subprocess
 import sys
 from pathlib import Path
@@ -63,7 +65,20 @@ def unused_names() -> list[str]:
     return [line for line in result.stdout.splitlines() if line.strip()]
 
 
+def missing_scanners() -> list[str]:
+    # A missing scanner prints nothing to stdout, which reads as a clean tree.
+    return [
+        name
+        for name in ("pyflakes", "vulture")
+        if importlib.util.find_spec(name) is None
+    ]
+
+
 def main() -> int:
+    missing = missing_scanners()
+    if missing:
+        print(f"Not installed: {', '.join(missing)}. Nothing was checked.")
+        return 2
     imports = unused_imports()
     names = unused_names()
     for line in imports + names:

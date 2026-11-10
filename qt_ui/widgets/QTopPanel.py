@@ -20,7 +20,6 @@ from game.ato.traveltime import TotEstimator
 from game.profiling import logged_duration
 from game.settings.settings import FastForwardStopCondition
 from game.sim.missionstart import mission_start_time
-from game.utils import meters
 from qt_ui import liberation_install
 from qt_ui.models import GameModel
 from qt_ui.simcontroller import SimController
@@ -161,14 +160,9 @@ class QTopPanel(QFrame):
         self.playable.setEnabled(True)
         self.transfers.setEnabled(True)
 
-        self.conditionsWidget.setCurrentTurn(game.turn, game.conditions)
-
-        if game.conditions.weather.clouds:
-            base_m = game.conditions.weather.clouds.base
-            base_ft = int(meters(base_m).feet)
-            self.conditionsWidget.setToolTip(f"Cloud Base: {base_m}m / {base_ft}ft")
-        else:
-            self.conditionsWidget.setToolTip("")
+        self.conditionsWidget.setCurrentTurn(
+            game.turn, game.conditions, game.settings.use_auto_fog
+        )
 
         self.intel_box.set_game(game)
         self.budgetBox.setGame(game)

@@ -253,7 +253,7 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Carriers steam for wind down the **angled** deck, not the bow, using each hull's own deck
   angle (9° Nimitz, 10.5° Forrestal, 7.95° Kuznetsov). BRC sits up to 15° off the wind
   reciprocal — that is the ship's real heading. New missions only.
-- Also: mixed frontline combat clusters, civilian traffic, RetLab-tuned Splash Damage 3.
+- Also: mixed frontline combat clusters, civilian air traffic all mission long (Off / Light / Normal / Busy), RetLab-tuned Splash Damage 3.
 
 ### Kneeboards and debrief
 
@@ -267,8 +267,10 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   pilots recovered.
 - A Threat Intel Brief gives one card per enemy air-defence system — NATO name, guidance, ceiling,
   range, RWR symbol, how to beat it. It respects recon fog: un-engaged sites show only a threat tier.
-- Planned flights always use RetLab's shipped loadouts, which carry the newest weapons and
+- Planned flights use RetLab's shipped loadouts, which carry the newest weapons and
   step down for the campaign date. Loadouts saved in the DCS Mission Editor are not read.
+- Save your own loadouts from the payload tab. A saved loadout is listed as `Saved: <name>`
+  for that aircraft in every campaign, and can be a blue squadron's loadout for one task.
   Fuel and cockpit settings are remembered per airframe.
 - The payload editor hides practice, captive, inert, smoke and illumination stores, TCTS
   pods and travel pods until **Show training and non-combat stores** is ticked. White

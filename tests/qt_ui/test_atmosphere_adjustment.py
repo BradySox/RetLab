@@ -84,3 +84,12 @@ def test_auto_fog_locks_fog_and_dust(qapp: Any) -> None:
     w = _widget(_weather(fog=fog), auto_fog=True)
     assert not w.fog_enabled.isEnabled() and not w.dust_enabled.isEnabled()
     assert w.fog(fog) is fog
+
+
+def test_unticked_fog_and_dust_hide_their_numbers(qapp: Any) -> None:
+    w = _widget(_weather(), auto_fog=False)
+    assert w.fog_visibility.isHidden() and w.fog_thickness_label.isHidden()
+    assert w.dust_visibility.isHidden() and w.dust_visibility_label.isHidden()
+    w.fog_enabled.setChecked(True)
+    assert not w.fog_visibility.isHidden() and not w.fog_thickness.isHidden()
+    assert w.dust_visibility.isHidden()

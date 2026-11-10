@@ -93,12 +93,14 @@ class QAtmosphereAdjustmentWidget(QWidget):
         self.fog_enabled = QCheckBox("Fog")
         self.fog_enabled.setChecked(weather.fog is not None)
         grid.addWidget(self.fog_enabled, 0, 0)
-        grid.addWidget(QLabel("Visibility (NM)"), 1, 0)
+        self.fog_visibility_label = QLabel("Visibility (NM)")
+        grid.addWidget(self.fog_visibility_label, 1, 0)
         self.fog_visibility = self._visibility_spin(
             weather.fog.visibility.nautical_miles if weather.fog else 1.5
         )
         grid.addWidget(self.fog_visibility, 1, 1)
-        grid.addWidget(QLabel("Thickness (ft)"), 2, 0)
+        self.fog_thickness_label = QLabel("Thickness (ft)")
+        grid.addWidget(self.fog_thickness_label, 2, 0)
         self.fog_thickness = QSpinBox()
         self.fog_thickness.setRange(100, 3300)
         self.fog_thickness.setSingleStep(100)
@@ -110,7 +112,8 @@ class QAtmosphereAdjustmentWidget(QWidget):
         self.dust_enabled = QCheckBox("Dust storm")
         self.dust_enabled.setChecked(weather.dust is not None)
         grid.addWidget(self.dust_enabled, 3, 0)
-        grid.addWidget(QLabel("Visibility (NM)"), 4, 0)
+        self.dust_visibility_label = QLabel("Visibility (NM)")
+        grid.addWidget(self.dust_visibility_label, 4, 0)
         self.dust_visibility = self._visibility_spin(
             weather.dust.visibility.nautical_miles if weather.dust else 1.0
         )
@@ -167,6 +170,18 @@ class QAtmosphereAdjustmentWidget(QWidget):
         self.fog_visibility.setEnabled(editable and self.fog_enabled.isChecked())
         self.fog_thickness.setEnabled(editable and self.fog_enabled.isChecked())
         self.dust_visibility.setEnabled(editable and self.dust_enabled.isChecked())
+        # An unticked box hides its numbers so nothing looks set that is not.
+        fog_on = self.fog_enabled.isChecked()
+        dust_on = self.dust_enabled.isChecked()
+        for widget in (
+            self.fog_visibility_label,
+            self.fog_visibility,
+            self.fog_thickness_label,
+            self.fog_thickness,
+        ):
+            widget.setVisible(fog_on)
+        for widget in (self.dust_visibility_label, self.dust_visibility):
+            widget.setVisible(dust_on)
 
     def atmospheric(self, original: AtmosphericConditions) -> AtmosphericConditions:
         temperature, altimeter, turbulence = self._initial[:3]

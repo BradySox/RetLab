@@ -25,8 +25,8 @@ LOCAL = Path("docs/dev/flycards/LOCAL.md")
 #: whole fixed strings is what let `✅ CLOSED` fall through to the "(was ☐ UNTESTED"
 #: that every re-verified row quotes.
 STATUS = re.compile(
-    r"(?P<symbol>[\u2610\u2611\u2612\u2298\u2716\u2717\u25d0\u2705]) "
-    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED)"
+    r"(?P<symbol>[\u2610\u2611\u2612\u2298\u2716\u2717\u25d0\u2705\u25c7]) "
+    r"(?P<word>VERIFIED|UNTESTED|PARTIAL|REGRESSED|RETIRED|REMOVED|CLOSED|AUTO-PASS)"
 )
 
 #: A card section holding history rather than work. Matches the hook's list.

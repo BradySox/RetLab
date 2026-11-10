@@ -1,33 +1,12 @@
-"""Region-appropriate civil fleets, operators and cruise levels.
+"""Which civil aircraft fly where, when, under whose name and paint.
 
-The civilian layer's identity problem, in the DM's words: "civil identity is a data
-table -- liveries + airline callsigns + cruise levels do nearly all the perceptual
-work", and the shipped roster "leans Soviet-military -- An-26 / IL-76 / Mi-8 read
-*wrong* over Germany or the Gulf. **Region-appropriate selection matters more than
-adding types.**"
+Data, not logic: adding a map or re-crewing a region is an edit here and nothing
+else. Design and the 2026-11-09 rebuild: ``docs/dev/design/retlab-civil-traffic-notes.md``.
 
-That is the whole of this module: which airframes are plausible civil traffic where,
-who is flying them, and how high. It is deliberately data, not logic -- adding a map
-or re-crewing a region is an edit here and nothing else.
-
-Two findings from building it, both worse than "the roster leans Soviet":
-
-* The previous roster was applied **globally**, so Antonovs and Hips flew over Nevada
-  and the Marianas as readily as over the Caucasus. The Soviet set is not wrong --
-  it is *right* for the Caucasus, Kola, Afghanistan, Syria and Iraq, where Antonov
-  and Ilyushin freighters genuinely are the civil traffic. It was wrong everywhere
-  else, which is a selection bug, not a roster bug.
-
-* **The WWII maps had modern civil traffic on them.** Normandy and The Channel are
-  1944; a Yak-40 or an IL-76 crossing the beachhead is not a small immersion
-  problem. Those regions field nothing at all (`CIVIL_TRAFFIC_NONE`) -- a 1944 combat
-  theatre had no civil overflights worth modelling, so the honest answer is an empty
-  fleet rather than a period-costume one.
-
-DCS ships no airliner, so nothing here will ever read as a scheduled 737. The goal is
-narrower and achievable: the aircraft crossing your map should be one that plausibly
-flies in that part of the world, under a plausible operator's name, at a plausible
-flight level.
+Only real civil types in base DCS. The IL-76, An-30 and C-130 are gone: on radar they
+read as military transports (Red Tide M1 lost an IL-76 to a Phoenix shot). The C-47 is
+not here because it ships in the paid WWII Assets Pack. The An-26 flies only on the
+ex-Soviet maps, where it really was civil traffic (DM call 2026-11-09).
 """
 
 from __future__ import annotations
@@ -35,110 +14,145 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Type
 
-from dcs.helicopters import Mi_8MT, Mi_26, SA342M, UH_1H
-from dcs.planes import An_26B, An_30M, C_130, IL_76MD, Yak_40, Yak_52
+from dcs.helicopters import Mi_8MT, UH_1H
+from dcs.planes import An_26B, Christen_Eagle_II, Yak_40, Yak_52
 from dcs.unittype import FlyingType
 
-#: Cruise profile per type: (altitude m MSL, speed m/s, fly_on_agl).
-#:
-#: Levels are the realistic band for the airframe rather than the old flat 5,000 m --
-#: a freighter transiting at FL260 reads as overflight traffic, the same jet pottering
-#: at 16,000 ft reads as something military and interesting. Light props and helos stay
-#: low and fly AGL so they clear terrain.
-CRUISE_PROFILE: dict[Type[FlyingType], tuple[int, int, bool]] = {
-    Yak_40: (7_900, 150, False),  # ~FL260, regional trijet
-    IL_76MD: (9_400, 200, False),  # ~FL310, heavy freighter
-    An_26B: (6_100, 120, False),  # ~FL200, turboprop freighter
-    An_30M: (6_100, 120, False),  # ~FL200, survey turboprop
-    C_130: (7_000, 140, False),  # ~FL230
-    Yak_52: (900, 50, True),  # light prop, local
-    Mi_8MT: (300, 50, True),
-    UH_1H: (300, 50, True),
-    SA342M: (350, 55, True),
-    Mi_26: (400, 55, True),
-}
+
+@dataclass(frozen=True)
+class CivilType:
+    """One civil airframe: how it cruises and the base-DCS paints that read civil."""
+
+    aircraft: Type[FlyingType]
+    #: First year it flew in civil service; a campaign before this never sees it.
+    first_year: int
+    altitude_m: int
+    speed_ms: int
+    #: True for low local traffic, which holds its height above the ground.
+    agl: bool
+    liveries: tuple[str, ...]
+
+    @property
+    def is_helicopter(self) -> bool:
+        return bool(self.aircraft.helicopter)
+
+
+YAK_40 = CivilType(
+    Yak_40,
+    1968,
+    7_600,  # ~FL250
+    150,
+    False,
+    ("Aeroflot", "Ukranian", "Georgian Airlines", "Olympic Airways"),
+)
+AN_26 = CivilType(An_26B, 1969, 6_100, 120, False, ("Aeroflot",))  # ~FL200
+YAK_52 = CivilType(
+    Yak_52, 1979, 900, 52, True, ("DOSAAF_RF", "DOSAAF_USSR", "Bare_Metall")
+)
+CHRISTEN_EAGLE = CivilType(
+    Christen_Eagle_II, 1977, 900, 60, True, ("N104GF", "N14KH", "N22XS", "C-FTIJ")
+)
+MI_8 = CivilType(
+    Mi_8MT,
+    1967,
+    300,
+    50,
+    True,
+    ("Russia_Aeroflot", "Russia_UTair", "Russia_Gazprom", "Russia_Vertolety_Russia"),
+)
+UH_1 = CivilType(
+    UH_1H, 1963, 300, 50, True, ("[Civilian] Standard", "[Civilian] Medical")
+)
 
 
 @dataclass(frozen=True)
 class CivilRegion:
     """The civil air picture for one part of the world."""
 
-    #: Fixed-wing types that fly the region's airways.
-    fleet: tuple[Type[FlyingType], ...]
-    #: Rotary types working locally. Helicopters do not fly airways -- short local
-    #: hops are what rotary civil traffic actually does.
-    helos: tuple[Type[FlyingType], ...]
-    #: Operator names used to label the traffic. These are what a player sees on the
-    #: F10 map, and they are the cheapest half of "civil identity" by a distance:
-    #: `AEROFLOT 412` reads as an airliner where `CIV_An-26B_3` reads as a bug.
+    #: Fixed-wing types that fly the long, high airways.
+    airliners: tuple[CivilType, ...]
+    #: Light planes and helicopters that hop between nearby fields, low.
+    local: tuple[CivilType, ...]
+    #: Operator names for the callsign the F10 map shows ("AEROFLOT 412").
     operators: tuple[str, ...]
 
+    def for_year(self, year: int) -> CivilRegion:
+        """The same region with every type not yet in service removed."""
+        return CivilRegion(
+            airliners=tuple(t for t in self.airliners if t.first_year <= year),
+            local=tuple(t for t in self.local if t.first_year <= year),
+            operators=self.operators,
+        )
 
-#: A theatre with no plausible civil overflight traffic at all.
-CIVIL_TRAFFIC_NONE = CivilRegion(fleet=(), helos=(), operators=())
+
+#: A theater with no civil traffic at all (the 1944 maps).
+CIVIL_TRAFFIC_NONE = CivilRegion(airliners=(), local=(), operators=())
 
 _SOVIET_SPHERE = CivilRegion(
-    fleet=(Yak_40, An_26B, An_30M, IL_76MD),
-    helos=(Mi_8MT, Mi_26),
+    airliners=(YAK_40, AN_26),
+    local=(YAK_52, MI_8),
     operators=("AEROFLOT", "VOLGA AIR", "POLET", "URAL CARGO", "ARKTIKA"),
 )
 
 _CENTRAL_ASIA = CivilRegion(
-    fleet=(An_26B, IL_76MD, Yak_40),
-    helos=(Mi_8MT, Mi_26),
+    airliners=(YAK_40, AN_26),
+    local=(MI_8,),
     operators=("ARIANA", "KAM AIR", "SILK ROUTE", "PAMIR CARGO"),
 )
 
 _LEVANT = CivilRegion(
-    fleet=(An_26B, IL_76MD, Yak_40, C_130),
-    helos=(Mi_8MT, SA342M),
+    airliners=(YAK_40, AN_26),
+    local=(MI_8, UH_1),
     operators=("CHAM WINGS", "LEVANT CARGO", "CEDAR AIR", "PALMYRA"),
 )
 
+_IRAQ = CivilRegion(
+    airliners=(YAK_40,),
+    local=(MI_8, UH_1),
+    operators=("TIGRIS AIR", "BABYLON AIR", "BASRA CARGO", "EUPHRATES"),
+)
+
 _GULF = CivilRegion(
-    fleet=(IL_76MD, An_26B, C_130, Yak_40),
-    helos=(Mi_8MT, SA342M),
+    airliners=(YAK_40,),
+    local=(UH_1,),
     operators=("GULF FREIGHT", "KISH AIR", "DUBAI CARGO", "HORMUZ AIR"),
 )
 
 _WESTERN = CivilRegion(
-    fleet=(C_130, Yak_52),
-    helos=(UH_1H, SA342M),
+    airliners=(YAK_40,),
+    local=(CHRISTEN_EAGLE, UH_1),
     operators=("SKYWEST", "GRAND CANYON AIR", "PACIFIC FREIGHT", "DESERT AIR"),
 )
 
 _COLD_WAR_EUROPE = CivilRegion(
-    # A divided Germany is genuinely mixed: Interflug flew Antonovs and Tupolevs in
-    # the east while western civil traffic was Boeing/Airbus, which DCS does not ship
-    # -- so the eastern half of the picture is what can honestly be rendered, plus
-    # military transport traffic that belongs on either side of the line.
-    fleet=(An_26B, IL_76MD, Yak_40, C_130),
-    helos=(Mi_8MT, UH_1H),
-    operators=("INTERFLUG", "LOT CARGO", "BALKAN AIR", "MALEV"),
+    airliners=(YAK_40,),
+    local=(YAK_52, UH_1, MI_8),
+    operators=("INTERFLUG", "LOT", "BALKAN AIR", "MALEV"),
 )
 
-#: Keyed by ``dcs.terrain.Terrain.name``. An unknown map falls back to the Soviet
-#: sphere, which is the shipped behaviour and the safest default -- those airframes
-#: exist on every DCS install, so a new terrain never generates nothing by surprise.
+#: Keyed by ``dcs.terrain.Terrain.name``, never the campaign yaml's display name. An
+#: unknown map falls back to the Soviet sphere: those airframes are on every install.
 REGIONS: dict[str, CivilRegion] = {
     "Caucasus": _SOVIET_SPHERE,
     "Kola": _SOVIET_SPHERE,
     "Afghanistan": _CENTRAL_ASIA,
     "Syria": _LEVANT,
-    "Iraq": _LEVANT,
+    "Iraq": _IRAQ,
     "SinaiMap": _GULF,
     "PersianGulf": _GULF,
     "Nevada": _WESTERN,
     "MarianaIslands": _WESTERN,
     "Falklands": _WESTERN,
     "GermanyCW": _COLD_WAR_EUROPE,
-    # 1944. Modern civil traffic over the beachhead is an anachronism, not flavour.
     "Normandy": CIVIL_TRAFFIC_NONE,
     "TheChannel": CIVIL_TRAFFIC_NONE,
     "MarianaIslandsWWII": CIVIL_TRAFFIC_NONE,
 }
 
 DEFAULT_REGION = _SOVIET_SPHERE
+
+#: Every type the regions use, for the guards in the tests.
+ALL_TYPES: tuple[CivilType, ...] = (YAK_40, AN_26, YAK_52, CHRISTEN_EAGLE, MI_8, UH_1)
 
 
 def region_for(terrain_name: str) -> CivilRegion:

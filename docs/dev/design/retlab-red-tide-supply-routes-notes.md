@@ -66,7 +66,7 @@ shipping_lanes:
 
 Waypoints are `[x, y]` DCS map coordinates (meters, same system as pydcs). Use
 `Point.from_latlng(LatLng(lat, lon), terrain)` to convert real-world lat/lon to DCS
-coords — see `tools/verify_kastrup_full.py` for usage pattern.
+coords.
 
 ### Red Tide routes added
 
@@ -140,9 +140,9 @@ northeast of the airport.
 
 ### Solution
 
-Patched `resources/campaigns/red_tide.miz` directly using
-`tools/patch_kastrup_full.py`. The script reads the `.miz` as a zip archive, surgically
-inserts new groups into the red coalition section, and rewrites the archive.
+Patched `resources/campaigns/red_tide.miz` directly with a one-off script,
+`patch_kastrup_full.py`. It read the `.miz` as a zip archive, inserted new groups into
+the red coalition section, and rewrote the archive.
 
 **Groups added/fixed (all in red coalition, all on land west/southwest of airport):**
 
@@ -167,14 +167,10 @@ Vehicle groups go into the red coalition `["vehicle"]["group"]` array. Static gr
 into `["static"]["group"]`. Both require distinct `groupId` and `unitId` values above the
 existing max.
 
-**Tools** (in `tools/`):
-- `patch_kastrup_full.py` — the comprehensive patch script (already applied; keep as
-  reference if re-patching is needed after a `.miz` change)
-- `verify_kastrup_full.py` — verifies all 6 groups are present, in red coalition, with
-  correct coordinates
-- `extract_supply_routes.py` — extracts M-113 waypoints from a `.miz` for reference
-- `check_preset_ids.py` — lists all sentinel unit type IDs in a `.miz`
-- `find_static_group.py` — finds static group structure by type string
+**Tools.** The one-off scripts for this patch (`patch_kastrup_full.py`,
+`verify_kastrup_full.py`, `extract_supply_routes.py`, `check_preset_ids.py`,
+`find_static_group.py`) were removed 2026-11-10. They are at
+`git show a32da7721:tools/<name>`.
 
 ### Coordinate system notes
 

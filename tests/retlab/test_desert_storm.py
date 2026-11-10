@@ -78,10 +78,8 @@ def test_desert_storm_campaign_definition() -> None:
         "restrict_props_by_date",
         "c2_decapitation_effects",
         "auto_repair_air_defenses",
-        "host_red_scramble",
     ):
         assert data["settings"][key] is True, key
-    assert data["settings"]["plugins"]["redscramble.hostPlayers"] == "Flash"
 
 
 def test_desert_storm_blue_holds_only_the_h3_complex() -> None:

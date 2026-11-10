@@ -123,8 +123,9 @@ statics stand on the Buna and Leuna chemical works.
 
 ## Constraints
 
-- **Mission range is 250 NM.** Spangdahlem to Haina is 151 NM, one past the 150 NM default;
-  250 reaches Merseburg.
+- **Mission range is the host's own setting** (no preseed since 2026-11-08, the DM's call).
+  Spangdahlem to Haina is 151 NM, one past the 150 NM default, so the deep fields open up as
+  blue moves forward.
 - **Obermehler takes seven Hips**; the squadron is six.
 - **Meiningen is an FOB because of the SA-3.** Without a red point there, the
   Meiningen SA-3 binds to Fulda, its nearest control point, and blue cannot field it.

@@ -16,10 +16,11 @@ from game.theater import ControlPoint, FrontLine, Player
 @dataclass(frozen=True)
 class CaptureBase(CompoundTask[TheaterState]):
     front_line: FrontLine
+    plan_cas: bool = True
 
     def each_valid_method(self, state: TheaterState) -> Iterator[Method[TheaterState]]:
         yield [BreakthroughAttack(self.front_line, state.context.coalition.player)]
-        yield [DestroyEnemyGroundUnits(self.front_line)]
+        yield [DestroyEnemyGroundUnits(self.front_line, self.plan_cas)]
         if self.worth_destroying_ammo_depots(state):
             yield [ReduceEnemyFrontLineCapacity(self.enemy_cp(state))]
 

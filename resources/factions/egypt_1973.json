@@ -16,9 +16,11 @@
   "awacs": [],
   "frontline_units": [
     "T-55A",
+    "MBT T-62M",
     "BMP-1",
     "BRDM-2",
-    "BTR-80",
+    "ATGM AT-3 Sagger 9P133",
+    "APC BTR-60",
     "PT-76",
     "ZSU-23-4 Shilka"
   ],
@@ -34,14 +36,16 @@
     "Infantry AK-74 Rus"
   ],
   "preset_groups": [
-    "SA-5/S-200",
     "SA-2/S-75",
     "SA-2/SA-3 Mixed Site",
     "SA-3/S-125",
-    "SA-6"
+    "SA-6",
+    "KS-19/SON-9"
   ],
   "naval_units": [],
-  "missiles": [],
+  "missiles": [
+    "SSM SS-1C Scud-B"
+  ],
   "air_defense_units": [
     "EWR 1L13",
     "EWR 55G6",

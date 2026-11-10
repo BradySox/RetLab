@@ -42,8 +42,6 @@ settings:
   # A Fulcrum on a 60-minute station runs dry (Red Tide M1).
   desired_barcap_mission_duration: 45
   c2_decapitation_effects: true
-  # Copenhagen to Templin is 158 NM, past the 150 NM default.
-  max_mission_range_planes: 200
   plugins:
     skynetiads: true
 # Who the map's neighbours sided with in July 1988. Without this, every country

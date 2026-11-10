@@ -608,6 +608,15 @@ def flight_defaults_path() -> Path:
     return _create_dir_if_needed(base_path() / "Retribution") / "flight_defaults.json"
 
 
+def saved_loadouts_path() -> Path:
+    """The player's saved loadouts, for every campaign (§128).
+
+    RetLab's own file, never DCS's ``MissionEditor/UnitPayloads``: a fit there
+    replaced the shipped preset of the same name (§73).
+    """
+    return _create_dir_if_needed(base_path() / "Retribution") / "saved_loadouts.json"
+
+
 def dtc_defaults_path() -> Path:
     """JSON store for the per-airframe, per-task DTC tab defaults (§74).
 

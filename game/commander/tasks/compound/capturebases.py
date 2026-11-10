@@ -9,8 +9,10 @@ from game.htn import CompoundTask, Method
 
 @dataclass(frozen=True)
 class CaptureBases(CompoundTask[TheaterState]):
+    plan_cas: bool = True
+
     def each_valid_method(self, state: TheaterState) -> Iterator[Method[TheaterState]]:
         for front in state.active_front_lines:
-            yield [CaptureBase(front)]
+            yield [CaptureBase(front, self.plan_cas)]
         for cp in state.vulnerable_control_points:
             yield [PlanAirAssault(cp)]

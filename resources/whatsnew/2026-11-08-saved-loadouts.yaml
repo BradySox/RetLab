@@ -1,0 +1,13 @@
+date: 2026-11-08
+title: Save your own loadouts
+change: >-
+  The payload tab has Save loadout as... again. A saved loadout is listed
+  as "Saved: <name>" for that aircraft in every campaign and only flies
+  where you pick it, or on every flight one of your squadrons plans for a
+  task once you click Use for squadron's <task>. It never replaces a
+  shipped loadout and red never uses it. Missiles step up to the newest
+  variant, then the campaign date steps them down. Loadouts saved in the
+  DCS Mission Editor are no longer read.
+watch: >-
+  Save an F-16 loadout with AIM-9M, then pick it in a 2020 campaign: the
+  stations show AIM-9X.

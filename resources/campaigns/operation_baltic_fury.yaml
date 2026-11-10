@@ -60,18 +60,10 @@ settings:
   # with beyond-era kit (both toggles; §24 split restrict_props off restrict_weapons).
   restrict_weapons_by_date: true
   restrict_props_by_date: true
-  # Human-led counter-offensive: keep the blue auto-planner cautious so RetLab's sorties
-  # (the SEAD/anti-ship push into the coastal belt) are the player's to fly.
-  ownfor_autoplanner_aggressiveness: 10
-  oca_target_autoplanner_min_aircraft_count: 40
   # §52 command-center decapitation: the advanced-IADS command network feeds red's PLANNING,
   # not just SAM autonomy -- as the player bombs the HQs, red's offensive targeting gets
   # sloppier. Reactive defense untouched. This laydown ships a real per-base C2 network to key on.
   c2_decapitation_effects: true
-  # §61 host red-interceptor scramble: F10 "HOST: Red Scramble" clones a red fighter flight at
-  # any red field and vectors it onto the nearest blue fighters (MP events; gated to the host's
-  # static "Flash" name tag). Free/untracked event content.
-  host_red_scramble: true
   # §86 GPS jamming: red EW Radio Jammers deny satellite guidance around two of its
   # early-warning sites (see ground_forces below), so a JDAM/JSOW/JASSM released inside the
   # bubble lands off the aimpoint. Laser and TV weapons are unaffected -- the counter is to
@@ -82,8 +74,6 @@ settings:
   plugins:
     # advanced_iads (top-level) is this laydown's centerpiece; skynetiads owns its whole runtime.
     skynetiads: true
-    # §61 host-menu gate: only DCS names containing "Flash" see the HOST: Red Scramble menu.
-    redscramble.hostPlayers: Flash
 # --- §86 GPS jamming: two of red's five early-warning sites also field an EW Radio Jammer.
 #
 #     The jammer is pinned to an EWR marker on purpose. A GPS jammer emits in L-band, which no

@@ -35,14 +35,16 @@ def test_red_tide_does_not_preseed_the_removed_comms_features() -> None:
         assert plugin not in settings["plugins"], plugin
 
 
-def test_red_tide_gates_the_host_scramble_menu_to_the_host() -> None:
-    settings = _campaign_settings()
-    # The host's "give the boys something to shoot" button, armed for MP events.
-    assert settings["host_red_scramble"] is True
-    # The menu is gated to the host's static name tag: RetLab names run
-    # "<flight> 1-x | Flash" with a changing prefix, and hostPlayers is a
-    # substring match, so the tag alone covers every event's prefix.
-    assert settings["plugins"]["redscramble.hostPlayers"] == "Flash"
+def test_no_campaign_preseeds_the_host_scramble() -> None:
+    # The host tools and the host's name tag are the host's own settings (DM call
+    # 2026-11-08): a campaign preseed would override the saved defaults.
+    for path in sorted(Path("resources/campaigns").glob("*.yaml")):
+        with open(path, encoding="utf-8") as f:
+            settings = yaml.safe_load(f).get("settings") or {}
+        assert "host_red_scramble" not in settings, path.name
+        assert "redscramble.hostPlayers" not in (
+            settings.get("plugins") or {}
+        ), path.name
 
 
 def test_red_tide_preseeds_the_skynetiads_plugin_for_advanced_iads() -> None:
@@ -181,6 +183,7 @@ def test_red_tide_keeps_civilian_air_traffic() -> None:
     # must NOT preseed the gate at all -- the generic default (ON) applies.
     settings = _campaign_settings()
     assert "civilian_air_traffic" not in settings
+    assert "civil_air_traffic" not in settings
 
 
 def test_barcap_duration_preseed_deserializes_to_a_timedelta() -> None:
@@ -192,27 +195,23 @@ def test_barcap_duration_preseed_deserializes_to_a_timedelta() -> None:
     assert deserialized["desired_barcap_mission_duration"] == timedelta(minutes=45)
 
 
-def test_civilian_traffic_gate_defaults_on_and_gates_generate() -> None:
-    # The generic gate: default ON (every other campaign byte-identical), and
-    # CivilianTrafficGenerator.generate() early-returns when off.
+def test_civilian_traffic_defaults_light_and_off_gates_generate() -> None:
+    # Default Light for every campaign; Off early-returns before touching the mission.
     from types import SimpleNamespace
 
     from game.missiongenerator.civiliantraffic import CivilianTrafficGenerator
+    from game.settings.enums import CivilAirTraffic
 
-    assert Settings().civilian_air_traffic is True
+    assert Settings().civil_air_traffic is CivilAirTraffic.LIGHT
 
     gen: CivilianTrafficGenerator = CivilianTrafficGenerator.__new__(
         CivilianTrafficGenerator
     )
-    calls: list[str] = []
     gen.game = SimpleNamespace(  # type: ignore[assignment]
-        settings=SimpleNamespace(civilian_air_traffic=False)
+        settings=SimpleNamespace(civil_air_traffic=CivilAirTraffic.OFF)
     )
-    gen.mission = SimpleNamespace(  # type: ignore[assignment]
-        country=lambda name: calls.append(name)
-    )
-    gen.generate()
-    assert calls == []  # early-returned before touching the mission
+    gen.mission = SimpleNamespace()  # type: ignore[assignment]
+    gen.generate()  # any touch of the mission raises AttributeError
 
 
 # --- The registry-driven sweep -------------------------------------------------

@@ -2,7 +2,7 @@
   "country": "Israel",
   "name": "Israel 1973",
   "authors": "Khopa",
-  "description": "<p>Israel during the 1973 Yom Kippur War.</p>",
+  "description": "<p>Israel during the 1973 Yom Kippur War.</p><p>DCS has no 1973 versions of some Israeli equipment, so later models stand in: the M60A3 for the M60A1, the M109A6 Paladin for the M109, and the AN/FPS-117 for the early-warning radars.</p>",
   "locales": [
     "he_IL"
   ],
@@ -13,9 +13,7 @@
     "UH-1H Iroquois",
     "C-130J-30"
   ],
-  "awacs": [
-    "E-2C Hawkeye"
-  ],
+  "awacs": [],
   "tankers": [
     "KC-130",
     "KC-135 Stratotanker"

@@ -32,7 +32,8 @@ from game.dcs.aircrafttype import AircraftType
 from game.factions import FACTIONS
 from game.theater import ConflictTheater, ParkingType
 from game.theater.airfieldclearance import airfield_clearance_conflicts
-from game.theater.controlpoint import Airfield
+from game.theater.controlpoint import TRIGGER_RADIUS_CAPTURE, Airfield
+
 from game.theater.start_generator import ModSettings
 
 YAML = Path("resources/campaigns/eastern_reach_2025.yaml")
@@ -246,3 +247,17 @@ def test_al_dhafra_reaches_every_missile_site(
     assert len(sites) == 10
     farthest = max(site.distance_to_point(dhafra) for site in sites) / 1852
     assert farthest < campaign.settings["max_mission_range_planes"]
+
+
+def test_no_motorpool_blocks_a_capture(
+    loaded: tuple[Campaign, ConflictTheater],
+) -> None:
+    """A motor pool's parked reserve inside the 3 km zone blocks the base's capture.
+
+    The placement tool's depot ring put Kerman's at 800 m (2026-11-08).
+    """
+    _, theater = loaded
+    for cp in theater.controlpoints:
+        for spot in cp.preset_locations.motorpools:
+            distance = spot.distance_to_point(cp.position)
+            assert distance >= TRIGGER_RADIUS_CAPTURE, (cp.name, round(distance))

@@ -1,10 +1,17 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtWidgets import QGroupBox, QHBoxLayout, QLabel, QVBoxLayout, QGridLayout
-from dcs.weather import CloudPreset, Weather as PydcsWeather
+from dcs.weather import Weather as PydcsWeather
 
 from game.timeofday import TimeOfDay
 from game.utils import mps
 from game.weather.conditions import Conditions
+from game.weather.weathertext import (
+    WIND_LEVEL_LABELS,
+    air_text,
+    clouds_text,
+    visibility_text,
+    wind_text,
+)
 from qt_ui import uiconstants as CONST
 
 
@@ -15,6 +22,7 @@ class QWeatherWidget(QGroupBox):
 
     turn = None
     conditions = None
+    auto_fog = False
 
     def __init__(self):
         super(QWeatherWidget, self).__init__("")
@@ -41,7 +49,7 @@ class QWeatherWidget(QGroupBox):
         self.layout.addWidget(self.weather_icon)
 
     def makeCloudRainFogWidget(self):
-        """Makes the Cloud, Rain, Fog Widget"""
+        """Makes the clouds, rain and visibility, and air lines."""
         self.textLayout = QVBoxLayout()
         self.layout.addLayout(self.textLayout)
 
@@ -51,8 +59,8 @@ class QWeatherWidget(QGroupBox):
         self.forecastRain = self.makeLabel()
         self.textLayout.addWidget(self.forecastRain)
 
-        self.forecastFog = self.makeLabel()
-        self.textLayout.addWidget(self.forecastFog)
+        self.forecastAir = self.makeLabel()
+        self.textLayout.addWidget(self.forecastAir)
 
     def makeWindsWidget(self):
         """Factory for the winds widget."""
@@ -61,24 +69,14 @@ class QWeatherWidget(QGroupBox):
 
         windsLayout.addWidget(self.makeIcon(CONST.ICONS["Weather_winds"]), 0, 0, 3, 1)
 
-        windsLayout.addWidget(self.makeLabel("Ground"), 0, 1)
-        windsLayout.addWidget(self.makeLabel("2,000 m"), 1, 1)
-        windsLayout.addWidget(self.makeLabel("8,000 m"), 2, 1)
-
-        self.windGLSpeedLabel = self.makeLabel("0kts")
-        self.windGLDirLabel = self.makeLabel("0°")
-        windsLayout.addWidget(self.windGLSpeedLabel, 0, 2)
-        windsLayout.addWidget(self.windGLDirLabel, 0, 3)
-
-        self.windFL08SpeedLabel = self.makeLabel("0kts")
-        self.windFL08DirLabel = self.makeLabel("0°")
-        windsLayout.addWidget(self.windFL08SpeedLabel, 1, 2)
-        windsLayout.addWidget(self.windFL08DirLabel, 1, 3)
-
-        self.windFL26SpeedLabel = self.makeLabel("0kts")
-        self.windFL26DirLabel = self.makeLabel("0°")
-        windsLayout.addWidget(self.windFL26SpeedLabel, 2, 2)
-        windsLayout.addWidget(self.windFL26DirLabel, 2, 3)
+        self.windLabels = []
+        for row, level in enumerate(WIND_LEVEL_LABELS):
+            windsLayout.addWidget(self.makeLabel(level), row, 1)
+            speed = self.makeLabel("0 kts")
+            direction = self.makeLabel("000°")
+            windsLayout.addWidget(speed, row, 2)
+            windsLayout.addWidget(direction, row, 3)
+            self.windLabels.append((speed, direction))
 
     def makeLabel(self, text: str = "") -> QLabel:
         """Shorthand to generate a QLabel with widget standard style
@@ -100,104 +98,71 @@ class QWeatherWidget(QGroupBox):
 
         return icon
 
-    def setCurrentTurn(self, turn: int, conditions: Conditions) -> None:
+    def setCurrentTurn(
+        self, turn: int, conditions: Conditions, auto_fog: bool = False
+    ) -> None:
         """Sets the turn information display.
 
         :arg turn Current turn number.
         :arg conditions Current time and weather conditions.
+        :arg auto_fog DCS sets the fog itself (the Use DCS' automatic fog setting).
         """
         self.turn = turn
         self.conditions = conditions
+        self.auto_fog = auto_fog
 
         self.update_forecast()
         self.updateWinds()
 
     def updateWinds(self):
         """Updates the UI with the current conditions wind info."""
-        windGlSpeed = mps(self.conditions.weather.wind.at_0m.speed or 0)
-        windGlDir = str(self.conditions.weather.wind.at_0m.direction or 0).rjust(3, "0")
-        self.windGLSpeedLabel.setText(f"{int(windGlSpeed.knots)}kts")
-        self.windGLDirLabel.setText(f"{windGlDir}°")
-
-        windFL08Speed = mps(self.conditions.weather.wind.at_2000m.speed or 0)
-        windFL08Dir = str(self.conditions.weather.wind.at_2000m.direction or 0).rjust(
-            3, "0"
-        )
-        self.windFL08SpeedLabel.setText(f"{int(windFL08Speed.knots)}kts")
-        self.windFL08DirLabel.setText(f"{windFL08Dir}°")
-
-        windFL26Speed = mps(self.conditions.weather.wind.at_8000m.speed or 0)
-        windFL26Dir = str(self.conditions.weather.wind.at_8000m.direction or 0).rjust(
-            3, "0"
-        )
-        self.windFL26SpeedLabel.setText(f"{int(windFL26Speed.knots)}kts")
-        self.windFL26DirLabel.setText(f"{windFL26Dir}°")
-
-    def update_forecast_from_preset(self, preset: CloudPreset) -> None:
-        self.forecastFog.setText("No fog")
-        if "Rain" in preset.name:
-            self.forecastRain.setText("Rain")
-            self.update_forecast_icons("rain")
-        else:
-            self.forecastRain.setText("No rain")
-            self.update_forecast_icons("partly-cloudy")
-
-        # We get a description like the following for the cloud preset.
-        #
-        # 09 ##Two Layer Broken/Scattered \nMETAR:BKN 7.5/10 SCT 20/22 FEW41
-        #
-        # The second line is probably interesting but doesn't fit into the widget
-        # currently, so for now just extract the first line.
-        self.forecastClouds.setText(preset.description.splitlines()[0].split("##")[1])
+        wind = self.conditions.weather.wind
+        for (speed_label, dir_label), level in zip(
+            self.windLabels, (wind.at_0m, wind.at_2000m, wind.at_8000m)
+        ):
+            speed, direction = wind_text(
+                mps(level.speed or 0).knots, int(level.direction or 0)
+            )
+            speed_label.setText(speed)
+            dir_label.setText(direction)
 
     def update_forecast(self):
-        """Updates the Forecast Text and icon with the current conditions wind info."""
-        if (
-            self.conditions.weather.clouds
-            and self.conditions.weather.clouds.preset is not None
-        ):
-            self.update_forecast_from_preset(self.conditions.weather.clouds.preset)
-            return
-
-        if self.conditions.weather.clouds is None:
-            cloud_density = 0
-            precipitation = None
+        """Updates the forecast text and icon from the current conditions."""
+        weather = self.conditions.weather
+        clouds = weather.clouds
+        self.forecastClouds.setText(clouds_text(clouds))
+        if clouds is not None and clouds.preset is not None:
+            self.forecastClouds.setToolTip(clouds.preset.ui_name)
         else:
-            cloud_density = self.conditions.weather.clouds.density
-            precipitation = self.conditions.weather.clouds.precipitation
+            self.forecastClouds.setToolTip("")
 
-        if not cloud_density:
-            self.forecastClouds.setText("Clear")
-            weather_type = "clear"
-        elif cloud_density < 3:
-            self.forecastClouds.setText("Partly Cloudy")
-            weather_type = "partly-cloudy"
-        elif cloud_density < 5:
-            self.forecastClouds.setText("Mostly Cloudy")
-            weather_type = "partly-cloudy"
-        else:
-            self.forecastClouds.setText("Totally Cloudy")
-            weather_type = "partly-cloudy"
+        cloud_density = 0
+        if clouds is not None:
+            cloud_density = 5 if clouds.preset is not None else clouds.density
+        weather_type = "clear" if not cloud_density else "partly-cloudy"
 
-        if precipitation == PydcsWeather.Preceptions.Rain:
-            self.forecastRain.setText("Rain")
-            weather_type = "rain"
+        precipitation = clouds.precipitation if clouds is not None else None
+        if clouds is not None and clouds.preset is not None:
+            rain = "Rain" if "Rain" in clouds.preset.name else "No rain"
+        elif precipitation == PydcsWeather.Preceptions.Rain:
+            rain = "Rain"
         elif precipitation == PydcsWeather.Preceptions.Thunderstorm:
-            self.forecastRain.setText("Thunderstorm")
+            rain = "Thunderstorm"
+        else:
+            rain = "No rain"
+        if rain == "Rain":
+            weather_type = "rain"
+        elif rain == "Thunderstorm":
             weather_type = "thunderstorm"
-        else:
-            self.forecastRain.setText("No rain")
 
-        if not self.conditions.weather.fog is not None:
-            self.forecastFog.setText("No fog")
-        else:
-            visibility = round(self.conditions.weather.fog.visibility.nautical_miles, 1)
-            self.forecastFog.setText(f"Fog vis: {visibility} NM")
-            if cloud_density > 1:
-                weather_type = "cloudy-fog"
-            else:
-                weather_type = "fog"
+        fog = None if self.auto_fog else weather.fog
+        dust = None if self.auto_fog else getattr(weather, "dust", None)
+        visibility = visibility_text(fog, dust, self.auto_fog)
+        self.forecastRain.setText(f"{rain} · {visibility}")
+        if fog is not None:
+            weather_type = "cloudy-fog" if cloud_density > 1 else "fog"
 
+        self.forecastAir.setText(air_text(weather.atmospheric))
         self.update_forecast_icons(weather_type)
 
     def update_forecast_icons(self, weather_type: str) -> None:

@@ -6106,9 +6106,9 @@ setting. Bandit kills *of* players record natively (players are real tracked uni
 (name, nearest-front first) — only when the setting is on and both lists are non-empty;
 `resources/plugins/redscramble/` runs the menu/spawn/vector runtime (options: `hostPlayers`,
 `takeoff` air/hot/runway, `vectorIntervalS`). Gated `host_red_scramble` (Mission Generation →
-the new "Host & event tools" section, default **OFF**), **preseeded ON in Red Tide** (with the
-`redscramble` plugin until 2026-10-15, when it lost its checkbox — and `redscramble.hostPlayers: Flash`,
-the host's static name tag) ahead of the Friday 2026-07-17 regeneration.
+the new "Host & event tools" section, default **OFF**). No campaign preseeds it since
+2026-11-08 (it was on in Red Tide, Baltic Fury and Desert Storm with `hostPlayers: Flash`): it
+is the host's own setting.
 
 **Tests.** `tests/missiongenerator/test_redscrambleluadata.py` (emit contract: gating, red-only
 airfields, front-first ordering, no-node cases) + `tests/lua/test_redscramble_runtime.py` (the
@@ -6745,6 +6745,13 @@ is the same sky):
    if jets are left after the weather-tolerant strikes claim theirs. Rain does NOT demote
    (only the recon gate fires in rain) — DCS AI flies fine in rain; the storm is the
    grounding sky.
+   **Front-line CAS is held the same way since 2026-11-10.** CAS is planned by
+   `DefendBase` (the fixed lead) and `CaptureBase`, not by a demotable root method, so a
+   storm used to leave it first. `storm_holds_cas` now has `PlanNextAction` pass
+   `plan_cas=False` to both and plan the CAS from `DelayedFrontLineCas` after the
+   offensive middle, outside the §52 throttle. Found by a real planner run for row B19;
+   on Long Road to H3 turn 1 the held CAS found no jets left on either side and did not
+   fly, which is the "if jets are left" rule doing its job.
 
 **Deliberately absent: night.** The model carries no per-airframe night-capability data, so
 demoting night CAS would wrongly ground an A-10C II alongside an A-1. Night awareness is
@@ -7187,10 +7194,11 @@ buttons, `DcsPayload`, `QFlightPayloadTab.on_saved_payload`, and `tests/retlab/t
 fuel and properties defaults, and the files on disk: RetLab never deletes them, and the Mission
 Editor still reads them.
 
-**Constraint: RetLab does not register the user's `UnitPayloads` folder** (`qt_ui/main.py`
-sets only the fallback directory). Upstream registers it as preferred. Re-adding it brings back
+**Constraint: RetLab does not read the user's `UnitPayloads` folder** (`qt_ui/main.py`
+sets only the fallback directory, and since §128 `game/dcs/payloadpatch.py` skips the folder
+pydcs yields anyway). Upstream registers it as preferred. Re-adding it brings back
 name-shadowing of every shipped preset; a planned flight would again take whatever the user
-once saved under that name.
+once saved under that name. Saved loadouts came back as §128, in RetLab's own file.
 
 **Saves:** a flight already in the ATO keeps the loadout it was planned with. Flights planned
 from the next turn take the shipped preset.
@@ -12242,3 +12250,64 @@ call, 2026-10-29).
 | Setting | `record_radios_for_tacview` (`game/settings/fields/missiongenerator.py`) |
 | Tests | `tests/retlab/test_radio_record.py`, `tests/lua/test_radiorecord_runtime.py` |
 | In-game pass | B301 |
+
+## §128 — Saved loadouts
+
+The payload tab saves a member's stations under a name of your own, kept on the PC for every
+campaign, and can make a saved fit one blue squadron's loadout for one task (user call,
+2026-11-08). It replaces the §73 save, which went for the five problems below.
+
+| §73 problem | §128 |
+|---|---|
+| A fit saved as `Retribution <task>` replaced the shipped preset for both sides in every campaign. | Fits live in RetLab's own file and are offered as `Saved: <name>`, a name no preset carries. They fly only where picked, or as a squadron's fit. Red never uses one. |
+| Old missiles stayed old: the date only steps a weapon down. | On load each missile steps up to the newest variant of its family the pylon takes (`game/data/weapon_variants.py`, the #1273 table), then the date steps it down. |
+| A mod store (the F-4E's AGM-78B) flew with the mod off. | A store the pylon cannot carry now is left off, with a note to the player. |
+| The Mission Editor writes the same `UnitPayloads` folder. | RetLab no longer reads it: `game/dcs/payloadpatch.py` skips `PayloadDirectories.user()`, which pydcs yields even unregistered. No import of old ME fits (user call). |
+| A fit could pair an F-4E inboard rack with a loaded Sidewinder rail (#1449). | The rail is emptied on load; the mission build already does the same. |
+
+- **Store:** `Saved Games\DCS\Retribution\saved_loadouts.json`, `{"version": 1, "aircraft":
+  {<dcs id>: {<name>: {"pylons": {<num>: {"clsid", "settings"}}, "ammo_type"}}}}`.
+- **Buttons** (payload tab, under the Loadout list): **Save loadout as...**, **Delete saved**,
+  **Use for squadron's <task>** and **Clear** (blue squadrons only). A line under them names the
+  squadron's fit for the flight's task.
+- **Squadron fit:** `Squadron.saved_loadouts`, `{FlightType: name}`, in the save.
+  `Loadout.default_for` takes it before the shipped presets, for that exact task only (no
+  fallback chain). A deleted fit falls back to the shipped preset. Flights already planned keep
+  their stations.
+- A saved fit is not `is_custom`, so the no-pod LGB swap at mission generation applies to it.
+
+| Area | Path |
+|---|---|
+| Store | `game/retlab/saved_loadouts.py` |
+| Step-up table | `game/data/weapon_variants.py` |
+| Payload tab | `qt_ui/windows/mission/flight/payload/QFlightPayloadTab.py` |
+| Tests | `tests/retlab/test_saved_loadouts.py`, `tests/retlab/test_user_payload_folder_ignored.py`, `tests/qt_ui/test_saved_loadout_selector.py` |
+| In-game pass | B322 |
+
+## §129 — Civilian air traffic
+
+A steady stream of real civil aircraft for the whole mission, clear of the war (DM picks,
+2026-11-09). Replaces the 2026-08-05 one-batch model: mostly military freighters dressed as
+airliners, popping in mid-map, the sky emptying as they landed. Design and the picks:
+`docs/dev/design/retlab-civil-traffic-notes.md`.
+
+- **Types:** Yak-40 airliners everywhere, the An-26 only on Caucasus, Kola, Afghanistan and
+  Syria, light planes (Yak-52, Christen Eagle) and civil helicopters (Mi-8MT, UH-1H), gated by
+  the year each entered civil service. No IL-76, An-30, C-130 or C-47.
+- **Stream:** Python plans every flight; the ones flying at start are live, the rest
+  late-activated. The `civtraffic` plugin (`skipUI`) switches them on to hold each layer's
+  target and removes flights that landed, left the map, never took off or got stuck.
+- **Routes:** map-edge gates and fields no control point owns. Every leg stays out of 40 NM
+  round each front and every SAM ring blue knows of (+5 NM).
+- **Setting:** `civil_air_traffic`, Off / Light / Normal / Busy, default Light (4+1, 6+3,
+  10+4 airways + hops). An old save's checkbox migrates: on to Light.
+- **Gotcha:** `Terrain.bounds` is not used for the gates; the box round every airfield is.
+
+| Area | Path |
+|---|---|
+| Planner + spawner | `game/missiongenerator/civiliantraffic.py` |
+| Types, regions, liveries | `game/missiongenerator/civilianfleet.py` |
+| Lua bridge | `game/missiongenerator/civiltrafficluadata.py` |
+| Plugin | `resources/plugins/civtraffic/civtraffic-config.lua` |
+| Tests | `tests/test_civilian_traffic.py`, `tests/lua/test_civtraffic_runtime.py` |
+| In-game pass | B323 |
