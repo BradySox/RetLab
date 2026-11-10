@@ -120,6 +120,9 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Other forks and projects we watch** — `retlab-juanjux-fork-watch-notes.md`,
   `retlab-liberation-watch-notes.md`, `retlab-mist-author-repos-notes.md` (licence-gated),
   `retlab-fincenturion-dist-notes.md` (study only; read, never vendor)
+- **Engine direction** — `retlab-retribution-long-view.md` (the seven seams),
+  `retlab-campaign-architecture-notes.md` (rungs R0–R7; nothing built),
+  `retlab-red-brain-phase0-notes.md` (seam 7 dropped; read before proposing anything about red)
 
 ## Superseded, draft or historical
 

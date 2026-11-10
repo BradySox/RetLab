@@ -469,7 +469,7 @@ gated off in our tree.
 
 ### Carve payloads prepared 2026-08-24
 
-[`docs/dev/upstreaming/juanjux/`](../../upstreaming/juanjux/) — three patches verified to
+[`docs/dev/upstreaming/juanjux/`](../upstreaming/juanjux/) — three patches verified to
 apply at `ca780fd2` (§87 naval station-keeping, §69 SEAD coordination, §93 region
 priorities core) and two comparison briefs (§91 sortie records vs his `prev_turns`
 aggregates; §74 DTC, whose declined premise our B28 evidence falsifies).
