@@ -25,6 +25,8 @@ Check = Callable[[], list[str]]
 
 #: Has a carrier and an LHA steaming together, a land front and deep targets.
 CARRIER_CAMPAIGN = "syria_TheLongRoadToH3"
+#: Afghanistan owns the Stennis's hull channel (74X), the case B156 is about.
+MAP_OWNED_TACAN_CAMPAIGN = "coin_enduring_resolve"
 
 
 def _replan(game: Any) -> None:
@@ -77,6 +79,50 @@ def check_b19() -> list[str]:
     return evidence
 
 
+def _generate(game: Any) -> None:
+    """Generate the turn's mission to a temp file, as Take Off does.
+
+    Straight through ``MissionGenerator``: ``MissionSimulation.generate_miz`` would
+    also drop a copy in the user's mission archive.
+    """
+    import tempfile
+    from pathlib import Path
+
+    from game.missiongenerator import MissionGenerator
+    from game.sim.missionsimulation import MissionSimulation
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    with tempfile.TemporaryDirectory() as folder:
+        MissionGenerator(game, sim.time).generate_miz(Path(folder) / "row_check.miz")
+
+
+def check_b156() -> list[str]:
+    """A carrier keeps its TACAN across generations where the map owns its hull channel."""
+    from game.data.carrier_comms import CARRIER_COMMS_PLANS
+
+    game = build_game(MAP_OWNED_TACAN_CAMPAIGN)
+    boats = [cp for cp in game.theater.controlpoints if cp.is_fleet]
+    runs = []
+    for _ in range(3):
+        _generate(game)
+        runs.append({cp.name: str(cp.tacan) for cp in boats})
+    assert runs[0] == runs[1] == runs[2], f"TACAN changed between generations: {runs}"
+    displaced = []
+    for cp in boats:
+        for unit in (
+            u for tgo in cp.ground_objects for g in tgo.groups for u in g.units
+        ):
+            kind = unit.unit_type.dcs_unit_type.id if unit.unit_type else None
+            plan = CARRIER_COMMS_PLANS.get(kind) if kind else None
+            if plan is not None and str(plan.tacan) != str(cp.tacan):
+                displaced.append(
+                    f"{cp.name}: hull channel {plan.tacan}, got {cp.tacan}"
+                )
+    assert displaced, "no boat here has a map-owned hull channel; the case is not shown"
+    return [f"three generations, every boat the same: {runs[0]}", *displaced]
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -115,6 +161,7 @@ def check_b188() -> list[str]:
 
 CHECKS: dict[str, Check] = {
     "B19": check_b19,
+    "B156": check_b156,
     "B188": check_b188,
 }
 
