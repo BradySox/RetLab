@@ -21,6 +21,11 @@ A few things worth knowing before you frag:
   field for that task.
 - **Most non-CAP tasks request escorts automatically.** A strike or DEAD whose route passes
   through air-defence reach picks up SEAD/air-to-air escorts without you asking.
+- **Fill support does the same for your own package.** Add your main flight, then press
+  **Fill support** in the package window. It adds a 2-ship escort (TARCAP for CAS) if the
+  route crosses enemy fighter cover and one 2-ship SEAD flight if it crosses a SAM ring on
+  your map. It uses free jets in range, never buys aircraft, and lists anything it could
+  not fill.
 - **Opportunistic enemy targeting can be made unpredictable.** An opt-in, per-side doctrine
   knob (`ownfor_/opfor_planner_unpredictability`, default 0) varies which *opportunistic*
   offensive targets the enemy services first, so red stops hitting the same things in the same

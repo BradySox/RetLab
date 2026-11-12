@@ -12317,3 +12317,33 @@ airliners, popping in mid-map, the sky emptying as they landed. Design and the p
 | Plugin | `resources/plugins/civtraffic/civtraffic-config.lua` |
 | Tests | `tests/test_civilian_traffic.py`, `tests/lua/test_civtraffic_runtime.py` |
 | In-game pass | B323 |
+
+## §130 — Fill support
+
+A **Fill support** button in the package window adds the support a hand-built package's
+route needs (Brady's picks, 2026-11-12). Upstream's Auto Create stays as it was: every box
+unticked, no threat check, grey once a flight exists, all or nothing.
+
+- **When:** enabled once the package has a flight. The player picks the main flight first.
+- **Rule:** the planner's own `PackageFulfiller.check_needed_escorts` on the package: a fighter
+  escort if any flight's escorted waypoints cross enemy fighter cover, suppression if they
+  cross a radar SAM ring (plus the §69 front-line rule and Vietnam's always-escort-strikes).
+- **What:** one 2-ship ESCORT (TARCAP when the primary is CAS) and one 2-ship SEAD Escort,
+  falling back to SEAD Sweep. Nothing is added for a kind the package already has.
+- **Fog:** the SAM check uses `ThreatZones.for_faction(..., viewer=player)` inside
+  `fog_intact()`, so only sites known on the map count and the overview toggle changes nothing.
+  The AI planner keeps ground truth (`PackageFulfiller(threat_zones=None)`).
+- **Aircraft:** `PackageBuilder.plan_flight` with `ignore_range=False`: free jets this turn,
+  in range, never a purchase order. Doctrine `allows()` still applies (no SEAD in Vietnam).
+- **Shortfall:** keeps what fits. A flight whose plan raises `PlanningError` is handed back
+  and the next flavour tried. The message lists each kind not added and why.
+- **Not done:** the routes still do not avoid SAM rings (the parked SAM-aware routes plan);
+  escorts still stop at Escort Hold.
+
+| Area | Path |
+|---|---|
+| Rule | `game/commander/supportfill.py` |
+| Threat-zone override | `game/commander/packagefulfiller.py` (`threat_zones=`) |
+| Button | `qt_ui/windows/mission/QPackageDialog.py` (`on_fill_support`) |
+| Tests | `tests/commander/test_support_fill.py` |
+| In-game pass | B325 |

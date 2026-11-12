@@ -358,6 +358,7 @@ linked design note.
 127. **Record radios for Tacview** — SkyEye records the voice bot and player flight frequencies, one WAV each, named so Tacview plays them with the replay. Off by default.
 128. **Saved loadouts** — your own named fits for every campaign, in RetLab's own file; pick one per flight or make it a blue squadron's fit for a task. Never a preset name, never red.
 129. **Civilian air traffic** — real civil types fly all mission, a steady stream clear of the fronts and known SAM rings. Off / Light / Normal / Busy, default Light.
+130. **Fill support** — a package-window button adds a 2-ship escort and one SEAD flight where the route needs them; known SAM sites only.
 
 ### Retired, removed or shelved — do not restore
 

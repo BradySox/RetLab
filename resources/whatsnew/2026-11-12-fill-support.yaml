@@ -1,0 +1,11 @@
+date: 2026-11-12
+title: Fill support in the package window
+change: >-
+  Right-click a target, add your own main flight, then press Fill support.
+  It adds a 2-ship fighter escort (TARCAP for CAS) if the route crosses
+  enemy fighter cover and one 2-ship SEAD flight if it crosses a SAM ring
+  on your map, using free jets in range. A note says what it added and
+  what it could not fill.
+watch: >-
+  Plan a strike into a known SAM ring and press Fill support: you get an
+  escort and a SEAD flight.

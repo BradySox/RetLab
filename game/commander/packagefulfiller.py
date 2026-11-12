@@ -51,8 +51,11 @@ class PackageFulfiller:
         theater: ConflictTheater,
         flight_db: Database[Flight],
         settings: Settings,
+        threat_zones: Optional[ThreatZones] = None,
     ) -> None:
         self.coalition = coalition
+        # §130 passes the player's fogged zones; the planner uses ground truth.
+        self._threat_zones = threat_zones
         self.theater = theater
         self.flight_db = flight_db
         self.player_missions_asap = settings.auto_ato_player_missions_asap
@@ -80,6 +83,9 @@ class PackageFulfiller:
 
     @property
     def threat_zones(self) -> ThreatZones:
+        zones = getattr(self, "_threat_zones", None)  # tests build it bare
+        if zones is not None:
+            return zones
         return self.coalition.opponent.threat_zone
 
     def add_procurement_request(self, request: AircraftProcurementRequest) -> None:
