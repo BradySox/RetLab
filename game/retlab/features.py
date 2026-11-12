@@ -1025,6 +1025,12 @@ FEATURES: tuple[Feature, ...] = (
         plugin_id="civtraffic",
         settings_fields=("civil_air_traffic",),
     ),
+    Feature(
+        # Planner's escort check on a hand-built package; known SAM sites only.
+        "package_fill_support",
+        "Fill support",
+        130,
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

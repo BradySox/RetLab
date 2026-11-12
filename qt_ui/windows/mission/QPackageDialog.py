@@ -22,11 +22,13 @@ from game.ato.flight import Flight
 from game.ato.flighttype import FlightType
 from game.ato.flightplans.planningerror import PlanningError
 from game.ato.package import Package
+from game.commander.supportfill import fill_package_support
 from game.game import Game
 from game.radio.radios import RadioFrequency
 from game.server import EventStream
 from game.sim import GameUpdateEvents
 from game.theater.missiontarget import MissionTarget
+from game.theater.player import Player
 from qt_ui.models import GameModel, PackageModel
 from qt_ui.uiconstants import EVENT_ICONS
 from qt_ui.widgets.QFrequencyWidget import QFrequencyWidget
@@ -194,6 +196,17 @@ class QPackageDialog(QDialog):
         self.auto_create_button.clicked.connect(self.on_auto_create)
         self.button_layout.addWidget(self.auto_create_button)
 
+        self.fill_support_button = QPushButton("Fill support")
+        self.fill_support_button.setToolTip(
+            "Adds the support your route needs, using free jets in range: a 2-ship "
+            "fighter escort if it crosses enemy fighter cover, one 2-ship SEAD "
+            "flight if it crosses a SAM ring on your map. Add your own main flight "
+            "first."
+        )
+        self.fill_support_button.setEnabled(len(list(self.package_model.flights)) > 0)
+        self.fill_support_button.clicked.connect(self.on_fill_support)
+        self.button_layout.addWidget(self.fill_support_button)
+
         self.route_dialog: Optional[QPackageRouteDialog] = None
         self.route_button = QPushButton("Package route")
         self.route_button.setToolTip(
@@ -321,6 +334,7 @@ class QPackageDialog(QDialog):
                 self, "Could not create flight", str(ex), QMessageBox.StandardButton.Ok
             )
         self.auto_create_button.setDisabled(True)
+        self.fill_support_button.setEnabled(True)
         # noinspection PyUnresolvedReferences
         self.package_changed.emit()
 
@@ -333,6 +347,7 @@ class QPackageDialog(QDialog):
         self.package_model.cancel_or_abort_flight(flight)
         if len(list(self.package_model.flights)) == 0:
             self.auto_create_button.setDisabled(False)
+            self.fill_support_button.setEnabled(False)
         # noinspection PyUnresolvedReferences
         self.package_changed.emit()
 
@@ -350,6 +365,27 @@ class QPackageDialog(QDialog):
             self.package_model.update_tot()
             self.package_changed.emit()
             self.auto_create_button.setDisabled(True)
+            self.fill_support_button.setEnabled(True)
+
+    def on_fill_support(self) -> None:
+        """Adds the escort and SEAD the package's route calls for (§130)."""
+        coalition = self.game.coalition_for(
+            Player.BLUE if self.game_model.is_ownfor else Player.RED
+        )
+        model = self.package_model
+        with self.game_model.sim_controller.paused_sim():
+            model.beginResetModel()
+            try:
+                result = fill_package_support(self.game, coalition, model.package)
+            finally:
+                model.endResetModel()
+        for flight in result.added:
+            EventStream.put_nowait(GameUpdateEvents().new_flight(flight))
+        if result.added:
+            model.update_tot()
+            # noinspection PyUnresolvedReferences
+            self.package_changed.emit()
+        QMessageBox.information(self, "Fill support", result.summary())
 
     def on_change_name(self) -> None:
         self.package_model.package.custom_name = self.package_name_text.text()
