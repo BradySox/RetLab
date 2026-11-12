@@ -5,9 +5,8 @@ can't catch: with a live HVT + mobile VBIED emitted, the plugin arms movement af
 grace period -- the HVT is routed to a patrol point around its area and the VBIED is routed
 at its target base, with no Lua errors -- and it no-ops cleanly when no coin node is present.
 
-A tiny ``mist`` stub records the ``goRoute`` calls (the harness models no DCS movement).
-The plugin's alarm-state / ROE ``getController`` block is pcall-guarded, so it needs no
-controller stub.
+Each move is read back from the Mission task the plugin sets on the group controller
+(the harness models no DCS movement).
 """
 
 from __future__ import annotations
@@ -19,31 +18,6 @@ from tests.lua.harness import DcsPluginHarness
 
 COIN_PLUGIN = "resources/plugins/coin/coin-config.lua"
 
-# mist stub: enough for the plugin's route math, recording each goRoute into _coinRoutes.
-_MIST_STUB = """
-_coinRoutes = {}
-mist = {
-    utils = { kmphToMps = function(k) return (tonumber(k) or 0) * 1000 / 3600 end },
-    ground = {
-        buildWP = function(pt, action, mps)
-            return { x = pt.x, y = pt.y, speed = mps, action = action }
-        end,
-    },
-    getRandPointInCircle = function(p, r)
-        return { x = p.x + (tonumber(r) or 0), y = p.y }
-    end,
-    goRoute = function(group, path)
-        -- Route runs current position -> destination (two waypoints); the destination is the
-        -- LAST point. A destination-only (1-waypoint) route leaves a DCS ground group with no
-        -- leg to drive, so the mover never moves -- assert the count stays 2.
-        local dest = path[#path]
-        _coinRoutes[#_coinRoutes + 1] =
-            { group = group:getName(), x = dest.x, y = dest.y, speed = dest.speed, points = #path }
-        return true
-    end,
-}
-"""
-
 
 def _ground_group(name: str, x: float = 0.0, z: float = 0.0) -> dict[str, Any]:
     return {
@@ -54,18 +28,32 @@ def _ground_group(name: str, x: float = 0.0, z: float = 0.0) -> dict[str, Any]:
     }
 
 
-def _harness_with_mist() -> DcsPluginHarness:
-    h = DcsPluginHarness()
-    h.lua.execute(_MIST_STUB)
-    return h
+def _harness() -> DcsPluginHarness:
+    return DcsPluginHarness()
 
 
 def _routes(h: DcsPluginHarness) -> list[dict[str, Any]]:
-    return h.to_python(h.lua.globals()._coinRoutes) or []
+    """Each Mission route the plugin set: group, destination and its speed."""
+    routes = []
+    for task in h.records("controllerTasks"):
+        if task["taskId"] != "Mission":
+            continue
+        # Current position -> destination. A destination-only (1-waypoint) route leaves a
+        # DCS ground group with no leg to drive, so the mover never moves.
+        assert task["routePoints"] == 2
+        routes.append(
+            {
+                "group": task["group"],
+                "x": task["routeX"],
+                "y": task["routeY"],
+                "speed": task["routeSpeed"],
+            }
+        )
+    return routes
 
 
 def test_arms_hvt_patrol_and_vbied_drive_after_grace() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     h.add_group(_ground_group("HVT-Convoy"))
     h.add_group(_ground_group("VBIED-1"))
     h.lua.globals().dcsRetribution = h.to_lua(
@@ -97,15 +85,16 @@ def test_arms_hvt_patrol_and_vbied_drive_after_grace() -> None:
     routes = _routes(h)
     by_group = {r["group"]: r for r in routes}
     assert set(by_group) == {"HVT-Convoy", "VBIED-1"}
-    # HVT wanders around its centre (fake getRandPointInCircle = centre.x + radius=4000).
-    assert by_group["HVT-Convoy"]["x"] == 5000.0
+    # HVT wanders to a point inside its 4000 m radius around (1000, 2000).
+    hvt = by_group["HVT-Convoy"]
+    assert math.hypot(hvt["x"] - 1000.0, hvt["y"] - 2000.0) <= 4000.0
     # The VBIED drives straight at its target base (the origin).
     assert by_group["VBIED-1"]["x"] == 0.0 and by_group["VBIED-1"]["y"] == 0.0
     h.assert_no_lua_errors()
 
 
 def test_no_coin_node_is_a_clean_noop() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     h.lua.globals().dcsRetribution = h.to_lua({"plugins": {}})
     h.load_plugin_script(COIN_PLUGIN)
     h.advance_to(120)
@@ -114,7 +103,7 @@ def test_no_coin_node_is_a_clean_noop() -> None:
 
 
 def test_cell_wander_and_infiltrator_creep_are_routed_after_grace() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     h.add_group(_ground_group("Cell-1"))
     h.add_group(_ground_group("Infil-1"))
     h.lua.globals().dcsRetribution = h.to_lua(
@@ -142,16 +131,16 @@ def test_cell_wander_and_infiltrator_creep_are_routed_after_grace() -> None:
     h.advance_to(6)
     by_group = {r["group"]: r for r in _routes(h)}
     assert set(by_group) == {"Cell-1", "Infil-1"}
-    # The cell wanders around its patch (fake getRandPointInCircle = centre.x + radius;
-    # 1.08 NM -> 2000.2 m, so ~3000).
-    assert abs(by_group["Cell-1"]["x"] - 3000.0) < 1.0
+    # The cell wanders inside its patch (1.08 NM -> 2000.2 m around (1000, 0)).
+    cell = by_group["Cell-1"]
+    assert math.hypot(cell["x"] - 1000.0, cell["y"]) <= 2000.3
     # The infiltrator creeps straight at the base it is taking (the origin).
     assert by_group["Infil-1"]["x"] == 0.0 and by_group["Infil-1"]["y"] == 0.0
     h.assert_no_lua_errors()
 
 
 def test_harassment_grace_then_barrage_with_the_player_field_double_guard() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     h.lua.globals().dcsRetribution = h.to_lua(
         {
             "plugins": {"coin": {"harassGraceS": 10, "harassIntervalS": 30}},
@@ -205,7 +194,7 @@ def test_one_way_movers_are_paced_to_the_min_journey_window() -> None:
     be under way at least minJourneyS into the mission, so a cold-starting player can
     always make the intercept. The ordered speed = remaining distance / remaining time,
     capped at the configured speed and floored at a crawl."""
-    h = _harness_with_mist()
+    h = _harness()
     # 50 km out: paced well below the 45 km/h max so arrival lands at ~90 min.
     h.add_group(_ground_group("VBIED-Paced", x=30_000.0, z=40_000.0))
     # 500 km out: pacing would need 333 km/h -- capped at the configured speed.
@@ -238,7 +227,7 @@ def test_one_way_movers_are_paced_to_the_min_journey_window() -> None:
 
 
 def test_min_journey_window_passed_restores_full_speed() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     h.add_group(_ground_group("VBIED-1", x=30_000.0, z=40_000.0))
     h.lua.globals().dcsRetribution = h.to_lua(
         {
@@ -255,7 +244,7 @@ def test_min_journey_window_passed_restores_full_speed() -> None:
 
 
 def test_infiltrator_creep_is_paced_too() -> None:
-    h = _harness_with_mist()
+    h = _harness()
     # 20 km out at a 15 km/h configured creep (arrival ~80 min): paced down so the
     # walk is still in progress at the 90-minute mark.
     h.add_group(_ground_group("Infil-1", x=12_000.0, z=16_000.0))
@@ -285,7 +274,7 @@ def test_infiltrator_creep_is_paced_too() -> None:
 
 def test_dead_hvt_stops_being_routed() -> None:
     # A decapitated HVT (its group gone) must stop scheduling, not error.
-    h = _harness_with_mist()
+    h = _harness()
     # VBIED exists, HVT group never added -> firstAlive(hvt) is nil.
     h.add_group(_ground_group("VBIED-1"))
     h.lua.globals().dcsRetribution = h.to_lua(

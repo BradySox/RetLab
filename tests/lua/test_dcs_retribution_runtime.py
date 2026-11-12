@@ -13,8 +13,8 @@ Gulf) recorded an AV-8B pilot who came down in the Strait of Hormuz as landed
 open ejection within `LANDING_MATCH_M`, and a landing that matches nothing is
 dropped.
 
-The script's file-scope side effects (MIST logger, state-file discovery, the
-event registration) run against the stubs below; nothing here models DCS.
+The script's file-scope side effects (state-file discovery, the event
+registration) run against the stubs below; nothing here models DCS.
 """
 
 from __future__ import annotations
@@ -26,33 +26,24 @@ from tests.lua.harness import DcsPluginHarness
 PLUGIN = "resources/plugins/base/dcs_retribution.lua"
 
 # What dcs_retribution.lua touches at file scope beyond the harness's DCS surface:
-# MIST's logger/scheduler/event registration, the json library, and the state-file
-# path probe. `os`/`lfs` are removed so the probe finds no folder and never opens
-# a file on the developer's machine.
+# the json library and the state-file path probe. `os`/`lfs` are removed so the
+# probe finds no folder and never opens a file on the developer's machine.
 _PRELUDE = """
 os = nil
 lfs = nil
 json = { encode = function(_, t) return "{}" end }
-mist = {
-    Logger = { new = function() return {
-        info = function() end, warn = function() end, error = function() end,
-    } end },
-    message = { add = function() end },
-    scheduleFunction = function() end,
-    addEventHandler = function(fn)
-        world.addEventHandler({ onEvent = function(_, e) return fn(e) end })
-    end,
-    getHeading = function() return 0 end,
-    DBs = {},
-}
 """
+
+# With `os`/`lfs` gone the probe logs this once, by design.
+_NO_STATE_FOLDER = "DCSRetribution|Unable to find where to write DCS Retribution state"
 
 
 def _load() -> DcsPluginHarness:
     harness = DcsPluginHarness()
     harness.lua.execute(_PRELUDE)
     harness.load_plugin_script(PLUGIN)
-    harness.assert_no_lua_errors()
+    assert harness.records("errors") == [_NO_STATE_FOLDER]
+    harness.harness.records.errors = harness.lua.table()
     return harness
 
 

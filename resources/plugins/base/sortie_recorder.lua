@@ -520,8 +520,8 @@ function sortie_recorder_payload(include_track)
 end
 
 function sortie_recorder_start()
-    mist.scheduleFunction(function()
+    timer.scheduleFunction(function()
         pcall(sortie_recorder_sample)
         sortie_recorder_start()
-    end, {}, timer.getTime() + SAMPLE_INTERVAL_S)
+    end, nil, timer.getTime() + SAMPLE_INTERVAL_S)
 end

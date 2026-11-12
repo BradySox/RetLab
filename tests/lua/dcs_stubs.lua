@@ -170,6 +170,9 @@ coord = coord or {
     LOtoLL = function(p)
         return p.x / 111000, p.z / 111000, 0
     end,
+    LLtoLO = function(lat, lon)
+        return { x = lat * 111000, y = 0, z = lon * 111000 }
+    end,
 }
 
 local UnitFake = {}
@@ -274,6 +277,9 @@ function ControllerFake:setTask(task)
     -- A ControlledTask wraps the real one; record what it carries too.
     local inner = task and task.params and task.params.task
     local innerParams = inner and inner.params or {}
+    -- A Mission task's route: its length and its last (destination) waypoint.
+    local points = task and task.params and task.params.route and task.params.route.points
+    local dest = points and points[#points]
     table.insert(Harness.records.controllerTasks, {
         group = self.group:getName(),
         taskId = task and task.id,
@@ -285,6 +291,10 @@ function ControllerFake:setTask(task)
         innerY = innerParams.y,
         expendQty = innerParams.expendQty,
         weaponType = innerParams.weaponType,
+        routePoints = points and #points,
+        routeX = dest and dest.x,
+        routeY = dest and dest.y,
+        routeSpeed = dest and dest.speed,
         t = Harness.now,
     })
 end
