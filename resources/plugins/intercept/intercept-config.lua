@@ -36,6 +36,17 @@ do
     end
 end
 
+-- Run fn once at model time t. pcall'd so one bad tick logs instead of breaking a
+-- self-rescheduling chain (what mist.scheduleFunction did before MIST was dropped).
+local function schedule_once(fn, t)
+    timer.scheduleFunction(function()
+        local ok, err = pcall(fn)
+        if not ok then
+            env.error("DCSRetribution|Intercept: " .. tostring(err))
+        end
+    end, nil, t)
+end
+
 -- Registry: maps squadronId -> { dispatcher, squadronName }. Populated by the
 -- deferred dispatcher build (BUILD_DELAY seconds in), then read by the refresh
 -- loop.
@@ -326,7 +337,7 @@ local function build_dispatcher(coalition_name, records)
     local ambush_posture = records[1].ambushPosture == "true"
 
     -- Assemble the dispatcher once the mission's groups have registered.
-    mist.scheduleFunction(function()
+    schedule_once(function()
         local detection_prefixes = ewr_group_names(coalition_name)
 
         if #detection_prefixes == 0 then
@@ -499,7 +510,7 @@ local function build_dispatcher(coalition_name, records)
                 squadronName  = sq,
             }
         end
-    end, {}, timer.getTime() + BUILD_DELAY)
+    end, timer.getTime() + BUILD_DELAY)
 end
 
 -- ---------------------------------------------------------------------------
@@ -556,8 +567,8 @@ local function refresh_survivors()
         end
     end
 
-    -- Self-reschedule (one-shot mist pattern, same as write_state_error_handling)
-    mist.scheduleFunction(refresh_survivors, {}, timer.getTime() + REFRESH_INTERVAL)
+    -- Self-reschedule (one-shot, same as write_state_error_handling)
+    schedule_once(refresh_survivors, timer.getTime() + REFRESH_INTERVAL)
 end
 
 -- ---------------------------------------------------------------------------
@@ -657,11 +668,11 @@ local function setup_player_alerts(records)
                 end
             end
         end
-        mist.scheduleFunction(scan, {}, timer.getTime() + PLAYER_ALERT_INTERVAL)
+        schedule_once(scan, timer.getTime() + PLAYER_ALERT_INTERVAL)
     end
 
     -- Start after the dispatcher build window so the world is fully up.
-    mist.scheduleFunction(scan, {}, timer.getTime() + BUILD_DELAY + 2)
+    schedule_once(scan, timer.getTime() + BUILD_DELAY + 2)
 end
 
 if dcsRetribution.Intercept then
@@ -675,7 +686,7 @@ if dcsRetribution.Intercept then
     -- The registry is populated by the deferred build (BUILD_DELAY in); start the
     -- survivor poll well after that and after the dispatcher FSM auto-start.
     if #blue > 0 or #red > 0 then
-        mist.scheduleFunction(refresh_survivors, {}, timer.getTime() + 15)
+        schedule_once(refresh_survivors, timer.getTime() + 15)
     end
 end
 

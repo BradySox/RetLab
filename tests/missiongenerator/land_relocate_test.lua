@@ -1,7 +1,7 @@
 -- land_relocate_test.lua
 --
 -- Standalone unit test for resources/plugins/base/land_relocate.lua under a
--- mocked DCS/mist environment. Not run by CI (CI has no Lua); run locally with:
+-- mocked DCS/MOOSE environment. Not run by CI (CI has no Lua); run locally with:
 --
 --   lua    tests/missiongenerator/land_relocate_test.lua
 --   luajit tests/missiongenerator/land_relocate_test.lua
@@ -10,7 +10,7 @@
 -- water_relocate.lua: beached ships move to deep water, ships already afloat are
 -- untouched, the shallow waterline is skipped in favour of deep water, ships
 -- with no reachable deep water are left in place + warned, and group/unit names
--- survive the dynAdd round-trip.
+-- survive the Spawn round-trip.
 
 local SCRIPT = "resources/plugins/base/land_relocate.lua"
 
@@ -20,17 +20,17 @@ local SURF = { LAND = 1, ROAD = 2, RUNWAY = 3, WATER = 4, SHALLOW_WATER = 5 }
 -- Test state, reset by each scenario via setup().
 local surface_fn   -- function(x, y) -> SURF.*
 local groups       -- list of ship groups for coalition.side.BLUE
-local dynadd_calls -- list of data tables passed to mist.dynAdd
+local spawn_calls -- list of data tables passed to _DATABASE:Spawn
 local warnings     -- list of env.warning strings
 local scheduled    -- the function handed to timer.scheduleFunction
 
--- Install the mocked DCS/mist globals the script closes over.
+-- Install the mocked DCS/MOOSE globals the script closes over.
 local function setup()
     surface_fn = function()
         return SURF.LAND
     end
     groups = {}
-    dynadd_calls = {}
+    spawn_calls = {}
     warnings = {}
     scheduled = nil
 
@@ -53,17 +53,20 @@ local function setup()
 
     Group = { Category = { SHIP = "ship" } }
 
-    mist = {
-        getGroupData = function(name)
+    GROUP = {
+        FindByName = function(_, name)
             for _, g in ipairs(groups) do
                 if g.name == name then
-                    return g.data
+                    return { GetTemplate = function() return g.data end }
                 end
             end
             return nil
         end,
-        dynAdd = function(data)
-            dynadd_calls[#dynadd_calls + 1] = data
+    }
+
+    _DATABASE = {
+        Spawn = function(_, data)
+            spawn_calls[#spawn_calls + 1] = data
         end,
     }
 
@@ -85,7 +88,7 @@ local function setup()
 end
 
 -- Register a ship group. The entry doubles as the DCS group object (getName)
--- and the carrier of its mist group data.
+-- and the carrier of its MOOSE group template.
 local function add_group(name, data)
     groups[#groups + 1] = {
         name = name,
@@ -148,8 +151,8 @@ local function test_beached_ship_relocates()
 
     check(ship("escort").x >= 500, "beached ship moved into water")
     check(surface_fn(ship("escort").x) == SURF.WATER, "destination is deep water")
-    check(#dynadd_calls == 1, "dynAdd called once for the moved group")
-    check(dynadd_calls[1].name == "escort", "group name preserved on dynAdd")
+    check(#spawn_calls == 1, "Spawn called once for the moved group")
+    check(spawn_calls[1].name == "escort", "group name preserved on Spawn")
     check(#warnings == 0, "no warning when deep water is reachable")
 end
 
@@ -164,7 +167,7 @@ local function test_floating_ship_untouched()
     run_script()
 
     check(ship("carrier").x == 1000, "floating ship not moved")
-    check(#dynadd_calls == 0, "no dynAdd for an unchanged group")
+    check(#spawn_calls == 0, "no Spawn for an unchanged group")
 end
 
 -- The shallow waterline is skipped; the ship lands in deep water past it.
@@ -187,7 +190,7 @@ local function test_shallow_waterline_skipped()
     check(ship("escort").x >= 560, "moved past the shallow band")
 end
 
--- No deep water within range: leave in place and warn, no dynAdd.
+-- No deep water within range: leave in place and warn, no Spawn.
 local function test_no_water_warns_and_skips()
     setup()
     surface_fn = function()
@@ -198,7 +201,7 @@ local function test_no_water_warns_and_skips()
     run_script()
 
     check(ship("stranded").x == 0, "ship left in place when no deep water found")
-    check(#dynadd_calls == 0, "no dynAdd when nothing changed")
+    check(#spawn_calls == 0, "no Spawn when nothing changed")
     check(#warnings == 1, "warned about unreachable deep water")
 end
 
@@ -221,7 +224,7 @@ local function test_spawn_waypoint_relocated()
     run_script()
 
     check(groups[1].data.route.points[1].x >= 500, "dry spawn waypoint moved to water")
-    check(#dynadd_calls == 1, "dynAdd called for waypoint-only change")
+    check(#spawn_calls == 1, "Spawn called for waypoint-only change")
 end
 
 -- With deep water on both sides, a beached escort is pulled toward the side an
@@ -244,8 +247,8 @@ local function test_relocation_biased_toward_carrier()
     check(ship("escort").x < 0, "beached escort pulled west toward the carrier")
     check(surface_fn(ship("escort").x) == SURF.WATER, "destination is deep water")
     check(ship("carrier").x == -1000, "afloat carrier left untouched")
-    check(#dynadd_calls == 1, "only the beached escort is re-added")
-    check(dynadd_calls[1].name == "escort", "the re-added group is the escort")
+    check(#spawn_calls == 1, "only the beached escort is re-added")
+    check(spawn_calls[1].name == "escort", "the re-added group is the escort")
 end
 
 -- A narrow river nearer than the open sea is rejected; the ship skips past it to
@@ -268,7 +271,7 @@ local function test_narrow_river_rejected()
 
     check(ship("escort").y > 560, "ship did not settle in the narrow river")
     check(ship("escort").y >= 3000, "ship relocated to the open sea")
-    check(#dynadd_calls == 1, "the beached escort was re-added once")
+    check(#spawn_calls == 1, "the beached escort was re-added once")
 end
 
 -- NARROW CHANNEL, ESCORT UP THE BANK (relaxed gated pass).
@@ -319,7 +322,7 @@ local function test_escort_abeam_carrier_soft_gate()
     check(math.abs(e.x) <= 100, "escort relocated into the strip via ungated pass")
     local dx, dy = e.x - 0, e.y - 0
     check(math.sqrt(dx * dx + dy * dy) < 0.5 * 1852, "destination is the close water (gate bypassed)")
-    check(#dynadd_calls == 1, "escort re-added")
+    check(#spawn_calls == 1, "escort re-added")
     check(#warnings == 0, "escort got afloat, so no warning")
 end
 
@@ -346,7 +349,7 @@ local function test_closed_pond_nearer_wins()
     local e = ship("escort")
     check(e.x >= 200 and e.x <= 400, "escort settled in the nearer pond, not the far channel")
     check(ship("carrier").x == 5050, "carrier untouched")
-    check(#dynadd_calls == 1, "only the escort is re-added")
+    check(#spawn_calls == 1, "only the escort is re-added")
 end
 
 -- THE SPACING GATE ACTUALLY PUSHES AN ESCORT CLEAR OF THE CARRIER (gated != ungated).
@@ -376,7 +379,7 @@ local function test_gated_pass_pushes_clear_of_carrier()
     local dx, dy = e.x - 0, e.y - 0
     check(math.sqrt(dx * dx + dy * dy) >= 0.5 * 1852, "destination >= 0.5 nm from carrier")
     check(ship("carrier").x == 0 and ship("carrier").y == 0, "carrier untouched")
-    check(#dynadd_calls == 1, "only the escort is re-added")
+    check(#spawn_calls == 1, "only the escort is re-added")
 end
 
 -- Driver ----------------------------------------------------------------------

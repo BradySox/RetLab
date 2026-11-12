@@ -23,9 +23,9 @@ def test_water_relocate_registered_in_base_plugin() -> None:
     assert "water_relocate.lua" in _base_work_order_files()
 
 
-def test_water_relocate_loaded_after_mist() -> None:
+def test_water_relocate_loaded_after_moose() -> None:
     files = _base_work_order_files()
-    assert files.index("water_relocate.lua") > files.index("mist_4_5_126.lua")
+    assert files.index("water_relocate.lua") > files.index("moose.lua")
 
 
 def test_water_relocate_injected_as_doscriptfile() -> None:

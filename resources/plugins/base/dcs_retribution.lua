@@ -1,7 +1,13 @@
 -- the state.json file will be updated according to this schedule and on mission end
 local WRITESTATE_SCHEDULE_IN_SECONDS = 15
 
-logger = mist.Logger:new("DCSRetribution", "info")
+-- A plain env logger: this script loads before MOOSE and no longer leans on MIST.
+-- Global, because train_losses and the LotATC plugin log through it.
+logger = {
+    info = function(_, text) env.info("DCSRetribution|" .. tostring(text)) end,
+    warn = function(_, text) env.warning("DCSRetribution|" .. tostring(text)) end,
+    error = function(_, text) env.error("DCSRetribution|" .. tostring(text)) end,
+}
 logger:info("Check that json.lua is loaded : json = "..tostring(json))
 
 crash_events = {} -- killed aircraft will be added via S_EVENT_CRASH event
@@ -123,16 +129,47 @@ function scenery_zone_for(obj)
     return best, best_distance
 end
 
+-- Heading from true north in radians, 0 to 2*pi (the unit's x axis corrected by the
+-- map's grid convergence, as MIST's getHeading did).
+local function true_heading(unit)
+    local pos = unit:getPosition()
+    local heading = math.atan2(pos.x.z, pos.x.x)
+    local lat, lon = coord.LOtoLL(pos.p)
+    local north = coord.LLtoLO(lat + 1, lon)
+    heading = heading + math.atan2(north.z - pos.p.z, north.x - pos.p.x)
+    if heading < 0 then
+        heading = heading + 2 * math.pi
+    end
+    return heading
+end
+
+-- Mission-editor group id -> group name, built once from env.mission.
+local group_names_by_id = nil
+local function mission_group_name_by_id(group_id)
+    if not group_names_by_id then
+        group_names_by_id = {}
+        for _, side in pairs(env.mission.coalition or {}) do
+            for _, country in pairs(side.country or {}) do
+                for _, category in ipairs({ "plane", "helicopter", "vehicle", "ship", "static" }) do
+                    local groups = country[category] and country[category].group or {}
+                    for _, group in pairs(groups) do
+                        if group.groupId and group.name then
+                            group_names_by_id[group.groupId] = env.getValueDictByKey(group.name)
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return group_names_by_id[group_id]
+end
+
 local function ends_with(str, ending)
    return ending == "" or str:sub(-#ending) == ending
 end
 
 local function messageAll(message)
-    local msg = {}
-    msg.text = message
-    msg.displayTime = 25
-    msg.msgFor = {coa = {'all'}}
-    mist.message.add(msg)
+    trigger.action.outText(message, 25)
 end
 
 -- Who killed what, for the loss causes the AI link serves. The killer is named by
@@ -337,7 +374,12 @@ write_state_error_handling = function()
     if mission_ended and dirty_state then
         next_schedule_in_seconds = 1
     end
-    mist.scheduleFunction(write_state_error_handling, {}, timer.getTime() + next_schedule_in_seconds)
+    timer.scheduleFunction(function()
+        local ok, err = pcall(write_state_error_handling)
+        if not ok then
+            logger:error("write_state_error_handling: " .. tostring(err))
+        end
+    end, nil, timer.getTime() + next_schedule_in_seconds)
 end
 
 activeWeapons = {}
@@ -462,7 +504,7 @@ local function onEvent(event)
             destruction.y = position.p.y
             destruction.z = position.p.z
             destruction.type = event.initiator:getTypeName()
-            destruction.orientation = mist.getHeading(event.initiator) * 57.3
+            destruction.orientation = true_heading(event.initiator) * 57.3
             -- Only track actual units/buildings, not debris/crash models
             if destruction.type ~= nil and
                string.find(destruction.type, "GENERIC_CRASH_MODEL") == nil and
@@ -513,7 +555,7 @@ local function onEvent(event)
 
 end
 
-mist.addEventHandler(onEvent)
+world.addEventHandler({ onEvent = function(_, event) onEvent(event) end })
 
 dirty_state = true
 write_state_error_handling()
@@ -540,10 +582,9 @@ local function escort_leash_get_group(name, id)
     if not group_id or group_id <= 0 then
         return nil
     end
-    -- DCS has no Group.getByID; resolve the mission group id to a name via mist.
-    -- (The fork's mist shim populates DBs.groupsById for exactly this read.)
-    local data = mist.DBs.groupsById and mist.DBs.groupsById[group_id]
-    return data and Group.getByName(data.groupName) or nil
+    -- DCS has no Group.getByID; resolve the mission group id to a name from env.mission.
+    local group_name = mission_group_name_by_id(group_id)
+    return group_name and Group.getByName(group_name) or nil
 end
 
 local function escort_leash_set_roe(group, roe)

@@ -150,11 +150,6 @@ function AI_A2A_DISPATCHER:New(detection)
 end
 
 mist = {}
-function mist.scheduleFunction(fn, vars, t)
-    return timer.scheduleFunction(function()
-        return fn(unpack(vars or {}))
-    end, {}, t)
-end
 InterceptTest.dynAdds = {}
 function mist.dynAdd(spec)
     -- Records only. The plugin must never spawn anything: the backstop EWR it

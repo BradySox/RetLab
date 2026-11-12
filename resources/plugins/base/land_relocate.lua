@@ -7,13 +7,13 @@
 -- tasks, skill and -- critically -- its group and unit names, so DCS
 -- Retribution's kill/loss tracking and state.json parsing stay correct.
 --
--- Part of the mandatory "base" plugin. Requires mist, which the plugin loads
+-- Part of the mandatory "base" plugin. Requires MOOSE, which the plugin loads
 -- first (this script is registered after moose.lua in plugin.json).
 --
 -- Mechanism: a live unit cannot be cheaply teleported, so we read the original
--- group definition with mist.getGroupData(), edit the x/y of beached units (and
+-- group definition with MOOSE's GROUP:GetTemplate(), edit the x/y of beached units (and
 -- the spawn waypoint if it is dry), and re-add the group under the same name
--- with mist.dynAdd(). coalition.addGroup with an existing name silently swaps
+-- with _DATABASE:Spawn(). coalition.addGroup with an existing name silently swaps
 -- the units (fires S_EVENT_BIRTH only), so none of the four loss/kill events
 -- Retribution tracks are emitted.
 --
@@ -39,7 +39,7 @@
 -- Tunable constants -----------------------------------------------------------
 local NM = 1852  -- metres per nautical mile
 
-local RELOCATE_DELAY  = 1        -- seconds after start, so mist's group DB is ready
+local RELOCATE_DELAY  = 1        -- seconds after start, so MOOSE's group DB is ready
 local SEARCH_STEP     = 60       -- metres between expanding search rings
 local SEARCH_MAX      = 7 * NM   -- give up beyond ~7 nm. A carrier's outer escort
                                  -- ring sits up to ~5.8 nm out (Carrier_Strike_
@@ -202,6 +202,13 @@ local function relocate_point(p, anchors)
     return dest ~= nil, fallback
 end
 
+-- The group's mission-editor definition as an editable copy, carrying the
+-- country and category _DATABASE:Spawn re-adds it under.
+local function group_template(name)
+    local group = GROUP:FindByName(name)
+    return group and group:GetTemplate() or nil
+end
+
 -- Entry point -----------------------------------------------------------------
 
 -- timer.scheduleFunction calls this with (argument, time); both are ignored.
@@ -214,7 +221,7 @@ local function run()
     for _, side in ipairs({ coalition.side.RED, coalition.side.BLUE }) do
         for _, group in ipairs(coalition.getGroups(side, Group.Category.SHIP)) do
             local name = group:getName()
-            local data = mist.getGroupData(name)
+            local data = group_template(name)
             if data and data.units and #data.units > 0 then
                 ships[#ships + 1] = { name = name, data = data }
                 for _, unit in ipairs(data.units) do
@@ -280,7 +287,7 @@ local function run()
 
         if changed then
             env.info("land_relocate: relocating " .. name)
-            mist.dynAdd(data)
+            _DATABASE:Spawn(data)
         end
     end
 end

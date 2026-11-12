@@ -23,9 +23,9 @@ def test_land_relocate_registered_in_base_plugin() -> None:
     assert "land_relocate.lua" in _base_work_order_files()
 
 
-def test_land_relocate_loaded_after_mist() -> None:
+def test_land_relocate_loaded_after_moose() -> None:
     files = _base_work_order_files()
-    assert files.index("land_relocate.lua") > files.index("mist_4_5_126.lua")
+    assert files.index("land_relocate.lua") > files.index("moose.lua")
 
 
 def test_base_plugin_loads_real_mist_not_the_retired_shim() -> None:

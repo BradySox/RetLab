@@ -20,7 +20,7 @@
 -- Definition order matters (Lua 5.1): helpers precede use.
 ---------------------------------------------------------------------------------------------------
 
-if not (dcsRetribution and dcsRetribution.coin and mist) then
+if not (dcsRetribution and dcsRetribution.coin) then
     return
 end
 
@@ -90,9 +90,22 @@ local function firstAlive(groups)
     return nil
 end
 
+-- An off-road ground waypoint at (x, y), speed in m/s.
+local function offRoadWP(x, y, speedMps)
+    return { x = x, y = y, speed = speedMps, action = "Off Road", type = "Turning Point",
+        ETA = 0, ETA_locked = false, speed_locked = true }
+end
+
+-- A uniformly random point within radius of (x, y).
+local function randPointInCircle(x, y, radius)
+    local theta = 2 * math.pi * math.random()
+    local r = radius * math.sqrt(math.random())
+    return { x = x + math.cos(theta) * r, y = y + math.sin(theta) * r }
+end
+
 -- Hold fire + alarm-green so the mover relocates instead of stopping to fight, then route it
--- off-road to (x, y). x = north, y = east (the emitter's pydcs frame; mist.ground.buildWP maps it
--- straight onto the DCS ground waypoint).
+-- off-road to (x, y). x = north, y = east (the emitter's pydcs frame, which is the DCS ground
+-- waypoint's own x/y).
 local function driveTo(group, x, y, speedKmph)
     if not (group and group:isExist()) then
         return false
@@ -109,16 +122,21 @@ local function driveTo(group, x, y, speedKmph)
     end)
     -- A DCS ground group needs its route to START at its current position; a route with a
     -- single destination waypoint reads as "you are already there" and the group never drives.
-    -- Mirror MIST's own shoot-and-scoot helper mist.groupToRandomZone: lead position -> dest.
-    local speedMps = mist.utils.kmphToMps(speedKmph)
+    -- So the route is lead position -> dest.
+    local speedMps = speedKmph / 3.6
     local route = {}
     local lead = group:getUnit(1)
     local here = lead and lead:isExist() and lead:getPoint()
     if here then
-        route[#route + 1] = mist.ground.buildWP(here, "off road", speedMps)
+        route[#route + 1] = offRoadWP(here.x, here.z, speedMps)
     end
-    route[#route + 1] = mist.ground.buildWP({ x = x, y = y }, "off road", speedMps)
-    return mist.goRoute(group, route)
+    route[#route + 1] = offRoadWP(x, y, speedMps)
+    local con = group:getController()
+    if not con then
+        return false
+    end
+    con:setTask({ id = "Mission", params = { route = { points = route } } })
+    return true
 end
 
 -- The speed that stretches a one-way drive so arrival lands no earlier than MIN_JOURNEY
@@ -171,7 +189,7 @@ local function startHvt(hvt)
         if not g then
             return nil -- decapitated -> stop scheduling
         end
-        local dest = mist.getRandPointInCircle({ x = cx, y = cy }, HVT_RADIUS)
+        local dest = randPointInCircle(cx, cy, HVT_RADIUS)
         driveTo(g, dest.x, dest.y, HVT_SPEED)
         return timer.getTime() + HVT_INTERVAL
     end
@@ -205,7 +223,7 @@ local function startCell(cell)
         if not g then
             return nil -- hunted down -> stop scheduling
         end
-        local dest = mist.getRandPointInCircle({ x = cx, y = cy }, CELL_RADIUS)
+        local dest = randPointInCircle(cx, cy, CELL_RADIUS)
         driveTo(g, dest.x, dest.y, CELL_SPEED)
         return timer.getTime() + CELL_INTERVAL
     end
