@@ -1,7 +1,7 @@
 # Removing MIST
 
 **Date:** 2026-11-12 (DM call)
-**Status:** step 1 of 4 in progress.
+**Status:** steps 1 and 2 of 4 built.
 **Checklist:** B326 (step 1).
 
 ## 1. The decision
@@ -38,13 +38,23 @@ No campaign `.miz` calls `mist.` (85 checked).
 | `base/water_relocate.lua`, `base/land_relocate.lua` | getGroupData, dynAdd | MOOSE `GROUP:GetTemplate()`, `_DATABASE:Spawn()` | 1 |
 | `intercept/intercept-config.lua` | scheduleFunction | a local pcall'd `schedule_once` | 1 |
 | `coin/coin-config.lua` | goRoute, ground.buildWP, getRandPointInCircle, utils.kmphToMps | a local off-road waypoint, `Controller:setTask`, a local random point | 1 |
-| `skynetiads/skynet-iads-compiled.lua` | 48 calls, ~17 functions | compatibility file | 2 |
+| `skynetiads/skynet-iads-compiled.lua` | 48 calls, 18 functions | `skynetiads/skynet-mist-compat.lua` | 2 |
 | `ctld/CTLD.lua`, `ctld/ctld-config.lua` | 85 calls | `Ops.CTLD` + `AUTOLASE` | 3 |
 
 `base/dcs_retribution.lua` and `sortie_recorder.lua` load before `Moose.lua`, so they use
 the plain DCS API. The relocation scripts load after it.
 
-## 4. History
+## 4. Skynet's compatibility file
+
+`skynetiads/skynet-mist-compat.lua` loads just before the compiled Skynet and defines a
+`mist` table with only the 18 functions Skynet calls. It does nothing while the real MIST is
+loaded, so it takes over in step 4. Scheduled functions are DCS timers; the name tables are
+built once from `env.mission` and hold names only. `groupToRandomZone` and
+`getRandPointInCircle` keep MIST's route shape and inner radius, because shoot-and-scoot was
+tuned against them. `tests/lua/test_skynet_mist_compat.py` fails when a Skynet update calls
+a `mist.` function the file lacks.
+
+## 5. History
 
 The same removal ran 2026-06-25 to 2026-09-12 through `mist_moose_shim.lua` (44 symbols,
 plain DCS calls, flown on GermanyCW) and was dropped with the Skynet return. Recover it with
@@ -55,7 +65,7 @@ check every caller's argument shapes against a replacement before merging. The s
 `Ops.CTLD` scope (template groups the mission must carry) is
 `git show 0dcaf73e2^:docs/dev/design/retlab-ctld-mantis-style-port-scope.md`.
 
-## 5. Rules while MIST is half gone
+## 6. Rules while MIST is half gone
 
 - Upstream Lua merged during this work: grep it for `mist.` and route each call to the
   replacement for its step.
