@@ -1,8 +1,8 @@
 # Removing MIST
 
 **Date:** 2026-11-12 (DM call)
-**Status:** steps 1 and 2 of 4 built.
-**Checklist:** B326 (step 1).
+**Status:** steps 1, 2 and 3a built.
+**Checklist:** B326 (step 1), B328 (step 3a).
 
 ## 1. The decision
 
@@ -39,7 +39,8 @@ No campaign `.miz` calls `mist.` (85 checked).
 | `intercept/intercept-config.lua` | scheduleFunction | a local pcall'd `schedule_once` | 1 |
 | `coin/coin-config.lua` | goRoute, ground.buildWP, getRandPointInCircle, utils.kmphToMps | a local off-road waypoint, `Controller:setTask`, a local random point | 1 |
 | `skynetiads/skynet-iads-compiled.lua` | 48 calls, 18 functions | `skynetiads/skynet-mist-compat.lua` | 2 |
-| `ctld/CTLD.lua`, `ctld/ctld-config.lua` | 85 calls | `Ops.CTLD` + `AUTOLASE` | 3 |
+| `ctld/ctld-config.lua` JTAC lasing (`ctld.JTACAutoLase`) | via CTLD | MOOSE `AUTOLASE`, one per coalition | 3a |
+| `ctld/CTLD.lua`, `ctld/ctld-config.lua` cargo | 85 calls | `Ops.CTLD` + our own AI loader | 3b |
 
 `base/dcs_retribution.lua` and `sortie_recorder.lua` load before `Moose.lua`, so they use
 the plain DCS API. The relocation scripts load after it.
@@ -54,7 +55,16 @@ built once from `env.mission` and hold names only. `groupToRandomZone` and
 tuned against them. `tests/lua/test_skynet_mist_compat.py` fails when a Skynet update calls
 a `mist.` function the file lacks.
 
-## 5. History
+## 5. JTAC lasing (step 3a)
+
+`ctld-config.lua` builds one `AUTOLASE` per coalition over a `SET_GROUP` of the emitted JTAC
+group names. Kept from CTLD's JTAC: 10 km reach (`SetLasingParameters(10000, 1800)`),
+vehicles only (`Infantry` blacklisted), no cooldown gap between lasings, the emitted code per
+JTAC unit (1113 with the FC3 option), smoke with the smoke option. Reports are text only
+(DM pick, no SRS). CTLD's F10 JTAC menu is replaced by AUTOLASE's own status menu. A JTAC in
+a paradropped stick still uses CTLD's `JTACStart` until step 3b.
+
+## 6. History
 
 The same removal ran 2026-06-25 to 2026-09-12 through `mist_moose_shim.lua` (44 symbols,
 plain DCS calls, flown on GermanyCW) and was dropped with the Skynet return. Recover it with
@@ -65,7 +75,7 @@ check every caller's argument shapes against a replacement before merging. The s
 `Ops.CTLD` scope (template groups the mission must carry) is
 `git show 0dcaf73e2^:docs/dev/design/retlab-ctld-mantis-style-port-scope.md`.
 
-## 6. Rules while MIST is half gone
+## 7. Rules while MIST is half gone
 
 - Upstream Lua merged during this work: grep it for `mist.` and route each call to the
   replacement for its step.
