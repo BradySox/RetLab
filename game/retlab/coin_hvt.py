@@ -26,6 +26,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from game.retlab.coin import (
     HVT_SIDC,
     _cp_by_id,
+    _front_reference,
     _despawn,
     _tgo_by_id,
     hvt_unit_types,
@@ -200,17 +201,6 @@ def _pick_stronghold(game: "Game") -> Optional["ControlPoint"]:
         if best is None or dist < best[0]:
             best = (dist, cp)
     return best[1] if best is not None else None
-
-
-def _front_reference(game: "Game") -> list[Any]:
-    fronts = list(game.theater.conflicts())
-    if fronts:
-        return [front.position for front in fronts]
-    return [
-        cp.position
-        for cp in game.theater.controlpoints
-        if not cp.captured.is_red and not cp.captured.is_neutral
-    ]
 
 
 def _hvt_point(game: "Game", stronghold: "ControlPoint") -> Any:

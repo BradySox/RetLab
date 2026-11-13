@@ -1061,15 +1061,6 @@ def _player_field_ids(game: "Game") -> set[str]:
     return excluded
 
 
-def _cp_by_id(game: "Game", cp_id: Optional[str]) -> Optional["ControlPoint"]:
-    if cp_id is None:
-        return None
-    for cp in game.theater.controlpoints:
-        if str(cp.id) == cp_id:
-            return cp
-    return None
-
-
 def _tgo_by_id(game: "Game", tgo_id: Optional[str]) -> Any:
     if tgo_id is None:
         return None
@@ -1091,3 +1082,37 @@ def _announce(game: "Game", events: Any, message: str) -> None:
         game.message("Re-infiltration", message)
     except Exception:  # noqa: BLE001 -- messaging is best-effort, never break the turn
         pass
+
+
+def _cp_by_id(game: "Game", cp_id: Any) -> Optional["ControlPoint"]:
+    if cp_id is None:
+        return None
+    for cp in game.theater.controlpoints:
+        if str(cp.id) == str(cp_id):
+            return cp
+    return None
+
+
+def _nearest_blue_cp(game: "Game", point: Any) -> Optional["ControlPoint"]:
+    """The friendly (blue) control point nearest *point* -- the VBIED's objective."""
+    best: Optional[tuple[float, "ControlPoint"]] = None
+    for cp in game.theater.controlpoints:
+        if not cp.captured.is_blue:
+            continue
+        dist = point.distance_to_point(cp.position)
+        if best is None or dist < best[0]:
+            best = (dist, cp)
+    return best[1] if best is not None else None
+
+
+def _front_reference(game: "Game") -> list[Any]:
+    """Positions to measure 'toward the fighting' -- front lines, else the opposing
+    coalition's CPs (the front-less COIN air-assault geometry, mirroring §35)."""
+    fronts = list(game.theater.conflicts())
+    if fronts:
+        return [front.position for front in fronts]
+    return [
+        cp.position
+        for cp in game.theater.controlpoints
+        if not cp.captured.is_red and not cp.captured.is_neutral
+    ]
