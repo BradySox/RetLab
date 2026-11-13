@@ -123,6 +123,108 @@ def check_b156() -> list[str]:
     return [f"three generations, every boat the same: {runs[0]}", *displaced]
 
 
+def _miz_payloads(
+    game: Any, types: set[str]
+) -> dict[str, set[tuple[tuple[int, str], ...]]]:
+    """Each aircraft type's distinct pylon sets in the turn's generated mission."""
+    import tempfile
+    from pathlib import Path
+
+    import dcs
+
+    from game.missiongenerator import MissionGenerator
+    from game.sim.missionsimulation import MissionSimulation
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    found: dict[str, set[tuple[tuple[int, str], ...]]] = {}
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "row_check.miz"
+        MissionGenerator(game, sim.time).generate_miz(path)
+        mission = dcs.Mission()
+        mission.load_file(str(path))
+    for coalition in mission.coalition.values():
+        for country in coalition.countries.values():
+            for group in country.plane_group + country.helicopter_group:
+                for unit in group.units:
+                    if unit.type in types:
+                        pylons = tuple(
+                            sorted((int(n), s["CLSID"]) for n, s in unit.pylons.items())
+                        )
+                        found.setdefault(unit.type, set()).add(pylons)
+    return found
+
+
+def check_b282() -> list[str]:
+    """The new stock AI jets fly their Retribution presets, as written to the mission."""
+    from game.data.weapons import Weapon
+    from game.dcs.aircrafttype import AircraftType
+
+    # No shipped campaign fields all five, so real squadrons of one take each type.
+    swaps = {
+        "F/A-18C Hornet (Lot 20)": "F/A-18A",
+        "Mirage-F1EQ": "Mirage-F1JA",
+        "MiG-29A Fulcrum": "Mirage-F1JA",
+        "JF-17 Thunder": "Mirage-F1JA",
+        "MiG-21bis Fishbed-N": "Mirage-F1AZ",
+        "Su-24M Fencer-D": "Mirage-F1CR",
+        "Su-34 Fullback": "Mirage-F1CR",
+        "Su-25 Frogfoot": "Su-25TM",
+    }
+    game = build_game("operation_desert_aladeen")
+    by_id = {a.dcs_unit_type.id: a for a in AircraftType.iter_all()}
+    for coalition in (game.blue, game.red):
+        for squadron in coalition.air_wing.iter_squadrons():
+            if squadron.aircraft.display_name in swaps:
+                squadron.aircraft = by_id[swaps[squadron.aircraft.display_name]]
+                # A squadron built for the new type would only auto-assign its tasks.
+                squadron.auto_assignable_mission_types = {
+                    task
+                    for task in squadron.auto_assignable_mission_types
+                    if squadron.aircraft.capable_of(task)
+                }
+    _replan(game)
+
+    planned: dict[str, set[tuple[tuple[int, str], ...]]] = {}
+    names: dict[str, set[str]] = {}
+    for coalition in (game.blue, game.red):
+        for flight in (f for p in coalition.ato.packages for f in p.flights):
+            kind = flight.unit_type.dcs_unit_type.id
+            if kind not in swaps.values():
+                continue
+            loadout = next(flight.iter_members()).loadout
+            assert loadout.name.startswith(
+                "Retribution "
+            ), f"{kind} {flight.flight_type.value}: {loadout.name}"
+            pylons = tuple(sorted((n, w.clsid) for n, w in loadout.pylons.items() if w))
+            assert pylons, f"{kind} {flight.flight_type.value}: empty loadout"
+            planned.setdefault(kind, set()).add(pylons)
+            names.setdefault(kind, set()).add(
+                f"{flight.flight_type.value}: {loadout.name}"
+            )
+    missing = set(swaps.values()) - set(planned)
+    assert not missing, f"the planner fragged none of {sorted(missing)}"
+
+    written = _miz_payloads(game, set(swaps.values()))
+    for kind, sets in planned.items():
+        clean = {
+            tuple(p for p in s if p[1] != "<CLEAN>") for s in written.get(kind, set())
+        }
+        assert sets <= clean, f"{kind}: the mission does not carry the planned fit"
+    for pylons in written["Mirage-F1JA"]:
+        tips = {n for n, clsid in pylons if clsid == "{R550_Magic_1}"}
+        assert {1, 7} <= tips, f"F1JA wingtips empty: {pylons}"
+    for pylons in written["F/A-18A"]:
+        for _, clsid in pylons:
+            weapon = Weapon.with_clsid(clsid)
+            label = weapon.name if weapon else clsid
+            assert "FLIR" not in label and "AAS-38" not in label, f"F/A-18A: {label}"
+    return [f"{kind}: {sorted(names[kind])}" for kind in sorted(names)] + [
+        "F1JA: R550 Magic on stations 1 and 7 in every group",
+        "F/A-18A: no FLIR pod on any station",
+    ]
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -162,6 +264,7 @@ def check_b188() -> list[str]:
 CHECKS: dict[str, Check] = {
     "B19": check_b19,
     "B156": check_b156,
+    "B282": check_b282,
     "B188": check_b188,
 }
 
