@@ -284,6 +284,13 @@ REMOVED: tuple[Removed, ...] = (
         strict=True,
     ),
     Removed(
+        # CTLD now runs on MOOSE's Ops.CTLD; the old script's F10 call and file are gone.
+        "the CTLD script (CTLD.lua) and its Unload / Extract Troops call",
+        "2026-11-12",
+        r"Unload / Extract Troops|\bCTLD\.lua\b|JTACAutoLase",
+        allow=("removed", "replaced", "no longer"),
+    ),
+    Removed(
         "Pretense",
         "n/a -- ripped out",
         r"[Pp]retense",

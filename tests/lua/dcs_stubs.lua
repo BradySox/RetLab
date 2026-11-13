@@ -1001,6 +1001,30 @@ function MooseUnit:GetCoalition()
     return self.unit:getCoalition()
 end
 
+function MooseUnit:GetName()
+    return self.unit:getName()
+end
+
+function MooseUnit:GetTypeName()
+    return self.unit:getTypeName()
+end
+
+function MooseUnit:GetPlayerName()
+    return self.unit:getPlayerName()
+end
+
+function MooseUnit:GetVec3()
+    return self.unit:getPoint()
+end
+
+function MooseUnit:GetVelocityVec3()
+    return self.unit:getVelocity()
+end
+
+function MooseUnit:GetGroup()
+    return GROUP:FindByName(self.unit:getGroup():getName())
+end
+
 local MooseGroup = {}
 MooseGroup.__index = MooseGroup
 
@@ -1295,6 +1319,24 @@ function SpawnFake:SpawnAtAirbase(airbase, takeoff, altitude)
         units = units,
     })
     return setmetatable({ group = grp }, MooseGroup)
+end
+
+function SpawnFake:InitDelayOff()
+    return self
+end
+
+-- Ground spawn at a Vec2 (MOOSE: x = north, y = east). Records only (CTLD paradrop).
+function SpawnFake:SpawnFromVec2(vec2)
+    self.counter = self.counter + 1
+    table.insert(Harness.records.spawns, {
+        template = self.template,
+        alias = self.alias,
+        base = "ground",
+        x = vec2.x,
+        z = vec2.y,
+        t = Harness.now,
+    })
+    return { name = self.alias .. "#" .. string.format("%03d", self.counter) }
 end
 
 -- Air-spawn at an arbitrary coordinate (neutralborder point-spawned CAP, for a

@@ -7,7 +7,7 @@
             "nameInUI": "Use only Retribution's crates and troops",
             "mnemonic": "tailorctld",
             "defaultValue": true,
-            "descriptionInUI": "Unticked, CTLD's own stock crates, vehicles and troop groups are offered as well."
+            "descriptionInUI": "Unticked, a small stock list is offered as well: four crates and four squads per side."
         },
         {
             "nameInUI": "Create a logistics unit in each pickup zone",
@@ -52,16 +52,7 @@
             "defaultValue": false
         }
     ],
-    "scriptsWorkOrders": [
-        {
-            "file": "CTLD-i18n.lua",
-            "mnemonic": "ctld-i18n"
-        },
-        {
-            "file": "CTLD.lua",
-            "mnemonic": "ctld-script"
-        }
-    ],
+    "scriptsWorkOrders": [],
     "configurationWorkOrders": [
         {
             "file": "ctld-config.lua",

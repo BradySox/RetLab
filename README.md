@@ -93,8 +93,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - JAMMING turns the C-130J into an EC-130H/RC-130H-style EW and ISR platform.
 - A helicopter package (air assault, CSAR) takes its Escort and SEAD Escort flights only from
   helicopter or LHA-capable squadrons. A plain fast jet cannot hold formation on a helicopter.
-- Fixed-wing transports fly Air Assault as a paradrop. Players run in below 3,000 ft AGL and
-  use the CTLD *Unload / Extract Troops* call; AI releases automatically over the drop zone.
+- Fixed-wing transports fly Air Assault as a paradrop. Players jump from 540 to 3,000 ft AGL
+  under 150 kt with the CTLD *Drop Troops* call; AI releases automatically over the drop zone.
   Helicopter assaults are unchanged.
 - Every generated mission is archived to a dated copy in a folder DCS's mission browser lists.
 

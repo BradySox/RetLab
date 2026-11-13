@@ -1,0 +1,1 @@
+* **[Plugins]** CTLD runs on MOOSE's CTLD instead of the old CTLD script. The F10 cargo menu is MOOSE's (CTLD > Manage Troops > Drop Troops). Fixed-wing paradrops need 540 to 3,000 ft AGL and under 150 kt.

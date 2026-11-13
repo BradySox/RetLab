@@ -1,8 +1,8 @@
 # Removing MIST
 
 **Date:** 2026-11-12 (DM call)
-**Status:** steps 1, 2 and 3a built.
-**Checklist:** B326 (step 1), B328 (step 3a).
+**Status:** steps 1, 2, 3a and 3b built.
+**Checklist:** B326 (step 1), B328 (step 3a), B329 (step 3b).
 
 ## 1. The decision
 
@@ -61,10 +61,33 @@ a `mist.` function the file lacks.
 group names. Kept from CTLD's JTAC: 10 km reach (`SetLasingParameters(10000, 1800)`),
 vehicles only (`Infantry` blacklisted), no cooldown gap between lasings, the emitted code per
 JTAC unit (1113 with the FC3 option), smoke with the smoke option. Reports are text only
-(DM pick, no SRS). CTLD's F10 JTAC menu is replaced by AUTOLASE's own status menu. A JTAC in
-a paradropped stick still uses CTLD's `JTACStart` until step 3b.
+(DM pick, no SRS). CTLD's F10 JTAC menu is replaced by AUTOLASE's own status menu. A 24-man
+stick's JTAC joins the same AUTOLASE from step 3b (below).
 
-## 6. History
+## 6. CTLD cargo on Ops.CTLD (step 3b)
+
+`ctld/CTLD.lua` and `CTLD-i18n.lua` are deleted; `ctld-config.lua` builds one `Ops.CTLD`
+per side that has logistics flights. DM picks, 2026-11-12:
+
+| Behavior | Kept as |
+|---|---|
+| AI Air Assault / Airlift | our own loop: helicopters load landed in their pickup zone, unload landed in their drop zone; fixed-wing jumps over its target zone. Not MOOSE's AI cargo dispatcher, which would override Retribution's routes |
+| Paradrop | our own, with the 6.5 m/s descent (max 90 s); players inside MOOSE's window (540-3000 ft AGL, under 150 kt), AI at any height |
+| Zone smoke | kept burning: a 300 s refresh, blue at pickup, green at drop-off |
+| Logistics trucks | scenery; crates come from anywhere in the 300 m pickup zone |
+| "Use only Retribution's crates and troops" off | a small stock list: four squads and four crates per side, from the old CTLD catalog (`ctldtemplates.py`) |
+
+**Templates.** Ops.CTLD clones late-activated groups. `game/missiongenerator/ctldtemplates.py`
+writes, per side with logistics: one squad per size 2/4/6/10/12/24 and per transport cabin
+size (the old CTLD infantry mix; the 24 carries a JTAC), one crate vehicle per airlift
+cargo type, and the stock list when the option is off. All hidden, never activated. A
+cargo type not in pydcs's `vehicle_map` gets no template and is logged.
+
+**Unchanged on purpose:** sling-load setting maps to `enableslingload`; carriers are SHIP
+load zones; the CH-47 "reads airborne on the ground" fix is not needed (Ops.CTLD judges
+airborne by AGL). The F10 menu is MOOSE's (CTLD > Manage Troops > Drop Troops).
+
+## 7. History
 
 The same removal ran 2026-06-25 to 2026-09-12 through `mist_moose_shim.lua` (44 symbols,
 plain DCS calls, flown on GermanyCW) and was dropped with the Skynet return. Recover it with
@@ -75,7 +98,7 @@ check every caller's argument shapes against a replacement before merging. The s
 `Ops.CTLD` scope (template groups the mission must carry) is
 `git show 0dcaf73e2^:docs/dev/design/retlab-ctld-mantis-style-port-scope.md`.
 
-## 7. Rules while MIST is half gone
+## 8. Rules while MIST is half gone
 
 - Upstream Lua merged during this work: grep it for `mist.` and route each call to the
   replacement for its step.

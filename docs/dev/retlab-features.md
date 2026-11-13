@@ -7913,40 +7913,32 @@ A full re-tiering of every rotary type was built and reverted the same day (user
 call — overthinking). **Do not rebuild it.** The rest of the ladder is a balance
 question, not a defect; if a value looks wrong, change that one value.
 
-**Runtime** (`resources/plugins/ctld/ctld-config.lua` — the Retribution-owned
-config layer; CTLD.lua itself is untouched): the emitter marks each transport
-type `paradrop` (fixed-wing + `cabin_size > 0`, computed Python-side in
-`luagenerator.py`) and the config builds `ctld.paradropUnitTypes` plus a
-pilot→target-zone release plan from the flights it already parses.
+**Runtime** (`resources/plugins/ctld/ctld-config.lua`, on MOOSE's Ops.CTLD since
+2026-11-12; the CTLD script is gone, `retlab-mist-removal-notes.md` §5-§6): the emitter
+marks each transport type `paradrop` (fixed-wing + `cabin_size > 0`, in `luagenerator.py`);
+the config adds those types to the CTLD's `FixedWingTypes` and builds a pilot→target-zone
+release plan.
 
-- **Player path:** `ctld.unloadExtractTroops` is wrapped (the same
-  config-override seam as the `ctld.inAir` CH-47 fix — captured at menu-build
-  time, so the stock F10 **"Unload / Extract Troops"** button *is* the jump
-  command): airborne + paradrop type + troops aboard → `ctld.paradropTroops`;
-  grounded unload, extraction, and every helicopter path fall through to stock
-  CTLD byte-identically. A **player jump ceiling** (3,000 ft AGL) refuses a
-  too-high drop with a message; the AI is exempt (its run-in is planned at
-  1,000 ft, and a terrain-forced high crossing must still deliver).
-- **The drop itself:** the stick leaves the aircraft immediately (cargo
-  cleared, `adaptWeightToCargo`, coalition "paradropped troops" call) and the
-  troop group ground-spawns at the **velocity-projected drop point** (2 s
-  forward throw) after a **real static-line descent delay** (AGL ÷ 6.5 m/s,
-  capped at 90 s) — so a transport shot down *after* the drop still delivers,
-  and one shot down *before* it never does. The landing reuses CTLD's own
-  bookkeeping verbatim: `spawnDroppedGroup` (which sends troops inside an
-  active wpZone marching to the zone centre — the existing air-assault capture
-  behavior — and otherwise at the nearest enemy), the JTAC-stick laser start,
-  the `droppedTroopsRED/BLUE` ledgers, and `processCallback`. **No phantom
-  spawns**: the group comes out of the aircraft's CTLD cargo exactly like
-  every helicopter unload, and its losses/kills record natively.
-- **AI path:** a 5 s release loop drops an AI transport's stick when it
-  crosses within 1,200 m of its own air-assault target-zone centre (min'd with
-  the zone radius) — one drop per sortie, players never auto-dropped, helos
-  never in the plan.
-- **Preload retry:** the old one-shot `preload_troops` at t+5 s silently
-  missed TOT-delayed flights (late activation, §64), so an AI C-130 could
-  arrive over the zone **empty**. It now retries every 30 s until the
-  transport exists (~2 h give-up), loading exactly once.
+- **Player path:** the CTLD's `_UnloadTroops` is wrapped, so the F10 **Drop Troops** call
+  is the jump: airborne + paradrop type → our paradrop; grounded unloads and every
+  helicopter path are MOOSE's own. Players jump inside MOOSE's window (540 to 3,000 ft
+  AGL, under 150 kt, DM pick 2026-11-12); the AI is exempt (a terrain-forced high crossing
+  must still deliver).
+- **The drop itself:** the stick leaves at once (cargo cleared, mass updated, coalition
+  "paradropped troops" call) and spawns on the ground at the **velocity-projected drop
+  point** (2 s forward throw) after a **real descent delay** (AGL ÷ 6.5 m/s, capped at
+  90 s): a transport shot down after the drop still delivers, one shot down before never
+  does. The group is cloned from the squad's hidden template (`ctldtemplates.py`) and
+  handed to the CTLD's `TroopsDeployed`, which marches it to the target (MOVE) zone. A
+  24-man stick carries a JTAC and joins AUTOLASE by its template-name prefix. **No phantom
+  spawns**: the stick is the aircraft's own cargo.
+- **AI path:** a 5 s release loop drops an AI transport's stick within 1,200 m of its
+  own target-zone centre (min'd with the zone radius); one drop per sortie, players never
+  auto-dropped, helicopters never in the plan. AI helicopters load and unload through a
+  2 s loop (landed in the flight's pickup zone → load; landed in its drop zone → unload);
+  Ops.CTLD itself serves only players.
+- **Preload retry:** an AI transport is preloaded once it exists, retried every 30 s
+  (TOT-delayed flights late-activate, §64), giving up after ~2 h.
 
 **EW de-confliction:** `_ew_excluded_c130j_groups` now denies the c130j EW/ISR
 plugin to **TRANSPORT and AIR_ASSAULT** C-130J-30s alongside the Combat SAR
