@@ -2324,6 +2324,19 @@ that code.
   a standoff shooter): `docs/dev/design/retlab-antiship-deal-notes.md`. Tests:
   `tests/missiongenerator/aircraft/test_antishipdeal.py`. Row **B219**.
 
+### Mission load
+
+- **Every plugin script loaded in every mission, with or without work (2026-11-12, user call).**
+  A mission with no carrier still loaded Airboss, one with no helicopter flights loaded CTLD's
+  450 KB. `game/missiongenerator/idleplugins.py` leaves a plugin out when the script would
+  stop on its own check: Airboss with no carrier or LHA, C-130J Mission Systems with no
+  mission-systems C-130J-30, Ops.CSAR with CSAR off both sides and no rescue flight, Skynet and
+  the LotATC export with an empty IADS, CTLD with no Transport or Air Assault flight and no
+  JTAC, and the 14 settings-driven plugins whose `dcsRetribution` table was not written. The
+  Retribution log names each one left out. A new rule must match a check the script makes;
+  `retlab-idle-plugin-skip-notes.md`. Tests: `tests/missiongenerator/test_idle_plugins.py`;
+  row B327.
+
 ### Debrief and reporting
 
 - **Destroyed strike targets never reaching the campaign — the results commit used a stale snapshot (fixed 2026-08-16).**

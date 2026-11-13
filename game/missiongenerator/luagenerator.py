@@ -40,6 +40,7 @@ from .interceptluadata import (
 )
 from .civiltrafficluadata import populate_civil_traffic_lua
 from .cruisemissileluadata import populate_cruise_missiles_lua
+from .idleplugins import MissionWork, idle_reason
 from .missiondata import MissionData
 from .gpsjammingluadata import populate_gps_jamming_lua
 from .navalmagazineluadata import populate_naval_magazines_lua
@@ -76,6 +77,9 @@ def carrier_rescue_helo_type(year: int) -> str:
 
 
 class LuaGenerator:
+    #: Set by generate_plugin_data; None loads every enabled plugin.
+    _mission_work: Optional[MissionWork] = None
+
     def __init__(
         self,
         game: Game,
@@ -332,7 +336,9 @@ class LuaGenerator:
         iads_object.get_or_create_item("RED")
         # Should probably do the same with all the roles... but the script is already
         # tolerant of those being empty.
+        iads_nodes = 0
         for node in self.game.theater.iads_network.iads_nodes(self.game):
+            iads_nodes += 1
             coalition_key = "BLUE" if node.player.is_blue else "RED"
             coalition = iads_object.get_or_create_item(coalition_key)
             iads_type = coalition.get_or_create_item(node.iads_role.skynet_value)
@@ -542,6 +548,8 @@ class LuaGenerator:
         # rescue-capable type whitelist and the Ops.CSAR flags) for the opscsar
         # plugin. Always emitted; the plugin gates on the per-side enable flags.
         self.generate_csar_data(lua_data)
+
+        self._mission_work = self._mission_work_for(lua_data, iads_nodes)
 
         trigger = TriggerStart(comment="Set DCS Retribution data")
         trigger.add_action(DoScript(String(lua_data.create_operations_lua())))
@@ -805,8 +813,35 @@ class LuaGenerator:
             if flight.flight_type in non_ew and flight.aircraft_type == c130j
         ]
 
+    def _mission_work_for(self, lua_data: LuaData, iads_nodes: int) -> MissionWork:
+        settings = self.game.settings
+        c130j = AircraftType.named("C-130J-30")
+        excluded = set(self._ew_excluded_c130j_groups())
+        flights = self.mission_data.flights
+        return MissionWork(
+            data_keys=frozenset(o.name for o in lua_data.objects if o.name),
+            carriers=len(self.mission_data.carriers),
+            ew_c130j_flights=sum(
+                1
+                for f in flights
+                if f.aircraft_type == c130j and f.group_name not in excluded
+            ),
+            csar_active=bool(settings.csar_enabled or settings.csar_enabled_red)
+            or any(
+                f.flight_type in (FlightType.CSAR, FlightType.SANDY) for f in flights
+            ),
+            iads_nodes=iads_nodes,
+            logistics_flights=len(self.mission_data.logistics),
+            jtacs=len(self.mission_data.jtacs),
+        )
+
     def inject_plugins(self) -> None:
         for plugin in LuaPluginManager.plugins():
+            if plugin.enabled and self._mission_work is not None:
+                reason = idle_reason(plugin.identifier, self._mission_work)
+                if reason is not None:
+                    logging.info(f"Plugin {plugin.identifier} left out: {reason}")
+                    continue
             if plugin.enabled:
                 plugin.inject_scripts(self)
                 plugin.inject_configuration(self)

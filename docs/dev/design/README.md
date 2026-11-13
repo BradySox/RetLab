@@ -107,7 +107,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   step**: what still calls it and what replaces each call), `retlab-moose-ops-opportunity-map.md`,
   `retlab-moose-bundle-patches-notes.md` (**read before bumping `Moose.lua`**),
   `retlab-lua-plugin-harness-notes.md`, `retlab-splash-damage-notes.md` (why the Splash
-  Damage build is pinned)
+  Damage build is pinned), `retlab-idle-plugin-skip-notes.md` (which plugins a
+  mission leaves out, and the rule for adding one)
 - **Structure / debt** — `retlab-doc-mass-notes.md` (the 2026-08-19 features-doc trim, and
   **how to replace a section without destroying its neighbours**)
 - **Process** — `retlab-verification-cadence-notes.md` (partly built: WATCH and LOCAL; the
