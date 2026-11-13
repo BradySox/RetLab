@@ -1619,7 +1619,7 @@ right in the file and never reach the game.
   no `coalitions:` key) with the Red tab open. It must load exactly as it did before.
 ### B92 — A rescued marker belongs to the base it sits next to · campaign loading · ◇ AUTO-PASS (2026-11-12, `tools/row_checks.py`; was ☐ UNTESTED)
 
-**2026-11-12, `python tools/row_checks.py B92`** (Syria - Desert Trident, new game, turn 1, no DCS): **passes.** No placement warning at load. King Abdullah II (red) owns 13 objects, all within 13 NM of it. Blue frags 8 of them (BAI, Strike, DEAD), red none. They spawn in the mission under red. **Left alone by the rule:** one blue warehouse sits 16 NM (30 km) from King Abdullah II and 53 NM from its owner Ben Gurion, outside the 25 km adoption bound, so it stays blue inside red's ground.
+**2026-11-12, `python tools/row_checks.py B92`** (Syria - Desert Trident, new game, turn 1, no DCS): **passes.** No placement warning at load. King Abdullah II (red) owns 13 objects, all within 13 NM of it. Blue frags 8 of them (BAI, Strike, DEAD), red none. They spawn in the mission under red. One blue warehouse sat 16 NM (30 km) from King Abdullah II and 53 NM from its owner Ben Gurion, outside the 25 km adoption bound. **Fixed the same day on the DM's call:** the bound is 35 km and the warehouse is King Abdullah II's (features doc, Motorpool placement).
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not decidable from a capture** (the placement warning is in the app log). The Desert Trident captures (tests 6, 9, 14–16) predate the 08-22 fix. Unchanged.
 

@@ -116,15 +116,15 @@ def check_b92() -> list[str]:
     def nm(a: Any, b: Any) -> float:
         return meters(a.position.distance_to_point(b.position)).nautical_miles
 
-    # The rule's own bounds: adopted within 25 km of a zoned base, and only when
+    # The rule's own bounds: adopted within 35 km of a zoned base, and only when
     # the fallback owner is past 50 km. A marker outside them keeps its owner.
-    adopt, stranded = 25 / 1.852, 50 / 1.852
+    adopt, stranded = 35 / 1.852, 50 / 1.852
     wrong = [
         t.name
         for t in far.ground_objects
         if nm(t, near) <= adopt and nm(t, far) > stranded
     ]
-    assert not wrong, f"{far.name} still owns {wrong}, within 25 km of {near.name}"
+    assert not wrong, f"{far.name} still owns {wrong}, within 35 km of {near.name}"
     kept = [
         f"{t.name} {nm(t, near):.0f} NM from {near.name}"
         for t in far.ground_objects
@@ -157,7 +157,7 @@ def check_b92() -> list[str]:
         f"{far.name}'s is inside the adoption bound",
         f"the other side frags {len(enemy)} of them, its own side none",
         f"{len(spawned)} of them spawn in the mission under {side}",
-        f"{far.name} keeps, outside the 25 km bound: {kept or 'none'}",
+        f"{far.name} keeps, outside the 35 km bound: {kept or 'none'}",
     ]
 
 

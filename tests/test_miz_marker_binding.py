@@ -390,7 +390,7 @@ def test_a_distant_zoned_field_does_not_adopt(tmp_path: Path) -> None:
     # is not claimed by a zoned field just because that field happens to be
     # nearest. Past ADOPT_ZONED_WITHIN the unzoned fallback still decides.
     miz = tmp_path / "tight_zone_far.miz"
-    _build_tight_zone_miz(miz, offset_m=30000)
+    _build_tight_zone_miz(miz, offset_m=45000)
     theater, senaki = _load(miz)
     far = theater.control_point_named("Mineralnye Vody")
 
