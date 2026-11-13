@@ -103,8 +103,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
 - **Terrain / maps / weather** — `retlab-marianas-wwii-terrain-notes.md` (built 2026-08-22;
   read its traps before exporting another terrain), `retlab-atmosx-live-weather-notes.md`
   (adopted from upstream #927)
-- **Framework / tooling** — `retlab-mist-removal-notes.md` (**MIST is being removed, step by
-  step**: what still calls it and what replaces each call), `retlab-moose-ops-opportunity-map.md`,
+- **Framework / tooling** — `retlab-mist-removal-notes.md` (**MIST removed 2026-11-12**: what
+  replaced each call, and Skynet's compatibility file), `retlab-moose-ops-opportunity-map.md`,
   `retlab-moose-bundle-patches-notes.md` (**read before bumping `Moose.lua`**),
   `retlab-lua-plugin-harness-notes.md`, `retlab-splash-damage-notes.md` (why the Splash
   Damage build is pinned), `retlab-idle-plugin-skip-notes.md` (which plugins a

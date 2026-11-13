@@ -5,10 +5,6 @@
     "specificOptions": [],
     "scriptsWorkOrders": [
         {
-            "file": "mist_4_5_126.lua",
-            "mnemonic": "mist"
-        },
-        {
             "file": "json.lua",
             "mnemonic": "json"
         },

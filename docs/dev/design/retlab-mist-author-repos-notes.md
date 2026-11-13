@@ -33,8 +33,9 @@ public for a decade.
 
 **No longer true.** Retiring MIST (2026-07-10) deleted the only GPL-3 file in the tree. MIST
 came back on 2026-09-12 (#1012, the Skynet return): the tree again ships upstream's
-`resources/plugins/base/mist_4_5_126.lua`, as upstream does. The rule above still governs
-everything else of his.
+`resources/plugins/base/mist_4_5_126.lua`, as upstream does. **Removed again 2026-11-12**
+(`retlab-mist-removal-notes.md`); Skynet's `skynet-mist-compat.lua` is our own code on the
+DCS API, not a copy of his. The rule above still governs everything else of his.
 
 **Tidied 2026-08-20.** `resources/plugins/base/mist_moose_shim.lua` described itself as
 "replicated verbatim" from MIST in six places, and its design note in one more. API

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from tools.audit_stale_docs import scan
+from tools.audit_stale_docs import REMOVAL_WORDS, Removed, scan
 
 
 def test_a_phrase_split_by_a_line_wrap_is_still_found(tmp_path: Path) -> None:
@@ -40,9 +40,19 @@ def test_one_bullets_disclaimer_does_not_excuse_its_neighbour(tmp_path: Path) ->
     ]
 
 
-def test_a_reversal_row_is_not_excused_by_the_removal_words(tmp_path: Path) -> None:
-    # MIST came back 2026-09-12, so "retired" is the stale claim, not a notice.
+def test_a_reversal_row_is_not_excused_by_the_removal_words() -> None:
+    # For a reversal, "retired" is the stale claim, not a notice: a strict row takes
+    # only its own allow words. (The MIST reversal row this was written for went when
+    # MIST was removed for good, 2026-11-12.)
+    row = Removed("a reversed removal", "n/a", r"x", allow=("until",), strict=True)
+    assert row.allowed == ("until",)
+    assert set(REMOVAL_WORDS) <= set(Removed("x", "n/a", r"x").allowed)
+
+
+def test_a_page_saying_mist_loads_is_flagged(tmp_path: Path) -> None:
     page = tmp_path / "page.md"
-    page.write_text("MIST is retired in favor of a shim.\n", encoding="utf-8")
+    page.write_text("MIST is upstream's own build.\n", encoding="utf-8")
     findings = scan([page])
-    assert [entry.strict for entry, *_ in findings] == [True]
+    assert [entry.what for entry, *_ in findings] == [
+        "MIST in the mission (removed 2026-11-12)"
+    ]
