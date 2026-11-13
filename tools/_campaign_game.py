@@ -60,6 +60,11 @@ def build_game(name: str, saved_games: Optional[str] = None) -> Any:
     if saved_games is None:
         saved_games = str(Path.home() / "Saved Games" / "DCS")
     persistency.setup(saved_games, False, 0)
+    # The app registers the shipped payloads at startup (qt_ui/main.py); without
+    # this every flight loads an empty fit.
+    from dcs.payloads import PayloadDirectories
+
+    PayloadDirectories.set_fallback(_REPO_ROOT / "resources" / "customized_payloads")
 
     campaign = Campaign.from_file(campaign_path(name))
     theater = campaign.load_theater(campaign.advanced_iads)
