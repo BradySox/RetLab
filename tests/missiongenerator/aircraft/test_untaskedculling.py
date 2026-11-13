@@ -102,3 +102,19 @@ def test_opfor_client_slots_keep_every_opfor_field() -> None:
     assert airfields_players_see(_game([], opfor_client_slots=True), [blue, red]) == {
         red
     }
+
+
+def test_the_bullseye_is_not_part_of_the_route() -> None:
+    from game.ato.flightwaypointtype import FlightWaypointType
+
+    home = _cp("Home", 0, 0, Player.BLUE)
+    under_bullseye = _cp("Under bullseye", 100 * NM, 0)
+    flight = _flight(home, [(0, 0), (10 * NM, 0), (0, 0)])
+    flight.flight_plan.waypoints.append(
+        SimpleNamespace(
+            position=SimpleNamespace(x=100 * NM, y=0),
+            waypoint_type=FlightWaypointType.BULLSEYE,
+        )
+    )
+    seen = airfields_players_see(_game([flight]), [home, under_bullseye])
+    assert seen == {home}

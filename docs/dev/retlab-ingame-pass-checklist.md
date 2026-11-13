@@ -2944,7 +2944,9 @@ Built 2026-09-29. Filter and disclosure tests pass with the painting in place; r
   hover band that stays lit after the mouse leaves the section; two shaded rows in a row after
   a search.
 
-### B161 — Untasked parked aircraft spawn only at airfields a player sees · Culling settings · ☐ UNTESTED
+### B161 — Untasked parked aircraft spawn only at airfields a player sees · Culling settings · ◇ AUTO-PASS (2026-11-12, `tools/row_checks.py`; was ☐ UNTESTED)
+
+**2026-11-12, `python tools/row_checks.py B161`** (Syria - The Long Road to H3, new game, turn 1, no DCS): **failed, fixed, then passed.** The rule's route included the flight's BULLSEYE waypoint, so the field under the bullseye (Aleppo) and every field along a line from LANDING to the bullseye kept its parked jets. The bullseye is now left out. After the fix, with a player SEAD Escort from Incirlik: 32 parked at Incirlik, 11 at Bassel Al-Assad (within 20 NM of the route), none at the 8 enemy fields over 25 NM from it; both boxes ticked, none anywhere.
 
 Built 2026-09-29; made the default the same day (the two boxes now mean "at every
 airfield"). Unit-tested (`test_untaskedculling.py`); never generated in DCS.
