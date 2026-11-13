@@ -225,6 +225,55 @@ def check_b282() -> list[str]:
     ]
 
 
+def check_b319() -> list[str]:
+    """A player escort's route ends at its Escort Hold; nothing sits on the target."""
+    from game.ato.flighttype import FlightType
+    from game.utils import meters
+
+    game = build_game(CARRIER_CAMPAIGN)
+    evidence = []
+    for package in game.blue.ato.packages:
+        if package.primary_task not in (FlightType.DEAD, FlightType.STRIKE):
+            continue
+        primary = next(
+            f for f in package.flights if f.flight_type == package.primary_task
+        )
+        for flight in package.flights:
+            if flight.flight_type not in (FlightType.ESCORT, FlightType.SEAD_ESCORT):
+                continue
+            next(flight.iter_members()).pilot.player = True
+            flight.recreate_flight_plan()
+            route = list(flight.flight_plan.iter_waypoints())
+            names = [w.name for w in route]
+            label = f"{package.primary_task.value} {flight.flight_type.value}"
+            hold = names.index("ESCORT HOLD")
+            assert names[hold - 1] == "INGRESS", f"{label}: {names}"
+            assert names[hold + 1] == "SPLIT", f"{label}: {names}"
+            near = [
+                w.name
+                for w in route
+                if meters(w.position.distance_to_point(package.target.position))
+                < meters(1852 * 2)
+            ]
+            assert not near, f"{label}: {near} on the target"
+            joins = [
+                f.flight_plan.depart_time_for_waypoint(
+                    next(w for w in f.flight_plan.iter_waypoints() if w.name == "JOIN")
+                )
+                for f in (flight, primary)
+            ]
+            assert joins[0] == joins[1], f"{label}: join {joins[0]} vs {joins[1]}"
+            to_hold = meters(
+                route[hold].position.distance_to_point(package.target.position)
+            )
+            evidence.append(
+                f"{label}: {' > '.join(names[:hold + 2])}, hold "
+                f"{to_hold.nautical_miles:.1f} NM off the target, join with the primary"
+            )
+    assert evidence, "no Strike or DEAD package carries an escort"
+    return evidence
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -265,6 +314,7 @@ CHECKS: dict[str, Check] = {
     "B19": check_b19,
     "B156": check_b156,
     "B282": check_b282,
+    "B319": check_b319,
     "B188": check_b188,
 }
 
