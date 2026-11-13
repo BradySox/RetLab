@@ -736,7 +736,9 @@ class MizCampaignLoader:
     # Both bounds are load-bearing and each has a test that fails without it;
     # the measurements are in retlab-features.md under Motorpool placement.
     # Set ADOPT_ZONED_WITHIN to None for the pre-2026-08-22 fallback.
-    ADOPT_ZONED_WITHIN: Optional[Distance] = meters(25000)
+    # 35 km since 2026-11-12: Desert Trident's blue warehouse 30 km from red King
+    # Abdullah II. Measured: 6 of 11,878 bindings move, each 2-4x closer.
+    ADOPT_ZONED_WITHIN: Optional[Distance] = meters(35000)
     STRANDED_BEYOND: Distance = meters(50000)
 
     def objective_info(

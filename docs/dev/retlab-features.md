@@ -5672,8 +5672,8 @@ directly.
   preference was measured and rejected (24 of 751 markers rebind, 16 across coalitions, and all
   13 of Velvet Thunder's red air defenses move onto neutral FOBs).
 - **The fallback itself now rescues a stranded marker (2026-08-22), block-agnostic.**
-  `ADOPT_ZONED_WITHIN` (25 km) and `STRANDED_BEYOND` (50 km): the nearest **zoned** CP adopts a
-  marker when it is within 25 km *and* the unzoned fallback would otherwise put the marker more
+  `ADOPT_ZONED_WITHIN` (35 km since 2026-11-12, was 25 km) and `STRANDED_BEYOND` (50 km): the nearest **zoned** CP adopts a
+  marker when it is within 35 km *and* the unzoned fallback would otherwise put the marker more
   than 50 km from its owner. Both bounds are load-bearing and each has a test that fails without
   it. **Measured across every campaign: 16 of 7653 bindings move, and not one ends up farther
   from its owner** — old distances 53–142 km become 9–25 km, improvements of 2.7×–11.9×.
@@ -5685,6 +5685,11 @@ directly.
     between neighbouring fields already 2.2–12.4 km away — churn in a campaign with nothing
     wrong with it, and the same outcome the blue-preference widening was rejected for.
   - Set `ADOPT_ZONED_WITHIN = None` to restore the pre-2026-08-22 unzoned-only fallback.
+  - **Raised to 35 km on 2026-11-12 (DM call).** At 25 km a blue warehouse 30 km from red King
+    Abdullah II stayed Ben Gurion's, 98 km off, in red ground (Desert Trident, found by row B92's
+    check). Measured across 82 campaigns: 6 of 11,878 bindings move, each 2-4x closer (57-102 km
+    become 25-33 km): Desert Trident, Clash of the Titans, Operation Gazelle, Noisy Cricket, Peace
+    Spring, Vectron's Claw. `STRANDED_BEYOND` is unchanged.
 - **Two conditions, because either alone cries wolf:** nearer a hostile CP than its own owner (the
   mis-binding signature) **and** within `BESIDE_AN_ENEMY_BASE` (25 km) of it (the part a player
   sees). The same campaign has SKUNK 107 km from its parent but ringed by friendly fields, and

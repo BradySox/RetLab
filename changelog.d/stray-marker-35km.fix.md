@@ -1,0 +1,1 @@
+* **[Campaign]** A campaign marker outside every base's zone now goes to a base up to 35 km away (was 25 km) when its fallback owner is over 50 km off. In Desert Trident the warehouse beside King Abdullah II is red, as the base it sits beside. Six markers move across the shipped campaigns. New games only.
