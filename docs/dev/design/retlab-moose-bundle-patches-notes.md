@@ -3,8 +3,8 @@
 Read before bumping the bundle. Lifted 2026-10-12 from the framework-consolidation
 note, whose MIST-retirement plan was reversed 2026-09-12 (`retlab-skynet-return-notes.md`).
 
-The bundle is `resources/plugins/base/Moose.lua`, currently MOOSE commit `3a95e75c`
-(2025-10-13). It carries fork edits that a naive re-vendor drops silently. Each is
+The bundle is `resources/plugins/base/Moose.lua`, currently MOOSE develop commit `69bb1ad8`
+(2026-11-08; `Moose_Include_Static/Moose_.lua` from MOOSE_INCLUDE, DM pick: develop). It carries fork edits that a naive re-vendor drops silently. Each is
 marked in the file with a `-- RetLab patch (<subject>)` comment — grep for `RetLab patch`
 before and after any bump and re-apply what is missing.
 
@@ -15,9 +15,15 @@ only when the target is a `local` a plugin cannot reach.
 
 | Patch | Why it is in the bundle | Removal trigger |
 |---|---|---|
-| `civilian_traffic crash guard` (2 sites) | Orphan RAT spawns crashed the sim | Upstream fixes the orphan case |
-| `event 61 spam` | `EVENT:onEvent` is bundle code; upstream develop already carries the same guard | The bundle is bumped past upstream's `if Event.id ~= 61` guard |
-| `LHA landing error` | `AIRBOSS:OnEventLand` is bundle code; upstream develop already joins the tests with `and` | The bundle is bumped past that fix; `tests/lua/test_airboss_lha_landing.py` fails if a bump brings the `or` back |
+| `task-complete row` | `EVENTS.UnitTaskComplete` has no `_EVENTMETA` row upstream, so each task completion logs "Could not get EVENTMETA data" | Upstream adds the row |
+
+**Bump of 2026-11-13** (`3a95e75c` to `69bb1ad8`): the `event 61 spam` and `LHA landing
+error` patches dropped out (upstream develop carries both fixes). The two
+`civilian_traffic crash guard` patches in RAT were not re-applied: no plugin uses MOOSE's
+RAT since §129's redesign; if RAT comes back, recover them from this repo's history
+(`git log -S "civilian_traffic crash guard" -- resources/plugins/base/Moose.lua`). MOOSE #2595 is not fixed upstream, so the intercept plugin's
+`BASE.CreateEventTakeoff` monkeypatch stays. CTLD went 1.3.38 to 1.4.45; the internals
+`ctld-config.lua` touches (`Loaded_Cargo`, `_UnloadTroops`, `PreloadTroops`) kept their shape.
 
 ## `LHA landing error` (2026-10-11, test 55)
 
