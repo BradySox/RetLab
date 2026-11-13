@@ -27,8 +27,8 @@ Skynet trade-off (upstream's own framing): fixes DCS SAM crudeness (networked tr
 > **RetLab deltas:**
 > - **Skynet is the engine** (a MOOSE MANTIS bridge ran from 2026-06-24 to 2026-09-12 and
 >   was removed). There is no engine selector.
-> - **MIST is upstream's `mist_4_5_126.lua`** again; the 2026-07 compat shim went with the
->   MANTIS bridge.
+> - **MIST is not loaded** (removed 2026-11-12). CTLD runs on MOOSE's Ops.CTLD; Skynet
+>   gets the few MIST functions it calls from `skynetiads/skynet-mist-compat.lua`.
 > - The fork ships **~30 plugins**, most of them its own, each gated by a matching setting.
 >   **An unticked plugin silently kills its setting** — campaigns must preseed both.
 > - `ewrj`, Flight Control ATC and DCS Dismounts are **retired**; Splash Damage is a locked,

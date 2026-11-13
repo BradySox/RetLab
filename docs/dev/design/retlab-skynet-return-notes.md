@@ -15,6 +15,9 @@ The fork runs upstream's Skynet-IADS again, on upstream's MIST. The MOOSE MANTIS
 
 Scope was put to the DM as a choice and the answer was "Skynet + MIST only".
 
+**2026-11-12:** MIST no longer loads. Skynet is unchanged and gets the MIST functions it calls
+from `skynetiads/skynet-mist-compat.lua` (`retlab-mist-removal-notes.md` §4).
+
 ## 2. Why — the evidence
 
 - **Skynet was never shown broken.** The parity note that made the 2026-06 decision recorded

@@ -1,8 +1,8 @@
 # Removing MIST
 
 **Date:** 2026-11-12 (DM call)
-**Status:** steps 1, 2, 3a and 3b built.
-**Checklist:** B326 (step 1), B328 (step 3a), B329 (step 3b).
+**Status:** done 2026-11-12; MIST no longer loads. Every step awaits its in-game pass.
+**Checklist:** B326 (step 1), B328 (step 3a), B329 (step 3b), B330 (step 4).
 
 ## 1. The decision
 
@@ -98,8 +98,20 @@ check every caller's argument shapes against a replacement before merging. The s
 `Ops.CTLD` scope (template groups the mission must carry) is
 `git show 0dcaf73e2^:docs/dev/design/retlab-ctld-mantis-style-port-scope.md`.
 
-## 8. Rules while MIST is half gone
+## 8. Step 4: MIST stops loading
 
-- Upstream Lua merged during this work: grep it for `mist.` and route each call to the
-  replacement for its step.
+`base/plugin.json` drops the `mist` work order and `mist_4_5_126.lua` is deleted. Skynet's
+compatibility file now defines `mist`. The stale-docs audit flags a published page that
+still says MIST loads.
+
+**Measuring the gain (B330).** Compare against test 37's numbers in
+`retlab-sim-thread-freeze-notes.md`: the heap floor (~430 MB) and the collector's period
+(~150 s). Expect the floor to drop; a stutter that remains is not MIST's.
+
+## 9. Rules from here
+
+- Upstream Lua merged from now on: grep it for `mist.`; port each call to MOOSE or the
+  DCS API before it lands. Never restore MIST for one caller.
+- A Skynet update: run `tests/lua/test_skynet_mist_compat.py`; it fails on a `mist.`
+  function the compatibility file lacks.
 - Do not add a new `mist.` call anywhere.

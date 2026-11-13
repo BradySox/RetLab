@@ -30,8 +30,8 @@ mandatory core every mission loads.
 
 Write runtime logic against **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim).
 
-**MIST** is upstream's `mist_4_5_126.lua`, loaded by the `base` plugin's `"mist"` work order.
-Only Skynet still calls it. CTLD runs on MOOSE's Ops.CTLD and AUTOLASE.
+**MIST is not loaded.** CTLD runs on MOOSE's Ops.CTLD and AUTOLASE. Skynet gets the few MIST
+functions it calls from its own `skynet-mist-compat.lua`. Do not add a `mist.` call.
 
 MOOSE API docs:
 https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html
@@ -69,7 +69,7 @@ setting off costs nothing at runtime.
 
 | Plugin | Default | What it does |
 |---|---|---|
-| `base` | on | Mandatory core scripts, MIST, `Moose.lua`, and the sortie recorder. |
+| `base` | on | Mandatory core scripts, `Moose.lua`, and the sortie recorder. |
 | `ctld` | on | CTLD on MOOSE (Ops.CTLD) — sling-loading crates, deploying troops and vehicles, JTAC lasing through AUTOLASE, and the AI loader. Also carries the §76 paradrop runtime. |
 | `MooseSoundhandler` | off | Radio-call and combat sound effects on in-game events. |
 | `MooseMarkerOps` | off | Host tool: any player types a command into an F10 map marker to explode, illuminate, smoke, destroy, send home, refuel or make immortal what is near it. |

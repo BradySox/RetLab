@@ -150,7 +150,7 @@ hard-constraints list or a surviving note. The deleted debt register is at
 | Campaign engine | Python 3.11 (`game/`). Library catalog, reference only: https://github.com/vinta/awesome-python |
 | UI | PyQt (`qt_ui/`) + React/Leaflet client (`client/`) — client NOT type-checked in CI |
 | Mission scripting | **Lua 5.1** sandbox plugins (`resources/plugins/`) — no `os`/`io`, no `goto`, definition order matters |
-| In-mission framework | **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim) is the standard. **MIST is upstream's `mist_4_5_126.lua`** again since 2026-09-12, and `base/plugin.json` is upstream's work-order list plus the fork's `sortie_recorder.lua` and `train_losses.lua`; a merged upstream Lua file that calls `mist.*` needs no shim work. MOOSE API docs: https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html |
+| In-mission framework | **MOOSE** (bundled `Moose.lua`; some plugins vendor classes verbatim) is the standard. **MIST is not loaded** since 2026-11-12 (DM call, `retlab-mist-removal-notes.md`): CTLD runs on Ops.CTLD and AUTOLASE, and Skynet gets only the MIST functions it calls from `skynetiads/skynet-mist-compat.lua`. A merged upstream Lua file that calls `mist.*` must be ported to MOOSE or the DCS API; never add a `mist.` call. MOOSE API docs: https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/index.html |
 | Units / mission format | pydcs; CurrentHill mod packs in `pydcs_extensions/` |
 | CI gates | Black + mypy + pytest + the published-docs audit + the Lua 5.1 syntax gate (all blocking), plus advisory luacheck and dead-code report — see `docs/dev/CLAUDE-ci.md` |
 | Release | PyInstaller → rolling `latest` pre-release on GitHub |
@@ -424,7 +424,7 @@ flight (TARPS is hand-fragged), §75's two generic victory sliders, and package 
 - **The MIST author's repositories** — read-only. His name and handle appear nowhere in this
   repo (paid-campaign treatment, 2026-08-20). His other repos are GPL-3 or unlicensed and this
   tree is LGPL-3: read them and reimplement from the DCS API, never vendor a file or commit his
-  data. The tree ships upstream's MIST, as upstream does. His published unit dump is a second
+  data. The tree ships no MIST since 2026-11-12. His published unit dump is a second
   ground truth for sensor ranges; the detection-range check was run 2026-08-20 and found no
   defect — do not re-run it. See `retlab-mist-author-repos-notes.md`.
 

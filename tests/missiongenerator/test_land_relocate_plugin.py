@@ -28,12 +28,11 @@ def test_land_relocate_loaded_after_moose() -> None:
     assert files.index("land_relocate.lua") > files.index("moose.lua")
 
 
-def test_base_plugin_loads_real_mist_not_the_retired_shim() -> None:
-    # The 2026-07 MIST->MOOSE shim was retired with the MANTIS bridge (2026-09-12);
-    # upstream's mist_4_5_126.lua is back as the one MIST the consumers load.
+def test_base_plugin_loads_no_mist() -> None:
+    # MIST was removed 2026-11-12 (retlab-mist-removal-notes.md); only Skynet's
+    # own compatibility file defines a `mist` table now.
     files = _base_work_order_files()
-    assert "mist_4_5_126.lua" in files
-    assert "mist_moose_shim.lua" not in files
+    assert not [f for f in files if "mist" in f.lower()]
 
 
 def test_land_relocate_injected_as_doscriptfile() -> None:

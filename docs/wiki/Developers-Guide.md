@@ -20,7 +20,7 @@ pydcs — this is a great way to contribute indirectly to the project.
 [dcs-retribution/pydcs](https://github.com/dcs-retribution/pydcs) — that is where this
 project's pydcs pin points and where our pydcs PRs are sent. Runtime mission behavior
 additionally lives in **Lua 5.1 plugins** under `resources/plugins/` (MOOSE is the
-in-mission framework; MIST is upstream's own build) — see
+in-mission framework; MIST is not loaded) — see
 [Lua Plugins](Lua-Plugins) and the Lua notes under
 [Type checkers, linters, and tests](#type-checkers-linters-and-tests) below.
 
@@ -238,8 +238,8 @@ functions before first use, vanilla DCS units only). Beyond the syntax gate, the
 harness in `tests/lua/` runs the real plugin scripts on Lua 5.1 (via `lupa`) against a
 faked DCS sandbox inside the normal pytest run — run and extend it when you touch a
 covered plugin. It models no DCS AI or physics, so real behavior still needs an in-game
-pass (tracked in `docs/dev/retlab-ingame-pass-checklist.md`). Upstream Lua that calls
-`mist.*` needs no extra work: the fork loads upstream's MIST unchanged.
+pass (tracked in `docs/dev/retlab-ingame-pass-checklist.md`). The fork loads no MIST:
+upstream Lua that calls `mist.*` must be ported to MOOSE or the DCS API before it merges.
 
 ## Making a release
 

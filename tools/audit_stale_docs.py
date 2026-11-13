@@ -273,15 +273,12 @@ REMOVED: tuple[Removed, ...] = (
         allow=("retired", "removed", "is gone", "no longer", "upersede"),
     ),
     Removed(
-        # Reversed: MIST was retired 2026-07-10 and is upstream's own build again
-        # since 2026-09-12. The row used to flag every mention of MIST and excuse
-        # "retired", so it passed the stale claim and would fail a correct page.
-        "the MIST retirement and its shim (reversed 2026-09-12)",
-        "2026-09-12",
-        r"MIST is retired|MIST was retired|retired MIST|MIST[- ]?(→|to|-to-)[- ]?MOOSE"
-        r"|compatibility shim|mist_moose_shim",
-        allow=("2026-07-10", "until 2026-09-12", "historical"),
-        strict=True,
+        # MIST stopped loading 2026-11-12 (CTLD on Ops.CTLD, Skynet on its own compat
+        # file). A page that still says the base plugin loads upstream's MIST is stale.
+        "MIST in the mission (removed 2026-11-12)",
+        "2026-11-12",
+        r"MIST is upstream's|mist_4_5_126\.lua|mist_moose_shim|loads upstream's MIST",
+        allow=("removed", "no longer", "is not loaded"),
     ),
     Removed(
         # CTLD now runs on MOOSE's Ops.CTLD; the old script's F10 call and file are gone.
