@@ -9,7 +9,8 @@ for, whose loss was never a real loss.
 This module wires the gaggle into the force model without needing the (blocked) auto-plannable
 CTLD cargo run. The approach ("debit a squadron + track losses"):
 
-* **Plan once per turn** (``plan_super_gaggle`` from ``finish_turn``): pick the besieged
+* **Plan when the mission is built** (``plan_super_gaggle`` from mission generation, after
+  the ATO is final): pick the besieged
   outpost + launch field (as before), pick a **real BLUE helicopter squadron** to fly the
   gaggle and a **real BLUE attack squadron** for the suppressors, and record a
   :class:`SuperGaggleCommitment` (which squadrons, the exact per-airframe unit names the plugin
@@ -136,13 +137,13 @@ def plan_super_gaggle(game: "Game") -> None:
     helo_squadron = _pick_squadron(game, launch, helicopter=True)
     if helo_squadron is None:
         return  # no real helo airframes to fly the gaggle -> no free spawn.
-    helo_count = min(DESIRED_HELOS, helo_squadron.owned_aircraft)
+    helo_count = min(DESIRED_HELOS, helo_squadron.untasked_aircraft)
     if helo_count < 1:
         return
 
     supp_squadron = _pick_squadron(game, launch, helicopter=False)
     supp_count = (
-        min(DESIRED_SUPPRESSORS, supp_squadron.owned_aircraft)
+        min(DESIRED_SUPPRESSORS, supp_squadron.untasked_aircraft)
         if supp_squadron is not None
         else 0
     )
@@ -182,7 +183,8 @@ def _pick_squadron(
     best: Optional["Squadron"] = None
     best_distance = float("inf")
     for squadron in game.blue.air_wing.iter_squadrons():
-        if squadron.owned_aircraft < 1:
+        # Untasked, not owned: an airframe already in the ATO would fly twice.
+        if squadron.untasked_aircraft < 1:
             continue
         aircraft = squadron.aircraft
         if helicopter:
