@@ -255,3 +255,39 @@ class Campaign:
                 yield campaign
             except RuntimeError:
                 logging.exception(f"Unable to load campaign from {path}")
+
+
+#: Campaign name -> its definition file, built on the first lookup in a process.
+_PATHS_BY_NAME: Optional[Dict[str, Path]] = None
+
+
+def campaign_yaml_named(name: Optional[str]) -> Optional[Dict[str, Any]]:
+    """The yaml of the campaign called *name*, or None if none is.
+
+    Saves store only the campaign's name. One scan per process maps names to
+    files; the matching file is re-read on each call. Never raises.
+    """
+    global _PATHS_BY_NAME
+    if not name:
+        return None
+    try:
+        if _PATHS_BY_NAME is None:
+            paths: Dict[str, Path] = {}
+            for candidate in Campaign.iter_campaign_defs():
+                try:
+                    with candidate.open(encoding="utf-8") as campaign_file:
+                        data = safe_load_yaml(campaign_file)
+                except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
+                    continue
+                if isinstance(data, dict) and isinstance(data.get("name"), str):
+                    paths.setdefault(data["name"], candidate)
+            _PATHS_BY_NAME = paths
+        path = _PATHS_BY_NAME.get(name)
+        if path is None:
+            return None
+        with path.open(encoding="utf-8") as campaign_file:
+            data = safe_load_yaml(campaign_file)
+        return data if isinstance(data, dict) else None
+    except Exception:  # noqa: BLE001
+        logging.exception("Campaign lookup failed for %r", name)
+        return None

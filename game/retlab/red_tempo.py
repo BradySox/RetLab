@@ -41,7 +41,6 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
-from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game import Game
@@ -106,19 +105,11 @@ def schedule_for(game: "Game") -> tuple[RedTempoWindow, ...]:
     if name in _SCHEDULE_CACHE:
         return _SCHEDULE_CACHE[name]
     schedule: tuple[RedTempoWindow, ...] = ()
+    from game.campaignloader.campaign import campaign_yaml_named
+
+    data = campaign_yaml_named(name)
     try:
-
-        from game.campaignloader.campaign import Campaign
-
-        for path in Campaign.iter_campaign_defs():
-            try:
-                with path.open(encoding="utf-8") as campaign_file:
-                    data = safe_load_yaml(campaign_file)
-            except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
-                continue
-            if isinstance(data, dict) and data.get("name") == name:
-                schedule = parse_red_tempo(data.get("red_tempo"))
-                break
+        schedule = parse_red_tempo((data or {}).get("red_tempo"))
     except Exception:  # noqa: BLE001
         logging.exception("Red tempo: schedule lookup failed for %r", name)
         schedule = ()

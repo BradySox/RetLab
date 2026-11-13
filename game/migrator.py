@@ -10,6 +10,7 @@ from dcs.countries import countries_by_name
 from dcs.terrain import Airport, Terrain
 
 from game.ato import FlightType
+from game.campaignloader.campaign import campaign_yaml_named
 from game.ato.flightplans.formation import FormationLayout
 from game.ato.flightplans.waypointbuilder import WaypointBuilder
 from game.ato.packagewaypoints import PackageWaypoints
@@ -20,7 +21,6 @@ from game.radio.Link4Container import Link4Container
 from game.theater import ParkingType, SeasonalConditions, Airfield
 from game.theater.neutralborder import campaign_postures
 from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
-from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game import Game
@@ -524,37 +524,16 @@ class Migrator:
         theater = getattr(self.game, "theater", None)
         if theater is None or getattr(theater, "neutral_border_postures", None):
             return
-        data = _campaign_yaml(getattr(self.game, "campaign_name", None))
+        data = campaign_yaml_named(getattr(self.game, "campaign_name", None))
         postures = campaign_postures((data or {}).get("neutral_border_postures"))
         if postures:
             theater.neutral_border_postures = postures
             theater.date_borders(self.game.date)
 
 
-def _campaign_yaml(campaign_name: Optional[str]) -> Optional[dict[str, Any]]:
-    """The campaign's own yaml, found by its name, or None if unknown."""
-    if not campaign_name:
-        return None
-    try:
-
-        from game.campaignloader.campaign import Campaign
-
-        for path in Campaign.iter_campaign_defs():
-            try:
-                with path.open(encoding="utf-8") as campaign_file:
-                    data = safe_load_yaml(campaign_file)
-            except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
-                continue
-            if isinstance(data, dict) and data.get("name") == campaign_name:
-                return data
-    except Exception:  # noqa: BLE001
-        logging.exception("Campaign lookup failed for %r", campaign_name)
-    return None
-
-
 def _campaign_iads_config_names(campaign_name: Optional[str]) -> Optional[set[str]]:
     """The site names the campaign's own ``iads_config`` writes, or None if unknown."""
-    data = _campaign_yaml(campaign_name)
+    data = campaign_yaml_named(campaign_name)
     if data is None:
         return None
     names: set[str] = set()
