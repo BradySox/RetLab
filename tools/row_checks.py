@@ -97,6 +97,70 @@ def _generate(game: Any) -> None:
         MissionGenerator(game, sim.time).generate_miz(Path(folder) / "row_check.miz")
 
 
+def check_b92() -> list[str]:
+    """A marker outside every zone belongs to the base it sits next to (Desert Trident)."""
+    import tempfile
+    from pathlib import Path
+
+    import dcs
+
+    from game.missiongenerator import MissionGenerator
+    from game.sim.missionsimulation import MissionSimulation
+    from game.utils import meters
+
+    game = build_game("operation_desert_trident")
+    bases = {cp.name: cp for cp in game.theater.controlpoints}
+    near, far = bases["King Abdullah II"], bases["Ben Gurion"]
+    assert near.captured != far.captured, "the two bases are on one side"
+
+    def nm(a: Any, b: Any) -> float:
+        return meters(a.position.distance_to_point(b.position)).nautical_miles
+
+    # The rule's own bounds: adopted within 25 km of a zoned base, and only when
+    # the fallback owner is past 50 km. A marker outside them keeps its owner.
+    adopt, stranded = 25 / 1.852, 50 / 1.852
+    wrong = [
+        t.name
+        for t in far.ground_objects
+        if nm(t, near) <= adopt and nm(t, far) > stranded
+    ]
+    assert not wrong, f"{far.name} still owns {wrong}, within 25 km of {near.name}"
+    kept = [
+        f"{t.name} {nm(t, near):.0f} NM from {near.name}"
+        for t in far.ground_objects
+        if nm(t, near) < nm(t, far)
+    ]
+    mine = {t.name for t in near.ground_objects}
+    blue = [p.target.name for p in game.blue.ato.packages if p.target.name in mine]
+    red = [p.target.name for p in game.red.ato.packages if p.target.name in mine]
+    owner, enemy = (red, blue) if near.captured.is_red else (blue, red)
+    assert not owner, f"{near.name}'s own side frags its objects: {owner}"
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "row_check.miz"
+        MissionGenerator(game, sim.time).generate_miz(path)
+        mission = dcs.Mission()
+        mission.load_file(str(path))
+    side = "red" if near.captured.is_red else "blue"
+    groups = {
+        g.name
+        for country in mission.coalition[side].countries.values()
+        for g in country.vehicle_group + country.static_group + country.ship_group
+    }
+    spawned = [n for n in mine if any(n in g for g in groups)]
+    assert spawned, f"none of {near.name}'s objects spawned on its side"
+    return [
+        f"{near.name} owns {len(mine)} objects, all within "
+        f"{max(nm(t, near) for t in near.ground_objects):.0f} NM; none of "
+        f"{far.name}'s is inside the adoption bound",
+        f"the other side frags {len(enemy)} of them, its own side none",
+        f"{len(spawned)} of them spawn in the mission under {side}",
+        f"{far.name} keeps, outside the 25 km bound: {kept or 'none'}",
+    ]
+
+
 def check_b156() -> list[str]:
     """A carrier keeps its TACAN across generations where the map owns its hull channel."""
     from game.data.carrier_comms import CARRIER_COMMS_PLANS
@@ -311,6 +375,7 @@ def check_b188() -> list[str]:
 
 
 CHECKS: dict[str, Check] = {
+    "B92": check_b92,
     "B19": check_b19,
     "B156": check_b156,
     "B282": check_b282,
