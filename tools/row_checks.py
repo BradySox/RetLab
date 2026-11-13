@@ -25,6 +25,8 @@ Check = Callable[[], list[str]]
 
 #: Has a carrier and an LHA steaming together, a land front and deep targets.
 CARRIER_CAMPAIGN = "syria_TheLongRoadToH3"
+#: Airfields on both sides close together, flyable jets on each.
+PARKING_CAMPAIGN = "syria_TheLongRoadToH3"
 #: Afghanistan owns the Stennis's hull channel (74X), the case B156 is about.
 MAP_OWNED_TACAN_CAMPAIGN = "coin_enduring_resolve"
 
@@ -338,6 +340,113 @@ def check_b319() -> list[str]:
     return evidence
 
 
+def _parked_by_field(game: Any) -> dict[str, int]:
+    """Uncontrolled (parked, untasked) aircraft per airfield in the generated mission."""
+    import tempfile
+    from pathlib import Path
+
+    import dcs
+
+    from game.missiongenerator import MissionGenerator
+    from game.sim.missionsimulation import MissionSimulation
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "row_check.miz"
+        MissionGenerator(game, sim.time).generate_miz(path)
+        mission = dcs.Mission()
+        mission.load_file(str(path))
+    parked: dict[str, int] = {}
+    for coalition in mission.coalition.values():
+        for country in coalition.countries.values():
+            for group in country.plane_group + country.helicopter_group:
+                # A delayed cold-start flight is uncontrolled too, but has a route.
+                if not getattr(group, "uncontrolled", False) or len(group.points) > 1:
+                    continue
+                field = group.points[0].airdrome_id
+                if field is None:
+                    continue
+                name = mission.terrain.airport_by_id(field).name
+                parked[name] = parked.get(name, 0) + len(group.units)
+    return parked
+
+
+def check_b161() -> list[str]:
+    """Untasked parked aircraft spawn only at fields a player flight comes near."""
+    from shapely.geometry import LineString, Point
+
+    from game.ato.flighttype import FlightType
+    from game.theater.controlpoint import Airfield
+    from game.utils import meters
+
+    game = build_game(PARKING_CAMPAIGN)
+    game.settings.perf_disable_untasked_blufor_aircraft = False
+    game.settings.perf_disable_untasked_opfor_aircraft = False
+    oca = {
+        p.target.name
+        for p in game.blue.ato.packages
+        if p.primary_task == FlightType.OCA_AIRCRAFT
+    }
+    enemy = [
+        cp
+        for cp in game.theater.controlpoints
+        if isinstance(cp, Airfield)
+        and cp.captured.is_red
+        and cp.name not in oca
+        and sum(s.untasked_aircraft for s in cp.squadrons)
+    ]
+
+    def route_of(flight: Any) -> LineString:
+        return LineString(
+            [
+                (w.position.x, w.position.y)
+                for w in flight.flight_plan.iter_waypoints()
+                if w.waypoint_type.name != "BULLSEYE"
+            ]
+        )
+
+    def route_nm(route: LineString, cp: Any) -> float:
+        return meters(
+            route.distance(Point(cp.position.x, cp.position.y))
+        ).nautical_miles
+
+    # A flyable flight from an airfield whose route passes an enemy field.
+    flight = next(
+        f
+        for p in game.blue.ato.packages
+        for f in p.flights
+        if isinstance(f.departure, Airfield)
+        and f.unit_type.dcs_unit_type.flyable
+        and any(route_nm(route_of(f), cp) <= 20 for cp in enemy)
+    )
+    next(flight.iter_members()).pilot.player = True
+    flight.recreate_flight_plan()
+    route = route_of(flight)
+    parked = _parked_by_field(game)
+    near = [
+        cp.name for cp in enemy if route_nm(route, cp) <= 20 and parked.get(cp.name)
+    ]
+    far = [cp.name for cp in enemy if route_nm(route, cp) > 25]
+    assert parked.get(flight.departure.name), f"{flight.departure.name} ramp is empty"
+    assert near, "no enemy field within 20 NM of the route has parked aircraft"
+    full = [n for n in far if parked.get(n)]
+    assert not full, f"parked aircraft at fields far from every player: {full}"
+
+    game.settings.perf_disable_untasked_blufor_aircraft = True
+    game.settings.perf_disable_untasked_opfor_aircraft = True
+    ticked = _parked_by_field(game)
+    assert not ticked, f"parked aircraft with both boxes ticked: {ticked}"
+    return [
+        f"player {flight.flight_type.value} from {flight.departure.name}: "
+        f"{parked[flight.departure.name]} parked there",
+        f"enemy fields within 20 NM of the route, parked: "
+        f"{ {n: parked[n] for n in near} }",
+        f"{len(far)} enemy fields over 25 NM from it, none parked",
+        "both boxes ticked: no parked aircraft anywhere",
+    ]
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -378,6 +487,7 @@ CHECKS: dict[str, Check] = {
     "B92": check_b92,
     "B19": check_b19,
     "B156": check_b156,
+    "B161": check_b161,
     "B282": check_b282,
     "B319": check_b319,
     "B188": check_b188,

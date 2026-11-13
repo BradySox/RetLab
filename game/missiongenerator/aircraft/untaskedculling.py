@@ -14,6 +14,7 @@ import math
 from typing import TYPE_CHECKING, Iterable
 
 from game.ato.flighttype import FlightType
+from game.ato.flightwaypointtype import FlightWaypointType
 from game.theater.controlpoint import ControlPoint
 from game.utils import Distance, nautical_miles
 
@@ -66,7 +67,13 @@ def airfields_players_see(
         seen.add(flight.arrival)
         if flight.divert is not None:
             seen.add(flight.divert)
-        route = [wpt.position for wpt in flight.flight_plan.waypoints]
+        # The bullseye is a reference point, never flown; a leg to it drew a line
+        # across the map and kept every ramp under it (row B161).
+        route = [
+            wpt.position
+            for wpt in flight.flight_plan.waypoints
+            if getattr(wpt, "waypoint_type", None) is not FlightWaypointType.BULLSEYE
+        ]
         if route:
             routes.append(route)
 
