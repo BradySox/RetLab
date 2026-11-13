@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 from .windspeedgenerators import WindSpeedGenerator
 
@@ -32,7 +32,7 @@ class WeatherArchetype:
     @staticmethod
     def from_yaml(path: Path) -> WeatherArchetype:
         with path.open(encoding="utf-8") as yaml_file:
-            data = yaml.safe_load(yaml_file)
+            data = safe_load_yaml(yaml_file)
         return WeatherArchetype.from_data(data)
 
 

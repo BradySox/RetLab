@@ -5,7 +5,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, Type
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 from game import persistency
 from game.factions.faction import Faction
@@ -47,7 +47,7 @@ class FactionLoader:
             try:
                 with f.open("r", encoding="utf-8") as fdata:
                     if "yml" in f.name or "yaml" in f.name:
-                        data = yaml.safe_load(fdata)
+                        data = safe_load_yaml(fdata)
                     else:
                         data = json.load(fdata)
                     factions[data["name"]] = Faction.from_dict(data)

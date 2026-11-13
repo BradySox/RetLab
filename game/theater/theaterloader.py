@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.terrain import (
     Caucasus,
     Falklands,
@@ -113,12 +113,12 @@ class TheaterLoader:
         ``MarianasWWII``). Reads the descriptor only; loading the theater would
         pull a landmap of up to 2 MB per entry."""
         with self.descriptor_path.open(encoding="utf-8") as descriptor_file:
-            return str(yaml.safe_load(descriptor_file)["name"])
+            return str(safe_load_yaml(descriptor_file)["name"])
 
     @property
     def menu_thumbnail_dcs_relative_path(self) -> Path:
         with self.descriptor_path.open(encoding="utf-8") as descriptor_file:
-            data = yaml.safe_load(descriptor_file)
+            data = safe_load_yaml(descriptor_file)
         # The install folder is usually the pydcs terrain name, but not always:
         # MarianaIslandsWWII ships in Mods/terrains/MarianasWWII. A terrain whose
         # folder differs sets dcs_terrain_dir, or the icon silently falls back to
@@ -128,7 +128,7 @@ class TheaterLoader:
 
     def load(self) -> ConflictTheater:
         with self.descriptor_path.open(encoding="utf-8") as descriptor_file:
-            data = yaml.safe_load(descriptor_file)
+            data = safe_load_yaml(descriptor_file)
         return ConflictTheater(
             TERRAINS_BY_NAME[data.get("pydcs_name", data["name"])],
             self.landmap_path,

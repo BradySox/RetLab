@@ -41,6 +41,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import Optional, TYPE_CHECKING
+from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game import Game
@@ -106,14 +107,13 @@ def schedule_for(game: "Game") -> tuple[RedTempoWindow, ...]:
         return _SCHEDULE_CACHE[name]
     schedule: tuple[RedTempoWindow, ...] = ()
     try:
-        import yaml
 
         from game.campaignloader.campaign import Campaign
 
         for path in Campaign.iter_campaign_defs():
             try:
                 with path.open(encoding="utf-8") as campaign_file:
-                    data = yaml.safe_load(campaign_file)
+                    data = safe_load_yaml(campaign_file)
             except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
                 continue
             if isinstance(data, dict) and data.get("name") == name:

@@ -28,6 +28,7 @@ from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence, TYPE_CHECKING
 
 import yaml
+from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game.squadrons.pilot import PilotRecord
@@ -167,7 +168,7 @@ def load_career_data(path: Optional[Path] = None) -> CareerData:
         return _cache
     source = path or CAREER_FILE
     try:
-        raw = yaml.safe_load(source.read_text(encoding="utf-8"))
+        raw = safe_load_yaml(source.read_text(encoding="utf-8"))
     except FileNotFoundError:
         logging.info("No %s; the pilot logbook has no ranks", source)
         raw = None

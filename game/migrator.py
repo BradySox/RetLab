@@ -20,6 +20,7 @@ from game.radio.Link4Container import Link4Container
 from game.theater import ParkingType, SeasonalConditions, Airfield
 from game.theater.neutralborder import campaign_postures
 from game.theater.theatergroundobject import ShipGroundObject, TheaterGroundObject
+from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game import Game
@@ -535,14 +536,13 @@ def _campaign_yaml(campaign_name: Optional[str]) -> Optional[dict[str, Any]]:
     if not campaign_name:
         return None
     try:
-        import yaml
 
         from game.campaignloader.campaign import Campaign
 
         for path in Campaign.iter_campaign_defs():
             try:
                 with path.open(encoding="utf-8") as campaign_file:
-                    data = yaml.safe_load(campaign_file)
+                    data = safe_load_yaml(campaign_file)
             except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
                 continue
             if isinstance(data, dict) and data.get("name") == campaign_name:

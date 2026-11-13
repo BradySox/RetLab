@@ -9,7 +9,7 @@ from functools import cache, cached_property
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Iterator, Optional, TYPE_CHECKING, Type
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.helicopters import helicopter_map
 from dcs.planes import plane_map
 from dcs.task import AWACS, Reconnaissance, Refueling, Transport
@@ -1015,7 +1015,7 @@ class AircraftType(UnitType[Type[FlyingType]]):
         if not data_path.exists():
             return
         with data_path.open(encoding="utf-8") as data_file:
-            data = yaml.safe_load(data_file)
+            data = safe_load_yaml(data_file)
         AircraftType._custom_weapon_injections(aircraft, data)
 
     def __hash__(self) -> int:

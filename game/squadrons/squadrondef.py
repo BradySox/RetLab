@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, TYPE_CHECKING, Union
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.country import Country
 from dcs.task import Modulation
 
@@ -75,7 +75,7 @@ class SquadronDef:
     @classmethod
     def from_yaml(cls, path: Path) -> SquadronDef:
         with path.open(encoding="utf8") as squadron_file:
-            data = yaml.safe_load(squadron_file)
+            data = safe_load_yaml(squadron_file)
 
         name = data["aircraft"]
         try:

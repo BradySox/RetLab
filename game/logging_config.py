@@ -5,7 +5,7 @@ import logging.config
 import os
 from pathlib import Path
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 
 def init_logging(version: str) -> None:
@@ -18,6 +18,6 @@ def init_logging(version: str) -> None:
     if (custom_log_config := resources / "logging.yaml").exists():
         log_config = custom_log_config
     with log_config.open(encoding="utf-8") as log_file:
-        logging.config.dictConfig(yaml.safe_load(log_file))
+        logging.config.dictConfig(safe_load_yaml(log_file))
 
     logging.info(f"DCS Retribution {version}")

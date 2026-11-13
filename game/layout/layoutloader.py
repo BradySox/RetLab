@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Iterator
 
 import dcs
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs import Point
 from dcs.unitgroup import StaticGroup
 
@@ -127,7 +127,7 @@ class LayoutLoader:
         if not file.is_file():
             raise RuntimeError(f"{file.name} is not a file")
         with file.open("r", encoding="utf-8") as f:
-            mapping_dict = yaml.safe_load(f)
+            mapping_dict = safe_load_yaml(f)
         template_map = LayoutMapping.from_dict(mapping_dict, f.name)
         mappings[template_map.layout_file].append(template_map)
 

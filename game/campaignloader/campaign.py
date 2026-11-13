@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, Tuple, Optional
 
-import yaml
+from game.yamlload import safe_load_yaml
 from packaging.version import Version
 
 from game import persistency
@@ -68,7 +68,7 @@ class Campaign:
     @classmethod
     def from_file(cls, path: Path) -> Campaign:
         with path.open(encoding="utf-8") as campaign_file:
-            data = yaml.safe_load(campaign_file)
+            data = safe_load_yaml(campaign_file)
 
         sanitized_theater = data["theater"].replace(" ", "")
         version_field = data.get("version", "0")
