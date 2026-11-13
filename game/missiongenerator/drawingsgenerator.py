@@ -10,7 +10,7 @@ from dcs.mission import Mission
 
 from game import Game
 from game.ato.flighttype import FlightType
-from game.ato.flightwaypointtype import FlightWaypointType
+from game.missiongenerator.dtc.common import racetrack_ends
 from game.missiongenerator.frontlineconflictdescription import (
     FrontLineConflictDescription,
 )
@@ -216,25 +216,6 @@ class DrawingsGenerator:
             shape.name = front_line.name
 
     @staticmethod
-    def _racetrack_ends(
-        flight: "FlightData",
-    ) -> tuple[Optional[Point], Optional[Point]]:
-        """The two ends of a support flight's orbit racetrack, or (None, None).
-
-        ``race_track_start`` is emitted as a ``PATROL_TRACK`` waypoint and
-        ``race_track_end`` as a ``PATROL`` waypoint (see the waypoint builder), so
-        the pair defines the orbit leg the tanker/AEW&C flies.
-        """
-        start: Optional[Point] = None
-        end: Optional[Point] = None
-        for waypoint in flight.waypoints:
-            if waypoint.waypoint_type == FlightWaypointType.PATROL_TRACK:
-                start = waypoint.position
-            elif waypoint.waypoint_type == FlightWaypointType.PATROL:
-                end = waypoint.position
-        return start, end
-
-    @staticmethod
     def _support_orbit_radius(flight: "FlightData") -> float:
         """Half-width of the drawn capsule, from the flight's own orbit speed."""
         from game.ato.flightplans.tacticaloverlay import orbit_radius
@@ -280,7 +261,7 @@ class DrawingsGenerator:
                 continue
             if not flight.friendly.is_blue:
                 continue
-            start, end = self._racetrack_ends(flight)
+            start, end = racetrack_ends(flight)
             if start is None or end is None:
                 continue
             radius = self._support_orbit_radius(flight)

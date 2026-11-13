@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any, Optional
 from game.retlab.coin import (
     CELL_SIDC,
     _alive_cell_count,
+    _cp_by_id,
     _despawn,
     _ensure_anchors,
     _revivable_units,
@@ -246,15 +247,6 @@ def _pick_field_site(
         return None
     _, home, point = best
     return home, point
-
-
-def _cp_by_id(game: "Game", cp_id: Optional[str]) -> Optional["ControlPoint"]:
-    if cp_id is None:
-        return None
-    for cp in game.theater.controlpoints:
-        if str(cp.id) == cp_id:
-            return cp
-    return None
 
 
 def _tgo_alive(tgo: Any) -> bool:

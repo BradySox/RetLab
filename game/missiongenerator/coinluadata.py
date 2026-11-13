@@ -31,6 +31,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Optional
 
+from game.retlab.coin import _cp_by_id, _nearest_blue_cp
+
 if TYPE_CHECKING:
     from game import Game
     from game.theater import ControlPoint
@@ -295,15 +297,6 @@ def _cp_name(cp: Any) -> str:
     return str(getattr(cp, "full_name", None) or getattr(cp, "name", ""))
 
 
-def _cp_by_id(game: "Game", cp_id: Any) -> Optional["ControlPoint"]:
-    if cp_id is None:
-        return None
-    for cp in game.theater.controlpoints:
-        if str(cp.id) == str(cp_id):
-            return cp
-    return None
-
-
 def _group_names(tgo: Any) -> list[str]:
     return [
         g.group_name
@@ -327,14 +320,3 @@ def _tgo_by_id(game: "Game", tgo_id: Optional[str]) -> Any:
             if str(tgo.id) == str(tgo_id):
                 return tgo
     return None
-
-
-def _nearest_blue_cp(game: "Game", point: Any) -> Optional["ControlPoint"]:
-    best: Optional[tuple[float, "ControlPoint"]] = None
-    for cp in game.theater.controlpoints:
-        if not cp.captured.is_blue:
-            continue
-        dist = point.distance_to_point(cp.position)
-        if best is None or dist < best[0]:
-            best = (dist, cp)
-    return best[1] if best is not None else None

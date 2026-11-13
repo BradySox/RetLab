@@ -26,6 +26,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Optional
 
 from game.retlab.coin import (
+    _front_reference,
+    _nearest_blue_cp,
     IED_SIDC,
     _despawn,
     _tgo_by_id,
@@ -205,18 +207,6 @@ def _replenish_ieds(
             )
 
 
-def _nearest_blue_cp(game: "Game", point: Any) -> Optional["ControlPoint"]:
-    """The friendly (blue) control point nearest *point* -- the VBIED's objective."""
-    best: Optional[tuple[float, "ControlPoint"]] = None
-    for cp in game.theater.controlpoints:
-        if not cp.captured.is_blue:
-            continue
-        dist = point.distance_to_point(cp.position)
-        if best is None or dist < best[0]:
-            best = (dist, cp)
-    return best[1] if best is not None else None
-
-
 def _pick_ied_site(
     game: "Game", used: set[tuple[Any, Any]]
 ) -> Optional[tuple["ControlPoint", Any, tuple[Any, Any], list[Any]]]:
@@ -258,19 +248,6 @@ def _pick_ied_site(
         return None
     _, red_cp, point, road_key, road = best
     return red_cp, point, road_key, road
-
-
-def _front_reference(game: "Game") -> list[Any]:
-    """Positions to measure 'toward the fighting' -- front lines, else the opposing
-    coalition's CPs (the front-less COIN air-assault geometry, mirroring §35)."""
-    fronts = list(game.theater.conflicts())
-    if fronts:
-        return [front.position for front in fronts]
-    return [
-        cp.position
-        for cp in game.theater.controlpoints
-        if not cp.captured.is_red and not cp.captured.is_neutral
-    ]
 
 
 def _mid_waypoint(waypoints: Any, forward: "ControlPoint") -> Any:
