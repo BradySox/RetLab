@@ -506,3 +506,78 @@ def test_jtac_stick_starts_lasing_on_landing() -> None:
     jtacs = h.to_python(h.lua.eval("ctld._jtacStarts"))
     assert jtacs == [{"group": "Herc 1-1 troops", "code": 1688}]
     h.assert_no_lua_errors()
+
+
+# JTAC lasing runs on MOOSE AUTOLASE (MIST removal step 3a). Fakes record the setup.
+_AUTOLASE_FAKES = """
+lases = {}
+SET_GROUP = {}
+function SET_GROUP:New()
+    local s = { coalitions = nil, prefixes = nil }
+    function s:FilterCoalitions(c) self.coalitions = c return self end
+    function s:FilterPrefixes(p) self.prefixes = p return self end
+    function s:FilterStart() return self end
+    return s
+end
+AUTOLASE = {}
+function AUTOLASE:New(set, side, alias)
+    local a = { side = side, alias = alias, prefixes = set.prefixes, codes = {},
+        blacklist = {}, smoke = false }
+    function a:SetLasingParameters(d, t) self.distance, self.duration = d, t return self end
+    function a:SetLaserCoolDown(on) self.cooldown = on return self end
+    function a:AddBlackListAttributes(list) self.blacklist = list return self end
+    function a:SetSmokeTargets(on) self.smoke = on return self end
+    function a:SetRecceLaserCode(name, code) self.codes[name] = code return self end
+    table.insert(lases, a)
+    return a
+end
+"""
+
+
+def _load_with_jtac(h: DcsPluginHarness, **options: Any) -> None:
+    h.lua.execute(_CTLD_STUB)
+    h.lua.execute(_AUTOLASE_FAKES)
+    config = _config([], [])
+    config["plugins"] = {"ctld": {**_PLUGIN_OPTIONS["ctld"], **options}}
+    config["JTACs"] = [
+        {
+            "dcsGroupName": "JTAC Reaper",
+            "dcsUnit": "JTAC Reaper-1",
+            "laserCode": "1688",
+            "radio": "251.0",
+            "modulation": "AM",
+        }
+    ]
+    h.lua.globals().dcsRetribution = h.to_lua(config)
+    h.load_plugin_script(CONFIG)
+
+
+def test_jtac_lases_through_autolase_for_both_sides() -> None:
+    h = DcsPluginHarness()
+    _load_with_jtac(h, autolase=True, jtacsmoke=False, fc3LaserCode=False)
+    lases = h.to_python(h.lua.eval("lases"))
+    assert [a["side"] for a in lases] == ["blue", "red"]
+    for a in lases:
+        assert a["prefixes"] == ["JTAC Reaper"]
+        assert a["codes"] == {"JTAC Reaper-1": 1688}
+        assert a["distance"] == 10000
+        assert a["cooldown"] is False
+        assert a["blacklist"] == ["Infantry"]
+        assert a["smoke"] is False
+    h.assert_no_lua_errors()
+
+
+def test_jtac_fc3_code_and_smoke_options() -> None:
+    h = DcsPluginHarness()
+    _load_with_jtac(h, autolase=True, jtacsmoke=True, fc3LaserCode=True)
+    for a in h.to_python(h.lua.eval("lases")):
+        assert a["codes"] == {"JTAC Reaper-1": 1113}
+        assert a["smoke"] is True
+    h.assert_no_lua_errors()
+
+
+def test_no_autolase_without_the_option() -> None:
+    h = DcsPluginHarness()
+    _load_with_jtac(h, autolase=False)
+    assert h.to_python(h.lua.eval("lases")) in ([], {}, None)
+    h.assert_no_lua_errors()

@@ -418,15 +418,35 @@ if dcsRetribution then
                 fc3LaserCode = dcsRetribution.plugins.ctld.fc3LaserCode
                 env.info(string.format("DCSRetribution|CTLD plugin - JTACAutolase fc3LaserCode = %s", tostring(fc3LaserCode)))
 
-                -- JTAC Autolase configuration code
-                for _, jtac in pairs(dcsRetribution.JTACs) do
-                    env.info(string.format("DCSRetribution|JTACAutolase - setting up %s", jtac.dcsGroupName))
-                    if fc3LaserCode then
-                        -- If fc3LaserCode is enabled in the plugin configuration, force the JTAC
-                        -- laser code to 1113 to allow lasing for Su-25 Frogfoots and A-10A Warthogs.
-                        jtac.laserCode = 1113
+                -- JTAC lasing runs on MOOSE AUTOLASE, one per coalition (MIST removal,
+                -- docs/dev/design/retlab-mist-removal-notes.md). Kept from CTLD's JTAC: 10 km
+                -- reach, vehicles only, steady lasing (no cooldown gap), text reports only.
+                local names = {}
+                for _, jtac in pairs(dcsRetribution.JTACs or {}) do
+                    names[#names + 1] = jtac.dcsGroupName
+                end
+                if #names > 0 then
+                    for _, side in ipairs({ "blue", "red" }) do
+                        local ok, err = pcall(function()
+                            local recce = SET_GROUP:New():FilterCoalitions(side):FilterPrefixes(names):FilterStart()
+                            local lase = AUTOLASE:New(recce, side, "JTAC")
+                            lase:SetLasingParameters(10000, 1800)
+                            lase:SetLaserCoolDown(false)
+                            lase:AddBlackListAttributes({ "Infantry" })
+                            if smoke then
+                                lase:SetSmokeTargets(true)
+                            end
+                            for _, jtac in pairs(dcsRetribution.JTACs) do
+                                -- 1113 lets the Su-25 and A-10A (FC3) use the spot.
+                                local code = fc3LaserCode and 1113 or tonumber(jtac.laserCode)
+                                lase:SetRecceLaserCode(jtac.dcsUnit, code)
+                                env.info(string.format("DCSRetribution|JTAC - %s lases on %d (%s)", jtac.dcsGroupName, code, side))
+                            end
+                        end)
+                        if not ok then
+                            env.error("DCSRetribution|JTAC - AUTOLASE setup failed: " .. tostring(err))
+                        end
                     end
-                    ctld.JTACAutoLase(jtac.dcsGroupName, jtac.laserCode, smoke, 'vehicle', nil, { freq = jtac.radio, mod = jtac.modulation, name = jtac.dcsGroupName })
                 end
             end
             if dcsRetribution.plugins.ctld.airliftcrates then
