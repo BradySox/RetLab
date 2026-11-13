@@ -166,6 +166,10 @@
     ],
     "scriptsWorkOrders": [
         {
+            "file": "skynet-mist-compat.lua",
+            "mnemonic": "skynetiads-mist-compat"
+        },
+        {
             "file": "skynet-iads-compiled.lua",
             "mnemonic": "skynetiads-script"
         }
