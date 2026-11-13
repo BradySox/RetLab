@@ -2,6 +2,7 @@ from collections import defaultdict
 from typing import Iterable, Iterator, Optional, Any
 
 import yaml
+from game.yamlload import safe_load_yaml
 from PySide6.QtCore import (
     QItemSelection,
     QItemSelectionModel,
@@ -1033,7 +1034,7 @@ class AirWingConfigurationDialog(QDialog):
         if fd.exec_():
             filename = fd.selectedFiles()[0]
             with open(filename, "r") as f:
-                document = yaml.safe_load(f)
+                document = safe_load_yaml(f)
             self._load_air_wing_document(document)
 
     def _current_tab(self) -> AirWingConfigurationTab:

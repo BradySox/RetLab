@@ -10,7 +10,7 @@ from functools import cached_property, lru_cache
 from pathlib import Path
 from typing import Iterator, Optional, Any, ClassVar, Dict
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.flyingunit import FlyingUnit
 from dcs.weapons_data import weapon_ids
 from dcs.weapon_settings import WeaponSettings, has_settings, create_settings
@@ -401,7 +401,7 @@ class WeaponGroup:
         links = []
         for group_file_path in Path("resources/weapons").glob("**/*.yaml"):
             with group_file_path.open(encoding="utf8") as group_file:
-                data = yaml.safe_load(group_file)
+                data = safe_load_yaml(group_file)
             name = data["name"]
             names.append(name)
             try:

@@ -38,7 +38,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Optional
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 #: Relative to the install root, like every other resource read.
 BORDERS_DIR = Path("resources/borders")
@@ -106,7 +106,7 @@ def _load(terrain_name: str, directory: Optional[Path]) -> list[dict[str, Any]]:
     path = (directory or BORDERS_DIR) / f"{key}.yaml"
     zones: list[dict[str, Any]] = []
     try:
-        raw = yaml.safe_load(path.read_text(encoding="utf-8"))
+        raw = safe_load_yaml(path.read_text(encoding="utf-8"))
         if isinstance(raw, dict) and isinstance(raw.get("zones"), list):
             zones = [z for z in raw["zones"] if isinstance(z, dict)]
         elif raw is not None:

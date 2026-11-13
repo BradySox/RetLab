@@ -17,7 +17,7 @@ from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.mapping import LatLng, Point
 
 if TYPE_CHECKING:
@@ -117,7 +117,7 @@ def _chart_file(terrain_name: str) -> dict[str, Any]:
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        return safe_load_yaml(f) or {}
 
 
 def chart_routes(terrain: Terrain, airfield_name: str) -> Optional[FieldRoutes]:

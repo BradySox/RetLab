@@ -34,6 +34,7 @@ from .tile_compositor import (
     last_failure_reason,
     render_tiles,
 )
+from game.yamlload import safe_load_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -555,7 +556,7 @@ def _pydcs_name(theater_dir: Path) -> Optional[str]:
     import yaml
 
     try:
-        data = yaml.safe_load((theater_dir / "info.yaml").read_text(encoding="utf-8"))
+        data = safe_load_yaml((theater_dir / "info.yaml").read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError):
         return None
     name = data.get("pydcs_name") if isinstance(data, dict) else None

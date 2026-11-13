@@ -27,7 +27,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Optional
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 #: Relative to the install root, like every other resource read.
 POSTURES_FILE = Path("resources/borders/national_postures.yaml")
@@ -60,7 +60,7 @@ def load_postures(path: Optional[Path] = None) -> dict[str, Any]:
     target = path or POSTURES_FILE
     data: dict[str, Any] = {}
     try:
-        raw = yaml.safe_load(target.read_text(encoding="utf-8"))
+        raw = safe_load_yaml(target.read_text(encoding="utf-8"))
         if isinstance(raw, dict) and isinstance(raw.get("countries"), dict):
             data = raw["countries"]
         else:

@@ -38,6 +38,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Literal, Optional
+from game.yamlload import safe_load_yaml
 
 if TYPE_CHECKING:
     from game import Game
@@ -474,14 +475,13 @@ def authored_victory_for(game: Game) -> Optional[VictoryProfile]:
         return _PROFILE_CACHE[name]
     profile: Optional[VictoryProfile] = None
     try:
-        import yaml
 
         from game.campaignloader.campaign import Campaign
 
         for path in Campaign.iter_campaign_defs():
             try:
                 with path.open(encoding="utf-8") as campaign_file:
-                    data = yaml.safe_load(campaign_file)
+                    data = safe_load_yaml(campaign_file)
             except Exception:  # noqa: BLE001 -- one bad yaml must not kill the scan
                 continue
             if isinstance(data, dict) and data.get("name") == name:

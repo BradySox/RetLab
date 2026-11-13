@@ -16,7 +16,7 @@ from functools import cache
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional
 
-import yaml
+from game.yamlload import safe_load_yaml
 
 from game.retlab.atc_routes import dcs_runway
 
@@ -108,7 +108,7 @@ def _plate_file(terrain_name: str) -> dict[str, Any]:
     if not path.exists():
         return {}
     with path.open(encoding="utf-8") as f:
-        return yaml.safe_load(f) or {}
+        return safe_load_yaml(f) or {}
 
 
 def _fix(entry: dict[str, Any]) -> ApproachFix:

@@ -25,6 +25,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import yaml
+from game.yamlload import safe_load_yaml
 
 #: The curated feed, relative to the install root like every other resource
 #: read (``game.version`` reads ``resources/buildnumber`` the same way).
@@ -84,7 +85,7 @@ def _read(source: Path) -> Optional[list[Any]]:
         logging.info("What's New: %s is not present; nothing to show", source)
         return None
     try:
-        document = yaml.safe_load(source.read_text(encoding="utf-8"))
+        document = safe_load_yaml(source.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError):
         logging.exception("What's New: could not read %s", source)
         return None

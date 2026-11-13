@@ -7,7 +7,7 @@ from functools import cached_property
 from pathlib import Path
 from typing import ClassVar, Generic, Iterator, Type, TypeVar, Any
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.unittype import UnitType as DcsUnitType
 from typing_extensions import Self
 
@@ -67,7 +67,7 @@ class UnitType(ABC, Generic[DcsUnitTypeT]):
             return
 
         with data_path.open(encoding="utf-8") as data_file:
-            data = yaml.safe_load(data_file)
+            data = safe_load_yaml(data_file)
 
         for variant_id, variant_data in data.get("variants", {unit.id: {}}).items():
             if variant_data is None:

@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, Iterator, Optional, TYPE_CHECKING, Type
 
-import yaml
+from game.yamlload import safe_load_yaml
 from dcs.unittype import ShipType, StaticType, UnitType as DcsUnitType, VehicleType
 
 from game import persistency
@@ -492,7 +492,7 @@ class ForceGroup:
                 raise RuntimeError(f"{file.name} is not a valid ForceGroup")
 
             with file.open(encoding="utf-8") as data_file:
-                data = yaml.safe_load(data_file)
+                data = safe_load_yaml(data_file)
 
             name = data["name"]
 
