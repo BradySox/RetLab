@@ -18,6 +18,7 @@ from game.runways import RunwayData
 if TYPE_CHECKING:
     from dcs import Point
 
+    from game.missiongenerator.ctldtemplates import CtldTemplates
     from game.missiongenerator.civiliantraffic import CivilTrafficLua
     from game.ato.package import Package
     from game.radio.radios import RadioFrequency
@@ -115,6 +116,7 @@ class LogisticsInfo:
     pilot_names: list[str]
     transport: AircraftType
     blue: Player
+    group_name: str = field(default_factory=str)
 
     logistic_unit: str = field(default_factory=str)
     pickup_zone: str = field(default_factory=str)
@@ -221,6 +223,8 @@ class MissionData:
     #: Late-activated infantry template group names Ops.CSAR is constructed with,
     #: keyed by coalition ("blue"/"red"). Empty when CSAR is disabled.
     csar_pilot_templates: dict[str, str] = field(default_factory=dict)
+    #: Hidden troop and crate templates MOOSE's CTLD clones; None until generated.
+    ctld_templates: Optional[CtldTemplates] = None
     #: The actual downed-pilot groups placed in the mission, keyed by the
     #: DownedPilot's id (as a string). Used to wire the rescue helicopter's
     #: Embarking task to the right pilot, and to hand the group to Ops.CSAR.

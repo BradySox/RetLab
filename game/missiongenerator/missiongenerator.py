@@ -67,6 +67,7 @@ from .flotgenerator import FlotGenerator
 from .forcedoptionsgenerator import ForcedOptionsGenerator
 from .frontlineconflictdescription import FrontLineConflictDescription
 from .kneeboard import KneeboardGenerator
+from .ctldtemplates import CtldTemplateGenerator
 from .luagenerator import LuaGenerator
 from .missiondata import MissionData
 from .rebelliongenerator import RebellionGenerator
@@ -243,6 +244,9 @@ class MissionGenerator:
         ForcedOptionsGenerator(self.mission, self.game).generate()
         VisualsGenerator(self.mission, self.game).generate()
         self.generate_atis()
+        self.mission_data.ctld_templates = CtldTemplateGenerator(
+            self.mission, self.game, self.mission_data
+        ).generate()
         LuaGenerator(self.game, self.mission, self.mission_data).generate()
         generate_ship_health(self.game, self.mission, self.unit_map)
         DrawingsGenerator(self.mission, self.game, self.mission_data).generate()

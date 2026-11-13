@@ -224,6 +224,7 @@ class LuaGenerator:
             coalition_color = "blue" if logistic_info.blue.is_blue else "red"
             logistics_item = logistics_flights.add_item()
             logistics_item.add_data_array("pilot_names", logistic_info.pilot_names)
+            logistics_item.add_key_value("group_name", logistic_info.group_name)
             logistics_item.add_key_value("pickup_zone", logistic_info.pickup_zone)
             logistics_item.add_key_value("drop_off_zone", logistic_info.drop_off_zone)
             logistics_item.add_key_value("target_zone", logistic_info.target_zone)
@@ -244,6 +245,7 @@ class LuaGenerator:
                 for i in range(cargo.amount):
                     cargo_item = crates_object.add_item()
                     cargo_item.add_key_value("weight", crate_weight)
+                    cargo_item.add_key_value("unit", cargo.unit_type)
                     cargo_item.add_key_value("coalition", coalition_color)
                     cargo_item.add_key_value("zone", cargo.spawn_zone)
         transport_object = logistics_object.add_item("transports")
@@ -274,6 +276,29 @@ class LuaGenerator:
             crate_item = spawnable_crates_object.add_item()
             crate_item.add_key_value("unit", unit)
             crate_item.add_key_value("weight", weight)
+
+        # MOOSE CTLD clones these hidden groups (game/missiongenerator/ctldtemplates.py).
+        templates_object = logistics_object.add_item("templates")
+        ctld_templates = self.mission_data.ctld_templates
+        troop_templates = templates_object.add_item("troops")
+        crate_templates = templates_object.add_item("crates")
+        if ctld_templates is not None:
+            for troop in ctld_templates.troops:
+                item = troop_templates.add_item()
+                item.add_key_value("side", "blue" if troop.side.is_blue else "red")
+                item.add_key_value("label", troop.label)
+                item.add_key_value("group", troop.group_name)
+                item.add_key_value("size", str(troop.size))
+                item.add_key_value("jtac", "true" if troop.jtac else "false")
+                item.add_key_value("stock", "true" if troop.stock else "false")
+            for crate in ctld_templates.crates:
+                item = crate_templates.add_item()
+                item.add_key_value("side", "blue" if crate.side.is_blue else "red")
+                item.add_key_value("label", crate.label)
+                item.add_key_value("unit", crate.unit_type)
+                item.add_key_value("group", crate.group_name)
+                item.add_key_value("crates", str(crate.crates))
+                item.add_key_value("stock", "true" if crate.stock else "false")
 
         target_points = lua_data.add_item("TargetPoints")
         for flight in self.mission_data.flights:

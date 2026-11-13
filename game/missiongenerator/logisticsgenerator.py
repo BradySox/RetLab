@@ -34,6 +34,7 @@ class LogisticsGenerator:
         # Add Logisitcs info for the flight
         logistics_info = LogisticsInfo(
             pilot_names=[u.name for u in self.group.units],
+            group_name=self.group.name,
             transport=self.flight.squadron.aircraft,
             blue=self.flight.blue,
             preload=self.flight.state.in_flight,

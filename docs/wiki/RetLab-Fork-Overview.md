@@ -45,8 +45,8 @@ Full detail: [Fog of War and Reconnaissance](Fog-of-War-and-Reconnaissance).
 - [Electronic Warfare and ISR](Electronic-Warfare-and-ISR) — the **JAMMING** flight type turns
   the C-130J into an EC-130H/RC-130H-style standoff jammer and ELINT platform. The old generic
   fighter-pod jammer is retired.
-- Fixed-wing transports fly **Air Assault as a paradrop**. Players run in below 3,000 ft AGL and
-  use the CTLD *Unload / Extract Troops* call; AI releases over the drop zone automatically.
+- Fixed-wing transports fly **Air Assault as a paradrop**. Players jump from 540 to 3,000 ft
+  AGL under 150 kt with the CTLD *Drop Troops* call; AI releases over the drop zone automatically.
 - Strike, DEAD and Armed Recon packages can receive an auto-planned TARPS follow-up.
 
 ---

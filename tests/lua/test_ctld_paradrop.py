@@ -1,18 +1,10 @@
-"""Headless runtime check for the CTLD paradrop layer (ctld-config.lua).
+"""Headless runtime check for the CTLD plugin on MOOSE (resources/plugins/ctld/ctld-config.lua).
 
-Pins the fixed-wing paratrooper wiring the in-game pass cannot cheaply cover:
-the config parses the Logistics paradrop flag and target zones without error;
-an airborne fixed-wing "Unload / Extract Troops" jumps the stick (cargo cleared
-immediately, the troop group ground-spawns at the velocity-projected drop point
-after a real descent delay) while grounded unloads and every helicopter path
-fall through to stock CTLD; the player jump ceiling refuses a too-high drop;
-the AI release loop drops one stick per sortie when a transport crosses its own
-air-assault target zone and never touches players or helos; and the preload
-retry finds a late-activated transport instead of silently leaving it empty.
-
-CTLD itself is stubbed to a minimal core (the real CTLD.lua needs the full
-mist/MOOSE world); what runs for real here is the ctld-config.lua layer under
-test, exactly as the mission would load it.
+The CTLD script was replaced by MOOSE's Ops.CTLD and AUTOLASE in the MIST removal
+(docs/dev/design/retlab-mist-removal-notes.md). MOOSE itself is faked here to the surface
+the config touches; what runs for real is the config: per-side setup, the AI helicopter
+loader, the fixed-wing paradrop with its descent, the zone smoke and the JTAC lasing.
+Real DCS behavior (AI landing, MOOSE's menus) still needs an in-game pass.
 """
 
 from __future__ import annotations
@@ -23,497 +15,99 @@ from tests.lua.harness import DcsPluginHarness
 
 CONFIG = "resources/plugins/ctld/ctld-config.lua"
 
-# Constants mirrored from ctld-config.lua's paradrop block.
+# Constants mirrored from ctld-config.lua.
 SINK_MPS = 6.5
 MAX_DESCENT_S = 90
 EXIT_THROW_S = 2
-AI_RANGE_M = 1200
 AI_POLL_S = 5
 
-_CTLD_STUB = """
--- Minimal mist + trigger.misc the config layer expects from the full sandbox.
-mist = {
-    vec = {
-        mag = function(v)
-            return math.sqrt((v.x or 0) ^ 2 + (v.y or 0) ^ 2 + (v.z or 0) ^ 2)
-        end,
-    },
-    utils = {
-        round = function(n)
-            return math.floor(n + 0.5)
-        end,
-    },
-}
-
+_MOOSE_FAKES = """
 local zones = {}
 trigger.misc = trigger.misc or {}
-trigger.misc.getZone = function(name)
-    return zones[name]
-end
+trigger.misc.getZone = function(name) return zones[name] end
 function AddTestZone(name, x, z, radius)
     zones[name] = { point = { x = x, y = 0, z = z }, radius = radius }
 end
+ZONE = {}
+function ZONE:FindByName(name) return zones[name] and { name = name } or nil end
 
--- Minimal CTLD core: just the surface ctld-config.lua touches. The config's
--- own additions (paradrop functions, overrides) attach to this table.
-ctld = {
-    loadableGroups = {},
-    inTransitTroops = {},
-    droppedTroopsRED = {},
-    droppedTroopsBLUE = {},
-    jtacGeneratedLaserCodes = { 1688, 1687, 1686 },
-    _spawns = {},
-    _messages = {},
-    _stockUnloadCalls = {},
-    _preloads = {},
-    _jtacStarts = {},
-}
+SMOKECOLOR = { Green = 0, Red = 1, White = 2, Orange = 3, Blue = 4 }
+CTLD_CARGO = { Enum = { TROOPS = "Troops", ENGINEERS = "Engineers", VEHICLE = "Vehicle" } }
 
-function ctld.getTransportUnit(name)
-    if name == nil then
-        return nil
+local Cargo = {}
+Cargo.__index = Cargo
+function Cargo:GetType() return self.kind end
+function Cargo:WasDropped() return self.dropped end
+function Cargo:SetWasDropped(v) self.dropped = v end
+function Cargo:GetTemplates() return self.templates end
+
+CTLD = { CargoZoneType = { LOAD = "load", DROP = "drop", MOVE = "move", SHIP = "ship" },
+    FixedWingTypes = { "Hercules" } }
+CTLD.__index = CTLD
+ctlds = {}
+function CTLD:New(side, prefixes, alias)
+    local c = setmetatable({ side = side, prefixes = prefixes, alias = alias,
+        Loaded_Cargo = {}, UnitTypeCapabilities = {}, caps = {}, troops = {}, crates = {},
+        zones = {}, started = false, log = {} }, CTLD)
+    table.insert(ctlds, c)
+    return c
+end
+function CTLD:SetUnitCapabilities(t, crates, troops, crateLimit, troopLimit, length, mass)
+    self.caps[t] = { crates = crates, troops = troops, cratelimit = crateLimit,
+        trooplimit = troopLimit, mass = mass }
+end
+function CTLD:AddTroopsCargo(label, templates, kind, size)
+    self.troops[label] = { templates = templates, size = size }
+end
+function CTLD:AddCratesCargo(label, templates, kind, crates)
+    self.crates[label] = { templates = templates, crates = crates }
+end
+function CTLD:AddCTLDZone(name, kind)
+    table.insert(self.zones, { name = name, kind = kind })
+end
+function CTLD:__Start() self.started = true end
+function CTLD:PreloadTroops(unit, label)
+    local troop = self.troops[label]
+    table.insert(self.log, "preload " .. unit:GetName() .. " " .. label)
+    if troop then
+        self.Loaded_Cargo[unit:GetName()] = { Troopsloaded = troop.size, Cratesloaded = 0,
+            Cargo = { setmetatable({ kind = "Troops", dropped = false,
+                templates = troop.templates }, Cargo) } }
     end
-    for _, g in pairs(DcsHarness.groupsByName) do
-        for _, u in ipairs(g.units or {}) do
-            if u:getName() == name and u:isExist() and u:getLife() > 0 then
-                return u
-            end
+end
+function CTLD:IsUnitInAir(unit) return unit.unit:inAir() end
+function CTLD:IsUnitInZone(unit, kind)
+    local p = unit:GetVec3()
+    for _, z in ipairs(self.zones) do
+        local zone = zones[z.name]
+        if z.kind == kind and zone then
+            local d = math.sqrt((p.x - zone.point.x) ^ 2 + (p.z - zone.point.z) ^ 2)
+            if d <= zone.radius then return true end
         end
     end
-    return nil
+    return false
+end
+function CTLD:_UnloadTroops(group, unit)
+    table.insert(self.log, "stock unload " .. unit:GetName())
+    self.Loaded_Cargo[unit:GetName()] = nil
+end
+function CTLD:IsCorrectFlightParameters(unit)
+    local p, v = unit:GetVec3(), unit:GetVelocityVec3()
+    local speed = math.sqrt(v.x ^ 2 + v.y ^ 2 + v.z ^ 2)
+    return p.y >= 165 and p.y <= 914 and speed <= 77
+end
+function CTLD:_SendMessage(text) table.insert(self.log, "msg " .. text) end
+function CTLD:_UpdateUnitCargoMass() end
+function CTLD:__TroopsDeployed() table.insert(self.log, "deployed") end
+function CTLD:_FindCratesCargoObject(name) return self.crates[name] and { name = name } end
+function CTLD:InjectStatics(zone, cargo)
+    table.insert(self.log, "crate " .. cargo.name .. " at " .. zone.name)
 end
 
-function ctld.troopsOnboard(unit, troops)
-    local onboard = ctld.inTransitTroops[unit:getName()]
-    if onboard == nil then
-        return false
-    end
-    if troops then
-        return onboard.troops ~= nil and onboard.troops.units ~= nil
-            and #onboard.troops.units > 0
-    end
-    return onboard.vehicles ~= nil and onboard.vehicles.units ~= nil
-        and #onboard.vehicles.units > 0
-end
-
-function ctld.heightDiff(unit)
-    return unit:getPoint().y
-end
-
-function ctld.adaptWeightToCargo(name) end
-
-function ctld.getPlayerNameOrType(unit)
-    if unit:getPlayerName() == nil then
-        return unit:getTypeName()
-    end
-    return unit:getPlayerName()
-end
-
-function ctld.displayMessageToGroup(unit, text, duration)
-    table.insert(ctld._messages, { unit = unit:getName(), text = text })
-end
-
-function ctld.spawnDroppedGroup(point, details, spawnBehind)
-    local name = details.groupName or "Dropped Troops #1"
-    table.insert(ctld._spawns, {
-        x = point.x,
-        z = point.z,
-        name = name,
-        count = #details.units,
-        t = timer.getTime(),
-    })
-    return {
-        getName = function()
-            return name
-        end,
-    }
-end
-
-function ctld.JTACStart(groupName, code)
-    table.insert(ctld._jtacStarts, { group = groupName, code = code })
-end
-
-function ctld.processCallback(args) end
-
-function ctld.unloadExtractTroops(args)
-    table.insert(ctld._stockUnloadCalls, args[1])
-end
-
-function ctld.preLoadTransport(name, amount, troops)
-    table.insert(ctld._preloads, { unit = name, amount = tonumber(amount) })
-    LoadTestTroops(name, tonumber(amount) or 0)
-end
-
-function LoadTestTroops(unitName, count, jtac)
-    local units = {}
-    for i = 1, count do
-        units[i] = {
-            type = "Soldier M4",
-            name = string.format("%s trooper %d", unitName, i),
-        }
-    end
-    ctld.inTransitTroops[unitName] = {
-        troops = {
-            units = units,
-            groupName = unitName .. " troops",
-            side = 2,
-            country = 2,
-            jtac = jtac or nil,
-        },
-    }
-end
-"""
-
-_PLUGIN_OPTIONS = {
-    "ctld": {
-        "debug": False,
-        "slingload": False,
-        "smoke": False,
-        "tailorctld": True,
-        "logisticunit": False,
-        "autolase": False,
-        "airliftcrates": False,
-    }
-}
-
-
-def _transport(aircraft_type: str, cabin: int, paradrop: bool) -> dict[str, Any]:
-    # The emitter serializes every value as a string; mirror that.
-    return {
-        "aircraft_type": aircraft_type,
-        "cabin_size": str(cabin),
-        "troops": "true" if cabin > 0 else "false",
-        "crates": "false",
-        "paradrop": "true" if paradrop else "false",
-    }
-
-
-def _flight(
-    pilots: list[str],
-    aircraft_type: str,
-    target_zone: str | None = None,
-    preload: bool = True,
-) -> dict[str, Any]:
-    flight: dict[str, Any] = {
-        "pilot_names": pilots,
-        "side": "2",
-        "aircraft_type": aircraft_type,
-        "preload": "true" if preload else "false",
-    }
-    if target_zone is not None:
-        flight["target_zone"] = target_zone
-    return flight
-
-
-def _config(
-    flights: list[dict[str, Any]], transports: list[dict[str, Any]]
-) -> dict[str, Any]:
-    return {
-        "plugins": _PLUGIN_OPTIONS,
-        "Logistics": {
-            "flights": flights,
-            "transports": transports,
-            "crates": [],
-            "spawnable_crates": [],
-        },
-    }
-
-
-def _load(
-    h: DcsPluginHarness,
-    flights: list[dict[str, Any]],
-    transports: list[dict[str, Any]],
-) -> None:
-    h.lua.execute(_CTLD_STUB)
-    h.lua.globals().dcsRetribution = h.to_lua(_config(flights, transports))
-    h.load_plugin_script(CONFIG)
-
-
-def _herc(
-    h: DcsPluginHarness,
-    name: str = "Herc 1-1",
-    x: float = 50_000.0,
-    z: float = 10_000.0,
-    alt: float = 300.0,
-    airborne: bool = True,
-    player: str | None = None,
-    velocity: dict[str, float] | None = None,
-) -> None:
-    h.add_group(
-        {
-            "name": name,
-            "side": 2,
-            "category": 0,
-            "units": [
-                {
-                    "name": name,
-                    "type": "C-130J-30",
-                    "x": x,
-                    "z": z,
-                    "alt": alt,
-                    "airborne": airborne,
-                    "playerName": player,
-                    "velocity": velocity or {"x": 100.0, "y": 0.0, "z": -50.0},
-                }
-            ],
-        }
-    )
-
-
-def _spawns(h: DcsPluginHarness) -> list[dict[str, Any]]:
-    spawns = h.to_python(h.lua.eval("ctld._spawns"))
-    return spawns if isinstance(spawns, list) else []
-
-
-def _texts(h: DcsPluginHarness) -> list[str]:
-    return [t["text"] for t in h.records("texts")]
-
-
-def test_config_arms_paradrop_only_for_flagged_fixed_wing() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[
-            _flight(["Herc 1-1"], "C-130J-30", target_zone="Herc 1 TARGET_ZONE"),
-            _flight(["Dodge 1-1"], "UH-1H", target_zone="Dodge 1 TARGET_ZONE"),
-        ],
-        transports=[
-            _transport("C-130J-30", 24, paradrop=True),
-            _transport("UH-1H", 10, paradrop=False),
-        ],
-    )
-
-    assert h.lua.eval('ctld.paradropUnitTypes["C-130J-30"] == true')
-    assert h.lua.eval('ctld.paradropUnitTypes["UH-1H"] == nil')
-    # The override wrapped the stock unload, and the AI release loop is armed.
-    assert h.lua.eval("type(ctld.paradropTroops)") == "function"
-    h.assert_no_lua_errors()
-
-
-def test_preload_retries_until_a_late_activated_transport_spawns() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", target_zone="Z1")],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-
-    # t+5: the TOT-delayed transport does not exist yet -- no load, retry armed.
-    h.advance_to(20)
-    assert h.to_python(h.lua.eval("ctld._preloads")) in (None, {}, [])
-
-    # The flight late-activates; the retry finds and loads it exactly once.
-    _herc(h, airborne=False)
-    h.advance_to(120)
-    preloads = h.to_python(h.lua.eval("ctld._preloads"))
-    assert preloads == [{"unit": "Herc 1-1", "amount": 24}]
-    h.assert_no_lua_errors()
-
-
-def test_player_airborne_unload_paradrops_after_descent() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", preload=False)],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-    _herc(h, alt=300.0, player="Brady", velocity={"x": 100.0, "y": 0.0, "z": -50.0})
-    h.lua.execute('LoadTestTroops("Herc 1-1", 24)')
-
-    h.advance_to(10)
-    h.lua.execute('ctld.unloadExtractTroops({ "Herc 1-1" })')
-
-    # The stick left the aircraft immediately -- cargo gone, coalition told --
-    # but nobody is on the ground until the chutes get there.
-    assert h.lua.eval('ctld.inTransitTroops["Herc 1-1"].troops == nil')
-    assert any("paradropped troops" in t for t in _texts(h))
-    assert _spawns(h) == []
-    assert h.to_python(h.lua.eval("ctld._stockUnloadCalls")) in (None, {}, [])
-
-    # Landing: 300 m AGL at 6.5 m/s ~= 46 s, at the velocity-projected point.
-    h.advance_to(10 + 300 / SINK_MPS + 1)
-    spawns = _spawns(h)
-    assert len(spawns) == 1
-    assert spawns[0]["x"] == 50_000 + 100 * EXIT_THROW_S
-    assert spawns[0]["z"] == 10_000 - 50 * EXIT_THROW_S
-    assert spawns[0]["count"] == 24
-    assert h.lua.eval("#ctld.droppedTroopsBLUE") == 1
-    assert any("on the ground" in t for t in _texts(h))
-    h.assert_no_lua_errors()
-
-
-def test_player_too_high_is_refused_and_keeps_the_troops() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", preload=False)],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-    # 2,000 m AGL is above the 3,000 ft jump ceiling.
-    _herc(h, alt=2_000.0, player="Brady")
-    h.lua.execute('LoadTestTroops("Herc 1-1", 24)')
-
-    h.lua.execute('ctld.unloadExtractTroops({ "Herc 1-1" })')
-
-    messages = h.to_python(h.lua.eval("ctld._messages"))
-    assert any("Too high to paradrop" in m["text"] for m in messages)
-    assert h.lua.eval('ctld.inTransitTroops["Herc 1-1"].troops ~= nil')
-    h.advance_to(200)
-    assert _spawns(h) == []
-    h.assert_no_lua_errors()
-
-
-def test_grounded_unload_falls_through_to_stock_ctld() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", preload=False)],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-    _herc(h, airborne=False, alt=0.0, velocity={"x": 0.0, "y": 0.0, "z": 0.0})
-    h.lua.execute('LoadTestTroops("Herc 1-1", 24)')
-
-    h.lua.execute('ctld.unloadExtractTroops({ "Herc 1-1" })')
-
-    assert h.to_python(h.lua.eval("ctld._stockUnloadCalls")) == ["Herc 1-1"]
-    assert _spawns(h) == []
-    h.assert_no_lua_errors()
-
-
-def test_airborne_helo_falls_through_to_stock_ctld() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Dodge 1-1"], "UH-1H", preload=False)],
-        transports=[_transport("UH-1H", 10, paradrop=False)],
-    )
-    h.add_group(
-        {
-            "name": "Dodge 1-1",
-            "side": 2,
-            "category": 1,
-            "units": [
-                {
-                    "name": "Dodge 1-1",
-                    "type": "UH-1H",
-                    "x": 1_000.0,
-                    "z": 2_000.0,
-                    "alt": 30.0,
-                    "airborne": True,
-                    "playerName": "Brady",
-                    "velocity": {"x": 20.0, "y": 0.0, "z": 0.0},
-                }
-            ],
-        }
-    )
-    h.lua.execute('LoadTestTroops("Dodge 1-1", 10)')
-
-    h.lua.execute('ctld.unloadExtractTroops({ "Dodge 1-1" })')
-
-    # Not a paradrop airframe: the stock unload (land / fast-rope rules) runs.
-    assert h.to_python(h.lua.eval("ctld._stockUnloadCalls")) == ["Dodge 1-1"]
-    assert _spawns(h) == []
-    h.assert_no_lua_errors()
-
-
-def test_ai_drops_once_when_crossing_its_own_target_zone() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", target_zone="Herc 1 TARGET_ZONE")],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-    h.lua.execute('AddTestZone("Herc 1 TARGET_ZONE", 100000, 20000, 2500)')
-    # AI (no player name), still 10 km short of the zone centre. High AGL:
-    # the jump ceiling is player-only, so the AI still delivers -- but the
-    # descent is capped.
-    _herc(h, x=90_000.0, z=20_000.0, alt=2_000.0)
-
-    # Preload fires at t+5, the release loop polls but the zone is far.
-    h.advance_to(30)
-    assert _spawns(h) == []
-    assert not any("paradropped troops" in t for t in _texts(h))
-
-    # The run-in crosses the release range; the next poll drops the stick.
-    h.update_unit("Herc 1-1", {"x": 99_500.0})
-    h.advance_to(40)
-    assert any("paradropped troops" in t for t in _texts(h))
-    assert _spawns(h) == []
-    assert h.lua.eval('ctld.inTransitTroops["Herc 1-1"].troops == nil')
-
-    # 2,000 m AGL would be 300+ s of descent; the cap lands them at +90 s.
-    drop_texts = [t for t in h.records("texts") if "paradropped troops" in t["text"]]
-    drop_t = drop_texts[0]["t"]
-    h.advance_to(drop_t + MAX_DESCENT_S + 1)
-    assert len(_spawns(h)) == 1
-
-    # One drop per sortie: even if the aircraft somehow reloads over the zone,
-    # the release plan is spent.
-    h.lua.execute('LoadTestTroops("Herc 1-1", 24)')
-    h.advance_to(drop_t + MAX_DESCENT_S + 30)
-    assert len(_spawns(h)) == 1
-    h.assert_no_lua_errors()
-
-
-def test_ai_helo_air_assault_is_never_paradropped() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Dodge 1-1"], "UH-1H", target_zone="Dodge 1 TARGET_ZONE")],
-        transports=[_transport("UH-1H", 10, paradrop=False)],
-    )
-    h.lua.execute('AddTestZone("Dodge 1 TARGET_ZONE", 100000, 20000, 2500)')
-    h.add_group(
-        {
-            "name": "Dodge 1-1",
-            "side": 2,
-            "category": 1,
-            "units": [
-                {
-                    "name": "Dodge 1-1",
-                    "type": "UH-1H",
-                    "x": 100_000.0,
-                    "z": 20_000.0,
-                    "alt": 30.0,
-                    "airborne": True,
-                    "velocity": {"x": 20.0, "y": 0.0, "z": 0.0},
-                }
-            ],
-        }
-    )
-
-    # Right over its target zone with troops aboard: a helo lands and unloads
-    # through stock CTLD (the AI dropoff-zone loop), never the paradrop path.
-    h.advance_to(60)
-    assert _spawns(h) == []
-    assert not any("paradropped troops" in t for t in _texts(h))
-    h.assert_no_lua_errors()
-
-
-def test_jtac_stick_starts_lasing_on_landing() -> None:
-    h = DcsPluginHarness()
-    _load(
-        h,
-        flights=[_flight(["Herc 1-1"], "C-130J-30", preload=False)],
-        transports=[_transport("C-130J-30", 24, paradrop=True)],
-    )
-    _herc(h, alt=300.0, player="Brady")
-    h.lua.execute('LoadTestTroops("Herc 1-1", 24, true)')
-
-    h.lua.execute('ctld.unloadExtractTroops({ "Herc 1-1" })')
-    h.advance_to(300 / SINK_MPS + 1)
-
-    jtacs = h.to_python(h.lua.eval("ctld._jtacStarts"))
-    assert jtacs == [{"group": "Herc 1-1 troops", "code": 1688}]
-    h.assert_no_lua_errors()
-
-
-# JTAC lasing runs on MOOSE AUTOLASE (MIST removal step 3a). Fakes record the setup.
-_AUTOLASE_FAKES = """
 lases = {}
 SET_GROUP = {}
 function SET_GROUP:New()
-    local s = { coalitions = nil, prefixes = nil }
+    local s = {}
     function s:FilterCoalitions(c) self.coalitions = c return self end
     function s:FilterPrefixes(p) self.prefixes = p return self end
     function s:FilterStart() return self end
@@ -521,9 +115,8 @@ function SET_GROUP:New()
 end
 AUTOLASE = {}
 function AUTOLASE:New(set, side, alias)
-    local a = { side = side, alias = alias, prefixes = set.prefixes, codes = {},
-        blacklist = {}, smoke = false }
-    function a:SetLasingParameters(d, t) self.distance, self.duration = d, t return self end
+    local a = { side = side, prefixes = set.prefixes, codes = {}, blacklist = {}, smoke = false }
+    function a:SetLasingParameters(d, t) self.distance = d return self end
     function a:SetLaserCoolDown(on) self.cooldown = on return self end
     function a:AddBlackListAttributes(list) self.blacklist = list return self end
     function a:SetSmokeTargets(on) self.smoke = on return self end
@@ -533,22 +126,379 @@ function AUTOLASE:New(set, side, alias)
 end
 """
 
+_OPTIONS = {
+    "debug": False,
+    "slingload": False,
+    "smoke": False,
+    "tailorctld": True,
+    "logisticunit": False,
+    "autolase": False,
+    "airliftcrates": False,
+}
+
+_TEMPLATES = {
+    "troops": [
+        {
+            "side": "blue",
+            "label": "Retribution Troops (24)",
+            "group": "CTLD blue Retribution Troops (24)",
+            "size": "24",
+            "jtac": "true",
+            "stock": "false",
+        },
+        {
+            "side": "blue",
+            "label": "Retribution Troops (8)",
+            "group": "CTLD blue Retribution Troops (8)",
+            "size": "8",
+            "jtac": "false",
+            "stock": "false",
+        },
+    ],
+    "crates": [
+        {
+            "side": "blue",
+            "label": "M1043 HMMWV Armament",
+            "unit": "M1043 HMMWV Armament",
+            "group": "CTLD blue crate M1043 HMMWV Armament",
+            "crates": "1",
+            "stock": "false",
+        }
+    ],
+}
+
+
+def _transport(aircraft_type: str, cabin: int, paradrop: bool) -> dict[str, Any]:
+    return {
+        "aircraft_type": aircraft_type,
+        "cabin_size": str(cabin),
+        "troops": "true" if cabin > 0 else "false",
+        "crates": "false" if paradrop else "true",
+        "paradrop": "true" if paradrop else "false",
+    }
+
+
+def _flight(
+    pilots: list[str],
+    aircraft_type: str,
+    group: str,
+    target_zone: str = "",
+    pickup_zone: str = "",
+    drop_off_zone: str = "",
+    preload: bool = True,
+) -> dict[str, Any]:
+    return {
+        "pilot_names": pilots,
+        "group_name": group,
+        "side": "2",
+        "aircraft_type": aircraft_type,
+        "preload": "true" if preload else "false",
+        "pickup_zone": pickup_zone,
+        "drop_off_zone": drop_off_zone,
+        "target_zone": target_zone,
+        "logistic_unit": "",
+    }
+
+
+def _load(
+    h: DcsPluginHarness,
+    flights: list[dict[str, Any]],
+    transports: list[dict[str, Any]],
+    zones: list[tuple[str, float, float, float]] | None = None,
+    crates: list[dict[str, Any]] | None = None,
+    **options: Any,
+) -> None:
+    h.lua.execute(_MOOSE_FAKES)
+    for name, x, z, radius in zones or []:
+        h.lua.globals().AddTestZone(name, x, z, radius)
+    h.lua.globals().dcsRetribution = h.to_lua(
+        {
+            "plugins": {"ctld": {**_OPTIONS, **options}},
+            "Logistics": {
+                "flights": flights,
+                "transports": transports,
+                "crates": crates or [],
+                "spawnable_crates": [],
+                "templates": _TEMPLATES,
+            },
+            "JTACs": [],
+        }
+    )
+    h.load_plugin_script(CONFIG)
+
+
+def _aircraft(
+    h: DcsPluginHarness,
+    name: str,
+    aircraft_type: str,
+    x: float = 50_000.0,
+    z: float = 10_000.0,
+    alt: float = 300.0,
+    airborne: bool = True,
+    player: str | None = None,
+) -> None:
+    h.add_group(
+        {
+            "name": name,
+            "side": 2,
+            "category": 0,
+            "units": [
+                {
+                    "name": name,
+                    "type": aircraft_type,
+                    "x": x,
+                    "z": z,
+                    "alt": alt,
+                    "airborne": airborne,
+                    "playerName": player,
+                    "velocity": {"x": 60.0, "y": 0.0, "z": -30.0},
+                }
+            ],
+        }
+    )
+
+
+def _ctld(h: DcsPluginHarness) -> Any:
+    return h.lua.eval("ctlds[1]")
+
+
+def _log(h: DcsPluginHarness) -> list[str]:
+    return h.to_python(_ctld(h).log) or []
+
+
+def _ground_spawns(h: DcsPluginHarness) -> list[dict[str, Any]]:
+    return [s for s in h.records("spawns") if s.get("base") == "ground"]
+
+
+def _texts(h: DcsPluginHarness) -> list[str]:
+    return [t["text"] for t in h.records("texts")]
+
+
+def _herc_mission(h: DcsPluginHarness, preload: bool = False) -> None:
+    _load(
+        h,
+        flights=[
+            _flight(
+                ["Herc 1-1"],
+                "C-130J-30",
+                "Herc 1",
+                target_zone="Herc 1 TARGET_ZONE",
+                preload=preload,
+            )
+        ],
+        transports=[_transport("C-130J-30", 24, paradrop=True)],
+        zones=[("Herc 1 TARGET_ZONE", 50_000.0, 10_000.0, 2_000.0)],
+    )
+
+
+_PRELOAD_AND_UNLOAD = (
+    "local u = UNIT:FindByName('Herc 1-1')"
+    " ctlds[1]:PreloadTroops(u, 'Retribution Troops (24)')"
+    " ctlds[1]:_UnloadTroops(u:GetGroup(), u)"
+)
+
+
+def test_one_ctld_per_side_with_its_cargo_and_zones() -> None:
+    h = DcsPluginHarness()
+    _load(
+        h,
+        flights=[
+            _flight(
+                ["Huey 1-1"],
+                "UH-1H",
+                "Huey 1",
+                pickup_zone="Huey 1PICKUP_ZONE",
+                drop_off_zone="Huey 1DROPOFF_ZONE",
+                target_zone="Huey 1 TARGET_ZONE",
+            )
+        ],
+        transports=[_transport("UH-1H", 8, paradrop=False)],
+        zones=[
+            ("Huey 1PICKUP_ZONE", 0.0, 0.0, 300.0),
+            ("Huey 1DROPOFF_ZONE", 10_000.0, 0.0, 300.0),
+            ("Huey 1 TARGET_ZONE", 12_000.0, 0.0, 1_000.0),
+        ],
+    )
+    assert h.lua.eval("#ctlds") == 1
+    c = h.to_python(_ctld(h))
+    assert c["side"] == "blue" and c["prefixes"] == ["Huey 1"] and c["started"]
+    assert c["caps"]["UH-1H"]["trooplimit"] == 8
+    assert set(c["troops"]) == {"Retribution Troops (24)", "Retribution Troops (8)"}
+    assert set(c["crates"]) == {"M1043 HMMWV Armament"}
+    assert [(z["name"], z["kind"]) for z in c["zones"]] == [
+        ("Huey 1PICKUP_ZONE", "load"),
+        ("Huey 1DROPOFF_ZONE", "drop"),
+        ("Huey 1 TARGET_ZONE", "move"),
+    ]
+    h.assert_no_lua_errors()
+
+
+def test_preload_retries_until_a_late_activated_transport_spawns() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h, preload=True)
+    h.advance_to(40)
+    assert not any(e.startswith("preload") for e in _log(h))
+    _aircraft(h, "Herc 1-1", "C-130J-30", airborne=False, alt=0.0)
+    h.advance_to(80)
+    assert "preload Herc 1-1 Retribution Troops (24)" in _log(h)
+    h.assert_no_lua_errors()
+
+
+def test_player_airborne_unload_paradrops_after_descent() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h)
+    _aircraft(h, "Herc 1-1", "C-130J-30", alt=300.0, player="Brady")
+    h.lua.execute(_PRELOAD_AND_UNLOAD)
+    assert any("paradropped troops" in t for t in _texts(h))
+    assert _ground_spawns(h) == []
+    h.advance_to(300 / SINK_MPS + 1)
+    spawns = _ground_spawns(h)
+    assert len(spawns) == 1
+    assert spawns[0]["template"] == "CTLD blue Retribution Troops (24)"
+    assert spawns[0]["x"] == 50_000.0 + 60.0 * EXIT_THROW_S
+    assert spawns[0]["z"] == 10_000.0 - 30.0 * EXIT_THROW_S
+    assert "deployed" in _log(h)
+    h.assert_no_lua_errors()
+
+
+def test_player_outside_the_jump_window_keeps_the_troops() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h)
+    _aircraft(h, "Herc 1-1", "C-130J-30", alt=2_000.0, player="Brady")
+    h.lua.execute(_PRELOAD_AND_UNLOAD)
+    assert any("540 to 3000 ft" in e for e in _log(h))
+    h.advance_to(200)
+    assert _ground_spawns(h) == []
+    assert h.lua.eval("ctlds[1].Loaded_Cargo['Herc 1-1'].Troopsloaded") == 24
+    h.assert_no_lua_errors()
+
+
+def test_grounded_fixed_wing_unload_is_moose_stock() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h)
+    _aircraft(h, "Herc 1-1", "C-130J-30", alt=0.0, airborne=False, player="Brady")
+    h.lua.execute(_PRELOAD_AND_UNLOAD)
+    assert "stock unload Herc 1-1" in _log(h)
+    h.assert_no_lua_errors()
+
+
+def test_ai_drops_once_when_crossing_its_own_target_zone() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h, preload=True)
+    _aircraft(h, "Herc 1-1", "C-130J-30", x=40_000.0, alt=2_000.0)
+    h.advance_to(6)
+    assert "preload Herc 1-1 Retribution Troops (24)" in _log(h)
+    h.advance_to(30)
+    assert _ground_spawns(h) == []
+    # Over the zone, well above the player window: AI still jumps.
+    h.update_unit("Herc 1-1", {"x": 50_500.0, "z": 10_000.0})
+    h.advance_to(30 + AI_POLL_S + MAX_DESCENT_S + 1)
+    assert len(_ground_spawns(h)) == 1
+    h.advance_to(400)
+    assert len(_ground_spawns(h)) == 1
+    h.assert_no_lua_errors()
+
+
+def test_ai_helicopter_loads_and_unloads_in_its_zones() -> None:
+    h = DcsPluginHarness()
+    _load(
+        h,
+        flights=[
+            _flight(
+                ["Huey 1-1"],
+                "UH-1H",
+                "Huey 1",
+                pickup_zone="Huey 1PICKUP_ZONE",
+                drop_off_zone="Huey 1DROPOFF_ZONE",
+                preload=False,
+            )
+        ],
+        transports=[_transport("UH-1H", 8, paradrop=False)],
+        zones=[
+            ("Huey 1PICKUP_ZONE", 0.0, 0.0, 300.0),
+            ("Huey 1DROPOFF_ZONE", 10_000.0, 0.0, 300.0),
+        ],
+    )
+    _aircraft(h, "Huey 1-1", "UH-1H", x=0.0, z=0.0, alt=0.0, airborne=False)
+    h.advance_to(3)
+    assert "preload Huey 1-1 Retribution Troops (8)" in _log(h)
+    h.update_unit("Huey 1-1", {"x": 10_000.0, "z": 0.0})
+    h.advance_to(5)
+    assert "stock unload Huey 1-1" in _log(h)
+    h.assert_no_lua_errors()
+
+
+def test_zone_smoke_burns_all_mission_with_the_option() -> None:
+    h = DcsPluginHarness()
+    _load(
+        h,
+        flights=[
+            _flight(
+                ["Huey 1-1"],
+                "UH-1H",
+                "Huey 1",
+                pickup_zone="Huey 1PICKUP_ZONE",
+                drop_off_zone="Huey 1DROPOFF_ZONE",
+            )
+        ],
+        transports=[_transport("UH-1H", 8, paradrop=False)],
+        zones=[
+            ("Huey 1PICKUP_ZONE", 0.0, 0.0, 300.0),
+            ("Huey 1DROPOFF_ZONE", 10_000.0, 0.0, 300.0),
+        ],
+        smoke=True,
+    )
+    h.advance_to(3)
+    assert len(h.records("smokes")) == 2
+    h.advance_to(310)
+    assert len(h.records("smokes")) == 4
+    h.assert_no_lua_errors()
+
+
+def test_no_zone_smoke_without_the_option() -> None:
+    h = DcsPluginHarness()
+    _herc_mission(h)
+    h.advance_to(400)
+    assert h.records("smokes") == []
+
+
+def test_airlift_crates_are_placed_with_the_option() -> None:
+    h = DcsPluginHarness()
+    _load(
+        h,
+        flights=[_flight(["Huey 1-1"], "UH-1H", "Huey 1")],
+        transports=[_transport("UH-1H", 8, paradrop=False)],
+        zones=[("Huey 1crate_spawn", 0.0, 0.0, 50.0)],
+        crates=[
+            {
+                "weight": "200",
+                "unit": "M1043 HMMWV Armament",
+                "coalition": "blue",
+                "zone": "Huey 1crate_spawn",
+            }
+        ],
+        airliftcrates=True,
+    )
+    h.advance_to(4)
+    assert "crate M1043 HMMWV Armament at Huey 1crate_spawn" in _log(h)
+    h.assert_no_lua_errors()
+
 
 def _load_with_jtac(h: DcsPluginHarness, **options: Any) -> None:
-    h.lua.execute(_CTLD_STUB)
-    h.lua.execute(_AUTOLASE_FAKES)
-    config = _config([], [])
-    config["plugins"] = {"ctld": {**_PLUGIN_OPTIONS["ctld"], **options}}
-    config["JTACs"] = [
-        {
-            "dcsGroupName": "JTAC Reaper",
-            "dcsUnit": "JTAC Reaper-1",
-            "laserCode": "1688",
-            "radio": "251.0",
-            "modulation": "AM",
-        }
-    ]
-    h.lua.globals().dcsRetribution = h.to_lua(config)
+    _herc_mission(h)
+    config = h.lua.globals().dcsRetribution
+    config.JTACs = h.to_lua(
+        [
+            {
+                "dcsGroupName": "JTAC Reaper",
+                "dcsUnit": "JTAC Reaper-1",
+                "laserCode": "1688",
+            }
+        ]
+    )
+    for key, value in options.items():
+        config.plugins.ctld[key] = value
+    h.lua.execute("lases = {}")
     h.load_plugin_script(CONFIG)
 
 
@@ -558,7 +508,8 @@ def test_jtac_lases_through_autolase_for_both_sides() -> None:
     lases = h.to_python(h.lua.eval("lases"))
     assert [a["side"] for a in lases] == ["blue", "red"]
     for a in lases:
-        assert a["prefixes"] == ["JTAC Reaper"]
+        # The drone, and any dropped squad cloned from the JTAC-carrying template.
+        assert a["prefixes"] == ["JTAC Reaper", "CTLD blue Retribution Troops (24)"]
         assert a["codes"] == {"JTAC Reaper-1": 1688}
         assert a["distance"] == 10000
         assert a["cooldown"] is False
