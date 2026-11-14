@@ -4517,6 +4517,13 @@ weapon-tracking pattern), no per-mission data:
 | Setting / options | `game/settings/` (`vietnam_snake_and_nape`); plugin `specificOptions` (release ceiling/speed, weapon patterns, per-impact power) |
 | Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (the `snakeNape` on-marker is emitted when the setting is on, independent of the other suite features; off = no node) |
 
+### Who carries Snakeyes (2026-11-14 audit)
+
+- The A-4E CAS fit (`resources/customized_payloads/A-4E-C.lua`) carries two Mk-82 Snakeyes since
+  2026-11-14 (DM call); it had plain Mk-82s, and only the F-100D CAS and OCA fits carried Snakeyes, so
+  the effect almost never fired. A-4E flights on BAI use the same fit.
+- The Vietnam War Vessels A-1H has no Snakeye or napalm station; its runs lay no fire.
+
 ### Gotchas / deferred
 
 - **Runtime is unflown (checklist L11).** The Lua passes the `luac5.1 -p` gate, but the `S_EVENT_SHOT`
