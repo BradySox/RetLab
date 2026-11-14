@@ -541,6 +541,12 @@ REMOVED: tuple[Removed, ...] = (
         r"|readback incomplete|[Ss]trict readbacks",
         allow=("removed", "Removed", "no longer", "historical"),
     ),
+    Removed(
+        # Merged 2026-11-11 (#1486), dropped by the DM as too like the other campaigns.
+        "the Black Sea Coast 1985 campaign",
+        "2026-11-14",
+        r"Black Sea Coast 1985|black_sea_coast_1985",
+    ),
 )
 
 

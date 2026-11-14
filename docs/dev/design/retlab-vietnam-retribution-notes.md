@@ -28,6 +28,35 @@ P2 (shell/preset) + P3 (behaviour taskings) outstanding.
 
 ## Implementation progress
 
+- **2026-11-13 — Yankee Station re-laid at about 1.5x scale (DM call).** Measured against
+  the real places, the old layout was about 3x shrunk overall and 6-11x south of the DMZ:
+  Da Nang (Sochi) sat 14 NM behind the front and Khe Sanh 7 NM. The coast has no airfield
+  between Sochi and Gelendzhik, so Da Nang could not slide back; the DMZ moved up the coast
+  instead. Layout, all DM picks:
+  - North Vietnam: Hanoi Kutaisi, Kep Senaki, Haiphong Kobuleti (the coastal port), Thanh Hoa
+    Sukhumi, Vinh Gudauta, Dong Hoi Sochi-Adler, the DMZ at FOB Vinh Linh (Tuapse). China is
+    Tbilisi, Thailand Maykop and Mineralnye Vody, all unchanged.
+  - South Vietnam: FOB Dong Ha (Novomikhaylovsky), Phu Bai/Chu Lai Gelendzhik (the Super
+    Gaggle launch), Da Nang Novorossiysk, Cam Ranh Krymsk, Anapa the rear. Saigon is dropped:
+    it does not fit on the map at this scale.
+  - **Red holds Tuapse because of the roads.** The Tuapse-Shaumyan pass road is the only road
+    over the range on this coast; with Tuapse blue the Trail had no way back to the North.
+  - **Route 9 is a second front.** The M4 from Dzhubga over the pass to Goryachy Klyuch plays
+    Route 9: Khe Sanh at its foot by Dzhubga, Tchepone at the far end. Khe Sanh starts at
+    0.35 strength, so the siege front sits near the wire. Retribution's landmap excludes the
+    whole M4 hill country, so Khe Sanh could not go up the pass, and the Route 9 front's
+    tanks fight on the nearest open ground, at Khe Sanh (DM call 2026-11-14). The Trail (Mu Gia at the pass, Ban
+    Karai at Khadyzhensk, Ban Laboy, Tchepone) feeds that front, on the north slope.
+  - A pinned `Gun Line` group (New Jersey + Laffey, `resources/groups/Vietnam-Gun-Line.yaml`)
+    sits inside 10 NM of the DMZ coast: the carrier escorts sat 16-38 NM out, past the
+    naval gunfire reach, so it never fired. The carriers are pinned as CV-61 Ranger
+    (Forrestal hull) and CVAN-65 Enterprise.
+  - Built by `tools/build_yankee_station_miz.py` from the pre-rework `.miz` at `0c28ad4c2`,
+    which keeps the 280 scenery strike targets (all inside North Vietnam). Roads are real
+    highway points from OpenStreetMap routing. The old Abkhaz-interior Trail FOBs and their
+    markers are gone. A re-run discards any Mission Editor change made since.
+  - Strike legs into the North barely change; in-country CAS legs grow from 14 to about
+    40 NM and the Super Gaggle run to about 30 NM.
 - **2026-09-16 — §36 airbase harassment REMOVED (DM call, "drop the feature").** Test 34
   showed the barrage holding every AI fixed-wing launch at Maykop and Da Nang for the rest of
   the mission (DCS's under-attack state, never clearing under a four-minute cadence); tests 24,
@@ -389,3 +418,7 @@ in-game-pass checklist row.
 No native DCS Vietnam map exists. Baseline = Caucasus/Marianas overlay (current campaigns) optionally
 paired with Starway's "Green Thunder" retexture. Razbam "Wings Over Vietnam" has no firm release —
 do not plan around it. Architecture keeps the map swappable.
+
+Scale on Caucasus: the coast is about 280 NM end to end against about 700 NM from Hanoi to
+Saigon, so no layout reaches true scale; 1.5-2x is the floor. The 2026-11-13 Yankee Station
+re-lay (Implementation progress, top) is at about 1.5x north of the DMZ.

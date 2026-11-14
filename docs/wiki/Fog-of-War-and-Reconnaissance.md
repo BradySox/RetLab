@@ -88,8 +88,8 @@ AI does not get bombing tasks dumped on it and turn back at the ingress point.
 Two Vietnam-era camera ships fly TARPS as their primary job — the **RF-101B Voodoo** (USAF,
 land-based) and the **RA-5C Vigilante** (US Navy, carrier-based). Both are unarmed, with built-in
 cameras rather than a pod, so their TARPS loadout is a clean weaponless fit. Both keep a
-low-priority Armed Recon fallback. **1968 Yankee Station** fields them at Da Nang and on the
-carriers.
+low-priority Armed Recon fallback. **1968 Yankee Station** fields them at Da Nang
+(Novorossiysk) and on the carriers.
 
 ---
 
