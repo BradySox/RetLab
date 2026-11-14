@@ -432,11 +432,10 @@ def test_yankee_station_control_point_strengths_applied(
     yankee_station: tuple[Campaign, ConflictTheater, CampaignAirWingConfig],
 ) -> None:
     """``control_point_strengths`` from the campaign YAML override each named CP's starting
-    ground strength on the new-game path. The consolidated Yankee Station sets a depleted
-    Da Nang (Sochi-Adler) so the DMZ front starts pressed in near the wire (the Operation
-    Niagara siege, folded in from the dropped Khe Sanh campaign) -- the front between two
-    opposing CPs sits at ``strength_pct * route_length`` from the blue CP, so without this
-    the front would sit at the route midpoint (far out)."""
+    ground strength on the new-game path. Yankee Station sets a depleted Khe Sanh so the
+    Route 9 front starts pressed in near the wire (the Operation Niagara siege) -- the front
+    between two opposing CPs sits at ``strength_pct * route_length`` from the blue CP, so
+    without this the front would sit at the road's midpoint (far out)."""
     _campaign, theater, _air_wing = yankee_station
     data = yaml.safe_load(
         (_CAMPAIGNS / "1968_Yankee_Station.yaml").read_text(encoding="utf-8")
@@ -444,14 +443,14 @@ def test_yankee_station_control_point_strengths_applied(
     strengths = data.get("control_point_strengths", {})
     assert (
         strengths
-    ), "Yankee Station should set control_point_strengths (besieged Da Nang)."
+    ), "Yankee Station should set control_point_strengths (besieged Khe Sanh)."
 
     by_name = {cp.name: cp for cp in theater.controlpoints}
     for name, value in strengths.items():
         assert name in by_name, f"control_point_strengths names unknown CP {name!r}"
         assert by_name[name].base.strength == pytest.approx(float(value))
-    # The whole point: Da Nang is depleted (< full strength) so the front pulls in close.
-    assert by_name["Sochi-Adler"].base.strength < 1.0
+    # The whole point: Khe Sanh is depleted (< full strength) so the front pulls in close.
+    assert by_name["FOB Khe Sanh"].base.strength < 1.0
 
 
 @pytest.mark.parametrize("campaign_file", _CH_ARMOR_CAMPAIGNS)

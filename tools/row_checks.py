@@ -173,6 +173,60 @@ def _generate(game: Any) -> None:
         MissionGenerator(game, sim.time).generate_miz(Path(folder) / "row_check.miz")
 
 
+def check_b65() -> list[str]:
+    """A cut-off base recovers no strength, an air-supplied one a quarter; retaken, full."""
+    import random
+
+    import game.persistency as persistency
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+    from game.theater.supply import supply_statuses
+
+    persistency.autosave = lambda game: None
+    game = build_game("Abchazian Blitz")
+    named = game.theater.control_point_named
+    # Red taking these two FARPs cuts Enguri Dam off and leaves Sukhumi air only.
+    cuts = ("Zugdidi FARP", "Ochamchire FARP")
+    watch = {"Enguri Dam": 0.0, "Sukhumi-Babushara": 0.05, "Senaki-Kolkhi": 0.2}
+
+    def read() -> dict[str, tuple[str, float]]:
+        status = supply_statuses(
+            list(game.theater.player_points()), game.blue.transit_network
+        )
+        return {
+            n: (status[named(n)].name, round(named(n).base.strength, 2)) for n in watch
+        }
+
+    def flip(side: Player) -> None:
+        for name in cuts:
+            named(name).capture(game, GameUpdateEvents(), side)
+        game.blue.update_transit_network()
+        game.red.update_transit_network()
+
+    for name in watch:
+        named(name).base.strength = 0.4
+    flip(Player.RED)
+    rows = [f"cut: {read()}"]
+    for turn in (1, 2):
+        before = read()
+        random.seed(turn)
+        game.pass_turn()
+        after = read()
+        for name, gain in watch.items():
+            got = round(after[name][1] - before[name][1], 2)
+            assert got == gain, f"turn {turn}: {name} {after[name][0]} gained {got}"
+        rows.append(f"turn {turn}: {after}")
+    flip(Player.BLUE)
+    before = read()
+    random.seed(3)
+    game.pass_turn()
+    after = read()
+    gained = round(after["Enguri Dam"][1] - before["Enguri Dam"][1], 2)
+    assert after["Enguri Dam"][0] == "SUPPLIED" and gained == 0.2, after
+    rows.append(f"retaken, one turn: {after}")
+    return rows
+
+
 def check_b92() -> list[str]:
     """A marker outside every zone belongs to the base it sits next to (Desert Trident)."""
     import tempfile
@@ -293,6 +347,74 @@ def _miz_payloads(
                         )
                         found.setdefault(unit.type, set()).add(pylons)
     return found
+
+
+def check_b20() -> list[str]:
+    """Red rebuilds struck SAM sites two units a turn, priciest first; HQs stay dead."""
+    import random
+
+    import game.persistency as persistency
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+
+    # pass_turn autosaves into the user's Saved Games; nothing here is a save.
+    persistency.autosave = lambda game: None
+
+    def run(repair: bool) -> tuple[list[str], list[Any]]:
+        game = build_game("red_tide")
+        game.settings.auto_repair_air_defenses = repair
+        events = GameUpdateEvents()
+        red = [cp for cp in game.theater.controlpoints if cp.captured is Player.RED]
+        sites = [
+            t
+            for cp in red
+            for t in cp.ground_objects
+            if t.category == "aa" and len(list(t.units)) >= 4
+        ]
+        command = next(
+            t for cp in red for t in cp.ground_objects if t.category == "commandcenter"
+        )
+        partial, full = sites[0], sites[1]
+        for unit in sorted(partial.units, key=lambda u: -u.unit_type.price)[:2]:
+            unit.kill(events)
+        for unit in [*full.units, *command.units]:
+            unit.kill(events)
+        ring = full.max_threat_range()
+        rows, order = [], []
+        dead = {id(u) for u in full.units}
+        for turn in (1, 2, 3):
+            random.seed(turn)
+            game.pass_turn(no_action=True)
+            back = [u for u in full.units if u.alive and id(u) in dead]
+            order.extend(back)
+            dead -= {id(u) for u in back}
+            rows.append(
+                f"turn {turn}: {partial.name} "
+                f"{sum(u.alive for u in partial.units)}/{len(list(partial.units))}, "
+                f"{full.name} {sum(u.alive for u in full.units)}/"
+                f"{len(list(full.units))}, command post "
+                f"{sum(u.alive for u in command.units)} alive"
+            )
+        assert not any(u.alive for u in command.units), "a command post came back"
+        return rows, [partial, full, ring, order]
+
+    rows, (partial, full, ring, order) = run(True)
+    assert all(u.alive for u in partial.units), "the damaged site was not rebuilt"
+    alive = sum(u.alive for u in full.units)
+    assert 0 < alive <= 2 * 2, f"{full.name}: {alive} units back by turn 3"
+    prices = [u.unit_type.price for u in order]
+    assert prices == sorted(prices, reverse=True), f"repair order {prices}"
+    assert full.max_threat_range() > ring, "the rebuilt site's ring did not grow"
+
+    off_rows, (_, off_full, _, _) = run(False)
+    assert not any(u.alive for u in off_full.units), "repairs with the setting off"
+    return [
+        *rows,
+        f"{full.name}'s ring {ring.nautical_miles:.0f} -> "
+        f"{full.max_threat_range().nautical_miles:.0f} NM; repaired in price order "
+        f"{prices}",
+        f"setting off: {off_rows[-1]}",
+    ]
 
 
 def check_b282() -> list[str]:
@@ -521,6 +643,95 @@ def check_b161() -> list[str]:
     ]
 
 
+def check_b180() -> list[str]:
+    """Red Tide: Haina's motorpool depot changes hands with the base, and only once."""
+    import pickle
+    import random
+    import tempfile
+    from pathlib import Path
+
+    import dcs
+
+    import game.persistency as persistency
+    from game.ground_forces.ai_ground_planner import reserve_armor_for
+    from game.missiongenerator import MissionGenerator
+    from game.sim import GameUpdateEvents
+    from game.sim.missionsimulation import MissionSimulation
+    from game.theater.player import Player
+    from game.utils import meters
+
+    persistency.autosave = lambda game: None
+    game = build_game("red_tide")
+    haina = game.theater.control_point_named("Haina")
+
+    def depots(g: Any) -> list[Any]:
+        return [t for t in g.theater.ground_objects if t.category == "motorpool"]
+
+    depot = next(t for t in depots(game) if t.control_point is haina)
+    spot = depot.position
+    assert haina.captured is Player.RED
+    haina.capture(game, GameUpdateEvents(), Player.BLUE)
+    random.seed(1)
+    game.pass_turn()
+
+    land = [
+        cp
+        for cp in game.theater.controlpoints
+        if not cp.is_fleet and type(cp).__name__ != "OffMapSpawn"
+    ]
+    nearest = min(land, key=lambda cp: cp.position.distance_to_point(spot))
+    assert (
+        depot.control_point is nearest
+    ), f"{depot.name} is {depot.control_point.name}'s"
+    assert nearest.captured is Player.BLUE, f"{nearest.name} is not blue"
+
+    # A front base deploys its first ~60 vehicles; give it a reserve to park.
+    tank = next(
+        u for u in game.blue.faction.ground_units if u.unit_class.name == "TANK"
+    )
+    nearest.base.commission_units({tank: 100})
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "row_check.miz"
+        MissionGenerator(game, sim.time).generate_miz(path)
+        mission = dcs.Mission()
+        mission.load_file(str(path))
+    # Matched by place: the mission renames groups.
+    parked_groups = [
+        (side, group)
+        for side in ("blue", "red")
+        for country in mission.coalition[side].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].position.distance_to_point(spot) < 600
+    ]
+    names = [group.name for _, group in parked_groups]
+    sides = {side for side, _ in parked_groups}
+    assert sides == {"blue"}, f"{depot.name}'s vehicles spawn under {sides}"
+    reserve = {u.dcs_unit_type.id for u in reserve_armor_for(nearest)}
+    parked = {u.type for _, g in parked_groups for u in g.units}
+    assert (
+        parked <= reserve
+    ), f"parked {parked - reserve} not in {nearest.name}'s reserve"
+
+    loaded = pickle.loads(pickle.dumps(game))
+    near_spot = [
+        t
+        for t in depots(loaded)
+        if meters(t.position.distance_to_point(spot)).meters < 500
+    ]
+    assert len(near_spot) == 1, f"{len(near_spot)} depots at Haina after a reload"
+    return [
+        f"{depot.name}: Haina's depot, red; Haina captured, one turn passed",
+        f"now {nearest.name}'s ({nearest.captured.name}), the nearest land base, "
+        f"{meters(nearest.position.distance_to_point(spot)).nautical_miles:.1f} NM",
+        f"given 100 {tank}: the mission parks {len(names)} groups there, "
+        f"all blue, types {sorted(parked)} from the base's reserve",
+        "saved and reloaded: one depot at the spot",
+    ]
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -561,8 +772,11 @@ CHECKS: dict[str, Check] = {
     "B6": check_b6,
     "B92": check_b92,
     "B19": check_b19,
+    "B20": check_b20,
+    "B65": check_b65,
     "B156": check_b156,
     "B161": check_b161,
+    "B180": check_b180,
     "B282": check_b282,
     "B319": check_b319,
     "B188": check_b188,
