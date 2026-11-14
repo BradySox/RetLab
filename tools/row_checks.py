@@ -173,6 +173,60 @@ def _generate(game: Any) -> None:
         MissionGenerator(game, sim.time).generate_miz(Path(folder) / "row_check.miz")
 
 
+def check_b65() -> list[str]:
+    """A cut-off base recovers no strength, an air-supplied one a quarter; retaken, full."""
+    import random
+
+    import game.persistency as persistency
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+    from game.theater.supply import supply_statuses
+
+    persistency.autosave = lambda game: None
+    game = build_game("Abchazian Blitz")
+    named = game.theater.control_point_named
+    # Red taking these two FARPs cuts Enguri Dam off and leaves Sukhumi air only.
+    cuts = ("Zugdidi FARP", "Ochamchire FARP")
+    watch = {"Enguri Dam": 0.0, "Sukhumi-Babushara": 0.05, "Senaki-Kolkhi": 0.2}
+
+    def read() -> dict[str, tuple[str, float]]:
+        status = supply_statuses(
+            list(game.theater.player_points()), game.blue.transit_network
+        )
+        return {
+            n: (status[named(n)].name, round(named(n).base.strength, 2)) for n in watch
+        }
+
+    def flip(side: Player) -> None:
+        for name in cuts:
+            named(name).capture(game, GameUpdateEvents(), side)
+        game.blue.update_transit_network()
+        game.red.update_transit_network()
+
+    for name in watch:
+        named(name).base.strength = 0.4
+    flip(Player.RED)
+    rows = [f"cut: {read()}"]
+    for turn in (1, 2):
+        before = read()
+        random.seed(turn)
+        game.pass_turn()
+        after = read()
+        for name, gain in watch.items():
+            got = round(after[name][1] - before[name][1], 2)
+            assert got == gain, f"turn {turn}: {name} {after[name][0]} gained {got}"
+        rows.append(f"turn {turn}: {after}")
+    flip(Player.BLUE)
+    before = read()
+    random.seed(3)
+    game.pass_turn()
+    after = read()
+    gained = round(after["Enguri Dam"][1] - before["Enguri Dam"][1], 2)
+    assert after["Enguri Dam"][0] == "SUPPLIED" and gained == 0.2, after
+    rows.append(f"retaken, one turn: {after}")
+    return rows
+
+
 def check_b92() -> list[str]:
     """A marker outside every zone belongs to the base it sits next to (Desert Trident)."""
     import tempfile
@@ -630,6 +684,7 @@ CHECKS: dict[str, Check] = {
     "B92": check_b92,
     "B19": check_b19,
     "B20": check_b20,
+    "B65": check_b65,
     "B156": check_b156,
     "B161": check_b161,
     "B282": check_b282,

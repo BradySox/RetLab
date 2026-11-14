@@ -1216,6 +1216,8 @@ leg in Tacview/F10.
 
 ### B65 — Reinforcement follows the supply lines · §90 rung A · ◐ PARTIAL
 
+**2026-11-14, `python tools/row_checks.py B65`** (Caucasus - Abchazian Blitz, new game, turns passed with no mission, no DCS): **the strength half passes.** Red taking Zugdidi and Ochamchire FARPs leaves Enguri Dam ISOLATED and Sukhumi-Babushara AIRLIFTED. From 0.4 strength over two turns: Enguri Dam gains nothing, Sukhumi +0.05 a turn, supplied Senaki +0.2 a turn. Retaken, Enguri Dam reads SUPPLIED and gains the full 0.2 the next turn. **Still owed:** the front line responding over two or three turns, which needs the app or a flight.
+
 **2026-09-23, test 39 re-read (session `c2acb521`, at the DM's request)** — **not reached.** Red took FOB Leimbach by air assault and blue took FOB Delaram II, but no base was cut off: the turn-2 save reads every base on both sides SUPPLIED.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **unchanged;** the multi-turn half needs the app, and no capture is a second turn of the same road cut.
