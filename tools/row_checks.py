@@ -510,7 +510,11 @@ def check_b319() -> list[str]:
             label = f"{package.primary_task.value} {flight.flight_type.value}"
             hold = names.index("ESCORT HOLD")
             assert names[hold - 1] == "INGRESS", f"{label}: {names}"
-            assert names[hold + 1] == "SPLIT", f"{label}: {names}"
+            split = names.index("SPLIT")
+            # Egress NAV points may sit between the hold and the split.
+            assert split > hold and all(
+                n == "NAV" for n in names[hold + 1 : split]
+            ), f"{label}: {names}"
             near = [
                 w.name
                 for w in route
@@ -529,7 +533,7 @@ def check_b319() -> list[str]:
                 route[hold].position.distance_to_point(package.target.position)
             )
             evidence.append(
-                f"{label}: {' > '.join(names[:hold + 2])}, hold "
+                f"{label}: {' > '.join(names[:split + 1])}, hold "
                 f"{to_hold.nautical_miles:.1f} NM off the target, join with the primary"
             )
     assert evidence, "no Strike or DEAD package carries an escort"
@@ -608,17 +612,23 @@ def check_b161() -> list[str]:
         ).nautical_miles
 
     # A flyable flight from an airfield whose route passes an enemy field.
-    flight = next(
+    # Its route is rebuilt with the player seat taken, so test after that.
+    candidates = [
         f
         for p in game.blue.ato.packages
         for f in p.flights
-        if isinstance(f.departure, Airfield)
-        and f.unit_type.dcs_unit_type.flyable
-        and any(route_nm(route_of(f), cp) <= 20 for cp in enemy)
-    )
-    next(flight.iter_members()).pilot.player = True
-    flight.recreate_flight_plan()
-    route = route_of(flight)
+        if isinstance(f.departure, Airfield) and f.unit_type.dcs_unit_type.flyable
+    ]
+    for flight in candidates:
+        next(flight.iter_members()).pilot.player = True
+        flight.recreate_flight_plan()
+        route = route_of(flight)
+        if any(route_nm(route, cp) <= 20 for cp in enemy):
+            break
+        next(flight.iter_members()).pilot.player = False
+        flight.recreate_flight_plan()
+    else:
+        raise AssertionError("no flyable blue flight passes an enemy field")
     parked = _parked_by_field(game)
     near = [
         cp.name for cp in enemy if route_nm(route, cp) <= 20 and parked.get(cp.name)

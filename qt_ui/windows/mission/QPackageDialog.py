@@ -17,6 +17,7 @@ from PySide6.QtWidgets import (
     QLineEdit,
 )
 
+from game.flightplan.samdetour import package_ring_warnings
 from game.ato import packageroute
 from game.ato.flight import Flight
 from game.ato.flighttype import FlightType
@@ -456,9 +457,10 @@ class QPackageDialog(QDialog):
             summary.append(f"Missing pilots: {missing_pilots}")
         self.package_context.setText(" | ".join(summary))
         plan = self.package_model.coordinated
-        warnings = (
+        warnings = list(
             plan.warnings if plan is not None and package.auto_coordinated else []
         )
+        warnings.extend(package_ring_warnings(package))
         self.tot_warnings.setText("\n".join(f"Warning: {w}" for w in warnings))
         self.tot_warnings.setVisible(bool(warnings))
 
