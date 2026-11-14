@@ -92,6 +92,84 @@ def check_p4() -> list[str]:
     return rows + [f"turn {n}: {text}" for n, text in messages if n > 1]
 
 
+def check_p6() -> list[str]:
+    """COIN field cells: up to 3, one per stronghold, off every base; killed or coalesced."""
+    import random
+
+    import game.persistency as persistency
+    from game.retlab import coin_dispersed
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+    from game.utils import meters
+
+    persistency.autosave = lambda game: None
+    messages: list[tuple[int, str]] = []
+    coin_dispersed._announce = lambda game, text: messages.append((game.turn, text))
+    game = build_game("coin_enduring_resolve")
+    events = GameUpdateEvents()
+
+    def tgo(record: dict[str, Any]) -> Any:
+        return next(
+            t for t in game.theater.ground_objects if str(t.id) == record["tgo_id"]
+        )
+
+    def home(record: dict[str, Any]) -> Any:
+        return next(
+            cp for cp in game.theater.controlpoints if str(cp.id) == record["home_id"]
+        )
+
+    rows = []
+    killed = cache = None
+    for turn in range(1, 6):
+        random.seed(turn)
+        game.pass_turn()
+        cells = game.coin_state["field_cells"]
+        assert 0 < len(cells) <= coin_dispersed.MAX_FIELD_CELLS, f"{len(cells)} cells"
+        homes = [c["home_id"] for c in cells]
+        assert len(set(homes)) == len(homes), "two cells from one stronghold"
+        for cell in cells:
+            site = tgo(cell)
+            assert site.control_point.captured is Player.RED, "a cell is not red"
+            assert (
+                site.visibility_for(Player.BLUE).name != "KNOWN"
+            ), "a cell is not fogged"
+            near = min(
+                meters(site.position.distance_to_point(cp.position)).meters
+                for cp in game.theater.controlpoints
+            )
+            assert (
+                near >= coin_dispersed.MIN_FIELD_DIST_M
+            ), f"cell {near:.0f} m off a base"
+        rows.append(
+            f"turn {game.turn}: "
+            + ", ".join(
+                f"cell from {home(c).name} age {c.get('age', 0)}" for c in cells
+            )
+        )
+        if game.turn == 1:
+            # Kill one cell; empty an ammo cache at another cell's home and let it mature.
+            killed = cells[0]
+            for unit in tgo(killed).units:
+                unit.kill(events)
+            keeper = next(
+                (
+                    c
+                    for c in cells[1:]
+                    if any(t.category == "ammo" for t in home(c).ground_objects)
+                ),
+                None,
+            )
+            assert keeper is not None, "no cell's stronghold has an ammo cache"
+            cache = next(t for t in home(keeper).ground_objects if t.category == "ammo")
+            for unit in cache.units:
+                unit.kill(events)
+    said = [text for _, text in messages]
+    assert any("eliminated" in m for m in said), "the killed cell was not reported"
+    assert any("cache is back in operation" in m for m in said), said
+    assert cache is not None and all(u.alive for u in cache.units), "cache still dead"
+    return rows + [f"turn {n}: {text}" for n, text in messages if n > 1]
+
+
 def check_b6() -> list[str]:
     """Red's offense loosens and thins as its command posts die; its defense holds."""
     import random
@@ -830,6 +908,7 @@ def check_b188() -> list[str]:
 CHECKS: dict[str, Check] = {
     "B6": check_b6,
     "P4": check_p4,
+    "P6": check_p6,
     "B92": check_b92,
     "B19": check_b19,
     "B20": check_b20,
