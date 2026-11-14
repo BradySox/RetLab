@@ -295,6 +295,74 @@ def _miz_payloads(
     return found
 
 
+def check_b20() -> list[str]:
+    """Red rebuilds struck SAM sites two units a turn, priciest first; HQs stay dead."""
+    import random
+
+    import game.persistency as persistency
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+
+    # pass_turn autosaves into the user's Saved Games; nothing here is a save.
+    persistency.autosave = lambda game: None
+
+    def run(repair: bool) -> tuple[list[str], list[Any]]:
+        game = build_game("red_tide")
+        game.settings.auto_repair_air_defenses = repair
+        events = GameUpdateEvents()
+        red = [cp for cp in game.theater.controlpoints if cp.captured is Player.RED]
+        sites = [
+            t
+            for cp in red
+            for t in cp.ground_objects
+            if t.category == "aa" and len(list(t.units)) >= 4
+        ]
+        command = next(
+            t for cp in red for t in cp.ground_objects if t.category == "commandcenter"
+        )
+        partial, full = sites[0], sites[1]
+        for unit in sorted(partial.units, key=lambda u: -u.unit_type.price)[:2]:
+            unit.kill(events)
+        for unit in [*full.units, *command.units]:
+            unit.kill(events)
+        ring = full.max_threat_range()
+        rows, order = [], []
+        dead = {id(u) for u in full.units}
+        for turn in (1, 2, 3):
+            random.seed(turn)
+            game.pass_turn(no_action=True)
+            back = [u for u in full.units if u.alive and id(u) in dead]
+            order.extend(back)
+            dead -= {id(u) for u in back}
+            rows.append(
+                f"turn {turn}: {partial.name} "
+                f"{sum(u.alive for u in partial.units)}/{len(list(partial.units))}, "
+                f"{full.name} {sum(u.alive for u in full.units)}/"
+                f"{len(list(full.units))}, command post "
+                f"{sum(u.alive for u in command.units)} alive"
+            )
+        assert not any(u.alive for u in command.units), "a command post came back"
+        return rows, [partial, full, ring, order]
+
+    rows, (partial, full, ring, order) = run(True)
+    assert all(u.alive for u in partial.units), "the damaged site was not rebuilt"
+    alive = sum(u.alive for u in full.units)
+    assert 0 < alive <= 2 * 2, f"{full.name}: {alive} units back by turn 3"
+    prices = [u.unit_type.price for u in order]
+    assert prices == sorted(prices, reverse=True), f"repair order {prices}"
+    assert full.max_threat_range() > ring, "the rebuilt site's ring did not grow"
+
+    off_rows, (_, off_full, _, _) = run(False)
+    assert not any(u.alive for u in off_full.units), "repairs with the setting off"
+    return [
+        *rows,
+        f"{full.name}'s ring {ring.nautical_miles:.0f} -> "
+        f"{full.max_threat_range().nautical_miles:.0f} NM; repaired in price order "
+        f"{prices}",
+        f"setting off: {off_rows[-1]}",
+    ]
+
+
 def check_b282() -> list[str]:
     """The new stock AI jets fly their Retribution presets, as written to the mission."""
     from game.data.weapons import Weapon
@@ -561,6 +629,7 @@ CHECKS: dict[str, Check] = {
     "B6": check_b6,
     "B92": check_b92,
     "B19": check_b19,
+    "B20": check_b20,
     "B156": check_b156,
     "B161": check_b161,
     "B282": check_b282,
