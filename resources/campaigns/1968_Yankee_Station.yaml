@@ -12,13 +12,15 @@ description: >-
   Vietnam has turned it into a war of attrition. Hanoi sits behind the densest SAM and
   flak belts in the world, the Ho Chi Minh Trail feeds the war in the South every night,
   and at Khe Sanh a Marine garrison is surrounded in the hills below the DMZ.</p>
-  <p>The Kolkheti delta plays the Red River. Hanoi is Kutaisi, Haiphong is Senaki, and
-  the route packages ladder south through Vinh at Sukhumi and Dong Hoi at Gudauta to the
-  DMZ at the Psou narrows. Two carriers on Yankee Station fly the coastal packages with
-  Crusaders, Skyhawks and Intruders. The Air Force crosses the mountains from Ubon and
-  Takhli, at Maykop and Mineralnye Vody, and the Arc Light B-52s fly out of U-Tapao.
-  Down the Trail, truck columns run from Mu Gia through Ban Karai to Tchepone, and every
-  leg crosses a bridge.</p>
+  <p>The Kolkheti delta plays the Red River. Hanoi is Kutaisi, Haiphong is Kobuleti and
+  Kep is Senaki, and the route packages ladder up the coast through Thanh Hoa at Sukhumi,
+  Vinh at Gudauta and Dong Hoi at Sochi to the DMZ on the Tuapse coast. South of it, Dong
+  Ha holds the line, Da Nang flies from Novorossiysk and Khe Sanh holds the foot of
+  Route 9. Two carriers on Yankee Station fly the coastal packages with Crusaders,
+  Skyhawks and Intruders, and a battleship works the coast off the DMZ. The Air Force
+  crosses the mountains from Ubon and Takhli, at Maykop and Mineralnye Vody, with the Arc
+  Light B-52s. The Trail runs from Tuapse over the Shaumyan pass and down the far side of
+  the range through Mu Gia and Ban Karai to Tchepone, at the far end of Route 9.</p>
   <p>You will not take Hanoi. Break the North's air force, or cut the Trail at the
   passes, and hold Khe Sanh while you do it. Pump up the volume on "Fortunate Son" and
   enjoy.</p>
@@ -43,13 +45,12 @@ performance: 2
 version: "10.8"
 advanced_iads: true
 
-# Operation Niagara (from Khe Sanh): the DMZ line starts pressed in, not at the route
-# midpoint. The front between two opposing CPs sits at strength_pct * route_length from
-# the blue CP, so a depleted Da Nang garrison pulls the single Sochi<->Gudauta front in
-# toward the wire -- the NVA siege pressure on the forward strips and FOB Khe Sanh.
+# Operation Niagara: the Route 9 front between Khe Sanh and Tchepone starts pressed in on
+# the wire, not at the road's midpoint. The front between two opposing CPs sits at
+# strength_pct * route_length from the blue CP, so a depleted Khe Sanh garrison pulls it in.
 # Tune 0..1 -- lower = tighter siege.
 control_point_strengths:
-  Sochi-Adler: 0.35
+  FOB Khe Sanh: 0.35
 
 victory:
   description: >-
@@ -140,31 +141,23 @@ settings:
 # Mission Restrictions
   labels: "Dot Only"
 
-# Order of battle (2026-07-03 balance pass trimmed to ~116 BLUE / ~40 RED; the 2026-09-16
-# halving took blue to 61 on the DM's call -- the turn-1 ATO was unplayable at 116, with 31
-# blue packages in a 60-minute mission). The theater split mirrors 1968: the Navy owns the
-# coastal route packages from Yankee Station, the Air Force crosses the ridge from the Thailand
-# fields, and the in-country wing at Da Nang works the DMZ. No SEAD squadrons -- the Vietnam
-# doctrine drops SEAD from the tasking whitelist (Iron Hand rides the strike packages), so a
-# SEAD primary would never fly. Blue keeps every base's identity and feature coverage (one Arc
-# Light B-52 cell, a 4-jet Alpha Strike squadron, both carrier decks with one support pair
-# between them, TARPS singletons, the Super Gaggle + Combat SAR helos); red keeps a credible
-# GCI-ambush MiG force (~26) plus a light trail/front helo presence. Every base fits its parking
-# so squadron_start_full fields the whole wing.
+# Order of battle (2026-09-16 halving: blue 61, red 40). The 2026-11-13 re-lay moved the
+# South Vietnam bases up the coast with the DMZ; the airframes are unchanged. The Navy owns
+# the coastal route packages from Yankee Station, the Air Force crosses the ridge from the
+# Thailand fields, and the in-country wing at Da Nang works the DMZ and Route 9. No SEAD
+# squadrons: the Vietnam doctrine drops SEAD from the tasking whitelist (Iron Hand rides the
+# strike packages). Red keeps a GCI-ambush MiG force (~26) plus a light Trail/front helo
+# presence. Every base fits its parking, so squadron_start_full fields the whole wing.
 squadrons:
     # US NAVY -- CV-61 Ranger (Yankee Station): the BARCAP + interdiction + recon deck
     Naval-1:
-        # 2026-09-16 halving (DM call, the turn-1 ATO was unplayable at 116 blue airframes):
-        # Forrestal (Naval-2) carries the one E-2 and the one tanker for both decks -- the
-        # carriers sit a few miles apart on Yankee Station.
         - primary: BARCAP
           secondary: air-to-air
           aircraft:
             - F-8E Crusader
           size: 2
         - primary: BAI
-          # Steel Tiger tilt: Ranger's Skyhawks fly armed recon / BAI on the trail convoys;
-          # Forrestal (Naval-2) carries the A-6E strike arm.
+          # Steel Tiger tilt: Ranger's Skyhawks fly armed recon / BAI on the Trail convoys.
           secondary: air-to-ground
           aircraft:
             - A-4E Skyhawk
@@ -176,7 +169,8 @@ squadrons:
             - RA-5C Vigilante
           size: 1
 
-    # US NAVY -- CV-59 Forrestal (Yankee Station): the strike deck
+    # US NAVY -- CVAN-65 Enterprise (Yankee Station): the strike deck. It carries the one
+    # E-2 and the one tanker for both decks, a few miles apart on station.
     Naval-2:
         - primary: AEW&C
           aircraft:
@@ -207,8 +201,8 @@ squadrons:
             - A-4E Skyhawk
           size: 2
 
-    # Da Nang (Sochi-Adler): the in-country wing on the DMZ
-    Sochi-Adler:
+    # Da Nang (Novorossiysk): the in-country wing, ~40 NM behind the DMZ
+    Novorossiysk:
         - primary: BARCAP
           secondary: air-to-air
           aircraft:
@@ -220,8 +214,7 @@ squadrons:
             - A-1H Skyraider
           size: 2
         - primary: BAI
-          # Steel Tiger tilt: Skyraiders working the trail by day, alongside the CAS arm
-          # holding the DMZ.
+          # Steel Tiger tilt: Skyraiders working the Trail by day.
           secondary: air-to-ground
           aircraft:
             - A-1H Skyraider
@@ -237,19 +230,23 @@ squadrons:
             - RF-101B Voodoo
           size: 1
         - primary: Transport
-          # The Combat SAR "King" C-130 flies from the DMZ field (player-flown).
+          # The Combat SAR "King" C-130 (player-flown).
           secondary: any
           aircraft:
             - C-130J-30
           size: 1
+
+    # Phu Bai / Chu Lai (Gelendzhik): the Marine helo field nearest Khe Sanh, where the
+    # Super Gaggle launches.
+    Gelendzhik:
         - primary: Air Assault
           secondary: any
           aircraft:
             - UH-1H Iroquois
           size: 2
 
-    # FOB Khe Sanh: the besieged hill outpost under the DMZ (Super Gaggle destination). Sized
-    # to the ~6 helipad spots so start-full fields every squadron (it was over-subscribed 12/6).
+    # FOB Khe Sanh: the besieged hill outpost on Route 9 (Super Gaggle destination).
+    # Sized to its 6 helipads.
     FOB Khe Sanh:
         - primary: CAS
           secondary: air-to-ground
@@ -267,8 +264,7 @@ squadrons:
             - UH-1H Iroquois
           size: 2
 
-    # Saigon / Tan Son Nhut (Krymsk): the deep rear -- base-defense BARCAP + lift + tanker +
-    # College Eye, no strike wing (the RP VI strike run lives at the Thailand fields).
+    # Cam Ranh Bay (Krymsk): the rear -- College Eye, gas and lift.
     Krymsk:
         - primary: AEW&C
           # College Eye: the land-based EC-121 radar picture alongside the carriers' E-2s.
@@ -285,9 +281,8 @@ squadrons:
             - CH-47D
           size: 2
 
-    # Ubon RTAFB (Maykop): Phantoms over the ridge + ONE Arc Light B-52 cell. The Guam
-    # (Andersen) off-map spawn was dropped in the 2026-07-03 pass; the 43d SW cell it carried
-    # was cut in the 2026-09-16 halving, so the 307th (U-Tapao) is the whole Arc Light arm.
+    # Ubon RTAFB (Maykop): Phantoms over the ridge + the Arc Light B-52 cell (the 307th
+    # Strategic Wing of U-Tapao, folded in here).
     Maykop-Khanskaya:
         - primary: Escort
           secondary: air-to-air
@@ -304,8 +299,7 @@ squadrons:
             - 307th Strategic Wing #B-52H Stratofortress (U-Tapao)
           size: 4
 
-    # Takhli / Korat RTAFB (Mineralnye Vody): the Thud run into RP VI from the NW. The
-    # 8-jet Alpha Strike squadron went to 4 in the 2026-09-16 halving.
+    # Takhli RTAFB (Mineralnye Vody): the Thud run into RP VI from the NW.
     Mineralnye Vody:
         - primary: Strike
           secondary: air-to-ground
@@ -323,8 +317,7 @@ squadrons:
             - F-100D Super Sabre
           size: 2
         - primary: Refueling
-          # Rehomed from the dropped Guam off-map spawn -- organic gas for the Takhli
-          # Thud strike run.
+          # Organic gas for the Takhli strike run.
           aircraft:
             - KC-135 Stratotanker
           size: 1
@@ -346,22 +339,25 @@ squadrons:
             - Mi-8MTV2 Hip
           size: 2
 
-    # Haiphong (Senaki-Kolkhi): the delta port. The MiG-17Fs are DEFENSIVE (MiGCAP) --
-    # Hanoi flew a pure GCI-ambush war (VIETNAM_AIR_DEFENSE_DOCTRINE); a BAI/air-to-ground
-    # primary auto-assigns MiGs to offense (read as red "aggression" in playtest). BARCAP +
-    # air-to-air keeps them intercepting and lets their QRA reserve actually scramble.
+    # Kep (Senaki-Kolkhi): the MiG-17 field NE of Hanoi. DEFENSIVE (MiGCAP): Hanoi flew a
+    # pure GCI-ambush war (VIETNAM_AIR_DEFENSE_DOCTRINE); a BAI/air-to-ground primary
+    # auto-assigns MiGs to offense. BARCAP + air-to-air keeps them intercepting and lets
+    # their QRA reserve scramble.
     Senaki-Kolkhi:
         - primary: BARCAP
           secondary: air-to-air
           aircraft:
             - MiG-17F Fresco-C
           size: 6
+
+    # Haiphong (Kobuleti): the port, its POL farm and SA-2 ring.
+    Kobuleti:
         - primary: Transport
           aircraft:
             - An-26B
           size: 2
 
-    # Vinh (Sukhumi-Babushara): panhandle staging. MiG-17Fs defensive (MiGCAP).
+    # Thanh Hoa (Sukhumi-Babushara): panhandle staging. MiG-17Fs defensive (MiGCAP).
     Sukhumi-Babushara:
         - primary: BARCAP
           secondary: air-to-air
@@ -369,7 +365,7 @@ squadrons:
             - MiG-17F Fresco-C
           size: 4
 
-    # Dong Hoi (Gudauta): the staging field above the DMZ -- no MiGs this far south
+    # Vinh (Gudauta): the staging field for the DMZ -- no MiGs this far south
     Gudauta:
         - primary: CAS
           secondary: air-to-ground
@@ -389,7 +385,7 @@ squadrons:
             - MiG-21bis Fishbed-N
           size: 4
 
-    # Trail FOBs (Laotian panhandle)
+    # The Trail (north slope of the range): Tchepone feeds the Route 9 siege.
     FOB Tchepone:
         - primary: CAS
           secondary: air-to-ground
@@ -408,6 +404,19 @@ squadrons:
           aircraft:
             - Mi-8MTV2 Hip
           size: 2
+
+# The Yankee Station decks: Ranger on a Forrestal-class hull, Enterprise as she sailed in 1968.
+carriers:
+  Naval-1:
+    preferred_name: CV-61 USS Ranger
+    preferred_type: CV-59 Forrestal
+  Naval-2:
+    preferred_name: CVAN-65 USS Enterprise
+    preferred_type: "[VWV] CVAN-65 USS Enterprise '66"
+
+# The naval gunfire gun line off the DMZ: a battleship and a destroyer inside 10 NM of the coast.
+ground_forces:
+  Gun Line: Vietnam Gun Line
 
 red_tempo:
   - from_turn: 1

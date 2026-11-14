@@ -469,9 +469,10 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
   forward helo FARP under artillery fire.
-- **1968 Yankee Station** — Hanoi inland behind its SA-2 ring, route packages laddering south to
-  a DMZ front, carriers on Yankee Station, the Air Force crossing from the Thailand fields. The
-  Ho Chi Minh Trail is a real, cuttable supply web.
+- **1968 Yankee Station** — Hanoi inland behind its SA-2 ring, route packages laddering down
+  the coast to a DMZ front at Tuapse, Khe Sanh besieged on Route 9, carriers on Yankee Station
+  and a battleship off the DMZ, the Air Force crossing from the Thailand fields. The Ho Chi Minh
+  Trail runs over the mountains to Tchepone and is a real, cuttable supply line.
 - **Operation Enduring Resolve** — a fork of Starfire's *Operation Shattered Dagger*. Strongholds
   regenerate, throttled by hidden ammo caches you have to find and strike. Infiltrators creep
   toward ungarrisoned bases to take them. Body count alone wins nothing.
