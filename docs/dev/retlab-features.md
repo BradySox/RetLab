@@ -6858,7 +6858,7 @@ row B134 owns the fly.
 - Needed means the stock escort contract: if a SEAD-capable wing has no escort free, the CAS package is scrubbed unless the doctrine flies unescorted.
 - Helpers: `has_radar_air_defense` / `deploys_radar_air_defense` in `game/ground_forces/ai_ground_planner.py`.
 
-**Route around SAMs (2026-09-23, `route_around_sams`, RetLab planner suite).**
+**Route around SAMs (2026-09-23, `route_around_sams`; every flight and on by default since 2026-11-12).**
 JOIN -> INGRESS and TARGET -> SPLIT are straight lines, and the coalition navmesh merges
 overlapping rings into one blob it crosses in a straight line, so neither routes round a SAM
 inside the blob. Graveyard of Empires turn 1: every deep blue package flew both legs through
@@ -6873,6 +6873,22 @@ A detour more than 2× the straight leg, or no less exposed, is dropped. Same re
 Not covered: SPLIT -> REFUEL (SKINK DEAD still crosses 23 NM there) and helicopters. Escort
 detour points are player-only; AI escorts fly the Escort task off the join.
 `tests/flightplan/test_samdetour.py`; row B141 owns the fly.
+
+**Every flight, on for new games (2026-11-12, DM call).** The navmesh merges enemy fighter
+range with the SAM rings and flies straight once inside, so CAP, escort, tanker, AWACS and
+transit legs deep in enemy ground cut rings the package legs went round. `WaypointBuilder.nav_path`
+now passes every fixed-wing leg through `flight_detour`, which bends each straight segment
+of the navmesh path with the same `detour`. Changes with it:
+
+- Default **on**, and out of the planner suite: an old save keeps its own value.
+- **Blue avoids only the sites it knows** (`known_for(BLUE)` under `fog_intact`); a bend round
+  an unseen site would give it away. Red reads ground truth.
+- The length limit is **1.5x** the straight leg (was 2x).
+- `sam_rings` is cached per game, turn and side; sites change only between turns.
+- The package window lists every flight whose route still crosses a known ring, by site
+  (`package_ring_warnings`): attack runs, racetracks and legs the limit left straight.
+- Long Road to H3 turn 1, blue: leg crossings 26 -> 12, all attack runs, racetracks or escort
+  holds. Turn planning about 5 s slower on that campaign. Row B334.
 
 **TARCAP behind SEAD (2026-09-23, `tarcap_behind_sead`, RetLab planner suite).** Upstream starts a
 TARCAP's orbit 2 min before the package's JOIN TOT (`Package.escort_start_time`), but the

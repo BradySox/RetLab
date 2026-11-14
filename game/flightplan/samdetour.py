@@ -1,10 +1,12 @@
-"""Nav points that take a package's straight legs around SAM rings it need not enter.
+"""Nav points that take a flight's straight legs around SAM rings it need not enter.
 
-JOIN -> INGRESS and TARGET -> SPLIT are straight lines, and the coalition navmesh
-treats every overlapping ring as one blob, so it cannot help inside one. Here the
-navmesh is rebuilt without the rings the package has to enter anyway (those covering
-the target or a leg's end point) and the leg is routed through that. Gated by
-``route_around_sams``.
+The coalition navmesh merges enemy fighter range and every SAM ring into one blob and
+flies straight once inside it, so rings deep in enemy ground were ignored. Here each
+leg is rerouted on a mesh of the rings alone, minus those it has to enter anyway
+(covering the target or a leg's end point). Every fixed-wing flight's transit legs
+get this (``WaypointBuilder.nav_path``), and a package's JOIN -> INGRESS and
+TARGET -> SPLIT legs. Blue avoids only the sites it knows. Gated by
+``route_around_sams``. Details: docs/dev/retlab-features.md section 69, Route around SAMs.
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ from game.threatzones import ThreatZones
 from game.utils import nautical_miles
 
 if TYPE_CHECKING:
+    from game.ato.flight import Flight
     from game.ato.package import Package
     from game.coalition import Coalition
     from game.theater import ConflictTheater
@@ -30,14 +33,15 @@ MIN_THREAT_RANGE = nautical_miles(3)
 #: splits are placed on the threat edge and then nudged up to 1 NM.
 EDGE_TOLERANCE = nautical_miles(5)
 #: A detour longer than this multiple of the straight leg is not flown.
-MAX_LENGTH_FACTOR = 2.0
+MAX_LENGTH_FACTOR = 1.5
 
 RingKey = tuple[float, float, float]
 
 
 class SamRing:
-    def __init__(self, x: float, y: float, radius: float) -> None:
+    def __init__(self, x: float, y: float, radius: float, name: str = "") -> None:
         self.key: RingKey = (round(x), round(y), round(radius))
+        self.name = name
         self.center = ShapelyPoint(x, y)
         self.radius = radius
         self.shape: Polygon = self.center.buffer(radius)
@@ -46,20 +50,48 @@ class SamRing:
         return self.center.distance(point) < self.radius - EDGE_TOLERANCE.meters
 
 
+#: Sites die, are repaired and are found only between turns, so the rings hold for
+#: a turn; every transit leg of every flight asks.
+_rings_cache: dict[tuple[int, int, str], list[SamRing]] = {}
+
+
 def sam_rings(coalition: Coalition) -> list[SamRing]:
-    """The opponent's air-defence rings, one per site at its longest reach."""
+    """The opponent's air-defence rings, one per site at its longest reach.
+
+    Blue's are the sites it knows: a bend round an unseen site would give it away.
+    Red plans on ground truth.
+    """
+    game = coalition.game
+    key = (id(game), game.turn, coalition.player.name)
+    if key not in _rings_cache:
+        if len(_rings_cache) > 8:
+            _rings_cache.clear()
+        _rings_cache[key] = _sam_rings(coalition)
+    return _rings_cache[key]
+
+
+def _sam_rings(coalition: Coalition) -> list[SamRing]:
+    from game.theater.fogofwar import fog_intact
+
     game = coalition.game
     cap = nautical_miles(game.settings.max_threat_range)
+    viewer = coalition.player if coalition.player.is_blue else None
     rings = []
-    for cp in game.theater.control_points_for(coalition.opponent.player):
-        for tgo in cp.ground_objects:
-            if not tgo.has_aa:
-                continue
-            threat_range = min(tgo.max_threat_range(), cap)
-            if threat_range > MIN_THREAT_RANGE:
-                rings.append(
-                    SamRing(tgo.position.x, tgo.position.y, threat_range.meters)
-                )
+    with fog_intact():
+        for cp in game.theater.control_points_for(coalition.opponent.player):
+            for tgo in cp.ground_objects:
+                if not tgo.has_aa or not tgo.known_for(viewer):
+                    continue
+                threat_range = min(tgo.max_threat_range(), cap)
+                if threat_range > MIN_THREAT_RANGE:
+                    rings.append(
+                        SamRing(
+                            tgo.position.x,
+                            tgo.position.y,
+                            threat_range.meters,
+                            tgo.name,
+                        )
+                    )
     return rings
 
 
@@ -144,3 +176,67 @@ def package_detour(
         sam_rings(coalition),
         [package.target.position],
     )
+
+
+def flight_detour(flight: Flight, points: list[Point]) -> list[Point]:
+    """``points`` (a nav path, ends included) with each leg bent round the rings.
+
+    Unchanged when the gate is off, for a helicopter, or with no ring in the way.
+    """
+    if len(points) < 2 or flight.is_helo:
+        return points
+    coalition = flight.coalition
+    if not coalition.game.settings.route_around_sams:
+        return points
+    rings = sam_rings(coalition)
+    if not rings:
+        return points
+    must_enter = [flight.package.target.position]
+    routed = [points[0]]
+    for start, end in zip(points, points[1:]):
+        routed.extend(detour(coalition.game.theater, start, end, rings, must_enter))
+        routed.append(end)
+    return routed
+
+
+def rings_crossed(flight: Flight) -> list[str]:
+    """Known enemy sites whose ring this flight's route still crosses.
+
+    Rings covering the target or a route point are left out: the flight is meant
+    to be there.
+    """
+    if flight.is_helo or flight.flight_plan is None:
+        return []
+    route = [
+        w.position
+        for w in flight.flight_plan.iter_waypoints()
+        if w.waypoint_type.name != "BULLSEYE"
+    ]
+    if len(route) < 2:
+        return []
+    fixed = [ShapelyPoint(p.x, p.y) for p in route] + [
+        ShapelyPoint(flight.package.target.position.x, flight.package.target.position.y)
+    ]
+    line = LineString([(p.x, p.y) for p in route])
+    return sorted(
+        {
+            ring.name
+            for ring in sam_rings(flight.coalition)
+            if ring.name
+            and line.intersects(ring.shape)
+            and not any(ring.must_enter(p) for p in fixed)
+        }
+    )
+
+
+def package_ring_warnings(package: Package) -> list[str]:
+    """One line per flight whose route still crosses a known SAM ring."""
+    lines = []
+    for flight in package.flights:
+        sites = rings_crossed(flight)
+        if sites:
+            lines.append(
+                f"{flight.flight_type.value} ({flight.unit_type.display_name}) "
+                f"crosses the SAM ring at {', '.join(sites)}"
+            )
+    return lines

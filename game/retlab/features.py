@@ -510,7 +510,7 @@ FEATURES: tuple[Feature, ...] = (
         69,
         # front_line_sead_escort: front-line CAS takes a SEAD escort, and the
         # Sidearm Harrier flies it instead of deep escorts (test 37).
-        # route_around_sams: detour nav points round SAM rings off the target.
+        # route_around_sams: every flight's legs bend round known SAM rings.
         settings_fields=(
             "sead_strike_coordination",
             "front_line_sead_escort",

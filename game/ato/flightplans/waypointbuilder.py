@@ -958,8 +958,11 @@ class WaypointBuilder:
     def nav_path(
         self, a: Point, b: Point, altitude: Distance, altitude_is_agl: bool = False
     ) -> List[FlightWaypoint]:
-        path = self.clean_nav_points(self.navmesh.shortest_path(a, b))
-        return [self.nav(self.perturb(p), altitude, altitude_is_agl) for p in path]
+        from game.flightplan.samdetour import flight_detour
+
+        path = list(self.clean_nav_points(self.navmesh.shortest_path(a, b)))
+        routed = flight_detour(self.flight, [a, *path, b])[1:-1]
+        return [self.nav(self.perturb(p), altitude, altitude_is_agl) for p in routed]
 
     def clean_nav_points(self, points: Iterable[Point]) -> Iterator[Point]:
         # Examine a sliding window of three waypoints. `current` is the waypoint

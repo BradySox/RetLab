@@ -385,19 +385,20 @@ class DoctrineSettings:
         ),
     )
     route_around_sams: bool = boolean_option(
-        "Packages route around SAMs they don't need to enter",
+        "Flights route around SAMs they don't need to enter",
         page=CAMPAIGN_DOCTRINE_PAGE,
         section=GENERAL_SECTION,
-        # Stock default: upstream flies JOIN->INGRESS and TARGET->SPLIT straight.
-        # RetLab planner suite turns this on.
-        default=False,
+        # On for new games since 2026-11-12 (DM call); upstream flies straight.
+        # Out of the planner suite: an old save keeps its own value.
+        default=True,
         detail=(
-            "The legs from the join point to the ingress point and from the target "
-            "to the split point are straight lines, and can cut through a SAM ring "
-            "that has nothing to do with the target. With this on, those legs get "
-            "nav points that take the package around the edge of any such ring. "
-            "Rings covering the target are still flown through. Helicopters are "
-            "unaffected."
+            "Every airplane's route legs, and a package's legs from the join point "
+            "to the ingress point and from the target to the split point, bend "
+            "around the edge of an enemy SAM ring they would otherwise cut, when "
+            "the way around is no more than half again as long. Rings covering the "
+            "target or a route point are still flown through, and the package "
+            "window names any ring a flight still crosses. Your flights avoid only "
+            "the sites you know. Helicopters are unaffected."
         ),
     )
     tarcap_behind_sead: bool = boolean_option(

@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 # CSAR is deliberately absent: it is upstream dcs-retribution#929's own design
 # and ships with #929's defaults either way. Route-aware fuel tanks (§46) left
 # the suite when work order C reverted the feature outright -- there is no gate
-# to flip any more.
+# to flip any more. `route_around_sams` left it on 2026-11-12: it is on for new games.
 #
 #: The settings page the one-click bar is prepended to. It lives beside the values
 #: rather than in the dialog because a page name nothing resolves to renders no bar
@@ -30,7 +30,6 @@ PLANNER_SUITE_VALUES: dict[str, tuple[Any, Any]] = {
     "sead_strike_coordination": (False, True),
     "single_sead_escort_flavour": (False, True),
     "front_line_sead_escort": (False, True),
-    "route_around_sams": (False, True),
     "tarcap_behind_sead": (False, True),
     "weather_aware_planning": (False, True),
     "adaptive_procurement": (False, True),

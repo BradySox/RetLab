@@ -195,9 +195,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   SAM. Fly the SEAD yourself and the AI push forms behind you.
 - Front-line CAS gets a SEAD escort, and the Sidearm-armed Harrier flies it. Harriers no
   longer escort deep packages their missiles cannot protect. Part of the RetLab planner suite.
-- Packages route around SAM rings they do not need to enter on the way from the join to the
-  target and back to the split, instead of flying straight through. Part of the RetLab planner
-  suite.
+- Flights route around known enemy SAM rings they do not need to enter, on the way out, the
+  join to the target, and the way home, when going round costs no more than half again the
+  distance. The package window names any ring a flight still crosses. On for new games.
 - Edit a route on the map. With a flight selected, drag a point to move it, double-click
   the route to add a point there, and right-click a point to delete it.
 - The way in and out of a package (join to IP, target to split) is flown by every flight
