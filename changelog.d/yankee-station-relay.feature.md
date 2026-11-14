@@ -1,0 +1,1 @@
+* **[Campaigns]** Caucasus - 1968 Yankee Station: re-laid at about 1.5x scale. The DMZ moves up the coast to Tuapse, Da Nang to Novorossiysk and Haiphong to Kobuleti; Khe Sanh is besieged on Route 9 by a second front fed by the Trail, which runs over the Shaumyan pass to Tchepone; a battleship gun line sits off the DMZ. Needs a new game.
