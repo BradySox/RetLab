@@ -3988,6 +3988,10 @@ missions never load any of it.
   single-aimpoint strike.
 - **Scripted carpet, not AI bombing.** AI B-52 bombing of a point target is inaccurate and unsatisfying; a
   scripted walking box over the area is both more reliable and more historical (Arc Light *boxes*).
+- **Carpet only (2026-11-14, DM call).** Until then the B-52 also dropped its own load on the same target,
+  so it was hit twice. `StrikeIngressBuilder` now gives an Arc Light bomber (`is_arc_light_strike`) no
+  bombing task: it flies over with its bombs aboard. Empty racks were rejected: an AI sent on a Strike
+  with nothing to drop may turn home before it comes within the 3 NM release range.
 
 ### Files & tests
 
@@ -3997,7 +4001,7 @@ missions never load any of it.
 | Hook | `game/missiongenerator/luagenerator.py` (call in `generate_plugin_data`) |
 | Plugin | `resources/plugins/vietnamops/` (`plugin.json`, `vietnamops-config.lua`) |
 | Setting | `game/settings/` (`vietnam_arc_light`, "Vietnam Ops" page) |
-| Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (eligibility gate, off = no node, no bombers = no record) |
+| Tests | `game/missiongenerator/tests/test_vietnamops_luadata.py` (eligibility gate, off = no node, no bombers = no record); `tests/missiongenerator/aircraft/test_strikeingress.py` (no bombing task on an Arc Light bomber) |
 
 ### Gotchas / deferred — in-game pass ☑ VERIFIED 2026-06-28 (L1)
 
