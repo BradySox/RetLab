@@ -23,10 +23,9 @@ Features so far:
   airborne friendly OV-10 Broncos by DCS unit type and marks the nearest opposing ground with
   white-phosphorus smoke on a cadence (the iconic Vietnam forward air controller). No
   per-mission data is emitted from Python.
-* **Snake and nape** (``vietnam_snake_and_nape``): an on-marker only -- the runtime discovers
-  attack aircraft (by the DCS "Attack airplanes" attribute) making a low, fast pass over
-  opposing ground and lays a napalm swath (a line of fire + a modest bite) across the target,
-  modelling the iconic low-level napalm CAS delivery. Symmetric; no per-mission data from Python.
+* **Snake and nape** (``vietnam_snake_and_nape``): an on-marker only -- the runtime catches
+  each Snakeye released low and fast and lays a fire node + a modest bite where it lands,
+  modelling the low-level napalm CAS delivery. Symmetric; no per-mission data from Python.
 
 **Convoy interdiction** (``vietnam_convoy_interdiction``) is intentionally NOT here: it emits
 no Lua node. Rather than spawn a phantom truck column at runtime, it now creates a *real*,
@@ -110,10 +109,9 @@ def populate_vietnam_ops_lua(
 def _populate_snake_nape(vietnam: "LuaItem") -> None:
     """Emit the snake-and-nape on-marker.
 
-    Like the flak gauntlet and FAC(A), the runtime discovers the delivering aircraft itself
-    (airborne attack aircraft, by the DCS "Attack airplanes" attribute) making a low, fast
-    pass over opposing ground, and lays a napalm fire swath across the target. The node only
-    signals the feature is on -- no per-mission data needs emitting from Python.
+    Like the flak gauntlet and FAC(A), the runtime finds the deliveries itself: each Snakeye
+    released low and fast lays a fire node where it lands. The node only signals the
+    feature is on -- no per-mission data needs emitting from Python.
     """
     nape = vietnam.add_item("snakeNape")
     nape.add_key_value("enabled", "true")
@@ -210,7 +208,7 @@ def _populate_super_gaggle(vietnam: "LuaItem", game: "Game") -> None:
 
     Models the Khe Sanh "Super Gaggle": a formation of transport helos runs supplies into a
     cut-off forward outpost while the player can fly escort. The geography + squadron selection
-    happen once per turn in ``game/retlab/super_gaggle.py`` (``plan_super_gaggle``), which
+    happen at mission generation in ``game/retlab/super_gaggle.py`` (``plan_super_gaggle``), which
     draws the helos + suppressors from **real BLUE squadrons** and records the exact per-airframe
     unit names in ``game.super_gaggle_commitment``; the plugin spawns **exactly those** airframes,
     by name, **once** (no respawn), and a killed name is charged back to its squadron at debrief

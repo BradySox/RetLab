@@ -69,10 +69,17 @@ class _CP:
 
 class _Squadron:
     def __init__(
-        self, *, helicopter: bool, owned: int, coord: float, cas: bool = True
+        self,
+        *,
+        helicopter: bool,
+        owned: int,
+        coord: float,
+        cas: bool = True,
+        untasked: int | None = None,
     ) -> None:
         self.id = uuid4()
         self.owned_aircraft = owned
+        self.untasked_aircraft = owned if untasked is None else untasked
         self.destroyed_aircraft = 0
         task_priorities = {FlightType.CAS: 50} if cas else {}
         self.aircraft = SimpleNamespace(
@@ -298,3 +305,29 @@ def test_reconcile_never_debits_below_zero() -> None:
     # More helo names killed than the squadron owns -> floored at 0, not negative.
     reconcile_super_gaggle(game, _debrief([], ["G-Helo-1", "G-Helo-2", "G-Helo-3"]))
     assert helo_sqn.owned_aircraft == 0
+
+
+def test_plan_skips_airframes_the_ato_already_flies() -> None:
+    """Planned at mission generation, the gaggle takes only untasked airframes: a squadron
+    whose jets all fly ATO flights is passed over, and the count is capped by what is spare
+    (2026-11-13: turn 1 had borrowed 2 Hueys and 2 F-4Es already in the ATO)."""
+    outpost = _CP("Hill 861", Player.BLUE, ControlPointType.FOB, 10_000, 0.0)
+    launch = _CP("Khe Sanh", Player.BLUE, ControlPointType.AIRBASE, 60_000, 30_000)
+    busy_helo = _Squadron(helicopter=True, owned=4, coord=30_000, cas=False, untasked=0)
+    spare_helo = _Squadron(
+        helicopter=True, owned=4, coord=90_000, cas=False, untasked=1
+    )
+    busy_supp = _Squadron(helicopter=False, owned=2, coord=30_000, untasked=0)
+    game = _game(
+        on=True,
+        control_points=[outpost, launch],
+        fronts=[_front()],
+        squadrons=[busy_helo, spare_helo, busy_supp],
+    )
+    plan_super_gaggle(game)
+    c = game.super_gaggle_commitment
+    assert c is not None
+    assert c.helo_squadron_id == spare_helo.id
+    assert len(c.helo_unit_names) == 1
+    assert c.supp_squadron_id is None
+    assert c.supp_unit_names == []
