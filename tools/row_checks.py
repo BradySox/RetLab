@@ -43,6 +43,55 @@ def _tasks(game: Any, coalition: str) -> list[str]:
     return [p.primary_task.value for p in ato.packages if p.primary_task]
 
 
+def check_p4() -> list[str]:
+    """COIN IEDs: two on distinct roads, fogged; struck one clears, the rest go off."""
+    import random
+
+    import game.persistency as persistency
+    from game.retlab import coin_ied
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+
+    persistency.autosave = lambda game: None
+    messages: list[tuple[int, str]] = []
+    coin_ied._announce = lambda game, text: messages.append((game.turn, text))
+    game = build_game("coin_enduring_resolve")
+
+    def site(record: dict[str, Any]) -> Any:
+        return next(
+            t for t in game.theater.ground_objects if str(t.id) == record["tgo_id"]
+        )
+
+    rows = []
+    struck = None
+    for turn in range(1, 7):
+        random.seed(turn)
+        game.pass_turn()
+        ieds = game.coin_state["ieds"]
+        assert len(ieds) == coin_ied.MAX_ACTIVE_IEDS, f"turn {game.turn}: {len(ieds)}"
+        roads = [tuple(i["road"]) for i in ieds]
+        assert len(set(roads)) == len(roads), f"turn {game.turn}: two on one road"
+        for record in ieds:
+            seen = site(record).visibility_for(Player.BLUE).name
+            assert seen == "UNKNOWN", f"turn {game.turn}: {record['kind']} {seen}"
+        rows.append(
+            f"turn {game.turn}: "
+            + ", ".join(
+                f"{i['kind']} near {i['where']} armed {i['armed']}" for i in ieds
+            )
+        )
+        if struck is None and game.turn == 2:
+            struck = next(i for i in ieds if i["kind"] == "ied")
+            for group in site(struck).groups:
+                for unit in group.units:
+                    unit.kill(GameUpdateEvents())
+    said = [text for _, text in messages]
+    assert any("cleared" in m for m in said), "the struck IED was never cleared"
+    assert any("IED detonation" in m for m in said), "no IED went off"
+    assert any("VBIED reached" in m for m in said), "no VBIED arrived"
+    return rows + [f"turn {n}: {text}" for n, text in messages if n > 1]
+
+
 def check_b6() -> list[str]:
     """Red's offense loosens and thins as its command posts die; its defense holds."""
     import random
@@ -780,6 +829,7 @@ def check_b188() -> list[str]:
 
 CHECKS: dict[str, Check] = {
     "B6": check_b6,
+    "P4": check_p4,
     "B92": check_b92,
     "B19": check_b19,
     "B20": check_b20,
