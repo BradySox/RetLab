@@ -253,6 +253,16 @@ class CsarService:
         underlying list.
         """
         for downed in list(coalition.downed_pilots):
+            if not downed.pilot.downed:
+                # A stale record: a turn pass that crashed partway and was retried
+                # committed the debrief twice and killed this pilot on the re-roll.
+                logging.warning(
+                    "Dropping the downed record for %s, who is %s, not downed.",
+                    downed.pilot.name,
+                    downed.pilot.status.name,
+                )
+                self._remove(downed)
+                continue
             downed.turns_remaining -= 1
             if downed.turns_remaining <= 0:
                 self.go_mia(downed)

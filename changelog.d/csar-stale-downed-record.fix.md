@@ -1,0 +1,1 @@
+* **[Campaign]** Ending a turn no longer crashes with "Only downed pilots may go missing in action" when a downed pilot's record outlived the pilot, and an ambient supply convoy on a road with no path is skipped instead of stopping the turn.
