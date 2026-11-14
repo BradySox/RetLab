@@ -75,7 +75,9 @@ in the stub it writes, `checklist-rows/<ID>.md`.
 
 ## B. Planner placement / target logic (Lua-free Python)
 
-### B6 — Command-center decapitation degrades enemy planning · §52 · ☐ UNTESTED
+### B6 — Command-center decapitation degrades enemy planning · §52 · ◇ AUTO-PASS (2026-11-14, `tools/row_checks.py`; was ☐ UNTESTED)
+
+**2026-11-14, `python tools/row_checks.py B6`** (Germany - Red Tide, new game, turn 1, red re-planned on three seeds, no DCS): **passes.** Intact, red's offense is 5 BAI and 2 Strike in a fixed target order. With 6 of 9 command posts destroyed (2 of them among 4 blue has found) the offensive cap is 4: each seed plans 4 BAI, in a different order and mix per seed. Red's defense (AEW&C, tanker, four BARCAP, CAS) is the intact plan seed for seed. The SITREP line reads "2/4 known command posts operational". With the setting off and the posts dead, red plans exactly the intact plan. Not seen: the line on a rendered kneeboard page.
 
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised.** `c2_decapitation_effects` has been on in every campaign since test 1 (all seven saves read True except `Maybe 414`), but no save carries a dead command centre, so the effect has never had a chance to show. Needs a struck HQ and the turns after it.
 

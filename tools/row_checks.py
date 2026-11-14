@@ -43,6 +43,80 @@ def _tasks(game: Any, coalition: str) -> list[str]:
     return [p.primary_task.value for p in ato.packages if p.primary_task]
 
 
+def check_b6() -> list[str]:
+    """Red's offense loosens and thins as its command posts die; its defense holds."""
+    import random
+
+    from game.retlab import c2_decapitation as c2
+    from game.sim import GameUpdateEvents
+    from game.theater.player import Player
+
+    game = build_game("red_tide")
+    assert game.settings.c2_decapitation_effects, "Red Tide no longer presets it"
+    defensive = {"BARCAP", "AEW&C", "Refueling", "CAS"}
+
+    def plan(seed: int) -> list[tuple[str, str]]:
+        random.seed(seed)
+        game.initialize_turn(GameUpdateEvents(), for_red=True, for_blue=False)
+        return [(p.primary_task.value, p.target.name) for p in game.red.ato.packages]
+
+    def split(packages: list[tuple[str, str]]) -> tuple[list[Any], list[Any]]:
+        return (
+            sorted(p for p in packages if p[0] in defensive),
+            [p for p in packages if p[0] not in defensive],
+        )
+
+    # Squadron availability has its own randomness, so plans are compared seed
+    # for seed; the target order is the planner's and does not move.
+    seeds = (1, 2, 3)
+    intact = [plan(seed) for seed in seeds]
+    offense = split(intact[0])[1]
+
+    posts = [
+        tgo
+        for cp in game.theater.controlpoints
+        if cp.captured is Player.RED
+        for tgo in cp.ground_objects
+        if tgo.category == c2.C2_CATEGORY
+    ]
+    assert len(posts) >= 6, f"Red Tide fields {len(posts)} command posts"
+    # Blue has found four of them, as an engagement would; two of those and four
+    # it never found are destroyed.
+    for tgo in posts[:4]:
+        tgo.discovered_by_player = True
+    for tgo in posts[2:8]:
+        for group in tgo.groups:
+            for unit in group.units:
+                unit.alive = False
+    cap = c2.offensive_package_cap(game.red, game.theater, game.settings)
+    line = c2.c2_status_line(game, Player.RED)
+    known_alive = 2
+    assert line == f"{known_alive}/4 known command posts operational", line
+
+    after = [plan(seed) for seed in seeds]
+    for before, now in zip(intact, after):
+        assert split(now)[0] == split(before)[0], "red's defense changed with its HQs"
+        assert len(split(now)[1]) <= (cap or 0), f"offense over the cap {cap}"
+    loosened = [
+        s
+        for s, before, now in zip(seeds, intact, after)
+        if split(now)[1] != split(before)[1]
+    ]
+    assert loosened, "red's offense is unchanged after the kill"
+
+    game.settings.c2_decapitation_effects = False
+    off = plan(1)
+    assert off == intact[0], "with the setting off the plan still changed"
+    return [
+        f"intact, seed 1: offense {offense}",
+        f"{len(posts) - 6}/{len(posts)} posts left alive: cap {cap}, "
+        f"offense per seed {[split(p)[1] for p in after]}",
+        f"defense identical to the intact plan, seed for seed: {split(intact[0])[0]}",
+        f"SITREP line: {line}",
+        "setting off with the posts dead: the intact plan",
+    ]
+
+
 def check_b19() -> list[str]:
     """Weather-aware planning: a storm puts front-line attack behind the deep work."""
     from game.weather.weather import ClearSkies, Thunderstorm
@@ -484,6 +558,7 @@ def check_b188() -> list[str]:
 
 
 CHECKS: dict[str, Check] = {
+    "B6": check_b6,
     "B92": check_b92,
     "B19": check_b19,
     "B156": check_b156,
