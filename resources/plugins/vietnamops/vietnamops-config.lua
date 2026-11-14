@@ -236,27 +236,72 @@ if suite.flak and suite.flak.enabled then
     -- AAA_REFRESH is accurate enough for a barrage effect and turns the inner loop
     -- into plain arithmetic. See the tick for the matching liveness-check ordering.
     local aaaCache = { [coalition.side.RED] = {}, [coalition.side.BLUE] = {} }
-    local function refreshAAA()
+
+    -- Read one ground group's alive AAA guns into `into`.
+    local function readGroup(grp, side, into)
+        for _, u in pairs(grp:getUnits() or {}) do
+            if u:isExist() and u:getLife() > 0 and u:hasAttribute("AAA") then
+                local gp = u:getPoint()
+                if gp then
+                    table.insert(into[side], { unit = u, x = gp.x, z = gp.z })
+                end
+            end
+        end
+    end
+
+    local function groundGroups()
+        local all = {}
+        for _, side in pairs({ coalition.side.RED, coalition.side.BLUE }) do
+            for _, grp in pairs(coalition.getGroups(side, Group.Category.GROUND) or {}) do
+                all[#all + 1] = { grp = grp, side = side }
+            end
+        end
+        return all
+    end
+
+    -- The first sweep runs whole at load. Later sweeps read REFRESH_SLICES slices of the
+    -- ground groups, one per AAA_REFRESH / REFRESH_SLICES seconds, and swap in on the last:
+    -- one whole-theater sweep in a frame was a suspected 30 s stall on Yankee Station.
+    local REFRESH_SLICES = 10
+    local pass, building, cursor = nil, nil, 1
+    local function fullAAA()
         local ok = pcall(function()
             local fresh = { [coalition.side.RED] = {}, [coalition.side.BLUE] = {} }
-            for _, side in pairs({ coalition.side.RED, coalition.side.BLUE }) do
-                for _, grp in pairs(coalition.getGroups(side, Group.Category.GROUND) or {}) do
-                    for _, u in pairs(grp:getUnits() or {}) do
-                        if u:isExist() and u:getLife() > 0 and u:hasAttribute("AAA") then
-                            local gp = u:getPoint()
-                            if gp then
-                                table.insert(fresh[side], { unit = u, x = gp.x, z = gp.z })
-                            end
-                        end
-                    end
-                end
+            for _, entry in ipairs(groundGroups()) do
+                readGroup(entry.grp, entry.side, fresh)
             end
             aaaCache = fresh
         end)
         if not ok then
             env.warning("vietnamops: flak AAA refresh error (continuing)")
         end
-        return timer.getTime() + AAA_REFRESH
+    end
+    local function refreshAAASlice()
+        local ok = pcall(function()
+            if pass == nil then
+                pass = groundGroups()
+                building = { [coalition.side.RED] = {}, [coalition.side.BLUE] = {} }
+                cursor = 1
+            end
+            local slice = math.max(1, math.ceil(#pass / REFRESH_SLICES))
+            local last = math.min(#pass, cursor + slice - 1)
+            for i = cursor, last do
+                local entry = pass[i]
+                if entry.grp:isExist() then
+                    readGroup(entry.grp, entry.side, building)
+                end
+            end
+            cursor = last + 1
+            if cursor > #pass then
+                aaaCache = building
+                pass, building = nil, nil
+            end
+        end)
+        if not ok then
+            pass, building = nil, nil
+            env.warning("vietnamops: flak AAA refresh error (continuing)")
+        end
+        return timer.getTime() + AAA_REFRESH / REFRESH_SLICES
     end
 
     local steady = {}  -- unit name -> { hdg, alt, factor }
@@ -380,8 +425,8 @@ if suite.flak and suite.flak.enabled then
         return timer.getTime() + POLL
     end
 
-    refreshAAA()  -- populate immediately so the first tick has guns
-    timer.scheduleFunction(refreshAAA, {}, timer.getTime() + AAA_REFRESH)
+    fullAAA()  -- populate immediately so the first tick has guns
+    timer.scheduleFunction(refreshAAASlice, {}, timer.getTime() + AAA_REFRESH / REFRESH_SLICES)
     timer.scheduleFunction(flakTick, {}, timer.getTime() + POLL)
     env.info(string.format(
         "DCSRetribution|Vietnam Ops - AAA flak gauntlet armed (range %.0fm, ceiling %.0fm, "
@@ -460,13 +505,15 @@ if suite.navalGunfire and suite.navalGunfire.ships then
         return true
     end
 
-    -- PLAYER: fire on the coalition's most recent F10 map marker.
+    -- PLAYER: fire on the coalition's most recent F10 map marker. Only a marker a player
+    -- placed counts (it has an initiator): script marks such as the C-130J's emitter
+    -- marks and Splash Damage's shooter marks are not fire requests.
     local function fireOnLastMark(side)
         local ok, err = pcall(function()
             local panels = world.getMarkPanels() or {}
             local best
             for _, m in pairs(panels) do
-                if m.pos and not ownMarkIds[m.idx]
+                if m.pos and m.initiator ~= nil and not ownMarkIds[m.idx]
                     and (m.coalition == side or m.coalition == -1) then
                     if not best or (m.idx or 0) > (best.idx or 0) then
                         best = m

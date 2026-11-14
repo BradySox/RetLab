@@ -572,14 +572,6 @@ class Game:
 
         advance_dispersed_cells(self, events)
 
-        # Vietnam Ops Super Gaggle (§37): (re)plan the turn's resupply run from real BLUE
-        # squadrons (drawing the helos + suppressors from actual airframes, whose losses are
-        # charged back at debrief), or clear it. No-op unless the setting is on and a besieged
-        # outpost + launch field + a helo squadron with airframes all exist.
-        from game.retlab.super_gaggle import plan_super_gaggle
-
-        plan_super_gaggle(self)
-
         # Movable ship TGOs snap to their destination and re-parent to the
         # nearest friendly CP. Runs after captures are committed (process_results
         # precedes pass_turn -> finish_turn), so re-parenting sees post-capture

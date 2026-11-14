@@ -1,0 +1,1 @@
+* **[Vietnam Ops]** The Super Gaggle only takes helicopters and jets no flight already flies that mission, and is planned when the mission is built, so the first mission has one too. Naval call-for-fire only answers a map marker a player placed. The flak gauntlet's gun scan is spread over 30 seconds instead of one frame.

@@ -69,7 +69,7 @@ shore bombardment. Two modes off the same gun-ship list:
 
 - **Player call-for-fire.** Drop an F10 map marker, then **Naval Fire Mission → Fire on last F10
   map marker**. The nearest in-range friendly gun ship shells it, with a "SHOT" or "no ship in
-  range" call back.
+  range" call back. Only a marker a player placed counts.
 - **Automatic coastal bombardment.** On a cadence each gun ship shells the nearest opposing ground
   target within gun range.
 
