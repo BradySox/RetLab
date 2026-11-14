@@ -464,14 +464,14 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 | Fulda Gap 1985 | Germany | The 52nd TFW's Phantoms at Spangdahlem against the 8th Guards Army and the 16th Air Army |
 | Northern Shield 1988 | Germany | Red Tide from the north: NATO across the Baltic takes the East German coast by air assault |
 | Eastern Reach 2025 | Persian Gulf | Marines at Jask drive up the highway to Kerman; every deep strike needs a tanker |
-| Black Sea Coast 1985 | Caucasus | NATO holds Georgia and drives up the coast road through Sochi to Krasnodar; F-4E and F-14A |
 
 - **Red Tide** — the Pact overran the Fulda Gap, took Hamburg and seized Copenhagen; the thrust
   has culminated. Every squadron is a named historical unit in matching livery. Fulda is a
   forward helo FARP under artillery fire.
-- **1968 Yankee Station** — Hanoi inland behind its SA-2 ring, route packages laddering south to
-  a DMZ front, carriers on Yankee Station, the Air Force crossing from the Thailand fields. The
-  Ho Chi Minh Trail is a real, cuttable supply web.
+- **1968 Yankee Station** — Hanoi inland behind its SA-2 ring, route packages laddering down
+  the coast to a DMZ front at Tuapse, Khe Sanh besieged on Route 9, carriers on Yankee Station
+  and a battleship off the DMZ, the Air Force crossing from the Thailand fields. The Ho Chi Minh
+  Trail runs over the mountains to Tchepone and is a real, cuttable supply line.
 - **Operation Enduring Resolve** — a fork of Starfire's *Operation Shattered Dagger*. Strongholds
   regenerate, throttled by hidden ammo caches you have to find and strike. Infiltrators creep
   toward ungarrisoned bases to take them. Body count alone wins nothing.
@@ -519,12 +519,6 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   tankers flying in from Ascension. Take both landings to win, lose Mount Pleasant and you lose;
   the mainland can't be taken. Play the landing with Invert Sides. Needs the CurrentHill UK
   pack and the community A-4E.
-- **Black Sea Coast 1985** — fictional: in May 1985 Georgia has broken from Moscow and NATO
-  holds Senaki, Kutaisi and the Tbilisi fields with a carrier offshore. Blue drives up the coast
-  road through Sukhumi, Gudauta and Sochi to Tuapse, then over the hills to Krasnodar, with Maykop
-  and Krymsk on the flanks. USAF F-4Es at Senaki, F-14As and A-6Es on the carrier, against
-  MiG-21s, MiG-23s, a few MiG-29s and an SA-2, SA-3, SA-6 and SA-11 belt. Take both Krasnodar
-  fields to win, lose Senaki and you lose. Stock DCS only.
 - **Eastern Reach 2025** — fictional: Marines hold Bandar-e-Jask and drive north up the real
   highway through Sirik, Minab, Kahnuj, Jiroft and the Jebal Barez pass to Kerman, where Iran
   keeps its missile works and most of its Tomcats and Fulcrums behind Bavar-373 batteries.
