@@ -41,6 +41,7 @@ graphs) is a silent no-op, and the engine's organic convoys still serve.
 
 from __future__ import annotations
 
+import logging
 import random
 from typing import TYPE_CHECKING, Any
 
@@ -93,6 +94,7 @@ def ensure_ambient_convoys(game: "Game") -> None:
 def _top_up_side(game: "Game", coalition: "Coalition") -> None:
     from game.retlab.vietnam_convoy import _skim_units
     from game.transfers import TransferOrder
+    from game.theater.transitnetwork import NoPathError
 
     corridors = _same_side_corridors(game, coalition)
     if not corridors:
@@ -133,10 +135,15 @@ def _top_up_side(game: "Game", coalition: "Coalition") -> None:
                 units = _skim_units(source, AMBIENT_CONVOY_UNITS)
         if not units:
             continue
-        coalition.transfers.new_transfer(
-            TransferOrder(source, destination, units, coalition.player),
-            game.conditions.start_time,
-        )
+        try:
+            coalition.transfers.new_transfer(
+                TransferOrder(source, destination, units, coalition.player),
+                game.conditions.start_time,
+            )
+        except NoPathError:
+            # A drawn road the transit network cannot path (Herat to Qala i Naw,
+            # 2026-11-12) raised out of the turn pass after CSAR had already run.
+            logging.warning("No ambient convoy %s -> %s: no path.", source, destination)
 
 
 def _garrison_to_stock(cp: "ControlPoint", needed: int) -> int:

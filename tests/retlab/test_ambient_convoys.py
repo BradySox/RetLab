@@ -537,3 +537,19 @@ def test_transit_network_returns_an_empty_path_for_a_base_to_itself() -> None:
 
     assert network.shortest_path_between(a, b) == [b]  # type: ignore[arg-type]
     assert network.shortest_path_between(a, a) == []  # type: ignore[arg-type]
+
+
+def test_a_road_with_no_path_is_skipped_not_raised(monkeypatch: Any) -> None:
+    # Herat to Qala i Naw, 2026-11-12: the error ended the turn pass halfway, and
+    # the retry committed the debrief a second time.
+    from game.theater.transitnetwork import NoPathError
+
+    game = _game(on=True, cps=_two_sided_map())
+
+    def no_path(order: Any, now: Any) -> None:
+        raise NoPathError(order.origin, order.destination)
+
+    monkeypatch.setattr(game.blue.transfers, "new_transfer", no_path)
+    monkeypatch.setattr(ambient_module, "_RNG", _Rng(ints=[1, 1]))
+    ensure_ambient_convoys(game)
+    assert len(game.red.transfers.created) == 1

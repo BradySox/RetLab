@@ -2089,3 +2089,42 @@ def test_generate_csar_data_lists_the_rescue_flights_for_the_king() -> None:
     assert rows["Sandy 1"].role == "sandy"
     assert rows["King 1"].survivorId == str(downed.id)
     assert rows["King 1"].side == "blue"
+
+
+def test_advance_turn_drops_a_record_whose_pilot_is_no_longer_downed() -> None:
+    # A retried turn pass committed the debrief twice: the second roll killed a
+    # pilot whose first downed record was still on the list (2026-11-12).
+    from game.theater.player import Player
+
+    game = _make_game()
+    downed = _make_downed(game, Player.BLUE, was_player=True)
+    downed.turns_remaining = 1
+    downed.pilot.kill()
+    coalition = downed.squadron.coalition
+    CsarService(game).advance_turn_for(coalition)
+    assert downed.pilot.status is PilotStatus.Dead
+    assert downed not in coalition.downed_pilots
+
+
+def test_advance_turn_expires_a_duplicate_record_once() -> None:
+    from game.theater.player import Player
+
+    game = _make_game()
+    first = _make_downed(game, Player.BLUE, was_player=True)
+    first.turns_remaining = 1
+    coalition = first.squadron.coalition
+    second = DownedPilot(
+        pilot=first.pilot,
+        squadron=first.squadron,
+        _position=first.position,
+        player=first.player,
+        turn_downed=first.turn_downed,
+        turns_remaining=1,
+        was_player=True,
+        aircraft_name=first.aircraft_name,
+        in_water=False,
+    )
+    coalition.downed_pilots.append(second)
+    CsarService(game).advance_turn_for(coalition)
+    assert first.pilot.missing_in_action
+    assert coalition.downed_pilots == []
