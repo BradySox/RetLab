@@ -88,7 +88,7 @@ class SuperGaggleCommitment:
 def plan_super_gaggle(game: "Game") -> None:
     """(Re)plan the turn's Super Gaggle from real squadrons, or clear it.
 
-    Runs once per turn from ``finish_turn``. Sets ``game.super_gaggle_commitment`` to a fresh
+    Runs when the mission is generated, after the ATO is final. Sets ``game.super_gaggle_commitment`` to a fresh
     :class:`SuperGaggleCommitment`, or ``None`` when the feature is off or the geography /
     squadrons aren't available. Read-mostly: it only *records* which squadrons will fly and the
     names they'll use; airframes are charged at debrief (losses only), so re-running is safe.

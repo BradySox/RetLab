@@ -4026,7 +4026,9 @@ The `vietnamops` plugin does the rest:
 
 - **AAA discovery (runtime).** Every ~30 s it sweeps both coalitions' ground units and keeps the ones with the
   DCS **`AAA`** attribute (so frontline ZSU-23/Shilka belts *and* airfield guns all contribute), grouped by
-  side. No unit-name plumbing, and late-spawned guns are picked up.
+  side. No unit-name plumbing, and late-spawned guns are picked up. The first sweep runs whole at load;
+  later ones read a tenth of the ground groups every 3 s and swap in on the last slice (2026-11-14:
+  one whole sweep in a frame was the suspected 30.5 s stall beat on Yankee Station's ~370 guns).
 - **Engagement.** Every 2.5 s, for each airborne aircraft between the floor (120 m AGL) and the ceiling
   (default 15,000 ft AGL), it counts alive **opposing** AAA guns within horizontal range (default 2.5 NM,
   capped at 3 for density) and, if any, spawns barrage bursts near the aircraft at its altitude.
@@ -4095,7 +4097,9 @@ TIC has no artillery path of its own — its `TaskFireAtPoint` is combatants' di
   (`world.getMarkPanels`) and fires the nearest in-range friendly gun ship there (with a "SHOT"/"no ship in
   range" call back). The plugin's own FAC(A) and Super Gaggle marks (ids 970001+ and 980001+) are
   skipped: until 2026-09-29 their high ids always won, so the ships shelled the FAC's target or the
-  friendly gaggle instead of the player's marker.
+  friendly gaggle instead of the player's marker. Since 2026-11-14 only a mark with an `initiator`
+  (one a player placed) counts, so other scripts' marks (the C-130J's emitter marks, Splash
+  Damage's shooter marks) are never fire requests.
 - **Automatic coastal bombardment.** Every cadence (default 90 s), each alive gun ship shells the nearest
   **opposing** ground target within gun range. Because ships sit offshore and the range gate is ~10 NM, this
   only ever reaches **coastal** targets — the feature is coastal-by-construction and **no-ops inland** (Khe
@@ -4333,14 +4337,16 @@ losses").
 
 ### How it works
 
-**Python plans the run from real squadrons once per turn (`game/retlab/super_gaggle.py`
-`plan_super_gaggle`, from `finish_turn`).** It selects the besieged BLUE **FOB/FARP nearest a front** (within
+**Python plans the run from real squadrons when the mission is generated (`game/retlab/super_gaggle.py`
+`plan_super_gaggle`, from `LuaGenerator`, after the ATO is final).** It selects the besieged BLUE **FOB/FARP nearest a front** (within
 `OUTPOST_FRONT_REACH_M` ≈ 150 km) + the nearest **other** BLUE helo-capable field as the launch point, a
 **real BLUE helicopter squadron** (nearest the launch field, with airframes) to fly the gaggle, and a **real
 BLUE attack squadron** (CAS-capable) for the suppressors. It records a `SuperGaggleCommitment` on the game
 (persisted, `__setstate__` default `None`): the squadron ids, the squadrons' own aircraft types, the **exact
 per-airframe unit names** the plugin will spawn (`SuperGaggle-T{turn}-Helo-N` / `-Sandy-N`), and the geometry.
-Counts are `DESIRED_HELOS` (3) / `DESIRED_SUPPRESSORS` (2), each **capped by the squadron's `owned_aircraft`**.
+Counts are `DESIRED_HELOS` (3) / `DESIRED_SUPPRESSORS` (2), each **capped by the squadron's `untasked_aircraft`**:
+until 2026-11-14 it counted `owned_aircraft` and was planned at `finish_turn`, before the ATO, so it borrowed
+airframes the mission already flew (Yankee Station turn 1: 2 UH-1H and 2 F-4E that were all in packages).
 No feature / no outpost / no launch / no helo squadron with airframes ⇒ **no commitment** (the gaggle is never
 free-spawned).
 
@@ -4382,7 +4388,7 @@ commitment is then cleared (charged once). **No base-Lua / debrief-schema change
 | Area | Path |
 |---|---|
 | Plan + reconcile | `game/retlab/super_gaggle.py` (`plan_super_gaggle`, `reconcile_super_gaggle`, `SuperGaggleCommitment`) |
-| Turn hook / debrief | `game/game.py` (`finish_turn` → `plan_super_gaggle`; `super_gaggle_commitment` persisted), `game/sim/missionresultsprocessor.py` (`commit_super_gaggle`) |
+| Mission hook / debrief | `game/missiongenerator/luagenerator.py` (→ `plan_super_gaggle`), `game/game.py` (`super_gaggle_commitment` persisted), `game/sim/missionresultsprocessor.py` (`commit_super_gaggle`) |
 | Emitter | `game/missiongenerator/vietnamopsluadata.py` (`_populate_super_gaggle`, reads the commitment) |
 | Runtime | `resources/plugins/vietnamops/vietnamops-config.lua` (Super Gaggle section — single run, committed names) |
 | Setting / options | `game/settings/` (`vietnam_super_gaggle`); plugin `specificOptions` (transit speed / altitudes / launch delay `gaggleDelaySec` — type & count come from the squadrons) |
