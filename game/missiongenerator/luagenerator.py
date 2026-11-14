@@ -51,6 +51,7 @@ from game.retlab.package_control import populate_package_control_lua
 from game.retlab.radio_record import populate_radio_record_lua
 from game.retlab.vacuum import populate_vacuum_lua
 from game.retlab.voice_atc import populate_voice_atc_lua
+from game.retlab.super_gaggle import plan_super_gaggle
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
@@ -493,6 +494,9 @@ class LuaGenerator:
 
         # Vietnam Ops suite (Arc Light, etc.) -- emits dcsRetribution.VietnamOps only
         # when a suite feature is enabled; the vietnamops plugin gates on data presence.
+        # The Super Gaggle is planned here, once the ATO is final, so it only takes
+        # airframes no flight already flies (§37).
+        plan_super_gaggle(self.game)
         populate_vietnam_ops_lua(lua_data, self.game, self.mission_data)
 
         # COIN in-mission movement -- emits dcsRetribution.coin only when a live HVT

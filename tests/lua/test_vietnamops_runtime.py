@@ -240,6 +240,22 @@ class TestFlakGauntlet:
         ), "a dead gun must stop firing without waiting for the AAA cache refresh"
         harness.assert_no_lua_errors()
 
+    def test_gun_added_after_load_fires_within_one_refresh_cycle(
+        self, harness: DcsPluginHarness
+    ) -> None:
+        """Later sweeps read the ground groups in slices over AAA_REFRESH (30 s) and swap
+        in on the last slice, so a gun that appears after load is shooting by ~33 s."""
+        self.plane(harness, alt=1500)
+        self.arm(harness)
+        harness.advance_to(10)
+        assert harness.records("explosions") == []
+
+        self.aaa_site(harness)
+        harness.advance_to(45)
+
+        assert harness.records("explosions"), "the new gun should be firing by now"
+        harness.assert_no_lua_errors()
+
 
 GAGGLE = {
     "superGaggle": {
@@ -351,12 +367,47 @@ class TestNavalGunfire:
                 {
                     "idx": 3,
                     "coalition": 2,
+                    "initiator": {"name": "player"},
                     "pos": {"x": 9000.0, "y": 0, "z": 1500.0},
                 },
                 {
                     "idx": own["id"],
                     "coalition": 2,
                     "pos": {"x": own["x"], "y": 0, "z": own["z"]},
+                },
+            ]
+        )
+        fire, side = self.fire_command(harness)
+        fire(side)
+
+        tasks = harness.records("firedTasks")
+        assert len(tasks) == 1
+        assert (tasks[0]["x"], tasks[0]["y"]) == (9000.0, 1500.0)
+        harness.assert_no_lua_errors()
+
+    def test_fire_on_mark_ignores_script_marks(self, harness: DcsPluginHarness) -> None:
+        """A newer mark with no initiator (a script's, e.g. the C-130J's emitter mark)
+        is not a fire request; the player's own marker wins."""
+        self.gun_ship(harness)
+        harness.set_retribution_config(
+            vietnam_ops={
+                "navalGunfire": {"ships": [{"group": "BLUE-DD", "coalition": "BLUE"}]}
+            },
+            plugin_options={"vietnamops": {"ngfsAuto": False}},
+        )
+        harness.load_plugin_script(PLUGIN)
+        harness.harness.markPanels = harness.to_lua(
+            [
+                {
+                    "idx": 3,
+                    "coalition": 2,
+                    "initiator": {"name": "player"},
+                    "pos": {"x": 9000.0, "y": 0, "z": 1500.0},
+                },
+                {
+                    "idx": 50,
+                    "coalition": 2,
+                    "pos": {"x": 7000.0, "y": 0, "z": -2000.0},
                 },
             ]
         )
