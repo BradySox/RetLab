@@ -7,6 +7,7 @@ from dcs.planes import B_17G, B_52H, Tu_22M3, B_1B, F_15ESE
 from dcs.point import MovingPoint
 from dcs.task import Bombing, Expend, OptFormation, WeaponType, CarpetBombing
 
+from game.data.units import HEAVY_BOMBER_DCS_IDS
 from game.missiongenerator import f15ecc
 from game.missiongenerator.vietnamopsluadata import is_arc_light_strike
 from game.theater.theatergroundobject import MotorpoolGroundObject
@@ -18,10 +19,11 @@ class StrikeIngressBuilder(PydcsWaypointBuilder):
     _special_wpts_injected: bool = False
 
     def add_tasks(self, waypoint: MovingPoint) -> None:
-        if is_arc_light_strike(
+        dcs_id = self.flight.unit_type.dcs_unit_type.id
+        if dcs_id in HEAVY_BOMBER_DCS_IDS and is_arc_light_strike(
             self.flight.coalition.game.settings.vietnam_arc_light,
             self.flight.flight_type,
-            self.flight.unit_type.dcs_unit_type.id,
+            dcs_id,
         ):
             # Arc Light: the plugin's carpet is the strike; the bomber flies over the
             # target with its bombs aboard. Empty racks could send the AI home early.
