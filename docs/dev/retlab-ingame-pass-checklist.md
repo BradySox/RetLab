@@ -983,6 +983,8 @@ the HVT feature itself, not a zone-overlap one.
 
 ### P6 — COIN dispersed cells: patrol the countryside · COIN C4 · ☐ UNTESTED
 
+**2026-11-14, `python tools/row_checks.py P6`** (Afghanistan - COIN Enduring Resolve, new game, five turns passed with no mission, no DCS): **most of the pass line holds.** Three cells every turn, one per stronghold, all red, fogged, and at least 12 km off every base. A cell killed on turn 1 reads "eliminated in the countryside" on turn 2 and is reseeded. A cell left 3 turns with its stronghold's ammo cache emptied reads "a supply cache is back in operation" and the cache's units are alive again; cells whose stronghold had no dead cache "melted in". **Not measured:** the stronghold's regeneration visibly reopening the turn after, and the garrison-reinforce branch.
+
 **2026-09-16, line-by-line audit against the test history (tests 1–33, session `9148a88a`)** — **not exercised; see P1.** Unchanged.
 
 **History:** built 2026-07-03; the seed/attrite/coalesce state machine, one-cell-per-stronghold spread, the open-field placement gate, and the coalesce-revives-a-dead-cache hook are fully unit-tested with fakes, and the campaign preseed + wiring are verified — the real field spawn + recon-fog + the played feel need a campaign
