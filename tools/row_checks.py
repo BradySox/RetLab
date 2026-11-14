@@ -643,6 +643,95 @@ def check_b161() -> list[str]:
     ]
 
 
+def check_b180() -> list[str]:
+    """Red Tide: Haina's motorpool depot changes hands with the base, and only once."""
+    import pickle
+    import random
+    import tempfile
+    from pathlib import Path
+
+    import dcs
+
+    import game.persistency as persistency
+    from game.ground_forces.ai_ground_planner import reserve_armor_for
+    from game.missiongenerator import MissionGenerator
+    from game.sim import GameUpdateEvents
+    from game.sim.missionsimulation import MissionSimulation
+    from game.theater.player import Player
+    from game.utils import meters
+
+    persistency.autosave = lambda game: None
+    game = build_game("red_tide")
+    haina = game.theater.control_point_named("Haina")
+
+    def depots(g: Any) -> list[Any]:
+        return [t for t in g.theater.ground_objects if t.category == "motorpool"]
+
+    depot = next(t for t in depots(game) if t.control_point is haina)
+    spot = depot.position
+    assert haina.captured is Player.RED
+    haina.capture(game, GameUpdateEvents(), Player.BLUE)
+    random.seed(1)
+    game.pass_turn()
+
+    land = [
+        cp
+        for cp in game.theater.controlpoints
+        if not cp.is_fleet and type(cp).__name__ != "OffMapSpawn"
+    ]
+    nearest = min(land, key=lambda cp: cp.position.distance_to_point(spot))
+    assert (
+        depot.control_point is nearest
+    ), f"{depot.name} is {depot.control_point.name}'s"
+    assert nearest.captured is Player.BLUE, f"{nearest.name} is not blue"
+
+    # A front base deploys its first ~60 vehicles; give it a reserve to park.
+    tank = next(
+        u for u in game.blue.faction.ground_units if u.unit_class.name == "TANK"
+    )
+    nearest.base.commission_units({tank: 100})
+
+    sim = MissionSimulation(game)
+    sim.begin_simulation()
+    with tempfile.TemporaryDirectory() as folder:
+        path = Path(folder) / "row_check.miz"
+        MissionGenerator(game, sim.time).generate_miz(path)
+        mission = dcs.Mission()
+        mission.load_file(str(path))
+    # Matched by place: the mission renames groups.
+    parked_groups = [
+        (side, group)
+        for side in ("blue", "red")
+        for country in mission.coalition[side].countries.values()
+        for group in country.vehicle_group
+        if group.units[0].position.distance_to_point(spot) < 600
+    ]
+    names = [group.name for _, group in parked_groups]
+    sides = {side for side, _ in parked_groups}
+    assert sides == {"blue"}, f"{depot.name}'s vehicles spawn under {sides}"
+    reserve = {u.dcs_unit_type.id for u in reserve_armor_for(nearest)}
+    parked = {u.type for _, g in parked_groups for u in g.units}
+    assert (
+        parked <= reserve
+    ), f"parked {parked - reserve} not in {nearest.name}'s reserve"
+
+    loaded = pickle.loads(pickle.dumps(game))
+    near_spot = [
+        t
+        for t in depots(loaded)
+        if meters(t.position.distance_to_point(spot)).meters < 500
+    ]
+    assert len(near_spot) == 1, f"{len(near_spot)} depots at Haina after a reload"
+    return [
+        f"{depot.name}: Haina's depot, red; Haina captured, one turn passed",
+        f"now {nearest.name}'s ({nearest.captured.name}), the nearest land base, "
+        f"{meters(nearest.position.distance_to_point(spot)).nautical_miles:.1f} NM",
+        f"given 100 {tank}: the mission parks {len(names)} groups there, "
+        f"all blue, types {sorted(parked)} from the base's reserve",
+        "saved and reloaded: one depot at the spot",
+    ]
+
+
 def check_b188() -> list[str]:
     """An LHA within 80 NM of a carrier gets no BARCAP; a lone LHA gets its own."""
     from game.utils import meters
@@ -687,6 +776,7 @@ CHECKS: dict[str, Check] = {
     "B65": check_b65,
     "B156": check_b156,
     "B161": check_b161,
+    "B180": check_b180,
     "B282": check_b282,
     "B319": check_b319,
     "B188": check_b188,
