@@ -67,6 +67,19 @@ NAVAL_GUN_SHIP_CLASSES = frozenset(
 )
 
 
+def is_arc_light_strike(
+    arc_light_on: bool, flight_type: FlightType, dcs_id: str
+) -> bool:
+    """A heavy-bomber Strike that Arc Light carpets: the plugin fires the carpet and the
+    bomber flies over the target without dropping (StrikeIngressBuilder), so the target is
+    hit once, not by the carpet and the real bombs both (DM call 2026-11-13)."""
+    return (
+        arc_light_on
+        and flight_type is FlightType.STRIKE
+        and dcs_id in HEAVY_BOMBER_DCS_IDS
+    )
+
+
 def populate_vietnam_ops_lua(
     root: "LuaData", game: "Game", mission_data: "MissionData"
 ) -> None:
@@ -141,9 +154,9 @@ def _populate_arc_light(vietnam: "LuaItem", mission_data: "MissionData") -> None
     """
     strikes: list[tuple[str, float, float]] = []
     for flight in mission_data.flights:
-        if flight.flight_type is not FlightType.STRIKE:
-            continue
-        if flight.aircraft_type.dcs_unit_type.id not in HEAVY_BOMBER_DCS_IDS:
+        if not is_arc_light_strike(
+            True, flight.flight_type, flight.aircraft_type.dcs_unit_type.id
+        ):
             continue
         position = _target_position(flight)
         if position is None:

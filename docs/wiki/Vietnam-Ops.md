@@ -38,8 +38,9 @@ Reframes the B-52 area strike as an **effect of the existing Strike task**, not 
 
 When a **heavy bomber** (B-52H, B-1B, Tu-95MS, Tu-142, Tu-160, Tu-22M3) flies a Strike, the runtime
 walks a carpet of bombs across the target at the run-in instead of dropping a single aimpoint.
-Inside ~8 NM it fires a one-shot walking box oriented along the bomber's bearing — rows stepping
-along-track so it visibly walks, columns spreading it cross-track.
+Inside ~3 NM it fires a one-shot walking box oriented along the bomber's bearing — rows stepping
+along-track so it visibly walks, columns spreading it cross-track. The bomber flies over the target
+with its own bombs aboard, so the carpet is the whole strike.
 
 A tactical striker (F-4, A-4) on Strike is unaffected. Losses stay native: a bomber shot down
 before the run-in never drops its carpet, and where the box overlaps real ground targets the damage
