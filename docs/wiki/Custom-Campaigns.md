@@ -114,8 +114,8 @@ version: "10.8"
   side — the lever for making one side the aggressor.
 - `control_point_strengths:` (optional) overrides a base's starting strength (`0..1`). The
   front between two bases sits at `strength × route-length` from the blue base, so a weak base
-  pulls the front in toward itself — used by **1968 Yankee Station** to start the DMZ siege
-  pressed in around a depleted Da Nang (`Sochi-Adler: 0.35`).
+  pulls the front in toward itself — used by **1968 Yankee Station** to start the Route 9
+  siege pressed in around a depleted Khe Sanh (`FOB Khe Sanh: 0.35`).
 - These are **recommended** defaults; the new-game wizard can override them.
 
 ### Supply routes, IADS, and squadrons
@@ -167,7 +167,9 @@ Red Flag 81-2 (`tools/build_red_flag_81_2_miz.py`), Operation Enduring Resolve
 (`tools/build_coin_enduring_resolve_miz.py`) and Northern Flank 1985
 (`tools/build_northern_flank_miz.py`). For those, the laydown tables in the script are
 the source of truth — edit the script and re-run it; a hand edit to the `.miz` is lost on the
-next build. Hand-authored campaigns (Red Tide, 1968 Yankee Station) still edit the `.miz` directly.
+next build. Red Tide is hand-authored and edits the `.miz` directly. 1968 Yankee Station was
+re-laid by `tools/build_yankee_station_miz.py` from its older hand-built `.miz`; a re-run of
+that script discards any Mission Editor change made since.
 
 <a name="authoring-the-campaign-layer"></a>
 ## Blocks that no longer do anything
@@ -267,9 +269,12 @@ The full build log, including the `.miz` edit points and gotchas, is in
 Ho Chi Minh Trail interdiction, and the DMZ siege. Where Red Tide is Tom Clancy flavour, this one
 is rooted in the real 1968 war. It demonstrates a different toolbox:
 
-- **Siege topology + `control_point_strengths`.** Blue's DMZ front-holder (Da Nang =
-  `Sochi-Adler`) starts at `0.35` strength, so the single Sochi↔Gudauta front begins pressed in
-  near the wire — the Operation Niagara siege pressure — instead of at the route midpoint.
+- **Siege topology + `control_point_strengths`.** Two fronts: the DMZ on the Tuapse coast
+  (FOB Dong Ha against FOB Vinh Linh) and Route 9 (FOB Khe Sanh against FOB Tchepone, the foot
+  of the Trail). Khe Sanh starts at `0.35` strength, so the Route 9 front begins pressed in
+  near the wire — the Operation Niagara siege — instead of at the road's midpoint.
+- **A pinned naval group.** `ground_forces: {Gun Line: Vietnam Gun Line}` makes the ship
+  marker off the DMZ a battleship and a destroyer, inside naval gunfire range of the coast.
 - **Asymmetric design through factions, not flags.** `USA 1970 Vietnam War` (air-rich) vs
   `Vietnam 1970` (ground-heavy, air-light) — the threat is **AAA**, not MiGs, and there are **no
   MANPADS** (period-correct). Red gets few air squadrons so its economy flows to the ground.
