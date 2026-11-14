@@ -157,6 +157,11 @@ def ensure_enemy_trail_convoy(game: "Game") -> None:
 
         if destination.base.total_armor >= TRAIL_DESTINATION_STOCK_CAP:
             continue  # the sink is full -- externally-supplied convoys stop here.
+        # A drawn road the other side has cut is no transit link, and new_transfer
+        # raised out of the turn pass on it (COIN Enduring Resolve turn 1, 2026-11-14).
+        network = getattr(coalition, "transit_network", None)
+        if network is not None and not network.has_path_between(source, destination):
+            continue
 
         _seed_trail_source(game, coalition, source, load, coin=coin)
         units = _skim_units(source, load)

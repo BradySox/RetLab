@@ -491,3 +491,29 @@ def test_a_self_route_does_not_displace_the_real_trail() -> None:
         SimpleNamespace(player="RED"),  # type: ignore[arg-type]
     )
     assert corridor == (rear, front_cp)
+
+
+def test_a_cut_road_is_skipped_for_the_next_corridor() -> None:
+    # The nearer corridor's road runs through enemy ground: the transit network has
+    # no path, so it carries no convoy and the next road is used instead.
+    rear_a = _CP("rear-a", "RED", 200.0, {"tank": 8})
+    front_a = _CP("front-a", "RED", 9.0, {"tank": 2})
+    rear_a.convoy_routes = {front_a: ()}
+    front_a.convoy_routes = {rear_a: ()}
+    rear_b = _CP("rear-b", "RED", 190.0, {"tank": 8})
+    front_b = _CP("front-b", "RED", 10.0, {"tank": 2})
+    rear_b.convoy_routes = {front_b: ()}
+    front_b.convoy_routes = {rear_b: ()}
+    game = _game(
+        on=True,
+        control_points=[rear_a, front_a, rear_b, front_b],
+        fronts=[_front()],
+        convoys=["already-rolling"],
+    )
+    cut = {frozenset({rear_a, front_a})}
+    game.red.transit_network = SimpleNamespace(
+        has_path_between=lambda a, b: frozenset({a, b}) not in cut
+    )
+    ensure_enemy_trail_convoy(game)
+    created = game.red.transfers.created
+    assert [(o.origin, o.destination) for o in created] == [(rear_b, front_b)]
