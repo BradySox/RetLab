@@ -4,6 +4,18 @@ Moved out of `CLAUDE.md` 2026-09-23. The standing rules it implies are summarise
 *Upstream PRs — standing rules*; this file is the PR-by-PR record. Its counts go stale fast —
 re-verify with GitHub before acting on any line.
 
+**2026-11-15: open-PR roundup and watch-list cull.** Upstream `dev` is still `49e8067f` (2026-08-29); nothing has merged in 11 weeks. 71 PRs were open, 54 of them not ours. We have no push rights upstream, so we cannot close anyone else's.
+
+- **Closed #925** (patrol altitudes, draft, idle since 2026-09-23), DM call. RetLab keeps the change.
+- **#977 folded into #792**, DM call. `feature/wind-override-ui` fast-forwarded to #977's head `68ca34db`; #792 is retitled and carries both bodies. #977 is closed.
+- **#884 stays open.** The DM will fly the AI-flight test the reviewers asked for.
+- **Our open list is now 17:** #984 (draft) · #979 (draft) · #966 (draft) · #990 · #989 · #988 · #987 · #986 · #983 · #980 · #920 · #896 · #884 · #881 · #874 · #792 · #788. All merge cleanly with `dev`.
+- **This watch list replaces every older "Watch" bullet below.**
+  - **Watch (not in RetLab, touches our work):** #772 SEAD · #782 QRA · #681 and #877 front line · #754 kneeboard · #930 plugin drop-downs · #916 captured bases · #934/#936 map options and base layers · #941 VWV F-111C · #954 tracker.
+  - **Not in RetLab, worth a look:** #963 empty pylon · #985 payload local constants · #982 formation spacing · #991/#992 AI fuel · #902 gun radars · #978 Saved Games detection.
+  - **Already in RetLab, no longer watched:** #765 · #769 · #821 · #823 · #848 · #897 · #915 · #927 · #929 · #938 · #944 · #953 · #956 · #957 · #958–#962 · #964 · #976. A merge shows up in the next sync diff.
+  - **Dropped:** the rest (Pretense-era #487/#489/#507, #568, #686, #692, #723, #849, #852, #870, #888, #943, #981).
+
 **2026-11-07: #874 carries the Link 4 band move (fork #1193).** Upstream `dev` is still `49e8067f`.
 
 - **Pushed `94f298b7` to #874:** Link 4 at 320.1–320.9 MHz instead of 336.x. The fallback (`RadioRegistry.alloc_link4`) and the Set LINK4 dialog stay inside 300.0–324.9 MHz. The F-14's data link panel cannot dial 336.x.
