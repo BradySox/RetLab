@@ -130,3 +130,69 @@ def airfield_clearance_conflicts(
 def log_airfield_clearance_conflicts(theater: "ConflictTheater") -> None:
     for conflict in airfield_clearance_conflicts(theater):
         logging.warning("Airfield clearance: %s", conflict.describe())
+
+
+#: How far from the field reference point the QRA anchor static may sit. The
+#: nearest ring that clears every runway band and stand wins.
+QRA_ANCHOR_RINGS_M = (1800.0, 2400.0, 3000.0, 3600.0)
+#: Every ground object the anchor must stay clear of (it is a real static).
+QRA_ANCHOR_OBJECT_CLEARANCE_M = 150.0
+#: Wider than PARKING_CLEARANCE_M: pydcs has no taxiway geometry, and the taxiways
+#: run between the stands.
+QRA_ANCHOR_STAND_CLEARANCE_M = 300.0
+
+
+def _clear_of_field(airport: Any, x: float, y: float) -> bool:
+    # The band runs the whole extended centreline: nothing under an approach.
+    for _, perp in _runway_offsets(airport, x, y):
+        if abs(perp) < RUNWAY_STRIP_HALF_WIDTH_M:
+            return False
+    for slot in getattr(airport, "parking_slots", []) or []:
+        if (
+            math.hypot(x - slot.position.x, y - slot.position.y)
+            < QRA_ANCHOR_STAND_CLEARANCE_M
+        ):
+            return False
+    return True
+
+
+def qra_anchor_position(
+    theater: "ConflictTheater", cp: Any
+) -> tuple[float, float] | None:
+    """Where the QRA warehouse static for ``cp`` goes, or None if nowhere clears.
+
+    MOOSE's EASYGCICAP anchors each airwing on a static named after its airbase.
+    A static is a real ground object, so it obeys the same runway-band and stand
+    clearance as any other (§1). The search walks rings around the field reference
+    point, 30 degrees apart, and takes the first spot on land that is clear of the
+    extended runway centrelines, every stand and every ground object of the theater.
+    """
+    from dcs import Point
+
+    airport = getattr(cp, "airport", None)
+    if airport is None:
+        return None
+    nearby = [
+        (unit.position.x, unit.position.y)
+        for _, unit in _iter_ground_units(theater)
+        if math.hypot(
+            unit.position.x - airport.position.x, unit.position.y - airport.position.y
+        )
+        <= QRA_ANCHOR_RINGS_M[-1] + QRA_ANCHOR_OBJECT_CLEARANCE_M
+    ]
+    for radius in QRA_ANCHOR_RINGS_M:
+        for step in range(12):
+            bearing = math.radians(step * 30.0)
+            x = airport.position.x + radius * math.cos(bearing)
+            y = airport.position.y + radius * math.sin(bearing)
+            if not _clear_of_field(airport, x, y):
+                continue
+            if any(
+                math.hypot(x - ox, y - oy) < QRA_ANCHOR_OBJECT_CLEARANCE_M
+                for ox, oy in nearby
+            ):
+                continue
+            if not theater.is_on_land(Point(x, y, theater.terrain)):
+                continue
+            return x, y
+    return None

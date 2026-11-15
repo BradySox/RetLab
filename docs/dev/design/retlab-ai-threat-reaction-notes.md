@@ -54,8 +54,9 @@ dcsRetribution.aiReactionExempt[groupName] = true   -- and clear it when the gro
 `redscramble-config.lua` is the reference implementation (`claim_exempt` / `release_exempt`).
 
 **Checked and clean as of 2026-08-24:** `redscramble` is the *only* plugin in the tree that
-sets a reaction-on-threat option at runtime. MOOSE's `AI_A2A_DISPATCHER` (§1 QRA) does not —
-only MOOSE's `ESCORT` class does, and the fork does not use it. Re-run
+sets a reaction-on-threat option at runtime. Since 2026-11-14 §1 QRA runs on MOOSE's
+`EASYGCICAP`, which sets `OptionROTEvadeFire` once at launch; QRA claims no exemption, so the
+baseline sweep sets it back, as it did under `AI_A2A_DISPATCHER`. Re-run
 `grep -rn "OptionROT\|REACTION_ON_THREAT" resources/plugins` before assuming that still holds.
 
 ## The open question — this is a doctrine change

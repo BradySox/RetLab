@@ -97,7 +97,7 @@ Moose dispatcher path.
 - **QRA path superseded.** The branch's border-triggered ramp-scramble system was later
   replaced by upstream PR `#782`. The live implementation now uses per-squadron
   `intercept_reserve`, parked late-activated intercept templates,
-  `dcsRetribution.Intercept` Lua data, Moose `AI_A2A_DISPATCHER`, and
+  `dcsRetribution.Intercept` Lua data, MOOSE `EASYGCICAP` (`AI_A2A_DISPATCHER` until 2026-11-14), and
   survivor-based `intercept_survivors` mission-end accounting.
 - **Doctrine setting fixes (Workstream E).**
   - Fixed the OPFOR/aggressiveness direction inconsistency. The setting is the

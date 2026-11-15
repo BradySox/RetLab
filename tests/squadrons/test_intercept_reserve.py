@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import random
 
 from game.squadrons.intercept_reserve import (
-    QRA_SINGLE_SHIP_PROBABILITY,
     ai_qra_resource_count,
     clamp_intercept_reserve,
     max_intercept_reserve,
     qra_player_client_slots,
     qra_player_manned_count,
     qra_resource_count,
-    qra_scramble_grouping,
     repropagated_intercept_reserve,
     seeded_intercept_reserve,
     untasked_after_reserve_change,
@@ -236,31 +233,3 @@ def test_client_slots_single_ship_has_no_wingman() -> None:
 def test_client_slots_zero_is_zero() -> None:
     assert qra_player_client_slots(0, True) == 0
     assert qra_player_client_slots(0, False) == 0
-
-
-def test_qra_grouping_only_ever_one_or_two() -> None:
-    rng = random.Random(1234)
-    assert all(qra_scramble_grouping(rng) in (1, 2) for _ in range(500))
-
-
-def test_qra_grouping_low_roll_is_single_ship() -> None:
-    class _Roll:
-        def __init__(self, value: float) -> None:
-            self._value = value
-
-        def random(self) -> float:
-            return self._value
-
-    # Just below the threshold -> single ship; at/above -> pair.
-    assert qra_scramble_grouping(_Roll(0.0)) == 1  # type: ignore[arg-type]
-    assert qra_scramble_grouping(_Roll(QRA_SINGLE_SHIP_PROBABILITY - 0.01)) == 1  # type: ignore[arg-type]
-    assert qra_scramble_grouping(_Roll(QRA_SINGLE_SHIP_PROBABILITY)) == 2  # type: ignore[arg-type]
-    assert qra_scramble_grouping(_Roll(0.99)) == 2  # type: ignore[arg-type]
-
-
-def test_qra_grouping_distribution_is_roughly_three_to_one() -> None:
-    rng = random.Random(2026)
-    singles = sum(1 for _ in range(4000) if qra_scramble_grouping(rng) == 1)
-    fraction = singles / 4000
-    # ~0.75 single-ship; generous tolerance so the seed never flakes CI.
-    assert abs(fraction - QRA_SINGLE_SHIP_PROBABILITY) < 0.04

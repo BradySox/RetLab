@@ -52,7 +52,7 @@ DISENGAGE_MARGIN_NM = 20
 
 @dataclass(frozen=True)
 class DispatcherTuning:
-    """The per-side radii the Lua hands to ``AI_A2A_DISPATCHER``."""
+    """The per-side radii the Lua hands to MOOSE's ``EASYGCICAP``."""
 
     #: Moose ``SetEngageRadius``: how far a defender chases a target.
     engage_nm: int
@@ -242,9 +242,6 @@ class InterceptEntry:
     template_prefix: str
     coalition: str  # "BLUE" or "RED"
     resource_count: int
-    #: Aircraft launched per QRA scramble (1 or 2). Rolled per squadron toward a
-    #: distributed-QRA posture; the Lua falls back to 2 if absent.
-    grouping: int
     engagement_range_nm: int
     gci_max_radius_nm: int
     #: GCI-ambush posture (Vietnam W5): the Lua leashes this side's defenders
@@ -284,7 +281,6 @@ def populate_intercept_lua(
         record.add_key_value("airbaseName", entry.airbase_name)
         record.add_key_value("templatePrefix", entry.template_prefix)
         record.add_key_value("resourceCount", str(entry.resource_count))
-        record.add_key_value("grouping", str(entry.grouping))
         record.add_key_value("engagementRangeNm", str(entry.engagement_range_nm))
         record.add_key_value("gciMaxRadiusNm", str(entry.gci_max_radius_nm))
         record.add_key_value("ambushPosture", "true" if entry.ambush else "false")

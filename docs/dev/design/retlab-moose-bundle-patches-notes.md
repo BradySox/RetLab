@@ -8,9 +8,10 @@ The bundle is `resources/plugins/base/Moose.lua`, currently MOOSE develop commit
 marked in the file with a `-- RetLab patch (<subject>)` comment — grep for `RetLab patch`
 before and after any bump and re-apply what is missing.
 
-**Prefer a plugin-side monkeypatch to a bundle edit.** `intercept-config.lua` patches
-`BASE.CreateEventTakeoff` from the plugin rather than editing the bundle, and that is the
-right default: it survives a bump and carries its own removal trigger. Edit the bundle
+**Prefer a plugin-side monkeypatch to a bundle edit.** `intercept-config.lua` overrides
+EASYGCICAP's `_AddSquadron` and `_AssignIntercept` and each airwing's `_SpawnAssetAircraft`
+per instance rather than editing the bundle, and that is the right default: it survives a
+bump. Edit the bundle
 only when the target is a `local` a plugin cannot reach.
 
 | Patch | Why it is in the bundle | Removal trigger |
@@ -21,8 +22,12 @@ only when the target is a `local` a plugin cannot reach.
 error` patches dropped out (upstream develop carries both fixes). The two
 `civilian_traffic crash guard` patches in RAT were not re-applied: no plugin uses MOOSE's
 RAT since §129's redesign; if RAT comes back, recover them from this repo's history
-(`git log -S "civilian_traffic crash guard" -- resources/plugins/base/Moose.lua`). MOOSE #2595 is not fixed upstream, so the intercept plugin's
-`BASE.CreateEventTakeoff` monkeypatch stays. CTLD went 1.3.38 to 1.4.45; the internals
+(`git log -S "civilian_traffic crash guard" -- resources/plugins/base/Moose.lua`). MOOSE #2595 is fixed in this build
+(`SpawnAtAirbase` passes varargs). **This bump also removed `AI_A2A_DISPATCHER` and
+`DETECTION_MANAGER`** (MOOSE develop deleted `AI/` and `Tasking/` on 2026-02-06), which killed
+QRA until it moved to EASYGCICAP on 2026-11-14 and dropped its takeoff monkeypatch.
+`tests/lua/test_moose_classes.py` now fails when a bump drops a class a plugin uses: run it
+before merging a bump. CTLD went 1.3.38 to 1.4.45; the internals
 `ctld-config.lua` touches (`Loaded_Cargo`, `_UnloadTroops`, `PreloadTroops`) kept their shape.
 
 ## `LHA landing error` (2026-10-11, test 55)

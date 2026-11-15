@@ -17,21 +17,55 @@ linked from each section below. Read those before touching the corresponding cod
 Retribution now uses the upstream PR `#782` QRA path. The old RetLab ramp-scramble system
 is legacy only and should not be extended.
 
+**Engine: MOOSE `EASYGCICAP` since 2026-11-14.** MOOSE develop deleted its `AI/` and
+`Tasking/` folders on 2026-02-06, so the 2026-11-12 bundle bump (#1501) removed
+`AI_A2A_DISPATCHER` and `DETECTION_MANAGER`, and the plugin died on its first line in every
+mission from then until this rewrite. QRA is one Ops `EASYGCICAP` per coalition now (DM
+picks 2026-11-14: rewrite on the supported class; anchor static; air-start; alert only).
+The flown lessons below were learned on the old dispatcher; each carries over like this:
+
+| Lesson | On `EASYGCICAP` |
+|---|---|
+| React only to air-to-ground raids (#782) | `_AssignIntercept` wrapped per instance; skips an INTEL cluster with no react-type contact |
+| At most 4 jets on one raid (test 62) | the same wrap sets `overhead = 1` and `maxinterceptsize = min(attackers, 4, best stocked base)` |
+| Air-start only; ramps fail (Tiyas) | `SetDefaultTakeOffType("air")`, every squadron `SetTakeoffAir`, no alert-5, no CAP points |
+| Low, fast, stacked air-start (2026-06-21, test 48) | the airwing's `_SpawnAssetAircraft` rewrites the template on its way to `_DATABASE:Spawn`: field elevation + 760 m, 300 kt, +150 m per scramble inside 60 s |
+| Spent squadron hides its base's other one (test 56) | gone: `_AssignIntercept` skips a wing that cannot field the ask, and LEGION picks among a wing's squadrons by stock |
+| Dead jet back in the pool (test 56) | gone: Ops removes a dead asset from its squadron (`LEGION:onafterAssetDead`) |
+| Border zones (forward defense) | `AddAcceptZone` per zone, feeding INTEL's accept zones and the flight's engage zones |
+| Scramble radius | `SetDefaultMissionRange` (each squadron's `SetMissionRange`, NM) |
+| Disengage leash / ambush leash | a 15 s check cancels an intercept whose flight is past the leash from home; ambush also `SetFuelLow(35)` |
+| Squadron modex and skill (§62) | read from the template, not EASYGCICAP's 402 / AVERAGE defaults |
+| Survivor count | each asset is one jet, so `squadron:CountAssets()` |
+
+- **The anchor static.** An Ops airwing is a warehouse and needs a STATIC or UNIT named
+  exactly after its airbase. `AircraftGenerator._place_qra_anchor` places one hidden
+  `Container_brown` per QRA base at `qra_anchor_position` (`game/theater/airfieldclearance.py`):
+  rings of 1,800 to 3,600 m around the field reference point, 30 degrees apart, first spot
+  that is on land, off every extended runway centreline (300 m band, the whole axis), 300 m
+  from every stand and 150 m from every ground object. pydcs names the static unit
+  `<name> object`, so the generator renames it. A base with no clear spot fields no QRA and
+  logs a warning; every field on Caucasus, Persian Gulf and Syria has one. If the static is
+  destroyed, MOOSE respawns it (`SetRespawnAfterDestroyed`).
+- **Scramble size.** Every asset is a single jet; a raid draws one per attacker, as separate
+  flights. The 1-ship/2-ship roll (`qra_scramble_grouping`) was removed with the rewrite.
+- **What INTEL does differently.** `_AssignIntercept` runs on a *new* cluster only. A strike
+  that joins an existing fighter cluster later does not re-trigger; MOOSE repeats a failed
+  intercept up to 3 times.
+- **ROT.** EASYGCICAP sets `OptionROTEvadeFire` once at launch. QRA does not claim the §94
+  exemption, so the baseline sweep sets it back, as it did for the old dispatcher.
+- Tests: `tests/lua/test_intercept_filter.py` (fake EASYGCICAP),
+  `tests/lua/test_moose_classes.py` (every MOOSE class a plugin uses is in the bundle),
+  `tests/theater/test_airfield_clearance.py` (anchor spot). Row **B335**.
+
+The bullets below describe the old dispatcher's wiring where they name `AI_A2A_DISPATCHER`
+calls; the table above is what runs.
+
 - Squadron model: `game/squadrons/squadron.py` stores `intercept_reserve` per squadron.
   `untasked_aircraft` is now `owned_aircraft - intercept_reserve`, so the auto-planner
   leaves those aircraft available for QRA instead of fragging them.
-- Reserve helpers: `game/squadrons/intercept_reserve.py` owns clamping, default seeding,
-  live-campaign repropagation when coalition doctrine defaults change, and
-  `qra_scramble_grouping()`.
-- Distributed-QRA scramble size: `qra_scramble_grouping()` rolls **1 ship 75% / 2 ships
-  25%** (`QRA_SINGLE_SHIP_PROBABILITY`) per fielded QRA squadron, carried on each
-  `InterceptEntry.grouping` and applied as `SetSquadronGrouping` in `intercept-config.lua`
-  (was a hardcoded 2-ship). Intent: many alert bases each putting up a *small* response so
-  a raid draws interceptors from several directions, rather than one base scrambling a big
-  formation. MOOSE grouping is per-squadron (fixed for the mission, re-rolled each turn),
-  so the per-launch single/pair mix emerges across the theater's alert bases; true
-  per-scramble variation would need a dispatcher GCI hook (deferred). Lua falls back to 2
-  if an old save omits the field. Tests: `tests/squadrons/test_intercept_reserve.py`.
+- Reserve helpers: `game/squadrons/intercept_reserve.py` owns clamping, default seeding
+  and live-campaign repropagation when coalition doctrine defaults change.
 - Campaign doctrine: `game/settings/` exposes
   `ownfor_default_qra_reserve` and `opfor_default_qra_reserve` (the `qra_comms_enabled`
   dispatcher callouts were removed 2026-10-12).
@@ -72,17 +106,14 @@ is legacy only and should not be extended.
   same code launched fine from uncluttered H3. `SetDefaultTakeoffFromRunway` had the same
   split — fine at H3, dumped into hangars at Tiyas. In-air is the only method that
   escapes the ground.
-- **The Moose air-spawn monkeypatch, and when to drop it.** In-air spawn was blocked by a
-  Moose bug: `BASE:CreateEventTakeoff` is mis-scheduled, so `self` arrives as a plain
-  table, `self:F()` crashes and defenders never activate. `intercept-config.lua`
-  monkeypatches `BASE.CreateEventTakeoff` rather than editing the vendored `Moose.lua`.
-  Filed upstream as **MOOSE PR #2595** (`Core/Spawn.lua`: pass the args as varargs, not a
-  single table). **Delete the monkeypatch once that lands in the vendored `Moose.lua`.**
+- **The Moose air-spawn monkeypatch is gone (2026-11-14).** `BASE:CreateEventTakeoff` was
+  mis-scheduled by `SPAWN:SpawnAtAirbase` (MOOSE PR #2595). The 2026-11-08 develop bundle
+  passes the arguments as varargs, and QRA no longer calls `SpawnAtAirbase`.
 - `SetSquadronGci` speed arguments are **km/h**, not m/s — Moose's `WaypointAir` divides
   by 3.6. 900/1200 km/h ≈ 485/648 kt.
 - Lua/config path: `game/missiongenerator/interceptluadata.py` populates
   `dcsRetribution.Intercept`, and `resources/plugins/intercept/intercept-config.lua`
-  instantiates Moose `AI_A2A_DISPATCHER` behavior from that table.
+  builds one MOOSE `EASYGCICAP` per coalition from that table.
 - Results/debrief: `resources/plugins/base/dcs_retribution.lua` writes
   `intercept_survivors`; `game/debriefing.py` and
   `game/sim/missionresultsprocessor.py` reconcile those survivor counts back into

@@ -12,8 +12,10 @@ from types import SimpleNamespace
 from typing import Any
 
 from game.theater.airfieldclearance import (
+    QRA_ANCHOR_RINGS_M,
     RUNWAY_STRIP_HALF_WIDTH_M,
     airfield_clearance_conflicts,
+    qra_anchor_position,
 )
 
 
@@ -101,3 +103,43 @@ def test_an_object_owned_by_a_neighbouring_point_still_counts() -> None:
     assert [(c.airfield, c.ground_object) for c in found] == [
         ("Incirlik", "0007 | STRAY (Armor Group)")
     ]
+
+
+def _land_theater(*cps: Any, sea: Any = None) -> Any:
+    theater = _theater(*cps)
+    theater.terrain = None
+    theater.is_on_land = lambda point: sea is None or not sea(point.x, point.y)
+    return theater
+
+
+def test_the_qra_anchor_sits_clear_of_the_runway_and_the_stands() -> None:
+    field = _airfield("Kutaisi", 0.0, [(1800.0, 0.0)])
+
+    spot = qra_anchor_position(_land_theater(field), field)
+
+    assert spot is not None
+    x, y = spot
+    # Not down the runway axis (bearing 0 and 180 are in the band) and not on the
+    # stand at (1800, 0): the first clear bearing on the first ring is 30 degrees.
+    assert round(math.degrees(math.atan2(y, x))) == 30
+    assert round(math.hypot(x, y)) == QRA_ANCHOR_RINGS_M[0]
+
+
+def test_the_qra_anchor_keeps_off_ground_objects_and_water() -> None:
+    field = _airfield("Batumi", 0.0, [])
+    ring = QRA_ANCHOR_RINGS_M[0]
+    # A SAM site on the 30-degree spot; the sea covers every spot with y > 0.
+    sam = (ring * math.cos(math.radians(30)), ring * math.sin(math.radians(30)))
+    field.connected_objectives.append(_tgo("0001 | SAM", "Hawk", sam))
+
+    spot = qra_anchor_position(_land_theater(field, sea=lambda x, y: y > 1.0), field)
+
+    assert spot is not None
+    assert spot[1] < 0
+
+
+def test_no_clear_spot_means_no_anchor() -> None:
+    field = _airfield("Atoll", 0.0, [])
+    assert (
+        qra_anchor_position(_land_theater(field, sea=lambda x, y: True), field) is None
+    )
