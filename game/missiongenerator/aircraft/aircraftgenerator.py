@@ -14,6 +14,7 @@ from dcs.datalinks.datalink import DataLinkType
 from dcs.datalinks.datalinkbase import DataLinkSettingsWithFlightLead
 from dcs.datalinks.link16 import Link16Network, ViperLink16NetworkMemberLink
 from dcs.mission import Mission
+from dcs.statics import Fortification
 from dcs.terrain.terrain import NoParkingSlotError
 from dcs.triggers import TriggerOnce, Event
 from dcs.unit import Skill
@@ -41,7 +42,6 @@ from game.missiongenerator.redscrambleluadata import (
 from game.squadrons.intercept_reserve import (
     ai_qra_resource_count,
     qra_player_manned_count,
-    qra_scramble_grouping,
 )
 from game.radio.radios import RadioRegistry
 from game.radio.tacan import TacanRegistry
@@ -53,6 +53,7 @@ from game.retlab.ai_fill import (
 )
 from game.runways import RunwayData
 from game.settings import Settings
+from game.theater.airfieldclearance import qra_anchor_position
 from game.theater.blockedparking import occupy_blocked_stands
 from game.theater.controlpoint import (
     Airfield,
@@ -270,6 +271,7 @@ class AircraftGenerator:
         setting_engagement_nm = QRA_ENGAGEMENT_RANGE_NM
         setting_gci_nm = QRA_GCI_MAX_RADIUS_NM
         forward_defense = self.game.settings.qra_forward_defense
+        self._qra_anchored: set[str] = set()
 
         for control_point in self.game.theater.controlpoints:
             if not isinstance(control_point, Airfield):
@@ -390,15 +392,43 @@ class AircraftGenerator:
                             template_prefix=template_prefix,
                             coalition="BLUE" if base_is_blue else "RED",
                             resource_count=resource_count,
-                            grouping=qra_scramble_grouping(),
                             engagement_range_nm=tuning.engage_nm,
                             gci_max_radius_nm=tuning.scramble_nm,
                             ambush=tuning.ambush,
                             disengage_radius_nm=tuning.disengage_nm,
                         )
                     )
+                    self._place_qra_anchor(control_point, country)
                 finally:
                     flight.roster.clear()
+
+    def _place_qra_anchor(self, control_point: Airfield, country: Country) -> None:
+        """The static MOOSE's EASYGCICAP anchors this base's airwing on (§1).
+
+        Named exactly after the airbase, hidden on the F10 map, placed clear of the
+        runway bands and stands; one per base. A base with no clear spot gets none
+        and the plugin fields no QRA there.
+        """
+        if control_point.name in self._qra_anchored:
+            return
+        self._qra_anchored.add(control_point.name)
+        spot = qra_anchor_position(self.game.theater, control_point)
+        if spot is None:
+            logging.warning(
+                f"QRA: no clear spot for the anchor static at {control_point.name}; "
+                "that base fields no QRA this turn."
+            )
+            return
+        group = self.mission.static_group(
+            country=country,
+            name=control_point.name,
+            _type=Fortification.Container_brown,
+            position=Point(spot[0], spot[1], self.mission.terrain),
+            heading=0,
+            hidden=True,
+        )
+        # MOOSE finds a static by its unit name; pydcs appends " object" to it.
+        group.units[0].name = control_point.name
 
     def spawn_red_scramble_templates(self) -> None:
         """Cold late-activation red interceptor templates for the host F10 menu (§61).

@@ -48,8 +48,9 @@ QRA deliberately has **no ATO flight**:
   `Flight(… FlightType.BARCAP, StartType.COLD …)` whose `state = Completed()` (so it is
   never spawned the normal way), drops a **late-activated, uncontrolled** parking template
   via `create_intercept_template()`, appends an `InterceptEntry`, then `roster.clear()`s.
-- At runtime, MOOSE `AI_A2A_DISPATCHER` (`resources/plugins/intercept/intercept-config.lua`)
-  owns those templates and **air-spawns** 1–2 AI ships when a raid crosses the GCI radius.
+- At runtime, MOOSE `EASYGCICAP` (`resources/plugins/intercept/intercept-config.lua`, since
+  2026-11-14; `AI_A2A_DISPATCHER` before) owns those templates and **air-spawns** single AI
+  ships when a raid crosses the GCI radius.
 
 So QRA is "reactive AI defense, spawned by a script." MOOSE air-spawns *AI groups*; it
 cannot hand a human a cockpit, and DCS can't hold a human "cold on alert and scramble them
@@ -72,7 +73,7 @@ This keeps the two systems cleanly separated:
 |---|---|---|
 | Lives in ATO? | No (throwaway template) | **Yes** (real `Flight` + `Package`) |
 | Spawn | MOOSE air-spawn, on demand | Cold on the alert pad, present at mission start |
-| Controlled by | `AI_A2A_DISPATCHER` | The human |
+| Controlled by | `EASYGCICAP` | The human |
 | Flight plan / kneeboard / loadout | None (since 2026-10-12 the template carries the squadron's BARCAP fit; features doc §1) | Full, normal pipeline |
 | Counted in `resource_count`? | Yes | **No** — subtracted out |
 

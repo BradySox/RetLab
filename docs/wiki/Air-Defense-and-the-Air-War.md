@@ -27,10 +27,9 @@ runtime base defence, instead of having every airframe fragged into the ATO.
 
 - The reserve is **per squadron** (`intercept_reserve`), clamped by owned aircraft and
   available untasked pilots. Aircraft in the reserve are not auto-fragged — they wait on alert.
-- At runtime, raids that close on a defended base scramble interceptors via a Moose
-  `AI_A2A_DISPATCHER`. Many alert bases each put up a **small** response (a 1-ship / 2-ship mix),
-  so a raid draws interceptors from several directions rather than one base launching a big
-  formation.
+- At runtime, raids that close on a defended base scramble interceptors via MOOSE's
+  `EASYGCICAP`. A raid draws one single-ship interceptor per attacker, at most 4, from the
+  nearest base that can field them.
 - Defaults are a **base-defence posture**: QRA scrambles only when a raid closes within a set
   radius and interceptors chase a limited distance, so QRA does not screen forward over the
   FLOT. The radii are fixed: a base scrambles for raids within 60 NM, and interceptors chase
