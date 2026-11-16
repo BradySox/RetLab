@@ -253,6 +253,9 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "front_line_salients",
                     "front_line_battles_along_border",
                     "sector_war",
+                    "ground_movement",
+                    "ground_movement_road_miles",
+                    "ground_movement_off_road_miles",
                     "ship_damage_carry_over",
                     "ship_damage_repair_percent",
                 ],
@@ -595,6 +598,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
         "front_line_salients",  # §90 rung E
         "front_line_battles_along_border",  # §111
         "sector_war",  # §111 step 2
+        "ground_movement",  # §131
     ],
     "Campaign clock & era": [
         "continuous_campaign_clock",  # §47

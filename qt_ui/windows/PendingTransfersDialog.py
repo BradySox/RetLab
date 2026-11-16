@@ -121,6 +121,10 @@ class PendingTransfersDialog(QDialog):
     def can_cancel(self, index: QModelIndex) -> bool:
         if not index.isValid():
             return False
+        if getattr(
+            self.transfer_model.transfer_at_index(index), "cancellation_error", None
+        ):
+            return False
         return self.transfer_model.transfer_at_index(index).player.is_blue or (
             self.transfer_model.game_model.game.settings.enable_enemy_buy_sell
             and self.transfer_model.transfer_at_index(index).player.is_red

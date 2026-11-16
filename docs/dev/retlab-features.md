@@ -12457,3 +12457,41 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 | Button | `qt_ui/windows/mission/QPackageDialog.py` (`on_fill_support`) |
 | Tests | `tests/commander/test_support_fill.py` |
 | In-game pass | B325 |
+
+
+## §131 — Ground movement
+
+Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
+Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
+Stages 1 (mobility catalog) and 2 (convoys keep their place) are built.
+
+### The rule (stage 2)
+
+With **Supply convoys cover a set distance a turn** (`ground_movement`) on, a road convoy
+drives **Road miles per turn** (120) along its drawn supply route each turn, **Off-road miles
+per turn** (60) on an off-road leg, and keeps its place between turns. It reaches its next
+base only when the route is used up; a short route still completes in one turn.
+
+- A convoy on the road is kept apart (`ConvoyMap.in_transit`): a new departure from the same
+  base forms its own column.
+- In the mission it spawns where it has got to, strung out behind its lead 20 m apart on the
+  route, and drives only this turn's leg. A waiting column holds still and can be hit.
+- Losses come off its cargo; an empty column disbands without delivering.
+- A capture behind it changes nothing; it keeps its owner. If its next base is lost it waits.
+- It cannot be cancelled once on the road (`TransferOrder.cancellation_error`); the Cancel
+  button greys out.
+- Turning the setting off lands every column on the road at its next stop the next turn, as
+  convoys did before. Trains (§123) and cargo ships are untouched.
+- On for new games; a save from before it keeps it off (`Game.ground_movement_era`).
+
+### Files
+
+| What | Where |
+|---|---|
+| Journey along a route | `game/groundmovement/journey.py` |
+| Switch and distances | `game/groundmovement/settings.py`, `game/settings/fields/campaignmanagement.py` |
+| Convoy progress | `game/transfers.py` (`Convoy.prepare_ground_movement`, `PendingTransfers._advance_ground_convoys`) |
+| Spawn and leg | `game/missiongenerator/convoygenerator.py` |
+| Map | `game/server/supplyroutes/models.py` (finds columns on the road too) |
+| Tests | `tests/groundmovement/` |
+| In-game pass | B340 |

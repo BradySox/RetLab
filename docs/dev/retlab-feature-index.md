@@ -142,5 +142,6 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §128 | Saved loadouts | — | — |
 | §129 | Civilian air traffic | `civtraffic` | `civil_air_traffic` |
 | §130 | Fill support | — | — |
+| §131 | Ground movement | — | `ground_movement`, `ground_movement_road_miles`, `ground_movement_off_road_miles` |
 | — | Skynet IADS engine | `skynetiads` | — |
 | — | Splash Damage (RetLab tuned) | `splashdamage3` | — |
