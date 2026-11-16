@@ -1,0 +1,1 @@
+* **[Fuel]** The Payload tab's fuel plan counts ground time, the hold and low legs; the F-4E burns at rates measured from flown sorties (cruise 25 lb/NM, was 17); the line leads with what the jet lands with and names the tanker only when it is needed.

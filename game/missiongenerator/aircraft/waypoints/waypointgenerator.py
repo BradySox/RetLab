@@ -571,7 +571,7 @@ class WaypointGenerator:
         full_load_lbs = start_fuel_kg * KG_TO_LBS + flight_external_fuel_lbs(
             self.flight
         )
-        remaining = full_load_lbs - consumption.taxi
+        remaining = full_load_lbs - self.flight.flight_plan.ground_fuel_lbs(consumption)
         previous: FlightWaypoint | None = None
         for waypoint in waypoints:
             if previous is not None:

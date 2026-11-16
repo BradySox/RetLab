@@ -180,10 +180,11 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   the shape you are looking at.
 - A flight only gets a tanker leg on its route when it needs the gas. A bomber that lands
   with most of its fuel no longer flies past its own field to a tanker first.
-- The Payload tab shows the sortie's fuel plan live: planned burn, what the jet carries
-  internally and in tanks, the RTB margin with no tanker, and how many tanker passes the
-  route has. It flags a sortie that only gets home on a top-off, so you can add a bag or
-  trim the route before you fly it.
+- The Payload tab shows the sortie's fuel plan live: what the jet lands with if it never
+  meets a tanker, and what it burns of what it carries. It counts the time on the ground
+  and in the hold. It says when a sortie needs the tanker or comes up short, so you can
+  add a bag or trim the route before you fly it. The F-4E's numbers are measured from
+  flown sorties.
 - One continuous clock: time advances a few hours per turn and weather evolves from the
   previous turn instead of re-rolling. Requires day-and-night missions.
 - The planner reads that weather — a thunderstorm pushes low-level CAS and BAI behind

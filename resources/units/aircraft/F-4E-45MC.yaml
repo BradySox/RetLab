@@ -63,13 +63,15 @@ default_overrides:
   IsEfbAllowed: true
   #CombatTreeSpoofable: 1 # 0 = all, 1 = historical, 2 = none
 fuel:
-  # Parking A1 to RWY 32 at Akrotiri.
+  # Measured in DCS: about 50 flown F-4E sorties, Tacview fuel weight per minute
+  # (tools/tacview_fuel_rates.py, 2026-11-16). The real jet's Dash-1 figures
+  # (cruise 17, combat 19) ran about 40% low in DCS.
   taxi: 250
-  # Source: Dash-1 Supplemental Data
-  # 2 Wing tanks, 1 Centerline tank, 4 AIM-7, 4 AIM-9 (Drag Index 40)
-  climb_ppm: 40  # Takeoff weight 57,000lbs, climb to 25,000'
-  cruise_ppm: 17  # Cruise at 25,000', M0.85, gross weight 50,000lbs
-  combat_ppm: 19  # Combat at M0.9, gross weight 50,000lbs
+  ground_ppmin: 40  # Engines running on the ground, per minute.
+  climb_ppm: 46
+  cruise_ppm: 25  # 15,000 to 28,000 ft, about 340 KIAS.
+  combat_ppm: 32
+  low_ppm: 46  # Under 3,000 ft AGL, about 430 KIAS.
   # Source: Heatblur F-4 Manual, Mission Planning section.
   min_safe: 2000
 tasks:

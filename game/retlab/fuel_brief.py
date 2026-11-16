@@ -12,6 +12,10 @@ same call the kneeboard ladder makes) over the planned waypoints, topping back u
 to a full load at each REFUEL waypoint, and stops at the landing point (the
 trailing divert/bullseye reference waypoints are not flown legs). External fuel
 counts the tanks on the loadout being shown, matching the tanker decision.
+
+The walk charges the planned time on the ground, the hold and time on target, and
+low legs at the low rate, where the airframe's ``fuel:`` block has those numbers
+(``FlightPlan.ground_fuel_lbs``, ``fuel_consumption_between_points``).
 """
 
 from __future__ import annotations
@@ -121,12 +125,13 @@ def fuel_brief_for(
     internal = internal_kg * KG_TO_LBS
 
     full = internal + external
-    remaining = full - consumption.taxi
+    ground = flight_plan.ground_fuel_lbs(consumption)
+    remaining = full - ground
     # The same walk with no top-offs applied. Tracked alongside rather than
     # derived afterwards, because the burn up to each REFUEL waypoint is exactly
     # what a top-off hides.
     dry = remaining
-    burn = consumption.taxi
+    burn = ground
     passes = 0
     previous = None
     for waypoint in waypoints:
@@ -193,36 +198,45 @@ def _as_generated(
     return resolved
 
 
+def _about(lbs: float) -> str:
+    """Pounds to the nearest hundred: the model is not better than that."""
+    return f"{round(abs(lbs), -2):,.0f}"
+
+
 def fuel_brief_text(brief: Optional[FuelBrief]) -> str:
-    """A compact one/two-line plain-text rendering for the planning UI."""
+    """The plain-words line under the fuel slider.
+
+    Leads with what the jet lands with when it never plugs in. The tanker is named
+    only when the sortie needs it, or when a pass on the route is not needed (the
+    planner adds one whenever a tanker is up, whatever the fuel).
+    """
     if brief is None:
         return "Fuel plan: no fuel model for this airframe."
-    bags = (
-        f" + {brief.tank_count} tank{'s' if brief.tank_count != 1 else ''} "
-        f"{brief.external_lbs:,.0f} lb"
-        if brief.tank_count
-        else ""
+    reserve = f"{brief.reserve_lbs:,.0f}"
+    carried = (
+        f"Burns about {_about(brief.burn_lbs)} of {_about(brief.carried_lbs)} lb "
+        f"carried."
     )
-    # Lead with the unrefuelled margin. A refuel waypoint means a tanker is
-    # planned, never that the gas was taken, so the with-tanker figure is only
-    # worth printing when the sortie actually depends on it.
-    sign = "+" if brief.dry_margin_lbs >= 0 else "-"
-    estimated = " (estimated)" if brief.estimated else ""
-    text = (
-        f"Fuel plan{estimated}: burns ~{brief.burn_lbs:,.0f} lb · carries "
-        f"{brief.carried_lbs:,.0f} lb ({brief.internal_lbs:,.0f} internal{bags}) · "
-        f"RTB margin {sign}{abs(brief.dry_margin_lbs):,.0f} lb unrefueled"
-    )
-    if brief.refuel_passes:
-        text += (
-            f" · {brief.refuel_passes} tanker pass"
-            f"{'es' if brief.refuel_passes != 1 else ''} planned"
-        )
     if brief.needs_the_tanker:
-        text += (
-            f" — this sortie does NOT get home without the tanker "
-            f"(+{brief.margin_lbs:,.0f} lb with it)."
+        text = (
+            f"Fuel plan: needs the tanker. Without it you land about "
+            f"{_about(brief.dry_margin_lbs)} lb under the {reserve} lb reserve; "
+            f"with it, about {_about(brief.margin_lbs)} lb over. {carried}"
         )
     elif brief.is_short:
-        text += " — short of getting home as planned; tank, divert, or lighten."
+        text = (
+            f"Fuel plan: short. You land about {_about(brief.dry_margin_lbs)} lb "
+            f"under the {reserve} lb reserve. {carried} Add tanks, shorten the "
+            f"route, or plan a tanker."
+        )
+    else:
+        landed = brief.dry_margin_lbs + brief.reserve_lbs
+        text = (
+            f"Fuel plan: lands with about {_about(landed)} lb (reserve {reserve} lb). "
+            f"{carried}"
+        )
+        if brief.refuel_passes:
+            text += " Tanker: not needed."
+    if brief.estimated:
+        text += " Rough estimate: no measured fuel data for this jet."
     return text

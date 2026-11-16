@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from typing import Any, Generic, TYPE_CHECKING, TypeGuard, TypeVar
 
 from game.typeguard import self_type_guard
-from game.utils import Distance, Speed, meters
+from game.utils import Distance, Speed, feet, meters
 from .planningerror import PlanningError
 from ..runwayqueue import runway_queue_wait
 from ..flightwaypointtype import FlightWaypointType
@@ -32,6 +32,20 @@ if TYPE_CHECKING:
     from .formation import FormationFlightPlan
     from .loiter import LoiterFlightPlan
     from .patrolling import PatrollingFlightPlan
+
+
+#: A leg with both ends planned below this is flown low for fuel purposes.
+LOW_LEG_CEILING = feet(5000)
+
+
+def _planned_low(a: FlightWaypoint, b: FlightWaypoint) -> bool:
+    """Whether the leg is planned low end to end. Landing legs are approaches."""
+    if b.waypoint_type is FlightWaypointType.LANDING_POINT:
+        return False
+    return all(
+        getattr(point, "alt", None) is not None and point.alt < LOW_LEG_CEILING
+        for point in (a, b)
+    )
 
 
 def cascade_waypoint_times(
@@ -190,7 +204,42 @@ class FlightPlan(ABC, Generic[LayoutT]):
         ppm = self.fuel_rate_to_between_points(a, b, consumption)
         if ppm is None:
             return None
-        return self.fuel_burn_distance_between_points(a, b).nautical_miles * ppm
+        flown = self.fuel_burn_distance_between_points(a, b)
+        return (flown.nautical_miles + self._loiter_miles(a, b, flown)) * ppm
+
+    def _loiter_miles(
+        self, a: FlightWaypoint, b: FlightWaypoint, flown: Distance
+    ) -> float:
+        """Miles flown while waiting on the leg: the hold before the push, time on target.
+
+        A plan that already charges its laps as distance (a racetrack) is left alone.
+        """
+        if flown.meters > a.position.distance_to_point(b.position) + 1:
+            return 0.0
+        try:
+            waiting = self.total_time_between_waypoints(
+                a, b
+            ) - self.travel_time_between_waypoints(a, b)
+            speed = self.speed_between_waypoints(a, b)
+        except (NotImplementedError, PlanningError):
+            return 0.0
+        if waiting <= timedelta():
+            return 0.0
+        return waiting.total_seconds() / 3600 * speed.knots
+
+    def ground_fuel_lbs(self, consumption: FuelConsumption) -> float:
+        """Fuel burned before takeoff: the planned start-up, taxi and runway wait.
+
+        Airframes with no measured per-minute ground rate keep the flat ``taxi``.
+        """
+        if consumption.ground_ppmin is None:
+            return consumption.taxi
+        try:
+            on_ground = self.takeoff_time() - self.startup_time()
+        except (NotImplementedError, PlanningError):
+            return consumption.taxi
+        minutes = on_ground.total_seconds() / 60
+        return max(float(consumption.taxi), minutes * consumption.ground_ppmin)
 
     def fuel_rate_to_between_points(
         self,
@@ -207,6 +256,8 @@ class FlightPlan(ABC, Generic[LayoutT]):
             return None
         if a.waypoint_type is FlightWaypointType.TAKEOFF:
             return consumption.climb
+        if consumption.low is not None and _planned_low(a, b):
+            return consumption.low
         if b in self.combat_speed_waypoints:
             return consumption.combat
         return consumption.cruise

@@ -92,6 +92,7 @@ def _flight(
         flight_plan=SimpleNamespace(
             waypoints=waypoints,
             fuel_consumption_between_points=lambda a, b, consumption=None: per_leg,
+            ground_fuel_lbs=lambda consumption: consumption.taxi,
         ),
     )
 
@@ -255,67 +256,55 @@ def test_no_fuel_model_returns_none_and_estimate_is_flagged() -> None:
     assert measured is not None and not measured.estimated
 
 
-def test_text_rendering() -> None:
-    assert "no fuel model" in fuel_brief_text(None)
-
-    # A jet that gets home on its own and happens to cross a tanker. The
-    # headline is the UNREFUELLED margin: a refuel waypoint means a tanker is
-    # planned, never that the gas was taken. Flown complaint 2026-08-17 — a
-    # Hornet burning 8,111 lb of 15,225 carried read "+11,680 lb" because the
-    # walk restored it to full at the waypoint, 6,566 lb of credit for a
-    # top-off the sortie did not need.
-    healthy = FuelBrief(
-        internal_lbs=10000,
+def _brief(**overrides: Any) -> FuelBrief:
+    values: dict[str, Any] = dict(
+        internal_lbs=12149,
         external_lbs=4958,
         tank_count=2,
-        burn_lbs=9000,
-        reserve_lbs=1500,
-        refuel_passes=1,
-        margin_lbs=4458,
-        dry_margin_lbs=2458,
+        burn_lbs=11034,
+        reserve_lbs=2000,
+        refuel_passes=0,
+        margin_lbs=4073,
+        dry_margin_lbs=4073,
         estimated=False,
     )
-    text = fuel_brief_text(healthy)
-    assert "2 tanks" in text
-    assert "1 tanker pass planned" in text
-    assert "+2,458 lb unrefueled" in text, "the headline must not credit the top-off"
-    assert "4,458" not in text, "the with-tanker figure is noise when it is not needed"
+    values.update(overrides)
+    return FuelBrief(**values)
+
+
+def test_text_leads_with_what_the_jet_lands_with() -> None:
+    assert "no fuel model" in fuel_brief_text(None)
+
+    text = fuel_brief_text(_brief())
+    # 4,073 over a 2,000 reserve is 6,073 on landing, to the nearest hundred.
+    assert text.startswith("Fuel plan: lands with about 6,100 lb (reserve 2,000 lb).")
+    assert "Burns about 11,000 of 17,100 lb carried." in text
+    assert "anker" not in text, "no tanker on the route, no tanker words"
+
+
+def test_a_tanker_pass_the_sortie_does_not_need_is_called_out() -> None:
+    # The planner adds a pass whenever a tanker is up, whatever the fuel (flown
+    # complaint 2026-11-16: "+4,073 margin" next to "1 tanker pass planned").
+    text = fuel_brief_text(_brief(refuel_passes=1, margin_lbs=9000))
+    assert "Tanker: not needed." in text
+    assert "9,000" not in text, "the top-off is not counted as gas taken"
+
+
+def test_a_sortie_that_needs_the_tanker_says_so() -> None:
+    text = fuel_brief_text(
+        _brief(refuel_passes=1, margin_lbs=3200, dry_margin_lbs=-1800)
+    )
+    assert text.startswith("Fuel plan: needs the tanker.")
+    assert "about 1,800 lb under the 2,000 lb reserve" in text
+    assert "with it, about 3,200 lb over" in text
     assert "short" not in text
 
-    short = FuelBrief(
-        internal_lbs=10000,
-        external_lbs=0,
-        tank_count=0,
-        burn_lbs=12000,
-        reserve_lbs=1500,
-        refuel_passes=0,
-        margin_lbs=-3500,
-        dry_margin_lbs=-3500,
-        estimated=True,
-    )
-    text = fuel_brief_text(short)
-    assert "(estimated)" in text
-    assert "tanker" not in text
-    assert "-3,500" in text
-    assert "short of getting home" in text
 
-    # The one case where the with-tanker number is the point: without the
-    # top-off this sortie does not make it home, so say so in those words.
-    dependent = FuelBrief(
-        internal_lbs=8000,
-        external_lbs=0,
-        tank_count=0,
-        burn_lbs=11000,
-        reserve_lbs=1500,
-        refuel_passes=1,
-        margin_lbs=3200,
-        dry_margin_lbs=-1800,
-        estimated=False,
+def test_a_short_sortie_says_short_and_what_to_do() -> None:
+    text = fuel_brief_text(
+        _brief(margin_lbs=-3500, dry_margin_lbs=-3500, estimated=True)
     )
-    text = fuel_brief_text(dependent)
-    assert "-1,800 lb unrefueled" in text
-    assert "does NOT get home without the tanker" in text
-    assert "+3,200" in text
-    assert (
-        "short of getting home" not in text
-    ), "the tanker-dependent wording replaces the generic one, it does not stack"
+    assert text.startswith("Fuel plan: short.")
+    assert "about 3,500 lb under the 2,000 lb reserve" in text
+    assert "Add tanks, shorten the route, or plan a tanker." in text
+    assert text.endswith("Rough estimate: no measured fuel data for this jet.")

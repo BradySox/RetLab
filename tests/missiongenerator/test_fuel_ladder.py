@@ -22,7 +22,8 @@ def _generator(*, taxi: float, fuel_kg: float, per_leg: float | None) -> Any:
         fuel=fuel_kg,
         iter_members=lambda: iter(()),
         flight_plan=SimpleNamespace(
-            fuel_consumption_between_points=lambda a, b, consumption=None: per_leg
+            fuel_consumption_between_points=lambda a, b, consumption=None: per_leg,
+            ground_fuel_lbs=lambda consumption: consumption.taxi,
         ),
     )
     gen = WaypointGenerator.__new__(WaypointGenerator)
