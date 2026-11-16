@@ -172,7 +172,10 @@ class DcsFuelSelector(QHBoxLayout):
         self.label = QLabel("Internal Fuel Quantity: ")
         self.addWidget(self.label)
 
-        self.max_fuel = int(flight.unit_type.dcs_unit_type.fuel_max)
+        # The slider is whole kg; the true full load can carry a fraction (the
+        # F-4E holds 5,510.5 kg), so the top of the slider stands for it.
+        self.full_fuel_kg = float(flight.unit_type.dcs_unit_type.fuel_max)
+        self.max_fuel = int(self.full_fuel_kg)
         self.fuel = QSlider(Qt.Orientation.Horizontal)
         self.fuel.setRange(0, self.max_fuel)
         self.fuel.setValue(min(round(self.flight.fuel), self.max_fuel))
@@ -192,11 +195,11 @@ class DcsFuelSelector(QHBoxLayout):
         self.addWidget(self.unit)
 
     def on_fuel_change(self, value: int) -> None:
-        self.flight.fuel = value
+        self.flight.fuel = self.full_fuel_kg if value >= self.max_fuel else value
         if self.unit.currentIndex() == 0:
             self.fuel_spinner.setValue(value)
         elif self.unit.currentIndex() == 1 and not self.unit_changing:
-            self.fuel_spinner.setValue(self.kg2lbs(value))
+            self.fuel_spinner.setValue(self.kg2lbs(self.flight.fuel))
 
     def update_fuel_slider(self, value: int) -> None:
         if self.unit_changing:
@@ -214,7 +217,7 @@ class DcsFuelSelector(QHBoxLayout):
             self.fuel_spinner.setMaximum(self.max_fuel)
             self.fuel_spinner.setValue(round(self.model_fuel_kg()))
         elif index == 1:
-            self.fuel_spinner.setMaximum(self.kg2lbs(self.max_fuel))
+            self.fuel_spinner.setMaximum(self.kg2lbs(self.full_fuel_kg))
             self.fuel_spinner.setValue(self.kg2lbs(self.model_fuel_kg()))
         self.unit_changing = False
 
@@ -229,8 +232,8 @@ class DcsFuelSelector(QHBoxLayout):
         """
         fuel = getattr(self.flight, "fuel", None)
         if fuel is None:
-            return float(self.max_fuel)
-        return min(float(fuel), float(self.max_fuel))
+            return self.full_fuel_kg
+        return min(float(fuel), self.full_fuel_kg)
 
     def kg2lbs(self, value: float) -> int:
         return round(value * KG_TO_LBS)

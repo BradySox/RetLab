@@ -78,3 +78,32 @@ fuel:
 
 The last entry (`min_safe`) is the minimum amount of fuel that the aircraft
 should land with.
+
+## Measuring from Tacview recordings
+
+A recorded flight carries the jet's fuel weight (`FuelWeight`) every few
+seconds. `tools/tacview_fuel_rates.py` cuts each flight into one-minute slices,
+sorts them by phase and pools the rates over as many files as you give it:
+
+```
+python tools/tacview_fuel_rates.py --pilot <your Tacview pilot name> --type F-4E <file.acmi> ...
+```
+
+It prints ground (lb per minute), climb, cruise, combat and low (lb per NM).
+Ordinary campaign sorties work; more files give steadier numbers. The F-4E
+block was measured this way from about 50 sorties.
+
+Two optional keys use those numbers:
+
+```yaml
+fuel:
+  taxi: 250
+  ground_ppmin: 40  # lb per minute on the ground; replaces taxi with the planned ground time
+  climb_ppm: 46
+  cruise_ppm: 25
+  combat_ppm: 32
+  low_ppm: 46  # lb per NM on a leg planned under 5,000 ft
+  min_safe: 2000
+```
+
+Without them the plan charges the flat `taxi` and the combat or cruise rate.

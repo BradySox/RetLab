@@ -5104,9 +5104,8 @@ the kneeboard's derived GSPD divided the track length by the whole dwell.
   flown Hornet case re-runs honestly as ~8,000 lb on station and an RTB margin of **~+830 lb**: the 45-minute
   doctrine dwell was already near the fuel limit — the ladder was just lying about it. Applies to every
   patrolling family (BARCAP/TARCAP at their patrol speeds, CAS at combat rate over its track, AEW&C/tanker
-  orbits). Formation-attack holds are deliberately untouched. (Originally that was so the ladder and the §46
-  tanker decision walked the route the same way; since the §46 revert there is no fuel-driven tanker decision
-  left to agree with, and the hold dwell stays uncharged simply because nothing has asked for it.)
+  orbits). Formation-attack holds were left uncharged here; they are charged since 2026-11-16 (next
+  subsection).
 - **The racetrack-end GSPD cell shows the patrol speed.** `FlightData.patrol_speed` (from
   `flight_plan.patrol_speed` when `is_patrol`) rides to the kneeboard; the `PATROL`-type row prints it (the
   Hornet reads 481) instead of distance-over-dwell, and dashes when no patrol speed exists (custom plans).
@@ -5123,6 +5122,37 @@ the kneeboard's derived GSPD divided the track length by the whole dwell.
   unchanged) · `tests/missiongenerator/test_flightplan_fuel_column.py` (the PATROL row's patrol-speed GSPD +
   dash fallback, the endurance line + its short-station warning). The next S1 fly should eyeball a BARCAP
   ladder: racetrack GSPD ≈ patrol speed, push-time fuel visibly down, the endurance line rendering.
+
+### The fuel walk against flown sorties (2026-11-16)
+
+Brady: the Payload-tab fuel line "often feels useless or wrong". Checked against the 11/12 F-4E BAI
+(MOUSE flight, Afghanistan Red Bear turn 1): planned 425 NM and ~7,900 lb; flown 504 NM, burned 15,112 lb,
+landed 1,857 lb, under the 2,000 lb reserve. Causes, each fixed:
+
+- **The F-4E rates were the real jet's Dash-1** (cruise 17, combat 19 lb/NM). Pooled over ~50 of his
+  F-4E Tacviews, DCS burns ground 40 lb/min, climb 46, cruise 25, combat 32, low 46 lb/NM. The yaml
+  carries the measured block. `tools/tacview_fuel_rates.py` measures any jet the same way
+  (`docs/modding/fuel-consumption-measurement.md`). A Hornet TARCAP checked at 22 to 30 lb/NM cruise
+  against its 22.1, so the DCS-measured upstream blocks are not this far off.
+- **Ground time.** `FuelConsumption.ground_ppmin` (optional yaml `ground_ppmin`): `FlightPlan.ground_fuel_lbs`
+  charges `takeoff_time - startup_time` by the minute, floored at `taxi`. No rate keeps the flat `taxi`.
+- **Holds and time on target.** `fuel_consumption_between_points` adds the leg's waiting time
+  (`total_time - travel_time`, the loiter plan's 5-minute hold, `time_at_target` at the split) as miles at
+  the leg's speed and rate. A leg whose burn distance is already overridden (the racetrack laps) is skipped.
+- **Low legs.** `FuelConsumption.low` (yaml `low_ppm`): a leg with both ends planned under 5,000 ft burns
+  at the low rate; a landing leg never does. No rate keeps combat/cruise. The plan only knows planned
+  altitudes; a pilot who goes low on a high plan still burns more than it shows.
+- **The tanker pass is not a fuel-need signal.** The planner adds one whenever a tanker is up. The line now
+  names the tanker only when the sortie needs it, or says "Tanker: not needed".
+- **The line** leads with what the jet lands with, to the nearest 100 lb: `Fuel plan: lands with about
+  6,100 lb (reserve 2,000 lb). Burns about 11,000 of 17,100 lb carried.` Short and tanker-dependent
+  sorties say so in those words.
+- **12,147 vs 12,149.** The slider is whole kg and the F-4E's full load is 5,510.5 kg; the lbs spinner's
+  maximum clamped at the floored value. The top of the slider now stands for the true full load.
+
+Re-run on the MOUSE route with the new walk: about 12,800 lb (flown 15,112). The rest is unplanned
+maneuvering and the 80 NM flown off the route, which no plan can see. Kneeboard ladder, RTB margin and
+bingo read the same rates. Tests: `tests/ato/flightplans/test_fuel_model.py`, `tests/retlab/test_fuel_brief.py`.
 
 ---
 

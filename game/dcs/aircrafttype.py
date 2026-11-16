@@ -215,14 +215,26 @@ class FuelConsumption:
     #: a reserve amount for landing delays or emergencies.
     min_safe: int
 
+    #: Fuel burned per minute on the ground, engines running, in pounds. When set,
+    #: the plan charges the planned start-up and taxi time instead of ``taxi``.
+    ground_ppmin: float | None = None
+
+    #: Pounds per nautical mile on a leg planned under 5,000 ft. None falls back to
+    #: the combat or cruise rate, as before.
+    low: float | None = None
+
     @classmethod
     def from_data(cls, data: dict[str, Any]) -> FuelConsumption:
+        ground = data.get("ground_ppmin")
+        low = data.get("low_ppm")
         return FuelConsumption(
             int(data["taxi"]),
             float(data["climb_ppm"]),
             float(data["cruise_ppm"]),
             float(data["combat_ppm"]),
             int(data["min_safe"]),
+            float(ground) if ground is not None else None,
+            float(low) if low is not None else None,
         )
 
 
