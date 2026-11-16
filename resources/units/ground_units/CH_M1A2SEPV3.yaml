@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: The M1A2 Abrams is an advanced version of hte renowned M1 Abrams. The M1A2
   introduced a redisigned commanders independent thermal viewer (CITV), upgraded armor and
   digital systems to bolster situational awareness. Despite a nearly 70 ton weight, the M1A2

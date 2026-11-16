@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: The M1128 Mobile Gun System is an eight-wheeled armored car of the Stryker
   armored fighting vehicle family, mounting a 105 mm tank gun, based on the Canadian
   LAV III light-armored vehicle manufactured by General Dynamics Land Systems. It

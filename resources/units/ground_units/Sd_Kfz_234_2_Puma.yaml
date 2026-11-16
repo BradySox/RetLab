@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description:
   The Sd.Kfz. 234 (Sonderkraftfahrzeug 234, Special Purpose Vehicle 234), was a
   family of armoured cars designed and built in Germany during World War II. The

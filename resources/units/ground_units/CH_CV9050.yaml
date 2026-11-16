@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: The Combat Vehicle 90 (CV90), Swedish Stridsfordon 90 (Strf 90),
   is a family of Swedish tracked armored combat vehicles. The original CV9040
   model carries eight soldiers and is equipped with a 50 mm Bofors autocannon.

@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: towed
 price: 10
 role: Multiple-Launch Rocket System
 variants:

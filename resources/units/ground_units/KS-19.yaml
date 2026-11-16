@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: towed
 description:
   "100 mm air defence gun KS-19 (Russian: 100-мм зенитная пушка КС-19) was a Soviet anti-aircraft gun.\
   \ Initially deployed aboard ships as the B-34 during the Second World War, a ground-mounted version was\

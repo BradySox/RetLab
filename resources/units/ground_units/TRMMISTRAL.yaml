@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 description: Mistral Missile on a Truck.
 introduced: 1993
 manufacturer: GIAT Industries

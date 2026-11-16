@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: Warrior is a tracked infantry fighting vehicle used by the British Army to transport infantry under armor while providing direct fire support.
 introduced: 1987
 manufacturer: GKN Defence

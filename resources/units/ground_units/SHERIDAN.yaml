@@ -1,4 +1,6 @@
 class: ATGM
+ground_mobility:
+  mode: self_propelled
 description: The M551 Sheridan AR/AAV (Armored Reconnaissance/Airborne Assault Vehicle)
   is a light tank developed by the United States and named after General Philip Sheridan,
   of American Civil War fame. It was designed to be landed by parachute and to swim across

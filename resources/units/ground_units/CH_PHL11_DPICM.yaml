@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: self_propelled
 description: The PHL-11 is a truck-mounted self-propelled 122 mm multiple rocket launcher
   (SPMRL) produced by Norinco for the People's Liberation Army Ground Force. It is a 
   modernised replacement for the older PHL-81. This is the DPICM variant which fires cluster

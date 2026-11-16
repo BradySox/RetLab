@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 description: The HEMTT M983 Tractor is a highly versatile, heavy-duty military vehicle designed
   for transporting and towing large payloads, including missile systems and other heavy equipment.
   With a 500-horsepower diesel engine the 8x8 is capable of exceptional off-road performance. It's been

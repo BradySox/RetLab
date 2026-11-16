@@ -1,4 +1,6 @@
 class: ATGM
+ground_mobility:
+  mode: self_propelled
 description: The M10 tank destroyer was an American tank destroyer of World War II.
   The M10 was numerically the most important U.S. tank destroyer of World War II.
   It combined thin but sloped armor with the M4's reliable drivetrain and a reasonably

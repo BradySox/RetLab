@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: "Stridsvagn 122 is a Swedish main battle tank that, like the German Leopard 2A5, 
   is based on the German Leopard 2 Improved variant utilizing such newer technology as command, 
   control, and fire-control systems, reinforced armour, and long-term combat capacity. 

@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: The Light Tank Mk VII (A17), also known as the Tetrarch, was a British
   light tank produced by Vickers-Armstrongs in the late 1930s and used during the
   Second World War. The Tetrarch was the latest in the line of light tanks built by

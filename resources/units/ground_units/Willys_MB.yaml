@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 description: The jeep became the primary light wheeled transport vehicle of the United
   States military and its allies, with President Eisenhower once calling it "one of
   three decisive weapons the U.S. had during WWII." After WW2 it served in many conflicts.

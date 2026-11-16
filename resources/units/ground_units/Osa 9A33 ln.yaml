@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 price: 28
 variants:
   SAM SA-8 Osa "Gecko" TEL: null

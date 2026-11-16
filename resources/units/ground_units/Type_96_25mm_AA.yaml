@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: towed
 description: Type 96 75mm Anti-Aircraft Gun
 introduced: 1936
 manufacturer: 

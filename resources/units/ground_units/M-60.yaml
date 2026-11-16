@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: "The M60 reached operational capability with fielding to US Army units\
   \ in Europe beginning in December 1960. The first combat usage of the M60 was with\
   \ Israel during the 1973 Yom Kippur War where it saw service under the \"Magach\

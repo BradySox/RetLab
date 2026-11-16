@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, ClassVar, Dict, Iterator, Optional, Type
 
@@ -11,6 +11,7 @@ from dcs.vehicles import vehicle_map
 
 from game.data.units import UnitClass
 from game.dcs.unittype import UnitType
+from game.groundmovement.mobility import GroundMobility
 
 
 @dataclass
@@ -144,6 +145,9 @@ class GroundUnitType(UnitType[Type[VehicleType]]):
     # the next finding a data edit with its evidence attached, instead of another
     # id appended to a set in Python.
     mobile: bool = True
+    #: Ground movement: drives itself, needs a tow, or never moves. Unreviewed is
+    #: UNKNOWN and never moves (game/groundmovement/mobility.py).
+    ground_mobility: GroundMobility = field(default_factory=GroundMobility)
 
     _by_name: ClassVar[dict[str, GroundUnitType]] = {}
     _by_unit_type: ClassVar[dict[type[VehicleType], list[GroundUnitType]]] = (
@@ -282,4 +286,5 @@ class GroundUnitType(UnitType[Type[VehicleType]]):
             reversed_heading=data.get("reversed_heading", False),
             gps_jamming=GpsJammingProperties.from_data(data.get("gps_jamming")),
             mobile=bool(data.get("mobile", True)),
+            ground_mobility=GroundMobility.from_data(data.get("ground_mobility")),
         )

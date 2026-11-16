@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: MBT Type 98 Ke Ni
 introduced: 1938
 manufacturer: 

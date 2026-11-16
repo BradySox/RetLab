@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: self_propelled
 description: "Skynex is a 35 mm revolver gun on an HX truck firing programmable airburst rounds against drones, rockets and mortar bombs."
 introduced: 2023
 manufacturer: Rheinmetall

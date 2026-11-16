@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: The Stridsvagn 103 (Strv 103), also known as the S-tank, is a Swedish
   post-World War II main battle tank, designed and manufactured in Sweden. Developed
   in the 1950s, it was the first main battle tank to use a gas turbine engine and

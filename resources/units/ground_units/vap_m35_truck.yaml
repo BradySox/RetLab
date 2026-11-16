@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 price: 3
 variants:
   VAP US M35 Truck: null

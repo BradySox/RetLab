@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 price: 10
 variants:
   VAP US M35 Gun Truck: null

@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: "The Warrior tracked vehicle family is a series of British armoured vehicles,\
   \ originally developed to replace the older FV430 series of armoured vehicles. The\
   \ Warrior started life as the MCV-80, \"Mechanised Combat Vehicle for the 1980s\"\

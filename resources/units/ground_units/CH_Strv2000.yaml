@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: The Stridsvagn 2000 (Strv 2000) T140/40, is a Swedish
   prototype main battle tank. Equipped with a massive 140 mm cannon
   and a side mounted 40 mm autocannon with a coaxial KSP 58 7.62 mm

@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: The Panther is a German medium tank deployed during World War II on the
   Eastern and Western Fronts in Europe from mid-1943 to the war's end in 1945. The
   Panther was intended to counter the Soviet T-34 and to replace the Panzer III and

@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: towed
 description:
 introduced: 
 manufacturer: 

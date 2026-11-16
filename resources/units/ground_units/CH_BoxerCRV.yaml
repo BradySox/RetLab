@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: "The Boxer CRV mounts the Lance turret with a 30 mm autocannon, giving the wheeled Boxer the firepower of a tracked IFV."
 introduced: 2019
 manufacturer: ARTEC

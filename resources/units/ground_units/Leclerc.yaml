@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: "The Leclerc tank (French: char Leclerc) is a main battle tank (MBT)\
   \ built by GIAT, now Nexter of France. It was named in honour of General Philippe\
   \ Leclerc de Hauteclocque, who led the French element of the drive towards Paris\

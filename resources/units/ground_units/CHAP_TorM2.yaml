@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 description: "The Tor (Russian: \xD0\xA2\xD0\xBE\xD1\x80; English: torus) is an all-weather, low-to 
   medium-altitude, short-range surface-to-air missile system designed for destroying airplanes, helicopters, 
   cruise missiles, unmanned aerial vehicles and short-range ballistic threats (anti-munitions). Originally 

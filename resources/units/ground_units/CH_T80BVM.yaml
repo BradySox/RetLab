@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: "The T-80 is a main battle tank (MBT) that was designed and manufactured in the former Soviet Union 
   and manufactured in Russia. The T-80 is based on the T-64, while incorporating features from the later T-72 
   and changing the engine to a gas turbine. When it entered service in 1976, it was the first production tank to 

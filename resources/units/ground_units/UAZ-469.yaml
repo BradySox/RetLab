@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 price: 3
 variants:
   LUV UAZ-469 Jeep: null

@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 price: 2
 variants:
   DIM' TOYOTA GREEN: null

@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: fixed
 price: 0
 variants:
   Watch tower armed: null

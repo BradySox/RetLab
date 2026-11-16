@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: towed
 price: 10
 variants:
   AAA 100mm KS-19: null

@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: Type 59
 introduced: 
 manufacturer: 

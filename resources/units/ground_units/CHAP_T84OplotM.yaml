@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: "The T-84 is a Ukrainian main battle tank (MBT), based on the Soviet T-80 MBT 
   introduced in 1976, specifically the diesel engine version: T-80UD. The T-84 was first built in 
   1994 and entered service in the Ukrainian Armed Forces in 1999. Its high-performance opposed-piston 

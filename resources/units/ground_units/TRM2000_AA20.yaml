@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 price: 8
 variants:
   TRM-2000 53T2: {}
