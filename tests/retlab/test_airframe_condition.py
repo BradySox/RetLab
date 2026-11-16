@@ -67,6 +67,7 @@ def _set_up(
         game=SimpleNamespace(
             date=when, settings=SimpleNamespace(restrict_props_by_date=False)
         ),
+        flies_in_darkness=lambda: False,
     )
     FlightGroupConfigurator.setup_props(configurator)
     return written
