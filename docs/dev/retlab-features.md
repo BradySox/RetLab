@@ -3279,6 +3279,24 @@ The 2026-06-28 modernization pass made it **data-driven + date-aware**:
   empty-pool fallback, Vietnam-era red is period-correct, US falls back without crashing, no-year =
   legacy behavior). Generic — a clean upstream-carve candidate alongside the §24 property gate.
 
+### Night goggles on night flights (2026-11-16)
+
+A flight whose start-up-to-landing window touches darkness at the middle of the theater
+(before sunrise or after sunset, `game/weather/daylight.py` `in_darkness`) gets goggles on every
+jet, player and AI. From juanjux/dcs-escalation #732, narrowed on a DM call:
+
+- A goggle-mount checkbox the jet carries but leaves off is ticked (`NVG_SWITCHES`: Harrier
+  `MountNVG`, Strike Eagle `MountNVG`, Mirage `LoadNVGCase`; A-6E, F-4E, Apache and Hind ship it on).
+- A helmet whose NVG value *adds* to the sight is upgraded: A-10C II `HMCS` -> `HMCS + NVG`.
+- **A helmet whose NVG value replaces the sight is left alone.** F-16C and F/A-18C offer `JHMCS`
+  or `NVG`, Ka-50 `HMS` or `NVG`; the DM keeps the sight. A pilot picks NVG in the payload tab.
+- A value set for the jet (saved defaults, the payload tab) is kept; a date-gated combined
+  sight is not fitted before its year when `restrict_props_by_date` is on.
+- AI vision in DCS does not use the property; on an AI jet it only changes the model.
+
+Code: `night_vision_overrides` in `game/dcs/aircraftproperties.py`, called from
+`FlightGroupConfigurator.setup_props`. Tests: `tests/dcs/test_night_vision.py`. Row B337.
+
 ## §26 — Off-mission combat fidelity + PLAYER_AT_IP fast-forward
 
 The simulation auto-resolves the engagements the player does **not** fly — the AI-vs-AI fights that

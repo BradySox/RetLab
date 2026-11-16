@@ -136,3 +136,36 @@ def theater_middle(theater: ConflictTheater) -> LatLng:
     x = sum(p.x for p in points) / len(points)
     y = sum(p.y for p in points) / len(points)
     return Point(x, y, theater.terrain).latlng()
+
+
+def _polar_daylight(latitude: float, day: datetime.date) -> bool:
+    """Whether a day with no sunrise or sunset is a polar day rather than a night."""
+    declination = -23.44 * math.cos(
+        2 * math.pi * (day.timetuple().tm_yday + 10) / 365.2425
+    )
+    return latitude * declination > 0
+
+
+def in_darkness(
+    latlng: LatLng,
+    tz: Optional[datetime.tzinfo],
+    start: datetime.datetime,
+    end: datetime.datetime,
+) -> bool:
+    """Whether any of a naive local start-to-end window falls before sunrise or
+    after sunset. Adapted from juanjux/dcs-escalation #732 (LGPL-3.0)."""
+    day = start.date()
+    while day <= end.date():
+        rise, down = sun_times(latlng, day, tz)
+        if rise is None or down is None:
+            if not _polar_daylight(latlng.lat, day):
+                return True
+        else:
+            sunrise, sunset = rise.replace(tzinfo=None), down.replace(tzinfo=None)
+            if sunrise <= sunset:
+                if start < sunrise or end >= sunset:
+                    return True
+            elif start < sunrise and end >= sunset:
+                return True
+        day += datetime.timedelta(days=1)
+    return False
