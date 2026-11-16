@@ -1,4 +1,6 @@
 class: SearchTrackRadar
+ground_mobility:
+  mode: towed
 price: 28
 variants:
   SAMP/T ARABEL STR: null

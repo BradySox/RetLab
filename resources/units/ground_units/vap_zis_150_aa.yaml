@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: self_propelled
 description:
 price: 7
 role: Self-Propelled Anti-Aircraft Gun

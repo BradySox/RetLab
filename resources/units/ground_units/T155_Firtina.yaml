@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: self_propelled
 description: "T-155 F\u0131rt\u0131na (English: Storm) is a Turkish 155 mm self-propelled\
   \ howitzer."
 introduced: 1998

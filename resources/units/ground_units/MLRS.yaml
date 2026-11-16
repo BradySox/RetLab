@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: self_propelled
 description: The M270 Multiple Launch Rocket System (M270 MLRS) is an armored, self-propelled,
   multiple rocket launcher (a type of rocket artillery). Since the first M270s were
   delivered to the U.S. Army in 1983, the MLRS has been adopted by several NATO countries.

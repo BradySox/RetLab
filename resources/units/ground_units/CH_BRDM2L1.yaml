@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: "The PT-76 is a Soviet amphibious light tank that was introduced in the\
   \ early 1950s and soon became the standard reconnaissance tank of the Soviet Army\
   \ and the other Warsaw Pact armed forces. It was widely exported to other friendly\

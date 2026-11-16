@@ -1,4 +1,6 @@
 class: APC
+ground_mobility:
+  mode: self_propelled
 description: "The BTR-D is a Soviet airborne multi-purpose tracked armoured personnel\
   \ carrier which was introduced in 1974 and first seen by the West in 1979 during\
   \ the Soviet\u2013Afghan War. BTR-D stands for Bronetransportyor Desanta (\u0411\

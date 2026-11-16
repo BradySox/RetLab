@@ -1,4 +1,6 @@
 class: APC
+ground_mobility:
+  mode: self_propelled
 description: "The BTR-80 (Russian: \u0431\u0440\u043E\u043D\u0435\u0442\u0440\u0430\
   \u043D\u0441\u043F\u043E\u0440\u0442\u0451\u0440, romanized: Bronyetransportyor,\
   \ literally \"Armoured Transporter\") is an 8\xD78 wheeled amphibious armoured personnel\

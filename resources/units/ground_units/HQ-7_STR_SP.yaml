@@ -1,4 +1,6 @@
 class: SearchTrackRadar
+ground_mobility:
+  mode: self_propelled
 price: 24
 variants:
   HQ-7 Self-Propelled STR: null

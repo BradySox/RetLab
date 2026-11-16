@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 description: "The Pantsir (Russian: \xD0\x9F\xD0\xB0\xD0\xBD\xD1\x86\xD0\xB8\xD1\x80\xD1\x8C, lit. '[body] 
   armour') missile system is a family of self-propelled, medium-range surface-to-air missile and 
   anti-aircraft artillery systems. Three types of vehicles make up one system: a missile launcher, 

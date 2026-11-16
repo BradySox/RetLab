@@ -1,4 +1,6 @@
 class: APC
+ground_mobility:
+  mode: self_propelled
 description: BV 410, a tracked all-terrain armoured vehicle.
 introduced: 2013
 manufacturer: Bofors Defence / BAE Systems Hägglunds

@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 description: 'he Roland is a Franco-German mobile short-range surface-to-air missile
   (SAM) system. '
 introduced: 1981

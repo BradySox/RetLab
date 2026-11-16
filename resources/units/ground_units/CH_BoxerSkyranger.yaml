@@ -1,4 +1,6 @@
 class: SHORAD
+ground_mobility:
+  mode: self_propelled
 description: "The Skyranger 30 turret on a Boxer hull: a 30 mm revolver cannon firing airburst ammunition, with Stinger missiles and its own search radar."
 introduced: 2024
 manufacturer: Rheinmetall

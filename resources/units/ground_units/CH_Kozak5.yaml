@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 price: 5
 variants:
   "[CH] Kozak-5 APC": null

@@ -1,0 +1,58 @@
+# Ground movement (port of Juan's dcs-escalation ground movement)
+
+Status: stage 1 of 7 built (2026-11-16). Nothing a player sees yet.
+
+Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
+LGPL-3.0, ported by hand: his tree and ours split long ago.
+
+## What it will do
+
+- Order an armor group, or part of it, to a friendly base, a front, or a map point between
+  turns. It covers a set distance a turn and keeps going over several turns; in the mission
+  it is a real convoy where it has got to.
+- Towed guns need one tractor each. Losses on the road come off the group.
+- Spare armor in a base's stock can deploy as a reserve group. A reserve the front reaches
+  joins the front.
+- A whole mobile SAM battery can relocate: offline while packed, back in the IADS on arrival.
+- Supply convoys keep their place across turns.
+
+## DM calls (2026-11-16)
+
+- Port all of it, in stages, armor first, then SAMs.
+- On for new games; old saves keep it off.
+- 120 miles a turn by road, 60 off-road (his defaults).
+- Red moves only when the outside AI (§109) orders it; our planner never moves red.
+
+## Stages
+
+| # | Stage | State |
+|---|---|---|
+| 1 | Mobility catalog: which units drive, need a tow, or never move | **Built** |
+| 2 | Supply convoys keep their place across turns | — |
+| 3 | Move an armor group; the setting and the per-turn distances | — |
+| 4 | Reserve groups from base stock; joining the front | — |
+| 5 | Mobile SAM battery moves (fog reset, Skynet relink) | — |
+| 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | — |
+| 7 | Red moves through the outside AI | — |
+
+## Rules it must keep
+
+- A mover gets a 2-waypoint route; one undrivable member pins a group. `mobile: false`
+  (§49's flag) always means fixed, whatever `ground_mobility` says.
+- Movers last 90 minutes; no phantom units; losses book natively.
+- A red SAM or armor group that moves goes back to unknown on blue's map (§3) until it is
+  engaged or heard again.
+- A reserve that joins a front adds to that front's force weight under §90's rules, not his.
+- Our Skynet is range-wired; a moved battery relinks by range on arrival. We do not rebuild
+  the IADS every turn as he does.
+
+## Stage 1: the mobility catalog
+
+- `game/groundmovement/mobility.py`: `MobilityMode` (unknown, fixed, self_propelled, towed),
+  `GroundMobility` (mode, can_tow), `movement_mobility(unit)`.
+- `GroundUnitType.ground_mobility`, read from `ground_mobility:` in each
+  `resources/units/ground_units/*.yaml`. 528 blocks copied from his files by filename.
+- Infantry and MANPADS walk and never tow. Unreviewed units are unknown and never move:
+  83 of 723 today, mostly RetLab-only mod units (the Iran pack, CurrentHill extras, fuel
+  trucks). Classify them before stage 5 needs them.
+- Tests: `tests/groundmovement/test_mobility.py`.

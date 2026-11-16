@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: The BMD-2 is a Soviet airborne infantry fighting vehicle, a BMD-1 with a new
   turret carrying a 30 mm cannon and an anti-tank missile launcher.
 introduced: 1985

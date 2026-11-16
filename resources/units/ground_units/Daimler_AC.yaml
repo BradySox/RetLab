@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: The Daimler Armoured Car was a successful British armoured car design
   of the Second World War that continued in service into the 1950s. It was designed
   for armed reconnaissance and liaison purposes. During the postwar era, it doubled

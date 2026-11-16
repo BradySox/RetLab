@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 description: Type 94 Logistics Truck
 introduced: 1934
 manufacturer:

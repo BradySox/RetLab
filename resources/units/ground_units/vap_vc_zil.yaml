@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 description:
 price: 7
 role: Armed Truck

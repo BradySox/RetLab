@@ -1,4 +1,6 @@
 class: Launcher
+ground_mobility:
+  mode: towed
 price: 36
 variants:
   SAMP/T TEL Block 1NT: null

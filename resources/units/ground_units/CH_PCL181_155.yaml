@@ -1,4 +1,6 @@
 class: Artillery
+ground_mobility:
+  mode: self_propelled
 description: The PCL-181 is a Chinese truck-mounted, 155 mm self-propelled
   howitzer used by the People's Liberation Army Ground Force (PLAGF). This
   is the HE variant.

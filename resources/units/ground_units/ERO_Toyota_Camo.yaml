@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 price: 2
 variants:
   ERO Toyota Camo: null

@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: 'The High Mobility Multipurpose Wheeled Vehicle (HMMWV; colloquial: Humvee)
   is a family of light, four-wheel drive, military trucks and utility vehicles produced
   by AM General.'

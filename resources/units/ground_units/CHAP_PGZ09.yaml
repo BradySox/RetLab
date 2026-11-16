@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: self_propelled
 description: The PGZ-09 is a Chinese self-propelled anti-aircraft gun with twin 35 mm
   cannons and its own search and tracking radar. It replaced the Type 95 from 2009.
 introduced: 2009

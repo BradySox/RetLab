@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description:
   The FV4201 Chieftain was the main battle tank of the United Kingdom during
   the 1960s, 1970s and 1980s.

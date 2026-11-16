@@ -1,4 +1,6 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
 description: The ZIL-131 is a Soviet 6x6 general-purpose army truck.
 introduced: 1966
 manufacturer: ZIL

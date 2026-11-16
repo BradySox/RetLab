@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: towed
 description: Type 88 75mm Anti-Aircraft Artillery
 introduced: 1928
 manufacturer: 

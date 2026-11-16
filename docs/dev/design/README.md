@@ -59,7 +59,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   `retlab-observer-gated-artillery-notes.md` (scoping only),
   `retlab-front-movement-arrows-notes.md` (built 2026-09-23, row B139),
   `retlab-sector-war-notes.md` (§111; Brady's 2026-10-12 choices and the build steps),
-  `retlab-trains-notes.md` (§123: trains on drawn rail lines; what the probes showed)
+  `retlab-trains-notes.md` (§123: trains on drawn rail lines; what the probes showed),
+  `retlab-ground-movement-notes.md` (Juan's ground movement, ported in 7 stages; stage 1 built)
 - **Tankers** — `retlab-tanker-box-notes.md` (per-flight orbit speed, the 40 NM racetrack
   every theater tanker flies, and why the four-corner box was removed 2026-10-09; rows
   B152/B206)

@@ -1,4 +1,6 @@
 class: SearchTrackRadar
+ground_mobility:
+  mode: towed
 price: 45
 variants:
   SAMP/T Ground Fire 300 STR: null

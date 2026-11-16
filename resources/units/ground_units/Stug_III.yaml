@@ -1,4 +1,6 @@
 class: ATGM
+ground_mobility:
+  mode: self_propelled
 description:
   The Sturmgeschtz III (StuG III) assault gun was Germany's most-produced fully
   tracked armoured fighting vehicle during World War II, and second-most

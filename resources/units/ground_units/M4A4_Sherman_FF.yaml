@@ -1,4 +1,6 @@
 class: ATGM
+ground_mobility:
+  mode: self_propelled
 description: The Sherman Firefly was a tank used by the United Kingdom and some Commonwealth
   and Allied armoured formations in the Second World War. It was based on the US M4
   Sherman, but fitted with the more powerful 3-inch (76.2 mm) calibre British 17-pounder

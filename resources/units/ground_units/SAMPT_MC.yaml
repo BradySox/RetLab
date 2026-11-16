@@ -1,4 +1,6 @@
 class: CommandPost
+ground_mobility:
+  mode: towed
 price: 18
 variants:
   SAMP/T C2: null

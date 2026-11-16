@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: "The Panhard ERC (Engin \xE0 Roues, Canon) is a French six-wheeled armoured\
   \ car which is highly mobile and amphibious with an option of being NBC-proof."
 introduced: 1975

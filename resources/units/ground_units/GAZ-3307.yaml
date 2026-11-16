@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 price: 2
 variants:
   Truck GAZ-3307: null

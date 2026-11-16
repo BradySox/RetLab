@@ -1,4 +1,6 @@
 class: AAA
+ground_mobility:
+  mode: self_propelled
 description: A ZU-23-2 twin 23 mm anti-aircraft gun mounted on the bed of an Ural-4320
   6x6 truck.
 introduced: 1977

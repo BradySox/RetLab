@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: The AMN-2 Atlet is a Russian wheeled mine-resistant armoured vehicle for
   troop transport and patrol, armed with a roof-mounted machine gun.
 introduced: 2021

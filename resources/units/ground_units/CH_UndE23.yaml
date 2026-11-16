@@ -1,4 +1,6 @@
 class: SearchRadar
+ground_mobility:
+  mode: self_propelled
 price: 22
 variants:
   "SAM UndE 23 (RBS 70/90/98) STR": null

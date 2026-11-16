@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: The Marder (German for "marten") is a German infantry fighting vehicle
   operated by the German Army as the main weapon of the Panzergrenadiere (mechanized
   infantry) from the 1970s through to the present day. Developed as part of the rebuilding

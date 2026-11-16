@@ -1,4 +1,6 @@
 class: ATGM
+ground_mobility:
+  mode: self_propelled
 description:
   The Elefant (German for "elephant") was a heavy tank destroyer used by German
   Wehrmacht Panzerjäger during World War II. Ninety-one units were built in 1943

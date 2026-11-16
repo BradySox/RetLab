@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 price: 3
 variants:
   "Truck M1083 A1P2 MTV [CH]": null

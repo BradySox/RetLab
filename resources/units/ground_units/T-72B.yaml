@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description: The T-72 is a family of Soviet/Russian main battle tanks that first entered
   production in 1971. About 20,000 T-72 tanks have been built, and refurbishment has
   enabled many to remain in service for decades. The T-72A version introduced in 1979

@@ -1,4 +1,6 @@
 class: Tank
+ground_mobility:
+  mode: self_propelled
 description:
   The Sturmpanzer (also known as Sturmpanzer 43 or Sd.Kfz. 166) was a German
   armoured infantry support gun based on the Panzer IV chassis used in the

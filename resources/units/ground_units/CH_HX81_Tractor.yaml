@@ -1,4 +1,7 @@
 class: Logistics
+ground_mobility:
+  mode: self_propelled
+  can_tow: true
 description: "The HX81 tractor without its trailer."
 introduced: 2012
 manufacturer: Rheinmetall MAN

@@ -1,4 +1,6 @@
 class: IFV
+ground_mobility:
+  mode: self_propelled
 description: 'The M2 Bradley, or Bradley IFV, is an American infantry fighting vehicle
   that is a member of the Bradley Fighting Vehicle family. It is manufactured by BAE
   Systems Land & Armaments, which was formerly United Defense. The Bradley is designed

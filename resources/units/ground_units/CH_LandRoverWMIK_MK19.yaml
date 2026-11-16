@@ -1,4 +1,6 @@
 class: Recon
+ground_mobility:
+  mode: self_propelled
 description: The WMIK Mk19 variant provides British light forces with a mobile automatic grenade launcher platform for convoy security and reconnaissance missions.
 introduced: 1998
 manufacturer: Land Rover
