@@ -57,7 +57,6 @@ def test_core_plugins_load_even_in_an_idle_mission(plugin_id: str) -> None:
         ("c130j", {"ew_c130j_flights": 0}),
         ("opscsar", {"csar_active": False}),
         ("skynetiads", {"iads_nodes": 0}),
-        ("lotatc", {"iads_nodes": 0}),
     ],
 )
 def test_each_rule_turns_off_only_its_plugin(

@@ -39,7 +39,6 @@ from .commcard import CommCardPage
 from .support import (
     FriendlyPackagesPage,
     SupportPage,
-    build_airfield_directory_rows,
 )
 from .pages import KneeboardIndexPage, NotesPage, SavedPointsPage, SitrepPage
 from .voicepages import AbcccPage, AtcPage, SkyEyeAwacsPage, VacuumPage
@@ -286,12 +285,6 @@ class KneeboardGenerator(MissionInfoGenerator):
             self.game.theater.timezone if flight.aircraft_type.utc_kneeboard else None
         )
 
-        airfield_rows = (
-            build_airfield_directory_rows(self.game, flight, self.atis_by_name)
-            if self.atis_by_name
-            else []
-        )
-
         # De-duplication (design §4): drop blocks from the always-on Mission Info page
         # when an enabled optional page already carries the same data, so nothing is
         # printed twice. Each is conditional on the *other* page existing, so a deck
@@ -316,7 +309,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 self.game.coalition_for(flight.friendly).bullseye,
                 self.game.conditions.weather,
                 self.dark_kneeboard,
-                atis_by_name=self.atis_by_name,
                 theater=self.game.theater,
                 omit_weather=omit_weather,
                 bluf_lines=bluf_lines,
@@ -339,7 +331,6 @@ class KneeboardGenerator(MissionInfoGenerator):
                 self.tankers,
                 self.jtacs,
                 self.dark_kneeboard,
-                airfield_rows=airfield_rows,
                 zulu_tz=zulu_tz,
                 voice_awacs=self.voice_awacs,
                 strike=(

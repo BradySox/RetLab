@@ -2,22 +2,18 @@
 
 import datetime
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING, Tuple
+from typing import List, Optional, Tuple
 
 from PIL import ImageFont
 
 from game.dcs.aircrafttype import AirRefuelType
 from game.radio.radios import RadioFrequency
 from game.retlab.voiceawacs import VoiceAwacsInfo
-from game.runways import ils_label, runway_label
-from game.theater.controlpoint import Airfield
 from ..aircraft.flightdata import FlightData
 from ..briefinggenerator import CommInfo, JtacInfo
 from ..kneeboard_page import KneeboardPage
 from ..missiondata import AwacsInfo, TankerInfo
 
-if TYPE_CHECKING:
-    from game import Game
 from .writer import (
     KneeboardPageWriter,
     TableKneeboardPage,
@@ -107,7 +103,6 @@ class SupportPage(KneeboardPage):
         tankers: List[TankerInfo],
         jtacs: List[JtacInfo],
         dark_kneeboard: bool,
-        airfield_rows: Optional[List[List[str]]] = None,
         zulu_tz: Optional[datetime.tzinfo] = None,
         voice_awacs: Optional[VoiceAwacsInfo] = None,
         strike: Optional[RadioFrequency] = None,
@@ -123,45 +118,14 @@ class SupportPage(KneeboardPage):
         self.jtacs = jtacs
         self.zulu_tz = zulu_tz
         self.dark_kneeboard = dark_kneeboard
-        self.airfield_rows = airfield_rows or []
-
-    #: Folded "Airfield Directory" table presentation, shared by the inline
-    #: render and any continuation page that catches its overflow.
-    AIRFIELD_HEADING = "Airfield Directory"
-    AIRFIELD_HEADERS = ["Field", "ATC", "ATIS", "TCN", "I(C)LS", "RWY"]
-    AIRFIELD_FONT_SIZE = 20
-
-    def _airfield_title(self) -> str:
-        custom = f' ("{self.flight.custom_name}")' if self.flight.custom_name else ""
-        return f"{self.flight.callsign} Airfield Directory{custom}"
 
     def write(self, path: Path) -> None:
         writer = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
         self._render(writer)
         writer.write(path)
 
-    def paginate(self) -> List[KneeboardPage]:
-        # Carry any airfield-directory rows that spilled past the bottom onto
-        # continuation page(s). The probe image is discarded; write() re-renders.
-        probe = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
-        overflow = self._render(probe)
-        pages: List[KneeboardPage] = [self]
-        if overflow:
-            pages.extend(
-                TableKneeboardPage(
-                    self._airfield_title(),
-                    self.AIRFIELD_HEADING,
-                    self.AIRFIELD_HEADERS,
-                    overflow,
-                    self.AIRFIELD_FONT_SIZE,
-                    self.dark_kneeboard,
-                    continued=True,
-                ).paginate()
-            )
-        return pages
-
-    def _render(self, writer: KneeboardPageWriter) -> List[List[str]]:
-        """Draw the Support Info page; return airfield rows that overflowed."""
+    def _render(self, writer: KneeboardPageWriter) -> None:
+        """Draw the Support Info page."""
         if self.flight.custom_name:
             custom_name_title = ' ("{}")'.format(self.flight.custom_name)
         else:
@@ -296,32 +260,16 @@ class SupportPage(KneeboardPage):
                 w.table(cells, headers=hdr)
                 w.vspace(section_gap)
 
-        # When there's no airfield directory below, distribute the leftover
-        # vertical space as even gaps so the tables breathe down the page
-        # (light underline-rule headings, no boxes). With a directory present we
-        # use a small fixed gap and let the directory fill the rest (it paginates).
-        gap = 12
-        if not self.airfield_rows:
-            probe = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
-            probe.y = writer.y
-            render_sections(probe, 0)
-            leftover = (writer.image_size[1] - writer.page_margin) - probe.y
-            n_blocks = len(sections)
-            gap = int(max(12, min(90, leftover // max(1, n_blocks))))
+        # Spread the leftover vertical space as even gaps so the tables breathe
+        # down the page (light underline-rule headings, no boxes).
+        probe = KneeboardPageWriter(dark_theme=self.dark_kneeboard)
+        probe.y = writer.y
+        render_sections(probe, 0)
+        leftover = (writer.image_size[1] - writer.page_margin) - probe.y
+        n_blocks = len(sections)
+        gap = int(max(12, min(90, leftover // max(1, n_blocks))))
 
         render_sections(writer, gap)
-
-        # Airfield Directory (friendly fields: ATC / ATIS / TACAN / I(C)LS / RWY).
-        # Rows that don't fit spill onto a continuation page (see paginate()).
-        overflow: List[List[str]] = []
-        if self.airfield_rows:
-            writer.text(self.AIRFIELD_HEADING, font=writer.heading_font)
-            writer.rule()
-            overflow = writer.table_paginated(
-                self.airfield_rows,
-                headers=self.AIRFIELD_HEADERS,
-            )
-        return overflow
 
     def package_rows(self) -> List[List[str]]:
         """The package table: flights only, this one first. The nets (STRIKE,
@@ -364,42 +312,3 @@ class SupportPage(KneeboardPage):
             return ""
         time -= datetime.timedelta(microseconds=time.microseconds)
         return f"{time}"
-
-
-def build_airfield_directory_rows(
-    game: "Game",
-    flight: "FlightData",
-    atis_by_name: dict[str, RadioFrequency],
-) -> List[List[str]]:
-    """Build directory rows (Field | ATC | ATIS | TCN | I(C)LS | RWY) for all
-    blue airfields, sorted by name."""
-
-    def fmt(freq: Optional[RadioFrequency]) -> str:
-        if freq is None:
-            return ""
-        channel = flight.channel_for(freq)
-        if channel is None:
-            return str(freq)
-        name = flight.aircraft_type.channel_name(channel.radio_id, channel.channel)
-        return f"{name}\n{freq}"
-
-    rows: List[List[str]] = []
-    airfields = [
-        cp
-        for cp in game.theater.controlpoints
-        if isinstance(cp, Airfield) and cp.is_friendly(flight.friendly)
-    ]
-    surface_wind_mps = game.conditions.weather.wind.at_0m.speed
-    for cp in sorted(airfields, key=lambda c: c.full_name):
-        rw = cp.active_runway(game.theater, game.conditions, {})
-        rows.append(
-            [
-                cp.full_name,
-                fmt(rw.atc),
-                fmt(atis_by_name.get(cp.full_name)),
-                str(rw.tacan) if rw.tacan is not None else "",
-                ils_label(rw),
-                runway_label(rw.runway_name, surface_wind_mps),
-            ]
-        )
-    return rows

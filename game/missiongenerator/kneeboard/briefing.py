@@ -80,7 +80,6 @@ class BriefingPage(KneeboardPage):
         bullseye: Bullseye,
         weather: Weather,
         dark_kneeboard: bool,
-        atis_by_name: Optional[dict[str, RadioFrequency]] = None,
         theater: Optional["ConflictTheater"] = None,
         omit_weather: bool = False,
         bluf_lines: Optional[List[str]] = None,
@@ -107,7 +106,6 @@ class BriefingPage(KneeboardPage):
         self.zulu_tz = zulu_tz
         self.dark_kneeboard = dark_kneeboard
         self.theater = theater
-        self.atis_by_name = atis_by_name or {}
         # BLUF (bottom line up front): the few items a pilot needs even if this is
         # the only kneeboard page they read -- task/TOT, JAM BACKUP,
         # the compact threat picture, loadout and SAR guidance. Composed by the
@@ -149,8 +147,6 @@ class BriefingPage(KneeboardPage):
 
         writer.heading("Airfield Info")
         writer.rule()
-        # Only show the ATIS column when ATIS is in play (plugin enabled), so a
-        # mission without ATIS sees no kneeboard change (design §5).
         # A flight with no divert field gets no Divert row, not an empty one.
         fields = [
             ("Departure", self.flight.departure),
@@ -158,16 +154,10 @@ class BriefingPage(KneeboardPage):
         ]
         if self.flight.divert is not None:
             fields.append(("Divert", self.flight.divert))
-        if self.atis_by_name:
-            writer.table(
-                [self._row_with_atis(title, runway) for title, runway in fields],
-                headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY", "ATIS"],
-            )
-        else:
-            writer.table(
-                [self.airfield_info_row(title, runway) for title, runway in fields],
-                headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY"],
-            )
+        writer.table(
+            [self.airfield_info_row(title, runway) for title, runway in fields],
+            headers=["", "Airbase", "ATC", "TCN", "I(C)LS", "RWY"],
+        )
 
         writer.heading(
             f"Flight Plan ({self.flight.squadron.aircraft.variant_id} - "
@@ -436,16 +426,6 @@ class BriefingPage(KneeboardPage):
         moved = "   ** MOVED THIS TURN **" if self.bullseye_moved else ""
         coords = format_dms_suffix(self.bullseye.position.latlng())
         return f"Bullseye: {where}{coords}{moved}"
-
-    def _row_with_atis(self, row_title: str, runway: Optional[RunwayData]) -> List[str]:
-        row = self.airfield_info_row(row_title, runway)
-        atis = ""
-        if runway is not None:
-            freq = self.atis_by_name.get(runway.airfield_name)
-            if freq is not None:
-                atis = self.format_frequency(freq)
-        row.append(atis)
-        return row
 
     def format_frequency(self, frequency: RadioFrequency) -> str:
         channels = self.flight.channels_for(frequency)

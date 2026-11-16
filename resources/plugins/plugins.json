@@ -3,7 +3,6 @@
     "ctld",
     "c130j",
     "skynetiads",
-    "lotatc",
     "splashdamage3",
     "airboss",
     "intercept",
@@ -21,10 +20,6 @@
     "voiceatc",
     "radiorecord",
     "neutralborder",
-    "bigeye",
-    "MooseSoundhandler",
-    "MooseMarkerOps",
-    "MooseAtis",
     "opscsar",
     "ai_reaction",
     "profiler"

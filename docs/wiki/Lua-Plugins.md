@@ -71,9 +71,6 @@ setting off costs nothing at runtime.
 |---|---|---|
 | `base` | on | Mandatory core scripts, `Moose.lua`, and the sortie recorder. |
 | `ctld` | on | CTLD on MOOSE (Ops.CTLD) — sling-loading crates, deploying troops and vehicles, JTAC lasing through AUTOLASE, and the AI loader. Also carries the §76 paradrop runtime. |
-| `MooseSoundhandler` | off | Radio-call and combat sound effects on in-game events. |
-| `MooseMarkerOps` | off | Host tool: any player types a command into an F10 map marker to explode, illuminate, smoke, destroy, send home, refuel or make immortal what is near it. |
-| `MooseAtis` | off | MOOSE ATIS broadcasts. Injects only the current map's spoken field names. |
 
 ### Air defense, EW and ISR
 
@@ -82,8 +79,6 @@ setting off costs nothing at runtime.
 | `skynetiads` | on | **Skynet-IADS** (upstream's) — SAM/EWR networking, HARM defence, point defence, mobile-SAM shoot-and-scoot, the advanced comms/power/command graph. Its F10 debug menus are off by default. The fork's build adds HDSUC and CurrentHill SAM profiles; see [IADS Engine: Skynet](IADS-Engine-Skynet). |
 | `c130j` | on | Turns the player C-130J into an EC-130H Compass Call (jamming) and RC-130H Rivet Joint (ISR/ELINT) platform — `FlightType.JAMMING`. Supersedes the retired generic `ewrj`. |
 | `gpsjamming` | always | GPS denial — satellite-guided weapons released inside the bubble land long. Inert unless a live GPS-jamming group is on the map. |
-| `bigeye` | off | BigEye EWR — text threat reports to pilots, prioritised by contact danger. |
-| `lotatc` | off | Exports anti-air sites to LotATC so GCI controllers see the SAM/AAA picture. Blue sees only the red sites it has found. |
 | `neutralborder` | always | Neutral-country border defense: SAM batteries inside each non-belligerent border, a radio hail on entry, the whole country turning hostile when pressed. Inert unless the setting is on. |
 
 ### Ground war and the front line

@@ -547,6 +547,13 @@ REMOVED: tuple[Removed, ...] = (
         "2026-11-14",
         r"Black Sea Coast 1985|black_sea_coast_1985",
     ),
+    Removed(
+        # Five optional plugins no save or generated mission ever switched on.
+        "the Soundhandler, marker-command, ATIS, BigEye and LotATC plugins",
+        "2026-11-16",
+        r"\bMooseSoundhandler\b|\bMooseMarkerOps\b|\bMooseAtis\b|Moose ATIS"
+        r"|BigEye EWR|`bigeye`|LotATC Export|`lotatc`",
+    ),
 )
 
 

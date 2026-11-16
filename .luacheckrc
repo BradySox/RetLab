@@ -21,11 +21,7 @@ exclude_files = {
     "resources/plugins/base/land_relocate.lua",
     "resources/plugins/base/water_relocate.lua",
     "resources/plugins/airboss/*",
-    "resources/plugins/bigeye/*",
     "resources/plugins/ctld/*",
-    "resources/plugins/lotatc/*",
-    "resources/plugins/MooseMarkerOps/*",
-    "resources/plugins/MooseSoundhandler/*",
     "resources/plugins/skynetiads/*",
     "resources/plugins/splashdamage3/*",
 }

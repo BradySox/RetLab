@@ -20,7 +20,7 @@ Settings can be exported/imported as .zip; a `Default.zip` in the settings direc
 
 ## Plugins (defaults)
 
-ON by default: **base** (mandatory), **CTLD** (needed for Air Assault/airlift zones), **Skynet IADS**. Everything else OFF: Moose Autolase / MarkerOps / Soundhandler / Airboss, Arty Spotter, Mbot Call Artillery, BigEye EWR, EWRS, DCS Dismounts (FPS-killer), EW Jammer 2.0, C-130 cargo (Anubis mod), LotATC Export, Splash Damage.
+ON by default: **base** (mandatory), **CTLD** (needed for Air Assault/airlift zones), **Skynet IADS**. Everything else OFF: Moose Autolase / MarkerOps / Soundhandler / Airboss, Arty Spotter, Mbot Call Artillery, BigEye EWR, EWRS, DCS Dismounts (FPS-killer), EW Jammer 2.0, C-130 cargo (Anubis mod), LotATC Export, Splash Damage. (Upstream's list. RetLab removed MarkerOps, Soundhandler, BigEye, LotATC and ATIS on 2026-11-16.)
 
 Skynet trade-off (upstream's own framing): fixes DCS SAM crudeness (networked tracks, radar discipline vs HARMs, engagement logic, performance) but is a large-MP coordination challenge that degrades AI SEAD. Solo/small group → consider turning it off despite the default.
 
@@ -40,8 +40,6 @@ Skynet trade-off (upstream's own framing): fixes DCS SAM crudeness (networked tr
 >   `restrict_props_by_date` (era-gated payload-editor *properties*, e.g. JHMCS), enforceable
 >   independently.
 > - Pretense is **removed** from the fork.
-
-LotATC export: set `LOTATC_DRAWINGS_DIR` env var on the host (LotATC 2.2+: `C:\users\<you>\LotAtc Data\Server\drawings\`); drawings generate once at mission start per selected faction.
 
 ## Performance doctrine (upstream guidance)
 

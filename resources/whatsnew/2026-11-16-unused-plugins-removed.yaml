@@ -1,0 +1,9 @@
+date: 2026-11-16
+title: Five unused plugins removed
+change: >-
+  Moose Soundhandler, the F10 marker commands, Moose ATIS, BigEye EWR and the
+  LotATC export are gone. The kneeboard's ATIS column and Airfield Directory,
+  which only appeared with ATIS on, went with them.
+watch: >-
+  The Lua Plugins page lists five fewer plugins. Saves that had any of them
+  ticked load normally and simply drop the setting.

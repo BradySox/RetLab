@@ -22,7 +22,7 @@ from .writer import (
 )
 from .packagesmap import PackagesMapPage
 from .taskpages import SeadTaskPage, StrikeTaskPage
-from .support import SupportPage, build_airfield_directory_rows
+from .support import SupportPage
 from .threatintel import (
     ThreatCard,
     ThreatIntelBriefPage,
@@ -48,7 +48,6 @@ __all__ = [
     "_brief_loadout",
     "_brief_sam_threats",
     "_labelled_time",
-    "build_airfield_directory_rows",
     "build_threat_intel_cards",
     "format_kneeboard_time",
     "format_kneeboard_time_inline",

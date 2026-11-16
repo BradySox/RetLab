@@ -11,7 +11,7 @@ in the same change. `git show <this commit>^:docs/dev/design/<name>` recovers th
 The fork runs upstream's Skynet-IADS again, on upstream's MIST. The MOOSE MANTIS bridge
 (`mantisiads`, 2026-06-24 to 2026-09-12) and the MIST-to-MOOSE shim (`mist_moose_shim.lua`,
 2026-07-10 to 2026-09-12) are removed. Every other MOOSE plugin stays: upstream bundles
-`Moose.lua` itself, and QRA, TIC, CSAR, Vietnam Ops, cruise missiles, ATIS and BigEye run on it.
+`Moose.lua` itself, and QRA, TIC, CSAR, Vietnam Ops, and cruise missiles run on it.
 
 Scope was put to the DM as a choice and the answer was "Skynet + MIST only".
 
