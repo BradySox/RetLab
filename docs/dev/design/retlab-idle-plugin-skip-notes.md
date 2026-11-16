@@ -22,18 +22,17 @@ change nothing in the mission.
 | airboss | no carrier or LHA in `mission_data.carriers` | sets up on the blue carriers and LHAs it finds; a deck out of action is not in that list and cannot recover anyway |
 | c130j | no C-130J-30 flight outside `EwExcludedGroups` | claims only C-130J-30 units not on that list |
 | opscsar | CSAR off for both sides and no CSAR or Sandy flight | no Ops.CSAR instance, no downed pilots, no King |
-| skynetiads, lotatc | the IADS has no node on either side | Skynet has nothing to network; LotATC stops without `redIADS`/`blueIADS` |
+| skynetiads | the IADS has no node on either side | Skynet has nothing to network |
 | ctld | no Transport or Air Assault flight and no JTAC | CTLD menus go only to `transportPilotNames`; autolase only to `JTACs` |
 | 14 settings plugins | their `dcsRetribution` table was not written | each stops on its first lines without it (gpsjamming's handler returns at once) |
 
 Never left out: `base` (MOOSE and the state writer), Splash Damage, smart threat reaction,
-QRA intercept, and the opt-in host tools (BigEye, Soundhandler, marker commands, ATIS, the
-profiler). A host who ticked an opt-in tool wants it.
+QRA intercept, and the opt-in profiler. A host who ticked an opt-in tool wants it.
 
 ## Adding a rule
 
-- Check the script for a global another plugin reads before leaving it out (2026-11-12: only
-  LotATC reads another plugin's globals, Skynet's).
+- Check the script for a global another plugin reads before leaving it out (none does since
+  LotATC was removed 2026-11-16).
 - A settings plugin goes in `DATA_GATED_PLUGINS` only if its table is written solely when it
   has work. `test_data_gated_plugin_reads_its_table` checks the script reads the table and
   Python writes it.

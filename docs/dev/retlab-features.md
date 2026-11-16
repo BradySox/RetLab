@@ -958,8 +958,8 @@ the rows that fit inline and spill the remainder onto an auto-paginating generic
 later pages marked "(cont.)"). The folded inline list is unchanged when everything fits, so
 small theaters see no extra pages. The Friendly Packages list + package-targets map are gated
 by `generate_all_packages_kneeboard`, now **default OFF** (it adds pages and can paginate on
-busy theaters); the Airfield Directory still folds in whenever ATIS is present. Covered by
-`tests/test_airfield_directory_page.py::test_support_page_spills_long_airfield_directory_to_continuation`.
+busy theaters). The Airfield Directory only ever folded in when ATIS was on; it was removed
+with the ATIS plugin on 2026-11-16, and Support Info no longer paginates.
 The satellite-imagery recon pages ship gated OFF by `generate_target_recon_kneeboard`; the
 marker/tile geometry bug that kept them off was root-caused and **fixed 2026-07-18** — the
 dominant error was the DCS-vs-real-world terrain georeference offset (~350 m median on
@@ -1146,8 +1146,7 @@ were reworked: (1) **`CombatSarTaskPage`** — each guidance section (ROLE / HOW
 PICKUP|ON-SCENE COMMAND / BEACON) is a heading + rule + larger body text, with the leftover
 height distributed as capped even gaps so a short brief doesn't yawn; (2) **`SupportPage`** —
 the Package / AEW&C / Tankers / JTAC tables get the same heading+rule treatment, spaced to
-span the page (gap grows when there's no Airfield Directory below; otherwise a fixed gap
-leaves room for the directory and its pagination); (3) the Friendly Packages list renders in
+span the page; (3) the Friendly Packages list renders in
 **two side-by-side columns** once it would overflow a single column, using the wasted right
 half of the page (only > ~2× a column's capacity still paginates). The recon pages are
 untouched (still golden-tested). This is a visual change CI can't exercise — see in-game-pass
@@ -2361,8 +2360,8 @@ that code.
   A mission with no carrier still loaded Airboss, one with no helicopter flights loaded CTLD's
   450 KB. `game/missiongenerator/idleplugins.py` leaves a plugin out when the script would
   stop on its own check: Airboss with no carrier or LHA, C-130J Mission Systems with no
-  mission-systems C-130J-30, Ops.CSAR with CSAR off both sides and no rescue flight, Skynet and
-  the LotATC export with an empty IADS, CTLD with no Transport or Air Assault flight and no
+  mission-systems C-130J-30, Ops.CSAR with CSAR off both sides and no rescue flight, Skynet
+  with an empty IADS, CTLD with no Transport or Air Assault flight and no
   JTAC, and the 14 settings-driven plugins whose `dcsRetribution` table was not written. The
   Retribution log names each one left out. A new rule must match a check the script makes;
   `retlab-idle-plugin-skip-notes.md`. Tests: `tests/missiongenerator/test_idle_plugins.py`;
@@ -2702,8 +2701,6 @@ part that rots, so it was checked line by line rather than inferred from names:
   `SetCarrierControlledArea` in `SetupAirboss`, which runs whether or not the rescue helo
   is enabled. Greying it would have hidden a live setting. Since 2026-10-15 its label says
   so: "Carrier controlled area radius (NM)".
-- `bigeye.defaultEnableReportPreference` is a per-player *default* that players toggle in
-  the radio menu; the report-frequency options still apply once reports are on.
 - `gpsjamming.missPower` / `missPowerScalePct` are a fallback and a scale that coexist,
   not a master and a dependant. `missPower` left the options page 2026-10-15.
 
@@ -2726,8 +2723,6 @@ that reads it. None was dead and none was left from the 2026-10-12 removals. Wha
 - **Imperial units.** Skynet's scoot distances are in feet (`...ScootDistanceFt`, converted
   in `skynetiads-config.lua`), the naval formation release in NM (`formationReleaseNm`), and
   COIN's converted numbers are rounded (2 NM, 14 kt, 800 ft).
-- **LotATC** exports a red site only once blue knows it (`lotatc_exports` in
-  `luagenerator.py`, the §3 fog). Blue sites are always exported; red is never fogged.
 - **Engineer knobs off the page:** `gpsjamming.missPower`, `trackStepS`, `maxTrackS`,
   `briefing.startGraceS`, `coin.vbiedRepathS`, `infilRepathS`. The Lua still reads them, so
   the harness tests can set them; a mission always gets the script default.
@@ -2737,8 +2732,10 @@ that reads it. None was dead and none was left from the 2026-10-12 removals. Wha
 - **Saves shed dead keys.** `LuaPluginManager.prune_settings` drops any stored key no
   plugin or option declares, replacing the hand-kept list of retired plugins in
   `Settings.__setstate__`.
-- MarkerOps' radius commands (SmokeZone, RTB, Refuel, Immortal, Mortal) ignored the typed
-  radius: a shadowing `local n`. Fixed.
+- **Removed 2026-11-16:** the `MooseSoundhandler`, `MooseMarkerOps`, `MooseAtis`, `bigeye`
+  and `lotatc` plugins. None was switched on in any of the DM's eleven saves or the 22
+  archived missions. ATIS took its frequency allocator and the kneeboard ATIS column and
+  Airfield Directory with it. `tests/test_plugin_manifest.py` keeps all five out.
 
 ---
 

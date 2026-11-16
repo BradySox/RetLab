@@ -8,7 +8,6 @@ from typing import TYPE_CHECKING, Optional
 
 from dcs import Mission
 from dcs.action import DoScript, DoScriptFile
-from dcs.task import Modulation
 from dcs.translation import String
 from dcs.triggers import TriggerStart
 
@@ -23,7 +22,6 @@ from game.missiongenerator.csargenerator import EMBARK_ZONE_RADIUS
 from game.plugins import LuaPluginManager
 from game.squadrons.downedpilot import DownedPilot
 from game.theater import TheaterGroundObject
-from game.theater.player import Player
 from game.theater.theatergroup import SceneryUnit
 from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.utils import escape_string_for_lua, nautical_miles
@@ -57,15 +55,6 @@ from .vietnamopsluadata import populate_vietnam_ops_lua
 if TYPE_CHECKING:
     from game import Game
     from game.theater.iadsnetwork.iadsnetwork import IadsNode
-
-
-def lotatc_exports(ground_object: TheaterGroundObject, blue_owned: bool) -> bool:
-    """Whether the LotATC plugin may draw this site for the other side's GCI.
-
-    Red is never fogged; blue's controllers see only the red sites blue has found
-    (the recon fog, features doc §3), as on blue's own map.
-    """
-    return blue_owned or ground_object.known_for(Player.BLUE)
 
 
 #: The SH-60F took carrier plane guard over from the SH-3H around 1989-91.
@@ -334,27 +323,6 @@ class LuaGenerator:
                         "positionY", str(flight_target.position.y)
                     )
 
-        for cp in self.game.theater.controlpoints:
-            coalition_object = (
-                lua_data.get_or_create_item("BlueAA")
-                if cp.captured.is_blue
-                else lua_data.get_or_create_item("RedAA")
-            )
-            for ground_object in cp.ground_objects:
-                if not lotatc_exports(ground_object, cp.captured.is_blue):
-                    continue
-                for g in ground_object.groups:
-                    threat_range = g.max_threat_range()
-
-                    if not threat_range:
-                        continue
-
-                    aa_item = coalition_object.add_item()
-                    aa_item.add_key_value("name", ground_object.name)
-                    aa_item.add_key_value("range", str(threat_range.meters))
-                    aa_item.add_key_value("positionX", str(ground_object.position.x))
-                    aa_item.add_key_value("positionY", str(ground_object.position.y))
-
         # Generate IADS Lua Item
         iads_object = lua_data.add_item("IADS")
         # These should always be created even if they are empty.
@@ -583,35 +551,6 @@ class LuaGenerator:
         trigger = TriggerStart(comment="Set DCS Retribution data")
         trigger.add_action(DoScript(String(lua_data.create_operations_lua())))
         self.mission.triggerrules.triggers.append(trigger)
-
-        self._inject_atis_lua()
-
-    def _serialize_atis_lua(self) -> str:
-        """Return a Lua assignment for dcsRetribution.Atis, or '' when empty.
-
-        freq/modulation are emitted as bare Lua numbers (MOOSE ATIS:New expects
-        numeric args); only the airbase name is a quoted string.
-        """
-        if not self.mission_data.atis_frequencies:
-            return ""
-        rows = []
-        for atis in self.mission_data.atis_frequencies:
-            name = escape_string_for_lua(atis.airfield_name)
-            modulation = 0 if atis.frequency.modulation == Modulation.AM else 1
-            rows.append(
-                '  { name = "%s", freq = %.3f, modulation = %d },'
-                % (name, atis.frequency.mhz, modulation)
-            )
-        body = "\n".join(rows)
-        return (
-            "if dcsRetribution then\n"
-            "  dcsRetribution.Atis = {\n" + body + "\n  }\nend\n"
-        )
-
-    def _inject_atis_lua(self) -> None:
-        lua = self._serialize_atis_lua()
-        if lua:
-            self.inject_lua_trigger(lua, "dcsRetribution.Atis (MOOSE ATIS)")
 
     def generate_csar_data(self, lua_data: LuaData) -> None:
         """Injects Ops.CSAR data into the dcsRetribution table.

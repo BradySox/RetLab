@@ -30,7 +30,12 @@ RETIRED_PLUGINS = {
     "civilian_traffic",  # MOOSE RAT -> rebuilt as Python pydcs spawns (#206)
     "dismounts",  # MIST-only infantry-dismount script
     "ewrj",  # generic fighter-pod EW jammer -> replaced by the c130j platform
-    "ewrs",  # legacy MIST EWR callouts -> superseded by bigeye
+    "ewrs",  # legacy MIST EWR callouts -> superseded by bigeye, itself removed
+    "bigeye",  # MOOSE INTEL text EWR; never switched on (2026-11-16)
+    "lotatc",  # LotATC GCI export; never switched on (2026-11-16)
+    "MooseAtis",  # MOOSE voice ATIS; never switched on (2026-11-16)
+    "MooseMarkerOps",  # F10 marker commands; never switched on (2026-11-16)
+    "MooseSoundhandler",  # sound effects; never switched on (2026-11-16)
     "flightcontrol",  # half-baked MOOSE FLIGHTCONTROL ATC (§13, retired)
     "scar",  # in-mission armor-hunt SCAR scenario (#266, rescue rework)
     "scramble",  # old ramp-scramble QRA -> replaced by the intercept reserve

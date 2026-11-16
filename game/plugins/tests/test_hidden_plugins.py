@@ -31,7 +31,7 @@ def test_a_hidden_plugin_ignores_a_stored_false() -> None:
 
 
 def test_a_visible_plugin_still_obeys_its_checkbox() -> None:
-    plugin = _plugin("lotatc")
+    plugin = _plugin("ai_reaction")
     assert plugin.show_in_ui
     plugin.set_value(False)
     assert not plugin.enabled

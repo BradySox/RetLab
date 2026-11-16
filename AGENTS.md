@@ -405,6 +405,8 @@ the MOOSE MANTIS IADS bridge with its MIST shim (removed 2026-09-12), and §50's
 with its `map_hidden` flag (2026-10-11; the ambient convoys stay). Five options went on
 2026-10-12: the QRA radio callouts, cosmetic base battle damage, the planner's automatic recon
 flight (TARPS is hand-fragged), §75's two generic victory sliders, and package code words.
+Five never-used plugins went on 2026-11-16: Moose Soundhandler, the F10 marker commands, Moose
+ATIS (with the kneeboard ATIS column and Airfield Directory), BigEye EWR and the LotATC export.
 
 ## Repo & Branch Layout
 

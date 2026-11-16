@@ -60,8 +60,7 @@ def idle_reason(plugin_id: str, work: MissionWork) -> Optional[str]:
         return "no C-130J-30 flies a mission-systems role"
     if plugin_id == "opscsar" and not work.csar_active:
         return "CSAR is off for both sides and no rescue flight is fragged"
-    # LotATC reads Skynet's networks and stops without them.
-    if plugin_id in ("skynetiads", "lotatc") and work.iads_nodes == 0:
+    if plugin_id == "skynetiads" and work.iads_nodes == 0:
         return "neither side has a SAM or early-warning radar in its network"
     # CTLD gives its menus only to fragged transport pilots, and lases only for JTACs.
     if plugin_id == "ctld" and work.logistics_flights == 0 and work.jtacs == 0:

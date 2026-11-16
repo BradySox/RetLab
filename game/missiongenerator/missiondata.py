@@ -133,19 +133,6 @@ class FrontlineUnitGroupsInfo:
 
 
 @dataclass
-class AtisInfo:
-    """One blue airfield's ATIS station — single source of truth for its freq.
-
-    ``airfield_name`` is the DCS airbase map name (``ControlPoint.full_name`` /
-    ``dcs_airport.name``) — the same string MOOSE keys the station and any
-    airport-name soundfile on, and the key the kneeboard surfaces look up by.
-    """
-
-    airfield_name: str
-    frequency: RadioFrequency
-
-
-@dataclass
 class CsarPilotGroupInfo:
     """A downed pilot placed in the mission as a real ground group."""
 
@@ -203,7 +190,6 @@ class MissionData:
     # Bases with a player-manned QRA alert flight (§1); drives the Lua "raid
     # inbound — scramble" cue in intercept-config.lua.
     player_alert_entries: list[PlayerAlertEntry] = field(default_factory=list)
-    atis_frequencies: list[AtisInfo] = field(default_factory=list)
     # The enemy comms-jamming plan (§51), computed once before the Lua pass so
     # the emitter and the kneeboard (JAM BACKUP line) read the same plan. None
     # when the feature is off or has nothing to do this mission.

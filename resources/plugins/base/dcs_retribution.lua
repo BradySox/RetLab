@@ -2,7 +2,7 @@
 local WRITESTATE_SCHEDULE_IN_SECONDS = 15
 
 -- A plain env logger: this script loads before MOOSE and no longer leans on MIST.
--- Global, because train_losses and the LotATC plugin log through it.
+-- Global, because train_losses logs through it.
 logger = {
     info = function(_, text) env.info("DCSRetribution|" .. tostring(text)) end,
     warn = function(_, text) env.warning("DCSRetribution|" .. tostring(text)) end,
