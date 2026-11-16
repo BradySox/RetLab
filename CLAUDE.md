@@ -269,7 +269,7 @@ linked design note.
 5. **Player target location precision** — `Approximate` mode offsets steerpoints.
 6. **Air-defense planning rework** — BARCAP waves; first wave, tankers and AWACS ASAP. Geometry is upstream's.
 7. **Auto-hide mobile SAMs on MFD** — SHORAD/AAA/MANPAD off datalink.
-8. **Robustness, crash fixes and refuelling** — the fix log; per-flight Refuel before the push / before station.
+8. **Robustness, crash fixes and refuelling** — the fix log; per-flight Refuel before the push / before station; AI CAPs tank on station.
 10. **CurrentHill Iran assets pack** — Shahed-136, IRGCN FAC, `[CH] Iran 2020`.
 14. **Plugin Options UI** — `descriptionInUI`, labels and defaults.
 16. **Settings QOL audit** — dead-field cleanup, the `AiRadioBehavior` enum.

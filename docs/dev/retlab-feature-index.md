@@ -19,7 +19,7 @@ pass checklist `§N` is unregistered, or this table drifts.
 | §5 | Player target location precision | — | — |
 | §6 | Air-defense planning rework | — | — |
 | §7 | Auto-hide mobile SAMs on MFD | — | — |
-| §8 | Robustness / crash fixes | — | — |
+| §8 | Robustness / crash fixes | — | `cap_tanker_trips` |
 | §9 | TIC — Troops In Contact _(retired)_ | — | — |
 | §10 | CurrentHill Iran assets pack | — | — |
 | §11 | Native DCS DTC cartridge export _(retired)_ | — | — |

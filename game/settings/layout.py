@@ -94,6 +94,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "recon_intel_fog",
                     "scar_command_post_intel",
                     "ai_unlimited_fuel",
+                    "cap_tanker_trips",
                 ],
             ),
             (
@@ -614,6 +615,9 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "Carrier": [
         "carrier_deck_decorations",  # §72
+    ],
+    "AI air operations": [
+        "cap_tanker_trips",  # §8
     ],
     "Host & event tools": [
         "host_red_scramble",  # §61

@@ -673,6 +673,19 @@ class MissionGeneratorSettings:
             " and reapplied at split/racetrack end for applicable flights."
         ),
     )
+    cap_tanker_trips: bool = boolean_option(
+        "AI CAPs refuel on station",
+        MISSION_GENERATOR_PAGE,
+        GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "An AI BARCAP running low with more than 20 minutes of its station left"
+            " flies to a tanker it can take fuel from, fills up and goes back to its"
+            " orbit; its station end does not move. With no usable tanker it goes home"
+            " at bingo as before. Player flights, damaged jets and jets out of"
+            " missiles are left alone."
+        ),
+    )
     dynamic_slots: bool = boolean_option(
         "Enable dynamic player slots",
         MISSION_GENERATOR_PAGE,

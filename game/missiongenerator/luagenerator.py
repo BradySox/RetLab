@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Optional
 from dcs import Mission
 from dcs.action import DoScript, DoScriptFile
 from dcs.translation import String
+from dcs.lua import dumps
 from dcs.triggers import TriggerStart
 
 from game.ato import FlightType
@@ -27,6 +28,7 @@ from game.theater.iadsnetwork.iadsrole import IadsRole
 from game.utils import escape_string_for_lua, nautical_miles
 from .csarbeacon import sar_beacon_hz
 from .briefingluadata import populate_briefing_lua
+from .caprefuel import configure as cap_refuel_config
 from .coinluadata import populate_coin_lua
 from .interceptluadata import (
     QRA_DEFENSE_DEPTH_NM,
@@ -97,6 +99,20 @@ class LuaGenerator:
         self.generate_plugin_data()
         self.inject_plugins()
         self._seed_scenery_objectives()
+        self._inject_cap_refuel()
+
+    def _inject_cap_refuel(self) -> None:
+        """Load the CAP on-station refuel monitor when an AI BARCAP can use it (§8)."""
+        config = cap_refuel_config(self.game, self.mission, self.mission_data)
+        if not config:
+            return
+        trigger = TriggerStart(comment="AI CAPs refuel on station")
+        trigger.add_action(DoScript(String("RETLAB_CAP_REFUEL = " + dumps(config))))
+        script = Path("resources/plugins/base/cap_refuel.lua").resolve()
+        trigger.add_action(
+            DoScriptFile(self.mission.map_resource.add_resource_file(script))
+        )
+        self.mission.triggerrules.triggers.append(trigger)
 
     def _seed_scenery_objectives(self) -> None:
         """Hand the base script the position of every building objective.
