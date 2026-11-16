@@ -494,7 +494,8 @@ class AircraftType(UnitType[Type[FlyingType]]):
 
         700 NM is the *median* implied endurance across those nine references
         (spread 489-1246 NM). It roughly halves the worst overshoot to ~78% while
-        leaving 7 of 9 references on the conservative side. Fitting the centre instead
+        leaving 7 of 9 references on the conservative side (6 since the F-4E reference
+        was re-measured in DCS at 25 lb/NM on 2026-11-16; 700 is still the median). Fitting the centre instead
         (~875 NM) would cut worst error to ~42% but flip 6 of 9 to optimistic, which is
         the wrong direction for a planning aid -- do not "improve" it that way without a
         deliberate call. Capacity is a weak predictor and a single constant cannot do

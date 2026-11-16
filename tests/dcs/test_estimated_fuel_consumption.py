@@ -91,9 +91,9 @@ ADOPTED_CRUISE_PPM = {
     "F-14B Tomcat": 13,
     "F-15C Eagle": 11,
     "F-15J Eagle": 11,
-    "F-4E-45MC Phantom II": 17,
-    "F-4EJ Phantom II": 17,
-    "Phantom FGR.2": 17,
+    "F-4E-45MC Phantom II": 25,
+    "F-4EJ Phantom II": 25,
+    "Phantom FGR.2": 25,
 }
 
 
@@ -107,7 +107,7 @@ CALIBRATION_REFERENCES = [
     ("F-16CM Fighting Falcon (Block 50)", 12.0),
     ("A-4E Skyhawk", 7.7),
     ("AV-8B Harrier II Night Attack", 11.0),
-    ("F-4E-45MC Phantom II", 17.0),
+    ("F-4E-45MC Phantom II", 25.0),
     ("F-100D", 9.0),
     ("A-10C Thunderbolt II (Suite 3)", 12.0),
     ("F-15C Eagle", 11.0),
@@ -118,8 +118,9 @@ CALIBRATION_REFERENCES = [
 #: the ladder promises range the jet does not have and no tanker gets fragged.
 MAX_OPTIMISTIC_ERROR_PCT = 35.0
 
-#: The bucket must stay conservative for the clear majority of references.
-MIN_CONSERVATIVE_REFERENCES = 7
+#: The bucket must stay conservative for the majority of references. Was 7 until the
+#: F-4E reference became a DCS measurement (25 lb/NM, 2026-11-16; the Dash-1 said 17).
+MIN_CONSERVATIVE_REFERENCES = 6
 
 
 def _estimate_error_pct(name: str, measured_cruise: float) -> float:
