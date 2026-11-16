@@ -1,11 +1,11 @@
 {
     "nameInUI": "Smart threat reaction (only the targeted flight evades)",
-    "descriptionInUI": "Only the flight a missile is actually guiding on goes defensive. Every other airplane stays on Passive Defense and keeps flying its route, where stock DCS breaks every jet that sees a launch. A flight facing a missile whose target DCS will not report flies straight instead of breaking. Helicopters keep stock behavior. Untick for stock DCS.",
+    "descriptionInUI": "Only the flight a missile is actually guiding on goes defensive. Every other airplane stays on Passive Defense and keeps flying its route, where stock DCS breaks every jet that sees a launch. A missile is followed until it is gone, so a late lock or a switch to another flight moves the defense with it. A flight facing a missile whose target DCS never reports flies straight instead of breaking. Helicopters keep stock behavior. Untick for stock DCS.",
     "defaultValue": true,
     "specificOptions": [
         {
             "nameInUI": "Debug output (testing only)",
-            "descriptionInUI": "Off by default. On, every tagged shot prints to the screen for all players and every untagged shot is written to dcs.log -- useful for a test flight, unusable in a mission with an anti-ship salvo in it.",
+            "descriptionInUI": "Off by default. On, defensive orders also print to the screen for all players, at most once every 15 seconds. Orders, failures and a once-a-minute summary go to dcs.log either way, rate-limited.",
             "mnemonic": "DEBUG",
             "defaultValue": false
         }

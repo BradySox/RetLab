@@ -9728,8 +9728,9 @@ engine; nothing is inferred from geometry.
   purpose; without the exemption the baseline stomps them back within 10 s. Any plugin can
   claim the same exemption by writing `dcsRetribution.aiReactionExempt[groupName] = true`,
   and should clear it when the group dies.
-- **DEBUG is off by default here** (it ships on in juanjux's copy). On, every tagged shot
-  prints on screen for all players and every untagged shot writes to `dcs.log`.
+- **DEBUG is off by default here.** On, defensive orders also print on screen for all
+  players, at most once every 15 s. Orders, failures and a once-a-minute summary go to
+  `dcs.log` either way, capped at 30 lines and 10 warnings per 10 s.
   **The toggle was inert until 2026-09-20**: the script was a `scriptsWorkOrders` file
   reading its options at file scope, before the config trigger created them. It is a
   `configurationWorkOrders` file now, and `tests/test_plugin_script_pass.py` fails any
@@ -9738,17 +9739,24 @@ engine; nothing is inferred from geometry.
 ### The trade, stated plainly
 
 This is a doctrine change, not a bug fix. A flight facing a missile whose target the engine
-will not resolve — the re-check runs once at 1 s and then gives up — flies straight instead
-of breaking. Against the fork's SAM density (§41 belts, §60 radar redundancy, the IADS net) that
+never resolves flies straight instead of breaking. Against the fork's SAM density (§41 belts, §60 radar redundancy, the IADS net) that
 can raise AI attrition. The plugin toggle is the whole gate: off restores stock DCS
 behaviour with no other change.
 
 ### Shape
 
-- `resources/plugins/ai_reaction/ai_reaction.lua` — the runtime. `S_EVENT_SHOT` → `tryTag`;
-  a 1 s `watch` releases a flight when its missile stops existing; a 10 s `baseline` sweep
-  re-parks anything clear, with a full re-assert every sixth sweep (≈1 min) to catch groups
-  the engine reset to Evade Fire on activation and to prune destroyed ones.
+- `resources/plugins/ai_reaction/ai_reaction.lua` — the runtime. `S_EVENT_SHOT` reads the
+  target once; a ship, ground or helicopter target, or a shell, rocket or bomb, is dropped
+  there. Every other missile joins a 0.25 s `watch` loop, at most 64 reads a tick,
+  round-robin, until it stops existing. The loop follows a late lock and a retarget
+  (moving the defense to the new flight), keeps a flight evading through a momentary gap in
+  `getTarget`, counts missiles per group, retries a rejected `setOption` after 1 s and
+  re-asserts Evade Fire every 5 s while a missile is live. A 10 s `baseline` sweep parks
+  anything clear, with a full re-assert every sixth sweep (≈1 min).
+- The tracking loop is juanjux/dcs-escalation
+  [#706](https://github.com/juanjux/dcs-escalation/pull/706) (2026-11-08), taken
+  2026-11-16. Before it, the script re-checked an unresolved shot once at 1 s, never
+  followed a retarget and never re-asserted Evade Fire. The exemption below is ours.
 - `resources/plugins/ai_reaction/plugin.json` — default **on**, `DEBUG` default **off**.
 - `resources/plugins/redscramble/redscramble-config.lua` — `claim_exempt` on spawn,
   `release_exempt` in the bandit prune loop.
@@ -9765,9 +9773,9 @@ have hit the same wall. The file here is the rewritten one.
 
 - `resources/plugins/ai_reaction/` · `resources/plugins/redscramble/redscramble-config.lua` ·
   `resources/plugins/plugins.json` · `game/retlab/features.py`.
-- No Python surface, so no pytest coverage. The `lint.yml` Lua syntax gate covers both files;
-  the `tests/lua/` harness does not model `weapon:getTarget()` or controller options, so
-  behaviour is an in-game question.
+- `tests/lua/test_ai_reaction_runtime.py` runs the shipped script on Lua 5.1 against
+  DCS doubles: late locks, retargets, salvo bounds, controller failures, the §61 exemption.
+  It models no DCS AI, so whether the flight actually breaks is an in-game question.
 
 **In-game pass owed:** B97 — one salvo, and only the targeted flight breaks.
 

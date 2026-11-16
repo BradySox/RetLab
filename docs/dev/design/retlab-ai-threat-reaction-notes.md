@@ -62,9 +62,9 @@ baseline sweep sets it back, as it did under `AI_A2A_DISPATCHER`. Re-run
 ## The open question — this is a doctrine change
 
 Passive Defense means no defensive maneuver at all. A flight facing a missile whose target
-the engine will not resolve flies straight through it. The re-check runs once at 1 s and then
-gives up, which covers a lock that resolves a beat after launch but not a weapon that never
-reports a unit target.
+the engine never resolves flies straight through it. Since 2026-11-16 every missile is polled
+until it is gone (juanjux/dcs-escalation #706), so a late lock and a retarget are both
+followed; only a weapon that never reports a unit target leaves its flight straight.
 
 Against the fork's SAM density (§41 belts, §60 two-radar sites, MANTIS netting) that could
 raise AI attrition measurably. Nobody has measured it — on his fork or ours.
@@ -82,7 +82,6 @@ moving part.
 - **Helicopters** are untouched (the sweep is `Group.Category.AIRPLANE` only). They keep
   stock Evade Fire. If a rotary campaign ever shows the same scatter, extend the sweep rather
   than writing a second script.
-- **Harness coverage.** `tests/lua/` models no weapon objects and no controller options, so
-  this plugin cannot be exercised there today. Adding a `weapon:getTarget()` fake plus a
-  recorded `setOption` channel would make the tag/release state machine testable; the
-  sim-behaviour half would still need a flight.
+- **Harness coverage: done 2026-11-16.** `tests/lua/test_ai_reaction_runtime.py` (from
+  Juan's #706, plus the exemption cases) fakes `getTarget` and records every `setOption`.
+  The sim-behaviour half still needs a flight.
