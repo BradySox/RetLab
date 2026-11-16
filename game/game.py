@@ -139,6 +139,8 @@ class Game:
         self.hq_requests = HqRequests()
         #: §111 step 2: who holds each sector. Started on turn 0.
         self.sector_war: Optional[SectorWar] = None
+        #: Marks a save made with §131 ground movement in the code.
+        self.ground_movement_era = True
         # Vietnam Ops Super Gaggle (§37): the turn's planned resupply run, drawn from real
         # BLUE squadrons; None when the feature is off or no gaggle is plannable. Losses are
         # charged back to the squadrons at debrief. Replanned each turn in finish_turn.
@@ -269,6 +271,11 @@ class Game:
             if "settings" in state:
                 state["settings"].sector_war = False
             state["sector_war"] = None
+        # §131 is on for new games only, like §111 and §112.
+        if "ground_movement_era" not in state:
+            if "settings" in state:
+                state["settings"].ground_movement = False
+            state["ground_movement_era"] = True
         state.setdefault("client_map_layers", None)
         state.setdefault("super_gaggle_commitment", None)
         # W6 red tempo: pre-feature saves resolve on their next initialize_turn.

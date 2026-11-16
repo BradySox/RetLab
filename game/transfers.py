@@ -58,6 +58,9 @@ from game.ato.package import Package
 from game.data.airliftcapacity import airlift_capacity, lift_cost, units_fitting_in
 from game.dcs.aircrafttype import AircraftType
 from game.dcs.groundunittype import GroundUnitType
+from game.groundmovement.journey import GroundJourney, GroundPosition, GroundRoute
+from game.groundmovement.settings import distance_per_turn
+from game.groundmovement.settings import enabled as ground_movement_enabled
 from game.naming import namegen
 from game.procurement import AircraftProcurementRequest
 from game.theater import (
@@ -163,6 +166,9 @@ class TransferOrder:
 
     request_airflift: bool = field(default=False)
 
+    #: Why no convoy could take this transfer under §131 ground movement.
+    ground_blocked_reason: str = ""
+
     def __str__(self) -> str:
         """Returns the text that should be displayed for the transfer."""
         count = self.size
@@ -178,8 +184,18 @@ class TransferOrder:
     @property
     def description(self) -> str:
         if self.transport is None:
-            return "No transports available"
+            return self.ground_blocked_reason or "No transports available"
         return self.transport.description()
+
+    @property
+    def cancellation_error(self) -> Optional[str]:
+        """Why this transfer cannot be cancelled now, or None."""
+        convoy = self.transport
+        if isinstance(convoy, Convoy) and convoy.ground_managed:
+            journey = convoy.ground_journey
+            if journey is not None and journey.travelled_distance > 0:
+                return "A convoy on the road must reach its next base first"
+        return None
 
     def kill_all(self) -> None:
         self.units.clear()
@@ -563,8 +579,68 @@ class MultiGroupTransport(MissionTarget, Transport):
 
 
 class Convoy(MultiGroupTransport):
+    # §131 ground movement. Class defaults so saves from before it, and trains,
+    # read as unmanaged.
+    ground_managed: bool = False
+    ground_journey: Optional[GroundJourney] = None
+    ground_blocked_reason: str = ""
+
     def __init__(self, origin: ControlPoint, destination: ControlPoint) -> None:
         super().__init__(namegen.next_convoy_name(), origin, destination)
+
+    def prepare_ground_movement(self, not_before_turn: int) -> None:
+        """Snapshot the drawn road route once; never advance on generation."""
+        if isinstance(self, Train):
+            return
+        self.ground_managed = True
+        if self.ground_journey is not None:
+            return
+        try:
+            route = GroundRoute.from_points(
+                GroundPosition(p.x, p.y)
+                for p in self.origin.convoy_route_to(self.destination)
+            )
+        except (ValueError, KeyError) as exc:
+            self.ground_blocked_reason = f"No usable road route: {exc}"
+            return
+        self.ground_journey = GroundJourney(route, last_advanced_turn=not_before_turn)
+        self.ground_blocked_reason = ""
+        self.update_ground_position()
+
+    def update_ground_position(self) -> None:
+        if self.ground_journey is not None:
+            point = self.ground_journey.position
+            self.position = self.origin.position.new_in_same_map(point.x, point.z)
+
+    def movement_pause_reason(self) -> str:
+        if not ground_movement_enabled(self.origin.coalition.game.settings):
+            return "ground movement is off"
+        if not self.destination.is_friendly(self.player_owned):
+            return "its next base is no longer friendly"
+        return self.ground_blocked_reason
+
+    def movement_summary(self) -> str:
+        journey = self.ground_journey
+        if journey is None:
+            return self.ground_blocked_reason or "departs this turn"
+        left = f"{journey.remaining_distance / 1609.344:.0f} mi to go"
+        reason = self.movement_pause_reason()
+        if reason:
+            return f"waiting: {reason}, {left}"
+        done = 100 * journey.travelled_distance / journey.route.length
+        return f"{done:.0f}% of the way, {left}"
+
+    def mission_route(self) -> tuple[Point, ...]:
+        """This turn's leg: where it is now, then each point it reaches this turn."""
+        journey = self.ground_journey
+        if journey is None or self.movement_pause_reason():
+            return (self.route_start,)
+        settings = self.origin.coalition.game.settings
+        points = journey.preview(
+            distance_per_turn(settings, on_road=True),
+            distance_per_turn(settings, on_road=False),
+        )
+        return tuple(self.origin.position.new_in_same_map(p.x, p.z) for p in points)
 
     def mission_types(self, for_player: Player) -> Iterator[FlightType]:
         if self.is_friendly(for_player):
@@ -575,14 +651,20 @@ class Convoy(MultiGroupTransport):
 
     @property
     def route_start(self) -> Point:
+        if self.ground_managed:
+            return self.position
         return self.origin.convoy_origin_for(self.destination)
 
     @property
     def route_end(self) -> Point:
+        if self.ground_journey is not None:
+            end = self.ground_journey.route.segments[-1].end
+            return self.origin.position.new_in_same_map(end.x, end.z)
         return self.destination.convoy_origin_for(self.origin)
 
     def description(self) -> str:
-        return f"In a convoy from {self.origin} to {self.destination}"
+        text = f"In a convoy from {self.origin} to {self.destination}"
+        return f"{text}: {self.movement_summary()}" if self.ground_managed else text
 
     def find_escape_route(self) -> Optional[ControlPoint]:
         return None
@@ -696,6 +778,39 @@ class TransportMap(Generic[TransportType]):
 
 
 class ConvoyMap(TransportMap[Convoy]):
+    def __init__(self) -> None:
+        super().__init__()
+        #: §131: convoys still on the road from an earlier turn. Kept out of
+        #: ``transports`` so a new departure never merges into a moving column.
+        self.in_transit: list[Convoy] = []
+
+    def __setstate__(self, state: dict[str, Any]) -> None:
+        self.__dict__.update(state)
+        self.__dict__.setdefault("in_transit", [])
+
+    def retain(self, convoy: Convoy) -> None:
+        if self.find_transport(convoy.origin, convoy.destination) is convoy:
+            del self.transports[convoy.origin][convoy.destination]
+        if convoy not in self.in_transit:
+            self.in_transit.append(convoy)
+
+    def disband_transport(self, transport: Convoy) -> None:
+        if transport in self.in_transit:
+            transport.disband()
+            self.in_transit.remove(transport)
+        else:
+            super().disband_transport(transport)
+
+    def __iter__(self) -> Iterator[Convoy]:
+        yield from super().__iter__()
+        yield from self.in_transit
+
+    def departing_from(self, origin: ControlPoint) -> Iterator[Convoy]:
+        yield from (convoy for convoy in self if convoy.origin == origin)
+
+    def travelling_to(self, destination: ControlPoint) -> Iterator[Convoy]:
+        yield from (convoy for convoy in self if convoy.destination == destination)
+
     def create_transport(
         self, origin: ControlPoint, destination: ControlPoint
     ) -> Convoy:
@@ -767,7 +882,9 @@ class PendingTransfers:
                 network.link_type(transfer.position, next_stop)
                 == TransitConnection.Road
             ):
-                return self.convoys.add(transfer, next_stop)
+                self.convoys.add(transfer, next_stop)
+                self._prepare_convoy(transfer)
+                return
             elif (
                 network.link_type(transfer.position, next_stop)
                 == TransitConnection.Rail
@@ -895,6 +1012,8 @@ class PendingTransfers:
     def cancel_transfer(
         self, transfer: TransferOrder, events: GameUpdateEvents | None = None
     ) -> None:
+        if (reason := getattr(transfer, "cancellation_error", None)) is not None:
+            raise ValueError(reason)
         if events is None:
             from game.sim import GameUpdateEvents
 
@@ -923,20 +1042,80 @@ class PendingTransfers:
         """
         self.disband_uncompletable_transfers(events)
         had_transfers = bool(self.pending_transfers)
+        on_the_road = self._advance_ground_convoys(events)
         incomplete = []
         for transfer in self.pending_transfers:
             origin = transfer.position
-            transfer.proceed()
+            if id(transfer) not in on_the_road:
+                transfer.proceed()
             # Refresh both the pre-move (origin/current) and post-move
             # (destination/commission) locations.
             events.update_motorpools_at(origin, transfer.position)
             if not transfer.completed:
                 incomplete.append(transfer)
         self.pending_transfers = incomplete
-        self.convoys.disband_all()
+        for convoy in list(self.convoys):
+            if not convoy.ground_managed:
+                self.convoys.disband_transport(convoy)
         self.cargo_ships.disband_all()
         if had_transfers:
             events.update_supply_routes()
+
+    def _ground_movement_on(self) -> bool:
+        return ground_movement_enabled(getattr(self.game, "settings", None))
+
+    def _prepare_convoy(self, transfer: TransferOrder) -> None:
+        """§131: give a new road convoy its journey, or leave the transfer waiting."""
+        convoy = transfer.transport
+        if not isinstance(convoy, Convoy) or not self._ground_movement_on():
+            return
+        convoy.prepare_ground_movement(self.game.turn)
+        if isinstance(convoy, Train) or convoy.ground_journey is not None:
+            transfer.ground_blocked_reason = ""
+            return
+        transfer.ground_blocked_reason = convoy.ground_blocked_reason
+        self.convoys.remove(convoy, transfer)
+
+    def _advance_ground_convoys(self, events: GameUpdateEvents) -> set[int]:
+        """§131: move each managed convoy one turn's distance.
+
+        Returns the ids of the transfers still on the road; they do not proceed
+        to their next stop this turn.
+        """
+        on_the_road: set[int] = set()
+        for convoy in list(self.convoys):
+            if self._ground_movement_on() and not convoy.ground_managed:
+                convoy.prepare_ground_movement(self.game.turn - 1)
+            if not convoy.ground_managed:
+                continue
+            for transfer in list(convoy.transfers):
+                if not transfer.size:
+                    convoy.remove_units(transfer)
+            journey = convoy.ground_journey
+            moving = bool(convoy.size) and not convoy.movement_pause_reason()
+            if journey is not None and moving:
+                settings = self.game.settings
+                journey.advance(
+                    self.game.turn,
+                    distance_per_turn(settings, on_road=True),
+                    distance_per_turn(settings, on_road=False),
+                )
+                convoy.update_ground_position()
+            # No journey, or the setting turned off with columns on the road: they
+            # arrive at once, as a convoy did before §131.
+            arrived = (
+                journey is None or journey.completed or not self._ground_movement_on()
+            )
+            if not convoy.size or arrived:
+                for transfer in list(convoy.transfers):
+                    origin = transfer.position
+                    transfer.proceed()
+                    events.update_motorpools_at(origin, transfer.position)
+                self.convoys.disband_transport(convoy)
+            else:
+                on_the_road.update(id(t) for t in convoy.transfers)
+                self.convoys.retain(convoy)
+        return on_the_road
 
     def plan_transports(self, now: datetime, events: GameUpdateEvents) -> None:
         """
@@ -946,6 +1125,9 @@ class PendingTransfers:
         recent changes in the theater state / transit network.
         """
         self.disband_uncompletable_transfers(events)
+        if self._ground_movement_on():
+            for convoy in self.convoys:
+                convoy.prepare_ground_movement(self.game.turn)
         for transfer in self.pending_transfers:
             if transfer.transport is None:
                 self.arrange_transport(transfer, now, events)
@@ -958,6 +1140,12 @@ class PendingTransfers:
         """
         completable_transfers = []
         for transfer in self.pending_transfers:
+            # A convoy on the road is not at its origin: a capture behind it pauses
+            # it rather than commissioning or deleting its cargo (§131).
+            transport = transfer.transport
+            if isinstance(transport, Convoy) and transport.ground_managed:
+                completable_transfers.append(transfer)
+                continue
             if not transfer.is_completable(self.network_for(transfer.position)):
                 origin = transfer.position
                 escape = transfer.find_escape_route()

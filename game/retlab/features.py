@@ -1037,6 +1037,18 @@ FEATURES: tuple[Feature, ...] = (
         "Fill support",
         130,
     ),
+    Feature(
+        # Juan's ground movement, ported in stages; stage 2: convoys cover a set
+        # distance a turn and keep their place.
+        "ground_movement",
+        "Ground movement",
+        131,
+        settings_fields=(
+            "ground_movement",
+            "ground_movement_road_miles",
+            "ground_movement_off_road_miles",
+        ),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

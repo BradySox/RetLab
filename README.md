@@ -237,6 +237,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   the front, the front line sits on the sector edge, and a base falls when its sector is
   taken. A road through enemy sectors carries no convoys.
 - Supply columns run both sides' road networks.
+- A supply convoy drives 120 miles a turn along its road (60 off-road) and picks up where it
+  stopped, so a long road takes two or three turns and the column can be hit on the way. On
+  for new games.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.
 - Ship groups generate as mixed task groups rather than copies of one hull. Patrol boats never

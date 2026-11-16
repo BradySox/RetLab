@@ -704,6 +704,39 @@ class CampaignManagementSettings:
             "strength. Saves from before this setting keep it off."
         ),
     )
+    ground_movement: bool = boolean_option(
+        "Supply convoys cover a set distance a turn",
+        CAMPAIGN_MANAGEMENT_PAGE,
+        "Campaign features",
+        default=True,
+        detail=(
+            "A supply convoy drives a set distance each turn (Road miles per turn, "
+            "Off-road miles per turn) and picks up where it stopped, instead of "
+            "reaching the next base every turn. It spawns where it has got to, and "
+            "its losses come off its cargo. A convoy whose next base is lost waits. "
+            "Saves from before this setting keep it off."
+        ),
+    )
+    ground_movement_road_miles: int = bounded_int_option(
+        "Road miles per turn",
+        enabled_when="ground_movement",
+        page=CAMPAIGN_MANAGEMENT_PAGE,
+        section="Campaign features",
+        default=120,
+        min=10,
+        max=1000,
+        detail="How far a ground convoy drives along a road in one turn.",
+    )
+    ground_movement_off_road_miles: int = bounded_int_option(
+        "Off-road miles per turn",
+        enabled_when="ground_movement",
+        page=CAMPAIGN_MANAGEMENT_PAGE,
+        section="Campaign features",
+        default=60,
+        min=5,
+        max=1000,
+        detail="How far a ground convoy drives off-road in one turn.",
+    )
     automate_front_line_stance: bool = boolean_option(
         "Automatically manage front line stances",
         CAMPAIGN_MANAGEMENT_PAGE,

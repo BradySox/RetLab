@@ -25,18 +25,9 @@ class TransportFinder:
     def find_in_transport_map(
         self, transport_map: TransportMap[Any]
     ) -> list[MultiGroupTransport]:
-        transports = []
-        transport = transport_map.find_transport(
-            self.control_point_a, self.control_point_b
-        )
-        if transport is not None:
-            transports.append(transport)
-        transport = transport_map.find_transport(
-            self.control_point_b, self.control_point_a
-        )
-        if transport is not None:
-            transports.append(transport)
-        return transports
+        # Iterating also finds convoys still on the road from an earlier turn.
+        ends = {self.control_point_a, self.control_point_b}
+        return [t for t in transport_map if {t.origin, t.destination} == ends]
 
     def find_transports(self, sea_route: bool) -> list[MultiGroupTransport]:
         if sea_route:

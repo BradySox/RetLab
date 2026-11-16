@@ -130,6 +130,10 @@ class ConvoyGenerator:
         vehicle parks on the runway however well the marker was placed. Clearing
         the field wins over honoring the chain.
         """
+        journey = getattr(convoy, "ground_journey", None)
+        if journey is not None and journey.travelled_distance > 0:
+            # §131: a column already on the road spawns where it stopped.
+            return SpawnPlan(convoy.position, None, False)
         spawns = convoy.origin.convoy_spawns.get(convoy.destination)
         position = self.spawn_position(convoy)
         cleared = position.distance_to_point(convoy.route_start) > 0
@@ -173,7 +177,19 @@ class ConvoyGenerator:
         )
         group.manualHeading = True
 
-        if spawns_tuple:
+        journey = getattr(convoy, "ground_journey", None)
+        if journey is not None and journey.travelled_distance > 0:
+            # §131: a column already on the road strings out behind its lead on
+            # the drawn route, 20 m apart, facing the way it is going.
+            for index, unit in enumerate(group.units):
+                distance = max(0.0, journey.travelled_distance - index * 20)
+                here = journey.route.position_at(distance)
+                ahead = journey.route.position_at(distance + 1)
+                unit.position = convoy.origin.position.new_in_same_map(here.x, here.z)
+                unit.heading = unit.position.heading_between_point(
+                    convoy.origin.position.new_in_same_map(ahead.x, ahead.z)
+                )
+        elif spawns_tuple:
             spawns = list(spawns_tuple)
             last_unit = group.units[0]
             spawns.pop(0)
@@ -194,7 +210,10 @@ class ConvoyGenerator:
 
         wpts: List[Point] = []
         route = convoy.origin.convoy_route_to(convoy.destination)
-        if self.game.settings.convoys_travel_full_distance:
+        if journey is not None:
+            # §131: only this turn's leg. A waiting column gets none and holds.
+            wpts.extend(convoy.mission_route()[1:])
+        elif self.game.settings.convoys_travel_full_distance:
             # When the spawn was walked clear of the runway, the authored start is
             # the point we just moved away from -- keeping it as the first waypoint
             # would drive the convoy straight back onto it.
@@ -215,6 +234,12 @@ class ConvoyGenerator:
                 speed=kph(40).kph,
                 move_formation=PointAction.OnRoad,
             )
+        if journey is not None and wpts:
+            # §131: leave the spawn point moving, lead facing the first leg.
+            departure = group.points[0]
+            departure.speed = kph(40).meters_per_second
+            departure.ETA_locked = False
+            group.units[0].heading = departure.position.heading_between_point(wpts[0])
 
         self.make_drivable(group)
         self.unit_map.add_convoy_units(group, convoy)

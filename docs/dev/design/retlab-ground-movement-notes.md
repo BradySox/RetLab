@@ -1,6 +1,6 @@
 # Ground movement (port of Juan's dcs-escalation ground movement)
 
-Status: stage 1 of 7 built (2026-11-16). Nothing a player sees yet.
+Status: stages 1 and 2 of 7 built (2026-11-16). Features doc §131.
 
 Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
 LGPL-3.0, ported by hand: his tree and ours split long ago.
@@ -28,8 +28,8 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 | # | Stage | State |
 |---|---|---|
 | 1 | Mobility catalog: which units drive, need a tow, or never move | **Built** |
-| 2 | Supply convoys keep their place across turns | — |
-| 3 | Move an armor group; the setting and the per-turn distances | — |
+| 2 | Supply convoys keep their place across turns; the setting and the per-turn distances | **Built** |
+| 3 | Move an armor group | — |
 | 4 | Reserve groups from base stock; joining the front | — |
 | 5 | Mobile SAM battery moves (fog reset, Skynet relink) | — |
 | 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | — |
@@ -56,3 +56,13 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
   83 of 723 today, mostly RetLab-only mod units (the Iran pack, CurrentHill extras, fuel
   trucks). Classify them before stage 5 needs them.
 - Tests: `tests/groundmovement/test_mobility.py`.
+
+## Stage 2: convoys keep their place
+
+- `ground_movement` (on for new games), `ground_movement_road_miles` (120),
+  `ground_movement_off_road_miles` (60); old saves are switched off in `Game.__setstate__`.
+- `game/groundmovement/journey.py` walks a drawn supply route by a distance budget a turn.
+- `Convoy` carries the journey; `ConvoyMap.in_transit` holds columns between turns.
+- Differs from his: turning the setting off lands columns on the road at once instead of
+  freezing them; a convoy with no usable route stays waiting with the reason shown.
+- Row B340.
