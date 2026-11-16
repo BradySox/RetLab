@@ -1,0 +1,11 @@
+date: 2026-11-16
+title: AI CAPs refuel on station
+change: >-
+  An AI BARCAP that runs low with more than 20 minutes of its station left
+  now flies to a tanker it can take fuel from, refuels, and goes back to its
+  orbit instead of going home early. Its station end does not change. With
+  no usable tanker it goes home at bingo as before. Player flights are never
+  touched. Turn it off with AI CAPs refuel on station on the RetLab Features
+  page.
+watch: >-
+  Long CAP stations stay covered when a tanker is up.

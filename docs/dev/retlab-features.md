@@ -2144,6 +2144,19 @@ that code.
 - **Refuel waypoints on flights with no tanker to meet (fixed 2026-08-16).**
 - **The refuel waypoint was planned whether or not a tanker was flying, and the fuel readout believed it (fixed 2026-08-17).**
 - **The refuel waypoint pointed at a place no tanker was (fixed 2026-08-17).**
+- **AI CAPs refuel on station (2026-11-16, setting `cap_tanker_trips`, default on).** From
+  juanjux/dcs-escalation #619. `game/missiongenerator/caprefuel.py` picks every AI BARCAP
+  (no player seat) with a planned tanker it can take fuel from (`can_refuel_from`), arms a
+  user flag at the racetrack start and clears it at the racetrack end, and hands
+  `resources/plugins/base/cap_refuel.lua` the station end, bingo, reserve, burn per meter,
+  the tankers' on-station windows and the generated home route. While the flag is set the
+  monitor turns native RTB-on-bingo off and, every 5 s, leaves early for the nearest tanker
+  in its window when fuel would cover transit, a queue (10 min plus 4 per wingman) and bingo
+  with a 25% burn allowance, and more than 20 min of station remain. A pushed native
+  `Refueling` task suspends the orbit; at 90% it resumes. Tanker lost, reserve reached or the
+  tanking timeout: it flies the home route. Damaged, Winchester or player-flown: hands back to
+  DCS. TARCAP is untouched. The station end never moves. Tests
+  `tests/missiongenerator/test_cap_refuel.py`. Row B338.
 
 ### Support orbits and radios
 

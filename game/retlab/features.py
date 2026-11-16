@@ -72,7 +72,13 @@ FEATURES: tuple[Feature, ...] = (
     Feature("target_location_precision", "Player target location precision", 5),
     Feature("air_defense_planning", "Air-defense planning rework", 6),
     Feature("auto_hide_mobile_sams", "Auto-hide mobile SAMs on MFD", 7),
-    Feature("robustness_fixes", "Robustness / crash fixes", 8),
+    Feature(
+        # cap_tanker_trips: an AI BARCAP low on fuel tanks on station (juanjux #619).
+        "robustness_fixes",
+        "Robustness / crash fixes",
+        8,
+        settings_fields=("cap_tanker_trips",),
+    ),
     Feature(
         # REMOVED 2026-10-15 on the DM's call.
         "tic",
