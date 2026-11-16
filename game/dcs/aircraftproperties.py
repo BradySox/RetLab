@@ -139,3 +139,58 @@ class PropertyDateGate:
             prop = properties.get(identifier)
             if prop is not None:
                 yield prop
+
+
+#: Checkbox options that mount goggles in the cockpit (A-6E, F-4E, Harrier, Strike
+#: Eagle, Mirage case, Apache and Hind crews).
+NVG_SWITCHES = frozenset(
+    {
+        "MountNVG",
+        "Night_Vision",
+        "LoadNVGCase",
+        "IsNvgAllowed",
+        "PltNVG",
+        "CpgNVG",
+        "PilotNVG",
+        "OperatorNVG",
+    }
+)
+
+#: Helmet values that add goggles to the sight, keyed by the sight they extend. A
+#: helmet whose NVG value replaces the sight (F-16C, F/A-18C, Ka-50: "NVG" instead
+#: of JHMCS) is left alone; the DM keeps the sight (2026-11-16).
+NVG_HELMET_UPGRADES = {"HMCS": "HMCS + NVG"}
+
+
+def night_vision_overrides(
+    properties: Mapping[str, UnitPropertyDescription],
+    overrides: Mapping[str, Union[bool, float, int, str]],
+    gate: PropertyDateGate,
+    date: datetime.date,
+) -> Iterator[tuple[str, Union[bool, float, int, str]]]:
+    """The property changes that fit goggles to one aircraft for a night flight.
+
+    A value already chosen for the jet (its saved defaults or the payload tab) is
+    kept: a checkbox the jet carries is left as set, and a helmet set to anything
+    but its plain sight is not touched. Adapted from juanjux/dcs-escalation #732
+    (LGPL-3.0).
+    """
+    for identifier, prop in properties.items():
+        if prop.control == "checkbox":
+            if identifier in NVG_SWITCHES and identifier not in overrides:
+                if prop.default is not True:
+                    yield identifier, True
+            continue
+        if not prop.values:
+            continue
+        current = overrides.get(identifier, prop.default)
+        label = prop.values.get(current)
+        upgrade = NVG_HELMET_UPGRADES.get(str(label)) if label is not None else None
+        if upgrade is None:
+            continue
+        for value_id, value_label in prop.values.items():
+            if value_id is None or value_label != upgrade:
+                continue
+            if gate.value_available_on(prop, value_id, date):
+                yield identifier, value_id
+                break

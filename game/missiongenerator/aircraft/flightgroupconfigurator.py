@@ -20,6 +20,7 @@ from game.data.gunammunition import (
 )
 from game.data.stationconflicts import conflicting_rails, drop_conflicting_rails
 from game.data.weapons import Pylon, Weapon
+from game.dcs.aircraftproperties import PropertyDateGate, night_vision_overrides
 from game.lasercodes.lasercode import LaserCode
 from game.missiongenerator.logisticsgenerator import LogisticsGenerator
 from game.missiongenerator.missiondata import MissionData, AwacsInfo, TankerInfo
@@ -34,6 +35,7 @@ from game.retlab.airframe_condition import condition_defaults
 from game.runways import RunwayData
 from game.missiongenerator.missiondata import EscortInfo
 from game.squadrons import Pilot
+from game.weather.daylight import in_darkness, theater_middle
 from .aircraftbehavior import AircraftBehavior
 from .aircraftpainter import AircraftPainter
 from .bingoestimator import BingoEstimator
@@ -423,6 +425,12 @@ class FlightGroupConfigurator:
             self.game.date,
             self.flight.squadron.airframe_wear,
         )
+        night = self.flies_in_darkness()
+        gate = (
+            self.flight.unit_type.property_date_gate
+            if self.game.settings.restrict_props_by_date
+            else PropertyDateGate()
+        )
         for unit, member in zip(self.group.units, self.flight.iter_members()):
             props = dict(member.properties)
             if member.is_player:
@@ -433,10 +441,31 @@ class FlightGroupConfigurator:
                     props.update(laser_code_config.property_dict_for_code(code.code))
             if unit.unit_type.datalink_networkable():
                 self.set_datalink(props, unit.callsign_as_str())
+            if night:
+                props.update(
+                    night_vision_overrides(
+                        self.flight.unit_type.dcs_unit_type.properties,
+                        props,
+                        gate,
+                        self.game.date,
+                    )
+                )
             if self.game.settings.restrict_props_by_date:
                 self.degrade_props_for_date(props)
             for prop_id, value in props.items():
                 unit.set_property(prop_id, value)
+
+    def flies_in_darkness(self) -> bool:
+        """Whether any of this flight, start-up to landing, is before sunrise or
+        after sunset at the middle of the theater."""
+        plan = self.flight.flight_plan
+        start = max(self.time, plan.startup_time())
+        try:
+            end = max(start, plan.landing_time)
+        except NotImplementedError:
+            end = start
+        theater = self.game.theater
+        return in_darkness(theater_middle(theater), theater.timezone, start, end)
 
     def degrade_props_for_date(
         self, props: dict[str, bool | float | int | str]
