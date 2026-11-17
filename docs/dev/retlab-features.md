@@ -12493,7 +12493,7 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 
 Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
 Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
-Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves), 4 (reserves), 5 (SAM batteries) and 6 (SAMs defend on the road) are built.
+All seven stages are built: the mobility catalog, convoys keeping their place, armor moves, reserves, SAM batteries, SAMs defending on the road, and red moves through the outside AI.
 
 ### The rule (stage 2)
 
@@ -12623,3 +12623,21 @@ warning that it cannot defend in transit.
 | Runtime | `resources/plugins/base/sam_transit_defense.lua` (`RETLAB_SAM_TRANSIT`) |
 | Tests | `tests/groundmovement/test_sam_transit_defense.py` |
 | In-game pass | B344 |
+
+### Stage 7: red moves through the outside AI
+
+Red's ground units move only when the §109 outside AI orders it; the scripted planner never
+moves red. With **Outside AI plans red** and Ground movement on, the API under
+`/retribution-ai/ground/movement` lets it read options for a red armor group, SAM site or
+base stock, preview, dispatch, list red's columns and stop one. The checks, routes and
+journeys are the same as the human's Move windows. A refusal is an answer
+(`{"ok": false, "error": ...}`), not a server error. Red only: blue's groups are refused,
+and the red-only tripwire test calls the new read route for every red group and base.
+
+| What | Where |
+|---|---|
+| Red movement service | `game/agent/groundmovement.py`, `game/agent/service.py` |
+| Routes and schemas | `game/server/retributionai/routes.py`, `game/agent/schemas.py` |
+| The AI's guide | `resources/agent/howtoplay.md` |
+| Tests | `tests/groundmovement/test_red_movement_api.py`, `tests/agent/test_blue_plan_never_served.py` |
+| In-game pass | B345 |

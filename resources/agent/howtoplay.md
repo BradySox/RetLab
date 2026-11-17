@@ -202,8 +202,27 @@ Writes close when the human presses Take Off (or runs the sim clock): they answe
 until the next turn. Your notes hold 64,000 characters in all; a write past that is
 refused with 413 and saves nothing.
 
-Not yet available to you: loadouts, waypoint edits, moving ground units or ships, repairs
-and moving squadrons. The scripted planner still repairs and buys for red at the start of
+- Ground movement (only when `settings.ground_movement` is on). Red's ground units move
+  only on your order:
+  - `GET /retribution-ai/ground/movement/options?source_id=<id>&source_kind=armor|sam|base`:
+    the units you may send from a red armor group or SAM site (`id`, `mobility`, `can_tow`,
+    `selectable`), or a red base's spare `stock` by unit type name.
+  - `POST /retribution-ai/ground/movement/preview` and `.../dispatch` with
+    `{"source_id", "source_kind", "unit_ids": [...] or "stock": {"<type>": n},
+    "destination": {"kind": "position", "lat", "lng"} or {"kind": "base", "base_id"} or
+    {"kind": "frontline", "base_id", "opposing_base_id"}}`. Preview answers road and
+    off-road miles and turns; dispatch answers `order_id` and `group_id`. A SAM site moves
+    whole and only to a position; a base's reserve goes only to a position. Trucks to tow
+    the guns are added for you. A refusal is `{"ok": false, "error": "..."}`.
+  - `GET /retribution-ai/ground/movement`: red's columns, miles and turns left.
+  - `POST /retribution-ai/ground/movement/stop` with `{"order_id"}`: the column halts and
+    stays where it is.
+  - A column drives 120 road miles a turn (60 off-road) after each mission and can be
+    attacked on the road. A SAM site is off the network while packed; a moved SAM is
+    unknown to blue again until blue engages it.
+
+Not yet available to you: loadouts, waypoint edits, moving ships, repairs and moving
+squadrons. The scripted planner still repairs and buys for red at the start of
 every turn, so none of these stops while you command.
 
 ### Planning well
