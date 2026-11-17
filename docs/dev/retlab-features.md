@@ -12493,7 +12493,7 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 
 Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
 Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
-Stages 1 (mobility catalog), 2 (convoys keep their place) and 3 (armor moves) are built.
+Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves) and 4 (reserves) are built.
 
 ### The rule (stage 2)
 
@@ -12553,3 +12553,29 @@ and turns; **Send** splits the units into a new moving group.
 | Window | `qt_ui/windows/groundobject/movementdialog.py`, `QGroundObjectMenu.py` |
 | Tests | `tests/groundmovement/test_armor_movement_*.py`, `test_movement_dialog.py` |
 | In-game pass | B341 |
+
+### Stage 4: reserves from base stock, and joining the front
+
+A friendly base with spare armor and Ground movement on shows **Deploy reserve...**. Pick how
+many of each spare type to send (trucks to tow the guns are added), type the point, preview,
+send. The units leave the base's stock and drive out as a new group (`reserve_from_base`),
+laid out on clear ground at the point when they arrive.
+
+- After each turn's front movement, a group ground movement made (a reserve, or a moved
+  detachment) that its own side's front has swept over joins the base behind that front:
+  its survivors go into that base's stock, the group leaves the map (a delete event that a
+  late update cannot undo), and a message says so. The base's front strength then counts
+  them under §90's rules.
+- A campaign's own armor groups never join a front; they stay where the campaign drew them.
+- A reserve keeps the exact unit variant it was bought as (`TheaterUnit.ground_unit_variant`).
+- Reserves stay on DCS AUTO alarm state; his forced RED and Weapon Free are left out.
+- Not ported: his map picker and REST API for reserves.
+
+| What | Where |
+|---|---|
+| Stock, preview, dispatch | `game/groundmovement/base.py` |
+| Joining the front | `game/groundmovement/frontline.py`, hooks in `Game.finish_turn` |
+| Events | `GameUpdateEvents.update_tgo` / `delete_tgo` |
+| Window | `qt_ui/windows/basemenu/reservedialog.py`, `QBaseMenu2.py` |
+| Tests | `tests/groundmovement/test_base_reserve_groups.py`, `test_reserve_frontline_integration.py`, `test_reserve_dialog.py` |
+| In-game pass | B342 |

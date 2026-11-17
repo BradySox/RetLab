@@ -13,7 +13,6 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from dcs import Point
 from dcs.terrain import Caucasus
-from fastapi import FastAPI
 import pytest
 from shapely.geometry import MultiPolygon, box
 
@@ -24,7 +23,6 @@ from game.groundmovement.orders import (
     DestinationKind,
     GroundMovementOrders,
     GroundPosition as P,
-    MovementDestination,
     MovementSource,
 )
 from game.groundmovement.planning import (
@@ -34,8 +32,6 @@ from game.groundmovement.planning import (
 )
 from game.groundmovement.routing import CampaignGroundRouter, GroundRouteError
 from game.point_with_heading import PointWithHeading
-from game.server.dependencies import GameContext
-from game.server.tgos import router
 from game.settings import Settings
 from game.theater.controlpoint import Fob
 from game.theater.landmap import Landmap

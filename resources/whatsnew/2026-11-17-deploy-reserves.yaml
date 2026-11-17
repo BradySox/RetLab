@@ -1,0 +1,10 @@
+date: 2026-11-17
+title: Deploy reserves from base stock
+change: >-
+  A friendly base with spare armor has a Deploy reserve button. Pick how
+  many of each spare type to send (trucks for the guns are added), type the
+  point, preview, and send. The group drives out over the next turns. A group
+  you moved that your front later sweeps over joins the base behind that
+  front, back in its stock.
+watch: >-
+  Needs Ground movement on (Campaign settings), on for new games.

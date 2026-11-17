@@ -19,7 +19,8 @@ from game.groundmovement.mobility import (
 def units() -> list[GroundUnitType]:
     logging.disable(logging.CRITICAL)
     try:
-        GroundUnitType._load_all()
+        # Loads once; a second _load_all would register every variant twice.
+        GroundUnitType.named("M1A2 Abrams")
     finally:
         logging.disable(logging.NOTSET)
     return list(GroundUnitType._by_name.values())

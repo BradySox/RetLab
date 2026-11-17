@@ -157,6 +157,8 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
     in_transit: bool = False
     #: Deployed from a base's stock (stage 4).
     reserve_from_base: bool = False
+    #: The base whose reserve this group joined when its front reached it.
+    absorbed_into_frontline: Optional[uuid.UUID] = None
 
     def __init__(
         self,
@@ -1001,8 +1003,8 @@ class VehicleGroupGroundObject(TheaterGroundObject):
 
     @property
     def purchasable(self) -> bool:
-        # §131: nothing is bought for a column on the road.
-        return not self.in_transit
+        # §131: nothing is bought for a column on the road or one that joined a front.
+        return not self.in_transit and self.absorbed_into_frontline is None
 
     @property
     def should_head_to_conflict(self) -> bool:

@@ -125,11 +125,17 @@ class GameUpdateEvents:
         return self
 
     def update_tgo(self, tgo: TheaterGroundObject) -> GameUpdateEvents:
-        self.updated_tgos.add(tgo)
+        # §131: a group that joined a front is gone from the map for good; a late
+        # update must not bring its marker back.
+        if getattr(tgo, "absorbed_into_frontline", None) is not None:
+            return self.delete_tgo(tgo.id)
+        if tgo.id not in self.deleted_tgos:
+            self.updated_tgos.add(tgo)
         return self
 
     def delete_tgo(self, tgo_id: UUID) -> GameUpdateEvents:
         self.deleted_tgos.add(tgo_id)
+        self.updated_tgos = {t for t in self.updated_tgos if t.id != tgo_id}
         return self
 
     def update_motorpools_at(self, *control_points: ControlPoint) -> GameUpdateEvents:

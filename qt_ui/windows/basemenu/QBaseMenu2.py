@@ -186,6 +186,14 @@ class QBaseMenu2(QDialog):
             bottom_row.addWidget(transfer_button)
             transfer_button.clicked.connect(self.open_transfer_dialog)
 
+        if self.can_deploy_reserve:
+            reserve_button = QPushButton("Deploy reserve...")
+            reserve_button.setToolTip(
+                "Send spare armor out as its own group (Ground movement)"
+            )
+            bottom_row.addWidget(reserve_button)
+            reserve_button.clicked.connect(self.open_reserve_dialog)
+
         if self.cheat_capturable:
             label = "Sink/Resurrect" if self.cp.is_fleet else "Capture"
             capture_button = QPushButton(f"CHEAT: {label}")
@@ -241,6 +249,26 @@ class QBaseMenu2(QDialog):
         state = self.game_model.game.check_win_loss()
         GameUpdateSignal.get_instance().gameStateChanged(state)
         self.close()
+
+    @property
+    def can_deploy_reserve(self) -> bool:
+        from game.groundmovement.settings import enabled
+
+        game = self.game_model.game
+        return (
+            enabled(game.settings)
+            and self.cp.captured.is_blue
+            and not self.cp.is_fleet
+            and self.cp.can_deploy_ground_units
+            and self.cp.base.total_armor > 0
+        )
+
+    def open_reserve_dialog(self) -> None:
+        from qt_ui.windows.basemenu.reservedialog import ReserveDeployDialog
+
+        dialog = ReserveDeployDialog(self.game_model.game, self.cp, self.window())
+        if dialog.exec():
+            GameUpdateSignal.get_instance().updateGame(self.game_model.game)
 
     @property
     def can_transfer_units(self) -> bool:

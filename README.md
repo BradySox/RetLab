@@ -243,6 +243,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - Send a friendly armor group, or part of it, to a point, a base or a front line from its
   window (**Move...**). It drives one turn's distance after each mission, trucks towing its
   guns, and can be hit on the road. **Stop here** halts it where it is.
+- Send spare armor from a base's stock out as its own group (**Deploy reserve...** in the base
+  window). A moved group that your front sweeps over joins the base behind that front.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.
 - Ship groups generate as mixed task groups rather than copies of one hull. Patrol boats never
