@@ -240,6 +240,9 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
 - A supply convoy drives 120 miles a turn along its road (60 off-road) and picks up where it
   stopped, so a long road takes two or three turns and the column can be hit on the way. On
   for new games.
+- Send a friendly armor group, or part of it, to a point, a base or a front line from its
+  window (**Move...**). It drives one turn's distance after each mission, trucks towing its
+  guns, and can be hit on the road. **Stop here** halts it where it is.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.
 - Ship groups generate as mixed task groups rather than copies of one hull. Patrol boats never

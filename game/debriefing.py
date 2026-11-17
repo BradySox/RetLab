@@ -722,6 +722,21 @@ class Debriefing:
                 ", ".join(untracked[:10]),
             )
 
+        # §131: a towed piece riding a tractor dies with it.
+        lost = {
+            loss.theater_unit.id
+            for loss in losses.player_ground_objects + losses.enemy_ground_objects
+        }
+        for name in set(self.state_data.killed_ground_units):
+            for cargo in self.unit_map.ground_transport_cargo.get(name, []):
+                if cargo.theater_unit.id in lost:
+                    continue
+                lost.add(cargo.theater_unit.id)
+                if cargo.theater_unit.ground_object.is_friendly(Player.BLUE):
+                    losses.player_ground_objects.append(cargo)
+                else:
+                    losses.enemy_ground_objects.append(cargo)
+
         for unit_name in self.state_data.killed_aircraft:
             airlift_unit = self.unit_map.airlift_unit(unit_name)
             if airlift_unit is not None:

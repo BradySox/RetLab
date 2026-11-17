@@ -47,6 +47,8 @@ class TheaterUnit:
     alive: bool = True
     # Fraction of full health a ship carries between turns (§124).
     health: float = 1.0
+    # §131: a towed piece rides its tractor and shares its loss.
+    transported_by_id: Optional[int] = None
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         # The BDA damage lag was removed 2026-08-18 (a struck site is known in
@@ -160,18 +162,22 @@ class TheaterUnit:
 
     @property
     def repairable(self) -> bool:
+        # §131: nothing on the road is repaired.
+        if self.ground_object.in_transit:
+            return False
         # Only let units with UnitType be repairable as we just have prices for them
         return self.unit_type is not None
 
     def detection_range(self) -> Distance:
         unit_range = getattr(self.type, "detection_range", None)
-        if unit_range is None or not self.alive:
+        # §131: a towed piece is packed on its tractor.
+        if unit_range is None or not self.alive or self.transported_by_id is not None:
             return meters(0)
         return meters(unit_range)
 
     def threat_range(self) -> Distance:
         unit_range = getattr(self.type, "threat_range", None)
-        if unit_range is None or not self.alive:
+        if unit_range is None or not self.alive or self.transported_by_id is not None:
             return meters(0)
         return meters(unit_range)
 

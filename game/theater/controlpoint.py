@@ -1148,6 +1148,11 @@ class ControlPoint(MissionTarget, SidcDescribable, ABC):
         self.retreat_ground_units(game)
         self.retreat_air_units(game)
         self.release_parking_slots()
+        # §131: a column that set out from here belongs to the nearest friendly
+        # base before this one's objects are cleared.
+        from game.groundmovement.dispatch import rehome_before_capture
+
+        rehome_before_capture(game, self, events)
         self.depopulate_uncapturable_tgos()
         self._coalition = new_coalition
         from game.missiongenerator.motorpoolpopulator import MotorpoolPopulator

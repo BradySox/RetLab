@@ -1,0 +1,622 @@
+"""Armor previews validate real unit identities, destinations and terrain routes."""
+
+from __future__ import annotations
+
+from dataclasses import replace
+import math
+import os
+import pickle
+from types import SimpleNamespace
+from typing import Any, cast
+
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+
+from dcs import Point
+from dcs.terrain import Caucasus
+from fastapi import FastAPI
+import pytest
+from shapely.geometry import MultiPolygon, box
+
+from game.db.gamedb import GameDb
+from game.dcs.groundunittype import GroundUnitType
+from game.groundmovement.journey import GroundJourney, GroundRoute, GroundSegment
+from game.groundmovement.orders import (
+    DestinationKind,
+    GroundMovementOrders,
+    GroundPosition as P,
+    MovementDestination,
+    MovementSource,
+)
+from game.groundmovement.planning import (
+    armor_movement_options,
+    movement_destination,
+    preview_armor_movement,
+)
+from game.groundmovement.routing import CampaignGroundRouter, GroundRouteError
+from game.point_with_heading import PointWithHeading
+from game.server.dependencies import GameContext
+from game.server.tgos import router
+from game.settings import Settings
+from game.theater.controlpoint import Fob
+from game.theater.landmap import Landmap
+from game.theater.player import Player
+from game.theater.presetlocation import PresetLocation
+from game.theater.theatergroundobject import SamGroundObject, VehicleGroupGroundObject
+from game.theater.theatergroup import TheaterGroup, TheaterUnit
+from game.utils import Heading
+
+
+def landmap(*exclusions: Any) -> Landmap:
+    return Landmap(
+        MultiPolygon([box(-10000, -10000, 10000, 10000)]),
+        MultiPolygon(exclusions),
+        MultiPolygon(),
+    )
+
+
+def road(*points: tuple[float, float]) -> GroundRoute:
+    return GroundRoute.from_points(P(*point) for point in points)
+
+
+def test_nearest_road_access_and_mixed_budget() -> None:
+    planner = CampaignGroundRouter(landmap(), [road((0, 0), (100, 0))])
+    result = planner.plan(P(0, 10), P(100, 10), 100, 50)
+    assert sum(s.length for s in result.segments if s.on_road) == pytest.approx(100)
+    assert sum(s.length for s in result.segments if not s.on_road) == pytest.approx(20)
+    assert result.segments[0] == GroundSegment(P(0, 10), P(0, 0), False)
+    journey = GroundJourney(result)
+    journey.advance(1, 100, 50)
+    assert journey.position == P(80, 0)
+    journey.advance(2, 100, 50)
+    assert journey.completed and journey.position == P(100, 10)
+
+
+def test_entries_on_same_road_do_not_detour_via_its_endpoints() -> None:
+    planner = CampaignGroundRouter(
+        landmap(), [road((0, 0), (100, 0)), road((100, 0), (0, 0))]
+    )
+    result = planner.plan(P(20, 0), P(80, 0), 100, 50)
+    assert result.length == pytest.approx(60)
+    assert all(s.on_road for s in result.segments)
+
+
+def test_blocked_nearest_access_uses_another_reachable_road() -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(-20, 20, 20, 80)),
+        [road((-100, 0), (-100, 100), (100, 100), (100, 0))],
+    )
+    result = planner.plan(P(0, 10), P(0, 90), 100, 50)
+    assert all(planner.allowed(segment) for segment in result.segments)
+    assert result.segments[0].end.x in (-100, 100)
+    assert any(segment.on_road for segment in result.segments)
+
+
+def test_polyline_crossing_is_not_assumed_to_be_a_junction() -> None:
+    planner = CampaignGroundRouter(
+        landmap(), [road((0, 0), (100, 0)), road((50, -50), (50, 50))]
+    )
+    result = planner.plan(P(0, 0), P(50, 50), 100, 50)
+    assert sum(s.length for s in result.segments if not s.on_road) == pytest.approx(50)
+
+
+def test_base_access_connects_different_authored_departure_points() -> None:
+    planner = CampaignGroundRouter(
+        landmap(),
+        [road((0, 0), (100, 0)), road((110, 10), (210, 10))],
+        [GroundSegment(P(100, 0), P(110, 10), False)],
+    )
+    result = planner.plan(P(0, 0), P(210, 10), 100, 50)
+    assert sum(s.length for s in result.segments if s.on_road) == pytest.approx(200)
+    assert sum(s.length for s in result.segments if not s.on_road) == pytest.approx(
+        math.sqrt(200)
+    )
+
+
+def test_no_campaign_roads_allow_only_a_validated_direct_offroad_route() -> None:
+    planner = CampaignGroundRouter(landmap(), [])
+    result = planner.plan(P(0, 0), P(100, 0), 100, 50)
+    assert result.segments == (GroundSegment(P(0, 0), P(100, 0), False),)
+    blocked = CampaignGroundRouter(landmap(box(40, -10000, 60, 10000)), [])
+    with pytest.raises(GroundRouteError, match="off-road"):
+        blocked.plan(P(0, 0), P(100, 0), 100, 50)
+
+
+def test_unverified_water_crossing_is_not_treated_as_a_bridge() -> None:
+    water = box(40, -10, 60, 10)
+    terrain = Landmap(
+        MultiPolygon([box(-10, -10, 40, 10), box(60, -10, 110, 10)]),
+        MultiPolygon(),
+        MultiPolygon([water]),
+    )
+    planner = CampaignGroundRouter(terrain, [road((0, 0), (100, 0))])
+    with pytest.raises(GroundRouteError, match="water"):
+        planner.plan(P(0, 0), P(100, 0), 100, 50)
+
+
+@pytest.mark.parametrize("missing_access", ["origin", "destination", "both"])
+def test_unreachable_roads_allow_validated_direct_travel_at_offroad_speed(
+    missing_access: str,
+) -> None:
+    barrier = {
+        "origin": box(-10, 40, 60, 60),
+        "destination": box(40, 40, 110, 60),
+        "both": box(-10000, 40, 10000, 60),
+    }[missing_access]
+    planner = CampaignGroundRouter(landmap(barrier), [road((0, 0), (100, 0))])
+    result = planner.plan(P(0, 100), P(100, 100), 100, 50)
+    assert result.segments == (GroundSegment(P(0, 100), P(100, 100), False),)
+    journey = GroundJourney(result)
+    journey.advance(1, 100, 50)
+    assert not journey.completed and journey.position == P(50, 100)
+    journey.advance(2, 100, 50)
+    assert journey.completed
+
+
+def test_all_road_edges_blocked_still_allow_a_clear_offroad_move() -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(-10, -10, 110, 10)), [road((0, 0), (100, 0))]
+    )
+    assert not planner.edges
+    result = planner.plan(P(0, 100), P(100, 100), 100, 50)
+    assert result.segments == (GroundSegment(P(0, 100), P(100, 100), False),)
+
+
+@pytest.mark.parametrize("water", [False, True])
+def test_direct_fallback_does_not_cross_water_or_exclusions(water: bool) -> None:
+    mask = landmap(box(-10000, 40, 10000, 60).union(box(40, 60, 60, 10000)))
+    if water:
+        mask = Landmap(
+            mask.inclusion_zones.difference(box(40, 60, 60, 10000)),
+            MultiPolygon([box(-10000, 40, 10000, 60)]),
+            MultiPolygon([box(40, 60, 60, 10000)]),
+        )
+    planner = CampaignGroundRouter(mask, [road((0, 0), (100, 0))])
+    with pytest.raises(GroundRouteError, match="No validated off-road access"):
+        planner.plan(P(0, 100), P(100, 100), 100, 50)
+
+
+def test_available_roads_are_preferred_over_a_shorter_direct_offroad_route() -> None:
+    planner = CampaignGroundRouter(landmap(), [road((0, 0), (100, 0))])
+    result = planner.plan(P(0, 100), P(100, 100), 100, 50)
+    assert any(segment.on_road for segment in result.segments)
+    assert result.length > 100
+
+
+def test_disconnected_roads_do_not_report_missing_access() -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(40, -10000, 60, 10000)),
+        [road((0, 0), (30, 0), (70, 0), (100, 0))],
+    )
+    with pytest.raises(GroundRouteError, match="Both ends can reach a road"):
+        planner.plan(P(0, 10), P(100, 10), 100, 50)
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+def test_blocked_access_identifies_the_affected_endpoint(reverse: bool) -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(-10000, 40, 10000, 60)), [road((0, 0), (100, 0))]
+    )
+    endpoints = (P(0, 100), P(100, 10))
+    origin, destination = endpoints[::-1] if reverse else endpoints
+    label = "destination" if reverse else "group"
+    with pytest.raises(GroundRouteError, match=f"access connects the {label}"):
+        planner.plan(origin, destination, 100, 50)
+
+
+def test_convoy_corridors_cross_coarse_exclusions_but_access_does_not() -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(40, -100, 60, 100)),
+        [road((0, 0), (100, 0))],
+        convoy_corridors=True,
+    )
+    result = planner.plan(P(0, 10), P(100, 10), 100, 50)
+    assert sum(s.length for s in result.segments if s.on_road) == pytest.approx(100)
+    assert all(planner.allowed(s) for s in result.segments)
+    assert planner.allowed(GroundSegment(P(45, 0), P(55, 0)))
+    assert not planner.allowed(GroundSegment(P(45, 0), P(55, 0), False))
+    assert not planner.allowed(GroundSegment(P(0, 10), P(100, 10)))
+    # A group already inside the placement mask may exit it once, off-road.
+    result = planner.plan(P(50, 10), P(100, 10), 100, 50)
+    assert not result.segments[0].on_road
+    assert not planner.allowed(result.segments[0])
+    assert all(planner.allowed(s) for s in result.segments[1:])
+    with pytest.raises(GroundRouteError, match="exclusion zone"):
+        planner.plan(P(100, 10), P(50, 10), 100, 50)
+
+
+def test_authored_road_allows_interpolated_departure_inside_an_exclusion() -> None:
+    planner = CampaignGroundRouter(
+        landmap(box(40, -100, 60, 100)),
+        [road((0, 0), (100, 0))],
+        convoy_corridors=True,
+    )
+    result = planner.plan(P(50, 0), P(100, 10), 100, 50)
+    assert result.segments[0] == GroundSegment(P(50, 0), P(100, 0))
+    assert all(planner.allowed(s) for s in result.segments)
+
+
+def test_only_authored_convoy_water_crossings_are_accepted() -> None:
+    terrain = Landmap(
+        MultiPolygon([box(-10, -10, 40, 30), box(60, -10, 110, 30)]),
+        MultiPolygon(),
+        MultiPolygon([box(40, -10, 60, 30)]),
+    )
+    planner = CampaignGroundRouter(
+        terrain, [road((0, 0), (100, 0))], convoy_corridors=True
+    )
+    result = planner.plan(P(20, 0), P(80, 0), 100, 50)
+    assert result.length == pytest.approx(60)
+    assert all(planner.allowed(s) for s in result.segments)
+    assert not planner.allowed(GroundSegment(P(20, 10), P(80, 10)))
+    assert not planner.allowed(GroundSegment(P(20, 0), P(80, 0), False))
+
+
+@pytest.mark.parametrize("budget", [0, -1, True, math.inf, math.nan])
+def test_invalid_budget_rejected(budget: Any) -> None:
+    with pytest.raises(GroundRouteError, match="budgets"):
+        CampaignGroundRouter(landmap(), []).plan(P(0, 0), P(100, 0), budget, 50)
+
+
+def test_missing_map_excluded_destination_and_zero_length_rejected() -> None:
+    with pytest.raises(GroundRouteError, match="exclusion-zone data"):
+        CampaignGroundRouter(None, [])
+    planner = CampaignGroundRouter(landmap(box(40, -10, 60, 10)), [])
+    with pytest.raises(GroundRouteError, match="exclusion zone"):
+        planner.plan(P(0, 0), P(50, 0), 100, 50)
+    with pytest.raises(GroundRouteError, match="mapped land"):
+        planner.plan(P(0, 0), P(20000, 0), 100, 50)
+    with pytest.raises(GroundRouteError, match="already"):
+        planner.plan(P(0, 0), P(0, 0), 100, 50)
+
+
+@pytest.fixture
+def world() -> Any:
+    terrain = Caucasus()
+    game: Any = SimpleNamespace(
+        turn=1,
+        settings=Settings(),
+        db=GameDb(),
+        ground_movements=GroundMovementOrders(),
+        theater=SimpleNamespace(terrain=terrain, landmap=landmap(), controlpoints=[]),
+    )
+    game.settings.ground_movement = True
+    a = Fob("A", Point(0, 0, terrain), cast(Any, game.theater), Player.BLUE)
+    b = Fob("B", Point(100, 0, terrain), cast(Any, game.theater), Player.BLUE)
+    enemy = Fob("Enemy", Point(200, 0, terrain), cast(Any, game.theater), Player.RED)
+    for cp in (a, b, enemy):
+        cp._coalition = cast(
+            Any,
+            SimpleNamespace(
+                player=cp.starting_coalition,
+                faction=SimpleNamespace(
+                    accessible_units=[GroundUnitType.named("Truck Ural-375")]
+                ),
+            ),
+        )
+    a.convoy_routes[b] = (a.position, b.position)
+    b.convoy_routes[a] = (b.position, a.position)
+    a.front_lines[enemy] = cast(Any, object())
+    game.theater.controlpoints = [a, b, enemy]
+    source = VehicleGroupGroundObject(
+        "Armor", PresetLocation("Armor", Point(10, 10, terrain)), a, None
+    )
+    gun = GroundUnitType.named("AAA ZU-23 Emplacement")
+    truck = GroundUnitType.named("Truck Ural-375")
+    tank = GroundUnitType.named("M1A2 Abrams")
+    unit_types = {1: gun, 2: gun, 3: gun, 4: gun, 5: truck, 6: truck, 7: tank, 8: gun}
+    source.groups = [
+        TheaterGroup(
+            1,
+            "Armor",
+            PointWithHeading.from_point(source.position, Heading.from_degrees(0)),
+            [
+                TheaterUnit(
+                    i,
+                    str(i),
+                    unit.dcs_unit_type,
+                    PointWithHeading.from_point(
+                        source.position, Heading.from_degrees(0)
+                    ),
+                    source,
+                    alive=i != 8,
+                )
+                for i, unit in unit_types.items()
+            ],
+            source,
+        )
+    ]
+    a.connected_objectives.append(source)
+    game.db.tgos.add(source.id, source)
+    destination = movement_destination(
+        game, Player.BLUE, DestinationKind.BASE, base_id=b.id
+    )
+    return SimpleNamespace(
+        game=game,
+        a=a,
+        b=b,
+        enemy=enemy,
+        source=source,
+        units=unit_types,
+        destination=destination,
+    )
+
+
+def test_options_warn_about_shortage_and_dead_units_are_unavailable(world: Any) -> None:
+    result = armor_movement_options(world.game, world.source.id, Player.BLUE)
+    assert result.towed_pieces == 4 and result.available_tractors == 2
+    assert {unit.id for unit in result.units} == set(range(1, 8))
+    assert any("only 2" in warning for warning in result.warnings)
+    with pytest.raises(ValueError, match="only 2"):
+        preview_armor_movement(
+            world.game, world.source.id, Player.BLUE, [1, 2, 3, 4], world.destination
+        )
+
+
+def test_partial_preview_auto_includes_tractors_without_changing_a_save(
+    world: Any,
+) -> None:
+    before = pickle.dumps(world.game)
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [1, 2], world.destination
+    )
+    assert result.manifest.unit_ids == (1, 2, 5, 6)
+    assert result.manifest.towing == ((1, 5), (2, 6))
+    assert result.remaining_unit_ids == (3, 4, 7)
+    assert result.first_turn_stop == world.destination.position
+    assert result.arrival_in_turns == 1 and result.road_distance_m == pytest.approx(90)
+    assert pickle.dumps(world.game) == before
+
+
+def test_game_router_uses_supply_convoy_permissions(world: Any) -> None:
+    world.game.theater.landmap = landmap(box(40, -100, 60, 100))
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [7], world.destination
+    )
+    assert result.road_distance_m == pytest.approx(90)
+    assert result.offroad_distance_m == pytest.approx(10)
+
+
+@pytest.mark.parametrize("owner", [Player.BLUE, Player.RED])
+def test_reserve_preview_allows_local_travel_with_only_inaccessible_remote_roads(
+    world: Any,
+    owner: Player,
+) -> None:
+    world.a._coalition.player = owner
+    world.b._coalition.player = owner
+    terrain = world.game.theater.terrain
+    world.a.convoy_routes[world.b] = (
+        Point(0, -200, terrain),
+        Point(100, -200, terrain),
+    )
+    world.b.convoy_routes[world.a] = tuple(reversed(world.a.convoy_routes[world.b]))
+    world.game.theater.landmap = landmap(box(-10000, -100, 10000, -50))
+    result = preview_armor_movement(
+        world.game, world.source.id, owner, [7], world.destination
+    )
+    assert result.road_distance_m == 0
+    assert result.offroad_distance_m == pytest.approx(math.hypot(90, 10))
+    assert "This route contains only validated off-road travel" in result.warnings
+
+
+def test_reservations_include_automatically_assigned_tractors(world: Any) -> None:
+    order = world.game.ground_movements.plan(
+        world.game.settings,
+        source_id=world.source.id,
+        source_kind=MovementSource.ARMOR,
+        owner=Player.BLUE,
+        origin=P(10, 10),
+        destination=world.destination,
+        units={i: u for i, u in world.units.items() if i != 8},
+        selected=[1],
+        turn=0,
+    )
+    options = armor_movement_options(world.game, world.source.id, Player.BLUE)
+    assert {unit.id for unit in options.units if unit.reserved} == {1, 5}
+    assert options.available_tractors == 1
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [2], world.destination
+    )
+    assert result.manifest.towing == ((2, 6),)
+    assert {1, 5} <= set(result.remaining_unit_ids)
+    world.game.ground_movements.cancel(order.id)
+    assert (
+        armor_movement_options(
+            world.game, world.source.id, Player.BLUE
+        ).available_tractors
+        == 2
+    )
+
+
+@pytest.mark.parametrize("selected", [[], [1, 1], [8], [999], [True]])
+def test_bad_or_dead_selection_does_not_modify_the_game(
+    world: Any, selected: list[int]
+) -> None:
+    before = pickle.dumps(world.game)
+    with pytest.raises(ValueError):
+        preview_armor_movement(
+            world.game, world.source.id, Player.BLUE, selected, world.destination
+        )
+    assert pickle.dumps(world.game) == before
+
+
+def test_frontline_requires_a_current_enemy_neighbor_and_uses_base_stock(
+    world: Any,
+) -> None:
+    destination = movement_destination(
+        world.game,
+        Player.BLUE,
+        DestinationKind.FRONTLINE,
+        base_id=world.a.id,
+        opposing_base_id=world.enemy.id,
+    )
+    assert destination.position == P(0, 0)
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [7], destination
+    )
+    assert result.destination.target_id == world.a.id
+    world.a.front_lines.clear()
+    with pytest.raises(ValueError, match="active front"):
+        preview_armor_movement(
+            world.game, world.source.id, Player.BLUE, [7], destination
+        )
+
+
+@pytest.mark.parametrize("kind", [DestinationKind.BASE, DestinationKind.FRONTLINE])
+def test_excluded_base_marker_uses_nearby_valid_access(world: Any, kind: Any) -> None:
+    # The convoy road ends outside the abstract base marker's exclusion polygon.
+    terrain = world.game.theater.terrain
+    world.a.convoy_routes[world.b] = (world.a.position, Point(80, 0, terrain))
+    world.b.convoy_routes[world.a] = tuple(reversed(world.a.convoy_routes[world.b]))
+    world.b.front_lines[world.enemy] = object()
+    world.game.theater.landmap = landmap(box(90, -10, 110, 10))
+    destination = movement_destination(
+        world.game,
+        Player.BLUE,
+        kind,
+        base_id=world.b.id,
+        opposing_base_id=world.enemy.id if kind is DestinationKind.FRONTLINE else None,
+    )
+    assert destination.position == P(80, 0)
+    preview = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [7], destination
+    )
+    assert preview.route.segments[-1].end == destination.position
+    router = CampaignGroundRouter.for_game(world.game, Player.BLUE)
+    assert all(router.allowed(s) for s in preview.route.segments)
+    # Selecting the excluded marker as a GPS point must still fail.
+    with pytest.raises(GroundRouteError, match="exclusion"):
+        router.plan(P(10, 10), P(100, 0), 100, 50)
+
+
+def test_base_without_road_uses_bounded_safe_access_search(world: Any) -> None:
+    world.a.convoy_routes.clear()
+    world.b.convoy_routes.clear()
+    world.game.theater.landmap = landmap(box(90, -10, 110, 10))
+    world.source.position = Point(120, 20, world.game.theater.terrain)
+    destination = movement_destination(
+        world.game, Player.BLUE, DestinationKind.BASE, base_id=world.b.id
+    )
+    assert destination.position != P(100, 0)
+    assert math.hypot(destination.position.x - 100, destination.position.z) <= 600
+    preview_armor_movement(world.game, world.source.id, Player.BLUE, [7], destination)
+    assert destination == movement_destination(
+        world.game, Player.BLUE, DestinationKind.BASE, base_id=world.b.id
+    )
+
+
+def test_base_access_search_does_not_teleport_to_remote_safe_ground(world: Any) -> None:
+    world.a.convoy_routes.clear()
+    world.b.convoy_routes.clear()
+    world.game.theater.landmap = landmap(box(-600, -700, 800, 700))
+    with pytest.raises(GroundRouteError, match="safe ground access"):
+        movement_destination(
+            world.game, Player.BLUE, DestinationKind.BASE, base_id=world.b.id
+        )
+
+
+def test_frontline_handoff_uses_friendly_convoy_endpoint_beyond_local_radius(
+    world: Any,
+) -> None:
+    terrain = world.game.theater.terrain
+    endpoint = Point(-1500, 0, terrain)
+    world.a.position = Point(-2000, 0, terrain)
+    world.source.position = Point(-1800, 10, terrain)
+    world.a.convoy_routes[world.b] = (world.a.position, endpoint)
+    world.b.convoy_routes[world.a] = (endpoint, world.a.position)
+    world.b.convoy_routes[world.enemy] = (Point(950, 0, terrain), world.enemy.position)
+    world.b.front_lines[world.enemy] = object()
+    world.game.theater.landmap = landmap(box(-700, -800, 900, 800))
+
+    destination = movement_destination(
+        world.game,
+        Player.BLUE,
+        DestinationKind.FRONTLINE,
+        base_id=world.b.id,
+        opposing_base_id=world.enemy.id,
+    )
+    assert destination.position == P(-1500, 0)
+    preview = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [7], destination
+    )
+    assert preview.route.segments[-1].end == destination.position
+
+
+def test_base_access_fallback_rejects_water_and_hostile_ground(world: Any) -> None:
+    mask = landmap(box(90, -10, 110, 10))
+    mask = replace(mask, sea_zones=MultiPolygon([box(110, -1000, 1000, 1000)]))
+    router = CampaignGroundRouter(
+        mask, [], offroad_permission=lambda s: s.start.x < 100
+    )
+    position = router.base_access_position(world.b)
+    assert position.x < 100
+    assert router.allowed(GroundSegment(position, position, False))
+
+
+def test_enemy_source_and_destination_are_rejected(world: Any) -> None:
+    with pytest.raises(PermissionError):
+        armor_movement_options(world.game, world.source.id, Player.RED)
+    with pytest.raises(PermissionError):
+        movement_destination(
+            world.game, Player.BLUE, DestinationKind.BASE, base_id=world.enemy.id
+        )
+    with pytest.raises(ValueError, match="stale"):
+        preview_armor_movement(
+            world.game,
+            world.source.id,
+            Player.BLUE,
+            [7],
+            replace(world.destination, position=P(123, 456)),
+        )
+
+
+def test_red_uses_the_same_validation_with_its_own_roads(world: Any) -> None:
+    world.a._coalition.player = Player.RED
+    world.b._coalition.player = Player.RED
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.RED, [7], world.destination
+    )
+    assert result.road_distance_m > 0
+    with pytest.raises(PermissionError):
+        armor_movement_options(world.game, world.source.id, Player.BLUE)
+
+
+def test_destination_must_be_able_to_host_ground_units(
+    world: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(Fob, "can_deploy_ground_units", property(lambda _cp: False))
+    with pytest.raises(ValueError, match="cannot host"):
+        movement_destination(
+            world.game, Player.BLUE, DestinationKind.BASE, base_id=world.b.id
+        )
+
+
+def test_empty_sams_and_disabled_movement_are_not_accepted(world: Any) -> None:
+    sam = SamGroundObject(
+        "SAM", PresetLocation("SAM", world.source.position), world.a, None
+    )
+    world.game.db.tgos.add(sam.id, sam)
+    options = armor_movement_options(world.game, sam.id, Player.BLUE)
+    assert not options.enabled
+    assert any("no surviving units" in warning for warning in options.warnings)
+    world.game.settings.ground_movement = False
+    assert not armor_movement_options(world.game, world.source.id, Player.BLUE).enabled
+    with pytest.raises(ValueError, match="Ground movement is off"):
+        preview_armor_movement(
+            world.game, world.source.id, Player.BLUE, [7], world.destination
+        )
+
+
+def test_preview_estimates_multiple_turns_and_the_first_stop(world: Any) -> None:
+    world.b.position.x = 4000
+    world.game.settings.ground_movement_road_miles = 1
+    world.game.settings.ground_movement_off_road_miles = 1
+    destination = movement_destination(
+        world.game, Player.BLUE, DestinationKind.BASE, base_id=world.b.id
+    )
+    result = preview_armor_movement(
+        world.game, world.source.id, Player.BLUE, [7], destination
+    )
+    assert result.arrival_in_turns == 3
+    assert result.travel_turns == pytest.approx(4000 / 1609.344)
+    assert result.first_turn_stop.x == pytest.approx(1609.344)
+    assert result.first_turn_stop.z == 0

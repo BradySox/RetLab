@@ -43,6 +43,7 @@ from .settings import NightMissions, Settings
 from .data.groups import GroupTask
 from .spatialindex import LiveUnitIndex
 from .theater import ConflictTheater, Player
+from .groundmovement.orders import GroundMovementOrders
 from .theater.sectorwar import SectorWar, ensure as ensure_sector_war
 from .theater.supply import RECOVERY_MULTIPLIER, SupplyStatus, supply_statuses
 from .theater.theatergroundobject import (
@@ -141,6 +142,8 @@ class Game:
         self.sector_war: Optional[SectorWar] = None
         #: Marks a save made with §131 ground movement in the code.
         self.ground_movement_era = True
+        #: §131: armor moves ordered between turns, and the columns on the road.
+        self.ground_movements = GroundMovementOrders()
         # Vietnam Ops Super Gaggle (§37): the turn's planned resupply run, drawn from real
         # BLUE squadrons; None when the feature is off or no gaggle is plannable. Losses are
         # charged back to the squadrons at debrief. Replanned each turn in finish_turn.
@@ -271,6 +274,7 @@ class Game:
             if "settings" in state:
                 state["settings"].sector_war = False
             state["sector_war"] = None
+        state.setdefault("ground_movements", GroundMovementOrders())
         # §131 is on for new games only, like §111 and §112.
         if "ground_movement_era" not in state:
             if "settings" in state:
@@ -520,6 +524,12 @@ class Game:
         # bases, and freshly delivered units will spawn one leg through their journey.
         self.blue.end_turn(events)
         self.red.end_turn(events)
+
+        # §131: armor ordered to move drives one turn's distance after the
+        # mission's losses are booked.
+        from game.groundmovement.dispatch import advance_armor
+
+        advance_armor(self, events)
 
         for control_point in self.theater.controlpoints:
             control_point.process_turn(self, events)

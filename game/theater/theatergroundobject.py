@@ -152,6 +152,12 @@ def _strip_erroneous_aaa_radars_from_groups(groups: "list[TheaterGroup]") -> int
 
 
 class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
+    # §131 ground movement. Class defaults keep older saves loading.
+    #: On the road between turns; spawned as a moving column.
+    in_transit: bool = False
+    #: Deployed from a base's stock (stage 4).
+    reserve_from_base: bool = False
+
     def __init__(
         self,
         name: str,
@@ -995,7 +1001,8 @@ class VehicleGroupGroundObject(TheaterGroundObject):
 
     @property
     def purchasable(self) -> bool:
-        return True
+        # §131: nothing is bought for a column on the road.
+        return not self.in_transit
 
     @property
     def should_head_to_conflict(self) -> bool:
