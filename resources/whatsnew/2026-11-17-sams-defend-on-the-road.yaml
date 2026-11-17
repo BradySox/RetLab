@@ -1,0 +1,9 @@
+date: 2026-11-17
+title: Moving SAMs defend themselves
+change: >-
+  A short-range SAM battery checked in DCS (Osa, Tor, Buk-M3, C-RAM, Shilka,
+  Gepard, Avenger, Strela and others) that is on the road stops, unpacks and
+  fires when a jet comes inside its reach, then packs up and drives on.
+  Other batteries stay packed and hold fire while they move.
+watch: >-
+  Overfly a moving Osa or Tor column: it should engage you.

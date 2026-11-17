@@ -29,6 +29,7 @@ from game.utils import escape_string_for_lua, nautical_miles
 from .csarbeacon import sar_beacon_hz
 from .briefingluadata import populate_briefing_lua
 from .caprefuel import configure as cap_refuel_config
+from .samtransitdefense import configure as sam_transit_config
 from .coinluadata import populate_coin_lua
 from .interceptluadata import (
     QRA_DEFENSE_DEPTH_NM,
@@ -55,6 +56,7 @@ from game.retlab.super_gaggle import plan_super_gaggle
 from .vietnamopsluadata import populate_vietnam_ops_lua
 
 if TYPE_CHECKING:
+    from game.unitmap import UnitMap
     from game import Game
     from game.theater.iadsnetwork.iadsnetwork import IadsNode
 
@@ -77,10 +79,12 @@ class LuaGenerator:
         game: Game,
         mission: Mission,
         mission_data: MissionData,
+        unit_map: Optional[UnitMap] = None,
     ) -> None:
         self.game = game
         self.mission = mission
         self.mission_data = mission_data
+        self.unit_map = unit_map
         self.plugin_scripts: list[str] = []
         # Plugin CONFIG-script loads are collected here and emitted together in
         # one bundled TriggerStart (flush_deferred_plugin_scripts). DCS silently
@@ -100,6 +104,22 @@ class LuaGenerator:
         self.inject_plugins()
         self._seed_scenery_objectives()
         self._inject_cap_refuel()
+        self._inject_sam_transit_defense()
+
+    def _inject_sam_transit_defense(self) -> None:
+        """§131 stage 6: a packed SAM column that can fight back does."""
+        groups = sam_transit_config(self.mission, self.unit_map)
+        if not groups:
+            return
+        trigger = TriggerStart(comment="SAMs defend on the road")
+        trigger.add_action(
+            DoScript(String("RETLAB_SAM_TRANSIT_CONFIG = " + dumps(groups)))
+        )
+        script = Path("resources/plugins/base/sam_transit_defense.lua").resolve()
+        trigger.add_action(
+            DoScriptFile(self.mission.map_resource.add_resource_file(script))
+        )
+        self.mission.triggerrules.triggers.append(trigger)
 
     def _inject_cap_refuel(self) -> None:
         """Load the CAP on-station refuel monitor when an AI BARCAP can use it (§8)."""
