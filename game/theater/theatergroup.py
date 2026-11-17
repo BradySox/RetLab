@@ -49,6 +49,8 @@ class TheaterUnit:
     health: float = 1.0
     # §131: a towed piece rides its tractor and shares its loss.
     transported_by_id: Optional[int] = None
+    # §131: a reserve built from base stock keeps the exact variant it was bought as.
+    ground_unit_variant: Optional[str] = None
 
     def __setstate__(self, state: dict[str, Any]) -> None:
         # The BDA damage lag was removed 2026-08-18 (a struck site is known in
@@ -79,6 +81,8 @@ class TheaterUnit:
 
     @property
     def unit_type(self) -> Optional[UnitType[Any]]:
+        if self.ground_unit_variant is not None:
+            return GroundUnitType.named(self.ground_unit_variant)
         if issubclass(self.type, VehicleType):
             return next(GroundUnitType.for_dcs_type(self.type))
         elif issubclass(self.type, ShipType):

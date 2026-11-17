@@ -512,6 +512,14 @@ class Game:
         Args:
             skipped: True if the turn was skipped.
         """
+        from game.groundmovement.frontline import (
+            integrate_reached_reserves,
+            snapshot_fronts,
+        )
+
+        # §131: where each front stood, so a front that moves onto a moved
+        # group this turn can take it in.
+        front_positions = snapshot_fronts(self)
         self.message("End of turn #" + str(self.turn), "-" * 40)
         self.turn += 1
 
@@ -529,6 +537,7 @@ class Game:
         # mission's losses are booked.
         from game.groundmovement.dispatch import advance_armor
 
+        integrate_reached_reserves(self, front_positions, events)
         advance_armor(self, events)
 
         for control_point in self.theater.controlpoints:
@@ -616,6 +625,8 @@ class Game:
         else:
             for front_line in self.theater.conflicts():
                 front_line.hold_position()
+        # §131: also a column that drove onto its front this turn.
+        integrate_reached_reserves(self, front_positions, events)
 
         # After the first mission, reveal surviving MERAD groups. They start hidden
         # so players don't know enemy SA-6/11/17 positions before flying; the first

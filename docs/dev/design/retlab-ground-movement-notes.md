@@ -1,6 +1,6 @@
 # Ground movement (port of Juan's dcs-escalation ground movement)
 
-Status: stages 1 to 3 of 7 built (2026-11-17). Features doc §131.
+Status: stages 1 to 4 of 7 built (2026-11-17). Features doc §131.
 
 Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
 LGPL-3.0, ported by hand: his tree and ours split long ago.
@@ -30,7 +30,7 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 | 1 | Mobility catalog: which units drive, need a tow, or never move | **Built** |
 | 2 | Supply convoys keep their place across turns; the setting and the per-turn distances | **Built** |
 | 3 | Move an armor group | **Built** |
-| 4 | Reserve groups from base stock; joining the front | — |
+| 4 | Reserve groups from base stock; joining the front | **Built** |
 | 5 | Mobile SAM battery moves (fog reset, Skynet relink) | — |
 | 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | — |
 | 7 | Red moves through the outside AI | — |
@@ -77,3 +77,14 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 - Differences: our own smaller Move window, no map picker, no REST API, no repair check
   (we have no pending repairs), ground groups keep DCS AUTO alarm state.
 - Row B341.
+
+## Stage 4: reserves and the front
+
+- Ported his `base.py` and `frontline.py`; the finish-turn hooks; his event rule that an
+  absorbed group stays deleted.
+- Differences: only groups ground movement made join a front (his takes any armor group the
+  front sweeps); no hook in the mission results processor (fronts move in `finish_turn` here);
+  no Motor Pool dependency; reserves stay on DCS AUTO; our own Deploy reserve window.
+- Our transfers take units out of the base when ordered, so his "undeparted transfer still
+  owns stock" rule does not apply.
+- Row B342.
