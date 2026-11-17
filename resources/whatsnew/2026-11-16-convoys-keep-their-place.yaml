@@ -4,7 +4,7 @@ change: >-
   A supply convoy now drives 120 miles a turn along its road (60 off-road)
   and picks up where it stopped. A short road still takes one turn; a long
   one takes two or three, and the column spawns on the road where it is,
-  so it can be found and hit on the way. Campaign settings: Supply convoys
-  cover a set distance a turn, on for new games.
+  so it can be found and hit on the way. Campaign setting: Ground movement,
+  on for new games.
 watch: >-
   The Pending transfers list shows the miles left for a convoy on the road.

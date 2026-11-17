@@ -1,6 +1,6 @@
 # Ground movement (port of Juan's dcs-escalation ground movement)
 
-Status: stages 1 and 2 of 7 built (2026-11-16). Features doc §131.
+Status: stages 1 to 3 of 7 built (2026-11-17). Features doc §131.
 
 Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
 LGPL-3.0, ported by hand: his tree and ours split long ago.
@@ -29,7 +29,7 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 |---|---|---|
 | 1 | Mobility catalog: which units drive, need a tow, or never move | **Built** |
 | 2 | Supply convoys keep their place across turns; the setting and the per-turn distances | **Built** |
-| 3 | Move an armor group | — |
+| 3 | Move an armor group | **Built** |
 | 4 | Reserve groups from base stock; joining the front | — |
 | 5 | Mobile SAM battery moves (fog reset, Skynet relink) | — |
 | 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | — |
@@ -66,3 +66,14 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 - Differs from his: turning the setting off lands columns on the road at once instead of
   freezing them; a convoy with no usable route stays waiting with the reason shown.
 - Row B340.
+
+## Stage 3: armor moves
+
+- Ported his `orders`, `routing`, `offroad`, `egress`, `territory`, `planning`, `dispatch`,
+  `report` and `samdefense` modules, and `armormovement.py`, almost as written.
+- Model: `TheaterGroundObject.in_transit`, `reserve_from_base`; `TheaterUnit.transported_by_id`;
+  `Game.ground_movements`; `UnitMap.ground_transport_cargo`. Hooks: `Game.finish_turn`
+  (advance), `ControlPoint.capture` (rehome), the TGO generator, the debrief.
+- Differences: our own smaller Move window, no map picker, no REST API, no repair check
+  (we have no pending repairs), ground groups keep DCS AUTO alarm state.
+- Row B341.

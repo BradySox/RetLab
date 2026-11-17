@@ -12493,11 +12493,11 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 
 Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
 Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
-Stages 1 (mobility catalog) and 2 (convoys keep their place) are built.
+Stages 1 (mobility catalog), 2 (convoys keep their place) and 3 (armor moves) are built.
 
 ### The rule (stage 2)
 
-With **Supply convoys cover a set distance a turn** (`ground_movement`) on, a road convoy
+With **Ground movement** (`ground_movement`) on, a road convoy
 drives **Road miles per turn** (120) along its drawn supply route each turn, **Off-road miles
 per turn** (60) on an off-road leg, and keeps its place between turns. It reaches its next
 base only when the route is used up; a short route still completes in one turn.
@@ -12525,3 +12525,31 @@ base only when the route is used up; a short route still completes in one turn.
 | Map | `game/server/supplyroutes/models.py` (finds columns on the road too) |
 | Tests | `tests/groundmovement/` |
 | In-game pass | B340 |
+
+### Stage 3: move an armor group
+
+A friendly armor group's window has a **Ground movement** box with **Move...**. Pick the
+units to send (trucks to tow the guns are added), then a destination: a point (typed
+coordinates; it stays there as its own group), a friendly base (joins its reserve), or a
+front line (reinforces the base behind it). **Preview route** shows road and off-road miles
+and turns; **Send** splits the units into a new moving group.
+
+- The column moves after each mission, one turn's distance, along the drawn supply roads
+  where it can and off-road where it must (`game/groundmovement/routing.py`).
+- In the mission it spawns where it has got to and drives this turn's leg
+  (`game/missiongenerator/armormovement.py`). A towed gun rides its truck: it is not
+  spawned, and it dies with the truck (`UnitMap.ground_transport_cargo`, the debrief).
+- **Stop here** halts it; the survivors stay as their own group where they are.
+- Nothing on the road is bought, repaired or counted as a threat while packed.
+- A base it set out from that is captured hands the column to the nearest friendly base.
+- Ground groups stay on DCS AUTO (no alarm option), as every other RetLab ground group.
+- Not ported: his map picker (a point is typed) and his REST API.
+
+| What | Where |
+|---|---|
+| Orders and towing | `game/groundmovement/orders.py` |
+| Routing | `game/groundmovement/routing.py`, `offroad.py`, `egress.py`, `territory.py` |
+| Preview and dispatch | `game/groundmovement/planning.py`, `dispatch.py`, `report.py` |
+| Window | `qt_ui/windows/groundobject/movementdialog.py`, `QGroundObjectMenu.py` |
+| Tests | `tests/groundmovement/test_armor_movement_*.py`, `test_movement_dialog.py` |
+| In-game pass | B341 |

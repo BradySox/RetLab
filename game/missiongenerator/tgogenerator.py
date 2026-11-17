@@ -413,6 +413,12 @@ class GroundObjectGenerator:
         # a bombable, visibly-collapsing target whose death is never recorded
         # (the kill silently vanishes at debrief). The zone, its kill-tracking
         # trigger rule, and the one-static IADS stand-in cost nothing.
+        if self.ground_object.in_transit is True:
+            # §131: a moving armor group spawns as a column on its road.
+            from game.missiongenerator.armormovement import generate_armor_movement
+
+            generate_armor_movement(self)
+            return
         culled = self.culled
         for group in self.ground_object.groups:
             vehicle_units = []

@@ -1,0 +1,10 @@
+date: 2026-11-17
+title: Move your armor groups
+change: >-
+  A friendly armor group's window has a Move button. Pick the units to send
+  (trucks to tow the guns are added for you) and a destination: a point on
+  the map, a friendly base, or a front line. Preview the route, then send.
+  The column drives 120 road miles a turn after each mission and can be hit
+  on the way. Stop here halts it where it is.
+watch: >-
+  Needs Ground movement on (Campaign settings), on for new games.

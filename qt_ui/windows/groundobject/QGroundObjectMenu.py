@@ -26,9 +26,14 @@ from game.server import EventStream
 from game.sim.gameupdateevents import GameUpdateEvents
 from game.theater import ControlPoint, TheaterGroundObject, Player
 from game import missiletargets
+from game.groundmovement.dispatch import active_transit, stop_armor
+from game.groundmovement.report import destination_label, movement_reports
+from game.groundmovement.settings import METERS_PER_MILE
+from game.groundmovement.settings import enabled as ground_movement_enabled
 from game.theater.theatergroundobject import (
     BuildingGroundObject,
     MissileSiteGroundObject,
+    VehicleGroupGroundObject,
 )
 from game.utils import Distance, meters
 from game.utils import Heading
@@ -114,6 +119,8 @@ class QGroundObjectMenu(QDialog):
             self.mainLayout.addWidget(self.orientationBox)
             if self.ground_object.is_iads and self.cp.is_friendly(to_player=Player.RED):
                 self.mainLayout.addWidget(self.hiddenBox)
+            if (movement := self.movement_box()) is not None:
+                self.mainLayout.addWidget(movement)
 
         self.actionLayout = QHBoxLayout()
 
@@ -414,6 +421,8 @@ class QGroundObjectMenu(QDialog):
                 if self.show_missile_target_control:
                     self.mainLayout.addWidget(self.missileTargetBox)
                 self.mainLayout.addWidget(self.orientationBox)
+                if (movement := self.movement_box()) is not None:
+                    self.mainLayout.addWidget(movement)
 
             self.actionLayout = QHBoxLayout()
             if self.total_value > 0:
@@ -547,6 +556,69 @@ class QGroundObjectMenu(QDialog):
     def rotate_tgo(self, heading: Heading) -> None:
         self.ground_object.rotate(heading)
         self.heading_image.set_heading(heading)
+
+    def movement_box(self) -> QGroupBox | None:
+        """§131: send this armor group somewhere, or follow it on the road."""
+        tgo = self.ground_object
+        owner = tgo.control_point.captured
+        if not isinstance(tgo, VehicleGroupGroundObject) or not owner.is_blue:
+            return None
+        reports = [
+            r
+            for r in movement_reports(self.game, tgo.id, owner)
+            if r.status in ("moving", "paused")
+        ]
+        if not ground_movement_enabled(self.game.settings) and not reports:
+            return None
+        box = QGroupBox("Ground movement")
+        column = QVBoxLayout()
+        for report in reports:
+            text = (
+                f"To {destination_label(self.game, report.destination)}: "
+                f"{report.remaining_distance_m / METERS_PER_MILE:.0f} mi to go"
+            )
+            if report.remaining_turns is not None:
+                text += f", about {report.remaining_turns} turn(s)"
+            if report.pause_reason:
+                text += f". Waiting: {report.pause_reason}"
+            label = QLabel(text)
+            label.setWordWrap(True)
+            column.addWidget(label)
+            stop = QPushButton("Stop here")
+            stop.setToolTip("The column halts where it is and stays as its own group")
+            stop.clicked.connect(lambda _=False, r=report: self.stop_movement(r))
+            column.addWidget(stop)
+        if active_transit(self.game, tgo.id) is None and tgo.alive_unit_count():
+            move = QPushButton("Move...")
+            move.clicked.connect(self.open_movement)
+            column.addWidget(move)
+        box.setLayout(column)
+        return box
+
+    def open_movement(self) -> None:
+        from qt_ui.windows.groundobject.movementdialog import ArmorMovementDialog
+
+        dialog = ArmorMovementDialog(
+            self.game,
+            self.ground_object.id,
+            self.ground_object.control_point.captured,
+            self,
+        )
+        if dialog.exec():
+            GameUpdateSignal.get_instance().updateGame(self.game)
+            self.do_refresh_layout()
+
+    def stop_movement(self, report: object) -> None:
+        events = GameUpdateEvents()
+        stop_armor(
+            self.game,
+            getattr(report, "order_id"),
+            self.ground_object.control_point.captured,
+            events,
+        )
+        EventStream.put_nowait(events)
+        GameUpdateSignal.get_instance().updateGame(self.game)
+        self.do_refresh_layout()
 
     def sell_all(self):
         self.update_total_value()

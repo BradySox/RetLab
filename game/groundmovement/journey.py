@@ -18,6 +18,15 @@ class GroundPosition:
     x: float
     z: float
 
+    def __post_init__(self) -> None:
+        if any(
+            isinstance(v, bool)
+            or not isinstance(v, (int, float))
+            or not math.isfinite(v)
+            for v in (self.x, self.z)
+        ):
+            raise ValueError("Ground positions require finite coordinates")
+
 
 @dataclass(frozen=True)
 class GroundSegment:

@@ -76,6 +76,8 @@ class UnitMap:
         self.theater_objects: Dict[str, TheaterUnitMapping] = {}
         self.scenery_objects: Dict[str, SceneryObjectMapping] = {}
         self.convoys: Dict[str, ConvoyUnit] = {}
+        #: §131: a towed piece is lost with the tractor that carries it.
+        self.ground_transport_cargo: dict[str, list[TheaterUnitMapping]] = {}
         self.cargo_ships: Dict[str, CargoShipUnit] = {}
         #: Train unit name -> the cargo names train_losses.lua reports when it dies.
         self.trains: Dict[str, list[str]] = {}

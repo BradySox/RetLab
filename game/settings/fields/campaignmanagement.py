@@ -705,16 +705,17 @@ class CampaignManagementSettings:
         ),
     )
     ground_movement: bool = boolean_option(
-        "Supply convoys cover a set distance a turn",
+        "Ground movement",
         CAMPAIGN_MANAGEMENT_PAGE,
         "Campaign features",
         default=True,
         detail=(
-            "A supply convoy drives a set distance each turn (Road miles per turn, "
-            "Off-road miles per turn) and picks up where it stopped, instead of "
-            "reaching the next base every turn. It spawns where it has got to, and "
-            "its losses come off its cargo. A convoy whose next base is lost waits. "
-            "Saves from before this setting keep it off."
+            "Supply convoys, and armor groups you order to move, drive a set "
+            "distance each turn (Road miles per turn, Off-road miles per turn) and "
+            "pick up where they stopped. A column spawns where it has got to, and "
+            "its losses come off its cargo. Move an armor group from its window. "
+            "A column whose next base is lost waits. Saves from before this "
+            "setting keep it off."
         ),
     )
     ground_movement_road_miles: int = bounded_int_option(
