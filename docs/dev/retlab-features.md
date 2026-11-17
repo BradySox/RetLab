@@ -12493,7 +12493,7 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 
 Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
 Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
-Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves) and 4 (reserves) are built.
+Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves), 4 (reserves) and 5 (SAM batteries) are built.
 
 ### The rule (stage 2)
 
@@ -12579,3 +12579,29 @@ laid out on clear ground at the point when they arrive.
 | Window | `qt_ui/windows/basemenu/reservedialog.py`, `QBaseMenu2.py` |
 | Tests | `tests/groundmovement/test_base_reserve_groups.py`, `test_reserve_frontline_integration.py`, `test_reserve_dialog.py` |
 | In-game pass | B342 |
+
+### Stage 5: move a SAM battery
+
+A friendly SAM or early-warning site's window shows **Move...** too. The whole surviving
+site moves together, to a typed point; it needs its own trucks for any towed launcher or
+radar. Self-propelled batteries (SA-6, SA-8, SA-11, SA-15, Tor, Buk-M3 and the like) move as
+they are.
+
+- On the road the site is packed: off the IADS export (Skynet never sees it), no threat or
+  detection range, no GPS jamming, nothing bought or repaired. It spawns as a column with
+  weapons held and radars quiet.
+- On arrival it redeploys in its own layout and rejoins the network wired by range where it
+  now stands (`relocated`), not by the campaign's named links.
+- A battery that has moved is no longer a fixed, mapped site (`is_fixed_sam_site` is false),
+  so §3's fog applies to it; a red battery that moves becomes unknown again until it is
+  engaged or heard.
+- Not ported: his truck purchases for batteries without their own (#699), his IADS state map
+  and relocating map rings (#715, #719, #721).
+
+| What | Where |
+|---|---|
+| Dispatch | `game/groundmovement/dispatch.py` (the `IadsGroundObject` branch) |
+| Network and fog | `game/theater/iadsnetwork/iadsnetwork.py`, `TheaterGroundObject.relocated`, `is_fixed_sam_site` |
+| Packed ranges and jamming | `TheaterUnit._packed`, `game/retlab/gps_jamming.py` |
+| Tests | `tests/groundmovement/test_sam_movement.py`, `test_sam_fog.py` |
+| In-game pass | B343 |

@@ -97,6 +97,10 @@ def dispatch_armor(
             GroundJourney(preview.route, last_advanced_turn=game.turn),
         )
         source.in_transit = True
+        source.relocated = True
+        # §3: a red battery that moves is a new unknown until it is engaged or heard.
+        if owner is Player.RED:
+            source.discovered_by_player = False
         for unit in units:
             unit.transported_by_id = dict(preview.manifest.towing).get(unit.id)
         game.ground_movements.transits[order.id] = transit

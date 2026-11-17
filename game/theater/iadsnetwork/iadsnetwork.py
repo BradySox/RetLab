@@ -161,6 +161,9 @@ class IadsNetwork:
             if game.iads_considerate_culling(node.group.ground_object):
                 # Skip culled ground objects
                 continue
+            # §131: a battery packed for the road is off the network until it arrives.
+            if getattr(node.group.ground_object, "in_transit", False):
+                continue
 
             # A destroyed C2 node must STAY in the exported graph. The runtime reads
             # each SAM's comms/power dependency (and the coalition's command-centre
@@ -186,6 +189,8 @@ class IadsNetwork:
                 # Skynet reads an empty power list as powered, so leaving the link
                 # out is the whole feature; the link itself stays in the network.
                 if is_bypassed_power_link(node, connection):
+                    continue
+                if getattr(connection.ground_object, "in_transit", False):
                     continue
                 if (
                     not any([x.alive for x in connection.units])
@@ -289,7 +294,10 @@ class IadsNetwork:
             return
         events.update_iads_node(node)
         if self.advanced_iads:
-            if tgo.original_name in self.iads_config:
+            # §131: a battery that moved is wired by range where it now stands.
+            if tgo.original_name in self.iads_config and not getattr(
+                tgo, "relocated", False
+            ):
                 self._add_connections_from_config(node)
             elif not self.iads_config or self._belongs_in_the_network(tgo):
                 # A site the config never named was range-wired when it joined;

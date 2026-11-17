@@ -245,6 +245,8 @@ Most of this is opt-in. Full list with toggles, defaults and known limitations:
   guns, and can be hit on the road. **Stop here** halts it where it is.
 - Send spare armor from a base's stock out as its own group (**Deploy reserve...** in the base
   window). A moved group that your front sweeps over joins the base behind that front.
+- Move a whole SAM or radar site the same way (**Move...** in its window). It is off the IADS
+  while packed and rejoins it where it stops. An enemy battery that moves is unknown again.
 - Sea shipments sail as convoys of cargo ships, each carrying a share, so sinking some denies
   only their share. Coastal anti-ship batteries fire on enemy shipping in range.
 - Ship groups generate as mixed task groups rather than copies of one hull. Patrol boats never

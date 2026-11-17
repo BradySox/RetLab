@@ -159,6 +159,9 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
     reserve_from_base: bool = False
     #: The base whose reserve this group joined when its front reached it.
     absorbed_into_frontline: Optional[uuid.UUID] = None
+    #: A SAM battery that has been moved (stage 5): no longer a prepared, mapped
+    #: position, and wired to the IADS by range.
+    relocated: bool = False
 
     def __init__(
         self,
@@ -303,7 +306,7 @@ class TheaterGroundObject(MissionTarget, SidcDescribable, ABC):
     @property
     def is_fixed_sam_site(self) -> bool:
         """An air-defense site built around a fixed SAM system (always known)."""
-        if self.category != "aa":
+        if self.category != "aa" or self.relocated:
             return False
         return any(
             is_fixed_sam_type(str(getattr(unit.type, "id", ""))) for unit in self.units
@@ -970,7 +973,8 @@ class SamGroundObject(IadsGroundObject):
 
     @property
     def purchasable(self) -> bool:
-        return True
+        # §131: nothing is bought for a battery on the road.
+        return not self.in_transit
 
 
 class VehicleGroupGroundObject(TheaterGroundObject):
@@ -1161,7 +1165,8 @@ class EwrGroundObject(IadsGroundObject):
 
     @property
     def purchasable(self) -> bool:
-        return True
+        # §131: nothing is bought for a radar on the road.
+        return not self.in_transit
 
 
 class ShipGroundObject(NavalGroundObject):
