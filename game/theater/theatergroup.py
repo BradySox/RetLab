@@ -165,6 +165,12 @@ class TheaterUnit:
         return self.type.id
 
     @property
+    def _packed(self) -> bool:
+        if self.transported_by_id is not None:
+            return True
+        return self.ground_object.in_transit and self.ground_object.is_iads
+
+    @property
     def repairable(self) -> bool:
         # §131: nothing on the road is repaired.
         if self.ground_object.in_transit:
@@ -174,14 +180,14 @@ class TheaterUnit:
 
     def detection_range(self) -> Distance:
         unit_range = getattr(self.type, "detection_range", None)
-        # §131: a towed piece is packed on its tractor.
-        if unit_range is None or not self.alive or self.transported_by_id is not None:
+        # §131: a towed piece, or any air-defense unit on the road, is packed.
+        if unit_range is None or not self.alive or self._packed:
             return meters(0)
         return meters(unit_range)
 
     def threat_range(self) -> Distance:
         unit_range = getattr(self.type, "threat_range", None)
-        if unit_range is None or not self.alive or self.transported_by_id is not None:
+        if unit_range is None or not self.alive or self._packed:
             return meters(0)
         return meters(unit_range)
 

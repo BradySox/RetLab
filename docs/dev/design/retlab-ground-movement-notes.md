@@ -1,6 +1,6 @@
 # Ground movement (port of Juan's dcs-escalation ground movement)
 
-Status: stages 1 to 4 of 7 built (2026-11-17). Features doc §131.
+Status: stages 1 to 5 of 7 built (2026-11-17). Features doc §131.
 
 Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
 LGPL-3.0, ported by hand: his tree and ours split long ago.
@@ -31,7 +31,7 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 | 2 | Supply convoys keep their place across turns; the setting and the per-turn distances | **Built** |
 | 3 | Move an armor group | **Built** |
 | 4 | Reserve groups from base stock; joining the front | **Built** |
-| 5 | Mobile SAM battery moves (fog reset, Skynet relink) | — |
+| 5 | Mobile SAM battery moves (fog reset, Skynet relink) | **Built** |
 | 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | — |
 | 7 | Red moves through the outside AI | — |
 
@@ -88,3 +88,13 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 - Our transfers take units out of the base when ordered, so his "undeparted transfer still
   owns stock" rule does not apply.
 - Row B342.
+
+## Stage 5: SAM batteries
+
+- His #634 rules: in-transit sites leave the IADS export, ranges zero while packed, GPS
+  jammers off, no purchases; tests from his `test_sam_movement.py`.
+- Ours: a moved site is `relocated`, wired by range on arrival instead of by the campaign
+  config's names, and no longer counts as a fixed SAM site; a red one is forgotten
+  (`discovered_by_player = False`) when it sets out.
+- Not ported: truck purchases (#699), his IADS state map and map rings (#715-#721).
+- Row B343.

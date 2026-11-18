@@ -33,6 +33,7 @@ from game.groundmovement.settings import enabled as ground_movement_enabled
 from game.theater.theatergroundobject import (
     BuildingGroundObject,
     MissileSiteGroundObject,
+    SamGroundObject,
     VehicleGroupGroundObject,
 )
 from game.utils import Distance, meters
@@ -561,7 +562,8 @@ class QGroundObjectMenu(QDialog):
         """§131: send this armor group somewhere, or follow it on the road."""
         tgo = self.ground_object
         owner = tgo.control_point.captured
-        if not isinstance(tgo, VehicleGroupGroundObject) or not owner.is_blue:
+        movable = isinstance(tgo, (VehicleGroupGroundObject, SamGroundObject))
+        if not movable or not owner.is_blue:
             return None
         reports = [
             r

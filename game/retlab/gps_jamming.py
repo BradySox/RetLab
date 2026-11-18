@@ -136,6 +136,9 @@ def gps_jammer_sites(game: "Game") -> list[GpsJammerSite]:
     sites: list[GpsJammerSite] = []
     for cp in game.theater.controlpoints:
         for tgo in cp.ground_objects:
+            # §131: a jammer packed for the road is off.
+            if getattr(tgo, "in_transit", False):
+                continue
             site = _site_for_tgo(tgo, cp, default_reach, default_miss)
             if site is not None:
                 sites.append(site)
