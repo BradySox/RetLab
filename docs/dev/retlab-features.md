@@ -12493,7 +12493,7 @@ unticked, no threat check, grey once a flight exists, all or nothing.
 
 Juan's ground movement (juanjux/dcs-escalation, #561 to #726), ported in seven stages.
 Design note, stages and the DM's calls: [`retlab-ground-movement-notes.md`](design/retlab-ground-movement-notes.md).
-Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves), 4 (reserves) and 5 (SAM batteries) are built.
+Stages 1 (mobility catalog), 2 (convoys keep their place), 3 (armor moves), 4 (reserves), 5 (SAM batteries) and 6 (SAMs defend on the road) are built.
 
 ### The rule (stage 2)
 
@@ -12605,3 +12605,21 @@ they are.
 | Packed ranges and jamming | `TheaterUnit._packed`, `game/retlab/gps_jamming.py` |
 | Tests | `tests/groundmovement/test_sam_movement.py`, `test_sam_fog.py` |
 | In-game pass | B343 |
+
+### Stage 6: SAMs that defend on the road
+
+A packed battery of a type checked in DCS probes (Osa, Tor, Buk-M3, C-RAM, Shilka, Gepard,
+Avenger, Strela and the others in `game/groundmovement/samdefense.py`) watches with its own
+sensors while it drives. When a hostile aircraft comes inside its envelope (slant range,
+minimum range and ceiling relative to the launcher), or it is hit, it halts, unpacks and
+fights, then packs up and resumes the rest of its route after a quiet spell. Other batteries,
+and any battery carrying a towed piece, stay packed. The RBS-98 relocates packed with a
+warning that it cannot defend in transit.
+
+| What | Where |
+|---|---|
+| Who can defend, envelopes | `game/groundmovement/samdefense.py` |
+| Registration | `game/missiongenerator/samtransitdefense.py`, `LuaGenerator._inject_sam_transit_defense` |
+| Runtime | `resources/plugins/base/sam_transit_defense.lua` (`RETLAB_SAM_TRANSIT`) |
+| Tests | `tests/groundmovement/test_sam_transit_defense.py` |
+| In-game pass | B344 |

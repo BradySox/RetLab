@@ -244,7 +244,9 @@ class MissionGenerator:
         self.mission_data.ctld_templates = CtldTemplateGenerator(
             self.mission, self.game, self.mission_data
         ).generate()
-        LuaGenerator(self.game, self.mission, self.mission_data).generate()
+        LuaGenerator(
+            self.game, self.mission, self.mission_data, self.unit_map
+        ).generate()
         generate_ship_health(self.game, self.mission, self.unit_map)
         DrawingsGenerator(self.mission, self.game, self.mission_data).generate()
 
