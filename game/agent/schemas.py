@@ -107,6 +107,31 @@ class BuyGroundRequest(BaseModel):
     quantity: int = 1
 
 
+class MovementDestinationSpec(BaseModel):
+    # "position" (lat, lng), "base" (base_id) or "frontline" (base_id, opposing_base_id)
+    kind: str = "position"
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    base_id: Optional[str] = None
+    opposing_base_id: Optional[str] = None
+
+
+class GroundMovementRequest(BaseModel):
+    side: str = "red"
+    source_id: (
+        str  # an armor group or SAM site id, or a base id with source_kind "base"
+    )
+    source_kind: str = "armor"  # "armor", "sam" or "base"
+    unit_ids: list[int] = []  # armor and SAM: the unit ids to send
+    stock: dict[str, int] = {}  # base: unit type name -> how many
+    destination: MovementDestinationSpec
+
+
+class StopGroundMovementRequest(BaseModel):
+    side: str = "red"
+    order_id: str
+
+
 class StanceRequest(BaseModel):
     side: str = "red"
     friendly_cp_id: str

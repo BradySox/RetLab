@@ -69,6 +69,15 @@ def _calls(game: Any, extra_flight_ids: list[str]) -> Iterator[tuple[str, Any]]:
             for flight_id in _red_flight_ids(game) + extra_flight_ids:
                 yield f"{route.path} {flight_id}", lambda f=flight_id: endpoint(f)
             continue
+        if route.path.endswith("/ground/movement/options"):
+            # §131: every red group and base the red API may move from.
+            for cp in game.theater.controlpoints:
+                if not cp.captured.is_red:
+                    continue
+                yield f"{route.path} {cp.id}", lambda i=str(cp.id): endpoint(i, "base")
+                for tgo in cp.ground_objects:
+                    yield f"{route.path} {tgo.id}", lambda i=str(tgo.id): endpoint(i)
+            continue
         required = [
             name
             for name, param in params.items()

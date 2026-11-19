@@ -145,6 +145,8 @@ def capabilities() -> dict[str, Any]:
             "human_notes",
             "notes",
             "validate",
+            "ground/movement",
+            "ground/movement/options",
         ],
         "writes": (
             [
@@ -156,6 +158,9 @@ def capabilities() -> dict[str, Any]:
                 "buy/aircraft",
                 "sell/aircraft",
                 "buy/ground",
+                "ground/movement/preview",
+                "ground/movement/dispatch",
+                "ground/movement/stop",
                 "notes (PUT replace, POST merge, DELETE one key)",
             ]
             if writable
@@ -254,6 +259,48 @@ def buy_ground(
     side: str, cp_id: str, unit_name: str, quantity: int
 ) -> schemas.OpResult:
     return planner.buy_ground(_writable_game(), side, cp_id, unit_name, quantity)
+
+
+@opfor_only
+def ground_movement_options(
+    side: str, source_id: str, source_kind: str
+) -> dict[str, Any]:
+    from game.agent import groundmovement
+
+    game = _require_game()
+    return groundmovement.guarded(groundmovement.options, game, source_id, source_kind)
+
+
+@opfor_only
+def ground_movements(side: str = OPFOR_SIDE) -> list[dict[str, Any]]:
+    from game.agent import groundmovement
+
+    return groundmovement.movements(_require_game())
+
+
+@opfor_only
+def preview_ground_movement(
+    side: str, request: schemas.GroundMovementRequest
+) -> dict[str, Any]:
+    from game.agent import groundmovement
+
+    return groundmovement.guarded(groundmovement.preview, _writable_game(), request)
+
+
+@opfor_only
+def dispatch_ground_movement(
+    side: str, request: schemas.GroundMovementRequest
+) -> dict[str, Any]:
+    from game.agent import groundmovement
+
+    return groundmovement.guarded(groundmovement.dispatch, _writable_game(), request)
+
+
+@opfor_only
+def stop_ground_movement(side: str, order_id: str) -> dict[str, Any]:
+    from game.agent import groundmovement
+
+    return groundmovement.guarded(groundmovement.stop, _writable_game(), order_id)
 
 
 def notes() -> dict[str, str]:

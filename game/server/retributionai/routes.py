@@ -238,6 +238,33 @@ def sell_aircraft(body: schemas.BuyAircraftRequest) -> schemas.OpResult:
     return _guarded(service.sell_aircraft, body.side, body.squadron_id, body.quantity)
 
 
+@router.get("/ground/movement/options", operation_id="ai_ground_movement_options")
+def ground_movement_options(
+    source_id: str, source_kind: str = "armor", side: str = "red"
+) -> dict[str, Any]:
+    return _guarded(service.ground_movement_options, side, source_id, source_kind)
+
+
+@router.get("/ground/movement", operation_id="ai_ground_movements")
+def ground_movements(side: str = "red") -> list[dict[str, Any]]:
+    return _guarded(service.ground_movements, side)
+
+
+@router.post("/ground/movement/preview", operation_id="ai_preview_ground_movement")
+def preview_ground_movement(body: schemas.GroundMovementRequest) -> dict[str, Any]:
+    return _guarded(service.preview_ground_movement, body.side, body)
+
+
+@router.post("/ground/movement/dispatch", operation_id="ai_dispatch_ground_movement")
+def dispatch_ground_movement(body: schemas.GroundMovementRequest) -> dict[str, Any]:
+    return _guarded(service.dispatch_ground_movement, body.side, body)
+
+
+@router.post("/ground/movement/stop", operation_id="ai_stop_ground_movement")
+def stop_ground_movement(body: schemas.StopGroundMovementRequest) -> dict[str, Any]:
+    return _guarded(service.stop_ground_movement, body.side, body.order_id)
+
+
 @router.post(
     "/buy/ground",
     operation_id="ai_buy_ground",

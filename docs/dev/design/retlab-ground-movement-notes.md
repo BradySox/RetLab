@@ -1,6 +1,6 @@
 # Ground movement (port of Juan's dcs-escalation ground movement)
 
-Status: stages 1 to 6 of 7 built (2026-11-17). Features doc §131.
+Status: all 7 stages built (2026-11-17). Features doc §131.
 
 Source: juanjux/dcs-escalation #561 to #726 (2026-10-26 to 2026-11-11), `game/groundmovement/`.
 LGPL-3.0, ported by hand: his tree and ours split long ago.
@@ -33,7 +33,7 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 | 4 | Reserve groups from base stock; joining the front | **Built** |
 | 5 | Mobile SAM battery moves (fog reset, Skynet relink) | **Built** |
 | 6 | SAMs that defend on the road (Osa, Tor, Buk-M3, C-RAM) | **Built** |
-| 7 | Red moves through the outside AI | — |
+| 7 | Red moves through the outside AI | **Built** |
 
 ## Rules it must keep
 
@@ -105,3 +105,17 @@ LGPL-3.0, ported by hand: his tree and ours split long ago.
 - `LuaGenerator` now takes the mission's `UnitMap` to find the moving batteries.
 - His Realistic CAS registry hooks are left out.
 - Row B344.
+
+## Stage 7: red through the outside AI
+
+- Our own small service over the same planning and dispatch calls the Move windows use; his
+  MCP server and his Qt command queue are not ported (our §109 writes run like its other
+  writes).
+- Row B345.
+
+## Not ported, still open
+
+- The map picker for a destination (his #576/#578); points are typed.
+- Truck purchases for SAM batteries without their own (#699).
+- His IADS state map and relocating map rings (#715-#721).
+- Unknown mobility for 83 unit types, mostly RetLab-only mod units.
