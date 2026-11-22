@@ -1049,6 +1049,13 @@ FEATURES: tuple[Feature, ...] = (
             "ground_movement_off_road_miles",
         ),
     ),
+    Feature(
+        # Land towers only; carriers keep theirs for the recovery pattern.
+        "silence_ai_atc",
+        "Silence AI ATC",
+        132,
+        settings_fields=("silence_ai_atc",),
+    ),
     # Always-on engine plugins — major RetLab machinery documented in design notes
     # rather than a numbered "Features at a Glance" entry.
     Feature("skynet_iads", "Skynet IADS engine", plugin_id="skynetiads"),

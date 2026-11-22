@@ -1,0 +1,8 @@
+date: 2026-11-22
+title: Silent towers
+change: >-
+  Every airfield and FARP tower now starts the mission silent: it makes no
+  radio calls and answers none. Carriers keep their tower. Turn it off with
+  Silence AI ATC in Mission Generator > Gameplay.
+watch: >-
+  Call your airfield's tower from the F10 ATC menu: there should be no answer.

@@ -105,6 +105,18 @@ class LuaGenerator:
         self._seed_scenery_objectives()
         self._inject_cap_refuel()
         self._inject_sam_transit_defense()
+        self._inject_silent_atc()
+
+    def _inject_silent_atc(self) -> None:
+        """§132: every land tower starts silent; carriers keep theirs."""
+        if not self.game.settings.silence_ai_atc:
+            return
+        trigger = TriggerStart(comment="Silence AI ATC")
+        script = Path("resources/plugins/base/silent_atc.lua").resolve()
+        trigger.add_action(
+            DoScriptFile(self.mission.map_resource.add_resource_file(script))
+        )
+        self.mission.triggerrules.triggers.append(trigger)
 
     def _inject_sam_transit_defense(self) -> None:
         """§131 stage 6: a packed SAM column that can fight back does."""

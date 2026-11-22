@@ -12641,3 +12641,24 @@ and the red-only tripwire test calls the new read route for every red group and 
 | The AI's guide | `resources/agent/howtoplay.md` |
 | Tests | `tests/groundmovement/test_red_movement_api.py`, `tests/agent/test_blue_plan_never_served.py` |
 | In-game pass | B345 |
+
+## §132 — Silence AI ATC
+
+Every airfield and FARP tower on the map starts the mission in DCS's radio silent mode
+(Brady's picks, 2026-11-22, from the JTF-191 mission editor standards).
+
+- **Which towers:** every land airbase `world.getAirbases()` returns, any coalition. Carriers
+  (`Airbase.Category.SHIP`) are skipped: their tower runs the recovery pattern.
+- **How:** `Airbase.setRadioSilentMode(true)` at mission start, the scripting call behind the
+  editor's SET ATC SILENT MODE trigger action. Each call is wrapped in `pcall`.
+- **Default:** on for every campaign (Brady's call). *Silence AI ATC* in Mission Generator >
+  Gameplay turns it off.
+- **Not changed:** §119 Voice ATC keeps its own SkyEye frequencies, apart from DCS's tower.
+
+| Area | Path |
+|---|---|
+| Setting | `game/settings/fields/missiongenerator.py` (`silence_ai_atc`) |
+| Loader | `game/missiongenerator/luagenerator.py` (`_inject_silent_atc`) |
+| Script | `resources/plugins/base/silent_atc.lua` |
+| Tests | `tests/lua/test_silent_atc_runtime.py`, `tests/missiongenerator/test_silent_atc.py` |
+| In-game pass | B347 |

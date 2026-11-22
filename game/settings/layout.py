@@ -367,6 +367,7 @@ _LAYOUT_SPEC: list[tuple[str, list[tuple[str, list[str]]]]] = [
                     "default_player_laser_code",
                     "switch_baro_fix",
                     "ai_radio_behavior",
+                    "silence_ai_atc",
                 ],
             ),
             (
@@ -622,6 +623,7 @@ FEATURE_GATE_FIELDS: dict[str, list[str]] = {
     ],
     "AI air operations": [
         "cap_tanker_trips",  # §8
+        "silence_ai_atc",  # §132
     ],
     "Host & event tools": [
         "host_red_scramble",  # §61
