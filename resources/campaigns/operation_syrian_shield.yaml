@@ -167,3 +167,6 @@ squadrons:
       aircraft:
       - Mi-24V Hind-E
       size: 6
+settings:
+  # Every squadron starts at its listed size.
+  squadron_start_full: true
