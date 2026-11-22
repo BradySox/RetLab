@@ -7,7 +7,7 @@ description:
   <p>This is an small scenario. Blue players start with 1500M but low on resources. Can not afford to lose much aircrafts. In the other side, the enemy has a lot of resources and can afford to lose some aircraft. For sure those oil fields are a great stream of funds for Isis forces.</p>
   <p>Front line is very close to the allied base. If the enemy takes the base, the game is over.</p>
 recommended_player_faction: Bluefor Modern
-recommended_enemy_faction: Syria 2011
+recommended_enemy_faction: Syria 2011 (S-300)
 recommended_start_date: 2024-06-01
 miz: operation_syrian_shield.miz
 performance: 2
@@ -21,6 +21,10 @@ carriers:
   Blue CV:
     preferred_name: CVN-73 George Washington
     preferred_type: CVN-73 George Washington
+# Deir ez-Zor's two long-range markers: one SA-10, one SA-5.
+ground_forces:
+  Suelo-67: SA-10/S-300PS
+  Suelo-68: SA-5/S-200
 squadrons:
   Blue CV:
     # Hornet - VFA-11 "Red Rippers"
