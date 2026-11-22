@@ -80,10 +80,16 @@ class _FakeAto:
         self.packages = packages
 
 
+class _FakePlayer:
+    is_blue = True
+
+
 class _FakeCoalition:
     def __init__(self, packages: list[_FakePackage], settings: _FakeSettings) -> None:
         self.ato = _FakeAto(packages)
         self.game = _FakeGame(settings)
+        # Blue: these lock the spread; red's attack waves have their own tests.
+        self.player = _FakePlayer()
 
 
 class _StubTotEstimator:
