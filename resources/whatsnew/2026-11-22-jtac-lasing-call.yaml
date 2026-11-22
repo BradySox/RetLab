@@ -1,0 +1,9 @@
+date: 2026-11-22
+title: Clearer JTAC lasing calls
+change: >-
+  A JTAC's lasing call now gives the target's bullseye in nautical miles and
+  its MGRS grid, and names it the way the editor does (ZSU-57-2 Sparka, not
+  ZSU_57_2). Each JTAC lases one target at a time, so a laser-guided bomb
+  on its code has only one spot to find.
+watch: >-
+  Needs the CTLD plugin's JTAC autolase option.

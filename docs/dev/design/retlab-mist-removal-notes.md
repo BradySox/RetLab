@@ -64,6 +64,14 @@ JTAC unit (1113 with the FC3 option), smoke with the smoke option. Reports are t
 (DM pick, no SRS). CTLD's F10 JTAC menu is replaced by AUTOLASE's own status menu. A 24-man
 stick's JTAC joins the same AUTOLASE from step 3b (below).
 
+Since 2026-11-22 (Brady's picks, B346) each JTAC lases one target at a time
+(`SetMaxLasingTargets(1)`; AUTOLASE's default of four put four spots on one code), and the
+config replaces AUTOLASE's `onbeforeLasing` call. MOOSE's call used `_SETTINGS`, which is
+metric, printed the internal type name and kept the space before `#001`. Ours reads
+`<JTAC> lasing <display name>, code ####`, then `BULLS ###/## NM` (true bearing) and an MGRS
+grid, and writes the same name and position into the entry the F10 status menu reads.
+`_SETTINGS` stays metric, so other MOOSE messages are unchanged.
+
 ## 6. CTLD cargo on Ops.CTLD (step 3b)
 
 `ctld/CTLD.lua` and `CTLD-i18n.lua` are deleted; `ctld-config.lua` builds one `Ops.CTLD`

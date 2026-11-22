@@ -358,6 +358,62 @@ end
 
 -- JTAC lasing (MOOSE AUTOLASE) --------------------------------------------------------------
 
+-- AUTOLASE's own lasing call is metric, prints the internal type name and keeps the space
+-- before "#001"; this one gives bullseye in NM and an MGRS grid.
+local function jtacName(name)
+    name = string.match(name or "", "^([^#]*)") or ""
+    return (string.gsub(name, "^%s*(.-)%s*$", "%1"))
+end
+
+local function jtacTargetName(spot)
+    local ok, desc = pcall(function()
+        return spot.lasedunit:GetDesc()
+    end)
+    if ok and desc and desc.displayName and desc.displayName ~= "" then
+        return desc.displayName
+    end
+    return spot.unittype or "target"
+end
+
+local function jtacBullseye(sideNumber, p)
+    local bulls = coalition.getMainRefPoint(sideNumber)
+    if not bulls then
+        return nil
+    end
+    local dx, dz = p.x - bulls.x, p.z - bulls.z
+    local bearing = math.floor(math.deg(math.atan2(dz, dx)) + 0.5) % 360
+    local nm = math.floor(math.sqrt(dx * dx + dz * dz) / 1852 + 0.5)
+    return string.format("BULLS %03d/%d NM", bearing, nm)
+end
+
+local function jtacMgrs(p)
+    local lat, lon = coord.LOtoLL(p)
+    local m = coord.LLtoMGRS(lat, lon)
+    if not m then
+        return nil
+    end
+    return string.format("MGRS %s %s %05d %05d", m.UTMZone, m.MGRSDigraph,
+        math.floor(m.Easting), math.floor(m.Northing))
+end
+
+local function jtacLasingText(sideNumber, spot)
+    local where = {}
+    local ok, p = pcall(function()
+        return spot.coordinate:GetVec3()
+    end)
+    if ok and p then
+        where[#where + 1] = jtacBullseye(sideNumber, p)
+        where[#where + 1] = jtacMgrs(p)
+    end
+    local location = table.concat(where, "\n")
+    local text = string.format("%s lasing %s, code %d", jtacName(spot.reccename),
+        jtacTargetName(spot), spot.lasercode)
+    if location ~= "" then
+        text = text .. "\n" .. location
+    end
+    return text, location
+end
+
 local function startJtacs(options, templates)
     local smoke = toboolean(options.jtacsmoke)
     local fc3LaserCode = toboolean(options.fc3LaserCode)
@@ -383,6 +439,21 @@ local function startJtacs(options, templates)
             lase:SetLasingParameters(10000, 1800)
             lase:SetLaserCoolDown(false)
             lase:AddBlackListAttributes({ "Infantry" })
+            -- One spot per JTAC: four on one code (AUTOLASE's default) send a bomb to any of them.
+            lase:SetMaxLasingTargets(1)
+            local sideNumber = side == "blue" and coalition.side.BLUE or coalition.side.RED
+            function lase:onbeforeLasing(From, Event, To, LaserSpot)
+                local text, location = jtacLasingText(sideNumber, LaserSpot)
+                -- The F10 status page reads the same entry.
+                LaserSpot.unittype = jtacTargetName(LaserSpot)
+                if location ~= "" then
+                    LaserSpot.location = location
+                end
+                if self.notifypilots or self.debug then
+                    self:NotifyPilots(text, (self.reporttimeshort or 10) + 5)
+                end
+                return self
+            end
             if smoke then
                 lase:SetSmokeTargets(true)
             end
