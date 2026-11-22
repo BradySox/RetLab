@@ -1,1 +1,0 @@
-* **[Plugins]** QRA alert jets scramble again. The 2026-11-12 MOOSE update dropped the dispatcher QRA used; QRA now runs on MOOSE's EASYGCICAP, with a hidden anchor static placed clear of each alert field.

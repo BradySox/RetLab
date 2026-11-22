@@ -1,1 +1,0 @@
-* **[Mission Planning]** The package window has a **Fill support** button. After you add your main flight, it adds a 2-ship escort and one 2-ship SEAD flight where the route needs them, counting only SAM sites on your map.

@@ -1,1 +1,0 @@
-* **[Mission Generation]** F-16 and F/A-18 presets follow the order of a sortie: Ground, Tower, Departure, AWACS, STRIKE, Vacuum, tankers, Approach on COMM1; the other flights in the package on the second radio.
