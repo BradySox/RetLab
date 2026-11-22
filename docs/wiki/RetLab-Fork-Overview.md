@@ -113,7 +113,7 @@ Full detail: [Air Defense and the Air War](Air-Defense-and-the-Air-War).
 - Missile batteries generate with a support park in the faction's own kit.
 - Carrier comms match the hull, Navy jets wear sequential squadron modexes, and the deck carries
   dressing placed clear of every spot and catapult.
-- Civilian air traffic all mission long, clear of the war (Mission Generation > General sets Off, Light, Normal or Busy), and the RetLab-tuned Splash Damage 3 build.
+- Civilian air traffic all mission long, clear of the war (Mission Generation > General sets Off, Light, Normal or Busy), silent AI towers at every airfield and FARP (carriers keep theirs; Silence AI ATC in Mission Generator > Gameplay), and the RetLab-tuned Splash Damage 3 build.
 
 ---
 

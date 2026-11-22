@@ -360,6 +360,7 @@ linked design note.
 129. **Civilian air traffic** — real civil types fly all mission, a steady stream clear of the fronts and known SAM rings. Off / Light / Normal / Busy, default Light.
 130. **Fill support** — a package-window button adds a 2-ship escort and one SEAD flight where the route needs them; known SAM sites only.
 131. **Ground movement** — supply convoys drive 120 road miles (60 off-road) a turn and keep their place; armor groups, base reserves and SAM batteries move on your order (red's only through the outside AI), some batteries fighting on the road. On for new games.
+132. **Silence AI ATC** — every airfield and FARP tower starts the mission silent; carriers keep theirs. On by default.
 
 ### Retired, removed or shelved — do not restore
 

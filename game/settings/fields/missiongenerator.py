@@ -525,6 +525,17 @@ class MissionGeneratorSettings:
             "its mission link, hears the calls and speaks the replies."
         ),
     )
+    silence_ai_atc: bool = boolean_option(
+        "Silence AI ATC",
+        page=MISSION_GENERATOR_PAGE,
+        section=GAMEPLAY_SECTION,
+        default=True,
+        detail=(
+            "Every airfield and FARP on the map, any side, starts the mission with "
+            "its DCS tower in silent mode: it makes no radio calls and answers none. "
+            "Carriers keep their tower. AI flights still take off and land as before."
+        ),
+    )
     record_radios_for_tacview: bool = boolean_option(
         "Record radios for Tacview (SkyEye)",
         page=MISSION_GENERATOR_PAGE,
