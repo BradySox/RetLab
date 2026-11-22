@@ -1,1 +1,0 @@
-* **[Mission Generation]** A mission leaves out the scripts that have nothing to do in it: Airboss without a carrier, CTLD without transport flights or JTACs, C-130J Mission Systems without a C-130J-30, CSAR when it is off, Skynet without air defenses, and the scripts of settings that are off.

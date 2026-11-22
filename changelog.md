@@ -1,4 +1,66 @@
-﻿# Retribution v1.7.0 (RetLab)
+﻿# Retribution v1.7.1 (RetLab)
+
+## Features/Improvements
+* **[Campaigns]** Eight RetLab campaigns preset fewer settings, so your saved defaults decide more: no mission range on Fulda Gap, Red Bear or Northern Shield, no host red scramble, no cautious blue planner on Red Tide and Baltic Fury, and none of Red Flag 81-2's skill, label, day-only or automation picks. New games only.
+* **[Mission Generation]** An AI BARCAP running low on fuel with more than 20 minutes of station left flies to a tanker it can use, refuels and returns to its orbit. Setting: AI CAPs refuel on station (on).
+* **[Mission Generation]** Civilian air traffic is rebuilt: real civil types only (Yak-40, An-26 on the ex-Soviet maps, light planes, civil helicopters), a steady number in the air all mission, routes clear of the front and every known SAM ring, and an Off / Light / Normal / Busy setting (default Light).
+* **[Plugins]** CTLD runs on MOOSE's CTLD instead of the old CTLD script. The F10 cargo menu is MOOSE's (CTLD > Manage Troops > Drop Troops). Fixed-wing paradrops need 540 to 3,000 ft AGL and under 150 kt.
+* **[Campaigns]** Persian Gulf - Eastern Reach 2025: Marines at Bandar-e-Jask drive up the Minab-Jiroft highway to Kerman, with strikes flown 300 NM or more from the UAE. Needs the CurrentHill Iran and USA packs, the RetLab Iran Air Defense Pack and the F-15EX V3 mod.
+* **[Campaigns]** Eastern Reach 2025: six missile launch sites, a Bavar-373, a 3rd Khordad, a radar and a missile works north and east of Kerman, 400 to 440 NM from Al Dhafra. The mission range cap is 460 NM.
+* **[Modding]** Blufor Current, NATO Baltic 2027 and WRL - Task Force Blue list the F-15EX (CFTs) when the F-15EX V3 mod is ticked.
+* **[Modding]** Support for the F-15EX V3 mod (Spino v3.0): the F-15EX (CFTs) and F-15IA, with air-to-air loadouts. USA 2020, Israel 2017 and Bluefor Modern list them when the mod is ticked in New Game.
+* **[UI]** Campaign, unit, faction and other data files load about six times faster; the New Game campaign list opens in under a second.
+* **[Flight Planning]** Every airplane's route bends around known enemy SAM rings it does not need to enter, not only a package's join and split legs, when the way round is no more than half again as long. Your flights avoid only the sites you know. The package window names any ring a flight still crosses. On for new games.
+* **[Campaigns]** Fulda Gap 1985 and Northern Shield 1988: every drawn SA-2 site has 6 launchers; 8 sites had 4.
+* **[Campaign]** Send a friendly armor group, or part of it, to a map point, a base or a front line from its window. It drives one turn's distance after each mission, trucks towing its guns.
+* **[Campaign]** Supply convoys drive a set distance a turn (120 road miles, 60 off-road) and keep their place, so a long road takes more than one turn. On for new games.
+* **[Outside AI]** An outside AI that plans red can move red armor groups, red base reserves and red SAM batteries through /retribution-ai/ground/movement. Red's own planner never moves ground units.
+* **[Campaign]** Send spare armor from a base's stock out as its own group, and a moved group that its side's front sweeps over joins the base behind that front.
+* **[Campaign]** Short-range SAM batteries checked in DCS (Osa, Tor, Buk-M3, C-RAM and others) stop and fight a jet that comes at them while they are moving, then drive on.
+* **[Campaign]** Move a whole friendly SAM or radar site to a new spot. It is off the IADS while packed and rejoins it, wired by range, where it stops.
+* **[Plugins]** Missions no longer load MIST. Every script that used it runs on MOOSE or the plain DCS API; Skynet keeps the few MIST functions it calls in its own file.
+* **[Plugins]** The bundled MOOSE is updated to its develop build of 2026-11-08 (from 2025-10-13).
+* **[Mission Generation]** Flights that take off or land in the dark get night-vision goggles where the jet can carry them alongside its helmet sight (A-10C II, Harrier, Strike Eagle, Mirage 2000C). The F-16C and F/A-18C keep JHMCS.
+* **[Campaigns]** Northern Shield 1988: the Magdeburg SA-5 has a launcher on every pad of its two batteries, 18 in all.
+* **[Campaign]** Operation Gazelle: the A-4E Skyhawk flies from Hatzor again, the E-2C Hawkeye and Egypt's SA-5 are gone (neither existed there in 1973), Fayed, Kibrit and Abu Suwayr are Egyptian airbases, and Egypt has a Scud site east of Cairo.
+* **[Faction]** Egypt 1973 fields the T-62, AT-3 Sagger teams, the BTR-60 in place of the BTR-80, KS-19 guns and the Scud-B; it loses the SA-5. Israel 1973 has no AWACS.
+* **[Mission Planning]** The package window has a **Fill support** button. After you add your main flight, it adds a 2-ship escort and one 2-ship SEAD flight where the route needs them, counting only SAM sites on your map.
+* **[Plugins]** Removed five plugins nobody switched on: Moose Soundhandler, F10 marker commands, Moose ATIS (and its kneeboard ATIS column and Airfield Directory), BigEye EWR and the LotATC export.
+* **[UI]** Save your own loadouts from the payload tab. A saved loadout is listed as "Saved: <name>" for that aircraft in every campaign, and can be a blue squadron's loadout for one task. Its missiles step up to the newest variant, then the campaign date steps them down.
+* **[Loadouts]** Loadouts in the DCS Mission Editor's UnitPayloads folder are no longer read, so none can replace a shipped loadout.
+* **[Mission Generation]** A mission leaves out the scripts that have nothing to do in it: Airboss without a carrier, CTLD without transport flights or JTACs, C-130J Mission Systems without a C-130J-30, CSAR when it is off, Skynet without air defenses, and the scripts of settings that are off.
+* **[Squadrons]** About 220 new squadron presets for real units whose paint ships with DCS, among them the F-100D, P-51D, F4U-1D, early F-14A, JF-17 and J-11A, which had none, and 34 presets gain their unit's other stock tail-number skins.
+* **[Mission Generation]** F-16 and F/A-18 presets follow the order of a sortie: Ground, Tower, Departure, AWACS, STRIKE, Vacuum, tankers, Approach on COMM1; the other flights in the package on the second radio.
+* **[Campaigns]** Caucasus - 1968 Yankee Station: re-laid at about 1.5x scale. The DMZ moves up the coast to Tuapse, Da Nang to Novorossiysk and Haiphong to Kobuleti; Khe Sanh is besieged on Route 9 by a second front fed by the Trail, which runs over the Shaumyan pass to Tchepone; a battleship gun line sits off the DMZ. Needs a new game.
+
+## Fixes
+* **[Loadouts]** A-4E Skyhawk CAS fit: two Mk-82 Snakeyes instead of plain Mk-82s, so a low CAS pass lays snake-and-nape fire.
+* **[Campaigns]** Anatolian Reach: 14 Syrian and Gaziantep air-defense sites move to new spots, each under a runway approach or on high ground near the field it defends and checked in DCS for slope and buildings. New games only.
+* **[Vietnam Ops]** Arc Light: the B-52 flies over its target with its bombs aboard and the carpet is the whole strike; it used to drop its own load on the same target as well.
+* **[Campaigns]** Northern Shield 1988, Fulda Gap 1985, Desert Storm, Red Bear 1985 and Anatolian Reach now credit the work they are built on: Starfire's campaigns and faction, Carsten's Cold War Germany Framework and Fuzzle's Operation Allied Sword.
+* **[Campaign]** An unrescued pilot is taken prisoner only in enemy territory and within the new capture radius (default 30 NM) of the nearest enemy base; anyone else is missing in action. Before, the nearest enemy base anywhere on the map held them. Adopted from upstream #929.
+* **[Campaign]** Ending a turn no longer crashes with "Only downed pilots may go missing in action" when a downed pilot's record outlived the pilot, and an ambient supply convoy on a road with no path is skipped instead of stopping the turn.
+* **[Campaigns]** Eastern Reach 2025: New Game ticks the Super Hornet, F-22A and UH-60L mods. Unticked, the carrier's Super Hornets came out as F-14Bs, the F-22s as AH-1Ws and the Black Hawks as SH-60Bs.
+* **[Flight Planner]** A player escort's route turns for home at its Escort Hold. Before, it ran on to a point on top of the target, through the SAM rings its package launched from outside of.
+* **[Modding]** F-15EX V3: the fuel plan no longer counts AMRAAMs on the conformal stations as drop tanks.
+* **[Fuel]** The Payload tab's fuel plan counts ground time, the hold and low legs; the F-4E burns at rates measured from flown sorties (cruise 25 lb/NM, was 17); the line leads with what the jet lands with and names the tanker only when it is needed.
+* **[Campaign]** Operation Gazelle: Melez's MiG-15s fly fighter tasks instead of ground attack (two 50 kg bombs could not hurt tanks), and Hatzor's A-4s fly only air-to-ground tasks, never fighter escort.
+* **[Faction]** Israel 1973's description names the later units that stand in for 1973 equipment DCS lacks.
+* **[Campaign]** Operation Gazelle: AAA guns no longer spawn on the Tel Nof runway or beside the Hatzor runway, and Kedem is an Israeli field instead of an Egyptian base behind Israeli lines.
+* **[Plugins]** QRA alert jets scramble again. The 2026-11-12 MOOSE update dropped the dispatcher QRA used; QRA now runs on MOOSE's EASYGCICAP, with a hidden anchor static placed clear of each alert field.
+* **[Campaigns]** Red Flag 81-2: types that do not fit January 1981 are gone. The CH-47D Chinooks are now CH-53E Sea Stallions (the USAF flew CH-53s, never Chinooks). The RF-101B photo squadron (retired 1975) and the AH-1W Cobras are dropped. New games only.
+* **[Campaign AI]** With *Auto-planner reads the weather* on, a thunderstorm now holds front-line CAS behind the strike, OCA and SEAD packages, as the setting says. CAS used to be planned first whatever the weather.
+* **[Campaign]** A campaign marker outside every base's zone now goes to a base up to 35 km away (was 25 km) when its fallback owner is over 50 km off. In Desert Trident the warehouse beside King Abdullah II is red, as the base it sits beside. Six markers move across the shipped campaigns. New games only.
+* **[Campaigns]** The Syria campaigns are back on their stock SAM markers: the Levant template sites added to Anatolian Reach and 15 other campaigns sat off the current map's revetments.
+* **[Plugins]** Smart threat reaction follows a missile that locks late or switches targets, and keeps the targeted flight evading until the missile is gone.
+* **[Campaign]** A turn no longer fails when the trail convoy's drawn road runs through enemy ground; that road is skipped and the next one used. Seen on turn 1 of COIN Enduring Resolve.
+* **[Mission Generation]** A carrier with no curated comms card (the Vietnam War Vessels carriers, Vinson, Invincible, 25 de Mayo, Bennington, Type 071, Canberra, Juan Carlos) keeps the same TACAN channel and ident every mission instead of a new random ident each turn.
+* **[Mission Generation]** Parked aircraft no longer spawn at the field under the bullseye, or along a line to it, as if a player flight passed there.
+* **[Vietnam Ops]** The Super Gaggle only takes helicopters and jets no flight already flies that mission, and is planned when the mission is built, so the first mission has one too. Naval call-for-fire only answers a map marker a player placed. The flak gauntlet's gun scan is spread over 30 seconds instead of one frame.
+* **[UI]** The top-bar weather strip and the Time & Weather window describe the weather the same way: the same cloud names, wind heights in feet, and the strip now shows cloud base, temperature, altimeter and fog or dust. A cloud-preset sky with fog no longer reads "No fog" on the strip. Fog and dust numbers in the window show only when their box is ticked.
+* **[Mission Generation]** On the Syria and Sinai maps the West Bank counts as Israel, so the F-16 HSD draws the Jordan River as the Israel-Jordan border.
+
+# Retribution v1.7.0 (RetLab)
 
 ## Features/Improvements
 * **[Campaigns]** A drawn FIXED air-defense site keeps its spots when the owning faction fields a different SAM: support units it lacks are left out, and its own radars and launchers go into the drawn spots.

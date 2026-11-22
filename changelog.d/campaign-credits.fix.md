@@ -1,1 +1,0 @@
-* **[Campaigns]** Northern Shield 1988, Fulda Gap 1985, Desert Storm, Red Bear 1985 and Anatolian Reach now credit the work they are built on: Starfire's campaigns and faction, Carsten's Cold War Germany Framework and Fuzzle's Operation Allied Sword.

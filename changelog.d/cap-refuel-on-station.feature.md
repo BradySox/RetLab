@@ -1,1 +1,0 @@
-* **[Mission Generation]** An AI BARCAP running low on fuel with more than 20 minutes of station left flies to a tanker it can use, refuels and returns to its orbit. Setting: AI CAPs refuel on station (on).

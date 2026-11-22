@@ -1,1 +1,0 @@
-* **[Mission Generation]** Flights that take off or land in the dark get night-vision goggles where the jet can carry them alongside its helmet sight (A-10C II, Harrier, Strike Eagle, Mirage 2000C). The F-16C and F/A-18C keep JHMCS.

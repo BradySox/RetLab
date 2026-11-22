@@ -1,1 +1,0 @@
-* **[Flight Planning]** Every airplane's route bends around known enemy SAM rings it does not need to enter, not only a package's join and split legs, when the way round is no more than half again as long. Your flights avoid only the sites you know. The package window names any ring a flight still crosses. On for new games.
