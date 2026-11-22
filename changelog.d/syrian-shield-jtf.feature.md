@@ -1,0 +1,1 @@
+* **[Campaigns]** Operation Syrian Shield follows the JTF-191 airframes: 4 F-15E Suite 4+ at Ramat David, 4 CH-47F at Shayrat in place of the UH-1Hs, and the carrier sails as CVN-73 George Washington (a Supercarrier hull).
