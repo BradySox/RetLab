@@ -1,0 +1,1 @@
+* **[Campaigns]** Operation Syrian Shield: blue starts with 68 aircraft (was 43): 8 A-10Cs at a new blue Rayak, helicopters at Shayrat, one 24-ship Hornet squadron plus 4 F-14Bs on the carrier, 4 F-15Cs at Ramat David, and no LHA. Red uses Syria 2011 and adds MiG-21bis, Su-17M4 and MiG-29A at Tiyas plus 4 armor groups. Both sides start with 1500.
