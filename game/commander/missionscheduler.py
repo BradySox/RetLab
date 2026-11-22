@@ -93,6 +93,55 @@ def staggered_recovery_deltas(
     return deltas
 
 
+#: Red attack waves: the last wave lands this long before the mission ends, so the
+#: whole raid (strikes 2 min behind, plus jitter) is in before the human leaves.
+WAVE_END_MARGIN = timedelta(minutes=3)
+#: Closest two waves may sit; a short gap merges them into fewer waves.
+MIN_WAVE_GAP = timedelta(minutes=5)
+#: Suppression goes first in its wave; the attackers follow this far behind.
+WAVE_SUPPRESSION_LEAD = timedelta(minutes=2)
+#: Random spread inside a wave, so packages don't share one second.
+WAVE_JITTER = timedelta(minutes=1)
+
+
+def attack_wave_tots(
+    entries: list[tuple[int, datetime, bool]],
+    mission_end: datetime,
+    rng: random.Random,
+) -> dict[int, datetime]:
+    """TOTs grouping red's attack packages into 2 or 3 raids.
+
+    ``entries`` are ``(key, earliest_tot, is_suppression)``. The waves sit evenly
+    from the earliest arrival of any of them to just before ``mission_end``.
+    Each package joins the least-loaded wave it can make, the most constrained
+    first; suppression lands at the wave time and the rest behind it. A package
+    that makes no wave is left out, keeping its own TOT.
+    """
+    if len(entries) < 2:
+        return {}
+    first = min(earliest for _, earliest, _ in entries)
+    span = mission_end - WAVE_END_MARGIN - first
+    if span <= timedelta():
+        return {}
+    count = min(3 if len(entries) >= 4 else 2, 1 + int(span / MIN_WAVE_GAP))
+    if count <= 1:
+        waves = [first]
+    else:
+        waves = [first + span * i / (count - 1) for i in range(count)]
+    load = [0] * len(waves)
+    tots: dict[int, datetime] = {}
+    for key, earliest, suppression in sorted(entries, key=lambda e: e[1], reverse=True):
+        lead = timedelta() if suppression else WAVE_SUPPRESSION_LEAD
+        fits = [i for i, wave in enumerate(waves) if wave + lead >= earliest]
+        if not fits:
+            continue
+        fewest = min(load[i] for i in fits)
+        chosen = rng.choice([i for i in fits if load[i] == fewest])
+        load[chosen] += 1
+        tots[key] = waves[chosen] + lead + WAVE_JITTER * rng.random()
+    return tots
+
+
 class MissionScheduler:
     #: Minimum spacing between two packages' recoveries at the same boat. DCS
     #: flies the whole carrier pattern itself (there is no mission-authored
@@ -128,6 +177,22 @@ class MissionScheduler:
             FlightType.CAS,
         }
     )
+
+    #: Red's attack packages, flown in grouped waves (Brady's call, 2026-11-22: the
+    #: spread left them all just after their earliest arrival). Blue keeps the spread.
+    RED_WAVE_TYPES = frozenset(
+        {
+            FlightType.STRIKE,
+            FlightType.BAI,
+            FlightType.CAS,
+            FlightType.DEAD,
+            FlightType.SEAD,
+            FlightType.ANTISHIP,
+            FlightType.OCA_RUNWAY,
+            FlightType.OCA_AIRCRAFT,
+        }
+    )
+    WAVE_SUPPRESSION_TYPES = frozenset({FlightType.SEAD, FlightType.DEAD})
 
     def __init__(self, coalition: Coalition, desired_mission_length: timedelta) -> None:
         self.coalition = coalition
@@ -258,6 +323,9 @@ class MissionScheduler:
                     next(start_time), tot - now, spread_ceiling
                 )
 
+        if not self.coalition.player.is_blue:
+            self._time_red_attack_waves(now)
+
         # §69: time strikes into their SEAD windows BEFORE the carrier stagger
         # and the recovery-tanker ETAs, so both see the coordinated landings.
         # (The stagger only ever delays, so it can nudge a strike deeper into
@@ -314,6 +382,29 @@ class MissionScheduler:
             return timedelta()
         # The generator's jitter margin can exceed the ceiling it drew from.
         return room * min(1.0, offset / ceiling)
+
+    def _time_red_attack_waves(self, now: datetime) -> None:
+        """Group red's movable attack packages into 2 or 3 raids (§69)."""
+        packages = [
+            p
+            for p in self.coalition.ato.packages
+            if p.primary_task in self.RED_WAVE_TYPES
+            and not p.auto_asap
+            and not p.has_players
+        ]
+        entries = [
+            (
+                index,
+                TotEstimator(package).earliest_tot(now),
+                package.primary_task in self.WAVE_SUPPRESSION_TYPES,
+            )
+            for index, package in enumerate(packages)
+        ]
+        tots = attack_wave_tots(
+            entries, now + self.desired_mission_length, random.Random()
+        )
+        for index, tot in tots.items():
+            packages[index].time_over_target = tot
 
     def _coordinate_sead_windows(self, now: datetime) -> None:
         """Cross-package SEAD-before-strike sequencing (§69).

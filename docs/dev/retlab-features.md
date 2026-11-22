@@ -7033,6 +7033,22 @@ mission length. `_holds_cas_past_the_mission` refuses a delay that ends after
 `desired_player_mission_duration`; the CAS keeps its own time. Strike, BAI and OCA still
 wait, since going in ahead of the SEAD is the worse outcome for them.
 
+**Red attack waves (2026-11-22, Brady's call, row B348).** The spread buys from the room the
+transit leaves in the mission, and red's attackers fly 35 to 45 min, so on a 60-min mission
+every red attack package landed 2 to 13 min after its earliest arrival, bunched in the last
+15 to 20 min (four of his saves). For red only, `MissionScheduler._time_red_attack_waves`
+(before this pass) groups the movable `STRIKE`/`BAI`/`CAS`/`DEAD`/`SEAD`/`ANTISHIP`/
+`OCA_RUNWAY`/`OCA_AIRCRAFT` packages with `attack_wave_tots`:
+
+- 3 waves with 4 or more packages, else 2; at least 5 min apart, or fewer waves.
+- Evenly from red's earliest arrival to 3 min before the mission ends.
+- Most constrained package first, into the least-loaded wave it can make.
+- SEAD/DEAD at the wave time, the rest 2 min behind; up to 1 min jitter each.
+- A package that makes no wave keeps its spread TOT. ASAP, CAP, support, CSAR, Armed Recon and Air Assault are untouched. No setting.
+- This pass then still moves a strike into its covering SEAD's window, so a strike can join another wave's SEAD.
+
+Tests: `tests/test_red_attack_waves.py`.
+
 Gated by `sead_strike_coordination` (Air Doctrine → Auto-planner behavior, default **OFF since
 the 2026-08-09 re-convergence**; the planner-suite preset turns it on).
 Tests: `tests/test_sead_strike_coordination.py` (the pure window math end-to-end + the
