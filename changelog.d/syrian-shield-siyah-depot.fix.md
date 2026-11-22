@@ -1,0 +1,1 @@
+* **[Campaigns]** Operation Syrian Shield: Siyah Brigade has an ammo depot. Whoever holds it can put 60 or more vehicles on the front instead of 15; blue takes it on turn 1, so the front was capped at 15.
