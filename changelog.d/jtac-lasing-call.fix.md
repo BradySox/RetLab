@@ -1,0 +1,1 @@
+* **[Plugins]** JTAC lasing call: bullseye in nautical miles plus an MGRS grid, the unit's display name, and one target per JTAC at a time (was up to four on the same code, with kilometers and internal type names).

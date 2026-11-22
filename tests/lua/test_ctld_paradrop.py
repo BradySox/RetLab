@@ -104,6 +104,11 @@ function CTLD:InjectStatics(zone, cargo)
     table.insert(self.log, "crate " .. cargo.name .. " at " .. zone.name)
 end
 
+coalition.getMainRefPoint = function(side) return { x = 0, y = 0, z = 0 } end
+coord.LLtoMGRS = function(lat, lon)
+    return { UTMZone = "38T", MGRSDigraph = "KM", Easting = 1234.6, Northing = 56789.2 }
+end
+
 lases = {}
 SET_GROUP = {}
 function SET_GROUP:New()
@@ -121,6 +126,11 @@ function AUTOLASE:New(set, side, alias)
     function a:AddBlackListAttributes(list) self.blacklist = list return self end
     function a:SetSmokeTargets(on) self.smoke = on return self end
     function a:SetRecceLaserCode(name, code) self.codes[name] = code return self end
+    function a:SetMaxLasingTargets(n) self.maxlasing = n return self end
+    a.notifypilots = true
+    a.reporttimeshort = 10
+    a.notes = {}
+    function a:NotifyPilots(text, duration) table.insert(self.notes, text) return self end
     table.insert(lases, a)
     return a
 end
@@ -515,6 +525,32 @@ def test_jtac_lases_through_autolase_for_both_sides() -> None:
         assert a["cooldown"] is False
         assert a["blacklist"] == ["Infantry"]
         assert a["smoke"] is False
+    h.assert_no_lua_errors()
+
+
+def test_jtac_lases_one_target_and_reports_in_nm_and_mgrs() -> None:
+    h = DcsPluginHarness()
+    _load_with_jtac(h, autolase=True, jtacsmoke=False, fc3LaserCode=False)
+    h.lua.execute("""
+        local unit = {}
+        function unit:GetDesc() return { displayName = "ZSU-57-2 Sparka" } end
+        local position = {}
+        -- 20 NM south-west of the faked bullseye at the map origin.
+        function position:GetVec3() return { x = -26189.6, y = 0, z = -26189.6 } end
+        spot = { reccename = "JTAC Alpha Pilot #001", unittype = "ZSU_57_2",
+            lasercode = 1688, lasedunit = unit, coordinate = position }
+        lases[1]:onbeforeLasing("*", "Lasing", "*", spot)
+        """)
+    blue = h.to_python(h.lua.eval("lases[1]"))
+    assert blue["maxlasing"] == 1
+    assert blue["notes"] == [
+        "JTAC Alpha Pilot lasing ZSU-57-2 Sparka, code 1688\n"
+        "BULLS 225/20 NM\n"
+        "MGRS 38T KM 01234 56789"
+    ]
+    spot = h.to_python(h.lua.eval("spot"))
+    assert spot["unittype"] == "ZSU-57-2 Sparka"
+    assert spot["location"] == "BULLS 225/20 NM\nMGRS 38T KM 01234 56789"
     h.assert_no_lua_errors()
 
 
