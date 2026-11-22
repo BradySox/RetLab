@@ -171,6 +171,22 @@ squadrons:
       aircraft:
         - A-50
       size: 1
+  # Tabqa - 37
+  37:
+    - primary: BARCAP
+      secondary: air-to-air
+      aircraft:
+        - MiG-21bis Fishbed-N
+      size: 12
+    - primary: CAS
+      secondary: air-to-ground
+      aircraft:
+        - L-39ZA Albatros
+      size: 8
+    - primary: Transport
+      aircraft:
+        - Mi-8MTV2 Hip
+      size: 4
   Siyah Brigade ground position:
     - primary: CAS
       secondary: air-to-ground
