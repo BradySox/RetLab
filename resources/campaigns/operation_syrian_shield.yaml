@@ -17,6 +17,10 @@ recommended_player_money: 1500
 recommended_enemy_money: 1500
 recommended_player_income_multiplier: 0.5
 recommended_enemy_income_multiplier: 0.5
+carriers:
+  Blue CV:
+    preferred_name: CVN-73 George Washington
+    preferred_type: CVN-73 George Washington
 squadrons:
   Blue CV:
     # Hornet - VFA-11 "Red Rippers"
@@ -112,7 +116,7 @@ squadrons:
     # Unit 669 / 124th Squadron “Rolling Sword”
     - primary: Air Assault
       aircraft:
-        - UH-1H Iroquois
+        - CH-47F Block I
       size: 4
   # Rayak - 32
   32:
@@ -131,6 +135,12 @@ squadrons:
       secondary: air-to-air
       aircraft:
         - F-15C Eagle
+      size: 4
+    # 494th Fighter Squadron
+    - primary: Strike
+      secondary: any
+      aircraft:
+        - F-15E Strike Eagle (Suite 4+)
       size: 4
     # 100th ARW Detachment
     - primary: Refueling
@@ -170,3 +180,6 @@ squadrons:
 settings:
   # Every squadron starts at its listed size.
   squadron_start_full: true
+  # JTF-191 standard: dynamic spawn on, with hot start.
+  dynamic_slots: true
+  dynamic_slots_hot: true
