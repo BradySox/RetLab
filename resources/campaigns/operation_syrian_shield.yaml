@@ -180,3 +180,6 @@ squadrons:
 settings:
   # Every squadron starts at its listed size.
   squadron_start_full: true
+  # JTF-191 standard: dynamic spawn on, with hot start.
+  dynamic_slots: true
+  dynamic_slots_hot: true
