@@ -125,6 +125,13 @@ plain DCS AI radiating from mission start (`AUTONOMOUS_STATE_DCS_AI`). In test 6
 flips two red sites (MUDSKIPPER and the FAWN Rapier, both about 80 NM from a Box Spring); every
 other red SAM has a radar within 45 NM. Harness: `test_skynet_engine.py`. Row B270.
 
+### One airborne check per cycle (2026-11-26)
+
+`evaluateContacts` filtered the contact list through `isAirborneContact` (a `getDesc()`
+call each) once for every SAM site it cued. It now filters once per cycle and hands the
+same list to every site. Taken from Drexyl's `Retribution-Moose` branch (his upstream
+MIST removal, not yet a PR). Harness: `test_each_contact_is_checked_once_however_many_sites_it_cues`.
+
 ## 5. The config bridge — upstream's plus three additions
 
 Upstream's `skynetiads-config.lua` is kept whole. Three blocks are added, all harness-tested

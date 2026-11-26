@@ -200,18 +200,20 @@ class TriggerGenerator:
     ) -> TriggerCondition:
         """Helper method to create a single capture trigger with the given parameters."""
         trigger = TriggerCondition(Event.NoEvent, "Capture Trigger")
-        trigger.add_condition(
-            PartOfCoalitionInZone(
-                capturing_coalition, trigger_zone_id, unit_type="GROUND"
-            )
-        )
-
+        # Flag first: it is a table lookup, the zone check walks every ground unit,
+        # and the `and` chain stops at the first false. Only one trigger of each
+        # capture/recapture pair passes it. From Drexyl's Retribution-Moose branch.
         if flag_condition_true:
             trigger.add_condition(FlagIsTrue(flag=flag))
             trigger.add_action(ClearFlag(flag=flag))
         else:
             trigger.add_condition(FlagIsFalse(flag=flag))
             trigger.add_action(SetFlag(flag=flag))
+        trigger.add_condition(
+            PartOfCoalitionInZone(
+                capturing_coalition, trigger_zone_id, unit_type="GROUND"
+            )
+        )
         # Last, so the Lua runs only once DCS's own cheap check passes (the
         # conditions compile to one `and` chain). It repeats both zone checks
         # without downed pilots: dcs_retribution.lua capture_zone_taken.
