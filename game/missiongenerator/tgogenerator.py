@@ -143,6 +143,7 @@ _SOVIET_TANKERS: List[Type[VehicleType]] = [
     Unarmed.ATZ_5,
     Unarmed.ATZ_60_Maz,
     Unarmed.TZ_22_KrAZ,
+    Unarmed.ural_atz5_civil,
 ]
 _SOVIET_TRUCKS: List[Type[VehicleType]] = [
     Unarmed.S_75_ZIL,
@@ -277,6 +278,7 @@ _GROUND_SUPPORT_INTRO_YEAR: Dict[Type[VehicleType], int] = {
     # Soviet / Russian refuelers
     Unarmed.ATZ_60_Maz: 1965,
     Unarmed.ATZ_5: 1966,
+    Unarmed.ural_atz5_civil: 1966,
     Unarmed.TZ_22_KrAZ: 1967,
     Unarmed.ATMZ_5: 1975,
     Unarmed.ATZ_10: 1980,

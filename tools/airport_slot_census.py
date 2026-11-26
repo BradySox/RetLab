@@ -32,11 +32,11 @@ TERRAINS = (
     "Normandy",
     "Sinai",
     "MarianaIslands",
-    "MarianasWWII",
+    "MarianaIslandsWWII",
     "Afghanistan",
     "Falklands",
     "Kola",
-    "GermanyCW",
+    "GermanyColdWar",
     "Iraq",
     "TheChannel",
 )

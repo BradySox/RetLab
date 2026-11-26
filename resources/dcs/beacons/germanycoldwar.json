@@ -17,7 +17,7 @@
   "channel": 78,
   "x": -58810.339844,
   "y": -676214.625,
-  "elevation": 39.733072
+  "elevation": 39.73353
  },
  "world_2": {
   "name": "",
@@ -47,7 +47,7 @@
   "channel": null,
   "x": -345280.90625,
   "y": -931724.8125,
-  "elevation": 68.107322
+  "elevation": 68.108367
  },
  "world_5": {
   "name": "",
@@ -97,7 +97,7 @@
   "channel": 122,
   "x": -449959.46875,
   "y": -942713.875,
-  "elevation": 425.156126
+  "elevation": 425.154356
  },
  "world_10": {
   "name": "Fulda",
@@ -107,7 +107,7 @@
   "channel": 58,
   "x": -394505.0625,
   "y": -772390.375,
-  "elevation": 333.469511
+  "elevation": 333.47357
  },
  "world_11": {
   "name": "",
@@ -117,7 +117,7 @@
   "channel": 104,
   "x": -288240.0,
   "y": -788359.625,
-  "elevation": 240.7944
+  "elevation": 240.803998
  },
  "world_12": {
   "name": "",
@@ -137,7 +137,7 @@
   "channel": 84,
   "x": -288360.34375,
   "y": -788234.875,
-  "elevation": 237.22564
+  "elevation": 237.228753
  },
  "world_14": {
   "name": "",
@@ -167,7 +167,7 @@
   "channel": 119,
   "x": -328754.25,
   "y": -556748.5625,
-  "elevation": 136.345199
+  "elevation": 136.344756
  },
  "world_17": {
   "name": "",
@@ -199,6 +199,57 @@
   "y": -757440.8125,
   "elevation": 279.312413
  },
+ "airfield172_0": {
+  "name": "Ahlhorn",
+  "callsign": "AHL",
+  "beacon_type": 16408,
+  "hertz": 290000,
+  "channel": null,
+  "x": -124398.101563,
+  "y": -825538.0,
+  "elevation": 41.529933
+ },
+ "airfield172_1": {
+  "name": "Ahlhorn",
+  "callsign": "AHL",
+  "beacon_type": 5,
+  "hertz": null,
+  "channel": 17,
+  "x": -124988.15625,
+  "y": -820844.875,
+  "elevation": 44.526515
+ },
+ "airfield172_2": {
+  "name": "Ahlhorn",
+  "callsign": "HHN",
+  "beacon_type": 16408,
+  "hertz": 361000,
+  "channel": null,
+  "x": -125650.414063,
+  "y": -817645.6875,
+  "elevation": 44.561076
+ },
+ "airfield172_3": {
+  "name": "Ahlhorn",
+  "callsign": "AHL",
+  "beacon_type": 16896,
+  "hertz": 109300000,
+  "channel": null,
+  "x": -124999.046875,
+  "y": -820775.25,
+  "elevation": 44.526519
+ },
+ "airfield172_4": {
+  "name": "Ahlhorn",
+  "callsign": "AHL",
+  "beacon_type": 16640,
+  "hertz": 109300000,
+  "channel": null,
+  "x": -124811.578125,
+  "y": -822932.5625,
+  "elevation": 44.526515,
+  "direction": 99.016433
+ },
  "airfield33_0": {
   "name": "Bornholm",
   "callsign": "ROE",
@@ -207,7 +258,7 @@
   "channel": null,
   "x": 58271.566406,
   "y": -362894.28125,
-  "elevation": 15.000015
+  "elevation": 7.000007
  },
  "airfield33_1": {
   "name": "Bornholm",
@@ -217,7 +268,7 @@
   "channel": null,
   "x": 58219.292969,
   "y": -363514.4375,
-  "elevation": 15.000015
+  "elevation": 7.000007
  },
  "airfield33_2": {
   "name": "Bornholm",
@@ -227,7 +278,7 @@
   "channel": null,
   "x": 57330.933594,
   "y": -361631.625,
-  "elevation": 15.000015,
+  "elevation": 7.000007,
   "direction": -61.186351
  },
  "airfield33_3": {
@@ -238,7 +289,7 @@
   "channel": 30,
   "x": 58204.125,
   "y": -363509.90625,
-  "elevation": 14.646514
+  "elevation": 7.000006
  },
  "airfield33_4": {
   "name": "",
@@ -258,7 +309,7 @@
   "channel": null,
   "x": 57790.613281,
   "y": -362202.625,
-  "elevation": 15.000015
+  "elevation": 7.000007
  },
  "airfield33_6": {
   "name": "Bornholm",
@@ -268,7 +319,7 @@
   "channel": null,
   "x": 58694.804688,
   "y": -364105.1875,
-  "elevation": 15.000015,
+  "elevation": 7.000007,
   "direction": 118.940887
  },
  "airfield33_7": {
@@ -279,7 +330,7 @@
   "channel": 57,
   "x": 57879.410156,
   "y": -363113.5625,
-  "elevation": 8.101511
+  "elevation": 7.169949
  },
  "airfield34_0": {
   "name": "Brand",
@@ -289,7 +340,7 @@
   "channel": null,
   "x": -270822.1875,
   "y": -467033.71875,
-  "elevation": 63.033239
+  "elevation": 63.033014
  },
  "airfield34_1": {
   "name": "Brand",
@@ -349,7 +400,17 @@
   "channel": null,
   "x": -341421.40625,
   "y": -540347.375,
-  "elevation": 128.684409
+  "elevation": 128.66854
+ },
+ "airfield178_0": {
+  "name": "",
+  "callsign": "BRV",
+  "beacon_type": 3,
+  "hertz": 112500000,
+  "channel": null,
+  "x": -60944.507813,
+  "y": -786667.625,
+  "elevation": 5.500006
  },
  "airfield36_0": {
   "name": "Chojna",
@@ -366,7 +427,7 @@
   "callsign": "AJ",
   "beacon_type": 33024,
   "hertz": null,
-  "channel": 41,
+  "channel": 1,
   "x": -176020.78125,
   "y": -404704.59375,
   "elevation": 53.745568,
@@ -377,7 +438,7 @@
   "callsign": "AT",
   "beacon_type": 33280,
   "hertz": null,
-  "channel": 41,
+  "channel": 1,
   "x": -176060.6875,
   "y": -405570.15625,
   "elevation": 53.745568
@@ -387,7 +448,7 @@
   "callsign": "AJ",
   "beacon_type": 33280,
   "hertz": null,
-  "channel": 41,
+  "channel": 1,
   "x": -175769.03125,
   "y": -407209.25,
   "elevation": 53.745568
@@ -407,7 +468,7 @@
   "callsign": "AT",
   "beacon_type": 33024,
   "hertz": null,
-  "channel": 41,
+  "channel": 1,
   "x": -175595.28125,
   "y": -408043.1875,
   "elevation": 53.745564,
@@ -428,7 +489,7 @@
   "callsign": "AT",
   "beacon_type": 128,
   "hertz": null,
-  "channel": 43,
+  "channel": 3,
   "x": -175978.515625,
   "y": -406800.46875,
   "elevation": 53.745568
@@ -482,7 +543,7 @@
   "channel": null,
   "x": -342751.0625,
   "y": -932175.25,
-  "elevation": 91.233642
+  "elevation": 91.223602
  },
  "airfield37_4": {
   "name": "",
@@ -534,7 +595,7 @@
   "channel": null,
   "x": -326827.65625,
   "y": -942049.375,
-  "elevation": 50.025017
+  "elevation": 50.020264
  },
  "airfield37_9": {
   "name": "KOLN",
@@ -606,7 +667,7 @@
   "channel": null,
   "x": -286735.21875,
   "y": -962314.375,
-  "elevation": 37.416724
+  "elevation": 37.410667
  },
  "airfield38_6": {
   "name": "Dusseldorf",
@@ -758,8 +819,8 @@
   "beacon_type": 5,
   "hertz": 112500000,
   "channel": 72,
-  "x": 131125.108606,
-  "y": -492611.444506,
+  "x": 131125.109375,
+  "y": -492611.4375,
   "elevation": 7.751138
  },
  "airfield41_8": {
@@ -840,8 +901,8 @@
   "beacon_type": 2,
   "hertz": 110900000,
   "channel": 46,
-  "x": 132768.58848,
-  "y": -490888.226288,
+  "x": 132768.59375,
+  "y": -490888.21875,
   "elevation": 7.751139
  },
  "airfield41_16": {
@@ -850,8 +911,8 @@
   "beacon_type": 2,
   "hertz": 110500000,
   "channel": 42,
-  "x": 131159.611492,
-  "y": -492678.483003,
+  "x": 131159.609375,
+  "y": -492678.46875,
   "elevation": 7.751138
  },
  "airfield41_17": {
@@ -860,19 +921,19 @@
   "beacon_type": 2,
   "hertz": 109900000,
   "channel": 36,
-  "x": 134079.259108,
-  "y": -490324.527227,
+  "x": 134079.265625,
+  "y": -490324.53125,
   "elevation": 7.751138
  },
  "airfield41_18": {
   "name": "Kastrup",
   "callsign": "OXS",
   "beacon_type": 2,
-  "hertz": 110500000,
+  "hertz": 109500000,
   "channel": 32,
-  "x": 133890.120691,
-  "y": -488771.76162,
-  "elevation": 7.74125
+  "x": 133890.125,
+  "y": -488771.75,
+  "elevation": 7.741246
  },
  "airfield41_19": {
   "name": "Kastrup",
@@ -880,9 +941,9 @@
   "beacon_type": 2,
   "hertz": 108900000,
   "channel": 26,
-  "x": 132827.02341,
-  "y": -488826.827439,
-  "elevation": 7.751138
+  "x": 132827.015625,
+  "y": -488826.8125,
+  "elevation": 7.751139
  },
  "airfield41_20": {
   "name": "Kastrup",
@@ -890,9 +951,9 @@
   "beacon_type": 2,
   "hertz": 109300000,
   "channel": 30,
-  "x": 131997.010209,
-  "y": -490961.700479,
-  "elevation": 7.751139
+  "x": 131997.015625,
+  "y": -490961.6875,
+  "elevation": 7.751138
  },
  "airfield42_0": {
   "name": "Kiel",
@@ -943,7 +1004,7 @@
   "channel": null,
   "x": 18592.683594,
   "y": -669013.25,
-  "elevation": 17.746169,
+  "elevation": 17.746176,
   "direction": 91.300996
  },
  "airfield42_5": {
@@ -955,6 +1016,147 @@
   "x": 18505.226563,
   "y": -668556.75,
   "elevation": 13.586525
+ },
+ "airfield183_0": {
+  "name": "Kluczewo",
+  "callsign": "L",
+  "beacon_type": 4104,
+  "hertz": 452000,
+  "channel": null,
+  "x": -143131.671875,
+  "y": -365515.5,
+  "elevation": 26.849064
+ },
+ "airfield183_1": {
+  "name": "Kluczewo",
+  "callsign": "N",
+  "beacon_type": 4104,
+  "hertz": 452000,
+  "channel": null,
+  "x": -139140.03125,
+  "y": -367768.625,
+  "elevation": 26.084136
+ },
+ "airfield183_2": {
+  "name": "Kluczewo",
+  "callsign": "KL",
+  "beacon_type": 128,
+  "hertz": null,
+  "channel": 17,
+  "x": -140305.734375,
+  "y": -366933.4375,
+  "elevation": 26.788002
+ },
+ "airfield183_3": {
+  "name": "Kluczewo",
+  "callsign": "ND",
+  "beacon_type": 4104,
+  "hertz": 922000,
+  "channel": null,
+  "x": -136748.125,
+  "y": -369117.40625,
+  "elevation": 15.574098
+ },
+ "airfield183_4": {
+  "name": "Kluczewo",
+  "callsign": "LW",
+  "beacon_type": 4104,
+  "hertz": 922000,
+  "channel": null,
+  "x": -145483.171875,
+  "y": -364180.21875,
+  "elevation": 28.997912
+ },
+ "airfield203_0": {
+  "name": "K",
+  "callsign": "K",
+  "beacon_type": 4136,
+  "hertz": 751000000,
+  "channel": null,
+  "x": -43143.15625,
+  "y": -313240.625,
+  "elevation": 3.000003
+ },
+ "airfield203_1": {
+  "name": "SJ",
+  "callsign": "SJ",
+  "beacon_type": 4136,
+  "hertz": 372000000,
+  "channel": null,
+  "x": -41822.59375,
+  "y": -305897.3125,
+  "elevation": 10.529932
+ },
+ "airfield203_2": {
+  "name": "S",
+  "callsign": "S",
+  "beacon_type": 4136,
+  "hertz": 751000000,
+  "channel": null,
+  "x": -42347.53125,
+  "y": -308853.625,
+  "elevation": 4.567486
+ },
+ "airfield203_3": {
+  "name": "AM",
+  "callsign": "AM",
+  "beacon_type": 4136,
+  "hertz": 372000000,
+  "channel": null,
+  "x": -43674.167969,
+  "y": -316193.21875,
+  "elevation": 3.000003
+ },
+ "airfield209_0": {
+  "name": "Lahr",
+  "callsign": "ITBA",
+  "beacon_type": 16640,
+  "hertz": 109100000,
+  "channel": null,
+  "x": -618419.6875,
+  "y": -937915.375,
+  "elevation": 160.00016,
+  "direction": -141.833576
+ },
+ "airfield209_1": {
+  "name": "Lahr",
+  "callsign": "ITBA",
+  "beacon_type": 16896,
+  "hertz": 109100000,
+  "channel": null,
+  "x": -620946.25,
+  "y": -939756.9375,
+  "elevation": 160.00016
+ },
+ "airfield209_2": {
+  "name": "Lahr",
+  "callsign": "LHR",
+  "beacon_type": 16424,
+  "hertz": 450000,
+  "channel": null,
+  "x": -621521.0,
+  "y": -940357.5625,
+  "elevation": 160.00016
+ },
+ "airfield209_3": {
+  "name": "Lahr",
+  "callsign": "LHR",
+  "beacon_type": 4,
+  "hertz": null,
+  "channel": 39,
+  "x": -619317.25,
+  "y": -938371.3125,
+  "elevation": 160.000175
+ },
+ "airfield205_0": {
+  "name": "Platz",
+  "callsign": "BYC",
+  "beacon_type": 4104,
+  "hertz": 368000,
+  "channel": null,
+  "x": -90397.359375,
+  "y": -338861.96875,
+  "elevation": 39.908636
  },
  "airfield44_0": {
   "name": "Finthen",
@@ -1041,7 +1243,7 @@
  "airfield46_0": {
   "name": "Marxwalde",
   "callsign": "BU",
-  "beacon_type": 4104,
+  "beacon_type": 16408,
   "hertz": 472000,
   "channel": 0,
   "x": -210943.90625,
@@ -1082,7 +1284,7 @@
  "airfield46_4": {
   "name": "Marxwalde",
   "callsign": "U",
-  "beacon_type": 4104,
+  "beacon_type": 16424,
   "hertz": 958000,
   "channel": 0,
   "x": -210945.96875,
@@ -1092,7 +1294,7 @@
  "airfield46_5": {
   "name": "Marxwalde",
   "callsign": "UB",
-  "beacon_type": 4104,
+  "beacon_type": 16408,
   "hertz": 472000,
   "channel": 0,
   "x": -210946.59375,
@@ -1112,7 +1314,7 @@
  "airfield46_7": {
   "name": "Marxwalde",
   "callsign": "B",
-  "beacon_type": 4104,
+  "beacon_type": 16424,
   "hertz": 958000,
   "channel": 0,
   "x": -210947.015625,
@@ -1141,16 +1343,6 @@
   "elevation": 12.000012,
   "direction": 88.579767
  },
- "airfield47_1": {
-  "name": "Nordholz",
-  "callsign": "NDO",
-  "beacon_type": 4,
-  "hertz": null,
-  "channel": 118,
-  "x": -32800.769531,
-  "y": -776408.0625,
-  "elevation": 12.000012
- },
  "airfield47_2": {
   "name": "Nordholz",
   "callsign": "",
@@ -1174,12 +1366,12 @@
  "airfield48_0": {
   "name": "Norvenich",
   "callsign": "NOR",
-  "beacon_type": 5,
-  "hertz": 116200000,
-  "channel": 77,
-  "x": -331943.3125,
-  "y": -972020.6875,
-  "elevation": 90.198393
+  "beacon_type": 4,
+  "hertz": 0,
+  "channel": 109,
+  "x": -331315.375,
+  "y": -969628.1875,
+  "elevation": 111.27908
  },
  "airfield51_0": {
   "name": "Obermehler Schlotheim",
@@ -1201,6 +1393,58 @@
   "y": -685556.3125,
   "elevation": 271.030667
  },
+ "airfield174_0": {
+  "name": "Oldenburg",
+  "callsign": "ISPE",
+  "beacon_type": 16640,
+  "hertz": 109150000,
+  "channel": null,
+  "x": -92511.164063,
+  "y": -818989.0,
+  "elevation": 5.000005,
+  "direction": -70.967413
+ },
+ "airfield174_1": {
+  "name": "Oldenburg",
+  "callsign": "ISPE",
+  "beacon_type": 16896,
+  "hertz": 109150000,
+  "channel": null,
+  "x": -91638.398438,
+  "y": -821398.4375,
+  "elevation": 5.000005
+ },
+ "airfield174_2": {
+  "name": "Oldenburg",
+  "callsign": "ISPA",
+  "beacon_type": 16896,
+  "hertz": 108100000,
+  "channel": null,
+  "x": -92302.617188,
+  "y": -819818.125,
+  "elevation": 5.000005
+ },
+ "airfield174_3": {
+  "name": "Oldenburg",
+  "callsign": "ISPA",
+  "beacon_type": 16640,
+  "hertz": 108100000,
+  "channel": null,
+  "x": -91430.921875,
+  "y": -822117.5,
+  "elevation": 5.000005,
+  "direction": 109.059707
+ },
+ "airfield174_4": {
+  "name": "Oldenburg",
+  "callsign": "OBG",
+  "beacon_type": 4,
+  "hertz": null,
+  "channel": 0,
+  "x": -92104.4375,
+  "y": -820589.6875,
+  "elevation": 5.000005
+ },
  "airfield49_0": {
   "name": "Oranienburg",
   "callsign": "H",
@@ -1209,7 +1453,7 @@
   "channel": null,
   "x": -189244.0625,
   "y": -490415.28125,
-  "elevation": 33.363181
+  "elevation": 33.538734
  },
  "airfield49_1": {
   "name": "Oranienburg",
@@ -1219,10 +1463,246 @@
   "channel": null,
   "x": -186366.484375,
   "y": -491259.90625,
-  "elevation": 33.752551
+  "elevation": 33.745098
+ },
+ "airfield177_0": {
+  "name": "Phalsbourg",
+  "callsign": "PHG",
+  "beacon_type": 4104,
+  "hertz": 424000,
+  "channel": null,
+  "x": -567438.1875,
+  "y": -977170.3125,
+  "elevation": 306.744417
+ },
+ "airfield177_1": {
+  "name": "Phalsbourg",
+  "callsign": "PB",
+  "beacon_type": 2,
+  "hertz": 110150000,
+  "channel": null,
+  "x": -567178.75,
+  "y": -976571.6875,
+  "elevation": 306.744417
+ },
+ "airfield177_2": {
+  "name": "Phalsbourg",
+  "callsign": "PL",
+  "beacon_type": 4,
+  "hertz": null,
+  "channel": 23,
+  "x": -568284.0625,
+  "y": -978028.375,
+  "elevation": 306.744417
+ },
+ "airfield177_3": {
+  "name": "Phalsbourg",
+  "callsign": "PB",
+  "beacon_type": 16896,
+  "hertz": 110150000,
+  "channel": null,
+  "x": -567201.9375,
+  "y": -976561.6875,
+  "elevation": 306.744447
+ },
+ "airfield177_4": {
+  "name": "Phalsbourg",
+  "callsign": "PB",
+  "beacon_type": 16640,
+  "hertz": 110150000,
+  "channel": null,
+  "x": -568221.0,
+  "y": -978709.375,
+  "elevation": 306.037568,
+  "direction": 67.746039
+ },
+ "airfield179_0": {
+  "name": "Dessau",
+  "callsign": "FA",
+  "beacon_type": 16424,
+  "hertz": 858000,
+  "channel": null,
+  "x": -74887.726563,
+  "y": -365585.28125,
+  "elevation": 6.578052
+ },
+ "airfield179_1": {
+  "name": "Sniatowo",
+  "callsign": "F",
+  "beacon_type": 16408,
+  "hertz": 419000,
+  "channel": null,
+  "x": -75673.296875,
+  "y": -363241.09375,
+  "elevation": 17.118801
+ },
+ "airfield192_0": {
+  "name": "Sollingen",
+  "callsign": "A",
+  "beacon_type": 16424,
+  "hertz": 480000,
+  "channel": null,
+  "x": -579249.1875,
+  "y": -913962.9375,
+  "elevation": 121.778213
+ },
+ "airfield192_1": {
+  "name": "Sollingen",
+  "callsign": "O",
+  "beacon_type": 16424,
+  "hertz": 480000,
+  "channel": null,
+  "x": -576078.6875,
+  "y": -911200.1875,
+  "elevation": 120.000128
+ },
+ "airfield192_2": {
+  "name": "Sollingen",
+  "callsign": "AJ",
+  "beacon_type": 33280,
+  "hertz": null,
+  "channel": 1,
+  "x": -576883.5625,
+  "y": -912053.5,
+  "elevation": 120.00012
+ },
+ "airfield192_3": {
+  "name": "Sollingen",
+  "callsign": "AJ",
+  "beacon_type": 33024,
+  "hertz": null,
+  "channel": 1,
+  "x": -578985.625,
+  "y": -913733.75,
+  "elevation": 120.00012,
+  "direction": 41.035987
+ },
+ "airfield192_4": {
+  "name": "Sollingen",
+  "callsign": "AT",
+  "beacon_type": 33024,
+  "hertz": null,
+  "channel": 1,
+  "x": -576339.625,
+  "y": -911422.875,
+  "elevation": 120.00012,
+  "direction": -138.862825
+ },
+ "airfield192_5": {
+  "name": "Sollingen",
+  "callsign": "AT",
+  "beacon_type": 33280,
+  "hertz": null,
+  "channel": 1,
+  "x": -578606.75,
+  "y": -913269.75,
+  "elevation": 120.00012
+ },
+ "airfield176_0": {
+  "name": "StrasbourgEntzeim",
+  "callsign": "SE",
+  "beacon_type": 16408,
+  "hertz": 412000,
+  "channel": null,
+  "x": -596099.5,
+  "y": -946434.125,
+  "elevation": 140.94379
+ },
+ "airfield176_1": {
+  "name": "StrasbourgEntzeim",
+  "callsign": "STZ",
+  "beacon_type": 16640,
+  "hertz": 109550000,
+  "channel": null,
+  "x": -599471.8125,
+  "y": -951975.6875,
+  "elevation": 155.000155,
+  "direction": 58.835573
+ },
+ "airfield176_2": {
+  "name": "StrasbourgEntzeim",
+  "callsign": "ENT",
+  "beacon_type": 16896,
+  "hertz": 108550000,
+  "channel": null,
+  "x": -599139.5625,
+  "y": -951189.875,
+  "elevation": 155.000155
+ },
+ "airfield176_3": {
+  "name": "StrasbourgEntzeim",
+  "callsign": "ENT",
+  "beacon_type": 16640,
+  "hertz": 108550000,
+  "channel": null,
+  "x": -597615.8125,
+  "y": -948907.0625,
+  "elevation": 155.000155,
+  "direction": -121.164414
+ },
+ "airfield176_4": {
+  "name": "StrasbourgEntzeim",
+  "callsign": "STZ",
+  "beacon_type": 16896,
+  "hertz": 109550000,
+  "channel": null,
+  "x": -598190.0,
+  "y": -949618.3125,
+  "elevation": 155.000155
+ },
+ "airfield138_0": {
+  "name": "Stuttgart",
+  "callsign": "DLG",
+  "beacon_type": 16640,
+  "hertz": 109900000,
+  "channel": null,
+  "x": -601686.0,
+  "y": -833187.625,
+  "elevation": 390.000359,
+  "direction": 82.732087
+ },
+ "airfield138_1": {
+  "name": "Stuttgart",
+  "callsign": "DLG",
+  "beacon_type": 16896,
+  "hertz": 109900000,
+  "channel": null,
+  "x": -601482.875,
+  "y": -830602.625,
+  "elevation": 390.00039
+ },
+ "airfield138_2": {
+  "name": "Stuttgart",
+  "callsign": "SG",
+  "beacon_type": 16408,
+  "hertz": 306000,
+  "channel": null,
+  "x": -600400.4375,
+  "y": -823110.375,
+  "elevation": 349.882186
+ },
+ "airfield138_3": {
+  "name": "Stuttgart",
+  "callsign": "SY",
+  "beacon_type": 16408,
+  "hertz": 384000,
+  "channel": null,
+  "x": -602551.0625,
+  "y": -839973.75,
+  "elevation": 400.941227
+ },
+ "airfield138_4": {
+  "name": "Stuttgart",
+  "callsign": "S",
+  "beacon_type": 4136,
+  "hertz": 75000,
+  "channel": null,
+  "x": -601198.5,
+  "y": -829358.5625,
+  "elevation": 383.192766
  },
  "airfield50_0": {
-  "name": "Szczecin Goleniow",
+  "name": "SzczecinGoleniow",
   "callsign": "C",
   "beacon_type": 16424,
   "hertz": 285000,
@@ -1232,17 +1712,17 @@
   "elevation": 43.886648
  },
  "airfield50_1": {
-  "name": "Szczecin Goleniow",
+  "name": "SzczecinGoleniow",
   "callsign": "C",
   "beacon_type": 16424,
   "hertz": 285000,
   "channel": null,
   "x": -105390.664063,
   "y": -369582.375,
-  "elevation": 36.518599
+  "elevation": 39.767488
  },
  "airfield50_2": {
-  "name": "Szczecin Goleniow",
+  "name": "SzczecinGoleniow",
   "callsign": "CL",
   "beacon_type": 16408,
   "hertz": 589000,
@@ -1252,14 +1732,24 @@
   "elevation": 64.991635
  },
  "airfield50_3": {
-  "name": "Szczecin Goleniow",
+  "name": "SzczecinGoleniow",
   "callsign": "CL",
   "beacon_type": 16408,
   "hertz": 589000,
   "channel": null,
   "x": -103238.703125,
   "y": -371672.625,
-  "elevation": 23.58051
+  "elevation": 23.580416
+ },
+ "airfield210_0": {
+  "name": "Platz",
+  "callsign": "VS",
+  "beacon_type": 4104,
+  "hertz": 398000,
+  "channel": null,
+  "x": 153076.65625,
+  "y": -508237.4375,
+  "elevation": 20.580534
  },
  "airfield112_0": {
   "name": "Gardelegen",
@@ -1450,7 +1940,7 @@
   "channel": null,
   "x": -429216.90625,
   "y": -999970.3125,
-  "elevation": 366.947724,
+  "elevation": 360.000299,
   "direction": 66.025992
  },
  "airfield200_1": {
@@ -1461,7 +1951,7 @@
   "channel": null,
   "x": -428197.71875,
   "y": -997495.5,
-  "elevation": 368.289919
+  "elevation": 360.000299
  },
  "airfield200_2": {
   "name": "Bitburg",
@@ -1471,7 +1961,7 @@
   "channel": 56,
   "x": -429046.125,
   "y": -999088.875,
-  "elevation": 365.086913
+  "elevation": 360.000299
  },
  "airfield107_0": {
   "name": "Wolfsburg",
@@ -1684,7 +2174,7 @@
   "channel": 34,
   "x": -14606.240234,
   "y": -519747.0,
-  "elevation": 8.148032,
+  "elevation": 8.264747,
   "direction": -101.462009
  },
  "airfield10_4": {
@@ -1888,7 +2378,7 @@
   "channel": 89,
   "x": -443403.84375,
   "y": -848339.0,
-  "elevation": 118.535061
+  "elevation": 118.535595
  },
  "airfield163_7": {
   "name": "Frankfurt",
@@ -2052,7 +2542,7 @@
   "channel": null,
   "x": -218691.546875,
   "y": -499113.3125,
-  "elevation": 41.599109,
+  "elevation": 41.599113,
   "direction": 85.270049
  },
  "airfield14_1": {
@@ -2083,7 +2573,7 @@
   "channel": null,
   "x": -218516.734375,
   "y": -497569.6875,
-  "elevation": 41.599117
+  "elevation": 41.599113
  },
  "airfield159_0": {
   "name": "Giebelstadt",
@@ -2226,7 +2716,7 @@
   "channel": null,
   "x": -67656.671875,
   "y": -699764.75,
-  "elevation": 42.313069
+  "elevation": 42.308804
  },
  "airfield17_1": {
   "name": "Hamburg",
@@ -2288,7 +2778,7 @@
   "channel": null,
   "x": -58497.6875,
   "y": -684378.5625,
-  "elevation": 26.860186
+  "elevation": 26.855683
  },
  "airfield17_7": {
   "name": "Hamburg",
@@ -2371,7 +2861,7 @@
   "channel": null,
   "x": -71069.585938,
   "y": -702148.125,
-  "elevation": 3.150255,
+  "elevation": 3.000007,
   "direction": -119.256618
  },
  "airfield18_3": {
@@ -2831,7 +3321,7 @@
   "channel": null,
   "x": -326041.09375,
   "y": -581414.125,
-  "elevation": 106.219253
+  "elevation": 106.226158
  },
  "airfield171_2": {
   "name": "Leipzig",
@@ -2882,7 +3372,7 @@
   "channel": null,
   "x": -331931.96875,
   "y": -559291.125,
-  "elevation": 132.845226
+  "elevation": 133.123226
  },
  "airfield236_1": {
   "name": "Mockau",
@@ -2912,7 +3402,7 @@
   "channel": null,
   "x": -50880.0625,
   "y": -642103.5625,
-  "elevation": 21.926553
+  "elevation": 21.350962
  },
  "airfield22_0": {
   "name": "Mahlwinkel",
@@ -3035,7 +3525,7 @@
   "channel": null,
   "x": -331703.28125,
   "y": -588890.0,
-  "elevation": 81.920553
+  "elevation": 82.275725
  },
  "airfield169_2": {
   "name": "Merseburg",
@@ -3110,7 +3600,7 @@
  },
  "airfield23_0": {
   "name": "Neubrandenburg",
-  "callsign": "T",
+  "callsign": "TD",
   "beacon_type": 16408,
   "hertz": 950000,
   "channel": null,
@@ -3166,7 +3656,7 @@
   "channel": null,
   "x": -165633.609375,
   "y": -510872.6875,
-  "elevation": 51.35053
+  "elevation": 51.271372
  },
  "airfield24_2": {
   "name": "Neuruppin",
@@ -3291,16 +3781,6 @@
  "airfield232_0": {
   "name": "Pferdsfeld",
   "callsign": "PFF",
-  "beacon_type": 4,
-  "hertz": null,
-  "channel": 77,
-  "x": -452075.40625,
-  "y": -926164.8125,
-  "elevation": 400.050449
- },
- "airfield232_1": {
-  "name": "Pferdsfeld",
-  "callsign": "PFF",
   "beacon_type": 4104,
   "hertz": 394000,
   "channel": null,
@@ -3308,14 +3788,24 @@
   "y": -925977.375,
   "elevation": 400.050479
  },
+ "airfield232_1": {
+  "name": "Pferdsfeld",
+  "callsign": "PFF",
+  "beacon_type": 4,
+  "hertz": null,
+  "channel": 77,
+  "x": -452075.40625,
+  "y": -926164.8125,
+  "elevation": 400.050449
+ },
  "airfield165_0": {
   "name": "Ramstein",
   "callsign": "IRWR",
   "beacon_type": 16896,
   "hertz": 110750000,
   "channel": null,
-  "x": -498729.625,
-  "y": -933698.1875,
+  "x": -498729.8125,
+  "y": -933698.125,
   "elevation": 245.303041
  },
  "airfield165_1": {
@@ -3420,7 +3910,7 @@
   "channel": null,
   "x": -234130.328125,
   "y": -479700.125,
-  "elevation": 41.476383
+  "elevation": 41.476612
  },
  "airfield26_6": {
   "name": "Schonefeld",
@@ -3430,7 +3920,7 @@
   "channel": null,
   "x": -231222.015625,
   "y": -469088.8125,
-  "elevation": 41.11925
+  "elevation": 41.2634
  },
  "airfield26_7": {
   "name": "Schonefeld",
@@ -3501,7 +3991,7 @@
   "channel": null,
   "x": -425782.125,
   "y": -986495.25,
-  "elevation": 300.0003,
+  "elevation": 373.907753,
   "direction": -124.386269
  },
  "airfield162_1": {
@@ -3512,7 +4002,7 @@
   "channel": null,
   "x": -427905.71875,
   "y": -989600.3125,
-  "elevation": 300.0003,
+  "elevation": 365.377746,
   "direction": 55.640881
  },
  "airfield162_2": {
@@ -3523,7 +4013,7 @@
   "channel": null,
   "x": -426309.0625,
   "y": -987116.1875,
-  "elevation": 300.0003
+  "elevation": 372.061834
  },
  "airfield162_3": {
   "name": "Spangdahlem",
@@ -3533,7 +4023,7 @@
   "channel": null,
   "x": -427461.15625,
   "y": -989104.5625,
-  "elevation": 300.0003
+  "elevation": 366.882325
  },
  "airfield162_4": {
   "name": "Spangdahlem",
@@ -3543,7 +4033,7 @@
   "channel": 32,
   "x": -426868.46875,
   "y": -987816.75,
-  "elevation": 300.000269
+  "elevation": 370.029819
  },
  "airfield101_0": {
   "name": "Sperenberg",
@@ -3643,7 +4133,7 @@
   "channel": null,
   "x": -210922.171875,
   "y": -496379.53125,
-  "elevation": 29.39511
+  "elevation": 29.397513
  },
  "airfield28_3": {
   "name": "Tegel",
@@ -3674,7 +4164,7 @@
   "channel": null,
   "x": -210207.78125,
   "y": -480672.03125,
-  "elevation": 43.056451
+  "elevation": 43.082009
  },
  "airfield28_6": {
   "name": "TEGEL",
@@ -3768,7 +4258,7 @@
   "channel": null,
   "x": -220521.0,
   "y": -487603.6875,
-  "elevation": 55.462294
+  "elevation": 55.461691
  },
  "airfield29_3": {
   "name": "Tempelhof",
@@ -3798,7 +4288,7 @@
   "channel": null,
   "x": -221336.6875,
   "y": -475587.6875,
-  "elevation": 32.70146
+  "elevation": 32.708491
  },
  "airfield29_6": {
   "name": "Tempelhof",
@@ -3931,7 +4421,7 @@
   "channel": 4,
   "x": -205934.421875,
   "y": -453727.625,
-  "elevation": 78.798251
+  "elevation": 80.00008
  },
  "airfield170_0": {
   "name": "Wiesbaden",
@@ -4186,7 +4676,7 @@
   "channel": 48,
   "x": -520630.4375,
   "y": -952971.75,
-  "elevation": 329.757257
+  "elevation": 328.408867
  },
  "airfield158_1": {
   "name": "Zweibrucken",
@@ -4196,7 +4686,7 @@
   "channel": null,
   "x": -520044.15625,
   "y": -952625.4375,
-  "elevation": 330.219477,
+  "elevation": 328.408898,
   "direction": -139.694254
  },
  "airfield158_2": {
@@ -4207,6 +4697,6 @@
   "channel": null,
   "x": -522003.4375,
   "y": -954137.5625,
-  "elevation": 330.219477
+  "elevation": 328.408898
  }
 }
