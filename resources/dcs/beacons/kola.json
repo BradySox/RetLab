@@ -482,6 +482,48 @@
   "elevation": 1.404329,
   "direction": 171.732062
  },
+ "airfield37_0": {
+  "name": "TC",
+  "callsign": "tc",
+  "beacon_type": 16640,
+  "hertz": 110900000,
+  "channel": null,
+  "x": 186915.515625,
+  "y": -143701.859375,
+  "elevation": 8.057156,
+  "direction": 14.999997
+ },
+ "airfield37_1": {
+  "name": "TR",
+  "callsign": "tr",
+  "beacon_type": 16640,
+  "hertz": 109900000,
+  "channel": null,
+  "x": 189729.859375,
+  "y": -142947.5625,
+  "elevation": 2.961201,
+  "direction": -164.999995
+ },
+ "airfield37_2": {
+  "name": "TR",
+  "callsign": "TR",
+  "beacon_type": 16896,
+  "hertz": 109900000,
+  "channel": null,
+  "x": 188864.515625,
+  "y": -143267.078125,
+  "elevation": 4.064139
+ },
+ "airfield37_3": {
+  "name": "TC",
+  "callsign": "TC",
+  "beacon_type": 16896,
+  "hertz": 110900000,
+  "channel": null,
+  "x": 187341.140625,
+  "y": -143508.359375,
+  "elevation": 7.419933
+ },
  "airfield5_0": {
   "name": "kiruna",
   "callsign": "KRA",

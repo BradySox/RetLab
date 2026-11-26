@@ -245,23 +245,23 @@ local unitPayloads = {
 			["name"] = "Retribution Anti-ship",
 			["pylons"] = {
 				[1] = {
-					["CLSID"] = "{AGM_84D}",
+					["CLSID"] = "{HB_A6E_AERO1D}",
 					["num"] = 5,
 				},
 				[2] = {
-					["CLSID"] = "{AGM_84D}",
+					["CLSID"] = "{C40A1E3A-DD05-40D9-85A4-217729E37FAE}",
 					["num"] = 4,
 				},
 				[3] = {
-					["CLSID"] = "{HB_A6E_AERO1D}",
+					["CLSID"] = "{AWW-13}",
 					["num"] = 3,
 				},
 				[4] = {
-					["CLSID"] = "{AGM_84D}",
+					["CLSID"] = "{C40A1E3A-DD05-40D9-85A4-217729E37FAE}",
 					["num"] = 2,
 				},
 				[5] = {
-					["CLSID"] = "{AGM_84D}",
+					["CLSID"] = "{HB_A6E_AERO1D}",
 					["num"] = 1,
 				},
 			},

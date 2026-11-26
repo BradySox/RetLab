@@ -126,6 +126,13 @@ def beacons_from_terrain(dcs_path: Path, path: Path) -> Iterable[tuple[str, Beac
         beacons = lua.eval("beacons")
         for beacon in beacons.values():
             beacon_type_lua = beacon["type"]
+            if beacon_type_lua is None:
+                # The terrain names a type DCS never defines (GermanyCW 2.9.32:
+                # BEACON_TYPE_AIRPORT_TACAN, BEACON_TYPE_VORDME), so DCS loads it as nil.
+                logging.warning(
+                    "Skipping beacon %s: undefined type", beacon["beaconId"]
+                )
+                continue
             if beacon_type_lua not in beacon_types_map:
                 beacon_types_path = (
                     dcs_path / "MissionEditor/modules/me_beaconsInfo.lua"

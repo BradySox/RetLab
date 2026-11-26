@@ -116,7 +116,8 @@ One line each; the status is the note's own. Read the note, not this line, befor
   in model time, never wall time), `retlab-dcs-update-2026-08-26-notes.md` (that patch
   triaged, verified against the install the same day),
   `retlab-dcs-update-2026-10-28-notes.md` (the October patch; the eight new CurrentHill
-  units still owe an install export), `retlab-dcs-log-noise-notes.md` (read
+  units still owe an install export), `retlab-dcs-update-2026-11-26-notes.md` (the November
+  patch: new Germany and Kola airfields, A-6E Walleye II), `retlab-dcs-log-noise-notes.md` (read
   before triaging a `dcs.log`), `retlab-dcs-olympus-notes.md`, `retlab-ui-redesign-directions.md`
   (+ `-mockups.html`), `retlab-ui-consistency-audit-notes.md` (the UI text house style),
   `retlab-campaign-doc-ideas-harvest.md`
