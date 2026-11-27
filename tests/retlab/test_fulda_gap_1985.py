@@ -271,14 +271,15 @@ def test_every_road_leaves_its_bases_off_road() -> None:
 def test_carstens_sites_are_drawn_unit_by_unit(
     loaded: tuple[Campaign, ConflictTheater],
 ) -> None:
-    """20 FIXED sites: Hawks for NATO, SA-2 and S-60 for red."""
+    """Carsten's 20 FIXED sites plus S3ntry's 16 (DM call, 2026-11-26)."""
     _, theater = loaded
     sites = {
         site.original_name: cp
         for cp in theater.controlpoints
         for site in cp.preset_locations.exact_air_defenses
     }
-    assert len(sites) == 20
+    assert len(sites) == 36
+    assert sum("S3-" in name for name in sites) == 16
     # The DM placed Kaltennordheim's launchers himself; it and Eckolstadt were
     # SA-5s and are SA-2s in the same revetments.
     assert "FIXED SA-2 Eckolstadt" in sites
@@ -293,9 +294,12 @@ def test_carstens_sites_are_drawn_unit_by_unit(
                 assert len(launchers) == 6, site.original_name
     assert "SA-5/S-200" not in {pg.name for pg in FACTIONS[PACT].preset_groups}
     hawks = {name for name in sites if name.startswith("FIXED Hawk ")}
-    assert len(hawks) == 10
+    assert len(hawks) == 11
+    nato = ("FIXED Hawk ", "FIXED Patriot ", "FIXED Roland ", "FIXED SHORAD ")
     for name, cp in sites.items():
-        assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
+        if name.startswith("FIXED EWR "):
+            continue
+        assert cp.starting_coalition.is_blue is name.startswith(nato), (name, cp.name)
     # Every non-truck unit is one the owner can field, or a stock site replaces it.
     for kind in ("S-60 57mm", "AAA Fire Can SON-9"):
         assert kind in {u.display_name for u in FACTIONS[PACT].accessible_units}, kind

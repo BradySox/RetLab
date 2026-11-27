@@ -1,0 +1,1 @@
+* **[Campaigns]** Red Tide, Crossing the Rubicon, Baltic Fury, Northern Guardian, Fulda Gap 1985 and Northern Shield 1988 add 118 real SAM, AAA and early-warning sites from S3ntry's Germany CW Template, each drawn unit by unit in its revetment.

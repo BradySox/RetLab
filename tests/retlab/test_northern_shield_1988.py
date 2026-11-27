@@ -174,11 +174,15 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
         for cp in theater.controlpoints
         for site in cp.preset_locations.exact_air_defenses
     }
-    assert len(fixed) == 25
+    # Plus three of S3ntry's radars (DM call, 2026-11-26); his Badingen SA-5 and
+    # Rostock SA-3 stay out.
+    assert len(fixed) == 28
     hawks = {name for name in fixed if name.startswith("FIXED Hawk ")}
     # The Copenhagen Hawks bind to the nearest field; one is nearer Vaerlose.
     assert {fixed[name].name for name in hawks} == {"Kastrup", "Vaerlose"}
     for name, cp in fixed.items():
+        if name.startswith("FIXED EWR S3-"):
+            continue
         assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
     assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Magdeburg"]
     assert fixed["FIXED SA-5 Magdeburg"].name == "Templin"
