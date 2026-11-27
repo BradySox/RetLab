@@ -24,6 +24,11 @@ re-verify with GitHub before acting on any line.
 - **Checks:** Black, `mypy game`, `mypy tests` clean; `pytest tests` 531 passed / 2 skipped; merges cleanly with `dev`. Body refreshed from `retlab-pr874-body-refresh.md`.
 - **Not ported, by design:** the fork fix that keeps a no-card carrier's first TACAN ident (`fix/uncurated-carrier-tacan-sticky`). Upstream never re-derives an auto TACAN (stored wins), so it never had the re-roll.
 
+**2026-11-27: DCS 2.9.32 map data, kept as small as possible (Brady).**
+
+- **pydcs [#43](https://github.com/dcs-retribution/pydcs/pull/43)** (draft): the Germany and Kola `airports.py` re-export only (20 and 3 new fields), cut from `3a79b8e`. Fork side: RetLab #1542 (pin `791c3e8`).
+- **[#996](https://github.com/dcs-retribution/dcs-retribution/pull/996)** (draft): pins pydcs#43's head plus a changelog line; nothing else. Upstream suite: 452 passed. Left for a later PR: the Germany and Kola beacon files and the `import_beacons.py` skip for undefined beacon types, both in RetLab #1542.
+
 **2026-10-29: the DM LIFTED the upstream PR freeze.** "no freeze anymore just ship the shit", in the project thread. New upstream PRs may be opened; they still start as drafts. The first carves under the lift:
 
 - **pydcs [#41](https://github.com/dcs-retribution/pydcs/pull/41)** (draft): the 18 stock vehicles from DCS 2.9.29 and 2.9.31 plus Iraq's three new country jets, cut from upstream's pin `3a79b8e`. Vehicles only; the 2.9.29 weapon changes are not in it. Fork side: RetLab #1413 and the August 2.9.29 cut.
