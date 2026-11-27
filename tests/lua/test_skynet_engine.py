@@ -321,3 +321,59 @@ def test_an_awacs_covers_by_range_alone() -> None:
     harness.lua.execute("DcsHarness.losBlocked = true")
     assert harness.lua.eval("cover(SkynetIADSAWACSRadar)") == 2
     assert harness.lua.eval("#lineOfSight") == 0
+
+
+# From Drexyl's Retribution-Moose branch (2026-11-26): getDesc() is an expensive DCS
+# call, so the airborne filter runs once per cycle, not once per SAM site.
+ONE_CYCLE = """
+function oneCycle(siteCount)
+    local checks, told = 0, {}
+    local real = SkynetIADS.isAirborneContact
+    SkynetIADS.isAirborneContact = function(contact)
+        checks = checks + 1
+        return contact.airborne
+    end
+    local sites = {}
+    for i = 1, siteCount do
+        local site = { name = "SAM" .. i }
+        function site:isActive() return false end
+        function site:getDCSName() return self.name end
+        function site:informOfContact(contact)
+            told[#told + 1] = self.name .. ":" .. contact.name
+        end
+        sites[i] = site
+    end
+    local ew = {}
+    function ew:goLive() end
+    function ew:getDetectedTargets() return { {} } end
+    function ew:getUsableChildRadars() return sites end
+    local iads = setmetatable({
+        contacts = {
+            { name = "jet", airborne = true },
+            { name = "truck", airborne = false },
+            { name = "bomb", airborne = true },
+        },
+        harmDetection = { setContacts = function() end, evaluateContacts = function() end },
+        logger = { printSystemStatus = function() end },
+    }, { __index = SkynetIADS })
+    function iads:getUsableEarlyWarningRadars() return { ew } end
+    function iads:getUsableSAMSites() return {} end
+    function iads:mergeContact() end
+    function iads:cleanAgedTargets() end
+    function iads:getContacts() return self.contacts end
+    SkynetIADS.evaluateContacts(iads)
+    SkynetIADS.isAirborneContact = real
+    table.sort(told)
+    return checks, table.concat(told, ",")
+end
+"""
+
+
+def test_each_contact_is_checked_once_however_many_sites_it_cues() -> None:
+    harness = _harness()
+    harness.lua.execute(ONE_CYCLE)
+    checks, told = harness.lua.eval("{oneCycle(4)}").values()
+    assert checks == 3
+    assert told == ",".join(
+        sorted(f"SAM{i}:{name}" for i in range(1, 5) for name in ("jet", "bomb"))
+    )

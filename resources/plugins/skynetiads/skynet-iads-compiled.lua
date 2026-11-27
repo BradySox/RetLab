@@ -2624,13 +2624,21 @@ function SkynetIADS.evaluateContacts(self)
 
 	self:cleanAgedTargets()
 
-	for samName, samToTrigger in pairs(samSitesToTrigger) do
+	-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
+	-- currently every type of object in the air is handed of to the SAM site, including missiles
+	-- RetLab: getDesc() is an expensive DCS call, so the airborne filter runs once per cycle,
+	-- not once per SAM site (from Drexyl's Retribution-Moose branch).
+	if next(samSitesToTrigger) ~= nil then
+		local airborneContacts = {}
 		for j = 1, #self.contacts do
 			local contact = self.contacts[j]
-			-- the DCS Radar only returns enemy aircraft, if that should change a coalition check will be required
-			-- currently every type of object in the air is handed of to the SAM site, including missiles
 			if SkynetIADS.isAirborneContact(contact) then
-				samToTrigger:informOfContact(contact)
+				airborneContacts[#airborneContacts + 1] = contact
+			end
+		end
+		for samName, samToTrigger in pairs(samSitesToTrigger) do
+			for j = 1, #airborneContacts do
+				samToTrigger:informOfContact(airborneContacts[j])
 			end
 		end
 	end

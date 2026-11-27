@@ -1,0 +1,1 @@
+* **[Performance]** Base-capture triggers test their flag before scanning the zone, and Skynet checks each radar contact once per update instead of once per SAM site. Both from Drexyl's Retribution-Moose branch.

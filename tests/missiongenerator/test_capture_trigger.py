@@ -10,7 +10,12 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from dcs.condition import Condition, PartOfCoalitionInZone, Predicate
+from dcs.condition import (
+    Condition,
+    FlagIsFalse,
+    PartOfCoalitionInZone,
+    Predicate,
+)
 
 from game.missiongenerator.triggergenerator import TriggerGenerator
 from game.theater.controlpoint import TRIGGER_RADIUS_CAPTURE
@@ -33,9 +38,11 @@ def _trigger() -> object:
     )
 
 
-def test_the_lua_check_runs_last() -> None:
+def test_the_flag_runs_first_and_the_lua_check_last() -> None:
     rules = _trigger().rules  # type: ignore[attr-defined]
-    assert isinstance(rules[0], PartOfCoalitionInZone)
+    # The flag lookup gates the zone scan; the `and` chain stops at the first false.
+    assert isinstance(rules[0], FlagIsFalse)
+    assert isinstance(rules[1], PartOfCoalitionInZone)
     assert isinstance(rules[-1], Predicate)
 
 
@@ -53,4 +60,7 @@ def test_the_predicate_passes_the_zone_and_both_sides() -> None:
 def test_the_conditions_compile_to_one_and_chain() -> None:
     compiled = Condition.condition_str(_trigger().rules)  # type: ignore[attr-defined]
     assert " or " not in compiled
+    assert compiled.index("c_flag_is_false") < compiled.index(
+        "c_part_of_coalition_in_zone"
+    )
     assert compiled.index("c_part_of_coalition_in_zone") < compiled.index("c_predicate")
