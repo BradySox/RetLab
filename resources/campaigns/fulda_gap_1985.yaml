@@ -117,8 +117,8 @@ squadrons:
       aircraft:
         - NATO E-3A Component
       size: 1
-    # 1 Canadian Air Group's CF-18s: 409 Squadron converted at Baden-Soellingen in
-    # 1985, which is off the map.
+  # Baden-Soellingen: 1 Canadian Air Group's CF-18s; 409 Squadron converted here in 1985.
+  Baden-Soellingen:
     - primary: BARCAP
       secondary: any
       aircraft:

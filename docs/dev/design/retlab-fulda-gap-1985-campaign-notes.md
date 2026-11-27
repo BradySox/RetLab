@@ -60,7 +60,8 @@ and 512th TFS, JaBoG 35, the 35th and 833rd IAP, the Su-17s and the An-26s.
 |---|---|---|
 | USAF | **Spangdahlem** | 23rd TFS F-4E 24 (DEAD), 480th TFS F-4E 16 (SEAD) — doubled on the DM's call, 2026-10-24 |
 | USAF + Luftwaffe + RAF | **Bitburg** | 22nd TFS F-15C 8, JBG 31 Tornado IDS 8, No. 92 Squadron F-4E 8 (standing in for the FGR2; Wildenrath is off the map) |
-| USAF + RAF + Canada | **Ramstein** | 526th TFS F-4E 8, No. 31 Squadron Tornado GR4 8 (standing in for the GR1), NATO E-3A 1, 409 Squadron F/A-18C 6 (CF-18s; Baden-Soellingen is off the map) |
+| USAF + RAF | **Ramstein** | 526th TFS F-4E 8, No. 31 Squadron Tornado GR4 8 (standing in for the GR1), NATO E-3A 1 |
+| Canada | **Baden-Soellingen** (added 2026-11-26, DCS 2.9.32) | 409 Squadron F/A-18C 6 (CF-18s) |
 | USAF | **Frankfurt** (Rhein-Main) | 510th TFS A-10A 8, KC-135 2, C-130J 2 |
 | US Army | **Fulda** | 11th ACR UH-1H 4 |
 | NATO | **Fritzlar, Schweinfurt** | none |

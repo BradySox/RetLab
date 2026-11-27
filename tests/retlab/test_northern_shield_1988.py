@@ -36,7 +36,7 @@ MIZ = Path("resources/campaigns/northern_shield_1988.miz")
 
 NATO = "Blufor Late Cold War (80s)"
 PACT = "Russia 1980 (Red Tide)"
-BLUE = {"Kastrup", "Sturup", "Bornholm"}
+BLUE = {"Kastrup", "Vaerlose", "Sturup", "Sjobo", "Bornholm"}
 RED = {"Barth", "Peenemunde", "Neubrandenburg", "Templin"}
 ROADS = {
     frozenset(pair)
@@ -152,7 +152,7 @@ def test_garrisons_hold_the_capture_zones(
     """Barth's garrison must be cleared before an air assault takes it, and each
     NATO field keeps one so a red air assault cannot take it unopposed."""
     _, theater = loaded
-    for name in ("Barth", "Kastrup", "Sturup", "Bornholm"):
+    for name in ("Barth", "Kastrup", "Vaerlose", "Sturup", "Sjobo", "Bornholm"):
         cp = theater.control_point_named(name)
         garrisons = [
             p
@@ -176,7 +176,8 @@ def test_the_sams_are_the_templates_and_the_sa5_is_inland(
     }
     assert len(fixed) == 25
     hawks = {name for name in fixed if name.startswith("FIXED Hawk ")}
-    assert {fixed[name].name for name in hawks} == {"Kastrup"}
+    # The Copenhagen Hawks bind to the nearest field; one is nearer Vaerlose.
+    assert {fixed[name].name for name in hawks} == {"Kastrup", "Vaerlose"}
     for name, cp in fixed.items():
         assert cp.starting_coalition.is_blue is (name in hawks), (name, cp.name)
     assert [name for name in fixed if "SA-5" in name] == ["FIXED SA-5 Magdeburg"]

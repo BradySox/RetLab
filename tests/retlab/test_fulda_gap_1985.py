@@ -45,6 +45,7 @@ BLUE = {
     "Spangdahlem",
     "Bitburg",
     "Ramstein",
+    "Baden-Soellingen",
     "Frankfurt",
     "Fulda",
     "Fritzlar",
