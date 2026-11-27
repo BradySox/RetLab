@@ -72,7 +72,7 @@ victory:
       lose_cps: [Kastrup]
 squadrons:
   # ================================ NATO ================================
-  # Kastrup: the main wing, the AWACS, the tanker and the airlift.
+  # Kastrup: the main wing.
   Kastrup:
     - primary: BARCAP
       secondary: air-to-air
@@ -115,6 +115,9 @@ squadrons:
       aircraft:
         - 1-1 Attack Reconnaissance Battalion
       size: 4
+  # Vaerlose: the AWACS, the tanker and the airlift, off Kastrup's ramp (field added in
+  # DCS 2.9.32, 2026-11-26).
+  Vaerlose:
     - primary: AEW&C
       aircraft:
         - NATO E-3A Component
@@ -128,17 +131,19 @@ squadrons:
       aircraft:
         - 910th Airlift Wing
       size: 2
-  # Sturup: Swedish Viggens for the sea, and Marine Hornets for the SAM belt.
+  # Sturup: Marine Hornets for the SAM belt.
   Sturup:
-    - primary: Anti-ship
-      secondary: any
-      aircraft:
-        - 71. Attackflygdivisionen
-      size: 8
     - primary: SEAD
       secondary: any
       aircraft:
         - VMFA-251
+      size: 8
+  # Sjobo: the Swedish Viggens for the sea, dispersed to a small field (added in DCS 2.9.32).
+  Sjobo:
+    - primary: Anti-ship
+      secondary: any
+      aircraft:
+        - 71. Attackflygdivisionen
       size: 8
   # Bornholm: the helicopters that take the first coastal field.
   Bornholm:

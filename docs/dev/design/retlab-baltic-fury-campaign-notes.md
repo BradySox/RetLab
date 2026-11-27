@@ -144,14 +144,14 @@ sea, **west→northeast**. Same *Red Storm Rising* DNA, opposite axis.
 ## Order of battle (see the yaml for exact sizes/callsigns)
 
 **Blue** — Carrier CVN-75 (F/A-18E TARCAP/SEAD ×12, F/A-18F Strike/Anti-ship ×10, EA-18G ×6,
-E-2D ×2, F/A-18E tanker ×3, SH-60B ×2) · **Nordholz (47)** F-22A ×12 + F-15E ×12 · **Bremen (5)**
-E-3A / KC-135 ×2 / KC-135 MPRS ×2 / B-1B ×4 · **Hamburg (17)** A-10C Suite 7 ×8 / AH-64D ×4 /
+E-2D ×2, F/A-18E tanker ×3, SH-60B ×2) · **Nordholz (47)** F-22A ×12 + F-15E ×12 + KC-135 ×2 +
+KC-135 MPRS ×2 · **Ahlhorn (172)** E-3A / B-1B ×4 · **Bremen (5)** no squadron · **Hamburg (17)** A-10C Suite 7 ×8 / AH-64D ×4 /
 CH-47F ×2 / C-130J ×2. ~56 combat aircraft.
 
 **Red** — Copenhagen/Kastrup (41) Tu-22M3 anti-ship ×8 + Su-30 ×8 + IL-76 · Rostock/Laage (20)
 MiG-31 ×8 + Su-27 ×8 · Peenemünde (25) Su-30 ×8 + Su-24M SEAD ×8 · Parchim (84) MiG-29S ×12 +
 Su-25 ×8 · Wismar (108) [CH] Ka-52 ×4 + Mi-24P ×4 + Mi-8 ×4 · Szczecin (50) Tu-95MS ×4 + [CH]
-Tu-160M2 ×4 + A-50 + IL-78 ×2 + Su-30 ×8 · Bornholm (33) MiG-29S ×8. ~60 aircraft, defensive
+Tu-160M2 ×4 + A-50 · Kluczewo (183) IL-78 ×2 + Su-30 ×8 · Bornholm (33) MiG-29S ×8. ~60 aircraft, defensive
 by design (offensive agency = Backfire anti-ship raids + §55 red-intent surges).
 
 > **Airframe note (2026-07-20):** the Flankers are **vanilla `Su-30 Flanker-C`** and the
@@ -446,3 +446,15 @@ standard (`tools/supply_route_geo.py`).
 - Campaign: [`resources/campaigns/operation_baltic_fury.yaml`](../../../resources/campaigns/operation_baltic_fury.yaml)
 - Quality bar / patterns: [`retlab-red-tide-campaign-notes.md`](retlab-red-tide-campaign-notes.md),
   [`retlab-sam-site-realism-notes.md`](retlab-sam-site-realism-notes.md)
+
+## 2026-11-26: Ahlhorn and Kluczewo (DCS 2.9.32)
+
+Bremen's 29 stands fit none of its heavies, and Szczecin-Goleniow fit few of its own. DCS 2.9.32
+added both fields, and on Brady's call they took the overflow:
+
+- **Ahlhorn (blue)**: the E-3A and the B-1Bs. Its 6 heavy stands are then full, so the KC-135s
+  went to Nordholz. Bremen stays a blue field with no squadron.
+- **Kluczewo (red)**: the IL-78s and the Su-30 barrier CAP from Szczecin.
+
+A slot-fit check of every base afterwards: every blue aircraft has a stand; red still has 3
+without one (1 Tu-95MS and the A-50 at Szczecin, 1 IL-78 at Kluczewo), down from 7.

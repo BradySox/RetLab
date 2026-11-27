@@ -1,0 +1,1 @@
+* **[Campaigns]** Fulda Gap 1985, Baltic Fury and Northern Shield 1988 use airfields new in DCS 2.9.32: the CF-18s at Baden-Soellingen; Ahlhorn and Kluczewo take Bremen's and Szczecin's overflow; Vaerlose and Sjobo take the AWACS, tankers, airlift and Viggens.

@@ -204,14 +204,7 @@ squadrons:
       country: Sweden
       callsign: Viggen
       size: 8
-  # Bremen (5) — rear heavies + eyes.
-  5:
-    - primary: AEW&C
-      aircraft:
-        - NATO E-3A Component
-      aircraft_type: E-3A
-      callsign: Magic
-      size: 2
+    # The tankers: Ahlhorn's heavy stands are full with the AWACS and the bombers.
     - primary: Refueling
       aircraft:
         - 100th Air Refueling Wing
@@ -221,6 +214,15 @@ squadrons:
       aircraft:
         - 351st Air Refueling Squadron
       aircraft_type: KC-135 Stratotanker MPRS
+      size: 2
+  # Ahlhorn (172) — rear bombers + eyes. Bremen's 29 stands could not take them; Ahlhorn
+  # arrived in DCS 2.9.32 (2026-11-26). Bremen stays a blue field with no squadron.
+  172:
+    - primary: AEW&C
+      aircraft:
+        - NATO E-3A Component
+      aircraft_type: E-3A
+      callsign: Magic
       size: 2
     # §82 The Wing Grows — deep strike last. The most survivability-dependent
     # asset in the wing arrives when it can actually survive over the target.
@@ -383,6 +385,9 @@ squadrons:
         - 144th Independent Air Reconnaissance Regiment
       aircraft_type: A-50
       size: 1
+  # Kluczewo (183): the Szczecin barrier CAP and the tankers, moved off Szczecin's crowded
+  # ramp when the field arrived in DCS 2.9.32 (2026-11-26).
+  183:
     - primary: Refueling
       aircraft:
         - 203rd Guards Air Refuelling Regiment

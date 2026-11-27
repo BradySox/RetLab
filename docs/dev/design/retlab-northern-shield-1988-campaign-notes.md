@@ -48,8 +48,10 @@ campaign used, shaped like Red Tide but with blue in the north pushing south.
 
 | Side | Base | Squadrons |
 |---|---|---|
-| NATO | Kastrup (Copenhagen) | F-15C 525th TFS, F-4E JG 74 and 480th TFS, F-16 23rd FS, F-15E 414th TFS, A-10C 81st TFS, Tornado JBG 31, AH-64D, E-3A, KC-135, C-130J |
-| NATO | Sturup (Sweden) | AJS-37 Viggen 71. Attackflygdivisionen, F/A-18C VMFA-251 |
+| NATO | Kastrup (Copenhagen) | F-15C 525th TFS, F-4E JG 74 and 480th TFS, F-16 23rd FS, F-15E 414th TFS, A-10C 81st TFS, Tornado JBG 31, AH-64D |
+| NATO | Vaerlose (added 2026-11-26) | E-3A, KC-135, C-130J |
+| NATO | Sturup (Sweden) | F/A-18C VMFA-251 |
+| NATO | Sjobo (Sweden, added 2026-11-26) | AJS-37 Viggen 71. Attackflygdivisionen |
 | NATO | Bornholm | CH-47F and UH-1H, Air Assault |
 | Pact | Barth | Mi-24P |
 | Pact | Peenemunde | MiG-23MLD, MiG-21bis JG-1 (GDR), Su-24M naval, An-26 |
@@ -125,3 +127,10 @@ from their next station. B310 covers it.
   scenery spawns nothing, so it does not block taxi.
 - No new squadron presets. Danish F-16s and Marineflieger Tornados would fit and are not in
   the tree.
+
+## 2026-11-26: Vaerlose and Sjobo (DCS 2.9.32)
+
+On Brady's call: **Vaerlose** takes the E-3A, KC-135 and C-130J off Kastrup's ramp, and
+**Sjobo** takes the Viggens from Sturup. Each has an `NS88-<field>-Garrison` like the other NATO
+fields, so a red air assault cannot take it unopposed. One Copenhagen Hawk site is now nearer
+Vaerlose than Kastrup and binds to it.
